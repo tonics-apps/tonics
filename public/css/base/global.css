@@ -1,0 +1,1495 @@
+/*
+ * Copyright (c) 2021. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * This program is licensed under the PolyForm Noncommercial License 1.0.0. You should have received a copy of the PolyForm Noncommercial License 1.0.0 along with this program, if not, visit: https://polyformproject.org/licenses/noncommercial/1.0.0/
+ */
+
+/*--------------------------------------------------------------
+>>> TABLE OF CONTENTS:
+----------------------------------------------------------------
+# Imports
+	# Reset
+	# Typography
+	# Elements
+	# Links
+# Accessibility
+# Layout
+# Forms
+# Header
+	# Main navigation menu
+# Content navigation
+# Footer
+# Infinite scroll
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+|-| IMPORTS:
+----------------------------------------------------------------*/
+@import "reset.css";
+@import "typography.css";
+@import "global_menu.css";
+@import "dashboard_menu.css";
+@import "generalGlobalComponent.css";
+@import "buttons.css";
+@import "frontpage.css";
+@import "tracksingular.css";
+
+/*Focus Styles*/
+:focus {
+    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
+    outline: #808080 solid thin;
+}
+
+/*-------------------------------
+     TINYMCE EMBEDS RESPONSIVE
+--------------------------------*/
+.iframe-video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 30px;
+    height: 0;
+    overflow: hidden;
+}
+
+.iframe-video-container iframe, .iframe-video-container embed, .iframe-video-container object {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/*------------------------------------------------------------------------------------------
+     Accessibility - We add this for visual users, but would only be read by screen reader
+-------------------------------------------------------------------------------------------*/
+.screen-reader-text {
+    clip: rect(1px, 1px, 1px, 1px);
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    z-index: 100000;
+}
+
+.screen-reader-text:hover,
+.screen-reader-text:active,
+.screen-reader-text:focus {
+    background-color: #f1f1f1;
+    border-radius: 3px;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+    clip: auto !important;
+    color: #21759b;
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    height: auto;
+    left: 5px;
+    line-height: normal;
+    padding: 15px 23px 14px;
+    text-decoration: none;
+    top: 5px;
+    width: auto;
+}
+
+/*--------------------------------------------------
+           MUSIC CATEGORY SELECT PICKER
+----------------------------------------------------*/
+
+.category-picker {
+    display: flex;
+    justify-content: center;
+}
+
+form.category-picker__form {
+    margin: 20px;
+    z-index: 9;
+}
+
+.default-selector {
+    border-right-color: grey;
+    border-right-style: double;
+    border-right-width: 5px;
+    border-bottom-color: grey;
+    border-bottom-style: double;
+    border-bottom-width: 5px;
+    border-left-color: grey;
+}
+
+.default-selector {
+    cursor: pointer;
+    background-color: hsl(0deg 0% 100%);
+    box-shadow: 0 0.1px 0.3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12);
+    -webkit-font-smoothing: antialiased;
+    padding-left: 1.75em;
+    padding-right: 1.75em;
+    height: 3rem;
+    width: 500px;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    will-change: box-shadow, transform;
+}
+
+.default-selector:active {
+    background-color: hsl(0, 0%, 95%);
+    box-shadow: inset -1px 2px 5px #9e9e9eb5;
+    transform: translateY(2px);
+}
+
+.license-selector {
+    cursor: pointer;
+    background-color: hsl(0deg 0% 100%);
+    box-shadow: 0 0.1px 0.3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12);
+    -webkit-font-smoothing: antialiased;
+    padding-left: .4rem;
+    height: 3rem;
+    width: 100%;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    will-change: box-shadow, transform;
+    border-right-color: grey;
+    border-right-style: double;
+    border-right-width: 5px;
+    border-bottom-color: grey;
+    border-bottom-style: double;
+    border-bottom-width: 5px;
+    border-left-color: grey;
+}
+
+.license-selector:active {
+    background-color: hsl(0, 0%, 95%);
+    box-shadow: inset -1px 2px 5px #9e9e9eb5;
+    transform: translateY(2px);
+}
+
+/*--------------------------------------------------
+           THE CART  STYLES
+----------------------------------------------------*/
+.cart-button {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* This prevents child element of the cart-button-link from bubbling,
+and we can target the cart-button-link properly */
+.cart-button-link * {
+    pointer-events: none;
+}
+
+.cb-counter {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.cb-counter-label {
+    background-color: #6394F8;
+    color: white;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1;
+    padding: 3px 7px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    border-radius: 50px;
+}
+
+.toggle {
+    background: transparent;
+    border: none;
+    display: flex;
+}
+
+.icon.tonics-cart {
+    color: black;
+    font-size: 30px;
+}
+
+.single-cart-item {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-flex-item {
+    flex: 1 0;
+    text-align: center;
+}
+
+/* This prevents child element of the delete-cart from bubbling, and we can target the delete-cart properly */
+.delete-cart * {
+    pointer-events: none;
+}
+
+.delete-cart {
+    transition: transform .6s, color 0.9s;
+    backface-visibility: hidden;
+}
+
+.delete-cart:hover {
+    transform: scale(1.2);
+}
+
+.delete-cart:active {
+    transform: translateY(2px);
+}
+
+.icon.tonics-trash-can {
+    color: #ff1f0e;
+}
+
+#cd-cart {
+    position: fixed;
+    top: 0;
+    height: 100%;
+
+    /* header height */
+    padding-top: 50px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    /* z-index: 3; */
+}
+
+#cd-cart {
+    right: -100%;
+    right: 0;
+    background: #FFF;
+    -webkit-transition: right 0.3s;
+    -moz-transition: right 0.3s;
+    margin-top: 55px;
+    transition: right 0.8s;
+}
+
+#cd-cart.speed-in {
+    right: 0;
+}
+
+#cd-cart > * {
+    padding: 0 1em;
+}
+
+#cd-cart .cd-cart-items {
+    padding: 0;
+}
+
+#cd-cart .cd-cart-items li {
+    position: relative;
+    padding: 1em;
+    border-top: 1px solid #e0e6ef;
+}
+
+#cd-cart .cd-cart-items li:last-child {
+    border-bottom: 1px solid #e0e6ef;
+}
+
+#cd-cart .cd-qty, #cd-cart .cd-price {
+    color: #000000;
+}
+
+#cd-cart .cd-price {
+    margin-top: 0.4em;
+}
+
+#cd-cart .cd-cart-total {
+    padding-top: 1em;
+    padding-bottom: 8em;
+}
+
+#cd-cart .cd-cart-total span {
+    float: right;
+}
+
+#cd-cart .cd-cart-total::after {
+    /* clearfix */
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+/*--------------------------------------------------
+           THE CATEGORY OR GENRE COLLECTION SECTION
+----------------------------------------------------*/
+.post-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.post-card {
+    flex: 0 0 400px;
+    margin: 0 auto;
+    margin-bottom: 30px;
+}
+
+.post-inner {
+    border-color: #f1f1f1;
+    color: #444444;
+    border: 1px solid #f1f1f1;
+    transition: all 0.5s ease;
+    position: relative;
+}
+
+.post-inner:hover {
+    box-shadow: 0px 4px 8px rgba(45, 35, 66, 0.4), 0px 7px 13px -3px rgba(45, 35, 66, 0.3), inset 0px -3px 0px #c5c5c5;
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+}
+
+.post-label {
+    background-color: #ffffff !important;
+    color: #424242;
+    left: auto;
+    /* right: 30px; */
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 800;
+    position: absolute;
+    /* top: 10px; */
+}
+
+.post-content {
+    background-color: #ffffff;
+    padding: 25px;
+    margin: auto;
+}
+
+.post-content-inner {
+    position: relative;
+}
+
+.post-categories {
+    margin: 0;
+}
+
+.post-categories:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 2px;
+    background-color: #607D8B;
+}
+
+.post-title a {
+    color: #0c0c0c;
+    text-decoration: none;
+}
+
+.post-categories a {
+    font-weight: 400;
+    color: #444444;
+}
+
+.hr-post {
+    overflow: visible;
+    height: 35px;
+    margin-top: -50px;
+    border-style: dashed;
+    border-color: #9e9e9e8c;
+    border-width: 0 0 2px 0;
+    border-radius: 20px;
+}
+
+/*--------------------------------------------------
+           THE SHOP COLLECTION SECTION
+----------------------------------------------------*/
+
+.product-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.product-card {
+    flex: 0 0 400px;
+    /* margin: 0 auto; */
+    margin-bottom: 30px;
+}
+
+.product-inner {
+    border-color: #f1f1f1;
+    color: #444444;
+    border: 1px solid #f1f1f1;
+    transition: all 0.5s ease;
+    position: relative;
+}
+
+.product-inner:hover {
+    box-shadow: 0px 4px 8px rgba(45, 35, 66, 0.4), 0px 7px 13px -3px rgba(45, 35, 66, 0.3), inset 0px -3px 0px #c5c5c5;
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+}
+
+.product-label {
+    background-color: #ffffff !important;
+    color: #424242;
+    left: auto;
+    /* right: 30px; */
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 800;
+    position: absolute;
+    /* top: 10px; */
+}
+
+.product-content {
+    background-color: #ffffff;
+    padding: 25px;
+    margin: auto;
+}
+
+.product-content-inner {
+    position: relative;
+}
+
+.product-categories {
+    margin: 0;
+}
+
+.product-categories:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 2px;
+    background-color: #607D8B;
+}
+
+.product-title a {
+    color: #0c0c0c;
+    text-decoration: none;
+}
+
+.product-categories a {
+    font-weight: 400;
+    color: #444444;
+}
+
+.action-links ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.action-links ul li a svg {
+    color: black;
+    transform: scale(1.4);
+}
+
+.action-links-child {
+    padding-right: 1rem;
+}
+
+/*TOOLTIP*/
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.action-links-child a {
+    cursor: pointer;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext-toparrow {
+    visibility: hidden;
+    width: 120px;
+    background-color: #111;
+    color: #fff;
+    text-align: center;
+    font-size: 1rem;
+    border-radius: 40px;
+    padding: 3px 3px;
+    position: absolute;
+    z-index: 10;
+    top: 150%;
+    left: 50%;
+    margin-left: -60px;
+    box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+    transition: all 0.2s ease-in-out;
+}
+
+/*.tooltip .tooltiptext-toparrow::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
+}*/
+
+.tooltip:hover span {
+    top: 100%;
+    opacity: 0.9;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext-toparrow {
+    visibility: visible;
+}
+
+/*-----------------------------------------------------------------
+                    SOCIAL MENU STYLES
+ -----------------------------------------------------------------*/
+/*.icon {
+  flex: 0 0 40px;
+  font-size: 30px;
+}*/
+
+/* This would append the following styles to all the icon*/
+.social-menu li a:before {
+    font-family: "Font Awesome 5 Brands";
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    content: '\f08e';
+}
+
+
+/*
+The below which is the contents would be added to the ::before of each icon, this would make the icon visible
+*/
+
+.social-menu li a[href*="facebook.com"]::before {
+    content: '\f09a';
+}
+
+.social-menu li a[href*="github.com"]::before {
+    content: '\f09b';
+}
+
+.social-menu li a[href*="instagram.com"]::before {
+    content: '\f16d';
+}
+
+.social-menu li a[href*="linkedin.com"]::before {
+    content: '\f0e1';
+}
+
+.social-menu li a[href*="pinterest.com"]::before {
+    content: '\f0d2';
+}
+
+.social-menu li a[href*="reddit.com"]::before {
+    content: '\f1a1';
+}
+
+.social-menu li a[href*="stackoverflow.com"]::before {
+    content: '\f16c';
+}
+
+.social-menu li a[href*="twitter.com"]::before {
+    content: '\f099';
+}
+
+.social-menu li a[href*="vimeo.com"]::before {
+    content: '\f194';
+}
+
+.social-menu li a[href*="youtube.com"]::before {
+    content: '\f167';
+}
+
+/*---------------------------------------
+     DIVIDERS - WITH DIFFERENT COLORS
+----------------------------------------*/
+.hr {
+    width: 100%;
+    height: 1px;
+    display: block;
+    position: relative;
+    margin-bottom: 1em;
+}
+
+/* hr colors */
+.hr-grey:after {
+    background-size: 200%;
+    border-bottom-right-radius: 25px;
+    background: #9e9e9e 0%;
+}
+
+.hr-black:after {
+    background-size: 200%;
+    border-bottom-right-radius: 25px;
+    background: #121233b8 0%;
+}
+
+.hr-blue:after {
+    border-bottom-right-radius: 21px;
+    background-size: 200%;
+    background: #38479a 0%;
+}
+
+.hr-white:after {
+    border-bottom-right-radius: 25px;
+    background-size: 200%;
+    background: #fcfcfd 0%;
+}
+
+/* hr size, the first one, which is below is the default */
+.hr:after, .hr:before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: 50%;
+    left: 0;
+}
+
+.hr-2:after, .hr-2:before {
+    height: 2px;
+}
+
+.hr-5:after, .hr-5:before {
+    height: 5px;
+}
+
+/*--------------------------------------------------------------
+    CONTENT AND FOOTER ELEMENT STYLES FOR GLOBAL STYLES
+--------------------------------------------------------------*/
+
+/* Entry Content */
+.entry-content {
+    padding: 0 1.4em 1.4em;
+}
+
+/* Footer Area */
+.footer-area {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    text-align: center;
+}
+
+.layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    background: #f7f7f7;
+}
+
+.layout-wrapper {
+    /* height: 100vh; */
+    min-height: 100vh;
+    margin: 0;
+}
+
+.footer-area {
+    margin-top: auto;
+    background: #fcfcfd;
+    border-top: 2px solid rgb(0 31 63 / 36%);
+    box-shadow: 5px 0 15px 0 rgb(37 44 97 / 15%), 0 2px 4px 0 rgb(93 100 148 / 20%);
+}
+
+@media screen and (min-width: 700px) {
+
+    .content {
+        display: flex;
+        flex: 1 1 auto;
+    }
+
+    .main-area {
+        flex: 1 1 auto;
+        /* margin: 2em; */
+    }
+
+    .entry-content {
+        max-width: 45em;
+        margin: 0 auto;
+    }
+
+    .sidebar {
+        flex: 0 0 12em;
+        position: sticky;
+        top: 0;
+        left: 0;
+        bottom: 0;
+    }
+
+    .sidebar-collapse {
+        flex: 0 0 5em;
+        padding: .5em 1em 1em;
+    }
+
+    .sidebar-collapse .tonics-arrow-down {
+        transform: rotate(270deg);
+    }
+
+    .menu-item {
+        position: relative;
+        z-index: 1;
+    }
+
+    .collapse-absolute-active {
+        position: absolute;
+        padding: .5em 1.4em 1em;
+        left: 5em;
+        top: 0;
+        z-index: 2;
+        background: #18182d;
+    }
+
+    .collapse-absolute-inactive {
+        position: absolute;
+        padding: .5em 1.4em 1em;
+        left: 5em;
+        top: 0;
+        z-index: 2;
+        background: #18182d;
+    }
+
+    /*    #site-navigation ul {
+            display: flex;
+            flex-wrap: wrap;
+        }*/
+    .sub-menu.display-block {
+        display: flex;
+        z-index: 100;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+    }
+
+    #site-navigation li {
+        flex: 1 0 auto;
+        text-align: center;
+    }
+
+}
+
+/*------------------
+    CHECKOUT STYLES
+-------------------*/
+
+.form-group {
+    margin-bottom: 1rem;
+    /*margin-top: 1rem;*/
+}
+
+@media (min-width: 576px) {
+    .row {
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+}
+
+.row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: center;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.paypal-checkout,
+.rave-checkout {
+    border: none;
+    text-align: center;
+    padding: 14px;
+    border-radius: 4px;
+    color: white;
+}
+
+.paypal-checkout {
+    background: #071252;
+}
+
+.rave-checkout {
+    background-color: #33599d;
+}
+
+.input-checkout {
+    background: rgba(241, 241, 241, 0.7);
+    width: 100%;
+    min-width: 350px;
+    padding: 14px;
+    border-radius: 4px;
+    border-width: 0.2px;
+    color: #3E3E3E;
+}
+
+.mx-auto {
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
+.payment-selector {
+    cursor: pointer;
+    background-color: hsl(240deg 3% 93%);
+    box-shadow: 0 0.1px 0.3px rgb(0 0 0 / 6%), 0 1px 2px rgb(0 0 0 / 12%);
+    -webkit-font-smoothing: antialiased;
+    padding-left: .4rem;
+    height: 3.25rem;
+    width: 100%;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    will-change: box-shadow, transform;
+    border-right-color: grey;
+    border-right-style: double;
+    border-right-width: 5px;
+    border-bottom-color: grey;
+    border-bottom-style: double;
+    border-bottom-width: 5px;
+    border-left-color: grey;
+}
+
+/*--------------------------------------------------------------
+                      CARD LAYOUT STYLES
+--------------------------------------------------------------*/
+
+.card {
+    background: white;
+    margin-bottom: 2em;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(45, 35, 66, 0.4), 0px 7px 13px -3px rgb(255 255 255), inset 0px -3px 0px 1px #e8e8e8;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    will-change: box-shadow, transform;
+}
+
+.card:hover {
+    box-shadow: 0px 4px 8px rgba(45, 35, 66, 0.4), 0px 7px 13px -3px rgba(45, 35, 66, 0.3), inset 0px -3px 0px #c5c5c5;
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+}
+
+.card:active {
+    box-shadow: inset -4px 2px 5px #9e9e9eb5;
+    transform: translateY(2px);
+}
+
+.card-link {
+    color: black;
+    text-decoration: none;
+}
+
+.card a:hover {
+    box-shadow: 3px 3px 8px hsl(0, 0%, 70%);
+}
+
+.card-content {
+    padding: 1.4em;
+    color: black;
+    text-decoration: none;
+}
+
+.card-content h2 {
+    margin-top: 0;
+    margin-bottom: .5em;
+    font-weight: normal;
+}
+
+.paragraph {
+}
+
+/*This aligns the image properly in the card container*/
+figure.thumbnail {
+    margin: 0;
+}
+
+/* STYLES FOR THE IMAGES */
+
+img {
+    display: block;
+    height: auto;
+    max-width: 100%;
+    margin: auto;
+    z-index: 5;
+}
+
+
+/*-------------------------------------------------------------
+     CARD LAYOUT STYLES - 3 by 3 WITH WIDTH OF 1200PX
+--------------------------------------------------------------*/
+.site-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1em;
+}
+
+.cards { /* The section element that holds all individual cards */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.card { /* The individual card */
+    display: flex;
+    flex: 0 1 calc(33% - 1em);
+}
+
+
+/*-------------------------------------------------------------
+     FLAT SECTION LAYOUT WITH CHILD
+--------------------------------------------------------------*/
+.flat-section {
+    display: flex;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+    padding: 0 20px;
+    margin-bottom: 2em;
+    position: relative !important;
+}
+
+/* Background Variation */
+
+.flat-section-cloud {
+    color: #121233;
+    background: #ECE9E6;
+    background: -webkit-linear-gradient(to right, #fcfcfd, #ECE9E6);
+    background: linear-gradient(to right, #fcfcfd, #ECE9E6);
+    box-shadow: 0 5px 15px 0 rgba(37, 44, 97, 0.15), 0 2px 4px 0 rgba(93, 100, 148, 0.2);
+}
+
+.flat-section-royalBlue {
+    background: #536976;
+    background: -webkit-linear-gradient(to right, #292E49, #536976);
+    background: linear-gradient(to right, #292E49, #536976);
+    box-shadow: 0 5px 15px 0 rgba(37, 44, 97, 0.15), 0 2px 4px 0 rgb(255 87 34 / 54%);
+}
+
+.flat-section-white {
+    color: #121233;
+    background: #FFFFFF;
+}
+
+/* Flat Section Children */
+.section-column {
+    flex: 0 0 50%;
+}
+
+/*--------------------------------------------------
+           STYLES FOR SINGLE VIEW PAGE
+----------------------------------------------------*/
+.author-avatar {
+    display: flex;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    background: #001f3f;
+    padding: 5px 10px;
+    margin: 0 10px;
+    border-radius: 3px;
+    box-shadow: 0px 2px 4px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(54 51 60 / 30%), inset 0px -3px 0px #cacaca;
+}
+
+.entry-meta {
+    display: flex;
+    margin: 1em 0;
+    -webkit-box-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.header {
+    padding: 0 0 2rem;
+}
+
+.breadcrumb {
+    padding: 0px 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.header h1 {
+    max-width: 950px;
+    margin: 0 auto;
+    margin-bottom: 0.5em;
+}
+
+.article-and-sidebar {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+}
+
+.inner-post {
+    max-width: 45em;
+    margin: 0 auto;
+    padding: 0 1.4em 1.4em;
+    font-size: 20px;
+}
+
+.l-r-sidebar {
+    width: 300px;
+    padding: 0 1em 1.4em;
+    margin: 0 auto;
+}
+
+.aside-sidebar {
+    position: sticky;
+}
+
+section.widget:hover {
+    transform: rotatey(
+            -15deg
+    ) translateZ(-20px) translatex(2px);
+    background: #f1f0f0;
+    border-bottom: solid 5px #3f51b5;
+    border-left: solid 5px #001f3f;
+}
+
+section.widget {
+    background: #f7f4f4;
+    padding: 15px;
+    box-shadow: 0px 4px 8px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(45 35 66 / 30%), inset 0px -3px 0px #c5c5c5;
+    border-left: solid 5px #3f51b5;
+    border-bottom: solid 5px #001f3f;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    transition: all .5s;
+    transform: rotatey(
+            -10deg
+    );
+}
+
+.swing-in-top-fwd {
+    -webkit-animation: swing-in-top-fwd 0.5s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
+    animation: swing-in-top-fwd 0.5s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
+}
+
+.swing-out-top-fwd {
+    -webkit-animation: swing-out-top-fwd 0.55s cubic-bezier(0.600, -0.280, 0.735, 0.045) both;
+    animation: swing-out-top-fwd 0.55s cubic-bezier(0.600, -0.280, 0.735, 0.045) both;
+}
+
+.jello-diagonal-1 {
+    -webkit-animation: jello-diagonal-1 0.8s both;
+    animation: jello-diagonal-1 0.8s both;
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2021-1-23 1:13:16
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation swing-in-top-fwd
+ * ----------------------------------------
+ */
+@-webkit-keyframes swing-in-top-fwd {
+    0% {
+        -webkit-transform: rotateX(-100deg);
+        transform: rotateX(-100deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+}
+
+@keyframes swing-in-top-fwd {
+    0% {
+        -webkit-transform: rotateX(-100deg);
+        transform: rotateX(-100deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2021-1-23 1:14:47
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation swing-out-top-fwd
+ * ----------------------------------------
+ */
+@-webkit-keyframes swing-out-top-fwd {
+    0% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: rotateX(70deg);
+        transform: rotateX(70deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+}
+
+@keyframes swing-out-top-fwd {
+    0% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: rotateX(70deg);
+        transform: rotateX(70deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+}
+
+/**
+ * ----------------------------------------
+ * animation slide-in-left
+ * ----------------------------------------
+ */
+
+@media screen and (max-width: 799px) {
+    /* This would only act on mobile version regardless of js or not ;) */
+    .slide-in-left-mobile {
+        -webkit-animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+        animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+    }
+
+}
+
+.slide-in-left {
+    -webkit-animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+    animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+}
+
+@-webkit-keyframes slide-in-left {
+    0% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-left {
+    0% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+
+/**
+ * ----------------------------------------
+ * animation slide-out-left
+ * ----------------------------------------
+ */
+
+@media screen and (max-width: 799px) {
+    /* This would only act on mobile version regardless of js or not ;) */
+    .slide-out-left-mobile {
+        -webkit-animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+        animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+    }
+
+}
+
+.slide-out-left {
+    -webkit-animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+    animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+}
+
+@-webkit-keyframes slide-out-left {
+    0% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+}
+
+@keyframes slide-out-left {
+    0% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2021-2-18 16:9:22
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation jello-diagonal-1
+ * ----------------------------------------
+ */
+@-webkit-keyframes jello-diagonal-1 {
+    0% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+    30% {
+        -webkit-transform: skew(25deg 25deg);
+        transform: skew(25deg 25deg);
+    }
+    40% {
+        -webkit-transform: skew(-15deg, -15deg);
+        transform: skew(-15deg, -15deg);
+    }
+    50% {
+        -webkit-transform: skew(15deg, 15deg);
+        transform: skew(15deg, 15deg);
+    }
+    65% {
+        -webkit-transform: skew(-5deg, -5deg);
+        transform: skew(-5deg, -5deg);
+    }
+    75% {
+        -webkit-transform: skew(5deg, 5deg);
+        transform: skew(5deg, 5deg);
+    }
+    100% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+}
+
+@keyframes jello-diagonal-1 {
+    0% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+    30% {
+        -webkit-transform: skew(25deg 25deg);
+        transform: skew(25deg 25deg);
+    }
+    40% {
+        -webkit-transform: skew(-15deg, -15deg);
+        transform: skew(-15deg, -15deg);
+    }
+    50% {
+        -webkit-transform: skew(15deg, 15deg);
+        transform: skew(15deg, 15deg);
+    }
+    65% {
+        -webkit-transform: skew(-5deg, -5deg);
+        transform: skew(-5deg, -5deg);
+    }
+    75% {
+        -webkit-transform: skew(5deg, 5deg);
+        transform: skew(5deg, 5deg);
+    }
+    100% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+}
+
+/*--------------------------------------------------------------
+   ICON AND SVG SPRITE
+--------------------------------------------------------------*/
+
+.icon {
+    display: inline-block;
+    /* font-size: 24px; */
+    transform: scale(1.5);
+    margin-right: 0.5em;
+    color: #ffffff;
+    width: 1em;
+    height: 1em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+    align-self: center;
+}
+
+.icon-link {
+    display: flex;
+    text-decoration: none;
+    margin-bottom: 2em;
+}
+
+.icon-link:hover {
+    text-decoration: none;
+}
+
+/*  PROFILE-DETAILS STYLES FOR THE DASHBOARD   */
+
+.profile-details {
+    position: relative;
+    min-width: 150px;
+    align-self: center;
+    background-color: hsl(0deg 0% 100%);
+    box-shadow: 0 0.1px 0.3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12);
+    border-right-color: grey;
+    border-right-style: double;
+    border-right-width: 5px;
+    border-bottom-color: grey;
+    border-bottom-style: double;
+    border-bottom-width: 5px;
+    border-left-color: grey;
+    -webkit-font-smoothing: antialiased;
+}
+
+
+.main-link {
+    display: flex;
+    padding: 0 20px;
+    text-decoration: none;
+    justify-content: center;
+}
+
+.main-link:hover {
+    text-decoration: none;
+}
+
+.profile-text {
+    color: #16162d;
+}
+
+.profile-details .icon {
+    color: #16162d;
+}
+
+.main-toggle {
+    background: transparent;
+    border: none;
+    display: flex;
+}
+
+.profile-sub-menu {
+    margin-top: 1em;
+    position: absolute;
+    background-color: hsl(0deg 0% 100%);
+    box-shadow: 0 0.1px 0.3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12);
+    z-index: 99;
+    border-right-color: grey;
+    border-right-style: double;
+    border-right-width: 5px;
+    border-bottom-color: grey;
+    border-bottom-style: double;
+    border-bottom-width: 5px;
+    border-left-color: grey;
+    width: 100%;
+}
+
+.profile-sub-menu li {
+    padding: 0 25px;
+    margin-top: 10px;
+}
+
+.profile-sub-menu .sub-icon-text {
+    color: #16162d;
+    font-size: 90%;
+    white-space: nowrap;
+}
+
+
+/* END --- PROFILE-DETAILS STYLES FOR THE DASHBOARD   */
+
+
+/*-------------------------------------------------------------
+SMALL UTILITIES - KEPT IT AT THE BOTTOM SO IT CAN OVERRIDE OTHER STYLES
+--------------------------------------------------------------*/
+
+.display-none {
+    display: none;
+}
+
+.display-block {
+    display: block;
+}
+
+.display-flex {
+    display: flex;
+}
+
+.tip {
+    display: flex;
+    font-size: 13px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    color: #909293;
+    justify-content: center;
+}
+
+.tip-big {
+    display: flex;
+    font-size: 16px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    color: #909293;
+    justify-content: center;
+}
+
+.removebuttonstyles {
+    border: none;
+    background: transparent;
+}
+
+.icon.menu-builder {
+    color: black;
+}
+
+/*--------------------------------------------------------------
+                          LINK STYLES
+--------------------------------------------------------------*/
+.text-decoration-none {
+    text-decoration: none;
+}

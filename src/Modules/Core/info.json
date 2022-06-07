@@ -1,0 +1,10 @@
+{
+  "name":"Core Module",
+  "type":"Module",
+  "version":"22-06-06_22-06-06-20:51:22",
+  "description":"The Core Module",
+  "update_ping":"https:\/\/github.com\/tonics-apps\/core-menu\/info.json",
+  "download_url":"https:\/\/github.com\/tonics-apps\/core-menu\/release.zip",
+  "authors":{"name":"The Devsrealm Guy","email":"faruq@devsrealm.com","role":"Developer"},
+  "credits":[]
+}

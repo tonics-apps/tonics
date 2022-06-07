@@ -1,0 +1,102 @@
+[[import("Modules::Core/Views/Blocks/Widget")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- --------
+GENRE ROUTES
+-------- -]]
+
+[[b('Genre::route::posts.store')/admin/genres/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Genre::route::posts.update')/admin/genres/[[arg('1')]]/update]]
+[[b('Genre::route::slug')[[v('Data.genre_slug')]]]]
+
+[[- Pass a delete slug arg to arg('1') -]]
+[[b('Genre::route::posts.delete')/admin/genres/[[arg('1')]]]]
+
+[[b('Genre::route::posts.trashMultiple')]]
+
+[[- --SEARCH FORM-- -]]
+[[b('Genre::form::search')
+<form action="[[arg('1')]]" class="width:100% d:flex justify-content:center" method="[[arg('2')]]">
+    <input type="search" required="" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+</form>
+]]
+
+[[b('Genre::form::create')
+<form method="post" action="[[use('Genre::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Genre Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group">
+                    <label for="genre_name" class="screen-reader-text">Genre Name</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.genre_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[session('getOldFormInput', 'old_form_input.genre_name', '')]]"
+                           name="genre_name" id="genre_name" required="" placeholder="Enter Genre Name Here" type="text">
+                </div>
+
+                <!-- Text Area Section -->
+                <div class="form-group body-area">
+                    <label id="post-body" for="body-area" class="screen-reader-text">Genre Description</label>
+                    <textarea id="body-area" class="tinyMCEBodyArea" placeholder="Genre Description..." name="genre_description">[[session('getOldFormInput', 'old_form_input.genre_description', '')]]</textarea>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Genre-Meta', 'true')]]
+                [[func('Widget::Menu-Date', 'String::Publish')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[b('Genre::form::edit')
+<form method="post" action="[[func('Genre::route::posts.update', 'Genre::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Genre Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group">
+                    <label for="genre_name" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.genre_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[v('Data.genre_name')]]"
+                           name="genre_name" id="genre_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+                <!-- Text Area Section -->
+                <div class="form-group body-area">
+                    <label id="post-body" for="body-area" class="screen-reader-text">Genre Description</label>
+                    <textarea id="body-area" class="tinyMCEBodyArea" placeholder="Genre Description" name="genre_description">[[v('Data.genre_description')]]</textarea>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Genre-Meta_Update', 'false')]]
+                [[func('Widget::Menu-Date', 'String::Update')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[- -------
+POSTS VIEWS
+------- -]]
+
+[[b('Genre::view::index')
+<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+    [[_v('GenreListing')]]
+</ul>
+]]

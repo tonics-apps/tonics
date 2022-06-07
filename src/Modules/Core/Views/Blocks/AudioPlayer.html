@@ -1,0 +1,75 @@
+[[- -----------
+MODULE_FUNCTIONS
+------------ -]]
+
+[[b('AudioPlayer::IconGenerate')
+<button type="button" title="[[arg('title')]]" class="border:none act-like-button bg:transparent cursor:pointer [[arg('class')]]" [[arg('attr')]]>
+    [[arg('more')]]
+</button>
+]]
+
+[[b('AudioPlayer::IconPlayWithSongURL')
+<button type="button" title="Play"
+        data-tonics-audioplayer-track
+        data-audioplayer_songurl="[[arg('url')]]"
+        data-audioplayer_title="[[arg('title')]]"
+        data-audioplayer_image="[[arg('image')]]"
+        data-audioplayer_play="false" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer [[arg('class')]]">
+    <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+        <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+    </svg>
+    <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+        <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+    </svg>
+[[arg('more')]]
+</button>
+]]
+
+[[---
+ICONS
+- -]]
+
+[[b('AudioPlayer::Icon::Play-Pause')
+<svg class="audio-play icon:audio tonics-widget pointer-events:none">
+    <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+</svg>
+<svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+    <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+</svg>
+]]
+
+[[b('AudioPlayer::Icon::Next')
+<svg class="icon:audio tonics-widget pointer-events:none">
+    <use class="svgUse" xlink:href="#tonics-step-forward"></use>
+</svg>
+]]
+
+[[b('AudioPlayer::Icon::Prev')
+<svg class="icon:audio tonics-widget pointer-events:none">
+    <use class="svgUse" xlink:href="#tonics-step-backward"></use>
+</svg>
+]]
+
+[[b('AudioPlayer::Icon::ArrowUp')
+<svg class="icon:audio tonics-widget cursor:pointer act-like-button">
+    <use class="svgUse" xlink:href="#tonics-arrow-up"></use>
+</svg>
+]]
+
+[[b('AudioPlayer::Icon::Shuffle')
+<svg class="shuffle-on icon:audio tonics-widget cursor:pointer pointer-events:none act-like-button">
+    <use class="svgUse" xlink:href="#tonics-shuffle-on"></use>
+</svg>
+<svg class="shuffle-off icon:audio tonics-widget cursor:pointer pointer-events:none act-like-button">
+    <use class="svgUse" xlink:href="#tonics-shuffle-off"></use>
+</svg>
+]]
+
+[[b('AudioPlayer::Icon::Repeat')
+<svg class="repeat-on icon:audio tonics-widget pointer-events:none">
+    <use class="svgUse" xlink:href="#tonics-repeat-on"></use>
+</svg>
+<svg class="repeat-off icon:audio tonics-widget pointer-events:none">
+    <use class="svgUse" xlink:href="#tonics-repeat-off"></use>
+</svg>
+]]

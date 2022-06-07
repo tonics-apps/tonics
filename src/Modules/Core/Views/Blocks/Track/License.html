@@ -1,0 +1,101 @@
+[[import("Modules::Core/Views/Blocks/Widget")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- --------
+License ROUTES
+-------- -]]
+
+[[b('License::route::posts.store')/admin/tools/license/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('License::route::posts.update')/admin/tools/license/[[arg('1')]]/update]]
+[[b('License::route::slug')[[v('Data.license_slug')]]]]
+
+[[b('License::Items::route::posts.store')/admin/tools/license/items/store]]
+
+[[- -----
+License FORMS
+------- -]]
+
+[[- --SEARCH FORM-- -]]
+[[b('License::form::search')
+<form action="[[arg('1')]]" class="width:100% d:flex justify-content:center" method="[[arg('2')]]">
+    <input type="search" required="" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+</form>
+]]
+
+[[b('License::form::create')
+<form method="post" action="[[use('License::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">License Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group margin-top:0">
+                    <label for="license_name" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.license_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[session('getOldFormInput', 'old_form_input.license_name', '')]]"
+                           name="license_name" id="license_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Menu-Date', 'String::Publish')]]
+                [[func('License::Widget-Meta', 'true')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[b('License::form::edit')
+<form method="post" action="[[func('License::route::posts.update', 'License::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">License Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group margin-top:0">
+                    <label for="license_name" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.license_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[v('Data.license_name')]]"
+                           name="license_name" id="license_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Menu-Date', 'String::Update')]]
+                [[func('License::Widget-Meta_Update', 'false')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[- ------
+License VIEWS
+------- -]]
+
+[[b('License::view::index')
+<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default align-items:center">
+    [[_v('LicenseListing')]]
+</ul>
+]]
+
+[[b('License::Items::view::index')
+<div class="license-arranger d:flex flex-d:column align-items:center flex-gap padding:default margin-top:0">
+    <button name="delete" class="add-new-license text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">Add New License</button>
+    <ul style="top:0;" class="width:100% menu-widget border-width:default border:black align-items:center list:style:none d:flex flex-d:column padding:default flex-gap:small flex:two">
+        [[_v('LicenseItemsListing')]]
+    </ul>
+</div>
+]]

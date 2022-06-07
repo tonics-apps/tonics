@@ -1,0 +1,200 @@
+[[[
+---BODY.MAIN RELATED---
+]]]
+
+----------------------
+---BODY LOGIN PAGE---
+----------------------
+[[b('body.main.header')
+    <header class="main-header text-align:center padding:default">[[arg('1')]]</header>
+]]
+
+[[b('body.main.header:installer-page')
+    <header class="main-header text-align:center margin-top:0 padding-top:0">[[arg('1')]]</header>
+]]
+
+[[b('url.customer-login')[[url('customer.login')]]]]
+[[b('url.customer-password-forgot')[[url('customer.password.request')]]]]
+
+[[b('url.admin-login')[[url('admin.login')]]]]
+[[b('url.admin-password-forgot')[[url('admin.password.request')]]]]
+
+[[b('url.customer-password-email')[[url('customer.password.email')]]]]
+[[b('url.customer-register')[[url('customer.register')]]]]
+[[b('url.customer-verification-verify')[[url('customer.verification.verify')]]]]
+
+[[b('url.admin-password-email')[[url('admin.password.email')]]]]
+[[b('url.admin-register')[[url('admin.register')]]]]
+[[b('url.admin-verification-verify')[[url('admin.verification.verify')]]]]
+
+-----------------------------------
+---FOR EMAIL FLASH ERROR MESSAGE---
+-----------------------------------
+[[b('body.main.form-get-email-flash-error-message')
+    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.email')]]
+]]
+
+--------------------------------------
+---FOR PASSWORD FLASH ERROR MESSAGE---
+--------------------------------------
+[[b('body.main.form-get-password-flash-error-message')
+    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.password')]]
+]]
+
+------------------------------------------
+---FOR VERIFICATION FLASH ERROR MESSAGE---
+------------------------------------------
+[[b('body.main.form-get-verification-code-flash-error-message')
+    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.verification-code')]]
+]]
+
+--------------------------------------
+---FOR USERNAME FLASH ERROR MESSAGE---
+--------------------------------------
+[[b('body.main.form-get-username-flash-error-message')
+    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.username')]]
+]]
+
+---------------------------
+---FORM BLOCK FUNCTIONAL---
+---------------------------
+
+[[b('form-group-row.customer.create-account')
+<div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+    <a class="border:none bg:white-one color:black border-width:default border:black padding:default text-align:center margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2"
+       href="[[url('customer.register')]]" title="Create a New Account">
+        Create An Account
+        <span class="d:inline-block text-decoration:none"> &nbsp; 👤</span>
+    </a>
+</div>
+]]
+
+[[b('body.main.form-login')
+<form method="POST" action="[[arg('1')]]" class="padding:default owl margin-top:0" autocomplete="on">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="email">
+            <span class="field-label">E-Mail Address</span>
+        </label>
+        [[arg('2')]]
+        <input class="color:black bg:white-one border-width:default border:black" value="[[session('getOldFormInput', 'old_form_input.email', '')]]"
+               type="email" id="email" placeholder="Enter E-mail Address" name="email" required autocomplete="email" autofocus="">
+    </div>
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="password">
+            <span class="field-label">Password</span>
+        </label>
+        [[arg('3')]]
+        <div class="password-with-show position:relative">
+            <input type="password" class="form-control input-checkout bg:white-one color:black border-width:default border:black"
+                   autocomplete="off" id="password" name="password" minlength="5" required >
+            <button aria-pressed="false" type="button" class="text show-password bg:pure-black color:white cursor:pointer">Show</button>
+        </div>
+        <ul class="form-error">
+            <li class=""><span class="text list-info-span">!</span>Required: Password Minimum of 5 Characters</li>
+        </ul>
+    </div>
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <button type="submit" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Login →</span>
+        </button>
+        <a class="btn btn-link" href="[[arg('4')]]" title="Forgot Your Password?">
+            Forgot Your Password?
+        </a>
+    </div>
+    [[arg('5')]]
+</form>
+]]
+
+[[b('body.main.form-reset-password')
+<form method="POST" action="[[arg('1')]]" class="padding:small owl margin-top:0">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="email">
+            <span class="field-label">E-Mail Address</span>
+        </label>
+        [[arg('2')]]
+        <input class="bg:white-one color:black border-width:default border:black" type="email" id="email" placeholder="Enter E-mail Address" name="email" value="" required autocomplete="email" autofocus="">
+    </div>
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <button type="submit" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Send Password Reset Link →</span>
+        </button>
+    </div>
+</form>
+]]
+
+[[b('body.main.form-verify-email')
+<form method="POST" action="[[arg('1')]]" class="padding:small owl margin-top:0">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <span class="text-align:center text text:tip">
+        The Verification Code Has Been Sent To Your MailBox or Spam Folder.
+        <br>
+        Wait 5 Minutes Before Requesting For A New One.
+    </span>
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="email">
+            <span class="field-label">Verification Code</span>
+        </label>
+        [[arg('2')]]
+        <input class="bg:white-one color:black border-width:default border:black" style="font-size: revert;" type="number" id="verification-code" placeholder="Leave Blank If Requesting For a New Verification Code"
+               name="verification-code" autofocus>
+    </div>
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <button type="submit" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Verify Account →</span>
+        </button>
+
+        <button type="submit" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Re-send Verification Code →</span>
+        </button>
+    </div>
+</form>
+]]
+
+[[b('body.main.form-register')
+<form method="POST" action="[[arg('1')]]" class="padding:small owl margin-top:0">
+    <input type="hidden" name="token" value="[[csrf()]]">
+
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="email">
+            <span class="field-label">Username</span>
+        </label>
+        [[arg('2')]]
+        <input class="bg:white-one color:black border-width:default border:black" type="text" id="username" placeholder="Enter New Username" name="username" value="" required autocomplete="username" autofocus="">
+    </div>
+
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="email">
+            <span class="field-label">E-Mail Address</span>
+        </label>
+        [[arg('3')]]
+        <input class="bg:white-one color:black border-width:default border:black" type="email" id="email" placeholder="Enter New E-mail Address" name="email" value="" required autocomplete="email" autofocus="">
+    </div>
+
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="password">
+            <span class="field-label">Password</span>
+        </label>
+        [[arg('4')]]
+        <div class="password-with-show position:relative">
+            <input type="password" class="form-control input-checkout bg:white-one color:black bg:transparent border-width:default border:black" id="password" name="password" required >
+            <button aria-pressed="false" type="button" class="text show-password bg:pure-black color:white cursor:pointer">Show</button>
+        </div>
+    </div>
+
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <button type="submit" class="border:none bg:white-one color:black bg:transparent border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Sign Up 👤</span>
+        </button>
+    </div>
+
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <a class="border:none bg:white-one color:black border-width:default border:black padding:default text-align:center margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2"
+           href="[[url('customer.login')]]" title="Login If You Already Have an Account">
+            Login
+            <span class="d:inline-block text-decoration:none"> &nbsp; →</span>
+        </a>
+    </div>
+</form>
+]]

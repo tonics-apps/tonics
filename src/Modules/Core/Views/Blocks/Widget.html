@@ -1,0 +1,716 @@
+[[import("Modules::Core/Views/Blocks/String")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- ---
+WIDGETS
+---- -]]
+
+[[- -----------
+MAINLY FOR FIELD
+------------ -]]
+[[b('Widget::Field-Meta')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Field Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Field Slug -->
+            <div class="form-group">
+                <label for="slug">Field Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.field_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.field_slug', '')]]"
+                       name="field_slug" id="slug" placeholder="Field Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Field-Meta_Update')
+<input type="hidden" name="field_id" value="[[v('Data.field_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Field Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Field Slug -->
+            <div class="form-group">
+                <label for="slug">Field Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.field_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.field_slug')]]"
+                       name="field_slug" id="slug" placeholder="Field Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- -----------
+MAINLY FOR TRACK
+------------ -]]
+
+[[b('Widget::Track-Date')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Category-Date-Parent')]]</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <label for="select-status" class="screen-reader-text">Status</label>
+                <select name="track_status" class="default-selector mg-b-plus-1" id="select-status">
+                    <option value="0" [[session('isOldFormInputEquals', 'track_status', '0', 'selected')]]>Draft</option>
+                    <option value="1" [[session('isOldFormInputEquals', 'track_status', '1', 'selected')]]>Publish</option>
+                </select>
+            </div>
+            <div class="form-group">
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.created_at')]]
+                <label for="created_at" class="screen-reader-text">Published Date</label>
+                <input data-widget-date="[[arg('1')]]" id="created_at" class="color:black border-width:default border:black placeholder-color:gray" name="created_at" step="any"
+                       min="1997-01-01T00:00" max="" type="datetime-local" value="[[v('Data.created_at')]]">
+            </div>
+            <div class="form-group">
+                <button data-widget-date-forpost="true" type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    [[arg('2')]]
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Track-Date_Update')
+<input type="hidden" name="track_id" value="[[v('Data.track_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Category-Date-Parent')]]</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <label for="select-status" class="screen-reader-text">Status</label>
+                <select name="track_status" class="default-selector mg-b-plus-1" id="select-status">
+                    [[_v('TrackStatus')]]
+                </select>
+            </div>
+            <div class="form-group">
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.created_at')]]
+                <label for="created_at" class="screen-reader-text">Published Date</label>
+                <input data-widget-date="[[arg('1')]]" id="created_at" class="color:black border-width:default border:black placeholder-color:gray" name="created_at" step="any"
+                       min="1997-01-01T00:00" max="" type="datetime-local" value="[[v('Data.created_at')]]">
+            </div>
+            <div class="form-group">
+                <button data-widget-date-forpost="true" type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    [[arg('2')]]
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Track-Genre')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Genre</legend>
+        <ul class="list:style:none max-height:300px overflow-x:auto menu-box-radiobox-items">
+            [[_v('GenrePagination')]]
+        </ul>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Track-License')
+<li class="license-widget admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable owl">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">License</legend>
+        <div class="form-group">
+            <label for="fk_license_id">Track License</label>
+            <select data-new="[[arg('1')]]" value="" data-action="license" name="fk_license_id" class="default-selector license-selector" id="fk_license_id">
+                [[_v('License')]]
+            </select>
+        </div>
+        <div class="form-group license-downloads max-height:300px overflow-x:auto owl">
+
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Track-Meta')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Track Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Track Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.track_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.track_slug', '')]]"
+                       name="track_slug" id="slug" placeholder="Track Slug: Auto-generates from title if empty" type="text">
+            </div>
+            <div class="form-group">
+                <label for="fk_artist_id">Track Artist</label>
+                <select name="fk_artist_id" class="default-selector" id="fk_artist_id">
+                    [[_v('Artist')]]
+                </select>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Track-Meta_Update')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Track Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Track Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.track_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.track_slug')]]"
+                       name="track_slug" id="slug" placeholder="Track Slug: Auto-generates from title if empty" type="text">
+            </div>
+            <div class="form-group">
+                <label for="fk_artist_id">Track Artist</label>
+                <select name="fk_artist_id" class="default-selector" id="fk_artist_id">
+                    [[_v('Artist')]]
+                </select>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Session::OldFormInput::audio_url')[[session('getOldFormInput', 'old_form_input.audio_url', '')]]]]
+[[b('Data::audio_url')[[v('Data.audio_url')]]]]
+[[b('Widget::Track-Audio-Demo')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Audio Demo</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <input id="featured-image" class="tonics-audio-featured color:black border-width:default border:black placeholder-color:gray"
+                       name="featured_image" type="file">
+            </div>
+            <div class="form-group">
+                <input placeholder="Audio Demo URL" type="url" data-widget-audio-url="true" name="audio_url" value="[[arg('1')]]">
+            </div>
+            <div class="form-group">
+                <button type="button" class="remove-audio-demo d:none background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    Remove Audio Demo
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- ---------------------
+MAINLY FOR POST CATEGORIES
+---------------------- -]]
+[[b('Widget::Category-Date')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Category-Date-Parent')]]</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <label for="select-status" class="screen-reader-text">Status</label>
+                <select name="cat_status" class="default-selector mg-b-plus-1" id="select-status">
+                    <option value="0" [[session('isOldFormInputEquals', 'cat_status', '0', 'selected')]]>Draft</option>
+                    <option value="1" [[session('isOldFormInputEquals', 'cat_status', '1', 'selected')]]>Publish</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="created_at" class="screen-reader-text">Published Date</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.created_at')]]
+                <input data-widget-date="[[arg('1')]]" id="created_at" class="color:black border-width:default border:black placeholder-color:gray" name="created_at" step="any"
+                       value="[[v('Data.created_at')]]" min="1997-01-01T00:00" max="" type="datetime-local">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    [[arg('2')]]
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Category-Date_Update')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Category-Date-Parent')]]</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <label for="select-status" class="screen-reader-text">Status</label>
+                <select name="cat_status" class="default-selector mg-b-plus-1" id="select-status">
+                    [[_v('CatStatus')]]
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="created_at" class="screen-reader-text">Published Date</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.created_at')]]
+                <input data-widget-date="[[arg('1')]]" id="created_at" class="color:black border-width:default border:black placeholder-color:gray" name="created_at" step="any"
+                       value="[[v('Data.created_at')]]" min="1997-01-01T00:00" max="" type="datetime-local">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    [[arg('2')]]
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Category-Meta')
+ <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Category Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Category Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.cat_slug', '')]]"
+                       name="cat_slug" id="slug" placeholder="Category Slug: Auto-generates from title if empty" type="text">
+            </div>
+            <!-- Cat URL Slug -->
+            <div class="form-group">
+                <label for="cat_url_slug">Category URL Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_url_slug')]]
+                <input class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.cat_url_slug', '')]]"
+                       id="cat_url_slug" placeholder="Category URL Slug: Auto-generates from selected categories if empty"
+                       name="cat_url_slug" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Category-Meta_Update')
+<input type="hidden" name="cat_id" value="[[v('Data.cat_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Category Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Category Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.cat_slug')]]"
+                       name="cat_slug" id="slug" placeholder="Category Slug: Auto-generates from title if empty" type="text">
+            </div>
+            <!-- Cat URL Slug -->
+            <div class="form-group">
+                <label for="cat_url_slug">Category URL Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_url_slug')]]
+                <input class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.cat_url_slug')]]"
+                       id="cat_url_slug" placeholder="Category URL Slug: Auto-generates from selected categories if empty"
+                       name="cat_url_slug" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- ----------
+MAINLY FOR POST
+----------- -]]
+
+[[b('Widget::Post-Meta')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Post Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Post Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.post_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.post_slug', '')]]"
+                       name="post_slug" id="slug" placeholder="Post Slug: Auto-generates from title if empty" type="text">
+            </div>
+            <div class="form-group">
+                <label for="user_id">Post Author</label>
+                <select name="user_id" class="default-selector" id="user_id">
+                    [[_v('Authors')]]
+                </select>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Post-Meta_Update')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Post Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Post Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.post_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.post_slug')]]"
+                       name="post_slug" id="slug" placeholder="Post Slug: Auto-generates from title if empty" type="text">
+            </div>
+            <div class="form-group">
+                <label for="user_id">Post Author</label>
+                <select name="user_id" class="default-selector" id="user_id">
+                    [[_v('Authors')]]
+                </select>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Post-Date')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Category-Date-Parent')]]</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <label for="select-status" class="screen-reader-text">Status</label>
+                <select name="post_status" class="default-selector mg-b-plus-1" id="select-status">
+                    <option value="0" [[session('isOldFormInputEquals', 'post_status', '0', 'selected')]]>Draft</option>
+                    <option value="1" [[session('isOldFormInputEquals', 'post_status', '1', 'selected')]]>Publish</option>
+                </select>
+            </div>
+            <div class="form-group">
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.created_at')]]
+                <label for="created_at" class="screen-reader-text">Published Date</label>
+                <input data-widget-date="[[arg('1')]]" id="created_at" class="color:black border-width:default border:black placeholder-color:gray" name="created_at" step="any"
+                       min="1997-01-01T00:00" max="" type="datetime-local" value="[[v('Data.created_at')]]">
+            </div>
+            <div class="form-group">
+                <button data-widget-date-forpost="true" type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    [[arg('2')]]
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Post-Date_Update')
+<input type="hidden" name="post_id" value="[[v('Data.post_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Category-Date-Parent')]]</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <label for="select-status" class="screen-reader-text">Status</label>
+                <select name="post_status" class="default-selector mg-b-plus-1" id="select-status">
+                    [[_v('PostStatus')]]
+                </select>
+            </div>
+            <div class="form-group">
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.created_at')]]
+                <label for="created_at" class="screen-reader-text">Published Date</label>
+                <input data-widget-date="[[arg('1')]]" id="created_at" class="color:black border-width:default border:black placeholder-color:gray" name="created_at" step="any"
+                       min="1997-01-01T00:00" max="" type="datetime-local" value="[[v('Data.created_at')]]">
+            </div>
+            <div class="form-group">
+                <button data-widget-date-forpost="true" type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    [[arg('2')]]
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+
+[[- ---------------
+MAIN FOR ADMIN MENU
+--------------- -]]
+[[b('Widget::Menu-Date')
+    <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+        <fieldset class=" padding:default width:100% height:100%  draggable">
+            <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+            <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Save')]]</legend>
+            <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+                <div class="form-group">
+                    <button data-widget-date-forpost="true" type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                        [[arg('1')]]
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    </li>
+]]
+
+[[b('Widget::Menu-Meta')
+    <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center ">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Menu Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Menu Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.menu_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.menu_slug', '')]]"
+                       name="menu_slug" id="slug" placeholder="Menu Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Menu-Meta_Update')
+<input type="hidden" name="menu_id" value="[[v('Data.menu_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Menu Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Menu Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.menu_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.menu_slug')]]"
+                       name="menu_slug" id="slug" placeholder="Menu Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- ----------------------
+MAIN FOR ADMIN MENU WIDGET
+---------------------- -]]
+[[b('Widget::Widget-Meta')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Widget Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Menu Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.widget_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.widget_slug', '')]]"
+                       name="widget_slug" id="slug" placeholder="Menu Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Widget-Meta_Update')
+<input type="hidden" name="widget_id" value="[[v('Data.widget_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Widget Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Menu Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.widget_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.widget_slug')]]"
+                       name="widget_slug" id="slug" placeholder="Menu Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- -----------------
+MAIN FOR TRACK ARTIST
+----------------- -]]
+[[b('Widget::Artist-Meta')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Artist Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Artist Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.artist_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.artist_slug', '')]]"
+                       name="artist_slug" id="slug" placeholder="Artist Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Artist-Meta_Update')
+<input type="hidden" name="widget_id" value="[[v('Data.artist_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Artist Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Artist Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.artist_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.artist_slug')]]"
+                       name="artist_slug" id="slug" placeholder="Artist Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- -----------------
+MAIN FOR TRACK ARTIST
+----------------- -]]
+[[b('Widget::Genre-Meta')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Genre Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Genre Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.artist_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.genre_slug', '')]]"
+                       name="genre_slug" id="slug" placeholder="Genre Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Widget::Genre-Meta_Update')
+<input type="hidden" name="widget_id" value="[[v('Data.genre_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Genre Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">Genre Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.genre_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.genre_slug')]]"
+                       name="genre_slug" id="slug" placeholder="Genre Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- ------------------------
+MAIN FOR ADMIN LICENSE WIDGET
+------------------------- -]]
+[[b('License::Widget-Meta')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">License Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">License Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.license_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[session('getOldFormInput', 'old_form_input.license_slug', '')]]"
+                       name="license_slug" id="slug" placeholder="Menu Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('License::Widget-Meta_Update')
+<input type="hidden" name="license_id" value="[[v('Data.license_id')]]">
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">License Meta</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <!-- Post Slug -->
+            <div class="form-group">
+                <label for="slug">License Slug:</label>
+                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.license_slug')]]
+                <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
+                       value="[[v('Data.license_slug')]]"
+                       name="license_slug" id="slug" placeholder="Menu Slug: Auto-generates from title if empty" type="text">
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[- ----------
+GENERAL WIDGET
+----------- -]]
+
+[[b('Widget::Select-Categories')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Parent Category</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <select id="categories" data-widget-select-category="[[arg('1')]]" name="cat_parent_id" class="default-selector">
+                <option value="" selected style="color: #004085">-Parent Category-</option>
+                [[_v('Categories')]]
+            </select>
+        </div>
+    </fieldset>
+</li>
+]]
+
+[[b('Session::OldFormInput::image_url')[[session('getOldFormInput', 'old_form_input.image_url', '')]]]]
+[[b('Data::image_url')[[v('Data.image_url')]]]]
+[[b('Widget::Featured-Image')
+<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class="padding:default width:100% height:100%  draggable">
+        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
+        <legend class="bg:pure-black color:white padding:default">Featured Image</legend>
+        <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
+            <div class="form-group">
+                <input id="featured-image" class="tonics-featured-image color:black border-width:default border:black placeholder-color:gray"
+                       name="featured_image" type="file">
+            </div>
+            <div class="form-group">
+                <input type="hidden" data-widget-image-name="true" name="image_url" value="[[arg('1')]]">
+                <img src="[[arg('1')]]" class="image:featured-image featured-image">
+            </div>
+            <div class="form-group">
+                <button type="button" class="remove-featured-image d:none background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                    Remove Featured Image
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</li>
+]]

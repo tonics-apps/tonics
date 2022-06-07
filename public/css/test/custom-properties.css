@@ -1,0 +1,85 @@
+:root {
+    /* scale for 1.250 @ https://type-scale.com/ for mobile screen */
+    /*
+     We are using the same name for both the mobile screen and the one in media query
+     We can do this because, we are merely changing the scale depending on the screen size
+     I use 1.250 for mobile and 1.333 for anything other than mobile, I am using type-scale.com to get the scale
+     */
+    --font-size-1: 1rem;     /* Base is 16px, well, depends on users settings in the browser */
+    --font-size-2: 1.25rem;  /* 1.25 * 16 = 20px */
+    --font-size-3: 1.563rem; /* 1.563 * 16 = 25px */
+    --font-size-4: 1.953rem; /* 1.953 * 16 = 31.25px */
+    --font-size-5: 2.441rem; /* 2.441 * 16 = 39.06px */
+    --font-size-6: 3.052rem; /* 3.052 * 16 = 48.83px */
+
+    /* FONT FAMILY -- LINE HEIGHT */
+    --global-font-family: 'IBMPlexSans-Regular', sans-serif;
+    --global-font-line-height: 1.75;
+}
+
+@media screen and (min-width: 800px) {
+    :root {
+        /* scale for 1.333 for larger screens */
+        --font-size-1: 1rem;      /* 1 * 16     = 16px */
+        --font-size-2: 1.333rem;  /* 1.333 * 16 = 21.33px  */
+        --font-size-3: 1.777rem;  /* 1.777 * 16 = 28.43px  */
+        --font-size-4: 2.369rem;  /* 2.369 * 16 = 37.90px */
+        --font-size-5: 3.157rem;  /* 3.157 * 16 = 50.52px */
+        --font-size-6: 4.209rem;  /* 4.209 * 16 = 67.34px  */
+    }
+}
+
+
+/* fonts:
+================================================================================= */
+
+
+/* IBMPlexSans regular */
+
+@font-face {
+    font-family: "IBMPlexSans-Regular";
+    src: url("../fonts/IBMPlexSans-Regular.eot");
+    /* IE9 Compat Modes */
+    src: url("../fonts/IBMPlexSans-Regular.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+    url("../fonts/IBMPlexSans-Regular.otf") format("opentype"), /* Open Type Font */
+    url("../fonts/IBMPlexSans-Regular.ttf") format("truetype"), /* Safari, Android, iOS */
+    url("../fonts/IBMPlexSans-Regular.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* IBMPlexSans italic */
+
+@font-face {
+    font-family: "IBMPlexSans-Italic";
+    src: url("../fonts/IBMPlexSans-Italic.eot");
+    /* IE9 Compat Modes */
+    src: url("../fonts/IBMPlexSans-Italic.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+    url("../fonts/IBMPlexSans-Italic.otf") format("opentype"), /* Open Type Font */
+    url("../fonts/IBMPlexSans-Italic.ttf") format("truetype"), /* Safari, Android, iOS */
+    url("../fonts/IBMPlexSans-Italic.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* IBMPlexSans bold */
+
+@font-face {
+    font-family: "IBMPlexSans-Bold";
+    src: url("../fonts/IBMPlexSans-Bold.eot");
+    /* IE9 Compat Modes */
+    src: url("../fonts/IBMPlexSans-Bold.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+    url("../fonts/IBMPlexSans-Bold.otf") format("opentype"), /* Open Type Font */
+    url("../fonts/IBMPlexSans-Bold.ttf") format("truetype"), /* Safari, Android, iOS */
+    url("../fonts/IBMPlexSans-Bold.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}

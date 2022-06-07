@@ -1,0 +1,89 @@
+[[import("Modules::Core/Views/Blocks/Widget")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- --------
+TRACK ROUTES
+-------- -]]
+
+[[b('Page::route::posts.store')/admin/pages/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Page::route::posts.update')/admin/pages/[[arg('1')]]/update]]
+[[b('Page::route::slug')[[v('Data.page_id')]]]]
+
+[[- Pass a delete slug arg to arg('1') -]]
+[[b('Page::route::posts.delete')/admin/pages/[[arg('1')]]]]
+
+[[b('Page::route::posts.trashMultiple')]]
+
+[[- --SEARCH FORM-- -]]
+[[b('Page::form::search')
+<form action="[[arg('1')]]" class="width:100% d:flex justify-content:center" method="[[arg('2')]]">
+    <input type="search" required="" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+</form>
+]]
+
+[[b('Page::form::create')
+<form method="post" action="[[use('Page::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-widget">
+            <ul class="field-menu-ul padding:default width:100% menu-arranger list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
+                [[if("v[FieldItems]")
+                    [[_v('FieldItems')]]
+                ]]
+            </ul>
+
+            [[if("v[FieldSelection]")
+            <ul class="admin-widget menu-arranger list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[_v('FieldSelection')]]
+            </ul>
+            ]]
+        </div>
+    </section>
+    <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+        <button name="delete" class="save-menu-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            Save Changes
+        </button>
+    </div>
+</form>
+]]
+
+[[b('Page::form::edit')
+<form method="post" action="[[func('Page::route::posts.update', 'Page::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <input type="hidden" name="page_id" value="[[v('Data.page_id')]]">
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-widget">
+            <ul class="field-menu-ul padding:default width:100% menu-arranger list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
+            [[if("v[FieldItems]")
+                [[_v('FieldItems')]]
+            ]]
+            </ul>
+
+            [[if("v[FieldSelection]")
+            <ul class="admin-widget menu-arranger list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[_v('FieldSelection')]]
+            </ul>
+            ]]
+        </div>
+    </section>
+    <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+        <button name="delete" class="save-menu-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            Save Changes
+        </button>
+    </div>
+</form>
+]]
+
+[[- -------
+TRACKS VIEWS
+------- -]]
+
+[[b('Page::view::index')
+<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+    [[_v('PageListing')]]
+</ul>
+]]

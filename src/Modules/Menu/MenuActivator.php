@@ -1,0 +1,72 @@
+<?php
+/*
+ * Copyright (c) 2021. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * This program is licensed under the PolyForm Noncommercial License 1.0.0. You should have received a copy of the PolyForm Noncommercial License 1.0.0 along with this program, if not, visit: https://polyformproject.org/licenses/noncommercial/1.0.0/
+ */
+
+namespace App\Modules\Menu;
+
+
+use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
+use App\Library\Tables;
+use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Menu\EventHandlers\MenuMenus;
+use App\Modules\Menu\Events\OnMenuCreate;
+use App\Modules\Menu\Events\OnMenuMetaBox;
+use App\Modules\Menu\Routes\Routes;
+use Devsrealm\TonicsRouterSystem\Route;
+
+class MenuActivator implements ModuleConfig
+{
+    use Routes;
+
+    /**
+     * @inheritDoc
+     */
+    public function enabled(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function events(): array
+    {
+        return [
+            OnMenuMetaBox::class => [
+
+            ],
+            OnAdminMenu::class => [
+                MenuMenus::class
+            ],
+            OnMenuCreate::class => [
+
+            ]
+        ];
+    }
+
+    /**
+     * @param Route $routes
+     * @return Route
+     * @throws \ReflectionException
+     */
+    public function route(Route $routes): Route
+    {
+        return $this->routeWeb($routes);
+    }
+
+    /**
+     * @return array
+     */
+    public function tables(): array
+    {
+        return
+            [
+                Tables::getTable(Tables::MENU_ITEMS) => Tables::getTable(Tables::MENU_ITEMS),
+                Tables::getTable(Tables::MENU_LOCATIONS) => Tables::getTable(Tables::MENU_LOCATIONS),
+                Tables::getTable(Tables::MENUS) => Tables::getTable(Tables::MENUS),
+            ];
+    }
+}

@@ -1,0 +1,106 @@
+[[import("Modules::Core/Views/Blocks/Widget")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- --------
+WIDGET ROUTES
+-------- -]]
+
+[[b('Widget::route::posts.store')/admin/tools/widget/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Widget::route::posts.update')/admin/tools/widget/[[arg('1')]]/update]]
+[[b('Widget::route::slug')[[v('Data.widget_slug')]]]]
+
+[[b('Widget::Items::route::posts.store')/admin/tools/widget/items/store]]
+
+[[- -----
+WIDGET FORMS
+------- -]]
+
+[[- --SEARCH FORM-- -]]
+[[b('Widget::form::search')
+<form action="[[arg('1')]]" class="width:100% d:flex justify-content:center" method="[[arg('2')]]">
+    <input type="search" required="" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+</form>
+]]
+
+[[b('Widget::form::create')
+<form method="post" action="[[use('Widget::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Widget Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group margin-top:0">
+                    <label for="widget_name" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.widget_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[session('getOldFormInput', 'old_form_input.widget_name', '')]]"
+                           name="widget_name" id="widget_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Menu-Date', 'String::Publish')]]
+                [[func('Widget::Widget-Meta', 'true')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[b('Widget::form::edit')
+<form method="post" action="[[func('Widget::route::posts.update', 'Widget::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Widget Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group margin-top:0">
+                    <label for="widget_name" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.widget_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[v('Data.widget_name')]]"
+                           name="widget_name" id="widget_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Menu-Date', 'String::Update')]]
+                [[func('Widget::Widget-Meta_Update', 'false')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[- ------
+WIDGET VIEWS
+------- -]]
+
+[[b('Widget::view::index')
+<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default align-items:center">
+    [[_v('WidgetListing')]]
+</ul>
+]]
+
+[[b('Widget::Items::view::index')
+<div class="d:flex justify-content:center flex-wrap:wrap flex-gap padding:default">
+    <ul style="top:0;" class="width:100% menu-widget border-width:default border:black align-items:center list:style:none d:flex flex-d:column padding:default flex-gap:small flex:one">
+        [[_v('MetaBox')]]
+    </ul>
+    <ul class="width:100% menu-arranger border-width:default border:black list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:two">
+        <ul class="list:style:none menu-location-picker">
+            Select Display Location =>
+            [[_v('MenuWidgetLocation')]]
+        </ul>
+        [[_v('MenuWidgetItems')]]
+    </ul>
+</div>
+]]

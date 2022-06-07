@@ -1,0 +1,183 @@
+[[import("Modules::Core/Views/Blocks/Widget")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- --------
+POSTS ROUTES
+-------- -]]
+
+[[b('Post::route::posts.create')[[url('posts.create')]]]]
+[[b('Post::route::posts.edit')[[url('posts.edit')]]]]
+[[b('Post::route::posts.store')/admin/posts/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Post::route::posts.update')/admin/posts/[[arg('1')]]/update]]
+[[b('Post::route::slug')[[v('Data.post_slug')]]]]
+
+[[- Pass a delete slug arg to arg('1') -]]
+[[b('Post::route::posts.delete')/admin/posts/[[arg('1')]]]]
+
+[[b('Post::route::posts.trashMultiple')]]
+
+[[- -----------------
+POSTS CATEGORY ROUTES
+----------------- -]]
+[[b('Post::Category::route::posts.store')/admin/posts/category/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Post::Category::route::posts.update')/admin/posts/category/[[arg('1')]]/update]]
+[[b('Post::Category::route::slug')[[v('Data.cat_slug')]]]]
+
+[[- -------
+POSTS FORMS
+------- -]]
+
+[[- --SEARCH FORM-- -]]
+[[b('Post::form::search')
+<form action="[[arg('1')]]" class="width:100% d:flex justify-content:center" method="[[arg('2')]]">
+    <input type="search" required="" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+</form>
+]]
+
+[[b('Post::form::create')
+<form method="post" action="[[use('Post::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-widget">
+            <ul class="field-menu-ul padding:default width:100% menu-arranger list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
+                [[if("v[FieldItems]")
+                    [[_v('FieldItems')]]
+                ]]
+            </ul>
+
+            [[if("v[FieldSelection]")
+            <ul class="admin-widget menu-arranger list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[_v('FieldSelection')]]
+            </ul>
+            ]]
+        </div>
+    </section>
+    <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+        <button name="delete" class="save-menu-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            Save Changes
+        </button>
+    </div>
+</form>
+]]
+
+[[b('Post::form::edit')
+<form method="post" action="[[func('Post::route::posts.update', 'Post::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]">
+    <input type="hidden" name="post_id" value="[[v('Data.post_id')]]">
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-widget">
+            <ul class="field-menu-ul padding:default width:100% menu-arranger list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
+                [[if("v[FieldItems]")
+                    [[_v('FieldItems')]]
+                ]]
+            </ul>
+
+            [[if("v[FieldSelection]")
+            <ul class="admin-widget menu-arranger list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[_v('FieldSelection')]]
+            </ul>
+            ]]
+        </div>
+    </section>
+    <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+        <button name="delete" class="save-menu-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            Save Changes
+        </button>
+    </div>
+</form>
+]]
+
+[[b('Post::Category::form::create')
+<form method="post" action="[[use('Post::Category::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Category Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group">
+                    <label for="cat_name" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray" value="[[session('getOldFormInput', 'old_form_input.cat_name', '')]]"
+                           name="cat_name" id="cat_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+                <!-- Text Area Section -->
+                <div class="form-group body-area">
+                    <label id="cat_content" for="body-area" class="screen-reader-text">This is the body, you can start writing here...</label>
+                    <textarea id="body-area" class="body-area tinyMCEBodyArea" placeholder="About The Category, Can Be Empty..."
+                              name="cat_content">[[session('getOldFormInput', 'old_form_input.cat_content', '')]]</textarea>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Select-Categories', 'true')]]
+                [[func('Widget::Category-Meta', 'true')]]
+                [[func('Widget::Category-Date', 'true', 'String::Publish')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[b('Post::Category::form::edit')
+<form method="post" action="[[func('Post::Category::route::posts.update', 'Post::Category::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Category Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group">
+                    <label for="cat_name" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray" value="[[v('Data.cat_name')]]"
+                           name="cat_name" id="cat_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+                <!-- Text Area Section -->
+                <div class="form-group body-area">
+                    <label id="cat_content" for="body-area" class="screen-reader-text">This is the body, you can start writing here...</label>
+                    <textarea id="body-area" class="tinyMCEBodyArea" placeholder="About The Category, Can Be Empty..."
+                              name="cat_content">[[v('Data.cat_content')]]</textarea>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Select-Categories', 'true')]]
+                [[func('Widget::Category-Meta_Update', 'true')]]
+                [[func('Widget::Category-Date_Update', 'false', 'String::Update')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[- -------
+POSTS VIEWS
+------- -]]
+
+[[b('Post::view::index')
+<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+    [[_v('PostListing')]]
+</ul>
+]]
+
+[[- ----------
+CATEGORY VIEWS
+---------- -]]
+[[b('Post::Category::view::index')
+<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+    [[_v('CategoryListing')]]
+</ul>
+]]

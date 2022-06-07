@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/AudioPlayer")]]
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Tonics File Manager</title>
+    [[_use("default-meta")]]
+    [[_use("fm-css-style")]]
+</head>
+
+<body>
+<section class="tonics-fm-body">
+    [[_use("default-inline-svg")]]
+    <header class="tonics-main-header-menu position-sticky">
+        <section class="menu-section">
+            <nav id="site-navigation" class="single-nav menu mobile-display-none" role="navigation">
+                <ul class="site-navigation-ul">
+
+                    <li class="menu-item deactivate-menu-pointer">
+                        <button class="tooltip" data-menu-action="CutFileEvent" aria-label="Cut">
+                            <svg class="icon tonics-cut-icon deactivate-menu">
+                                <use xlink:href="#tonics-cut"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Cut</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item deactivate-menu-pointer">
+                        <button class="tooltip" data-menu-action="PasteFileEvent" aria-label="Paste">
+                            <svg class="icon tonics-paste-icon deactivate-menu">
+                                <use xlink:href="#tonics-paste"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Paste</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item deactivate-menu-pointer">
+                        <button class="tooltip" data-menu-action="RenameFileEvent" aria-label="Rename">
+                            <svg class="icon tonics-edit-icon deactivate-menu">
+                                <use class="svgUse" xlink:href="#tonics-edit-icon"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Rename</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item deactivate-menu-pointer">
+                        <button class="tooltip" data-menu-action="DeleteFileEvent" aria-label="Delete">
+                            <svg class="icon tonics-trash-can deactivate-menu">
+                                <use class="svgUse" xlink:href="#tonics-trash-can"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Delete</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item deactivate-menu-pointer">
+                        <button class="tooltip" data-menu-action="CopyLinkEvent" aria-label="Delete">
+                            <svg class="icon deactivate-menu">
+                                <use class="svgUse" xlink:href="#tonics-download-link"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Download Link</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item deactivate-menu-pointer">
+                        <button class="tooltip" data-menu-action="CopyPreviewLinkEvent" aria-label="Delete">
+                            <svg class="icon deactivate-menu">
+                                <use class="svgUse" xlink:href="#tonics-link"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Preview Link</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item">
+                        <button class="tooltip" data-menu-action="UploadFileEvent" aria-label="Upload">
+                            <svg class="icon tonics-plus-icon">
+                                <use class="svgUse" xlink:href="#tonics-upload-icon"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Upload</span>
+                            <input name="upload-file" type="hidden" id="upload-file">
+                        </button>
+                    </li>
+
+                    <li class="menu-item">
+                        <button class="tooltip" data-menu-action="NewFolderEvent" aria-label="Create New Folder">
+                            <svg class="icon tonics-plus">
+                                <use class="svgUse" xlink:href="#tonics-plus2"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">New Folder</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item">
+                        <button class="tooltip" data-menu-action="RefreshFolderEvent" aria-label="Refresh Folder">
+                            <svg class="icon tonics-refresh">
+                                <use class="svgUse" xlink:href="#tonics-refresh"></use>
+                            </svg>
+                            <span class="tooltip-diretion tooltiptext-left">Refresh</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+    </header>
+    <nav class="tonics-fm-nav-menu">
+        <h2>Drives</h2>
+
+        <ul class="tonics-disk-drive-container">
+        </ul>
+
+    </nav>
+    <main class="tonics-fm-main-content">
+        <div class="breadcrumb-search-container">
+            <div class="breadcrumb mg-b-plus-1">Navigating
+            </div>
+            <input type="search" required class="filter-search" name="search" aria-label="Search and Hit Enter"
+                   placeholder="Search Directory & Hit Enter">
+        </div>
+
+        <div class="tonics-files-parent align-content-fs">
+            <ul class="tonics-files-container draggable-container">
+            </ul>
+
+            <button class="file-load-more display-none">
+                Load More
+            </button>
+
+            <span class="dot-elastic loading display-none"></span>
+        </div>
+
+        <div class="upload-progress-container">
+            <div class="upload-files display-none">
+            </div>
+        </div>
+
+    </main>
+</section>
+
+<section class="d:none audio-player position:sticky bottom:0 left:0 z-index:audio-sticky-footer">
+    <div data-audioplayer_groupid="GLOBAL_GROUP"
+         class="audio-player-global-container bg:pure-black d:flex flex-d:column flex-gap:small position:relative">
+        <div class="audio-player-queue color:black bg:white-one border-width:default border:black d:none flex-gap flex-d:column height:600px width:320px bg:pure-white color:black padding:default position:absolute right:0 bottom:80px overflow:auto">
+            <div class="more-audio-player-control cursor:pointer">
+                [[mFunc('AudioPlayer::IconGenerate')
+                [[arg('class' 'icon:audio color:black')]]
+                [[arg('title' 'Repeat')]]
+                [[arg('attr' 'data-audioplayer_repeat="false"')]]
+                [[bArg('more' 'AudioPlayer::Icon::Repeat')]]
+                ]]
+                [[mFunc('AudioPlayer::IconGenerate')
+                [[arg('class' 'icon:audio color:black')]]
+                [[arg('title' 'Shuffle')]]
+                [[arg('attr' 'data-audioplayer_shuffle="false"')]]
+                [[bArg('more' 'AudioPlayer::Icon::Shuffle')]]
+                ]]
+            </div>
+            <ol class="audio-player-queue-list d:flex flex-d:column flex-gap:small">
+            </ol>
+        </div>
+
+        <div class="time-progress">
+            <div class="progress-container">
+                <input type="range" step="1" value="0" class="song-slider" min="0" max="100">
+            </div>
+        </div>
+        <div class="others-audio-player-info d:flex flex-d:row align-items:center padding:0-1rwm">
+            <div id="meta-container" class="beatplayer-item flex:one">
+                <div class="padding:0-1rwm">
+                    <img src="" data-audioplayer_globalart class="main-album-art width:100px" alt=""/>
+                </div>
+                <div data-audioplayer_globaltitle
+                     class="color:white width:200px text:no-wrap text-overflow:ellipsis"></div>
+            </div>
+            <div class="cursor:pointer d:flex flex:one">
+                [[mFunc('AudioPlayer::IconGenerate')
+                [[arg('class' 'icon:audio color:white')]]
+                [[arg('title' 'Previous')]]
+                [[arg('attr' 'data-audioplayer_prev="true"')]]
+                [[bArg('more' 'AudioPlayer::Icon::Prev')]]
+                ]]
+
+                [[mFunc('AudioPlayer::IconGenerate')
+                [[arg('class' 'global-play icon:audio-x-2 color:white')]]
+                [[arg('title' 'Play')]]
+                [[arg('attr' 'data-audioplayer_play="false"')]]
+                [[bArg('more' 'AudioPlayer::Icon::Play-Pause')]]
+                ]]
+
+                [[mFunc('AudioPlayer::IconGenerate')
+                [[arg('class' 'icon:audio color:white')]]
+                [[arg('title' 'Next')]]
+                [[arg('attr' 'data-audioplayer_next="true"')]]
+                [[bArg('more' 'AudioPlayer::Icon::Next')]]
+                ]]
+            </div>
+            <div class="volume-slider-and-more d:flex align-items:center">
+                [[mFunc('AudioPlayer::IconGenerate')
+                [[arg('class' 'dropdown-toggle color:white')]]
+                [[arg('title' 'Queue')]]
+                [[arg('attr' 'aria-expanded="false" aria-label="Expand child menu"')]]
+                [[bArg('more' 'AudioPlayer::Icon::ArrowUp')]]
+                ]]
+                <label for="volume-slider" class="screen-reader-text"> Volume </label>
+                <input id="volume-slider" title="Volume" type="range" class="volume-slider" min="0" max="1" step="0.1">
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <ul class="context-menu">
+    </ul>
+    <h2>footer</h2>
+    <input type="hidden" name="tonics_csrf_token" value="[[csrf()]]">
+</footer>
+
+[[_use("script:variables")]]
+[[_use("script:fm-modules")]]
+<script type="module">
+    import {TonicsFileManagerExcrete} from "/js/views/media/script-combined.js";
+
+    class AudioEventHandlerForAudioPlayer {
+        // uuu
+        constructor(audioEvent) {
+            audioEvent.audioFile.insertAdjacentHTML('beforeend', `
+<button type="button" title="Play"
+data-tonics-audioplayer-track
+data-audioplayer_songurl="${audioEvent.audioFile.dataset.audioplayer_songurl}"
+data-audioplayer_title="${audioEvent.audioFile.dataset.audioplayer_title}"
+data-audioplayer_image=""
+data-audioplayer_format="${audioEvent.audioFile.dataset.ext}"
+data-audioplayer_play="false"
+data-trackloaded="true"
+class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:black">
+    <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+        <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+    </svg>
+    <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+        <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+    </svg>
+</button>`);
+        }
+    }
+
+    const $localDrive = new TonicsFileManagerExcrete('LocalDiskDrive')('Local', 'xxxxxx', siteURL);
+    const $dropboxDrive = new TonicsFileManagerExcrete('DropboxDiskDrive')('Dropbox', `[[v('DropboxDiskDriveKey')]]`);
+    const $storageDriverManager = new TonicsFileManagerExcrete('StorageDriversManager');
+    $storageDriverManager
+        .attachDriveStorage($localDrive)
+        .attachDriveStorage($dropboxDrive);
+
+    const loadDriveEvent = new TonicsFileManagerExcrete('LoadDriveEvent')($storageDriverManager, siteURL);
+
+    // hook an handler into PlayAudioEvent...
+    loadDriveEvent.eventsConfig.OnAudioIsPlayableEvent.push(AudioEventHandlerForAudioPlayer);
+    // boot from local...
+    loadDriveEvent.bootDiskDrive('Local');
+
+</script>
+
+</body>
+</html>

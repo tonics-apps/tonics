@@ -1,0 +1,4 @@
+en {
+    hello { "Hello {name}" }
+	apple { "I have {number_apples, number, integer} apples." }
+}

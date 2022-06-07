@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+[[import("Modules::Core/Views/Blocks/Theme")]]
+<html lang="en">
+<head>
+    [[_use("default-secure-meta")]]
+    [[_use("main-css-style")]]
+    <title>Import Index</title>
+</head>
+
+<body class="body-sticky-footer bg:gray-two">
+[[_use("default-inline-svg")]]
+
+<header>
+    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
+</header>
+
+<main id="main"  class="flex:one" tabindex="-1" data-container_for_selection="true">
+    [[b('body.main.header-text')Importers]]
+    [[func('body.main.header', 'body.main.header-text')]]
+    <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+        [[_v('ImportListing')]]
+    </ul>
+</main>
+
+<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
+    <div class="footer-section">
+    </div>
+</footer>
+
+[[_use("script:variables")]]
+[[_use("script:post-index")]]
+[[_use("session:delete-artifacts")]]
+</body>
+</html>

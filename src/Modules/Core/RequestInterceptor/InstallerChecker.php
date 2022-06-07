@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Modules\Core\RequestInterceptor;
+
+use App\Configs\AppConfig;
+use App\Library\Authentication\IsAppInstalled;
+use App\Library\SimpleState;
+use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
+use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
+
+/**
+ * The InstallerChecker Interceptor would only let the request pass if the app hasn't been installed,
+ * otherwise, you get a simple looking error page that the app has already been installed.
+ */
+class InstallerChecker implements TonicsRouterRequestInterceptorInterface
+{
+    /**
+     * @inheritDoc
+     * @throws \Exception
+     */
+    public function handle(OnRequestProcess $request): void
+    {
+       $urlPath = $request->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()->getFullRoutePath();
+       $isAppInstalled = new IsAppInstalled();
+       # Meaning the app hasn't been installed
+       if ($isAppInstalled->getStateResult() === SimpleState::ERROR){
+           return;
+       }
+
+        # Anything Else Probably mean the app is installed
+        $msg = "It Seems " . AppConfig::getAppName() . " is Already Installed";
+       ## For API
+       if (str_starts_with($urlPath, '/api') || str_starts_with($urlPath, 'api')){
+           SimpleState::displayErrorMessage(SimpleState::ERROR_APP_ALREADY_INSTALLED__CODE, $msg, true);
+       }
+       ## For Non-API
+        SimpleState::displayErrorMessage(SimpleState::ERROR_APP_ALREADY_INSTALLED__CODE, $msg);
+    }
+}

@@ -1,0 +1,21 @@
+[[b('Post::Single::Header')
+<header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
+    <h1 class="entry-title"> [[v('Data.post_title')]]</h1>
+    <div class="entry-meta">
+                <span class="posted-by">
+                    By [[v('Data.user_name')]]
+                </span>
+    </div>
+    <figure class="featured-image full-bleed">
+        <div class="post-thumbnail">
+            [[if("v[Data.image_url] !== block[empty]")
+                <img width="2000" height="1200"
+                     loading="lazy"
+                     decoding="async"
+                     src="[[v('Data.image_url')]]"
+                     class="" alt="[[v('Data.post_title')]]">
+            ]]
+        </div><!-- .post-thumbnail -->
+    </figure>
+</header>
+]]

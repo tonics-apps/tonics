@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+<html lang="en">
+<head>
+    [[_use("default-meta")]]
+    [[_use("main-css-style")]]
+    <title>[[v('error-code')]] - [[v('error-message')]]</title>
+</head>
+
+<body class="body-sticky-footer bg:pure-black">
+[[_use("default-inline-svg")]]
+
+<main id="main"  class="flex:one d:flex flex-d:column justify-content:center">
+    <div class="error d:flex flex-d:column align-items:center flex-gap">
+        <header class="main-header text-align:center color:white text-decoration:underline-wavy">[[v('error-code')]]</header>
+        <p class="text-align:center color:white">[[v('error-message')]]</p>
+        <a class="border:none color:black bg:pure-white border-width:default border:black padding:default
+        text-align:center margin-top:0 cursor:pointer button:box-shadow-variant-2 cart-width" href="/" title="Go Home">
+            HOME
+            <span class="d:inline-block text-decoration:none"> &nbsp; 🏠</span>
+        </a>
+    </div>
+</main>
+</body>
+</html>

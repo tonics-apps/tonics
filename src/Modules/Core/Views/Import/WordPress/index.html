@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+[[import("Modules::Core/Views/Blocks/Theme")]]
+<html lang="en">
+<head>
+    [[_use("default-secure-meta")]]
+    [[_use("main-css-style")]]
+    <title>WordPress Import</title>
+</head>
+
+<body class="body-sticky-footer bg:gray-two">
+[[_use("default-inline-svg")]]
+
+<header>
+    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
+</header>
+
+<main id="main"  class="flex:one owl" tabindex="-1" data-container_for_selection="true">
+    [[b('body.main.header-text')WordPress Import]]
+    [[func('body.main.header', 'body.main.header-text')]]
+    <form id="ImportForm" method="post" class="owl" action="" accept-charset="UTF-8" enctype="multipart/form-data">
+        <input type="hidden" name="tonics_csrf_token" value="[[csrf()]]" >
+        <section class="post-admin-wrapper">
+            <div class="admin-post-writing-experience owl">
+                <style>
+                    .upload-license-download-url {
+                        position: absolute;
+                        border: none;
+                        top: 2px;
+                        right: 2px;
+                        bottom: 2px;
+                        width: clamp(20%, (800px - 100vw) * 1000, 30%);
+                    }
+                </style>
+                <fieldset class="owl padding:default max-width:1350">
+                    <legend class="bg:pure-black color:white padding:default">WordPress Import Experience</legend>
+                    <!-- UPLOAD ZIP URL Section -->
+                    <div class="form-group">
+                        <label class="menu-settings-handle-name" for="uploads_zipped">Link To Zipped (Uploads) Folder</label>
+                        <div class="position:relative">
+                            <input type="url" class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="uploads_zipped" name="uploads_zipped"
+                                   placeholder="Link To Zipped Uploads Folder (Optional If Upload Already)" value="">
+                            <button type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer">Upload Link</button>
+                        </div>
+                    </div>
+                    <!-- UPLOAD XML FILE URL Section -->
+                    <div class="form-group position:relative">
+                        <label class="menu-settings-handle-name" for="uploads_xml">Link To XML File</label>
+                        <div class="position:relative">
+                            <input type="url" required class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="uploads_xml" name="uploads_xml"
+                                   placeholder="Link To XML File" value="">
+                            <button type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer">Upload Link</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="menu-settings-handle-name" for="site_url">WordPress Site URL</label>
+                            <input required type="text" class="form-control input-checkout bg:white-one color:black border-width:default border:black" id="site_url" name="site_url"
+                                   placeholder="e.g example.com" value="">
+                        <ul class="form-error">
+                            <li><span class="text list-info-span">!</span>Don't Start With a Scheme e.g https://</li>
+                            <li><span class="text list-info-span">!</span>Don't Use https://example.com, use example.com instead</li>
+                        </ul>
+                    </div>
+                </fieldset>
+                <pre style="max-height: 500px; max-width: 1000px;" class="installation-pre"><code>&gt; Push The Import Button</code></pre>
+                <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+                    <button type="submit" class="import-button bg:transparent  border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                        <span class="text text:no-wrap">Start Importing →</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </form>
+</main>
+
+<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
+    <div class="footer-section">
+    </div>
+</footer>
+
+[[_use("script:variables")]]
+[[_use("script:wp-import")]]
+[[_use("session:delete-artifacts")]]
+</body>
+</html>

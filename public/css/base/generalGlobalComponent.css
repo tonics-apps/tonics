@@ -1,0 +1,253 @@
+/*
+ * Copyright (c) 2021. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * This program is licensed under the PolyForm Noncommercial License 1.0.0. You should have received a copy of the PolyForm Noncommercial License 1.0.0 along with this program, if not, visit: https://polyformproject.org/licenses/noncommercial/1.0.0/
+ */
+
+
+/*--------------------------------------------------------------
+                          TEXT STYLES
+--------------------------------------------------------------*/
+.tx-start{text-align:start;}
+.tx-end{text-align:end;}
+
+/*--------------------------------------------------------------
+                MARGIN and PADDING STYLES
+--------------------------------------------------------------*/
+.mg-b-minus-1 {
+    margin-bottom: -1em;
+}.pd-b-minus-1 {
+    padding-bottom: -1em;
+}
+
+.mg-b-minus-2 {
+    margin-bottom: -2em;
+}.pd-b-minus-2 {
+    padding-bottom: -2em;
+}
+
+.mg-b-minus-3 {
+    margin-bottom: -3em;
+}.pd-b-minus-3 {
+    padding-bottom: -3em;
+}
+
+.mg-b-minus-4 {
+    margin-bottom: -4em;
+}.pd-b-minus-4 {
+    padding-bottom: -4em;
+}
+
+.mg-t-minus-1 {
+    margin-top: -1em;
+}.pd-t-minus-1 {
+    padding-top: -1em;
+}
+
+.mg-t-minus-2 {
+    margin-top: -2em;
+}.pd-t-minus-2 {
+    padding-top: -2em;
+}
+
+.mg-t-minus-3 {
+    margin-top: -3em;
+}.pd-t-minus-3 {
+    padding-top: -3em;
+}
+
+.mg-t-minus-4 {
+    margin-top: -4em;
+}.pd-t-minus-4 {
+    padding-top: -4em;
+}
+
+.mg-t-plus-1 {
+    margin-top: 1em;
+}.pd-t-plus-1 {
+    padding-top: 1em;
+}
+
+.mg-t-plus-2 {
+    margin-top: 2em;
+}.pd-t-plus-2 {
+    padding-top: 2em;
+}
+
+.mg-t-plus-3 {
+    margin-top: 3em;
+}.pd-t-plus-3 {
+    padding-top: 3em;
+}
+
+.mg-t-plus-4 {
+    margin-top: 4em;
+}.pd-t-plus-4 {
+    padding-top: 4em;
+}
+
+.mg-b-plus-1 {
+    margin-bottom: 1em;
+}.pd-b-plus-1 {
+    padding-bottom: 1em;
+}
+
+.mg-b-plus-2 {
+    margin-bottom: 2em;
+}.pd-b-plus-2 {
+    padding-bottom: 2em;
+}
+
+.mg-b-plus-3 {
+    margin-bottom: 3em;
+}.pd-b-plus-3 {
+    padding-bottom: 3em;
+}
+
+.mg-b-plus-4 {
+    margin-bottom: 4em;
+}.pd-b-plus-4 {
+    padding-bottom: 4em;
+}
+
+/*ROTATE TRANSFORMATION*/
+
+@-webkit-keyframes stripe-slide {
+    0% {
+        background-position: 0% 0;
+    }
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+/*--------------------------------------------------------------
+                          Pagination
+--------------------------------------------------------------*/
+.pagination {
+    display: flex;
+    list-style: none;
+    border-radius: .25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/*Pagination Link*/
+.page-link {
+    padding: .5em 1.4em;
+    margin-right: 1em;
+    color: #000;
+    line-height: 3.3;
+    text-decoration: none;
+    background: transparent;
+    border-radius: 30px;
+    text-transform: none;
+    -webkit-box-shadow: none;
+    transition: all .3s;
+    border: 2px solid #001f3f!important;
+}
+
+/*Current or active page*/
+.page-item.active .page-link {
+    background-color: #001f3f;
+    color: #ecf0f1;
+}
+
+/*--------------------------------------------------------------
+                          FLEX COMPONENTS
+--------------------------------------------------------------*/
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.j-c-center {
+   justify-content:  center;
+}
+
+.f-align-center {align-items: center;}
+.f-wrap{flex-wrap: wrap;}
+.f-row{flex-direction: row;}
+.f-col{flex-direction: column;}
+
+.f-col-start{display: flex;flex-direction: column;align-items: flex-start;}
+
+.f-d-col {flex-direction: column;}
+.f-d-rol {flex-direction: row;}
+
+
+/*--------------------------------------------------------------
+                   Error and Warning Styles
+--------------------------------------------------------------*/
+.invalid-feedback{
+    color: #c52d2d;
+}
+
+/*--------------------------------------------------------------
+                   TOOLTIP STYLES
+--------------------------------------------------------------*/
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext-toparrow {
+    visibility: hidden;
+    width: 120px;
+    background-color: #111;
+    color: #fff;
+    text-align: center;
+    font-size: 1rem;
+    border-radius: 40px;
+    padding: 3px 3px;
+    position: absolute;
+    z-index: 10;
+    top: 150%;
+    left: 50%;
+    margin-left: -60px;
+    box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+    transition: all 0.2s ease-in-out;
+}
+
+.tooltip .tooltiptext-right {
+    visibility: hidden;
+    width: 120px;
+    background-color: #111;
+    color: #fff;
+    text-align: center;
+    font-size: 1rem;
+    border-radius: 40px;
+    padding: 3px 3px;
+    position: absolute;
+    z-index: 10;
+    top: 150%;
+    right: 50%;
+    box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+    transition: all 0.2s ease-in-out;
+}
+
+
+.tooltip:hover span {
+    top: 100%;
+    opacity: 0.9;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext-toparrow {
+    visibility: visible;
+}
+
+.tooltip:hover .tooltiptext-right {
+    visibility: visible;
+}
+
+/*--------------------------------------------------------------
+                   CHANGE LAYOUT STYLES
+--------------------------------------------------------------*/
+
+.flex-align-left {
+    order: 2;
+}

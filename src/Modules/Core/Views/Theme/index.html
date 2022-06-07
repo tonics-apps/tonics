@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+[[import("Modules::Core/Views/Blocks/Theme")]]
+<html lang="en">
+<head>
+    [[_use("default-secure-meta")]]
+    [[_use("main-css-style")]]
+    <title>Theme Index</title>
+</head>
+
+<body class="body-sticky-footer bg:gray-two">
+[[_use("default-inline-svg")]]
+
+<header>
+    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
+</header>
+
+<main id="main"  class="flex:one" tabindex="-1" data-container_for_selection="true">
+    [[b('body.main.header-text')Themes]]
+    [[func('body.main.header', 'body.main.header-text')]]
+    [[_use('Theme::view::index')]]
+</main>
+
+<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
+    <div class="footer-section">
+    </div>
+</footer>
+
+[[_use("script:variables")]]
+[[_use("script:post-index")]]
+[[_use("session:delete-artifacts")]]
+</body>
+</html>

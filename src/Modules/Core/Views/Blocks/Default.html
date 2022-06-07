@@ -1,0 +1,1004 @@
+[[b('session:delete-artifacts')
+    [[__session('delete', 'bt_flash_message,old_form_input', 'true')]]
+]]
+
+[[b('empty')]]
+[[b('true')true]]
+[[b('false')false]]
+[[b('0')0]]
+[[b('1')1]]
+[[b('selected')selected]]
+
+
+[[b('method-get')GET]]
+[[b('method-post')POST]]
+
+[[b('SelectUtilitiesForm::PerPageGroup')
+<label for="per_page" class="screen-reader-text">Page Size: </label>
+<div class="wrap-select border:none border-width:default border:black">
+    <select name="per_page" class="adjust-select text-on-admin-util bg:transparent border:none color:black bg:white-one padding:default margin-top:0 cursor:pointer"
+            id="per_page">
+        <option value="20" selected="selected" style="color: #004085">Page Size</option>
+        <option value='delete'>5</option>
+        <option value='10'>10</option>
+        <option value='20'>20</option>
+        <option value='30'>30</option>
+        <option value='50'>50</option>
+        <option value='100'>100</option>
+        <option value='200'>200</option>
+        <option value='500'>500</option>
+        <option value='1000'>1000</option>
+    </select>
+</div>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup')
+<label for="page_action" class="screen-reader-text">Action: </label>
+<div class="wrap-select border:none border-width:default border:black">
+    <select data-admin-select-utilities="true" name="page_action" class="adjust-select text-on-admin-util border:none  bg:transparent color:black bg:white-one padding:default margin-top:0 cursor:pointer"
+            id="page_action">
+        <option disabled value="-1" selected="selected" style="color: #004085">Action</option>
+        <option data-form_action="" data-form_method="[[use('method-get')]]" value='reload'>Reload</option>
+        <option data-form_action="" data-form_method="[[use('method-get')]]" value='edit'>Edit</option>
+        [[arg('1')]]
+    </select>
+</div>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForPost')
+<option data-form_action="[[url('posts.trashMultiple')]]" data-form_method="[[use('method-post')]]" value='trash'>Trash</option>
+<option data-form_action="[[url('posts.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+<option data-form_action="[[url('posts.index')]]" data-form_method="[[use('method-get')]]" value='viewAll'>View All</option>
+<option data-form_action="[[url('posts.index')]]" data-form_method="[[use('method-get')]]" value='viewTrash'>View Trash</option>
+<option data-form_action="[[url('posts.index')]]" data-form_method="[[use('method-get')]]" value='viewDraft'>View Draft</option>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForPage')
+<option data-form_action="[[url('pages.trashMultiple')]]" data-form_method="[[use('method-post')]]" value='trash'>Trash</option>
+<option data-form_action="[[url('pages.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+<option data-form_action="[[url('pages.index')]]" data-form_method="[[use('method-get')]]" value='viewAll'>View All</option>
+<option data-form_action="[[url('pages.index')]]" data-form_method="[[use('method-get')]]" value='viewTrash'>View Trash</option>
+<option data-form_action="[[url('pages.index')]]" data-form_method="[[use('method-get')]]" value='viewDraft'>View Draft</option>
+]]
+
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForTrack')
+<option data-form_action="[[url('tracks.trashMultiple')]]" data-form_method="[[use('method-post')]]" value='trash'>Trash</option>
+<option data-form_action="[[url('tracks.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+<option data-form_action="[[url('tracks.index')]]" data-form_method="[[use('method-get')]]" value='viewAll'>View All</option>
+<option data-form_action="[[url('tracks.index')]]" data-form_method="[[use('method-get')]]" value='viewTrash'>View Trash</option>
+<option data-form_action="[[url('tracks.index')]]" data-form_method="[[use('method-get')]]" value='viewDraft'>View Draft</option>
+]]
+
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForCategory')
+<option data-form_action="[[url('posts.category.trashMultiple')]]" data-form_method="[[use('method-post')]]" value='trash'>Trash</option>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForMenu')
+<option data-form_action="[[url('menus.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForWidget')
+<option data-form_action="[[url('widgets.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForField')
+<option data-form_action="[[url('fields.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForLicense')
+<option data-form_action="[[url('licenses.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForArtist')
+<option data-form_action="[[url('artists.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+]]
+
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForGenre')
+<option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
+<option data-simulate_shift_key="false" value='shift'>Shift Key</option>
+]]
+
+[[b('Data::next_page_url-exists')[[v('Data.next_page_url')]]]]
+[[b('Data::prev_page_url-exists')[[v('Data.prev_page_url')]]]]
+
+[[b('Admin::Nav::Link::PrevURL')
+<a type="submit" class="border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2 max-width:200 text-align:center text-underline"
+   title="Prev" href="[[_v('Data.prev_page_url')]]">
+    Prev
+</a>
+]]
+
+[[b('Admin::Nav::Link::NextURL')
+<a type="submit" class="border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2 max-width:200 text-align:center text-underline"
+   title="Next" href="[[_v('Data.next_page_url')]]">
+    Next
+</a>
+]]
+
+[[b('Admin-Next-Prev-Link')
+<div class="d:flex flex-gap:small justify-content:space-evenly padding:default">
+    [[ifBlock('Data::prev_page_url-exists', 'Admin::Nav::Link::PrevURL')]]
+    [[ifBlock('Data::next_page_url-exists', 'Admin::Nav::Link::NextURL')]]
+</div>
+]]
+
+
+[[b('BeatPlayerStickyFooter')
+<div class="beat-player-stickyfooter">
+    <div id="meta-container" class="beatplayer-item">
+        <div class="currentsong-image">
+            <img data-amplitude-song-info="cover_art_url" class="main-album-art" alt=""/>
+
+        </div>
+        <div class="song-artist-info">
+            <span data-amplitude-song-info="name"></span> -
+            <span data-amplitude-song-info="artist"></span>
+        </div>
+    </div>
+    <div id="central-control-container">
+        <div id="repeat-container">
+            <div class="amplitude-repeat amplitude-repeat-off icon" data-repeat="off" id="repeat"></div>
+            <div class="amplitude-shuffle amplitude-shuffle-off icon" id="shuffle"></div>
+        </div>
+        <div id="central-controls">
+            <div class="amplitude-prev icon" id="previous"></div>
+            <div class="amplitude-play-pause amplitude-paused icon" amplitude-main-play-pause="true"
+                 id="play-pause"></div>
+            <div class="amplitude-next icon " id="next"></div>
+        </div>
+    </div>
+    <div class="time-progress">
+        <div id="progress-container">
+            <input type="range" class="amplitude-song-slider">
+            <progress id="song-played-progress" class="amplitude-song-played-progress" value="0"></progress>
+            <progress id="song-buffered-progress" class="amplitude-buffered-progress"
+                      value="0.8190916523314324"></progress>
+        </div>
+        <div class="time-container">
+                    <span class="current-time">
+                      <span class="amplitude-current-minutes" amplitude-main-current-minutes="true">
+
+                      </span>:<span class="amplitude-current-seconds"></span>
+                    </span>
+
+            <span class="duration">
+                        <span class="amplitude-duration-minutes" amplitude-main-duration-minutes="true"> </span>:<span
+                    class="amplitude-duration-seconds"></span>
+                      </span>
+        </div>
+    </div>
+    <div class="amplitude-volume-slider">
+        <input type="range" class="amplitude-volume-slider"/>
+    </div>
+</div>
+]]
+
+[[b('CustomerProfileDetailsSection')
+<li class="profile-details">
+    <a href="#0" class="main-link">
+        <span class="profile-text">[[[auth('user_name')]]]</span>
+        <button class="main-toggle" aria-expanded="false" aria-label="Expand child menu">
+            <svg id="arrow-up-down" class="icon tonics-arrow-down">
+                <use xlink:href="#tonics-arrow-down"></use>
+            </svg>
+        </button>
+    </a>
+
+    <ul class="profile-sub-menu display-none">
+        <li>
+            <a href="[[url('customer.settings')]]" class="icon-link">
+                <svg class="icon tonics-dashboard">
+                    <use xlink:href="#tonics-dashboard"></use>
+                </svg>
+                <span class="sub-icon-text">Dashboard</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="[[url('customer.settings')]]" class="icon-link">
+                <svg class="icon tonics-cog">
+                    <use xlink:href="#tonics-cog"></use>
+                </svg>
+                <span class="sub-icon-text">Settings</span>
+            </a>
+        </li>
+
+        <li>
+            <form id="logout-form" action="[[url('customer.settings')]]" method="POST" class="d-none">
+                <button type="submit" class="icon-link removebuttonstyles">
+                    <svg class="icon tonics-sign-out">
+                        <use xlink:href="#tonics-sign-out"></use>
+                    </svg>
+                    <span class="sub-icon-text">Logout</span>
+                </button>
+                <input type="hidden" name="token" value="[[csrf()]]" />
+            </form>
+        </li>
+    </ul>
+</li>
+]]
+
+[[b('AdminProfileDetailsSection')
+<li class="profile-details">
+    <a href="#0" class="main-link">
+        <span class="profile-text">[[[auth('user_name')]]]</span>
+        <button class="main-toggle" aria-expanded="false" aria-label="Expand child menu">
+            <svg id="arrow-up-down" class="icon tonics-arrow-down">
+                <use xlink:href="#tonics-arrow-down"></use>
+            </svg>
+        </button>
+    </a>
+
+    <ul class="profile-sub-menu display-none">
+        <li>
+            <a href="[[url('admin.dashboard')]]" class="icon-link">
+                <svg class="icon tonics-dashboard">
+                    <use xlink:href="#tonics-dashboard"></use>
+                </svg>
+                <span class="sub-icon-text">Dashboard</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="[[url('posts.dashboard')]]" class="icon-link">
+                <svg class="icon tonics-note">
+                    <use xlink:href="#tonics-note"></use>
+                </svg>
+                <span class="sub-icon-text">Blog Post</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="[[url('tracks.list')]]" class="icon-link">
+                <svg class="icon tonics-play-outline">
+                    <use xlink:href="#tonics-play-outline"></use>
+                </svg>
+                <span class="sub-icon-text">Media</span>
+            </a>
+        </li>
+
+        <li>
+            <form id="logout-form" action="[[url('logout')]]" method="POST" class="d-none">
+                <button type="submit" class="icon-link removebuttonstyles">
+                    <svg class="icon tonics-sign-out">
+                        <use xlink:href="#tonics-sign-out"></use>
+                    </svg>
+                    <span class="sub-icon-text">Logout</span>
+                </button>
+                <input type="hidden" name="token" value="[[csrf()]]" />
+            </form>
+        </li>
+
+    </ul>
+</li>
+]]
+
+[[[
+---BODY.HEADER.SECTION RELATED---
+]]]
+
+--------------------------------------------------------------
+---SECTION SITE HEADER, LOGO, LOGIN, CART, NAVIGATIONAL MENU---
+---------------------------------------------------------------
+
+[[b('body.header.section-classes')site-header d:flex flex-wrap:wrap justify-content:center align-items:center flex-gap bg:pure-black padding:default border-bottom:black]]
+[[b('body.header.section-classes:installer-page')site-header d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center]]
+
+[[b('body.header.section-logo')
+sasa
+<div class="site-logo flex:one justify-content:end">
+    <a href="[[url('admin.dashboard')]]" rel="home" itemprop="url">
+        <img src="/logo/o-ola-micky-logo-white.svg"
+             class="image:avatar" alt="Exclusivemusicplus Official Logo">
+    </a>
+</div>
+]]
+
+[[b('body.header.section-logo:center')
+<div class="site-logo flex:one justify-content:center">
+    <a href="/" rel="home" itemprop="url">
+        <img src="/logo/o-ola-micky-logo.svg"
+             class="image:avatar:width:200px" alt="O-Ọlá Official Logo" title="O-Ọlá Official Logo">
+    </a>
+</div>
+]]
+
+[[b('body.main.form:installer-page')
+<form action="" method="post" class="padding:default owl margin-top:0" id="InstallerForm">
+    <fieldset class="owl padding:default max-width:900">
+        <legend class="bg:pure-black color:white padding:default">User Setup</legend>
+        <div class="form-group row margin-top:0">
+            <label style="margin-inline-end: auto;" for="username">
+                <span class="field-label">Username</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray" type="text" id="username" placeholder="Enter Username" name="username" value="" required autocomplete="username">
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="email">
+                <span class="field-label">E-Mail Address</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray" type="email" id="email" placeholder="Enter E-mail Address" name="email" value="" required autocomplete="email">
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="password">
+                <span class="field-label">Password</span>
+            </label>
+            <div class="password-with-show position:relative">
+                <input type="password" minlength="5" class="form-control input-checkout color:black border-width:default border:black placeholder-color:gray"
+                       id="password" name="password" required >
+                <button aria-pressed="false" type="button" class="text show-password bg:pure-black color:white cursor:pointer">Show</button>
+            </div>
+            <ul class="form-error">
+                <li class="text-decoration:underline"><span class="text list-info-span">!</span>Required: Password Minimum of 5 Characters</li>
+                <li class="text-decoration:underline"><span class="text list-info-span">!</span>Tip: Use Random Phrases in Your Dialect</li>
+                <li class="text-decoration:underline"><span class="text list-info-span">!</span>Tip: (Diacritical is a Plus)</li>
+            </ul>
+        </div>
+    </fieldset>
+    <fieldset class="owl padding:default max-width:900">
+        <legend class="bg:pure-black color:white padding:default">Database Setup</legend>
+        <div class="form-group row margin-top:0">
+            <label style="margin-inline-end: auto;" for="DB_HOST">
+                <span class="field-label">Database Host</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray" type="text" id="DB_HOST" name="DB_HOST" value="localhost" required>
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="DB_PORT">
+                <span class="field-label">Database Port</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray" type="number" id="DB_PORT" name="DB_PORT" value="3306" required autocomplete="DB_PORT">
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="DB_DATABASE">
+                <span class="field-label">Database Name</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray"
+                   placeholder="Enter Your Database Name" type="text" id="DB_DATABASE" name="DB_DATABASE" required autocomplete="DB_DATABASE">
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="DB_USERNAME">
+                <span class="field-label">Database Username</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray"
+                   placeholder="Enter Your Database Username" type="text" id="DB_USERNAME" name="DB_USERNAME" required autocomplete="DB_USERNAME">
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="DB_PASSWORD">
+                <span class="field-label">Database Password</span>
+            </label>
+            <div class="password-with-show position:relative">
+                <input type="password" class="form-control input-checkout color:black border-width:default border:black placeholder-color:gray"
+                       placeholder="Enter Your Database Password" id="DB_PASSWORD" name="DB_PASSWORD" required >
+                <button aria-pressed="false" type="button" class="text show-password bg:pure-black color:white cursor:pointer">Show</button>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="DB_PREFIX">
+                <span class="field-label">Database Prefix</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray" maxlength="7" type="text" id="DB_PREFIX" name="DB_PREFIX" value="tonics_" required autocomplete="DB_PREFIX">
+        </div>
+    </fieldset>
+    <fieldset class="owl padding:default max-width:900">
+        <legend class="bg:pure-black color:white padding:default">General Settings</legend>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="APP_URL">
+                <span class="field-label">Site URL</span>
+            </label>
+            <input class="color:black border-width:default border:black placeholder-color:gray" placeholder="Enter Site URL" type="url" id="APP_URL" name="APP_URL" required autocomplete="APP_URL">
+            <ul class="form-error">
+                <li class="text-decoration:underline"><span class="text list-info-span">!</span>Cache Clearing Won't Work With an Invalid Site URL</li>
+            </ul>
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="APP_LANGUAGE">
+                <span class="field-label">Language</span>
+            </label>
+            <select name="APP_LANGUAGE" class="default-selector color:black border-width:default border:black" id="APP_LANGUAGE">
+                <option value="0">en(English)</option>
+                <option value="1">yo_NG(Yoruba)</option>
+            </select>
+        </div>
+        <div class="form-group row">
+            <label style="margin-inline-end: auto;" for="APP_TIME_ZONE">
+                <span class="field-label">Timezone</span>
+            </label>
+            <select name="APP_TIME_ZONE" class="default-selector color:black border-width:default border:black" id="APP_TIME_ZONE">
+                [[_v('timeZoneList')]]
+            </select>
+        </div>
+    </fieldset>
+    <pre class="installation-pre"><code>> Push The Install Button (Installation Should Take Few Seconds)</code></pre>
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <button type="submit" class="bg:transparent  border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Install (Tonics) →</span>
+        </button>
+    </div>
+</form>
+]]
+
+[[b('body.header.section-login')
+<ul class="d:flex align-items:center flex-gap flex:one justify-content:start list:style:none">
+    <li class="menu-block button:box-shadow-little">
+        <a href="#"
+           class="menu-box flex-gap:small color:white bg:pure-black border:gray border-style:groove border-width:default">
+            <div class="text:paragraph-fluid-one text:no-wrap">
+                Login
+            </div>
+        </a>
+    </li>
+</ul>
+]]
+
+[[b('body.header.section-cart')
+<div class="nav-right">
+    <div class="cart-button">
+        <span class="cb-counter"><span class="cb-counter-label">0</span></span>
+        <button class="toggle bg:transparent  border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
+            <svg class="icon color:white tonics-cart">
+                <use xlink:href="#tonics-cart"></use>
+            </svg>
+        </button>
+        <div class="child-menu cart d:none flex-wrap:wrap flex-d:column align-items:center bg:gray-two z-index:cart position:absolute padding:default border-width:default border:black button:box-shadow-variant-2">
+            <div class="text cart-header text-responsive color:black border-width:default border:black">CART</div>
+
+            <div class="cart-item d:flex flex-wrap:wrap padding:2rem-1rem align-items:center flex-gap">
+                <img src="https://cdn.devsrealm.com/wp-content/uploads/2020/01/Devsreal-Author-Logo.svg"
+                     class="image:avatar" alt="Exclusivemusicplus Official Logo">
+                <div class="cart-detail">
+                    <span class="text cart-title">(Free) Afrobeat Instrumental - Ferola - Easy</span>
+                    <span class="text cart-license-price">Mp3 License
+                <span> → ($67.00)</span>
+            </span>
+                    <button class="bg:transparent  border:none color:black bg:white-one border-width:default border:black padding:small cursor:pointer button:box-shadow-variant-1">
+                        <span class="text text:no-wrap">Remove</span>
+                    </button>
+                </div>
+            </div>
+
+            <button class="bg:transparent  border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                <span class="text text:no-wrap">CHECKOUT →</span>
+            </button>
+
+        </div>
+    </div>
+</div>
+]]
+
+[[b('body.header.section-site-header-classes')site-header d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center]]
+[[b('body.header.section-site-header-classes:admin')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:space-around]]
+
+[[b('body.header.section-site-header-site-navigation')
+<nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
+    <ul class="site-navigation-ul d:flex flex-gap list:style:none">
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Home
+                </div>
+            </a>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Music
+                </div>
+            </a>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Music
+                </div>
+            </a>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Programming Tutorials
+                </div>
+            </a>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Beats
+                </div>
+                <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                        aria-label="Expand child menu">
+                    <svg class="icon color:black tonics-arrow-down">
+                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                    </svg>
+                </button>
+            </a>
+            <!-- The child menu-->
+            <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Afro Beats
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Afro Beats
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            House Music
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Beats
+                        </div>
+                        <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                                aria-label="Expand child menu">
+                            <svg class="icon color:black tonics-arrow-down">
+                                <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                            </svg>
+                        </button>
+                    </a>
+                    <!-- The child menu-->
+                    <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    Afro Beats
+                                </div>
+                            </a>
+                        </li>
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    Afro Beats
+                                </div>
+                            </a>
+                        </li>
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    House Music
+                                </div>
+                            </a>
+                        </li>
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    Beats
+                                </div>
+                                <button class="dropdown-toggle bg:transparent  border:none"
+                                        aria-expanded="false" aria-label="Expand child menu">
+                                    <svg class="icon color:black tonics-arrow-down">
+                                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                                    </svg>
+                                </button>
+                            </a>
+                            <!-- The child menu-->
+                            <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                                <li class="menu-block">
+                                    <a href="#"
+                                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                        <div class="text:paragraph-fluid-one text:no-wrap">
+                                            Afro Beats
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="menu-block">
+                                    <a href="#"
+                                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                        <div class="text:paragraph-fluid-one text:no-wrap">
+                                            Afro Beats
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="menu-block">
+                                    <a href="#"
+                                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                        <div class="text:paragraph-fluid-one text:no-wrap">
+                                            House Music
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="menu-block">
+                                    <a href="#"
+                                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                        <div class="text:paragraph-fluid-one text:no-wrap">
+                                            Folklore
+                                        </div>
+                                    </a></li>
+                            </ul>
+                        </li>
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    Folklore
+                                </div>
+                            </a></li>
+                    </ul>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Folklore
+                        </div>
+                    </a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+]]
+
+[[b('admin:body.header.section-site-header-site-navigation')
+<div class="site-logo">
+    <a href="[[url('admin.dashboard')]]" rel="home" itemprop="url">
+        <img src="/logo/o-ola-micky-logo.svg" class="image:avatar" alt="Exclusivemusicplus Official Logo" title="O-Ọlá Official Logo">
+    </a>
+</div>
+<nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
+    <ul class="site-navigation-ul d:flex flex-gap list:style:none">
+        [[event('\App\Modules\Core\Events\OnAdminMenu', 'generateMenuTree')]]
+
+        [[- THE BELOW IS A COMMENT FORMAT OF HOW THE ABOVE generateMenuTree Works -]]
+        [[-
+        <li class="menu-block">
+            <a href="[[url('admin.dashboard')]]" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <svg class="icon:admin tonics-dashboard">
+                    <use xlink:href="#tonics-dashboard"></use>
+                </svg>
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Dashboard
+                </div>
+            </a>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <svg class="icon:admin tonics-note">
+                    <use xlink:href="#tonics-note"></use>
+                </svg>
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Blog
+                </div>
+                <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                        aria-label="Expand child menu">
+                    <svg class="icon:admin tonics-arrow-down">
+                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                    </svg>
+                </button>
+            </a>
+            &lt;!&ndash; The child menu&ndash;&gt;
+            <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                <li class="menu-block">
+                    <a href="[[url('posts.create')]]"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-add-new">
+                            <use xlink:href="#tonics-add-new"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            New Post
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-multiple-notes">
+                            <use xlink:href="#tonics-multiple-notes"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            All Posts
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-add-new">
+                            <use xlink:href="#tonics-add-new"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            New Category
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-categories">
+                            <use xlink:href="#tonics-categories"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            All Categories
+                        </div>
+                    </a></li>
+            </ul>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <svg class="icon:admin tonics-play-outline">
+                    <use xlink:href="#tonics-play-outline"></use>
+                </svg>
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Media
+                </div>
+                <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                        aria-label="Expand child menu">
+                    <svg class="icon:admin tonics-arrow-down">
+                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                    </svg>
+                </button>
+            </a>
+            &lt;!&ndash; The child menu&ndash;&gt;
+            <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-add-new">
+                            <use xlink:href="#tonics-add-new"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Track
+                        </div>
+                        <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                                aria-label="Expand child menu">
+                            <svg class="icon:admin tonics-arrow-down">
+                                <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                            </svg>
+                        </button>
+                    </a>
+                    &lt;!&ndash; The child menu&ndash;&gt;
+                    <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <svg class="icon:admin tonics-add-new">
+                                    <use xlink:href="#tonics-add-new"></use>
+                                </svg>
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    New Track
+                                </div>
+                            </a>
+                        </li>
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <svg class="icon:admin tonics-music-playlist">
+                                    <use xlink:href="#tonics-music-playlist"></use>
+                                </svg>
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    All Tracks
+                                </div>
+                            </a>
+                        </li>
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <svg class="icon:admin tonics-archive">
+                                    <use xlink:href="#tonics-archive"></use>
+                                </svg>
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    Genres
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-user-solid-circle">
+                            <use xlink:href="#tonics-user-solid-circle"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Artist
+                        </div>
+                        <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                                aria-label="Expand child menu">
+                            <svg class="icon:admin tonics-arrow-down">
+                                <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                            </svg>
+                        </button>
+                    </a>
+                    &lt;!&ndash; The child menu&ndash;&gt;
+                    <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <svg class="icon:admin tonics-add-new">
+                                    <use xlink:href="#tonics-add-new"></use>
+                                </svg>
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    New Post
+                                </div>
+                            </a>
+                        </li>
+                        <li class="menu-block">
+                            <a href="#"
+                               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                                <svg class="icon:admin tonics-users">
+                                    <use xlink:href="#tonics-users"></use>
+                                </svg>
+                                <div class="text:paragraph-fluid-one text:no-wrap">
+                                    All Artists
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-media-files">
+                            <use xlink:href="#tonics-media-files"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            File Manager
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <svg class="icon:admin tonics-tools">
+                    <use xlink:href="#tonics-tools"></use>
+                </svg>
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Tools
+                </div>
+                <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                        aria-label="Expand child menu">
+                    <svg class="icon:admin tonics-arrow-down">
+                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                    </svg>
+                </button>
+            </a>
+            &lt;!&ndash; The child menu&ndash;&gt;
+            <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-menu">
+                            <use xlink:href="#tonics-menu"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Menu
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-widget">
+                            <use xlink:href="#tonics-widget"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Widget
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-licenses">
+                            <use xlink:href="#tonics-licenses"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Licenses
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="menu-block">
+            <a href="#"
+               class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                <svg class="icon:admin tonics-cog">
+                    <use xlink:href="#tonics-cog"></use>
+                </svg>
+                <div class="text:paragraph-fluid-one text:no-wrap">
+                    Settings
+                </div>
+                <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false"
+                        aria-label="Expand child menu">
+                    <svg class="icon:admin color:black tonics-arrow-down">
+                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                    </svg>
+                </button>
+            </a>
+            &lt;!&ndash; The child menu&ndash;&gt;
+            <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-cog">
+                            <use xlink:href="#tonics-cog"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Profile
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-cog">
+                            <use xlink:href="#tonics-cog"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            General
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-block">
+                    <a href="#"
+                       class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black">
+                        <svg class="icon:admin tonics-sign-out">
+                            <use xlink:href="#tonics-sign-out"></use>
+                        </svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">
+                            Logout
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        -]]
+
+    </ul>
+</nav>
+]]
+
+[[b('body.header.section')
+<section class="[[arg('1')]]">
+    [[arg('2')]]
+    [[arg('3')]]
+    [[arg('4')]]
+</section>
+]]

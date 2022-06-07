@@ -1,0 +1,104 @@
+[[import("Modules::Core/Views/Blocks/Widget")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- --------
+ARTIST ROUTES
+-------- -]]
+
+[[b('Artist::route::posts.store')/admin/artists/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Artist::route::posts.update')/admin/artists/[[arg('1')]]/update]]
+[[b('Artist::route::slug')[[v('Data.artist_slug')]]]]
+
+[[- Pass a delete slug arg to arg('1') -]]
+[[b('Artist::route::posts.delete')/admin/artists/[[arg('1')]]]]
+
+[[b('Artist::route::posts.trashMultiple')]]
+
+[[- --SEARCH FORM-- -]]
+[[b('Artist::form::search')
+<form action="[[arg('1')]]" class="width:100% d:flex justify-content:center" method="[[arg('2')]]">
+    <input type="search" required="" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+</form>
+]]
+
+[[b('Artist::form::create')
+<form method="post" action="[[use('Artist::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Artist Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group">
+                    <label for="post-title" class="screen-reader-text">Artist Name</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.artist_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[session('getOldFormInput', 'old_form_input.artist_name', '')]]"
+                           name="artist_name" id="artist_name" required="" placeholder="Enter Artist Name Here" type="text">
+                </div>
+
+                <!-- Text Area Section -->
+                <div class="form-group body-area">
+                    <label id="post-body" for="body-area" class="screen-reader-text">Artist Bio</label>
+                    <textarea id="body-area" class="tinyMCEBodyArea" placeholder="Artist Bio..." name="artist_bio">[[session('getOldFormInput', 'old_form_input.artist_bio', '')]]</textarea>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Artist-Meta', 'true')]]
+                [[func('Widget::Featured-Image', 'Session::OldFormInput::image_url')]]
+                [[func('Widget::Menu-Date', 'String::Publish')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[b('Artist::form::edit')
+<form method="post" action="[[func('Artist::route::posts.update', 'Artist::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <section class="post-admin-wrapper owl">
+        <div class="admin-post-writing-experience">
+            <fieldset class="owl padding:default max-width:1350">
+                <legend class="bg:pure-black color:white padding:default">Post Experience</legend>
+                <!-- Text Title Section -->
+                <div class="form-group">
+                    <label for="post-title" class="screen-reader-text">Enter Title Here</label>
+                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.artist_name')]]
+                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
+                           value="[[v('Data.artist_name')]]"
+                           name="artist_name" id="artist_name" required="" placeholder="Enter Title Here" type="text">
+                </div>
+
+                <!-- Text Area Section -->
+                <div class="form-group body-area">
+                    <label id="post-body" for="body-area" class="screen-reader-text">Artist Bio</label>
+                    <textarea id="body-area" class="tinyMCEBodyArea" placeholder="Artist Bio" name="artist_bio">[[v('Data.artist_bio')]]</textarea>
+                </div>
+
+            </fieldset>
+        </div>
+        <div class="admin-post-widget">
+            <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+                [[func('Widget::Artist-Meta_Update', 'false')]]
+                [[func('Widget::Featured-Image', 'Data::image_url')]]
+                [[func('Widget::Menu-Date', 'String::Update')]]
+            </ul>
+        </div>
+    </section>
+</form>
+]]
+
+[[- -------
+ARTIST VIEWS
+------- -]]
+
+[[b('Artist::view::index')
+<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+    [[_v('ArtistListing')]]
+</ul>
+]]

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+[[import("Themes::NinetySeven/Views/Blocks/Post")]]
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+<html lang="en">
+<head>
+    [[_use("default-meta")]]
+    <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
+    <title>[[v('Data.post_title')]]</title>
+</head>
+
+<body class="body-sticky-footer">
+[[_use("default-inline-svg")]]
+
+<header>
+    [[func('body.header.section', 'body.header.section-site-header-classes', 'body.header.section-site-header-site-navigation')]]
+</header>
+
+<main id="main"  class="flex:one" tabindex="-1">
+    <article class="owl" id="post_slug_id_[[v('Data.slug_id')]]">
+        [[_use("Post::Single::Header")]]
+
+        <section class="content-body bg:pure-white d:flex justify-content:space-evenly flex-wrap:wrap">
+            <article class="owl entry-content">
+                [[_v('Data.post_content')]]
+            </article>
+            [[if("v[MenuWidgetsSidebar.Data] !== block[empty]")
+                <aside>
+                    <div class="owl sidebar-widget position:sticky top:0">
+                        <h4>[[_v('MenuWidgetsSidebar.Title')]]</h4>
+                        <ul class="owl list:style:none">
+                            [[_v('MenuWidgetsSidebar.Data')]]
+                        </ul>
+                    </div>
+                </aside>
+            ]]
+        </section>
+    </article>
+</main>
+
+<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
+    <div class="footer-section">
+    </div>
+</footer>
+
+[[_use("script:post-front")]]
+</body>
+</html>

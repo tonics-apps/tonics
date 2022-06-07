@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+[[import("Themes::NinetySeven/Views/Blocks/Post")]]
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+<html lang="en">
+<head>
+  [[_use("default-meta")]]
+  <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
+  <title>[[v('Data.post_title')]]</title>
+</head>
+
+<body class="body-sticky-footer">
+[[_use("default-inline-svg")]]
+
+[[_v("FieldItems")]]
+
+[[_use("script:post-front")]]
+</body>
+</html>

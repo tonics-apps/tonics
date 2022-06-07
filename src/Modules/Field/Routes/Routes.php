@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Modules\Field\Routes;
+
+use App\Modules\Core\RequestInterceptor\Authenticated;
+use App\Modules\Core\RequestInterceptor\CSRFGuard;
+use App\Modules\Core\RequestInterceptor\StartSession;
+use App\Modules\Field\Controllers\FieldController;
+use App\Modules\Field\Controllers\FieldControllerItems;
+use App\Modules\Field\RequestInterceptor\FieldAccess;
+use Devsrealm\TonicsRouterSystem\Route;
+
+trait Routes
+{
+    /**
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function routeWeb(Route $route): Route
+    {
+        $route->group('/admin/tools', function (Route $route){
+
+                    #---------------------------------
+                # FIELD RESOURCES...
+            #---------------------------------
+            $route->group('/field', function (Route $route){
+                $route->get('', [FieldController::class, 'index'],  alias: 'index');
+                $route->post('store', [FieldController::class, 'store']);
+                $route->get('create', [FieldController::class, 'create'], alias: 'create');
+                $route->get(':field/edit', [FieldController::class, 'edit'], alias: 'edit');
+                $route->match(['post', 'put'], ':field/update', [FieldController::class, 'update']);
+                $route->match(['post', 'delete'], ':field/delete', [FieldController::class, 'delete']);
+                $route->match(['post', 'delete'], 'delete/multiple', [FieldController::class, 'deleteMultiple'], alias: 'deleteMultiple');
+            });
+
+                    #---------------------------------
+                # field ITEMS RESOURCES...
+            #---------------------------------
+            $route->group('/field/items', function (Route $route){
+                $route->get(':field/builder', [FieldControllerItems::class, 'index'],  alias: 'index');
+                $route->post('store', [FieldControllerItems::class, 'store']);
+            }, alias: 'items');
+
+        }, [StartSession::class, CSRFGuard::class, Authenticated::class, FieldAccess::class], alias: 'fields');
+
+        return $route;
+    }
+
+
+    public function routeApi(Route $routes): Route
+    {
+        return $routes;
+    }
+
+}

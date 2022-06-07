@@ -1,0 +1,101 @@
+{
+  "autoload": {
+    "psr-4": {"App\\": "src/"}
+  },
+  "autoload-dev": {
+    "psr-4": {"Test\\": "tests/"}
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^5.3",
+    "kint-php/kint": "^3.3",
+    "devsrealm/tonics-dom-parser": "dev-master",
+    "devsrealm/tonics-file-manager": "dev-master",
+    "devsrealm/tonics-console": "dev-master",
+    "devsrealm/tonics-validation": "dev-master",
+    "devsrealm/tonics-router-system": "dev-master",
+    "devsrealm/tonics-event-system": "dev-master",
+    "devsrealm/tonics-container": "dev-master",
+    "devsrealm/tonics-template-system": "dev-master",
+    "devsrealm/tonics-helpers": "dev-master"
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "adhocore/env": "^0.1.0",
+    "paragonie/easydb": "^2.11",
+    "nesbot/carbon": "^2.50",
+    "ext-zip": "*",
+    "ext-intl": "*",
+    "ext-pdo": "*",
+    "ext-fileinfo": "*",
+    "ext-bcmath": "*",
+    "ext-mbstring": "*",
+    "ext-apcu": "*",
+    "ext-gmp": "*",
+    "ext-curl": "*"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-file-manager",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-console",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-validation",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-router-system",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-event-system",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-container",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-dom-parser",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-template-system",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-helpers",
+      "options": {
+        "symlink": true
+      }
+    }
+  ]
+}
