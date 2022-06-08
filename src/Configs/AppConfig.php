@@ -24,9 +24,6 @@ use App\Library\View\Extensions\MenuModeHandler;
 use App\Library\View\Extensions\ModuleFunctionModeHandler;
 use App\Library\View\Extensions\SessionView;
 use App\Library\View\Extensions\URLModeHandler;
-use App\Modules\Core\Events\OnAdminMenu;
-use App\Modules\Media\FileManager\LocalDriver;
-use App\Modules\Page\Controllers\PagesController;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
@@ -46,6 +43,8 @@ use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateFileLoader;
 use Devsrealm\TonicsTemplateSystem\Tokenizer\State\DefaultTokenizerState;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use Exception;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class AppConfig
 {
@@ -331,6 +330,7 @@ class AppConfig
             Tables::getTable(Tables::ADMINS) => Tables::getTable(Tables::ADMINS),
             Tables::getTable(Tables::PLUGINS) => Tables::getTable(Tables::PLUGINS),
             Tables::getTable(Tables::SESSIONS) => Tables::getTable(Tables::SESSIONS),
+            Tables::getTable(Tables::GLOBAL) => Tables::getTable(Tables::GLOBAL),
             Tables::getTable(Tables::USER_TYPE) => Tables::getTable(Tables::USER_TYPE),
             Tables::getTable(Tables::USERS) => Tables::getTable(Tables::USERS),
 

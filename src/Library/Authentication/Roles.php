@@ -40,6 +40,14 @@ final class Roles
     # FIELD
     const CAN_ACCESS_FIELD = 16;
 
+    # MODULE
+    const CAN_ACCESS_MODULE = 16;
+
+    # Update Mechanism
+    const CAN_UPDATE_MODULES = 17;
+    const CAN_UPDATE_PLUGINS = 18;
+    const CAN_UPDATE_THEMES = 19;
+
     #[Pure] public static function ADMIN(): string
     {
         $adminPermissions = [
@@ -58,13 +66,27 @@ final class Roles
             self::shiftLeft(self::CAN_ACCESS_FIELD),
             self::shiftLeft(self::CAN_ACCESS_THEME),
             self::shiftLeft(self::CAN_ACCESS_PLUGIN),
+            self::shiftLeft(self::CAN_ACCESS_MODULE),
+
+            self::shiftLeft(self::CAN_UPDATE_MODULES),
+            self::shiftLeft(self::CAN_UPDATE_PLUGINS),
+            self::shiftLeft(self::CAN_UPDATE_THEMES),
         ];
         return self::gmpOr($adminPermissions);
     }
 
+    public static function UPDATE_MAINTAINER(): string
+    {
+        $permissions = [
+            self::shiftLeft(self::CAN_UPDATE_MODULES),
+            self::shiftLeft(self::CAN_UPDATE_PLUGINS),
+            self::shiftLeft(self::CAN_UPDATE_THEMES),
+        ];
+        return self::gmpOr($permissions);
+    }
     #[Pure] public static function POST_WRITER(): string
     {
-        $adminPermissions = [
+        $permissions = [
             self::shiftLeft(self::CAN_READ),
             self::shiftLeft(self::CAN_WRITE),
             self::shiftLeft(self::CAN_UPDATE),
@@ -72,12 +94,12 @@ final class Roles
             self::shiftLeft(self::CAN_ACCESS_MEDIA),
             self::shiftLeft(self::CAN_ACCESS_POST),
         ];
-        return self::gmpOr($adminPermissions);
+        return self::gmpOr($permissions);
     }
 
     #[Pure] public static function TRACK_WRITER(): string
     {
-        $adminPermissions = [
+        $permissions = [
             self::shiftLeft(self::CAN_READ),
             self::shiftLeft(self::CAN_WRITE),
             self::shiftLeft(self::CAN_UPDATE),
@@ -85,17 +107,17 @@ final class Roles
             self::shiftLeft(self::CAN_ACCESS_MEDIA),
             self::shiftLeft(self::CAN_ACCESS_TRACK),
         ];
-        return self::gmpOr($adminPermissions);
+        return self::gmpOr($permissions);
     }
 
     #[Pure] public static function CUSTOMER(): string
     {
-        $adminPermissions = [
+        $permissions = [
             self::shiftLeft(self::CAN_READ),
             self::shiftLeft(self::CAN_UPDATE),
             self::shiftLeft(self::CAN_ACCESS_CUSTOMER),
         ];
-        return self::gmpOr($adminPermissions);
+        return self::gmpOr($permissions);
     }
 
     /**

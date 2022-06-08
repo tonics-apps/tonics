@@ -3,3 +3,4 @@ vendor/
 .idea/
 .env
 composer.phar
+src/Modules/*.zip

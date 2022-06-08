@@ -1,15 +1,1 @@
-{
-  "name": "Core",
-  "type": "Module",
-  "version": "1-O-Ola.1654594213",
-  "stable": 0,
-  "description": "The Core Module",
-  "info_url": "",
-  "update_discovery_url": "https:\/\/api.github.com\/repos\/tonics-apps\/tonics-core-module\/releases\/latest",
-  "authors": {
-    "name": "The Devsrealm Guy",
-    "email": "faruq@devsrealm.com",
-    "role": "Developer"
-  },
-  "credits": []
-}
+{"name":"Core","type":"Module","version":"1-O-Ola.1654594213","stable":0,"description":"The Core Module","info_url":"","update_discovery_url":"https:\/\/api.github.com\/repos\/tonics-apps\/tonics-core-module\/releases\/latest","authors":{"name":"The Devsrealm Guy","email":"faruq@devsrealm.com","role":"Developer"},"credits":[]}

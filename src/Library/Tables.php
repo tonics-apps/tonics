@@ -32,6 +32,7 @@ final class Tables
         self::PURCHASES,
         self::PURCHASE_TRACKS,
         self::SESSIONS,
+        self::GLOBAL,
         self::TAG_RELS,
         self::TAGS,
         self::TRACK_LIKES,
@@ -71,6 +72,7 @@ final class Tables
 
     const PURCHASES = 'purchases';
     const SESSIONS = 'sessions';
+    const GLOBAL = 'global';
     const TAG_RELS = 'tag_rels';
     const TAGS = 'tags';
 
