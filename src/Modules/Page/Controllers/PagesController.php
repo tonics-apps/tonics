@@ -98,7 +98,7 @@ class PagesController
         }
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->pageStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('pages.create'));
         }
 
@@ -162,7 +162,7 @@ class PagesController
         }
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->pageUpdateRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('pages.edit', [$id]));
         }
 
@@ -171,7 +171,7 @@ class PagesController
             $pageToUpdate['page_slug'] = helper()->slug(input()->fromPost()->retrieve('page_slug'));
             $this->pageData->updateWithCondition($pageToUpdate, ['page_id' => $id], $this->pageData->getPageTable());
         } catch (Exception) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('pages.edit', [$id]));
         }
 
@@ -218,7 +218,7 @@ class PagesController
         try {
             db()->insertOnDuplicate(Tables::getTable(Tables::PAGES), $itemsToTrash, ['page_status']);
         } catch (\Exception $e) {
-            session()->flash(['Fail To Trash Page Items'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Fail To Trash Page Items']);
             redirect(route('pages.index'));
         }
         session()->flash(['Page(s) Trashed'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -241,7 +241,7 @@ class PagesController
             $errorCode = $e->getCode();
             switch ($errorCode){
                 default:
-                    session()->flash(['Failed To Delete Page'], type: Session::SessionCategories_FlashMessageError);
+                    session()->flash(['Failed To Delete Page']);
                     break;
             }
             apcu_clear_cache();
@@ -271,7 +271,7 @@ class PagesController
                 $errorCode = $e->getCode();
                 switch ($errorCode){
                     default:
-                        session()->flash(['Failed To Delete Page'], type: Session::SessionCategories_FlashMessageError);
+                        session()->flash(['Failed To Delete Page']);
                         break;
                 }
                 apcu_clear_cache();

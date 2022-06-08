@@ -42,9 +42,10 @@ class LocalDriver implements StorageDriverInterface
     public function preFlight($data)
     {
         $tbl = $this->getBlobTable();
-        $f = $data['Uploadto'] . DIRECTORY_SEPARATOR . $this->normalizeFileName($data['Filename'], '_');
+        $fileName = $this->normalizeFileName($data['Filename'], '_');
+        $f = $data['Uploadto'] . DIRECTORY_SEPARATOR . $fileName;
         $chunksTemp = helper()
-            ->generateBlobCollatorsChunksToSend($data['Byteperchunk'], $data['Totalblobsize'], $data['Chunkstosend'], $data['Uploadto'], $data['Filename']);
+            ->generateBlobCollatorsChunksToSend($data['Byteperchunk'], $data['Totalblobsize'], $data['Chunkstosend'], $data['Uploadto'], $f);
         db()->insertOnDuplicate(
             table: $tbl, data: $chunksTemp, update: ['hash_id', 'moreBlobInfo'], chunkInsertRate: 2000
         );
@@ -58,7 +59,7 @@ SELECT `id`, `blob_name`, `blob_chunk_part`, `blob_chunk_size`, `moreBlobInfo`
                             FROM $tbl WHERE blob_name = ? AND missing_blob_chunk_byte IS NULL OR missing_blob_chunk_byte > 0;
 SQL, $f);
 
-        return ['preflightData' => $preflightData, 'filename' => $this->normalizeFileName($data['Filename'], '_')];
+        return ['preflightData' => $preflightData, 'filename' => $this->normalizeFileName($fileName, '_')];
     }
 
     /**
@@ -66,12 +67,13 @@ SQL, $f);
      * @param string $url
      * @param string $uploadTo
      * @param string $filename
+     * @param bool $importToDB
      * @return bool
      * @throws \Exception
      */
-    public function createFromURL(string $url, string $uploadTo = '', string $filename = '')
+    public function createFromURL(string $url, string $uploadTo = '', string $filename = '', bool $importToDB = true): bool
     {
-        $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename);
+        $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename, $importToDB);
         $initState = $downloadFromURLState::InitialState;
         $downloadFromURLState->setCurrentState($initState)->runStates(false);
         return $downloadFromURLState->getStateResult() === SimpleState::DONE;
@@ -81,21 +83,27 @@ SQL, $f);
      * @param string $pathToArchive
      * @param string $extractTo
      * @param string $archiveType
+     * @param bool $importToDB
      * @return bool
      * @throws \Exception
      */
-    public function extractFile(string $pathToArchive, string $extractTo, string $archiveType = 'zip'): bool
+    public function extractFile(string $pathToArchive, string $extractTo, string $archiveType = 'zip', bool $importToDB = true): bool
     {
         if (strtolower($archiveType) === 'zip') {
             $extractFileState = new ExtractFileState($this);
-            helper()->extractZipFile($pathToArchive, $extractTo, function ($extractedFilePath, $remaining) use ($extractFileState) {
-                helper()->sendMsg('ExtractFileState', "Extracting $extractedFilePath");
+            helper()->extractZipFile($pathToArchive, $extractTo, function ($extractedFilePath, $shortFilePath, $remaining) use ($importToDB, $extractFileState) {
+                helper()->sendMsg('ExtractFileState', "Extracted $shortFilePath");
                 helper()->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
-                $extractFileState
-                    ->setExtractedFilePath($extractedFilePath)
-                    ->setCurrentState(ExtractFileState::ExtractFileStateInitial)
-                    ->runStates(false);
+                if ($importToDB){
+                    $extractFileState
+                        ->setExtractedFilePath($extractedFilePath)
+                        ->setCurrentState(ExtractFileState::ExtractFileStateInitial)
+                        ->runStates(false);
+                }
             });
+            if ($importToDB === false){
+                return true;
+            }
             return $extractFileState->getStateResult() === SimpleState::DONE;
         }
         return false;
@@ -117,7 +125,7 @@ SQL, $f);
             $this->deleteBlobs($totalChunks, $blob_name);
 
             if ($dataInfo->blobInfo->newFile) {
-                $this->insertFileToDB($dataInfo->filePath, $dataInfo->blobInfo->uploadToID, 'file');
+                $this->insertFileToDB($dataInfo->filePath, $dataInfo->blobInfo->uploadToID);
             }
         }
         return $dataInfo->info;
@@ -368,18 +376,20 @@ SQL, $f);
         $filename = helper()->getFileName($path);
 
         $ext = ($fileType !== 'file') ? null : helper()->extension($path);
+        $properties = [
+            'ext' => $ext,
+            'filename' => $filename,
+            'size' => helper()->fileSize($path),
+            "time_created" => helper()->getFileTimeCreated($path),
+            "time_modified" => helper()->getFileTimeModified($path)
+        ];
+        helper()->moreFileProperties($path, $ext, $properties);
         return [
             "drive_parent_id" => $uploadToID,
             "drive_unique_id" => $uniqueID,
             "type" => $fileType,
             'filename' => $filename,
-            "properties" => json_encode([
-                'ext' => $ext,
-                'filename' => $filename,
-                'size' => helper()->fileSize($path),
-                "time_created" => helper()->getFileTimeCreated($path),
-                "time_modified" => helper()->getFileTimeModified($path)
-            ]),
+            "properties" => json_encode($properties),
             "security" => json_encode([
                 "lock" => false,
                 "password" => random_int(0000000, PHP_INT_MAX),

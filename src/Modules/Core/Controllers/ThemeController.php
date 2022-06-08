@@ -52,7 +52,7 @@ class ThemeController
             }
         }
 
-        session()->flash(['An Error Occurred Activating Theme'], [], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['An Error Occurred Activating Theme'], []);
         redirect(route('themes.index'));
     }
 
@@ -70,7 +70,7 @@ class ThemeController
             }
         }
 
-        session()->flash(['An Error Occurred DeActivating Theme'], [], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['An Error Occurred DeActivating Theme'], []);
         redirect(route('themes.index'));
     }
 

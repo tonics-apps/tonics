@@ -182,7 +182,7 @@ HTML;
                 return $frag;
             }
             $menuData = new MenuData();
-            $tree = $menuData->getMenuItems($menuID, true);
+            $tree = $menuData->getMenuItems($menuID);
             foreach ($tree as $t){
                 $frag .= $this->getMenuHTMLFragment($t, 0, $displayName);
             }

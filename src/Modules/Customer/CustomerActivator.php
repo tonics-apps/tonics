@@ -7,12 +7,13 @@
 
 namespace App\Modules\Customer;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
+use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Library\Tables;
 
 use App\Modules\Customer\Routes\RouteWeb;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class CustomerActivator implements ModuleConfig
+class CustomerActivator implements ModuleConfig, PluginConfig
 {
     use RouteWeb;
 
@@ -51,5 +52,34 @@ class CustomerActivator implements ModuleConfig
             [
                 Tables::getTable(Tables::CUSTOMERS) => Tables::getTable(Tables::CUSTOMERS),
             ];
+    }
+
+    public function onInstall(): void
+    {
+        // TODO: Implement onInstall() method.
+    }
+
+    public function onUninstall(): void
+    {
+        // TODO: Implement onUninstall() method.
+    }
+
+    public function info(): array
+    {
+        return [
+            "name" => "Customer",
+            "type" => "Module",
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-Ola.1654594213',
+            "description" => "The Customer Module",
+            "info_url" => '',
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-customer-module/releases/latest",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
+                "email" => "faruq@devsrealm.com",
+                "role" => "Developer"
+            ],
+            "credits" => []
+        ];
     }
 }

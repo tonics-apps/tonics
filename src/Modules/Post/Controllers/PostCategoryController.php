@@ -46,7 +46,7 @@ class PostCategoryController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryStoreRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('posts.category.create'));
         }
 
@@ -122,7 +122,7 @@ class PostCategoryController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryUpdateRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors());
             redirect(route('posts.category.edit', [$slug]));
         }
 
@@ -195,7 +195,7 @@ class PostCategoryController
         try {
             db()->insertOnDuplicate(Tables::getTable(Tables::CATEGORIES), $itemsToTrash, ['cat_status']);
         } catch (Exception $e){
-            session()->flash(['Fail To Trash Category Items'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Fail To Trash Category Items']);
             redirect(route('posts.category.index'));
         }
         session()->flash(['Categories Trashed'], type: Session::SessionCategories_FlashMessageSuccess);

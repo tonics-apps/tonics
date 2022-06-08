@@ -25,6 +25,7 @@ use App\Library\View\Extensions\ModuleFunctionModeHandler;
 use App\Library\View\Extensions\SessionView;
 use App\Library\View\Extensions\URLModeHandler;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Media\FileManager\LocalDriver;
 use App\Modules\Page\Controllers\PagesController;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
@@ -63,6 +64,7 @@ class AppConfig
             $initKey = self::getAppCacheKey();
             if (function_exists('apcu_enabled') && apcu_exists($initKey)){
                 $initLoader = apcu_fetch($initKey);
+              //  dd($initLoader);
             } else {
                 ## Tonics View
                 $templateLoader = new TonicsTemplateFileLoader('html');
@@ -224,6 +226,11 @@ class AppConfig
         return env('APP_ENV', 'production');
     }
 
+    public static function getAppUpdateKey(): string
+    {
+        return env('UPDATE_KEY', 'NULL');
+    }
+
     public static function getAppUrl(): string
     {
         return env('APP_URL');
@@ -236,7 +243,7 @@ class AppConfig
 
     public static function getAssetUrl(): string
     {
-        return env('ASSET_URL', null);
+        return env('ASSET_URL', '');
     }
 
     public static function getKey(): string

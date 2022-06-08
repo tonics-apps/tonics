@@ -27,6 +27,15 @@ class DriveConfig
     }
 
     /**
+     * This is where you dump temp data, never dump temp data in the uploads path
+     * @return string
+     */
+    public static function getTempPath(): string
+    {
+        return dirname(APP_ROOT) . '/private/temp';
+    }
+
+    /**
      * @return string
      */
     public static function getWordPressImportPath(): string

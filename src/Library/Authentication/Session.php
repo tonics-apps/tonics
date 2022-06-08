@@ -79,10 +79,11 @@ SQL, $_COOKIE[$this->sessionName()]);
         }
 
         ## Not necessary but if the event_scheduler hasn't cleared the old session, then we wouldn't want to return it
-        ## Should we clear the old session ourselves here?
+        ## Should we clear the old session ourselves here? yes or we get a bug where no data would be written in session
         $dateTime = helper()->date();
         $updatedAt = $stm->updated_at;
         if ($updatedAt < $dateTime) {
+            session()->clear($_COOKIE[$this->sessionName()]);
             return '';
         }
 
@@ -181,6 +182,7 @@ SQL, $_COOKIE[$this->sessionName()]);
      */
     public function append(string $key, array|stdClass|string $data): void
     {
+        // dd($this->sessionExist(), $_COOKIE[$this->sessionName()], $this->read(true));
         if ($this->sessionExist()) {
             if (is_array($data) || is_object($data)) {
                 $data = json_encode($data);

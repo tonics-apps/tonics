@@ -31,7 +31,8 @@
     "ext-mbstring": "*",
     "ext-apcu": "*",
     "ext-gmp": "*",
-    "ext-curl": "*"
+    "ext-curl": "*",
+    "ext-gd": "*"
   },
   "repositories": [
     {

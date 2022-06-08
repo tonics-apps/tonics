@@ -55,7 +55,7 @@ class LicenseControllerItems
         $licenseSlug = input()->fromPost()->retrieve('licenseSlug', '');
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->licenseItemsStoreRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), $validator->getInputData(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), $validator->getInputData());
             redirect(route('licenses.items.index', ['license' => $licenseSlug]));
         }
 
@@ -77,7 +77,7 @@ class LicenseControllerItems
             session()->flash(['License Successfully Saved'], $menuDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('licenses.items.index', ['license' => $licenseSlug]));
         }catch (\Exception){
-            session()->flash(['An Error Occurred Saving License'], [], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Saving License'], []);
             redirect(route('licenses.items.index', ['license' => $licenseSlug]));
         }
     }

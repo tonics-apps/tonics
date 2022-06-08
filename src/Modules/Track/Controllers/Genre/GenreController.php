@@ -66,7 +66,7 @@ class GenreController
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->genreStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('genres.create'));
         }
 
@@ -81,7 +81,7 @@ class GenreController
             session()->flash(['Genre Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('genres.edit', ['genre' => $onGenreCreate->getGenreSlug()]));
         } catch (\Exception){
-            session()->flash(['An Error Occurred Creating Genre'], input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Creating Genre'], input()->fromPost()->all());
             redirect(route('genres.create'));
         }
     }
@@ -114,7 +114,7 @@ class GenreController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->genreUpdateRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors());
             redirect(route('genres.edit', [$slug]));
         }
 
@@ -127,7 +127,7 @@ class GenreController
             session()->flash(['Genre Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('genres.edit', ['genre' => $slug]));
         }catch (\Exception){
-            session()->flash(['An Error Occurred Updating Genre'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Updating Genre']);
             redirect(route('genres.edit', [$slug]));
         }
     }
@@ -142,7 +142,7 @@ class GenreController
         try {
             $genre = $this->getTrackData()->selectWithCondition($this->getTrackData()->getGenreTable(), ['*'], "genre_slug = ?", [$slug]);
             if (isset($genre->can_delete) && $genre->can_delete === 0){
-                session()->flash(["You Can't Delete a Default Genre"], type: Session::SessionCategories_FlashMessageError);
+                session()->flash(["You Can't Delete a Default Genre"]);
                 redirect(route('genres.index'));
             }
 
@@ -150,7 +150,7 @@ class GenreController
             session()->flash(['Genre Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('genres.index'));
         } catch (\Exception){
-            session()->flash(['Failed To Delete Genre'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Failed To Delete Genre']);
             redirect(route('genres.index'));
         }
     }

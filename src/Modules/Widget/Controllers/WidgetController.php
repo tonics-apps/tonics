@@ -71,7 +71,7 @@ class WidgetController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->widgetStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('widgets.create'));
         }
 
@@ -86,7 +86,7 @@ class WidgetController
             
             redirect(route('widgets.edit', ['widget' => $onWidgetCreate->getWidgetSlug()]));
         } catch (\Exception){
-            session()->flash(['An Error Occurred Creating The Widget Item'], input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Creating The Widget Item'], input()->fromPost()->all());
             redirect(route('widgets.create'));
         }
     }
@@ -119,7 +119,7 @@ class WidgetController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->widgetUpdateRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors());
             redirect(route('widgets.edit', [$slug]));
         }
 
@@ -133,7 +133,7 @@ class WidgetController
             
             redirect(route('widgets.edit', ['widget' => $slug]));
         }catch (\Exception){
-            session()->flash(['An Error Occurred Updating The Widget Item'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Updating The Widget Item']);
             redirect(route('widgets.edit', [$slug]));
         }
     }
@@ -152,7 +152,7 @@ class WidgetController
             
             redirect(route('widgets.index'));
         } catch (\Exception){
-            session()->flash(['Failed To Delete Widget'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Failed To Delete Widget']);
             redirect(route('widgets.index'));
         }
     }
@@ -177,7 +177,7 @@ class WidgetController
                 redirect(route('widgets.index'));
             },
             onError: function (){
-                session()->flash(['Failed To Delete Widget'], type: Session::SessionCategories_FlashMessageError);
+                session()->flash(['Failed To Delete Widget']);
                 redirect(route('widgets.index'));
             },
         );

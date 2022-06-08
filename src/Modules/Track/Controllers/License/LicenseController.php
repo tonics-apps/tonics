@@ -72,7 +72,7 @@ class LicenseController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->licenseStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('licenses.create'));
         }
 
@@ -86,7 +86,7 @@ class LicenseController
             session()->flash(['License Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('licenses.edit', ['license' => $onLicenseCreate->getLicenseSlug()]));
         } catch (\Exception){
-            session()->flash(['An Error Occurred Creating The License Item'], input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Creating The License Item'], input()->fromPost()->all());
             redirect(route('licenses.create'));
         }
     }
@@ -119,7 +119,7 @@ class LicenseController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->licenseUpdateRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors());
             redirect(route('licenses.edit', [$slug]));
         }
 
@@ -132,7 +132,7 @@ class LicenseController
             session()->flash(['License Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('licenses.edit', ['license' => $slug]));
         }catch (\Exception){
-            session()->flash(['An Error Occurred Updating The License Item'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Updating The License Item']);
             redirect(route('licenses.edit', [$slug]));
         }
     }
@@ -149,7 +149,7 @@ class LicenseController
             session()->flash(['License Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('licenses.index'));
         } catch (\Exception){
-            session()->flash(['Failed To Delete License'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Failed To Delete License']);
             redirect(route('licenses.index'));
         }
     }
@@ -173,7 +173,7 @@ class LicenseController
                 redirect(route('licenses.index'));
             },
             onError: function (){
-                session()->flash(['Failed To Delete License'], type: Session::SessionCategories_FlashMessageError);
+                session()->flash(['Failed To Delete License']);
                 redirect(route('licenses.index'));
             },
         );

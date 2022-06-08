@@ -70,7 +70,7 @@ class FieldControllerItems extends Controller
             $fieldDetails = json_decode(input()->fromPost()->retrieve('fieldDetails'), true);
             $validator = $this->getValidator()->make($fieldDetails, $this->fieldItemsStoreRule());
         }catch (\Exception){
-            session()->flash(['An Error Occurred Extracting Field Data'], [], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Extracting Field Data'], []);
             redirect(route('fields.items.index', ['field' => $fieldSlug]));
         }
 
@@ -92,7 +92,7 @@ class FieldControllerItems extends Controller
 
         if ($error === false) {
             $fieldDetails = json_decode(input()->fromPost()->retrieve('fieldDetails'), true);
-            session()->flash($validator->getErrors(), $fieldDetails ?? [], type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), $fieldDetails ?? []);
             redirect(route('fields.items.index', ['field' => $fieldSlug]));
         }
         session()->flash(['Field Items Successfully Saved'], $fieldDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);

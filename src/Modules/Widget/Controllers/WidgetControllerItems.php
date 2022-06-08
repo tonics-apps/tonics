@@ -68,7 +68,7 @@ class WidgetControllerItems extends Controller
             $menuDetails = json_decode(input()->fromPost()->retrieve('menuWidgetDetails'), true);
             $validator = $this->getValidator()->make($menuDetails, $this->menuWidgetItemsStoreRule());
         }catch (\Exception){
-            session()->flash(['An Error Occurred Extracting Menu Widget Data'], [], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Extracting Menu Widget Data'], []);
             redirect(route('widgets.items.index', ['menu' => $menuWidgetSlug]));
         }
 
@@ -93,7 +93,7 @@ class WidgetControllerItems extends Controller
 
         if ($error === false) {
             $menuDetails = json_decode(input()->fromPost()->retrieve('menuDetails'), true);
-            session()->flash($validator->getErrors(), $menuDetails ?? [], type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), $menuDetails ?? []);
             redirect(route('widgets.items.index', ['menu' => $menuWidgetSlug]));
         }
         session()->flash(['Menu Widget Successfully Saved'], $menuDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);

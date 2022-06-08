@@ -19,8 +19,8 @@ class ThemeData extends AbstractDataLayer
         $htmlFrag = ''; $urlPrefix = "/admin/tools/themes";
         $k = 0;
         foreach ($themes as $themeKey => $themeInstance){
-            if (key_exists(2, explode('\\', $themeKey)) && $themeInstance instanceof PluginConfig){
-                $themeDirName = explode('\\', $themeKey)[2];
+            if ($themeInstance instanceof PluginConfig){
+                $themeDirName =helper()->getFileName(helper()->getClassDirectory($themeInstance));
                 $themePath = AppConfig::getThemesPath() . DIRECTORY_SEPARATOR . $themeDirName;
                 $themeName = isset($themeInstance->info()['name']) ? $themeInstance->info()['name'] : $themeDirName;
 

@@ -159,7 +159,14 @@ class UpdateLocalDriveFilesInDb implements ConsoleCommand
                 $parentSignature = $helper->getDriveSystemParentSignature(DriveConfig::getPrivatePath(), $pathname);
                 $relPath = $helper->getDriveSystemRelativeSignature(DriveConfig::getPrivatePath(), $pathname);
                 $uniqueID = hash('sha256', $relPath . random_int(0000000, PHP_INT_MAX));
-
+                $properties = [
+                    'ext' => $ext,
+                    'filename' => $filename,
+                    'size' => $size,
+                    "time_created" => $timeCreated,
+                    "time_modified" => $timeModified
+                ];
+                $helper->moreFileProperties($file->getRealPath(), $ext, $properties);
                 $filesAndDir[$relPath] = [
                     // the drive_id must be a unique hash since we can only have a single unique rel-path
                     // "drive_id" => $this->hashToDecimal($relPath),
@@ -170,13 +177,7 @@ class UpdateLocalDriveFilesInDb implements ConsoleCommand
                     "drive_name" => $drive_name,
                     "type" => "file",
                     'filename' => $filename,
-                    "properties" => json_encode([
-                        'ext' => $ext,
-                        'filename' => $filename,
-                        'size' => $size,
-                        "time_created" => $timeCreated,
-                        "time_modified" => $timeModified
-                    ]),
+                    "properties" => json_encode($properties),
                     "security" => json_encode([
                         "lock" => false,
                         "password" => $i.random_int(0000000, PHP_INT_MAX),

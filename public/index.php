@@ -28,19 +28,4 @@ require dirname(__FILE__, 2) . '/vendor/autoload.php';
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING
 #-------------------------------------------
-$json = [
-    "name" => "Core Module",
-    "type" => "Module",
-    // the first portion is when the module was created, and the second is when it was updated
-    "version" => '22-06-06_22-06-06-20:51:22',
-    "description" => "The Core Module",
-    "update_url" => "https://github.com/tonics-apps/core-menu",
-    "authors" => [
-        "name" => "The Devsrealm Guy",
-        "email" => "faruq@devsrealm.com",
-        "role" => "Developer"
-    ],
-    "credits" => []
-];
-dd(json_encode($json));
 AppConfig::initLoader(false)->BootDaBoot();

@@ -79,17 +79,20 @@ class CoreActivator implements ModuleConfig, PluginConfig
     public function info(): array
     {
         return [
-            "name" => "Core Module",
+            "name" => "Core",
             "type" => "Module",
-            // the first portion is when the module was created, and the second is when it was updated
-            "version" => '22-06-06_22-06-06-20.51.22',
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-Ola.1654594213',
+            "stable" => 0,
             "description" => "The Core Module",
-            "update_url" => "https://github.com/tonics-apps/core-menu",
+            "info_url" => '',
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-core-module/releases/latest",
             "authors" => [
                 "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
                 "role" => "Developer"
             ],
+            "credits" => []
         ];
     }
 }

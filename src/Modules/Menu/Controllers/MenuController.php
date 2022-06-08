@@ -71,7 +71,7 @@ class MenuController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->menuStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('menus.create'));
         }
         $menu = $this->getMenuData()->createMenu();
@@ -112,7 +112,7 @@ class MenuController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->menuUpdateRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors());
             redirect(route('menus.edit', [$slug]));
         }
 
@@ -137,7 +137,7 @@ class MenuController
             session()->flash(['Menu Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('menus.index'));
         } catch (\Exception){
-            session()->flash(['Failed To Delete Menu'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Failed To Delete Menu']);
             redirect(route('menus.index'));
         }
     }
@@ -161,7 +161,7 @@ class MenuController
                 redirect(route('menus.index'));
             },
             onError: function (){
-                session()->flash(['Failed To Delete Menu'], type: Session::SessionCategories_FlashMessageError);
+                session()->flash(['Failed To Delete Menu']);
                 redirect(route('menus.index'));
             },
         );

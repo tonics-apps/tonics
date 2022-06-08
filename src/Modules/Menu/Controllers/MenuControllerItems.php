@@ -71,7 +71,7 @@ class MenuControllerItems extends Controller
             $menuDetails = json_decode(input()->fromPost()->retrieve('menuDetails'), true);
             $validator = $this->getValidator()->make($menuDetails, $this->menuItemsStoreRule());
         }catch (\Exception){
-            session()->flash(['An Error Occurred Extracting Menu Data'], [], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Extracting Menu Data'], []);
             redirect(route('menus.items.index', ['menu' => $menuSlug]));
         }
 
@@ -97,7 +97,7 @@ class MenuControllerItems extends Controller
 
         if ($error === false) {
             $menuDetails = json_decode(input()->fromPost()->retrieve('menuDetails'), true);
-            session()->flash($validator->getErrors(), $menuDetails ?? [], type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), $menuDetails ?? []);
             redirect(route('menus.items.index', ['menu' => $menuSlug]));
         }
         session()->flash(['Menu Successfully Saved'], $menuDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);

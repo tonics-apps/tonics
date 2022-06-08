@@ -16,6 +16,7 @@ class DownloadFromURLState extends SimpleState
     private string $filename;
     private array $headers;
     private bool $urlIsValid;
+    private bool $importToDB = true;
     private array $preflightData = [];
     // 4194304
     private int $bytePerChunk = 4194304; // 4mb
@@ -42,25 +43,27 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function __construct(LocalDriver $localDriver, string $url, string $uploadTo, string $filename)
+    public function __construct(LocalDriver $localDriver, string $url, string $uploadTo, string $filename, bool $importToDB = true)
     {
         $this->localDriver = $localDriver;
         $this->url = $url;
+        $this->importToDB = $importToDB;
         $this->uploadTo = $uploadTo;
         $this->filename = $localDriver->normalizeFileName($filename);
 
         if (empty($uploadTo)) {
             $this->uploadTo = DriveConfig::getUploadsPath();
-        } elseif (!helper()->fileExists(DriveConfig::getUploadsPath() . DIRECTORY_SEPARATOR . $uploadTo)) {
-            $this->uploadTo = DriveConfig::getUploadsPath();
         }
 
-        $dirPath = str_replace(DriveConfig::getPrivatePath(), '', $this->uploadTo);
-        $pathID = $this->getLocalDriver()->findChildRealID(array_filter(explode(DIRECTORY_SEPARATOR, $dirPath)));
-        if ($pathID === false){
-            throw new \Exception("Couldn't Find The UploadTo Drive ID in Db");
+        if ($this->importToDB){
+            $dirPath = str_replace(DriveConfig::getPrivatePath(), '', $this->uploadTo);
+            $pathID = $this->getLocalDriver()->findChildRealID(array_filter(explode(DIRECTORY_SEPARATOR, $dirPath)));
+            if ($pathID === false){
+                throw new \Exception("Couldn't Find The UploadTo Drive ID in Db");
+            }
+            $this->parentDriveID = $pathID;
         }
-        $this->parentDriveID = $pathID;
+
         $headers = helper()->getHeadersFromURL($url);
         if (helper()->remoteFileExists($url, $headers)) {
             $this->headers = $headers;
@@ -208,7 +211,9 @@ class DownloadFromURLState extends SimpleState
             helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
             $this->getLocalDriver()->deleteBlobs($this->totalChunks, $this->preflightData['preflightData'][$currentBlobID]->blob_name);
             $this->switchState(self::DownloadCompleted);
-            $this->insertFileToDB($filePath);
+            if ($this->importToDB){
+                $this->insertFileToDB($filePath);
+            }
            return self::NEXT;
         }
         return self::ERROR;
@@ -264,7 +269,9 @@ class DownloadFromURLState extends SimpleState
             $this->switchState(self::DownloadCompleted);
             fclose($outFile);
             $outFile = null;
-            $this->insertFileToDB($filePath);
+            if ($this->importToDB){
+                $this->insertFileToDB($filePath);
+            }
             return self::NEXT;
         }
         fclose($outFile);

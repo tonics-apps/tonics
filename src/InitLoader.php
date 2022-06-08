@@ -20,7 +20,6 @@ use Devsrealm\TonicsRouterSystem\Handler\Router;
 use Devsrealm\TonicsRouterSystem\Route;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use Exception;
-use phpDocumentor\Reflection\Types\This;
 
 /**
  * The initial loader of the app
@@ -59,7 +58,7 @@ class InitLoader
             # INCLUDE THE HELPERS
         #-----------------------------------
         AppConfig::includeHelpers();
-       // dd(event()->dispatch(new OnAdminMenu())->generateMenuTree(), event());
+        // dd(event()->dispatch(new OnAdminMenu())->generateMenuTree(), event());
 
         ## TimeZone
         date_default_timezone_set(AppConfig::getTimeZone());

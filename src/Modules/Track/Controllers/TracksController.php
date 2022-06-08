@@ -113,7 +113,7 @@ class TracksController extends Controller
         ]);
         $validator = $getValidator->make(input()->fromPost()->all(), $this->trackStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.create'));
         }
 
@@ -122,7 +122,7 @@ class TracksController extends Controller
             $trackReturning = db()->insertReturning($this->getTrackData()->getTrackTable(), $track, $this->getTrackData()->getTrackColumns());
             $onTrackCreate = new OnTrackCreate($trackReturning, $this->getTrackData());
         } catch (Exception $exception){
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.create'));
         }
 
@@ -194,7 +194,7 @@ class TracksController extends Controller
         ]);
         $validator = $getValidator->make(input()->fromPost()->all(), $this->trackUpdateRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.edit', [$slug]));
         }
 
@@ -203,7 +203,7 @@ class TracksController extends Controller
             $track['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_slug'));
             $this->getTrackData()->updateWithCondition($track, ['track_slug' => $slug], $this->getTrackData()->getTrackTable());
         } catch (Exception){
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.edit', [$slug]));
         }
 
@@ -250,7 +250,7 @@ class TracksController extends Controller
         try {
             db()->insertOnDuplicate(Tables::getTable(Tables::TRACKS), $itemsToTrash, ['track_status']);
         } catch (\Exception $e){
-            session()->flash(['Fail To Trash Track Items'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Fail To Trash Track Items']);
             redirect(route('tracks.index'));
         }
         session()->flash(['Track(s) Trashed'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -272,7 +272,7 @@ class TracksController extends Controller
             $errorCode = $e->getCode();
             switch ($errorCode){
                 default:
-                    session()->flash(['Failed To Delete Track'], type: Session::SessionCategories_FlashMessageError);
+                    session()->flash(['Failed To Delete Track']);
                     break;
             }
             redirect(route('tracks.index'));
@@ -301,7 +301,7 @@ class TracksController extends Controller
                 $errorCode = $e->getCode();
                 switch ($errorCode){
                     default:
-                        session()->flash(['Failed To Delete Track'], type: Session::SessionCategories_FlashMessageError);
+                        session()->flash(['Failed To Delete Track']);
                         break;
                 }
                 redirect(route('tracks.index'));

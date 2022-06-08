@@ -60,7 +60,7 @@ class ThemeSystem extends SimpleState
      */
     #[NoReturn] public function OnThemePermissionErrorState()
     {
-        session()->flash(['An Error Occurred Reading or Writing File'], [], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['An Error Occurred Reading or Writing File'], []);
         redirect(route('themes.index'));
     }
 
@@ -97,7 +97,7 @@ class ThemeSystem extends SimpleState
             return self::NEXT;
         }
 
-        session()->flash(['An Error Occurred De-Activating Current Installed Theme'], [], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['An Error Occurred De-Activating Current Installed Theme'], []);
         redirect(route('themes.index'));
     }
 
@@ -115,7 +115,7 @@ class ThemeSystem extends SimpleState
             return self::NEXT;
         }
 
-        session()->flash(['An Error Occurred Activating Theme'], [], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['An Error Occurred Activating Theme'], []);
         redirect(route('themes.index'));
     }
 
@@ -124,7 +124,7 @@ class ThemeSystem extends SimpleState
      */
     #[NoReturn] public function OnThemeDuplicateActivationRequestState()
     {
-        session()->flash(['Theme Duplicate Activation Error Request'], [], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['Theme Duplicate Activation Error Request'], []);
         redirect(route('themes.index'));
     }
 
@@ -169,7 +169,7 @@ class ThemeSystem extends SimpleState
             return self::NEXT;
         }
 
-        session()->flash(['An Error Occurred DeActivating Theme'], [], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['An Error Occurred DeActivating Theme'], []);
         redirect(route('themes.index'));
     }
 

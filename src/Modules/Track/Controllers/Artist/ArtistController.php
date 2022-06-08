@@ -71,7 +71,7 @@ class ArtistController
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->artistStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('artists.create'));
         }
 
@@ -85,7 +85,7 @@ class ArtistController
             session()->flash(['Artist Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('artists.edit', ['artist' => $onArtistCreate->getArtistSlug()]));
         } catch (\Exception){
-            session()->flash(['An Error Occurred Creating Artist'], input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Creating Artist'], input()->fromPost()->all());
             redirect(route('artists.create'));
         }
     }
@@ -118,7 +118,7 @@ class ArtistController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->artistUpdateRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors());
             redirect(route('artists.edit', [$slug]));
         }
 
@@ -131,7 +131,7 @@ class ArtistController
             session()->flash(['Artist Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('artists.edit', ['artist' => $slug]));
         }catch (\Exception){
-            session()->flash(['An Error Occurred Updating Artist'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Updating Artist']);
             redirect(route('artists.edit', [$slug]));
         }
     }
@@ -151,10 +151,10 @@ class ArtistController
             $errorCode = $e->getCode();
             switch ($errorCode){
                 case "23000";
-                    session()->flash(["Artist is Currently Assigned to Track(s)"], type: Session::SessionCategories_FlashMessageError);
+                    session()->flash(["Artist is Currently Assigned to Track(s)"]);
                     break;
                 default:
-                    session()->flash(['Failed To Delete Artist'], type: Session::SessionCategories_FlashMessageError);
+                    session()->flash(['Failed To Delete Artist']);
                     break;
             }
             redirect(route('artists.index'));
@@ -183,10 +183,10 @@ class ArtistController
                 $errorCode = $e->getCode();
                 switch ($errorCode){
                     case "23000";
-                        session()->flash(["Artist is Currently Assigned to Track(s)"], type: Session::SessionCategories_FlashMessageError);
+                        session()->flash(["Artist is Currently Assigned to Track(s)"]);
                         break;
                     default:
-                        session()->flash(['Failed To Delete Artist'], type: Session::SessionCategories_FlashMessageError);
+                        session()->flash(['Failed To Delete Artist']);
                         break;
                 }
                 redirect(route('artists.index'));

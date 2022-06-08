@@ -480,6 +480,7 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
                     $tag->appendChildren($closed);
                     $tv->addTagInStackOfOpenElKey($key, $tag);
                     /**@var Tag $t */
+                    // useless as array is always empty
                     foreach ($closed as $t) {
                         $t->setParentNode($tag);
                     }

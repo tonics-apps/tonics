@@ -37,7 +37,7 @@ class LoginController extends Controller
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->getLoginRules());
 
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('admin.login'));
         }
 

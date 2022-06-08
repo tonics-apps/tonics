@@ -71,7 +71,7 @@ class FieldController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->fieldStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('fields.create'));
         }
 
@@ -86,7 +86,7 @@ class FieldController
             
             redirect(route('fields.edit', ['field' => $onFieldCreate->getFieldSlug()]));
         } catch (\Exception){
-            session()->flash(['An Error Occurred Creating The Field Item'], input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Creating The Field Item'], input()->fromPost()->all());
             redirect(route('widgets.create'));
         }
     }
@@ -119,7 +119,7 @@ class FieldController
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->fieldUpdateRule());
         if ($validator->fails()){
-            session()->flash($validator->getErrors(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors());
             redirect(route('fields.edit', [$slug]));
         }
 
@@ -133,7 +133,7 @@ class FieldController
             
             redirect(route('fields.edit', ['field' => $slug]));
         }catch (\Exception){
-            session()->flash(['An Error Occurred Updating The Field Item'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['An Error Occurred Updating The Field Item']);
             redirect(route('fields.edit', [$slug]));
         }
     }
@@ -152,7 +152,7 @@ class FieldController
             
             redirect(route('fields.index'));
         } catch (\Exception){
-            session()->flash(['Failed To Delete Field'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Failed To Delete Field']);
             redirect(route('fields.index'));
         }
     }
@@ -177,7 +177,7 @@ class FieldController
                 redirect(route('fields.index'));
             },
             onError: function (){
-                session()->flash(['Failed To Delete Field'], type: Session::SessionCategories_FlashMessageError);
+                session()->flash(['Failed To Delete Field']);
                 redirect(route('fields.index'));
             },
         );

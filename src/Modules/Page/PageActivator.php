@@ -9,6 +9,7 @@ namespace App\Modules\Page;
 
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
+use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Library\Tables;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Page\EventHandlers\DefaultPageFieldHandler;
@@ -18,7 +19,7 @@ use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Page\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class PageActivator implements ModuleConfig
+class PageActivator implements ModuleConfig, PluginConfig
 {
     use Routes;
     /**
@@ -72,5 +73,34 @@ class PageActivator implements ModuleConfig
             [
                 Tables::getTable(Tables::PAGES) => Tables::getTable(Tables::PAGES),
             ];
+    }
+
+    public function onInstall(): void
+    {
+        // TODO: Implement onInstall() method.
+    }
+
+    public function onUninstall(): void
+    {
+        // TODO: Implement onUninstall() method.
+    }
+
+    public function info(): array
+    {
+        return [
+            "name" => "Page",
+            "type" => "Module",
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-Ola.1654594213',
+            "description" => "The Page Module",
+            "info_url" => '',
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-page-module/releases/latest",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
+                "email" => "faruq@devsrealm.com",
+                "role" => "Developer"
+            ],
+            "credits" => []
+        ];
     }
 }

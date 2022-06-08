@@ -104,7 +104,7 @@ class PostsController
         $this->postData->setDefaultPostCategoryIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all(), Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('posts.create'));
         }
 
@@ -192,7 +192,7 @@ class PostsController
         $this->postData->setDefaultPostCategoryIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(),  input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageError);
+            session()->flash($validator->getErrors(),  input()->fromPost()->all());
             redirect(route('posts.edit', [$slug]));
         }
 
@@ -251,7 +251,7 @@ class PostsController
         try {
             db()->insertOnDuplicate(Tables::getTable(Tables::POSTS), $itemsToTrash, ['post_status']);
         } catch (\Exception $e) {
-            session()->flash(['Fail To Trash Post Items'], type: Session::SessionCategories_FlashMessageError);
+            session()->flash(['Fail To Trash Post Items']);
             redirect(route('posts.index'));
         }
         session()->flash(['Posts Trashed'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -274,7 +274,7 @@ class PostsController
             $errorCode = $e->getCode();
             switch ($errorCode){
                 default:
-                    session()->flash(['Failed To Delete Post'], type: Session::SessionCategories_FlashMessageError);
+                    session()->flash(['Failed To Delete Post']);
                     break;
             }
             redirect(route('posts.index'));
@@ -303,7 +303,7 @@ class PostsController
                 $errorCode = $e->getCode();
                 switch ($errorCode){
                     default:
-                        session()->flash(['Failed To Delete Post'], type: Session::SessionCategories_FlashMessageError);
+                        session()->flash(['Failed To Delete Post']);
                         break;
                 }
                 redirect(route('posts.index'));

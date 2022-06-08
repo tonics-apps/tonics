@@ -59,17 +59,8 @@ class DownloadFromURLState extends SimpleState
             throw new \Exception("Couldn't Find The UploadTo Drive ID in Db");
         }
         $this->parentDriveID = $pathID;
-
-        // remove context in prod
-        $contextOptions = [
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-            ]
-        ];
-        $sslContext = stream_context_create($contextOptions);
-        $headers = helper()->getHeadersFromURL($url, context: $sslContext);
-        if (helper()->remoteFileExists($url, $headers, $sslContext)) {
+        $headers = helper()->getHeadersFromURL($url);
+        if (helper()->remoteFileExists($url, $headers)) {
             $this->headers = $headers;
             $this->urlIsValid = true;
         } else {

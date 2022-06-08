@@ -9,6 +9,7 @@ namespace App\Modules\Menu;
 
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
+use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Library\Tables;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Menu\EventHandlers\MenuMenus;
@@ -17,7 +18,7 @@ use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Menu\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class MenuActivator implements ModuleConfig
+class MenuActivator implements ModuleConfig, PluginConfig
 {
     use Routes;
 
@@ -68,5 +69,34 @@ class MenuActivator implements ModuleConfig
                 Tables::getTable(Tables::MENU_LOCATIONS) => Tables::getTable(Tables::MENU_LOCATIONS),
                 Tables::getTable(Tables::MENUS) => Tables::getTable(Tables::MENUS),
             ];
+    }
+
+    public function onInstall(): void
+    {
+        // TODO: Implement onInstall() method.
+    }
+
+    public function onUninstall(): void
+    {
+        // TODO: Implement onUninstall() method.
+    }
+
+    public function info(): array
+    {
+        return [
+            "name" => "Menu",
+            "type" => "Module",
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-Ola.1654594213',
+            "description" => "The Menu Module",
+            "info_url" => '',
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-menu-module/releases/latest",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
+                "email" => "faruq@devsrealm.com",
+                "role" => "Developer"
+            ],
+            "credits" => []
+        ];
     }
 }

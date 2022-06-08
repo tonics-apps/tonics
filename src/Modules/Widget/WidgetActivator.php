@@ -9,6 +9,7 @@ namespace App\Modules\Widget;
 
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
+use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Library\Tables;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Widget\EventHandlers\MenuWidgets\ImageMenuWidget;
@@ -21,7 +22,7 @@ use App\Modules\Widget\Events\OnWidgetCreate;
 use App\Modules\Widget\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class WidgetActivator implements ModuleConfig
+class WidgetActivator implements ModuleConfig, PluginConfig
 {
 
     use Routes;
@@ -78,5 +79,34 @@ class WidgetActivator implements ModuleConfig
                 Tables::getTable(Tables::WIDGETS) => Tables::getTable(Tables::WIDGETS),
                 Tables::getTable(Tables::WIDGET_ITEMS) => Tables::getTable(Tables::WIDGET_ITEMS),
             ];
+    }
+
+    public function onInstall(): void
+    {
+        // TODO: Implement onInstall() method.
+    }
+
+    public function onUninstall(): void
+    {
+        // TODO: Implement onUninstall() method.
+    }
+
+    public function info(): array
+    {
+        return [
+            "name" => "Widget",
+            "type" => "Module",
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-Ola.1654594213',
+            "description" => "The Widget Module",
+            "info_url" => '',
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-widget-module/releases/latest",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
+                "email" => "faruq@devsrealm.com",
+                "role" => "Developer"
+            ],
+            "credits" => []
+        ];
     }
 }
