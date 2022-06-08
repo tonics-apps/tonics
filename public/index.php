@@ -28,4 +28,5 @@ require dirname(__FILE__, 2) . '/vendor/autoload.php';
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING
 #-------------------------------------------
+
 AppConfig::initLoader(false)->BootDaBoot();
