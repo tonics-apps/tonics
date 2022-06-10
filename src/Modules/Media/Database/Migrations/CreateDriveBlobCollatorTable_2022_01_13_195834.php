@@ -8,8 +8,8 @@
 
 namespace App\Modules\Media\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 
 class CreateDriveBlobCollatorTable_2022_01_13_195834 extends Migration
 {

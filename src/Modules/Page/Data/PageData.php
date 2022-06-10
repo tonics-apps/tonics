@@ -2,9 +2,9 @@
 
 namespace App\Modules\Page\Data;
 
-use App\Library\AbstractDataLayer;
-use App\Library\CustomClasses\UniqueSlug;
-use App\Library\Tables;
+use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\CustomClasses\UniqueSlug;
+use App\Modules\Core\Library\Tables;
 
 class PageData extends AbstractDataLayer
 {

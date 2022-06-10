@@ -2,7 +2,7 @@
 
 namespace App\Modules\Core\Data;
 
-use App\Library\AbstractDataLayer;
+use App\Modules\Core\Library\AbstractDataLayer;
 
 class ImportData extends AbstractDataLayer
 {

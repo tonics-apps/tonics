@@ -7,14 +7,14 @@
 
 namespace App\Modules\Field\Controllers;
 
-use App\Configs\AppConfig;
-use App\Library\Authentication\Session;
-use App\Library\CustomClasses\UniqueSlug;
-use App\Library\SimpleState;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\CustomClasses\UniqueSlug;
+use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldCreate;
 use App\Modules\Field\Rules\FieldValidationRules;
-use App\Modules\Core\Validation\Traits\Validator;
 use JetBrains\PhpStorm\NoReturn;
 
 class FieldController

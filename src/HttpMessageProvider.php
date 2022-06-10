@@ -7,7 +7,7 @@
 
 namespace App;
 
-use App\Library\SimpleState;
+use App\Modules\Core\Library\SimpleState;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
@@ -37,8 +37,8 @@ class HttpMessageProvider implements ServiceProvider
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\ReflectionException | \Throwable $e) {
-             // SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
-             SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
+             SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
+             // SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
         }
     }
 

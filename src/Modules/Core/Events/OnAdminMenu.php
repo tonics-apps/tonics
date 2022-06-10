@@ -7,8 +7,8 @@
 
 namespace App\Modules\Core\Events;
 
-use App\Library\Authentication\Session;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Session;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
 /**

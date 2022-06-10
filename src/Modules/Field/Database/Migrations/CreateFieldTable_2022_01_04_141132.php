@@ -8,8 +8,8 @@
 
 namespace App\Modules\Field\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 
 class CreateFieldTable_2022_01_04_141132 extends Migration {
 

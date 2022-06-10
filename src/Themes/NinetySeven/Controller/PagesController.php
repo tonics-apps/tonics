@@ -2,8 +2,8 @@
 
 namespace App\Themes\NinetySeven\Controller;
 
-use App\Configs\AppConfig;
-use App\Library\SimpleState;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Page\Data\PageData;
 

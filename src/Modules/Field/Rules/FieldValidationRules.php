@@ -2,7 +2,7 @@
 
 namespace App\Modules\Field\Rules;
 
-use App\Library\Tables;
+use App\Modules\Core\Library\Tables;
 
 trait FieldValidationRules
 {

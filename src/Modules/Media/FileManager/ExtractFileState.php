@@ -2,8 +2,8 @@
 
 namespace App\Modules\Media\FileManager;
 
-use App\Configs\DriveConfig;
-use App\Library\SimpleState;
+use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Library\SimpleState;
 
 class ExtractFileState extends SimpleState
 {

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Post\EventHandlers;
 
-use App\Library\Authentication\Session;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Post\Events\OnPostCategoryCreate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use JetBrains\PhpStorm\NoReturn;

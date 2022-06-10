@@ -9,7 +9,7 @@ namespace App\Modules\Media;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
-use App\Library\Tables;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Media\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 

@@ -7,11 +7,11 @@
 
 namespace App;
 
-use App\Configs\AppConfig;
-use App\Library\Authentication\Session;
-use App\Library\Database;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\MyPDO;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\Database;
+use App\Modules\Core\Library\MyPDO;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
@@ -59,6 +59,9 @@ class InitLoader
         #-----------------------------------
         AppConfig::includeHelpers();
         // dd(event()->dispatch(new OnAdminMenu())->generateMenuTree(), event());
+        if (AppConfig::isMaintenanceMode()){
+            die("Temporarily down for schedule maintenance, check back in few minutes");
+        }
 
         ## TimeZone
         date_default_timezone_set(AppConfig::getTimeZone());

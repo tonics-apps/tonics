@@ -1,9 +1,8 @@
 <?php
 
-use App\Configs\AppConfig;
-use App\Library\Authentication\Session;
-use App\Library\MyPDO;
-use App\Library\Router\RouteResolver;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\MyPDO;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
 use Devsrealm\TonicsHelpers\TonicsHelpers;

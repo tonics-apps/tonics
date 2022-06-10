@@ -2,10 +2,9 @@
 
 namespace App\Modules\Track\Helper;
 
-use App\Library\SimpleState;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
-use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 
 class TrackRedirection extends SimpleState
 {

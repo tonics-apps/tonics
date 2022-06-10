@@ -2,7 +2,7 @@
 
 namespace App\Modules\Core\Controllers\Auth;
 
-use App\Configs\AppConfig;
+use App\Modules\Core\Configs\AppConfig;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateLoaderError;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateFileLoader;
 use JetBrains\PhpStorm\NoReturn;

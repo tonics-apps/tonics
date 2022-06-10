@@ -8,8 +8,8 @@
 
 namespace App\Modules\Post\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 
 class CreatePostsTable_2022_01_11_213250 extends Migration {
 

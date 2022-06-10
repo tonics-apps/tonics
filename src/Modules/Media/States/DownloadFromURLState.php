@@ -2,12 +2,9 @@
 
 namespace App\Modules\Media\States;
 
-use App\Configs\AppConfig;
-use App\Configs\DriveConfig;
-use App\Library\SimpleState;
-use App\Modules\Media\FileManager\Exceptions\FileException;
+use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Media\FileManager\LocalDriver;
-use SebastianBergmann\CodeCoverage\Percentage;
 
 class DownloadFromURLState extends SimpleState
 {

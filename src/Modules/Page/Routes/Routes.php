@@ -2,14 +2,10 @@
 
 namespace App\Modules\Page\Routes;
 
-use App\Configs\AppConfig;
-use App\Library\Database;
-use App\Library\Tables;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Page\Controllers\PagesController;
-use App\Modules\Page\Data\PageData;
 use App\Modules\Page\RequestInterceptor\PageAccess;
 use Devsrealm\TonicsRouterSystem\Route;
 

@@ -7,19 +7,19 @@
  */
 
 use Ahc\Env\Loader;
-use App\Commands\ClearCache;
-use App\Commands\Environmental\SetEnvironmentalKey;
-use App\Commands\Environmental\SetEnvironmentalPepper;
-use App\Commands\Module\MigrateAll;
-use App\Commands\Module\MigrateAllFresh;
-use App\Commands\Module\ModuleMakeConsole;
-use App\Commands\Module\ModuleMakeMigration;
-use App\Commands\Module\ModuleMigrate;
-use App\Commands\Module\ModuleMigrateDown;
-use App\Commands\PreInstall\PreInstallerManager;
-use App\Commands\Scheduler\ScheduleManager;
-use App\Commands\Sync\SyncDirectory;
-use App\Configs\AppConfig;
+use App\Modules\Core\Commands\ClearCache;
+use App\Modules\Core\Commands\Environmental\SetEnvironmentalPepper;
+use App\Modules\Core\Commands\Module\MigrateAll;
+use App\Modules\Core\Commands\Module\MigrateAllFresh;
+use App\Modules\Core\Commands\Module\ModuleMakeConsole;
+use App\Modules\Core\Commands\Module\ModuleMakeMigration;
+use App\Modules\Core\Commands\Module\ModuleMigrate;
+use App\Modules\Core\Commands\Module\ModuleMigrateDown;
+use App\Modules\Core\Commands\PreInstall\PreInstallerManager;
+use App\Modules\Core\Commands\Scheduler\ScheduleManager;
+use App\Modules\Core\Commands\Sync\SyncDirectory;
+use App\Modules\Core\Commands\UpdateMechanism\Updates;
+use App\Modules\Core\Configs\AppConfig;
 use Devsrealm\TonicsConsole\CommandRegistrar;
 use Devsrealm\TonicsConsole\Console;
 use Devsrealm\TonicsConsole\ProcessCommandLineArgs;
@@ -57,6 +57,7 @@ if ($args->passes()) {
                 SetEnvironmentalPepper::class,
                 ClearCache::class,
                 SyncDirectory::class,
+                Updates::class,
             ])
         );
     } catch (ReflectionException $e) {

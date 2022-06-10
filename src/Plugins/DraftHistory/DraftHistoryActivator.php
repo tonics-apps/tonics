@@ -70,23 +70,18 @@ class DraftHistoryActivator implements ModuleConfig, PluginConfig
     public function info(): array
     {
         return [
-            "name" => "Premium Widgets",
-            "slug" => "premium-widget",
-            "version" => '1.0.0',
-            "description" => "Contains More Widgets",
-            "homepage" => "https://github.com/devsrealm/premium-widget",
-            "featured_image" => "https://picsum.photos/350", // Recommended 350px by 350px
-            "keywords" => [
-                "devsrealm",
-                "beatstonic",
-                "draft-history"
-            ],
-            "license" => "MIT",
+            "name" => "DraftHistory",
+            "type" => "Plugin",
+            "version" => '1-O-Ola.1654594213',
+            "description" => "DraftHistory Plugin, The First Tonic Plugin, Basically Useless For Now",
+            "info_url" => '',
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-track-module/releases/latest",
             "authors" => [
                 "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
                 "role" => "Developer"
             ],
+            "credits" => []
         ];
     }
 }

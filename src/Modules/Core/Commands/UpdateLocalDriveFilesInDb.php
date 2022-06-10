@@ -7,17 +7,13 @@
 
 namespace App\Modules\Core\Commands;
 
-use App\Configs\DriveConfig;
-use App\Library\ConsoleColor;
-use App\Library\Database;
-use App\Library\MyPDO;
-use App\Library\Tables;
+use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Library\ConsoleColor;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Media\FileManager\Exceptions\FileException;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
-use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
 use JetBrains\PhpStorm\ArrayShape;
-use ParagonIE\EasyDB\EasyDB;
 
 /**
  * Class UpdateLocalDriveFilesInDb

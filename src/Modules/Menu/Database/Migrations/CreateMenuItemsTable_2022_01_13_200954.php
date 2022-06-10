@@ -8,8 +8,8 @@
 
 namespace App\Modules\Menu\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 
 class CreateMenuItemsTable_2022_01_13_200954 extends Migration {
 

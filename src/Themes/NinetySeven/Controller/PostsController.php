@@ -2,18 +2,13 @@
 
 namespace App\Themes\NinetySeven\Controller;
 
-use App\Configs\AppConfig;
-use App\Library\Authentication\Roles;
-use App\Library\Authentication\Session;
-use App\Library\SimpleState;
-use App\Library\View\CustomTokenizerState\WordPress\WordPressShortCode;
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Roles;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Widget\Data\WidgetData;
-use App\Modules\Widget\Events\OnMenuWidgetMetaBox;
-use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateArrayLoader;
-use Symfony\Component\VarDumper\Cloner\VarCloner;
-use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 
 class PostsController
 {

@@ -8,8 +8,8 @@
 
 namespace App\Modules\Track\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 use JsonException;
 
 class CreateLicensesTable_2022_01_13_210634 extends Migration {

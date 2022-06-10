@@ -2,10 +2,10 @@
 
 namespace App\Modules\Menu\Controllers;
 
-use App\Configs\AppConfig;
-use App\Library\Authentication\Session;
-use App\Library\SimpleState;
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Controllers\Controller;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Menu\Data\MenuData;
 use App\Modules\Menu\Events\OnMenuMetaBox;

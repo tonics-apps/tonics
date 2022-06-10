@@ -8,11 +8,10 @@
 
 namespace App\Modules\Customer\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 use Exception;
-use JsonException;
 
 class CreateCustomersTable_2022_01_13_195307 extends Migration {
 

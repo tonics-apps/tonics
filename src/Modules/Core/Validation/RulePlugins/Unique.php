@@ -7,11 +7,8 @@
 
 namespace App\Modules\Core\Validation\RulePlugins;
 
-use App\Library\Database;
-use App\Library\MyPDO;
 use Devsrealm\TonicsValidation\Interfaces\RuleInterface;
 use Devsrealm\TonicsValidation\Rule;
-use ParagonIE\EasyDB\EasyDB;
 
 /**
  * Class Unique

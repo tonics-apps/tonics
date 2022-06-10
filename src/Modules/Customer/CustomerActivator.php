@@ -8,8 +8,7 @@
 namespace App\Modules\Customer;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
-use App\Library\Tables;
-
+use App\Modules\Core\Library\Tables;
 use App\Modules\Customer\Routes\RouteWeb;
 use Devsrealm\TonicsRouterSystem\Route;
 

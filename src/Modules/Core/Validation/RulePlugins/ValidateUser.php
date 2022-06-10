@@ -2,12 +2,9 @@
 
 namespace App\Modules\Core\Validation\RulePlugins;
 
-use App\Library\Database;
-use App\Library\MyPDO;
 use App\Modules\Core\Data\UserData;
 use Devsrealm\TonicsValidation\Interfaces\RuleInterface;
 use Devsrealm\TonicsValidation\Rule;
-use ParagonIE\EasyDB\EasyDB;
 
 /**
  *

@@ -3,22 +3,18 @@
 namespace App\Modules\Core\Controllers;
 
 use Ahc\Env\Loader;
-use App\Commands\Environmental\SetEnvironmentalKey;
-use App\Commands\Environmental\SetEnvironmentalPepper;
-use App\Commands\Module\MigrateAll;
-use App\Configs\AppConfig;
-use App\Configs\DatabaseConfig;
-use App\Library\Authentication\Roles;
-use App\Library\Database;
-use App\Library\SimpleState;
+use App\Modules\Core\Commands\Environmental\SetEnvironmentalKey;
+use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Commands\UpdateLocalDriveFilesInDb;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Roles;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Validation\Traits\Validator;
 use DateTimeZone;
-use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsValidation\Validation;
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use PDOException;
 
 class Installer extends SimpleState

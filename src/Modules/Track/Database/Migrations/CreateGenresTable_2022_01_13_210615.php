@@ -8,11 +8,9 @@
 
 namespace App\Modules\Track\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 use Exception;
-use JetBrains\PhpStorm\ArrayShape;
-use JsonException;
 
 class CreateGenresTable_2022_01_13_210615 extends Migration
 {

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Post;
 
-use App\Library\Tables;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;

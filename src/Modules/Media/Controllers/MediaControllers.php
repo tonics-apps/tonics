@@ -7,8 +7,8 @@
 
 namespace App\Modules\Media\Controllers;
 
-use App\Configs\AppConfig;
-use App\Configs\DriveConfig;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Media\FileManager\LocalDriver;
 use Devsrealm\TonicsFileManager\StorageDriver\StorageDriver;
 use Devsrealm\TonicsFileManager\StorageDriver\StorageDriverInterface;

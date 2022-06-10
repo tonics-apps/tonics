@@ -8,8 +8,8 @@
 
 namespace App\Modules\Track\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 
 class CreateTracksTable_2022_01_13_210642 extends Migration {
 

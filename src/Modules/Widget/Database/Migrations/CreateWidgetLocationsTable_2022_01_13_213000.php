@@ -8,8 +8,8 @@
 
 namespace App\Modules\Widget\Database\Migrations;
 
-use App\Library\Migration;
-use App\Library\Tables;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 
 class CreateWidgetLocationsTable_2022_01_13_213000 extends Migration {
 

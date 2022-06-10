@@ -2,12 +2,11 @@
 
 namespace App\Modules\Core\Controllers;
 
-use App\Configs\AppConfig;
 use App\InitLoader;
-use App\Library\Authentication\Session;
-use App\Library\SimpleState;
-use App\Library\ThemeSystem;
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\ThemeData;
+use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\ThemeSystem;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
 use JetBrains\PhpStorm\NoReturn;
 

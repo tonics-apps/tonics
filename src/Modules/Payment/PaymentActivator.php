@@ -10,7 +10,6 @@ namespace App\Modules\Payment;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
-use App\Library\Tables;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class PaymentActivator implements ModuleConfig, PluginConfig

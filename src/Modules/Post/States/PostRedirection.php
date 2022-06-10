@@ -2,10 +2,9 @@
 
 namespace App\Modules\Post\States;
 
-use App\Library\SimpleState;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
-use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 
 class PostRedirection extends SimpleState
 {

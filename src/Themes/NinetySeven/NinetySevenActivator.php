@@ -57,7 +57,19 @@ class NinetySevenActivator implements ModuleConfig, PluginConfig
     public function info(): array
     {
         return [
-            'type'
+            "name" => "NinetySeven",
+            "type" => "Theme",
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-Ola.1654594213',
+            "description" => "NinetySeven Theme, The First Tonic Theme",
+            "info_url" => '',
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-track-module/releases/latest",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
+                "email" => "faruq@devsrealm.com",
+                "role" => "Developer"
+            ],
+            "credits" => []
         ];
     }
 }

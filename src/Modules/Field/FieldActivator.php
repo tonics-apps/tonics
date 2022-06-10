@@ -9,16 +9,16 @@ namespace App\Modules\Field;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
-use App\Library\Tables;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\EventHandlers\FieldMenus;
 use App\Modules\Field\EventHandlers\Fields\Input\InputChoices;
 use App\Modules\Field\EventHandlers\Fields\Input\InputColor;
 use App\Modules\Field\EventHandlers\Fields\Input\InputDate;
 use App\Modules\Field\EventHandlers\Fields\Input\InputRange;
+use App\Modules\Field\EventHandlers\Fields\Input\InputRichText;
 use App\Modules\Field\EventHandlers\Fields\Input\InputSelect;
 use App\Modules\Field\EventHandlers\Fields\Input\InputText;
-use App\Modules\Field\EventHandlers\Fields\Input\InputRichText;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaAudio;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaFileManager;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaImage;

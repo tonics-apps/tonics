@@ -2,10 +2,10 @@
 
 namespace App\Modules\Core\Data;
 
-use App\Configs\AppConfig;
-use App\Library\AbstractDataLayer;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\AbstractDataLayer;
 
 class ThemeData extends AbstractDataLayer
 {

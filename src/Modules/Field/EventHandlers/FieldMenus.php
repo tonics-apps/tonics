@@ -2,9 +2,9 @@
 
 namespace App\Modules\Field\EventHandlers;
 
-use App\Library\Authentication\Roles;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class FieldMenus implements HandlerInterface

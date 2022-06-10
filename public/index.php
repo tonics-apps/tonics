@@ -6,8 +6,7 @@
  */
 
 use Ahc\Env\Loader;
-use App\Configs\AppConfig;
-use App\Configs\DriveConfig;
+use App\Modules\Core\Configs\AppConfig;
 
 ## Remove this in production
 error_reporting(E_ALL);
@@ -28,5 +27,4 @@ require dirname(__FILE__, 2) . '/vendor/autoload.php';
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING
 #-------------------------------------------
-
 AppConfig::initLoader(false)->BootDaBoot();

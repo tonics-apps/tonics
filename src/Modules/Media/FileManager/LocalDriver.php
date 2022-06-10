@@ -8,10 +8,10 @@
 namespace App\Modules\Media\FileManager;
 
 
-use App\Configs\DriveConfig;
-use App\Library\SimpleState;
-use App\Library\Tables;
 use App\Modules\Core\Commands\UpdateLocalDriveFilesInDb;
+use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Media\FileManager\Exceptions\FileException;
 use App\Modules\Media\Rules\MediaValidationRules;
@@ -19,9 +19,7 @@ use App\Modules\Media\States\DownloadFromURLState;
 use App\Modules\Media\States\ExtractFileState;
 use Devsrealm\TonicsFileManager\StorageDriver\StorageDriverInterface;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
-use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\NoReturn;
-use ParagonIE\EasyDB\EasyDB;
 
 class LocalDriver implements StorageDriverInterface
 {

@@ -2,9 +2,9 @@
 
 namespace App\Modules\Core\RequestInterceptor;
 
-use App\Configs\AppConfig;
-use App\Library\Authentication\IsAppInstalled;
-use App\Library\SimpleState;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Authentication\IsAppInstalled;
+use App\Modules\Core\Library\SimpleState;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 

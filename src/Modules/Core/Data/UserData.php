@@ -2,11 +2,11 @@
 
 namespace App\Modules\Core\Data;
 
-use App\Library\AbstractDataLayer;
-use App\Library\Authentication\Roles;
-use App\Library\Authentication\Session;
-use App\Library\SimpleState;
-use App\Library\Tables;
+use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\Authentication\Roles;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use JetBrains\PhpStorm\ArrayShape;
 
 class UserData extends AbstractDataLayer

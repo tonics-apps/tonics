@@ -8,10 +8,6 @@
 namespace App\Modules\Core\Controllers;
 
 
-use App\Library\Database;
-use App\Library\MyPDO;
-use ParagonIE\EasyDB\EasyDB;
-
 class Controller
 {
 

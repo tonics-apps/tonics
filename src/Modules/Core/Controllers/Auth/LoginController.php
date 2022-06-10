@@ -7,7 +7,6 @@
 
 namespace App\Modules\Core\Controllers\Auth;
 
-use App\Library\Authentication\Session;
 use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;

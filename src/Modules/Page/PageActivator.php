@@ -10,8 +10,8 @@ namespace App\Modules\Page;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
-use App\Library\Tables;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Page\EventHandlers\DefaultPageFieldHandler;
 use App\Modules\Page\EventHandlers\PageMenu;
 use App\Modules\Page\Events\OnPageCreated;

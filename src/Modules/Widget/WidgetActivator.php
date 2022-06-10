@@ -10,8 +10,8 @@ namespace App\Modules\Widget;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
-use App\Library\Tables;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Widget\EventHandlers\MenuWidgets\ImageMenuWidget;
 use App\Modules\Widget\EventHandlers\MenuWidgets\PlainTextMenuWidget;
 use App\Modules\Widget\EventHandlers\MenuWidgets\RecentPostMenuWidget;

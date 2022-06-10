@@ -2,8 +2,7 @@
 
 namespace App\Themes\NinetySeven\Route;
 
-use App\Configs\AppConfig;
-use App\Modules\Core\Controllers\ThemeController;
+use App\Modules\Core\Configs\AppConfig;
 use App\Themes\NinetySeven\Controller\PagesController;
 use App\Themes\NinetySeven\Controller\PostsController;
 use Devsrealm\TonicsRouterSystem\Route;

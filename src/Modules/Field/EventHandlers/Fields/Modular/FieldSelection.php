@@ -2,7 +2,7 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
-use App\Library\Tables;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Events\OnFieldUserForm;
