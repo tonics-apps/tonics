@@ -39,7 +39,7 @@ class PagesController
 
         view('Themes::NinetySeven/Views/Page/single', [
             'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $page,
+            'Data' => $fieldSettings,
             'Assets' => [
                 'css' => AppConfig::getThemesAsset('NinetySeven', 'css/styles.css')
             ],
