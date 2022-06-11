@@ -237,7 +237,8 @@ SQL, ...$postInCategories);
         }
         $showPostImage = (isset($data->showPostImage)) ? $data->showPostImage : '1';
         $frag = '';
-        foreach ($posts->data as $post) {
+        $postArray = (isset($posts->data)) ? $posts->data : [];
+        foreach ($postArray as $post) {
             $image = '';
             if (!empty($post->image_url) && $showPostImage === '1'){
                 $image = <<<IMAGE
