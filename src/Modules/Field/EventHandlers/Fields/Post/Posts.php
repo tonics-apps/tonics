@@ -80,7 +80,7 @@ HTML;
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="noOfPostPerPage-$changeID">Number of Post Per Page (Applicable if Post Pagination is True)
+     <label class="menu-settings-handle-name" for="noOfPostPerPage-$changeID">Number of Post Per Page
             <input id="noOfPostPerPage-$changeID" name="noOfPostPerPage" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$noOfPostPerPage">
     </label>
@@ -191,11 +191,11 @@ SQL, ...$postInCategories)->r;
                 if (!is_array($postInCategories)) {
                     $postInCategories = [];
                 }
-                $where = "WHERE post_status = 1 AND $colToSearch LIKE CONCAT('%', ?, '%') LIMIT ? OFFSET ?";
+                $where = "WHERE post_status = 1 AND $colToSearch LIKE CONCAT('%', ?, '%') ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ?";
                 if (is_array($postInCategories) && !empty($postInCategories)) {
                     $qMark = helper()->returnRequiredQuestionMarks($postInCategories);
                     $postInCategories[] = $searchTerm;
-                    $where = "WHERE post_status = 1 AND cat_slug IN($qMark) AND $colToSearch LIKE CONCAT('%', ?, '%') LIMIT ? OFFSET ?";
+                    $where = "WHERE post_status = 1 AND cat_slug IN($qMark) AND $colToSearch LIKE CONCAT('%', ?, '%') ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ?";
                 }
                 $postInCategories[] = $searchTerm;
                 $postInCategories[] = $limit;
@@ -219,14 +219,16 @@ SQL, ...$postInCategories);
 SELECT * FROM $postToCatTable
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-$where LIMIT ? OFFSET ?
+$where ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ?
 SQL, ...$postInCategories);
             },
         ];
+
         $posts = $postData->generatePaginationData(
             $postData->getPostPaginationColumns(),
             'post_title',
             $postData->getPostTable(), $noOfPostPerPage, $customCallable);
+
         $elementName = strtolower($data->elementWrapper);
         if (!key_exists($elementName, helper()->htmlTags())) {
             $elementName = 'li';

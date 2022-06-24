@@ -84,7 +84,7 @@ class UpdateMechanismState extends SimpleState
             Tables::getTable(Tables::GLOBAL),
             [
                 'key' => 'updates',
-                'value' => $this->collate
+                'value' => json_encode($this->collate)
             ],
             ['value']
         );
@@ -204,9 +204,32 @@ class UpdateMechanismState extends SimpleState
         $this->downloadExtractCopy('theme', DriveConfig::getTempPathForThemes(), AppConfig::getThemesPath());
     }
 
+    /**
+     * @throws \Exception
+     */
     public function DownloadFullState()
     {
+        $tonicsHelper = helper();
+        $dirPath = AppConfig::getAppRoot();
+
         $full = $this->collate['full'] ?? [];
+        $tempPath = DriveConfig::getTempPathForFull();
+        if (isset($full['can_update']) && $full['can_update'] && isset($full['download_url']) && !empty($full['download_url'])) {
+            $localDriver = new LocalDriver();
+            $name = $full['version'] . '.zip';
+            $localDriver->createFromURL($full['download_url'], $tempPath, $name, importToDB: false);
+            $result = $localDriver->extractFile($tempPath . "/$name", $tempPath, importToDB: false);
+            if ($result) {
+                $copyResult = $tonicsHelper->copyFolder($tempPath . "/$name", $dirPath );
+                if (!$copyResult) {
+                    $tonicsHelper->sendMsg($this->getCurrentState(), "An Error Occurred, Moving Some Files In: '$name'", 'issue');
+                } else {
+
+                }
+            } else {
+                helper()->sendMsg($this->getCurrentState(), "Failed To Extract: '$name'", 'issue');
+            }
+        }
     }
 
     /**
@@ -287,7 +310,7 @@ class UpdateMechanismState extends SimpleState
                 $name = $module['version'] . '.zip';
                 $folderName = $module['folder_name'];
                 $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
-                $result = $localDriver->extractFile(DriveConfig::getTempPathForThemes() . "/$name", $tempPath, importToDB: false);
+                $result = $localDriver->extractFile($tempPath . "/$name", $tempPath, importToDB: false);
                 if ($result) {
                     $copyResult = $tonicsHelper->copyFolder($tempPath . "/$name", $dirPath . "/$folderName");
                     if (!$copyResult) {

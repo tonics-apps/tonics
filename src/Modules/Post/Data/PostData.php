@@ -80,6 +80,7 @@ class PostData extends AbstractDataLayer
      */
     private function getCategoryHTMLSelectFragments($category, $currentCatData = null): string
     {
+        $currentCatData = (isset($currentCatData->cat_parent_id)) ? $currentCatData->cat_parent_id: $currentCatData;
         $catSelectFrag = '';
         $catID =  $category->cat_id;
         if ($category->depth === 0){
@@ -156,7 +157,7 @@ HTML;
     tabindex="0" 
     class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
         <fieldset class="padding:default width:100% min-height:300 box-shadow-variant-1 draggable d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$catURLSlug $isDraft</legend>
+            <legend class="bg:pure-black color:white padding:default">[$catURLSlug] $isDraft</legend>
             <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">$post->post_title</div>
          
@@ -212,7 +213,7 @@ HTML;
                    
                    <form method="post" class="d:contents" action="/admin/posts/category/$category->cat_slug/trash">
                     <input type="hidden" name="token" value="$csrfToken" >
-                       <button data-click-onconfirmtrash="true" type="button" class="bg:pure-black border:none border-width:default border:black padding:default
+                       <button data-click-onconfirmtrash="true" type="button" class="bg:pure-black color:white border:none border-width:default border:black padding:default
                         margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Trash</button>
                     </form>
                 </div>
@@ -385,6 +386,36 @@ HTML;
         return db()->insertReturning($table, $data, $return);
     }
 
+
+    /**
+     * @throws \Exception
+     */
+    public function getPostCategoryParents(string|int $idSlug)
+    {
+        $categoryTable = $this->getCategoryTable();
+
+        $where = "cat_slug = ?";
+        if (is_numeric($idSlug)){
+            $where = "cat_id = ?";
+        }
+        return db()->run("
+        WITH RECURSIVE child_to_parent AS 
+	( SELECT cat_id, cat_parent_id, cat_slug, `cat_url_slug`, cat_content, cat_name, CAST(cat_slug AS VARCHAR (255))
+            AS path
+      FROM $categoryTable WHERE $where
+      UNION ALL
+      SELECT fr.cat_id, fr.cat_parent_id, fr.cat_slug, fr.cat_url_slug, fr.cat_content, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
+      FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.cat_id = cp.cat_parent_id
+      ) 
+     SELECT * FROM child_to_parent;
+        ", $idSlug);
+    }
+
+    /**
+     * @param $slugNumericID
+     * @return array|mixed
+     * @throws \Exception
+     */
     public function singlePost($slugNumericID)
     {
         $postTable = Tables::getTable(Tables::POSTS);
@@ -401,6 +432,10 @@ WHERE slug_id = ?
 SQL, $slugNumericID);
         if (isset($data->user_password)){
             unset($data->user_password);
+        }
+
+        if (isset($data->cat_id)){
+            $data->categories = $this->getPostCategoryParents($data->cat_id);
         }
 
         return $data;
@@ -498,7 +533,7 @@ SQL, ...$parameter);
      */
     public function getPostPaginationColumns(): string
     {
-        return '`post_id`, `slug_id`, `post_title`, `post_slug`, `post_status`, `user_id`, `created_at`, `updated_at`,
+        return '`post_id`, `slug_id`, `post_title`, `post_slug`, `post_status`, `user_id`, `created_at` AS `post_created_at`, `updated_at`,
         CONCAT_WS( "/", "posts", slug_id, post_slug ) AS `_link`, `post_title` AS `_name`, `post_id` AS `_id`';
     }
 
@@ -509,6 +544,70 @@ SQL, ...$parameter);
     {
         return '`cat_id`, `cat_parent_id`, `cat_name`, `cat_slug`, `cat_url_slug`, `created_at`, `cat_status`, `updated_at`,
         CONCAT_WS( "/", "posts/category", cat_slug ) AS `_link`, `cat_name` AS `_name`, `cat_id` AS `_id`';
+    }
+
+    /**
+     * SHOULD BE REPLACED WITH A POST UNIVERSAL QUERY
+     * @throws \Exception
+     */
+    public function getPostAdminPagination()
+    {
+        $postTable = Tables::getTable(Tables::POSTS);
+        $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
+        $categoryTable = Tables::getTable(Tables::CATEGORIES);
+        $customCallable = [
+            'customSearchTableCount' => function ($table, $searchTerm, $colToSearch) use ($categoryTable, $postTable, $postToCatTable) {
+
+                $where = "WHERE post_status = ?  LIKE CONCAT('%', ?, '%')";
+                $postInCategories[] = $this->getPageStatus();
+                $postInCategories[] = $searchTerm;
+                return db()->row(<<<SQL
+SELECT COUNT(*) AS 'r' FROM $postToCatTable 
+    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
+    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
+$where
+SQL, ...$postInCategories)->r;
+            },
+            'customTableCount' => function ($table) use ($categoryTable, $postTable, $postToCatTable) {
+                $where = "WHERE post_status = ?";
+                return db()->row(<<<SQL
+SELECT COUNT(*) AS 'r' FROM $postToCatTable 
+    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
+    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
+$where
+SQL, $this->getPageStatus())->r;
+            },
+            'customSearchRowWithOffsetLimit' => function ($table, $searchTerm, $offset, $limit, $colToSearch, $cols) use ($postTable, $categoryTable, $postToCatTable) {
+                $where = "WHERE post_status = ? AND $colToSearch LIKE CONCAT('%', ?, '%') ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ?";
+                $postInCategories[] = $this->getPageStatus();
+                $postInCategories[] = $searchTerm;
+                $postInCategories[] = $limit;
+                $postInCategories[] = $offset;
+                return db()->run(<<<SQL
+SELECT * FROM $postToCatTable 
+    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
+    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
+$where
+SQL, ...$postInCategories);
+            },
+            'customGetRowWithOffsetLimit' => function ($table, $offset, $limit, $cols) use ($postTable, $postToCatTable, $categoryTable) {
+                $where = "WHERE post_status = ?";
+                $postInCategories[] = $this->getPageStatus();
+                $postInCategories[] = $limit;
+                $postInCategories[] = $offset;
+                return  db()->run(<<<SQL
+SELECT * FROM $postToCatTable
+    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
+    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
+$where ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ? 
+SQL, ...$postInCategories);
+            },
+        ];
+
+        return $this->generatePaginationData(
+            $this->getPostPaginationColumns(),
+            'post_title',
+            $this->getPostTable(), 10, $customCallable);
     }
 
 }

@@ -3,7 +3,7 @@
     scrollbar-color: #9e9e9e !important;
     scrollbar-width: 7px !important;
     box-sizing: border-box;
-    --global-font-family: 'IBMPlexSans-Regular', "Times New Roman", serif;
+    --global-font-family: 'IBMPlexSans-Light', "Times New Roman", serif;
     --global-font-line-height: 1.5;
     --theme-name: 'NinetySeven';
     --color-quote-border: #000;
@@ -33,6 +33,18 @@
 :focus {
     outline: thin solid grey;
     outline-offset: .18593rem
+}
+
+/* IBMPlexSans light */
+@font-face {
+    font-family: "IBMPlexSans-Light";
+    src: url("/assets/themes/NinetySeven?path=css/fonts/IBMPlexSans-Light.eot");
+    /* IE9 Compat Modes */
+    src: url("/assets/themes/NinetySeven?path=css/fonts/IBMPlexSans-Light.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/assets/themes/NinetySeven?path=css/fonts/IBMPlexSans-Light.otf") format("opentype"), /* Open Type Font */ url("/assets/themes/NinetySeven?path=css/fonts/IBMPlexSans-Light.ttf") format("truetype"), /* Safari, Android, iOS */ url("/assets/themes/NinetySeven?path=css/fonts/IBMPlexSans-Light.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
 }
 
 /* IBMPlexSans regular */
@@ -1173,6 +1185,14 @@ fieldset {
     border-bottom-width: 5px;
 }
 
+.selector {
+    width: 100%;
+    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
+    line-height: 1.25;
+    font-family: inherit;
+    padding: 14px;
+}
+
 .select-off {
     -webkit-appearance: none;
     appearance: none;
@@ -1237,7 +1257,6 @@ fieldset {
 }
 
 .icon.tonics-cart {
-    color: white;
     stroke-width: 1px;
     width: 2.5em;
 }
@@ -1798,6 +1817,10 @@ article.entry-content {
 .entry-content>*, .entry-summary>*, .page-content>* {
     padding-right: clamp(2rem, 2.5vw, 4rem);
     padding-left: clamp(2rem, 2.5vw, 4rem);
+}
+
+.entry-content {
+    margin-bottom: 2em;
 }
 
 .entry-content>li>ol,.entry-content>li>ul {

@@ -27,7 +27,8 @@ class ThemeController
     /**
      * @throws \Exception
      */
-    public function index(){
+    public function index(): void
+    {
         $themes = InitLoader::getAllThemes();
         $themeListing = $this->getThemeData()->adminThemeListing($themes);
 
@@ -35,12 +36,14 @@ class ThemeController
             'SiteURL' => AppConfig::getAppUrl(),
             'ThemeListing' => $themeListing,
         ]);
+
     }
 
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function install(string $themeName){
+    #[NoReturn] public function install(string $themeName): void
+    {
         $themeObject = $this->getThemeData()->getThemeObject($themeName);
         if ($themeObject !== null){
             $themeSystem = new ThemeSystem($themeObject);
@@ -58,7 +61,8 @@ class ThemeController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function uninstall(string $themeName){
+    #[NoReturn] public function uninstall(string $themeName): void
+    {
         $themeObject = $this->getThemeData()->getThemeObject($themeName);
         if ($themeObject !== null){
             $themeSystem = new ThemeSystem($themeObject);
@@ -76,7 +80,7 @@ class ThemeController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function serve(string $themeName)
+    #[NoReturn] public function serve(string $themeName): void
     {
         $path = AppConfig::getThemesPath() . "/$themeName/Assets/" . request()->getParam('path');
         $ext = helper()->extension($path);

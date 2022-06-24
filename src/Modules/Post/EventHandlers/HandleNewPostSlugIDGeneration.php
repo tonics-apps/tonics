@@ -40,5 +40,6 @@ class HandleNewPostSlugIDGeneration implements HandlerInterface
         $postToUpdate = $event->getPostData()->createPost(['post_slug']);
         $postToUpdate['slug_id'] = $slugGen;
         $event->getPostData()->updateWithCondition($postToUpdate, ['post_id' => $event->getPostID()], $event->getPostData()->getPostTable());
+        $event->getPost()->slug_id = $slugGen;
     }
 }

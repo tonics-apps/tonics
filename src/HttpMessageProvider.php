@@ -8,6 +8,7 @@
 namespace App;
 
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
@@ -37,9 +38,30 @@ class HttpMessageProvider implements ServiceProvider
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\ReflectionException | \Throwable $e) {
-             SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
-             // SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
+             $redirect_to = $this->tryURLRedirection();
+             if ($redirect_to === false){
+                 // SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
+                 SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
+             } else {
+                 redirect($redirect_to, 302);
+             }
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function tryURLRedirection():string|bool
+    {
+        $table = Tables::getTable(Tables::GLOBAL);
+        $requestURL = url()->getRequestURL();
+       $result = db()->row(<<<SQL
+SELECT JSON_EXTRACT(value, ?) AS redirect_to FROM $table WHERE `key` = 'url_redirections';
+SQL, '$.' .$requestURL);
+       if (isset($result->redirect_to) && !empty($result->redirect_to)){
+           return json_decode($result->redirect_to);
+       }
+       return false;
     }
 
     /**

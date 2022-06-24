@@ -9,6 +9,7 @@ namespace App\Modules\Core\Configs;
 
 
 use App\InitLoader;
+use App\InitLoaderMinimal;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig as ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\Library\Authentication\Session;
@@ -17,6 +18,7 @@ use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Library\View\Extensions\CombineModeHandler;
 use App\Modules\Core\Library\View\Extensions\CSRFModeHandler;
+use App\Modules\Core\Library\View\Extensions\EachLoop;
 use App\Modules\Core\Library\View\Extensions\Events;
 use App\Modules\Core\Library\View\Extensions\IfBlock;
 use App\Modules\Core\Library\View\Extensions\IfCondition;
@@ -47,21 +49,21 @@ use Exception;
 class AppConfig
 {
     private static InitLoader|null $init = null;
+    private static InitLoaderMinimal|null $initLoaderMinimal = null;
 
     /**
-     * The very first entry point into our app, this uses injection sort of to construct all the
+     * The second entry point into our app after initialization of minimal dependencies, this uses injection sort of to construct all the
      * necessary objects, and caches it, so, it constructs it just once, and the subsequent request might be a bit faster.
      * @param bool $failSilently
      * @return InitLoader
      * @throws Exception
      */
-    public static function initLoader(bool $failSilently = false): InitLoader
+    public static function initLoaderOthers(bool $failSilently = false): InitLoader
     {
         try {
             $initKey = self::getAppCacheKey();
-            if (function_exists('apcu_enabled') && apcu_exists($initKey)){
+            if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
                 $initLoader = apcu_fetch($initKey);
-              //  dd($initLoader);
             } else {
                 ## Tonics View
                 $templateLoader = new TonicsTemplateFileLoader('html');
@@ -88,6 +90,10 @@ class AppConfig
                 $view->addModeHandler('__event', Events::class);
 
                 $view->addModeHandler('if', IfCondition::class);
+
+                $view->addModeHandler('each', EachLoop::class);
+                $view->addModeHandler('foreach', EachLoop::class);
+
                 $view->addModeHandler('ifBlock', IfBlock::class);
 
                 ## Router And Request
@@ -103,23 +109,18 @@ class AppConfig
                     $onRequestProcess->getRouteObject(),
                     new Response($onRequestProcess, new RequestInput()));
 
-                ## Tonics Helper, Setting Up Events, Modules, and Plugins
-                $tonicsHelper = new TonicsHelpers();
-                $tonicsHelper->setModulesPath(AppConfig::getModulesPath());
-                $tonicsHelper->setPluginsPath(AppConfig::getPluginsPath());
-                $tonicsHelper->setThemesPath(AppConfig::getThemesPath());
-                $modules = $tonicsHelper->getModuleActivators([ModuleConfig::class]);
-                $plugins = $tonicsHelper->getPluginActivators([ModuleConfig::class, PluginConfig::class]);
-                $themes = $tonicsHelper->getPluginActivators([ModuleConfig::class], $tonicsHelper->getAllThemesDirectory());
+                $modules = helper()->getModuleActivators([ModuleConfig::class]);
+                $plugins = helper()->getPluginActivators([ModuleConfig::class, PluginConfig::class]);
+                $themes = helper()->getPluginActivators([ModuleConfig::class], helper()->getAllThemesDirectory());
 
                 $theme = $themes;
-                if (!empty($theme)){
+                if (!empty($theme)) {
                     $theme = $theme[array_key_first($theme)];
                 }
 
                 $events = [];
                 foreach ($modules as $module) {
-                    /** @var $module ModuleConfig  */
+                    /** @var $module ModuleConfig */
                     // you can disable each module in its own config
                     // This gives us the module availability
                     if ($module->enabled()) {
@@ -131,9 +132,9 @@ class AppConfig
                 }
 
                 ## Plugins Would Only Appear if they have .installed (which would be added programmatically on installation)
-                foreach ($plugins as $plugin){
-                    /** @var $plugin ModuleConfig|PluginConfig  */
-                    if ($plugin->enabled()){
+                foreach ($plugins as $plugin) {
+                    /** @var $plugin ModuleConfig|PluginConfig */
+                    if ($plugin->enabled()) {
                         $plugin->route($router->getRoute());
                         ## The array_intersect_key checks if the plugin event array has something in common with the module event($events),
                         # so, I just recursively merge only the intersection (using recursive merging because you might have several events in your modules).
@@ -142,13 +143,13 @@ class AppConfig
                 }
 
                 ## Unlike Plugins, You Can Only Have One Theme.
-                /** @var $theme ModuleConfig|PluginConfig  */
-                if ($theme instanceof ModuleConfig){
-                    if ($theme->enabled()){
+                /** @var $theme ModuleConfig|PluginConfig */
+                if ($theme instanceof ModuleConfig) {
+                    if ($theme->enabled()) {
                         $theme->route($router->getRoute());
                         ## The array_intersect_key checks if the plugin event array has something in common with the module event($events),
                         # so, I just recursively merge only the intersection (using recursive merging because you might have several events in your modules).
-                        $events = array_merge_recursive($events, array_intersect_key($theme->events(), $events));
+                       $events = array_merge_recursive($events, array_intersect_key($theme->events(), $events));
                     }
                 }
 
@@ -157,14 +158,10 @@ class AppConfig
                 ## Construct The GrandFather...
                 $initLoader = new InitLoader();
                 $initLoader
-                    ->setContainer(new Container())
                     ->setRouter($router)
-                    ->setTonicsHelpers($tonicsHelper)
                     ->setTonicsView($view)
-                    ->setSession(new Session())
-                    ->setEventDispatcher($eventDispatcher)
-                    ->setDomParser(new DomParser());
-                if (function_exists('apcu_enabled')){
+                    ->setEventDispatcher($eventDispatcher);
+                if (function_exists('apcu_enabled')) {
                     apcu_store($initKey, $initLoader);
                 }
             }
@@ -174,7 +171,52 @@ class AppConfig
 
             return self::$init;
         } catch (Exception $e) {
-            if ($failSilently){
+            if ($failSilently) {
+                ## Fail Silently
+                exit(1);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Sets the minimal essential dependencies to keep the app running,
+     * this should be resolve first and should be light
+     * @param bool $failSilently
+     * @return InitLoaderMinimal
+     * @throws Exception
+     */
+    public static function initLoaderMinimal(bool $failSilently = false): InitLoaderMinimal
+    {
+        try {
+            $initKey = self::getAppCacheKey() . '_minimal';
+            if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
+                $initLoader = apcu_fetch($initKey);
+            } else {
+                $tonicsHelper = new TonicsHelpers();
+                $tonicsHelper->setModulesPath(AppConfig::getModulesPath());
+                $tonicsHelper->setPluginsPath(AppConfig::getPluginsPath());
+                $tonicsHelper->setThemesPath(AppConfig::getThemesPath());
+
+                ## Construct The GrandFather...
+                $initLoader = new InitLoaderMinimal();
+                $initLoader
+                    ->setContainer(new Container())
+                    ->setTonicsHelpers($tonicsHelper)
+                    ->setSession(new Session())
+                    ->setDomParser(new DomParser());
+                if (function_exists('apcu_enabled')) {
+                    apcu_store($initKey, $initLoader);
+                }
+            }
+            if (!self::$initLoaderMinimal) {
+                self::$initLoaderMinimal = $initLoader;
+            }
+
+            return self::$initLoaderMinimal;
+        } catch
+        (Exception $e) {
+            if ($failSilently) {
                 ## Fail Silently
                 exit(1);
             }
@@ -187,11 +229,10 @@ class AppConfig
      */
     public static function autoResolvePageRoutes(string $controller, Route $route)
     {
-        $db = (new Database())->createNewDatabaseInstance();
         $pageTable = Tables::getTable(Tables::PAGES);
-        $pages = $db->run("SELECT * FROM $pageTable");
-        foreach ($pages as $page){
-            if ($page->page_status === 1){
+        $pages = db()->run("SELECT * FROM $pageTable");
+        foreach ($pages as $page) {
+            if ($page->page_status === 1) {
                 # e.g. page_slug with posts, would be viewPosts
                 $route->get($page->page_slug, [$controller, 'viewPage'], moreSettings: $page);
             }
@@ -221,7 +262,7 @@ class AppConfig
 
     public static function getAppCacheKey(): string
     {
-        return  'initLoader_'.env('APP_NAME', 'Tonics');
+        return 'initLoader_' . env('APP_NAME', 'Tonics');
     }
 
     public static function getAppEnv(): string

@@ -13,6 +13,7 @@ use App\Modules\Media\FileManager\LocalDriver;
 use App\Modules\Post\Controllers\PostCategoryController;
 use App\Modules\Post\Controllers\PostsController;
 use App\Modules\Post\Data\PostData;
+use App\Modules\Post\Events\OnPostCreate;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateArrayLoader;
 use SimpleXMLElement;
 
@@ -264,6 +265,7 @@ class WordPressImportState extends SimpleState
         $userData = new UserData();
         $postController = new PostsController($postData, $userData);
         $attachment = [];
+        $oldWPUrl = [];
         $noNameID = 1;
 
         $userType = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserType);
@@ -339,8 +341,9 @@ class WordPressImportState extends SimpleState
                 helper()->garbageCollect(callback: function () use (&$postController, &$postData, &$userData, &$url, &$shortCode){
                     $this->resetPostImportDependencies($postController, $postData, $userData, $url, $shortCode);
                 });
+
                 $cat_slug = $post->category->attributes()->nicename->__toString();
-                $postCatID = $postData->selectWithConditionFromCategory(['cat_id'], "cat_slug = ?", [$cat_slug]);
+                $postCatParents = $postData->getPostCategoryParents($cat_slug);
                 $name = (!empty($post->title->__toString())) ? $post->title->__toString() : "No Name $noNameID";
                 $postSlug = (empty($post->children($namespaces['wp'])->post_name->__toString())) ? helper()->slug($name): $post->children($namespaces['wp'])->post_name->__toString();
                 $postToImport = [
@@ -349,7 +352,7 @@ class WordPressImportState extends SimpleState
                     'created_at' => date("Y-m-d H:i:s", strtotime($post->pubDate)),
                     'category' => $post->category->__toString(),
                     'category_slug' => $cat_slug,
-                    'cat_parent_id' => (isset($postCatID->cat_id)) ? $postCatID->cat_id: '',
+                    'fk_cat_id' => (isset($postCatParents[0]->cat_id)) ? $postCatParents[0]->cat_id: '',
                     'post_status' =>  $postStatus,
                     'image_url' => $imageUrl,
                     'user_id' => $currentUserID,
@@ -360,6 +363,9 @@ class WordPressImportState extends SimpleState
                     'og_title' => $seoTitle,
                     'og_description' => $seoDescription,
                 ];
+                /**
+                 * @var $result OnPostCreate|bool
+                 */
                 $result = $postController->storeFromImport($postToImport);
                 if ($result){
                     helper()->sendMsg($this->getCurrentState(), "Imported Post: '$name' ✔");
@@ -367,8 +373,25 @@ class WordPressImportState extends SimpleState
                     helper()->sendMsg($this->getCurrentState(), "Failed To Import Post: '$name', Moving On Regardless...", 'issue');
                 }
                 ++$noNameID;
+
+                if ($result instanceof OnPostCreate){
+                    if (!empty($postCatParents)){
+                        $lastCat = $postCatParents[array_key_last($postCatParents)];
+                        // 'old' url is the key, and the value is where to redirect to...
+                        $oldWPUrl[ "/$lastCat->path/$postSlug"] = "/posts/{$result->getSlugID()}/$postSlug";
+                    }
+                }
             }
         }
+
+        db()->insertOnDuplicate(
+            Tables::getTable(Tables::GLOBAL),
+            [
+                'key' => 'url_redirections',
+                'value' => json_encode($oldWPUrl, JSON_UNESCAPED_SLASHES)
+            ],
+            ['value']
+        );
 
         return $this->switchState(self::PhaseDone, self::NEXT);
     }

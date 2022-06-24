@@ -126,4 +126,20 @@ class OnPostCreate implements EventInterface
         $this->postData = $postData;
         return $this;
     }
+
+    /**
+     * @return \stdClass
+     */
+    public function getPost(): \stdClass
+    {
+        return $this->post;
+    }
+
+    /**
+     * @param \stdClass $post
+     */
+    public function setPost(\stdClass $post): void
+    {
+        $this->post = $post;
+    }
 }

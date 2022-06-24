@@ -7,8 +7,11 @@ use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Events\OnFieldUserForm;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Widget\Data\WidgetData;
+use DateTime;
 
 class PostsController
 {
@@ -53,6 +56,10 @@ class PostsController
     private function showPost($post)
     {
         $post = [...json_decode($post->field_settings, true), ...(array)$post];
+        $foundURL = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode();
+        $postMoreSettings = $foundURL->getMoreSettings('GET');
+        $onFieldUserForm = new OnFieldUserForm([], new FieldData());
+
         $MenuWidgetsSidebarTitle = null;
         $MenuWidgetsSidebarData = $this->getWidgetData()->getWidgetViewListing(
             $this->getWidgetData()->getWidgetLocationItems(onBeforeDecodingWidget: function ($data) use (&$MenuWidgetsSidebarTitle) {
@@ -60,6 +67,10 @@ class PostsController
                     $MenuWidgetsSidebarTitle = $data[0]->widget_name;
                 }
             }));
+
+        $date = new DateTime($post['created_at']);
+        $created_at_words = strtoupper($date->format('j M, Y'));
+        $post['created_at_words'] = $created_at_words;
 
         view('Themes::NinetySeven/Views/Post/single', [
             'SiteURL' => AppConfig::getAppUrl(),
@@ -71,7 +82,8 @@ class PostsController
                 'Title' => $MenuWidgetsSidebarTitle,
                 'Data' => $MenuWidgetsSidebarData,
             ],
-            'TimeZone' => AppConfig::getTimeZone()
+            'TimeZone' => AppConfig::getTimeZone(),
+            'FieldItems' => $onFieldUserForm->generateHTMLFrags($postMoreSettings, $post, true),
         ]);
     }
 

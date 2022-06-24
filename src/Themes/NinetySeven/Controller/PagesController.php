@@ -28,6 +28,7 @@ class PagesController
         if (!is_object($page)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
+
         $fieldSettings = json_decode($page->field_settings, true);
         if (empty($fieldSettings)) {
             $fieldSettings = (array)$page;

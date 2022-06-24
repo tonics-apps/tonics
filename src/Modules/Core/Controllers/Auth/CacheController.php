@@ -44,7 +44,7 @@ class CacheController
         $templateLoader->resolveTemplateFiles(AppConfig::getPluginsPath());
 
         apcu_clear_cache();
-        $view = AppConfig::initLoader()->getTonicsView();
+        $view = AppConfig::initLoaderOthers()->getTonicsView();
         foreach ($templateLoader->getTemplates() as $templateKey => $template){
             # Warming cache
             $view->render(helper()->rtrim($templateKey, '.html'), false);

@@ -209,8 +209,8 @@ class TracksController extends Controller
 
         $slug = $track['track_slug'];
         session()->flash(['Track Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+        apcu_clear_cache();
         redirect(route('tracks.edit', ['track' => $slug]));
-
     }
 
     /**

@@ -256,6 +256,7 @@ HTML;
     /**
      * Widget For FrontPage
      * @param mixed $getWidgetItems
+     * @param callable|null $fragWrapper
      * @return string
      * @throws \Exception
      */
@@ -272,7 +273,7 @@ HTML;
                 ucwords(str_replace('-', ' ', $slug));
             $viewData = $onMenuWidgetMetaBox->getWidgetView($slug, $widgetItem->wgt_options ?? null);
             if ($fragWrapper !== null){
-                $frag .=$fragWrapper($viewData);
+                $frag .=$fragWrapper($viewData, $widgetItem->wgt_options ?? null);
             } else {
                 $frag .= <<<HTML
 <li style="margin-top: clamp(3rem, 2.5vw, 2rem);" tabIndex="0" class="owl width:100% padding:default menu-arranger-li color:black bg:white-one border-width:default border:black position:relative">

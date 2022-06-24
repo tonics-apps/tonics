@@ -16,24 +16,25 @@ class ThemeData extends AbstractDataLayer
     public function adminThemeListing($themes): string
     {
         $csrfToken = session()->getCSRFToken();
-        $htmlFrag = ''; $urlPrefix = "/admin/tools/themes";
+        $htmlFrag = '';
+        $urlPrefix = "/admin/tools/themes";
         $k = 0;
-        foreach ($themes as $themeKey => $themeInstance){
-            if ($themeInstance instanceof PluginConfig){
-                $themeDirName =helper()->getFileName(helper()->getClassDirectory($themeInstance));
+        foreach ($themes as $themeKey => $themeInstance) {
+            if ($themeInstance instanceof PluginConfig) {
+                $themeDirName = helper()->getFileName(helper()->getClassDirectory($themeInstance));
                 $themePath = AppConfig::getThemesPath() . DIRECTORY_SEPARATOR . $themeDirName;
                 $themeName = isset($themeInstance->info()['name']) ? $themeInstance->info()['name'] : $themeDirName;
 
                 $installOrActivateLink = <<<HTML
 <a href="$urlPrefix/$themeName/install" 
 class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Install</a>
+                        margin-top:0 cart-width cursor:pointer">Install</a>
 HTML;
-                if (helper()->fileExists($themePath . DIRECTORY_SEPARATOR . '.installed')){
+                if (helper()->fileExists($themePath . DIRECTORY_SEPARATOR . '.installed')) {
                     $installOrActivateLink = <<<HTML
 <a href="$urlPrefix/$themeName/uninstall" 
 class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Uninstall</a>
+                        margin-top:0 cart-width cursor:pointer">Uninstall</a>
 HTML;
                 }
 
@@ -54,10 +55,24 @@ HTML;
                    <form method="post" class="d:contents" action="$urlPrefix/$themeKey/delete">
                     <input type="hidden" name="token" value="$csrfToken" >
                        <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete</button>
+                        margin-top:0 cart-width cursor:pointer">Delete</button>
                     </form>
                 </div>
                 
+                <ul class="more-info list:style:none d:flex flex-gap justify-content:center">
+                    <li class="menu-block" data-menu-depth="0">
+                        <a href="#0" class="extension-box flex-gap:small color:black border-width:default border:black" title="">
+                            
+                            <div class="text:paragraph-fluid-one text:no-wrap">Info</div>        
+                        </a>
+                    </li>
+                    <li class="menu-block" data-menu-depth="0">
+                        <a href="#0" class="extension-box flex-gap:small color:black border-width:default border:black" title="">
+                            
+                            <div class="text:paragraph-fluid-one text:no-wrap">Update</div>        
+                        </a>
+                    </li>
+                </ul>
             </div>
         </fieldset>
     </li>
@@ -77,7 +92,7 @@ HTML;
     {
         $themeFullClass = "App\Themes\\$themeName\\{$themeName}Activator";
         $implements = class_implements($themeFullClass);
-        if (is_array($implements) && key_exists(ModuleConfig::class, $implements)){
+        if (is_array($implements) && key_exists(ModuleConfig::class, $implements)) {
             return new $themeFullClass;
         }
 

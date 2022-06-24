@@ -37,8 +37,10 @@ if ($args->passes()) {
     #
     define('APP_ROOT', dirname(__DIR__));
     (new Loader)->load(APP_ROOT . '/.env');
-    AppConfig::initLoader();
+    AppConfig::initLoaderMinimal();
     AppConfig::includeHelpers();
+    AppConfig::initLoaderOthers();
+
     #
     # REGISTER COMMANDS
     #

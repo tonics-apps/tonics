@@ -166,28 +166,38 @@ HTML;
         if (!empty($data->attributes)) {
             $attributes = " " . $event->flatHTMLTagAttributes($data->attributes) . " ";
         }
+        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $widgetSlug = (isset($data->widgetSlug) && !empty($inputName)) ? $inputName : $data->widgetSlug;
+        if (empty($widgetSlug)){
+            return $frag;
+        }
+        $widgetSlug = explode(':', $widgetSlug);
+        $widgetID = (isset($widgetSlug[1]) && is_numeric($widgetSlug[1])) ? (int)$widgetSlug[1]: '';
+        if (empty($widgetID)){
+            return $frag;
+        }
+        $widgetData = new WidgetData();
+        $widget = $widgetData->decodeWidgetOptions($widgetData->getWidgetItems($widgetID));
         if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1') {
-            $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
-            $widgetSlug = (isset($data->widgetSlug) && !empty($inputName)) ? $inputName : $data->widgetSlug;
-            if (empty($widgetSlug)){
-                return $frag;
-            }
-            $widgetSlug = explode(':', $widgetSlug);
-            $widgetID = (isset($widgetSlug[1]) && is_numeric($widgetSlug[1])) ? (int)$widgetSlug[1]: '';
-            if (empty($widgetID)){
-                return $frag;
-            }
-            $widgetData = new WidgetData();
-            $widget = $widgetData->decodeWidgetOptions($widgetData->getWidgetItems($widgetID));
-             $widgetData->getWidgetViewListing($widget, function ($widgetViewDataInstance) use ($attributes, $elementName, &$frag){
+            $widgetData->getWidgetViewListing($widget, function ($widgetViewDataInstance, $widgetItem) use ($attributes, $elementName, &$frag){
                 $frag .=<<<HTML
 <$elementName$attributes>
+<span class="widget-title bg:pure-black color:white padding:small">$widgetItem->widgetName</span>
 $widgetViewDataInstance
 </$elementName>
 HTML;
             });
+        } else {
+            addToGlobalVariable((empty($data->inputName)) ? $data->field_slug : $data->inputName, [
+                'name' => $data->fieldName,
+                'data' =>  $widget
+            ]);
+            return '';
         }
-
-        return $frag;
+        addToGlobalVariable((empty($data->inputName)) ? $data->field_slug : $data->inputName, [
+            'name' => $data->fieldName,
+            'data' => $frag
+        ]);
+        return '';
     }
 }

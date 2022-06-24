@@ -122,16 +122,13 @@ abstract class SimpleState
 
     /**
      * @param string $state
-     * @return string
+     * @return mixed
      */
-    public function dispatchState(string $state): string
+    public function dispatchState(string $state): mixed
     {
         return $this->$state();
     }
 
-    /**
-     * This switches the state
-     */
 
     /**
      * This switches the state:

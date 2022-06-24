@@ -100,8 +100,8 @@ FORM;
         if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
             $postData =  (isset($data->_field->postData)) ? $data->_field->postData: [];
             $tonicsTemplateFrag =  (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
-            AppConfig::initLoader()::addToGlobalVariable('Data', $postData);
-            $tonicsView = AppConfig::initLoader()->getTonicsView()->setVariableData(AppConfig::initLoader()::getGlobalVariable());
+            AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
+            $tonicsView = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData(AppConfig::initLoaderMinimal()::getGlobalVariable());
             $tonicsView->splitStringCharByChar($tonicsTemplateFrag);
             $tonicsView->reset()->tokenize();
             return $tonicsView->outputContentData($tonicsView->getContent()->getContents());

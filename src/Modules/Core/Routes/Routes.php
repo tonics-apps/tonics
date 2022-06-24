@@ -8,12 +8,14 @@ use App\Modules\Core\Controllers\Auth\LoginController;
 use App\Modules\Core\Controllers\DashboardController;
 use App\Modules\Core\Controllers\ImportExport\ImportController;
 use App\Modules\Core\Controllers\Installer;
+use App\Modules\Core\Controllers\ModuleController;
 use App\Modules\Core\Controllers\PluginController;
 use App\Modules\Core\Controllers\ThemeController;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CoreAccess;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\InstallerChecker;
+use App\Modules\Core\RequestInterceptor\ModuleAccess;
 use App\Modules\Core\RequestInterceptor\PluginAccess;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\RequestInterceptor\StartSession;
@@ -103,7 +105,7 @@ trait Routes
                 $route->match(['get'], 'wordpress-events', [ImportController::class, 'wordpressEvent'], alias: 'wordpressEvent');
                 $route->match(['get', 'post'],'beatstars', [ImportController::class, 'beatstars'], alias: 'beatstars');
                 $route->match(['get', 'post'],'airbit', [ImportController::class, 'airbit'], alias: 'airbit');
-            }, [Authenticated::class, CoreAccess::class], alias: 'imports');
+            }, [CoreAccess::class], alias: 'imports');
 
                     #---------------------------------
                 # THEME Routes...
@@ -113,7 +115,7 @@ trait Routes
                 $route->get(':theme/install', [ThemeController::class, 'install'], alias: 'install');
                 $route->get(':theme/uninstall', [ThemeController::class, 'uninstall'], alias: 'uninstall');
                 $route->match(['post', 'delete'], ':theme/delete', [ThemeController::class, 'delete']);
-            }, [Authenticated::class, ThemeAccess::class], alias: 'themes');
+            }, [ThemeAccess::class], alias: 'themes');
 
                     #---------------------------------
                 # PLUGIN Routes...
@@ -124,8 +126,16 @@ trait Routes
                 $route->get(':plugin/uninstall', [PluginController::class, 'uninstall'], alias: 'uninstall');
                 $route->match(['post', 'delete'], ':plugin/delete', [PluginController::class, 'delete']);
                 $route->match(['post', 'delete'], 'delete/multiple', [PluginController::class, 'deleteMultiple'], alias: 'deleteMultiple');
-            }, [Authenticated::class, PluginAccess::class], alias: 'plugins');
-        }, [StartSession::class, CSRFGuard::class]);
+            }, [PluginAccess::class], alias: 'plugins');
+
+                    #---------------------------------
+                # MODULE Routes...
+            #---------------------------------
+            $route->group('/modules', function (Route $route) {
+                $route->get('', [ModuleController::class, 'index'], alias: 'index');
+            }, [ModuleAccess::class], alias: 'modules');
+
+        }, [StartSession::class, CSRFGuard::class, Authenticated::class]);
 
                 #---------------------------------
             # THEME AND PLUGIN ASSETS...

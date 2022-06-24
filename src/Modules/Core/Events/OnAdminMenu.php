@@ -39,8 +39,9 @@ class OnAdminMenu implements EventInterface
         const SettingsMenuID = 1500;
         const ThemesMenuID = 1600;
         const PluginMenuID = 1700;
+        const ModuleMenuID = 1800;
 
-    const ImportsMenuID = 1800;
+    const ImportsMenuID = 1900;
 
 
     private array $MenuSettings = [];

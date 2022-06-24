@@ -52,6 +52,23 @@ class TrackData extends AbstractDataLayer
             'field_ids', 'field_settings', 'track_status', 'fk_genre_id', 'fk_artist_id', 'fk_license_id', 'created_at', 'updated_at'];
     }
 
+    public function getAllTrackPageColumns(): string
+    {
+        $trackTable = Tables::getTable(Tables::TRACKS);
+        $artistTable = Tables::getTable(Tables::ARTISTS);
+
+        return "
+        `track_id`, `slug_id` AS `track_slug`, `track_slug`, `track_title`, `track_status`, `track_status`, track_plays, track_bpm `field_settings`,
+        $trackTable.image_url AS `track_image`, `audio_url` AS `track_audio`, 
+        `genre_id`, `genre_name`, `genre_name` AS `track_genre`, `genre_slug`,
+        `artist_id`, `artist_name`, `artist_name` AS `track_artist`, `artist_slug`, `artist_bio`, $artistTable.image_url AS `artist_image`,
+        license_id, license_name, license_slug, license_status, license_attr, license_attr AS track_licenses,
+        CONCAT_WS( '/', '/tracks', slug_id, track_slug ) AS `track_link`,
+        CONCAT_WS( '/', '/artist', artist_slug ) AS `track_artist_link`,
+        CONCAT_WS( '/', '/genres', genre_slug ) AS `track_genre_link`
+        ";
+    }
+
     /**
      * @return string
      */

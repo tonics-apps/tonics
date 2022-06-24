@@ -23,6 +23,9 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
     const BlockModeState = 'BlockModeState';
     const EndOfBlockState = 'EndOfBlockState';
 
+    const StringModeState = 'StringModeState';
+    const EndOfStringState = 'EndOfStringState';
+
     const LogicalOperatorState = 'LogicalOperatorState';
 
     const InitEvaluateState = "InitEvaluateState";
@@ -73,6 +76,8 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
             'bool' => 'bool',
             'boolean' => 'boolean',
             'block' => 'block',
+            'string' => 'string',
+            's' => 's',
             'v' => 'v',
             'var' => 'var'
         ];
@@ -130,6 +135,9 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
                         break;
                     case ($conditionalMode ==  'block');
                         $tv->switchState(self::BlockModeState);
+                        break;
+                    case ($conditionalMode ==  's' || $conditionalMode ==  'string');
+                        $tv->switchState(self::StringModeState);
                         break;
                 }
                 return;
@@ -450,6 +458,33 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
         self::$identifier = '';
     }
 
+    public static function StringModeState(TonicsView $tv): void
+    {
+        $char = $tv->getChar();
+        if ($tv->charIsTabOrLFOrFFOrSpace()){
+            return;
+        }
+
+        if ($tv->charIsRightSquareBracket()) {
+            $tv->switchState(self::EndOfStringState);
+            return;
+        }
+
+        self::$identifier .= $char;
+    }
+
+    public static function EndOfStringState(TonicsView $tv): void
+    {
+        $log = [
+            'type' => 'mode',
+            'modeType' => 'string',
+            'value' => self::$identifier
+        ];
+        $tv->getLastOpenTag()->addArgs([$log]);
+        $tv->switchState(self::InitConditionalOperatorState);
+        self::$identifier = '';
+    }
+
     public static function LogicalOperatorState(TonicsView $tv): void
     {
         if ($tv->charIsTabOrLFOrFFOrSpace()){
@@ -540,12 +575,15 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
                 $tv->exception(TonicsTemplateRuntimeException::class, ["No Operand Type After Digit `$opA` "]);
             });
 
-            if ($nextChar['type'] === 'mode'){
-                self::$operandB = self::getModeOperandData($nextChar, $tv);
-            } elseif ($nextChar['type'] === 'digit' || $nextChar['type'] === 'boolean'){
-                self::$operandB = $nextChar['value'];
-            } else {
-                $tv->exception(TonicsTemplateRuntimeException::class, ["Invalid Operand Type:  `$opA {$token['value']} {$nextChar['type']}`"]);
+            if (isset($nextChar['type'])){
+                if ($nextChar['type'] === 'mode'){
+                    self::$operandB = self::getModeOperandData($nextChar, $tv);
+                } elseif ($nextChar['type'] === 'digit' || $nextChar['type'] === 'boolean'){
+                    self::$operandB = $nextChar['value'];
+                }
+            }else {
+                $nextChar = isset($nextChar['type']) ? $nextChar['type'] : $nextChar;
+                $tv->exception(TonicsTemplateRuntimeException::class, ["Invalid Operand Type:  `$opA {$token['value']} {$nextChar}`"]);
             }
 
             $tv->nextCharacterKey();
@@ -607,6 +645,10 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
     {
         if ($token['modeType'] === 'block'){
             return self::getBlockData($token['value'], $tv);
+        }
+
+        if ($token['modeType'] === 'string'){
+            return $token['value'];
         }
 
         if ($token['modeType'] === 'var'){

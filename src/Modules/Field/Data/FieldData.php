@@ -2,6 +2,7 @@
 
 namespace App\Modules\Field\Data;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
@@ -68,6 +69,24 @@ class FieldData extends AbstractDataLayer
             return new OnFieldUserForm($fieldIDS, $this, $postData, $viewProcessing);
         }
         return new OnFieldUserForm([], $this, $postData, $viewProcessing);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getFieldSortedItems(array $slugs = []): array
+    {
+        $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
+        # For Field
+        $fields =  $this->selectWithCondition($this->getFieldTable(), ['field_id'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
+        # For Field Items
+        $fieldIDS = [];
+        foreach ($fields as $field){
+            $fieldIDS[] = $field->field_id;
+        }
+
+        $onFieldUserForm = new OnFieldUserForm([], $this);
+        return $onFieldUserForm->getFieldSortedItems($fieldIDS);
     }
 
     /**

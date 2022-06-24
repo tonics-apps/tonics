@@ -352,6 +352,15 @@ p {
     margin-right: 20px;
 }
 
+.extension-box {
+    display: flex;
+    flex-direction: row;
+    padding: 2px clamp(20px, 2vw, 25px);
+    align-items: center;
+    border-radius: 20px;
+    text-decoration: none;
+}
+
 .site-nav {
     overflow: auto;
 }

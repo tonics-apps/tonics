@@ -1,10 +1,42 @@
 [[b('Post::Single::Header')
 <header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
     <h1 class="entry-title"> [[v('Data.post_title')]]</h1>
-    <div class="entry-meta">
+
+    <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
+        <nav>
+            <ul style="gap: 5px; font-size: 85%;" class="d:flex flex-wrap:wrap justify-content:center list:style:none">
+                [[each("cat in Data.categories")
+                <style>
+                    .box {
+                        display: flex;
+                        flex-direction: row;
+                        padding: 5px clamp(20px, 2vw, 25px);
+                        align-items: center;
+                        border-radius: 5px;
+                        text-decoration: none;
+                    }
+                </style>
+                <li class="menu-block">
+                    <a href="/[[v('cat.path')]]" class="box flex-gap:small color:black border-width:default border:black" title="[[v('cat.cat_name')]]">
+                        <div class="text:no-wrap">[[v('cat.cat_name')]]</div>
+                    </a>
+                </li>
+                ]]
+            </ul>
+        </nav>
+        <div class="by-line-and-date d:flex justify-content:center flex-gap:small">
+            <div class="by-line d:flex align-items:center flex-gap:small">
                 <span class="posted-by">
                     By [[v('Data.user_name')]]
                 </span>
+            </div>
+            |
+            <div class="date-published d:flex align-items:center flex-gap:small">
+                <span class="date">
+                    On [[v('Data.created_at_words')]]
+                </span>
+            </div>
+        </div>
     </div>
     <figure class="featured-image full-bleed">
         <div class="post-thumbnail">

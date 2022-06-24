@@ -9,9 +9,11 @@ namespace App;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
+use App\Modules\Core\States\WordPressImportState;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
@@ -27,26 +29,9 @@ use Exception;
  */
 class InitLoader
 {
-    private Container $container;
-    private TonicsHelpers $tonicsHelpers;
     private Router $router;
     private TonicsView $tonicsView;
-    private Session $session;
     private EventDispatcher $eventDispatcher;
-    # Incomplete, but 95% usable for my use case.
-    private DomParser $domParser;
-
-    private static MyPDO|null $db = null;
-
-    private static array $globalVariable = [];
-
-    /**
-     * @return TonicsHelpers
-     */
-    public function getTonicsHelpers(): TonicsHelpers
-    {
-        return $this->tonicsHelpers;
-    }
 
     /**
      * Yh, Boot up the application
@@ -54,10 +39,6 @@ class InitLoader
      */
     public function BootDaBoot()
     {
-                #-----------------------------------
-            # INCLUDE THE HELPERS
-        #-----------------------------------
-        AppConfig::includeHelpers();
         // dd(event()->dispatch(new OnAdminMenu())->generateMenuTree(), event());
         if (AppConfig::isMaintenanceMode()){
             die("Temporarily down for schedule maintenance, check back in few minutes");
@@ -124,73 +105,21 @@ class InitLoader
     }
 
     /**
-     * @param Container $container
-     * @return InitLoader
-     */
-    public function setContainer(Container $container): InitLoader
-    {
-        $this->container = $container;
-        return $this;
-    }
-
-
-    /**
-     * @param TonicsHelpers $tonicsHelpers
-     * @return InitLoader
-     */
-    public function setTonicsHelpers(TonicsHelpers $tonicsHelpers): InitLoader
-    {
-        $this->tonicsHelpers = $tonicsHelpers;
-        return $this;
-    }
-
-    /**
      * @return MyPDO
      * @throws Exception
      */
     public static function getDatabase(): MyPDO
     {
-        if (!self::$db) {
-            self::$db = (new Database())->createNewDatabaseInstance();
-        }
-
-        self::$db->setDbEngine('mysql');
-        return self::$db;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function getGlobalVariable(): array
-    {
-        if (!self::$globalVariable) {
-            self::$globalVariable = [];
-        }
-        return self::$globalVariable;
-    }
-
-    public static function addToGlobalVariable($key, $data): array
-    {
-        self::$globalVariable[$key] = $data;
-        return self::$globalVariable;
+        return db();
     }
 
     /**
      * @return DomParser
+     * @throws Exception
      */
     public function getDomParser(): DomParser
     {
-        return $this->domParser;
-    }
-
-    /**
-     * @param DomParser $domParser
-     * @return InitLoader
-     */
-    public function setDomParser(DomParser $domParser): InitLoader
-    {
-        $this->domParser = $domParser;
-        return $this;
+        return dom();
     }
 
     /**
@@ -210,16 +139,6 @@ class InitLoader
     public function setTonicsView(TonicsView $tonicsView): InitLoader
     {
         $this->tonicsView = $tonicsView;
-        return $this;
-    }
-
-    /**
-     * @param Session $session
-     * @return InitLoader
-     */
-    public function setSession(Session $session): InitLoader
-    {
-        $this->session = $session;
         return $this;
     }
 
@@ -254,19 +173,21 @@ class InitLoader
 
     /**
      * @return Session
+     * @throws Exception
      */
     public function getSession(): Session
     {
-        return $this->session;
+        return \session();
     }
 
 
     /**
      * @return Container
+     * @throws Exception
      */
     public function getContainer(): Container
     {
-        return $this->container;
+        return container();
     }
 
     /**

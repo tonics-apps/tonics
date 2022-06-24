@@ -1,4 +1,6 @@
 export class TrackCart {
+
+
     States = new Map([
         [ 'InitialState', this.InitialState() ],
         [ 'AddItemToCartState', this.AddItemToCartState() ],

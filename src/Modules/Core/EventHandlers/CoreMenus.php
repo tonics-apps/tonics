@@ -46,14 +46,17 @@ class CoreMenus implements HandlerInterface
                     'Extension',
                     helper()->getIcon('plugin', 'icon:admin'),
                     '#0', parent:  OnAdminMenu::ToolsMenuID)
-                ->if(UserData::canAccess(Roles::CAN_ACCESS_THEME), function ($event) {
+                ->if(UserData::canAccess(Roles::CAN_ACCESS_THEME, $event->userRole()), function ($event) {
                     return $event->addMenu(OnAdminMenu::ThemesMenuID, 'Themes', helper()->getIcon('theme', 'icon:admin'), route('themes.index'), parent:  OnAdminMenu::ExtensionMenuID);
                 })
-                ->if(UserData::canAccess(Roles::CAN_ACCESS_PLUGIN), function ($event) {
+                ->if(UserData::canAccess(Roles::CAN_ACCESS_PLUGIN, $event->userRole()), function ($event) {
                     return $event->addMenu(OnAdminMenu::PluginMenuID, 'Plugins', helper()->getIcon('plugin', 'icon:admin'), route('plugins.index'), parent:  OnAdminMenu::ExtensionMenuID);
                 })
+                ->if(UserData::canAccess(Roles::CAN_ACCESS_MODULE, $event->userRole()), function ($event) {
+                    return $event->addMenu(OnAdminMenu::ModuleMenuID, 'Modules', helper()->getIcon('plugin', 'icon:admin'), route('modules.index'), parent:  OnAdminMenu::ExtensionMenuID);
+                })
 
-                ->if(UserData::canAccess(Roles::CAN_ACCESS_TRACK), function ($event) {
+                ->if(UserData::canAccess(Roles::CAN_ACCESS_TRACK, $event->userRole()), function ($event) {
                     return $event->addMenu(OnAdminMenu::LicenseMenuID, 'License', helper()->getIcon('license','icon:admin'), route('licenses.create'), parent:  OnAdminMenu::TrackMenuID)
                         ->addMenu(OnAdminMenu::LicenseMenuID + 1, 'New License', helper()->getIcon('plus', 'icon:admin'), route('licenses.create'), parent: OnAdminMenu::LicenseMenuID)
                         ->addMenu(OnAdminMenu::LicenseMenuID + 2, 'All License', helper()->getIcon('notes', 'icon:admin'), route('licenses.index'), parent: OnAdminMenu::LicenseMenuID);
@@ -61,7 +64,7 @@ class CoreMenus implements HandlerInterface
                 //->addMenu(OnAdminMenu::LicenseMenuID + 4, 'Exports', helper()->getIcon('download', 'icon:admin'), route('imports.export'), parent:  OnAdminMenu::ToolsMenuID);
         });
 
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER), function ($event) {
+        $event->if(UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER, $event->userRole()), function ($event) {
             return $event->addMenu(OnAdminMenu::DashboardMenuID, 'Dashboard', helper()->getIcon('dashboard', 'icon:admin'), route('customer.dashboard'))
                 ->addMenu(OnAdminMenu::SettingsMenuID, 'Settings', helper()->getIcon('cog', 'icon:admin'), route('customer.settings'))
                 ->addMenu(OnAdminMenu::DashboardMenuID + 1, 'Profile', helper()->getIcon('cog', 'icon:admin'), route('customer.settings'), parent: OnAdminMenu::SettingsMenuID);

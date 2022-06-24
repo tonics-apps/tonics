@@ -845,7 +845,7 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
   FROM {$this->getDriveTable()} AS f INNER JOIN child_to_parent cp on f.drive_id = cp.drive_parent_id
 ) SELECT * FROM child_to_parent;", $uniqueID);
 
-        if (!is_array($fileInfo)) {
+        if (!is_array($fileInfo) || empty($fileInfo)) {
             return null;
         }
 

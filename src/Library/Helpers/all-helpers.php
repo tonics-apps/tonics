@@ -21,7 +21,7 @@ use JetBrains\PhpStorm\NoReturn;
  */
 function session(): Session
 {
-    return AppConfig::initLoader()->getSession();
+    return AppConfig::initLoaderMinimal()->getSession();
 }
 
 /**
@@ -43,7 +43,7 @@ function url(): OnRequestProcess
  */
 function request(): OnRequestProcess
 {
-    return AppConfig::initLoader()->getRouter()->getOnRequestProcessingEvent();
+    return AppConfig::initLoaderOthers()->getRouter()->getOnRequestProcessingEvent();
 }
 
 /**
@@ -52,7 +52,7 @@ function request(): OnRequestProcess
  */
 function response(): Response
 {
-    return AppConfig::initLoader()->getRouter()->getResponse();
+    return AppConfig::initLoaderOthers()->getRouter()->getResponse();
 }
 
 /**
@@ -60,7 +60,7 @@ function response(): Response
  */
 function input(): TonicsRouterRequestInputInterface
 {
-    return AppConfig::initLoader()->getRouter()->getResponse()->getRequestInput();
+    return AppConfig::initLoaderOthers()->getRouter()->getResponse()->getRequestInput();
 }
 
 /**
@@ -96,7 +96,7 @@ function input(): TonicsRouterRequestInputInterface
  */
 function route(string $name,  array $parameters = []): string
 {
-    return AppConfig::initLoader()->getRouter()->getRoute()->getRouteTreeGenerator()->namedURL($name, $parameters);
+    return AppConfig::initLoaderOthers()->getRouter()->getRoute()->getRouteTreeGenerator()->namedURL($name, $parameters);
 }
 
 /**
@@ -106,7 +106,7 @@ function route(string $name,  array $parameters = []): string
  */
 function helper(): TonicsHelpers
 {
-    return AppConfig::initLoader()->getTonicsHelpers();
+    return AppConfig::initLoaderMinimal()->getTonicsHelpers();
 }
 
 /**
@@ -124,7 +124,7 @@ function utility(): TonicsHelpers
  */
 function db(): MyPDO
 {
-    return AppConfig::initLoader()->getDatabase();
+    return AppConfig::initLoaderMinimal()->getDatabase();
 }
 
 /**
@@ -135,7 +135,7 @@ function db(): MyPDO
  */
 function addToGlobalVariable(string $key, $data): void
 {
-    AppConfig::initLoader()::addToGlobalVariable($key, $data);
+    AppConfig::initLoaderMinimal()::addToGlobalVariable($key, $data);
 }
 
 /**
@@ -145,7 +145,7 @@ function addToGlobalVariable(string $key, $data): void
  */
 function view(string $viewname, array|stdClass $data = []): void
 {
-    $view = AppConfig::initLoader()->getTonicsView()->setVariableData($data);
+    $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
     $view->render($viewname);
 }
 
@@ -161,7 +161,7 @@ function view(string $viewname, array|stdClass $data = []): void
  */
 function container(): Container
 {
-    return AppConfig::initLoader()->getContainer();
+    return AppConfig::initLoaderMinimal()->getContainer();
 }
 
 /**
@@ -169,7 +169,7 @@ function container(): Container
  */
 function event(): EventDispatcher
 {
-    return AppConfig::initLoader()->getEventDispatcher();
+    return AppConfig::initLoaderOthers()->getEventDispatcher();
 }
 
 /**
@@ -177,5 +177,5 @@ function event(): EventDispatcher
  */
 function dom(): \Devsrealm\TonicsDomParser\DomParser
 {
-    return AppConfig::initLoader()->getDomParser();
+    return AppConfig::initLoaderMinimal()->getDomParser();
 }

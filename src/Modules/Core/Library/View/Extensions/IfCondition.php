@@ -38,6 +38,7 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
     public function stickToContent(OnTagToken $tagToken)
     {
         $view =  $this->getTonicsView();
+        $tagToken->getTag()->setContextFree(false);
         $result = $this->handleConditionalTokenization($tagToken->getTag());
         $view->getContent()->addToContent('if', $tagToken->getContent(), $result);
     }
@@ -85,7 +86,6 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
         return $ifOutPut;
     }
 
-
     public function setConditionalTokenizerState(): void
     {
         $view =  $this->getTonicsView();
@@ -117,7 +117,7 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
     {
         $this->setConditionalTokenizerState();
         $view = $this->getTonicsView();
-
+        /** @var $conditionalView TonicsView  */
 
         $conditionalView = $view->getModeStorage('if')['conditionalView'];
         # For some weird reason we need to instantiate a new content everytime, otherwise we get a partial final output
@@ -125,7 +125,7 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
 
         $conditionalView->reset()->splitStringCharByChar($tagToken->getArgs()[0]);
         $conditionalView->tokenize();
-        $tagToken->setArgs($conditionalView->getLastOpenTag()->getArgs());
+        $tagToken->setArgs($conditionalView->getLastOpenTag()->getArgs())->setContextFree(false);
         foreach ($tagToken->getChildrenRecursive($tagToken) as $tag){
             /** @var Tag $tag */
             if ($tag->getTagName() === 'if'){
@@ -136,6 +136,7 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
                 $tag->setArgs($newView->getLastOpenTag()->getArgs());*/
             }
         }
+
         $conditionalView->reset()
             ->setContent($view->getContent())->setVariableData($view->getVariableData());
 

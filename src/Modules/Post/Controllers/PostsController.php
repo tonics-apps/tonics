@@ -22,6 +22,7 @@ use App\Modules\Post\Events\OnPostUpdate;
 use App\Modules\Post\Rules\PostValidationRules;
 use App\Modules\Post\States\PostRedirection;
 use JetBrains\PhpStorm\NoReturn;
+use stdClass;
 
 class PostsController
 {
@@ -45,11 +46,7 @@ class PostsController
      */
     public function index()
     {
-        $data = $this->getPostData()->generatePaginationData(
-            $this->getPostData()->getPostPaginationColumns(),
-            'post_title',
-            $this->getPostData()->getPostTable());
-
+        $data = $this->getPostData()->getPostAdminPagination();
         $postListing = '';
         if ($data !== null) {
             $postListing = $this->postData->adminPostListing($data->data, $this->postData->getPageStatus());
@@ -122,7 +119,7 @@ class PostsController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function storeFromImport(array $postData): bool
+    public function storeFromImport(array $postData): bool|object
     {
         $previousPOSTGlobal = $_POST;
         try {
@@ -144,7 +141,7 @@ class PostsController
         $onPostCreate = new OnPostCreate($postReturning, $this->postData);
         event()->dispatch($onPostCreate);
         $_POST = $previousPOSTGlobal;
-        return true;
+        return $onPostCreate;
     }
 
     /**

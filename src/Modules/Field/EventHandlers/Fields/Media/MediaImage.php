@@ -2,6 +2,7 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Media;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
