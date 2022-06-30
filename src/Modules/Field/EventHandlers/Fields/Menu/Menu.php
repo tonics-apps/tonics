@@ -40,12 +40,8 @@ class Menu implements HandlerInterface
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $menuSlug = (isset($data->menuSlug)) ? $data->menuSlug : '';
         $displayName =  (isset($data->displayName)) ? $data->displayName : '1';
-        $frag = '';
-        if (isset($data->_topHTMLWrapper)) {
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $frag = $topHTMLWrapper($fieldName, $slug);
-        }
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         if ($displayName === '1'){
             $displayName = <<<HTML
@@ -110,10 +106,7 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $frag .= $data->_bottomHTMLWrapper;
-        }
-
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
 
     }
@@ -127,9 +120,8 @@ FORM;
         $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
         $menuSlug = (isset($data->menuSlug) && !empty($inputName)) ? $inputName : $data->menuSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $topHTMLWrapper = $data->_topHTMLWrapper;
-        $slug = $data->field_slug;
-        $form = $topHTMLWrapper($fieldName, $slug);
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $menuFrag = '';
         $menuData = new MenuData();
@@ -146,7 +138,7 @@ HTML;
 HTML;
             }
         }
-        $form .= <<<HTML
+        $frag .= <<<HTML
 <div class="form-group">
      <label class="menu-settings-handle-name" for="menuSlug-$changeID">Choose Menu
      <select name="menuSlug" class="default-selector mg-b-plus-1" id="menuSlug-$changeID">
@@ -156,11 +148,8 @@ HTML;
 </div>
 HTML;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 
     /**

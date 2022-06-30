@@ -103,6 +103,7 @@ class FieldActivator implements ModuleConfig, PluginConfig
 
                 # Widget
                 Widget::class,
+
             ],
 
             OnFieldCreate::class => [
@@ -131,9 +132,8 @@ class FieldActivator implements ModuleConfig, PluginConfig
     {
         return
             [
-                Tables::getTable(Tables::WIDGET_LOCATIONS) => Tables::getTable(Tables::WIDGET_LOCATIONS),
-                Tables::getTable(Tables::WIDGETS) => Tables::getTable(Tables::WIDGETS),
-                Tables::getTable(Tables::WIDGET_ITEMS) => Tables::getTable(Tables::WIDGET_ITEMS),
+                Tables::getTable(Tables::FIELD) => Tables::getTable(Tables::FIELD),
+                Tables::getTable(Tables::FIELD_ITEMS) => Tables::getTable(Tables::FIELD_ITEMS),
             ];
     }
 
@@ -165,5 +165,10 @@ class FieldActivator implements ModuleConfig, PluginConfig
             ],
             "credits" => []
         ];
+    }
+
+    public function onUpdate(): void
+    {
+        // TODO: Implement onUpdate() method.
     }
 }

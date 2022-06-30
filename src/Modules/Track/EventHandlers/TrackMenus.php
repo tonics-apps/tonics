@@ -12,7 +12,7 @@ use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class MediaMenus implements HandlerInterface
+class TrackMenus implements HandlerInterface
 {
     /**
      * @param object $event
@@ -23,8 +23,7 @@ class MediaMenus implements HandlerInterface
         /** @var OnAdminMenu $event */
         $event->if(UserData::canAccess(Roles::CAN_ACCESS_TRACK, $event->userRole()), function ($event) {
 
-            return $event->addMenu(OnAdminMenu::MediaMenuID, 'Media', helper()->getIcon('play', 'icon:admin'), '#0')
-                ->addMenu(OnAdminMenu::TrackMenuID, 'Track', helper()->getIcon('step-forward'), route('tracks.create'), parent:  OnAdminMenu::MediaMenuID)
+            return $event->addMenu(OnAdminMenu::TrackMenuID, 'Track', helper()->getIcon('step-forward'), route('tracks.create'), parent: OnAdminMenu::MediaMenuID)
                     ->addMenu(OnAdminMenu::TrackMenuID + 1, 'New Track', helper()->getIcon('plus', 'icon:admin'), route('tracks.create'), parent: OnAdminMenu::TrackMenuID)
                     ->addMenu(OnAdminMenu::TrackMenuID + 2, 'All Tracks', helper()->getIcon('playlist', 'icon:admin'), route('tracks.index'), parent: OnAdminMenu::TrackMenuID)
 
@@ -34,10 +33,7 @@ class MediaMenus implements HandlerInterface
 
                 ->addMenu(OnAdminMenu::ArtistMenuID, 'Artist', helper()->getIcon('user-solid-circle', 'icon:admin'), route('artists.create'), parent:  OnAdminMenu::MediaMenuID)
                     ->addMenu(OnAdminMenu::ArtistMenuID + 1, 'All Artist', helper()->getIcon('users', 'icon:admin'), route('artists.index'), parent: OnAdminMenu::ArtistMenuID)
-                    ->addMenu(OnAdminMenu::ArtistMenuID + 2, 'New Artist', helper()->getIcon('plus', 'icon:admin'), route('artists.create'), parent: OnAdminMenu::ArtistMenuID)
-
-            ->addMenu(OnAdminMenu::FileManagerMenuID, 'File Manager', helper()->getIcon('media-file', 'icon:admin'), route('media.show'), parent:  OnAdminMenu::MediaMenuID);
-
+                    ->addMenu(OnAdminMenu::ArtistMenuID + 2, 'New Artist', helper()->getIcon('plus', 'icon:admin'), route('artists.create'), parent: OnAdminMenu::ArtistMenuID);
         });
     }
 }

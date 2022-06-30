@@ -9,7 +9,9 @@ namespace App\Modules\Media;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Media\EventHandlers\MediaMenus;
 use App\Modules\Media\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -30,7 +32,11 @@ class MediaActivator implements ModuleConfig, PluginConfig
      */
     public function events(): array
     {
-        return [];
+        return [
+            OnAdminMenu::class => [
+                MediaMenus::class
+            ],
+        ];
     }
 
     /**
@@ -81,5 +87,10 @@ class MediaActivator implements ModuleConfig, PluginConfig
             ],
             "credits" => []
         ];
+    }
+
+    public function onUpdate(): void
+    {
+        // TODO: Implement onUpdate() method.
     }
 }

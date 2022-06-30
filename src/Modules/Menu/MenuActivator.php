@@ -99,4 +99,9 @@ class MenuActivator implements ModuleConfig, PluginConfig
             "credits" => []
         ];
     }
+
+    public function onUpdate(): void
+    {
+        // TODO: Implement onUpdate() method.
+    }
 }

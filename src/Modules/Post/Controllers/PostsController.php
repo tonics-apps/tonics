@@ -265,7 +265,7 @@ class PostsController
     {
         try {
             $this->getPostData()->deleteWithCondition(whereCondition: "post_slug = ?", parameter: [$slug], table: $this->getPostData()->getPostTable());
-            session()->flash(['Artist Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
+            session()->flash(['Post Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.index'));
         } catch (\Exception $e){
             $errorCode = $e->getCode();

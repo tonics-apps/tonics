@@ -16,6 +16,7 @@ class OnFieldMetaBox implements EventInterface
     private FieldData $fieldData;
     private ?Validation $validation = null;
     private bool $errorEmitted = false;
+    private ?stdClass $currentFieldBox = null;
 
     public function __construct()
     {
@@ -121,7 +122,7 @@ HTML;
         if(!isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug])){
             return '';
         }
-
+        $this->currentFieldBox = $this->FieldBoxSettings[$fieldCategory][$fieldSlug];
         $formCallback = $this->FieldBoxSettings[$fieldCategory][$fieldSlug]->settingsForm;
         if (!is_callable($formCallback)){
             return '';
@@ -178,13 +179,16 @@ HTML;
     public function getFieldMetaSettings($fieldSlug): mixed
     {
         $explodeSlug = explode('_', $fieldSlug);
-        $fieldCategory = $explodeSlug[0];
-        $fieldSlug = $explodeSlug[1];
-        if(!isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug])){
-            return [];
-        }
+        if (isset($explodeSlug[0]) && isset( $explodeSlug[1])){
+            $fieldCategory = $explodeSlug[0];
+            $fieldSlug = $explodeSlug[1];
+            if(!isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug])){
+                return [];
+            }
 
-        return $this->FieldBoxSettings[$fieldCategory][$fieldSlug];
+            return $this->FieldBoxSettings[$fieldCategory][$fieldSlug];
+        }
+        return [];
     }
 
     public function getRealName($fieldSlug): string
@@ -194,6 +198,91 @@ HTML;
         $fieldSlug = $explodeSlug[1];
 
         return isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug]) ? $this->FieldBoxSettings[$fieldCategory][$fieldSlug]->name : '';
+    }
+
+    /**
+     * @param string $name
+     * @param string $slug
+     * @param string $hash
+     * @param string $scriptPath
+     * @param array $postData
+     * @return string
+     */
+    public function _topHTMLWrapper(string $name, $data): string
+    {
+        $slug = isset($data->field_slug) ? $data->field_slug : '';
+        $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+        $postData = (isset($data->_field->postData)) ? $data->_field->postData : [];
+
+        $settings = $this->currentFieldBox ?? $this->getFieldMetaSettings($slug);
+        $scriptPath = isset($settings->scriptPath) && !empty($settings->scriptPath) ? "data-script_path={$settings->scriptPath}" : '';
+        $hideField = (isset($postData['hide_field'][$hash])) ? "<input type='hidden' name='hide_field[$hash]' value='$hash'>" : '';
+
+        // meaning settingsForm
+        if (empty($hideField) && empty($postData)){
+            $hideField = ' ';
+        }
+
+        $toggle = [
+            'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer toggle-on',
+            'aria-expanded' => 'true',
+            'aria-label' => 'Collapse child menu',
+            'svg' => 'icon:admin tonics-arrow-down color:white',
+            'use' => '#tonics-arrow-down',
+            'div' => 'swing-in-top-fwd d:flex',
+        ];
+        if (!empty($hideField)){
+            $toggle = [
+                'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer',
+                'aria-expanded' => 'false',
+                'aria-label' => 'Expand child menu',
+                'svg' => 'icon:admin tonics-arrow-up color:white',
+                'use' => '#tonics-arrow-up',
+                'div' => 'swing-out-top-fwd d:none',
+            ];
+        }
+        return <<<HTML
+<li tabIndex="0"
+class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
+$scriptPath>
+        <fieldset
+            class="width:100% padding:default d:flex justify-content:center flex-d:column owl">
+            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+                <span class="menu-arranger-text-head">$name</span>
+                <button class="{$toggle['button']}"
+                        aria-expanded="{$toggle['aria-expanded']}" aria-label="{$toggle['aria-label']}" type="button">
+                    <svg class="{$toggle['svg']}">
+                        <use class="svgUse" xlink:href="{$toggle['use']}"></use>
+                    </svg>
+                </button>
+            </legend>
+            <div role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0 {$toggle['div']}">
+                $hideField
+                <input type="hidden" name="field_slug" value="$slug">
+                <input type="hidden" name="field_slug_unique_hash" value="$hash">
+HTML;
+    }
+
+    public function _bottomHTMLWrapper(bool $isUserForm = false): string
+    {
+        if ($isUserForm){
+            return <<<HTML
+            </div>
+        </fieldset>
+    </li>
+HTML;
+        }
+        return <<<HTML
+                <div class="form-group">
+                    <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
+                        margin-top:0 cursor:pointer act-like-button">
+                        Delete Field Item
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    </li>
+HTML;
     }
 
     /**
@@ -325,5 +414,21 @@ HTML;
     {
         $this->errorEmitted = false;
         return $this;
+    }
+
+    /**
+     * @return stdClass|null
+     */
+    public function getCurrentFieldBox(): ?stdClass
+    {
+        return $this->currentFieldBox;
+    }
+
+    /**
+     * @param stdClass|null $currentFieldBox
+     */
+    public function setCurrentFieldBox(?stdClass $currentFieldBox): void
+    {
+        $this->currentFieldBox = $currentFieldBox;
     }
 }

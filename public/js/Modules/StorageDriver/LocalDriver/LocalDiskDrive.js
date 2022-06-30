@@ -2,8 +2,22 @@ var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
 var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var __commonJS = (cb, mod) => function __require() {
@@ -2489,6 +2503,163 @@ var require_sweetalert2_all = __commonJS({
   }
 });
 
+// src/Util/Http/FetchAPI.ts
+var FetchAPI = class {
+  constructor($request) {
+    this.$request = $request;
+    return this;
+  }
+  run() {
+    return __async(this, null, function* () {
+      return yield fetch(this.getRequest());
+    });
+  }
+  getRequest() {
+    return this.$request;
+  }
+};
+__name(FetchAPI, "FetchAPI");
+
+// src/Util/Commands/CommandRegistrar.ts
+var CommandRegistrar = class {
+  constructor($list) {
+    this.list = $list;
+  }
+  getList() {
+    return this.list;
+  }
+};
+__name(CommandRegistrar, "CommandRegistrar");
+
+// src/Core/Configs/Icons.ts
+var ICONS = {
+  "play": '<svg class="icon tonics-play-outline"><use xlink:href="#tonics-play-outline"></use></svg>',
+  "playlist": '<svg class="icon tonics-music-playlist"><use xlink:href="#tonics-music-playlist"></use></svg>',
+  "plus": '<svg class="icon tonics-add-new"><use xlink:href="#tonics-add-new"></use></svg>',
+  "archive": '<svg class="icon tonics-archive"><use xlink:href="#tonics-archive"></use></svg>',
+  "note": '<svg class="icon tonics-note"><use xlink:href="#tonics-note"></use></svg>',
+  "notes": '<svg class="icon tonics-multiple-notes"><use xlink:href="#tonics-multiple-notes"></use></svg>',
+  "category": '<svg class="icon tonics-categories"><use xlink:href="#tonics-categories"></use></svg>',
+  "cog": '<svg class="icon tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>',
+  "dashboard": '<svg class="icon tonics-dashboard"> <use xlink:href="#tonics-dashboard"></use></svg>',
+  "menu": '<svg class="icon tonics-menu"> <use xlink:href="#tonics-menu"></use></svg>',
+  "trash-can": '<svg class="icon tonics-trash-can"> <use xlink:href="#tonics-trash-can"></use></svg>',
+  "cart": '<svg class="icon tonics-cart"> <use xlink:href="#tonics-cart"></use></svg>',
+  "widget": '<svg class="icon tonics-widgets"> <use xlink:href="#tonics-widgets"></use></svg>',
+  "tools": '<svg class="icon tonics-tools"> <use xlink:href="#tonics-tools"></use></svg>',
+  "toggle-left": '<svg class="icon tonics-toggle-left"> <use xlink:href="#tonics-toggle-left"></use></svg>',
+  "toggle-right": '<svg class="icon tonics-toggle-right"> <use xlink:href="#tonics-toggle-right"></use></svg>',
+  "arrow-down": '<svg class="icon tonics-arrow-down"> <use xlink:href="#tonics-arrow-down"></use></svg>',
+  "arrow-up": '<svg class="icon tonics-arrow-up"> <use xlink:href="#tonics-arrow-up"></use></svg>',
+  "arrow-right": '<svg class="icon tonics-chevron-with-circle-right"> <use xlink:href="#tonics-chevron-with-circle-right"></use></svg>',
+  "arrow-left": '<svg class="icon tonics-chevron-with-circle-left"> <use xlink:href="#tonics-chevron-with-circle-left"></use></svg>',
+  "sign-out": '<svg class="icon tonics-sign-out"> <use xlink:href="#tonics-dashboard"></use></svg>',
+  "user-solid-circle": '<svg class="icon tonics-user-solid-circle"> <use xlink:href="#tonics-user-solid-circle"></use></svg>',
+  "users": '<svg class="icon tonics-users"> <use xlink:href="#tonics-users"></use></svg>',
+  "profile-settings": '<svg class="icon tonics-profile-settings"><use xlink:href="#tonics-profile-settings"></use></svg>',
+  "more-horizontal": '<svg class="icon tonics-more-horizontal"><use xlink:href="#tonics-more-horizontal"></use></svg>',
+  "more-vertical": '<svg class="icon tonics-more-vertical"><use xlink:href="#tonics-more-vertical"></use></svg>',
+  "heart": '<svg class="icon tonics-heart"> <use xlink:href="#tonics-heart"></use></svg>',
+  "dots-two-vertical": '<svg class="icon tonics-dots-two-vertical"><use xlink:href="#tonics-dots-two-vertical"></use></svg>',
+  "dots-two-horizontal": '<svg class="icon tonics-dots-two-horizontal"><use xlink:href="#tonics-dots-two-horizontal"></use></svg>',
+  "heart-fill": '<svg class="icon tonics-heart-fill"> <use xlink:href="#tonics-heart-fill"></use></svg>',
+  "pending": '<svg class="icon tonics-pending"><use xlink:href="#tonics-pending"></use></svg>',
+  "remove": '<svg class="icon tonics-remove"> <use xlink:href="#tonics-remove"></use></svg>',
+  "shopping-cart": '<svg class="icon tonics-shopping-cart"> <use xlink:href="#tonics-shopping-cart"></use></svg>',
+  "dollar": '<svg class="icon tonics-dollar"> <use xlink:href="#tonics-dollar"></use></svg>',
+  "align-left": '<svg class="icon tonics-align_left"> <use xlink:href="#tonics-align_left"></use></svg>',
+  "align-right": '<svg class="icon tonics-align_right"> <use xlink:href="#tonics-align_right"></use></svg>',
+  "align-column": '<svg class="icon tonics-align-column"> <use xlink:href="#tonics-align-column"></use></svg>',
+  "align-row": '<svg class="icon tonics-align-row"> <use xlink:href="#tonics-align-row"></use></svg>',
+  MEDIA: {
+    "shuffle": '<svg class="icon tonics-shuffle"> <use xlink:href="#tonics-shuffle"></use></svg>',
+    "refresh": '<svg class="icon tonics-refresh"> <use xlink:href="#tonics-refresh"></use></svg>',
+    "step-forward": '<svg class="icon tonics-step-forward"> <use xlink:href="#tonics-step-forward"></use></svg>',
+    "step-backward": '<svg class="icon tonics-step-backward"> <use xlink:href="#tonics-step-backward"></use></svg>',
+    "pause-outline": '<svg class="icon tonics-pause-outline"> <use xlink:href="#tonics-pause-outline"></use></svg>',
+    "play-outline": '<svg class="icon tonics-play-outline"> <use xlink:href="#tonics-play-outline"></use></svg>'
+  },
+  SOCIAL: {
+    "mail": '<svg class="icon tonics-mail"> <use xlink:href="#tonics-mail"></use></svg>',
+    "google-plus": '<svg class="icon tonics-google-plus"> <use xlink:href="#tonics-google-plus"></use></svg>',
+    "hangouts": '<svg class="icon tonics-hangouts"> <use xlink:href="#tonics-hangouts"></use></svg>',
+    "facebook": '<svg class="icon tonics-facebook"> <use xlink:href="#tonics-facebook"></use></svg>',
+    "instagram": '<svg class="icon tonics-instagram"> <use xlink:href="#tonics-instagram"></use></svg>',
+    "whatsapp": '<svg class="icon tonics-whatsapp"> <use xlink:href="#tonics-whatsapp"></use></svg>',
+    "telegram": '<svg class="icon tonics-telegram"> <use xlink:href="#tonics-telegram"></use></svg>',
+    "renren": '<svg class="icon tonics-renren"> <use xlink:href="#tonics-renren"></use></svg>',
+    "rss": '<svg class="icon tonics-rss"> <use xlink:href="#tonics-rss"></use></svg>',
+    "twitch": '<svg class="icon tonics-twitch"> <use xlink:href="#tonics-twitch"></use></svg>',
+    "vimeo": '<svg class="icon tonics-vimeo"> <use xlink:href="#tonics-vimeo"></use></svg>',
+    "flickr": '<svg class="icon tonics-flickr"> <use xlink:href="#tonics-flickr"></use></svg>',
+    "dribble": '<svg class="icon tonics-dribble"> <use xlink:href="#tonics-dribble"></use></svg>',
+    "behance": '<svg class="icon tonics-behance"> <use xlink:href="#tonics-behance"></use></svg>',
+    "deviantart": '<svg class="icon tonics-deviantart"> <use xlink:href="#tonics-deviantart"></use></svg>',
+    "500px": '<svg class="icon tonics-500px"> <use xlink:href="#tonics-500px"></use></svg>',
+    "steam": '<svg class="icon tonics-steam"> <use xlink:href="#tonics-steam"></use></svg>',
+    "soundcloud": '<svg class="icon tonics-soundcloud"> <use xlink:href="#tonics-soundcloud"></use></svg>',
+    "skype": '<svg class="icon tonics-skype"> <use xlink:href="#tonics-skype"></use></svg>',
+    "lastfm": '<svg class="icon tonics-lastfm"> <use xlink:href="#tonics-lastfm"></use></svg>',
+    "linkedin": '<svg class="icon tonics-linkedin"> <use xlink:href="#tonics-linkedin"></use></svg>',
+    "github": '<svg class="icon tonics-github"> <use xlink:href="#tonics-github"></use></svg>',
+    "twitter": '<svg class="icon tonics-twitter"> <use xlink:href="#tonics-twitter"></use></svg>',
+    "youtube": '<svg class="icon tonics-youtube"> <use xlink:href="#tonics-youtube"></use></svg>',
+    "reddit": '<svg class="icon reddit"> <use xlink:href="#tonics-reddit"></use></svg>',
+    "delicious": '<svg class="icon tonics-delicious"> <use xlink:href="#tonics-delicious"></use></svg>',
+    "stackoverflow": '<svg class="icon tonics-stackoverflow"> <use xlink:href="#tonics-stackoverflow"></use></svg>',
+    "pinterest": '<svg class="icon tonics-dashboard"> <use xlink:href="#tonics-pinterest"></use></svg>',
+    "xing": '<svg class="icon tonics-dashboard"> <use xlink:href="#tonics-xing"></use></svg>',
+    "flattr": '<svg class="icon tonics-flattr"> <use xlink:href="#tonics-flattr"></use></svg>',
+    "foursquare": '<svg class="icon tonics-foursquare"> <use xlink:href="#tonics-foursquare"></use></svg>',
+    "yelp": '<svg class="icon tonics-yelp"> <use xlink:href="#tonics-yelp"></use></svg>'
+  },
+  FILE: {
+    "file": '<svg class="icon tonics-file"> <use xlink:href="#tonics-file"></use></svg>',
+    "folder": '<svg class="icon tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>',
+    "image": '<svg class="icon tonics-file-image"> <use xlink:href="#tonics-file-image"></use></svg>',
+    "load-more": '<svg class="icon tonics-load-more"> <use xlink:href="#tonics-load-more"></use></svg>',
+    "music": '<svg class="icon tonics-music"> <use xlink:href="#tonics-music"></use></svg>',
+    "note": '<svg class="icon tonics-note"> <use xlink:href="#tonics-note"></use></svg>',
+    "pdf": '<svg class="icon tonics-pdf"> <use xlink:href="#tonics-pdf"></use></svg>',
+    "docx": '<svg class="icon tonics-docx"> <use xlink:href="#tonics-docx"></use></svg>',
+    "code": '<svg class="icon tonics-code"> <use xlink:href="#tonics-code"></use></svg>',
+    "zip": '<svg class="icon tonics-zip"> <use xlink:href="#tonics-zip"></use></svg>',
+    "compress": '<svg class="icon tonics-compress"> <use xlink:href="#tonics-compress"></use></svg>',
+    "exclamation": '<svg class="icon tonics-exclamation"> <use xlink:href="#tonics-exclamation"></use></svg>'
+  },
+  CONTEXT: {
+    "link": '<svg class="icon tonics-download-link"> <use xlink:href="#tonics-download-link"></use></svg>',
+    "preview_link": '<svg class="icon tonics-link"> <use xlink:href="#tonics-link"></use></svg>',
+    "edit": '<svg class="icon tonics-edit-icon"> <use xlink:href="#tonics-edit-icon"></use></svg>',
+    "cut": '<svg class="icon tonics-cut-icon"> <use xlink:href="#tonics-cut"></use></svg>',
+    "trash": '<svg class="icon tonics-trash-icon"> <use xlink:href="#tonics-trash-can"></use></svg>',
+    "paste": '<svg class="icon tonics-paste-icon"> <use xlink:href="#tonics-paste"></use></svg>',
+    "upload": '<svg class="icon tonics-plus-icon"> <use class="svgUse" xlink:href="#tonics-upload-icon"></use></svg>',
+    "refresh": '<svg class="icon tonics-refresh"><use class="svgUse" xlink:href="#tonics-refresh"></use></svg>',
+    "plus": '<svg class="icon tonics-plus"><use class="svgUse" xlink:href="#tonics-plus2"></use></svg>'
+  }
+};
+
+// src/Core/Configs/MenuEventAction.ts
+function MenuActions() {
+  return {
+    EDIT_IMAGE_FILE: "EditImageFileEvent",
+    DELETE_FILE: "DeleteFileEvent",
+    RENAME_FILE: "RenameFileEvent",
+    CUT_FILE: "CutFileEvent",
+    PASTE_FILE: "PasteFileEvent",
+    UPLOAD_FILE: "UploadFileEvent",
+    COPY_LINK: "CopyLinkEvent",
+    COPY_PREVIEW_LINK: "CopyPreviewLinkEvent",
+    CREATE_FOLDER: "NewFolderEvent",
+    REFRESH_FOLDER: "RefreshFolderEvent"
+  };
+}
+__name(MenuActions, "MenuActions");
+
+// src/Util/Others/Helpers.ts
+var import_sweetalert2 = __toModule(require_sweetalert2_all());
+
 // src/Core/Configs/FileManagerElements.ts
 var FileManagerElements = {
   HEAD: {
@@ -2528,6 +2699,132 @@ var FileManagerElements = {
   },
   SEARCH: ".filter-search"
 };
+
+// src/Util/Http/XHRApi.ts
+var XHRApi = class {
+  constructor(headers = {}) {
+    this.$callbacks = {};
+    this.http = new XMLHttpRequest();
+    this.headers = headers;
+    this.settings();
+  }
+  getCallbacks() {
+    return this.$callbacks;
+  }
+  settings() {
+    this.getCallbacks().callbacks = {
+      onProgress: null
+    };
+  }
+  checkIfCallbackIsSet() {
+    if (!this.getCallbacks().callbacks) {
+      throw new DOMException("No Callbacks exist");
+    }
+    return true;
+  }
+  onProgress($onProgress) {
+    if (this.checkIfCallbackIsSet()) {
+      this.getCallbacks().callbacks.onProgress = $onProgress;
+      return this;
+    }
+  }
+  Get(url, callBack) {
+    this.getHttp().open("GET", url, true);
+    this.setHeaders();
+    this.getHttp().send();
+    let self2 = this;
+    this.getHttp().onreadystatechange = function() {
+      try {
+        if (self2.http.readyState === XMLHttpRequest.DONE) {
+          if (self2.http.status === 200) {
+            callBack(null, self2.http.response);
+          } else {
+            callBack(self2.http.response);
+          }
+        }
+      } catch (e) {
+        callBack("Something Went Wrong: " + e.description);
+      }
+    };
+  }
+  Post(url, data, callBack) {
+    this.getHttp().open("POST", url, true);
+    this.setHeaders();
+    this.getHttp().send(data);
+    let self2 = this;
+    let onProgress = self2.getCallbacks().callbacks.onProgress;
+    if (onProgress !== null && typeof onProgress == "function") {
+      this.getHttp().upload.addEventListener("progress", function(e) {
+        onProgress(e);
+      });
+    }
+    try {
+      this.http.onload = function() {
+        callBack(null, self2.http.responseText);
+      };
+    } catch (e) {
+      callBack("Something Went Wrong: " + e.description);
+    }
+  }
+  Put(url, data, callBack) {
+    this.getHttp().open("PUT", url, true);
+    this.setHeaders();
+    this.getHttp().send(data);
+    let self2 = this;
+    let onProgress = self2.getCallbacks().callbacks.onProgress;
+    if (onProgress !== null && typeof onProgress == "function") {
+      this.getHttp().upload.addEventListener("progress", function(e) {
+        onProgress(e);
+      });
+    }
+    try {
+      this.http.onload = function() {
+        if (self2.http.status === 200) {
+          callBack(null, self2.http.response);
+        } else {
+          callBack(self2.http.response);
+        }
+      };
+    } catch (e) {
+      callBack("Something Went Wrong: " + e.description);
+    }
+  }
+  Delete(url, data = null, callBack) {
+    this.http.open("DELETE", url, true);
+    this.setHeaders();
+    if (data) {
+      this.http.send(data);
+    } else {
+      this.http.send();
+    }
+    let self2 = this;
+    try {
+      this.http.onload = function() {
+        if (self2.http.status === 200) {
+          callBack(null, self2.http.response);
+        } else {
+          callBack(self2.http.response);
+        }
+      };
+    } catch (e) {
+      callBack("Something Went Wrong: " + e.description);
+    }
+  }
+  getHeaders() {
+    return this.headers;
+  }
+  setHeaders() {
+    if (this.getHeaders()) {
+      for (let key in this.getHeaders()) {
+        this.getHttp().setRequestHeader(key, this.getHeaders()[key]);
+      }
+    }
+  }
+  getHttp() {
+    return this.http;
+  }
+};
+__name(XHRApi, "XHRApi");
 
 // src/Event/EventQueue.ts
 var EventQueue = class {
@@ -2578,36 +2875,6 @@ function attachEventAndHandlersToHandlerProvider($eventConfig, $eventName) {
   throw new DOMException(`Can't attach ${$eventName} to listeners because it doesn't exist`);
 }
 __name(attachEventAndHandlersToHandlerProvider, "attachEventAndHandlersToHandlerProvider");
-
-// src/Event/EventDispatcher.ts
-var EventDispatcher = class {
-  constructor($handleProvider) {
-    if ($handleProvider) {
-      this.$handleProvider = $handleProvider;
-      return this;
-    }
-  }
-  dispatch($event) {
-    let $eventName = $event.constructor;
-    const eventHandlers = this.getHandler().getEventHandlers($eventName);
-    for (let i = 0; i < eventHandlers.length; i++) {
-      if (!Object.getOwnPropertyNames(eventHandlers[i]).includes("arguments")) {
-        new eventHandlers[i]($event);
-      } else {
-        eventHandlers[i]($event);
-      }
-    }
-    return $event;
-  }
-  setHandler($handler) {
-    this.$handleProvider = $handler;
-    return this;
-  }
-  getHandler() {
-    return this.$handleProvider;
-  }
-};
-__name(EventDispatcher, "EventDispatcher");
 
 // src/Core/Handlers/AddClickEventToFileContainer.ts
 var AddClickEventToFileContainer = class {
@@ -2739,320 +3006,6 @@ var ContextMenuProcessor = class {
 };
 __name(ContextMenuProcessor, "ContextMenuProcessor");
 
-// src/Core/Configs/Icons.ts
-var ICONS = {
-  "play": '<svg class="icon tonics-play-outline"><use xlink:href="#tonics-play-outline"></use></svg>',
-  "playlist": '<svg class="icon tonics-music-playlist"><use xlink:href="#tonics-music-playlist"></use></svg>',
-  "plus": '<svg class="icon tonics-add-new"><use xlink:href="#tonics-add-new"></use></svg>',
-  "archive": '<svg class="icon tonics-archive"><use xlink:href="#tonics-archive"></use></svg>',
-  "note": '<svg class="icon tonics-note"><use xlink:href="#tonics-note"></use></svg>',
-  "notes": '<svg class="icon tonics-multiple-notes"><use xlink:href="#tonics-multiple-notes"></use></svg>',
-  "category": '<svg class="icon tonics-categories"><use xlink:href="#tonics-categories"></use></svg>',
-  "cog": '<svg class="icon tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>',
-  "dashboard": '<svg class="icon tonics-dashboard"> <use xlink:href="#tonics-dashboard"></use></svg>',
-  "menu": '<svg class="icon tonics-menu"> <use xlink:href="#tonics-menu"></use></svg>',
-  "trash-can": '<svg class="icon tonics-trash-can"> <use xlink:href="#tonics-trash-can"></use></svg>',
-  "cart": '<svg class="icon tonics-cart"> <use xlink:href="#tonics-cart"></use></svg>',
-  "widget": '<svg class="icon tonics-widgets"> <use xlink:href="#tonics-widgets"></use></svg>',
-  "tools": '<svg class="icon tonics-tools"> <use xlink:href="#tonics-tools"></use></svg>',
-  "toggle-left": '<svg class="icon tonics-toggle-left"> <use xlink:href="#tonics-toggle-left"></use></svg>',
-  "toggle-right": '<svg class="icon tonics-toggle-right"> <use xlink:href="#tonics-toggle-right"></use></svg>',
-  "arrow-down": '<svg class="icon tonics-arrow-down"> <use xlink:href="#tonics-arrow-down"></use></svg>',
-  "arrow-up": '<svg class="icon tonics-arrow-up"> <use xlink:href="#tonics-arrow-up"></use></svg>',
-  "arrow-right": '<svg class="icon tonics-chevron-with-circle-right"> <use xlink:href="#tonics-chevron-with-circle-right"></use></svg>',
-  "arrow-left": '<svg class="icon tonics-chevron-with-circle-left"> <use xlink:href="#tonics-chevron-with-circle-left"></use></svg>',
-  "sign-out": '<svg class="icon tonics-sign-out"> <use xlink:href="#tonics-dashboard"></use></svg>',
-  "user-solid-circle": '<svg class="icon tonics-user-solid-circle"> <use xlink:href="#tonics-user-solid-circle"></use></svg>',
-  "users": '<svg class="icon tonics-users"> <use xlink:href="#tonics-users"></use></svg>',
-  "profile-settings": '<svg class="icon tonics-profile-settings"><use xlink:href="#tonics-profile-settings"></use></svg>',
-  "more-horizontal": '<svg class="icon tonics-more-horizontal"><use xlink:href="#tonics-more-horizontal"></use></svg>',
-  "more-vertical": '<svg class="icon tonics-more-vertical"><use xlink:href="#tonics-more-vertical"></use></svg>',
-  "heart": '<svg class="icon tonics-heart"> <use xlink:href="#tonics-heart"></use></svg>',
-  "dots-two-vertical": '<svg class="icon tonics-dots-two-vertical"><use xlink:href="#tonics-dots-two-vertical"></use></svg>',
-  "dots-two-horizontal": '<svg class="icon tonics-dots-two-horizontal"><use xlink:href="#tonics-dots-two-horizontal"></use></svg>',
-  "heart-fill": '<svg class="icon tonics-heart-fill"> <use xlink:href="#tonics-heart-fill"></use></svg>',
-  "pending": '<svg class="icon tonics-pending"><use xlink:href="#tonics-pending"></use></svg>',
-  "remove": '<svg class="icon tonics-remove"> <use xlink:href="#tonics-remove"></use></svg>',
-  "shopping-cart": '<svg class="icon tonics-shopping-cart"> <use xlink:href="#tonics-shopping-cart"></use></svg>',
-  "dollar": '<svg class="icon tonics-dollar"> <use xlink:href="#tonics-dollar"></use></svg>',
-  "align-left": '<svg class="icon tonics-align_left"> <use xlink:href="#tonics-align_left"></use></svg>',
-  "align-right": '<svg class="icon tonics-align_right"> <use xlink:href="#tonics-align_right"></use></svg>',
-  "align-column": '<svg class="icon tonics-align-column"> <use xlink:href="#tonics-align-column"></use></svg>',
-  "align-row": '<svg class="icon tonics-align-row"> <use xlink:href="#tonics-align-row"></use></svg>',
-  MEDIA: {
-    "shuffle": '<svg class="icon tonics-shuffle"> <use xlink:href="#tonics-shuffle"></use></svg>',
-    "refresh": '<svg class="icon tonics-refresh"> <use xlink:href="#tonics-refresh"></use></svg>',
-    "step-forward": '<svg class="icon tonics-step-forward"> <use xlink:href="#tonics-step-forward"></use></svg>',
-    "step-backward": '<svg class="icon tonics-step-backward"> <use xlink:href="#tonics-step-backward"></use></svg>',
-    "pause-outline": '<svg class="icon tonics-pause-outline"> <use xlink:href="#tonics-pause-outline"></use></svg>',
-    "play-outline": '<svg class="icon tonics-play-outline"> <use xlink:href="#tonics-play-outline"></use></svg>'
-  },
-  SOCIAL: {
-    "mail": '<svg class="icon tonics-mail"> <use xlink:href="#tonics-mail"></use></svg>',
-    "google-plus": '<svg class="icon tonics-google-plus"> <use xlink:href="#tonics-google-plus"></use></svg>',
-    "hangouts": '<svg class="icon tonics-hangouts"> <use xlink:href="#tonics-hangouts"></use></svg>',
-    "facebook": '<svg class="icon tonics-facebook"> <use xlink:href="#tonics-facebook"></use></svg>',
-    "instagram": '<svg class="icon tonics-instagram"> <use xlink:href="#tonics-instagram"></use></svg>',
-    "whatsapp": '<svg class="icon tonics-whatsapp"> <use xlink:href="#tonics-whatsapp"></use></svg>',
-    "telegram": '<svg class="icon tonics-telegram"> <use xlink:href="#tonics-telegram"></use></svg>',
-    "renren": '<svg class="icon tonics-renren"> <use xlink:href="#tonics-renren"></use></svg>',
-    "rss": '<svg class="icon tonics-rss"> <use xlink:href="#tonics-rss"></use></svg>',
-    "twitch": '<svg class="icon tonics-twitch"> <use xlink:href="#tonics-twitch"></use></svg>',
-    "vimeo": '<svg class="icon tonics-vimeo"> <use xlink:href="#tonics-vimeo"></use></svg>',
-    "flickr": '<svg class="icon tonics-flickr"> <use xlink:href="#tonics-flickr"></use></svg>',
-    "dribble": '<svg class="icon tonics-dribble"> <use xlink:href="#tonics-dribble"></use></svg>',
-    "behance": '<svg class="icon tonics-behance"> <use xlink:href="#tonics-behance"></use></svg>',
-    "deviantart": '<svg class="icon tonics-deviantart"> <use xlink:href="#tonics-deviantart"></use></svg>',
-    "500px": '<svg class="icon tonics-500px"> <use xlink:href="#tonics-500px"></use></svg>',
-    "steam": '<svg class="icon tonics-steam"> <use xlink:href="#tonics-steam"></use></svg>',
-    "soundcloud": '<svg class="icon tonics-soundcloud"> <use xlink:href="#tonics-soundcloud"></use></svg>',
-    "skype": '<svg class="icon tonics-skype"> <use xlink:href="#tonics-skype"></use></svg>',
-    "lastfm": '<svg class="icon tonics-lastfm"> <use xlink:href="#tonics-lastfm"></use></svg>',
-    "linkedin": '<svg class="icon tonics-linkedin"> <use xlink:href="#tonics-linkedin"></use></svg>',
-    "github": '<svg class="icon tonics-github"> <use xlink:href="#tonics-github"></use></svg>',
-    "twitter": '<svg class="icon tonics-twitter"> <use xlink:href="#tonics-twitter"></use></svg>',
-    "youtube": '<svg class="icon tonics-youtube"> <use xlink:href="#tonics-youtube"></use></svg>',
-    "reddit": '<svg class="icon reddit"> <use xlink:href="#tonics-reddit"></use></svg>',
-    "delicious": '<svg class="icon tonics-delicious"> <use xlink:href="#tonics-delicious"></use></svg>',
-    "stackoverflow": '<svg class="icon tonics-stackoverflow"> <use xlink:href="#tonics-stackoverflow"></use></svg>',
-    "pinterest": '<svg class="icon tonics-dashboard"> <use xlink:href="#tonics-pinterest"></use></svg>',
-    "xing": '<svg class="icon tonics-dashboard"> <use xlink:href="#tonics-xing"></use></svg>',
-    "flattr": '<svg class="icon tonics-flattr"> <use xlink:href="#tonics-flattr"></use></svg>',
-    "foursquare": '<svg class="icon tonics-foursquare"> <use xlink:href="#tonics-foursquare"></use></svg>',
-    "yelp": '<svg class="icon tonics-yelp"> <use xlink:href="#tonics-yelp"></use></svg>'
-  },
-  FILE: {
-    "file": '<svg class="icon tonics-file"> <use xlink:href="#tonics-file"></use></svg>',
-    "folder": '<svg class="icon tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>',
-    "image": '<svg class="icon tonics-file-image"> <use xlink:href="#tonics-file-image"></use></svg>',
-    "load-more": '<svg class="icon tonics-load-more"> <use xlink:href="#tonics-load-more"></use></svg>',
-    "music": '<svg class="icon tonics-music"> <use xlink:href="#tonics-music"></use></svg>',
-    "note": '<svg class="icon tonics-note"> <use xlink:href="#tonics-note"></use></svg>',
-    "pdf": '<svg class="icon tonics-pdf"> <use xlink:href="#tonics-pdf"></use></svg>',
-    "docx": '<svg class="icon tonics-docx"> <use xlink:href="#tonics-docx"></use></svg>',
-    "code": '<svg class="icon tonics-code"> <use xlink:href="#tonics-code"></use></svg>',
-    "zip": '<svg class="icon tonics-zip"> <use xlink:href="#tonics-zip"></use></svg>',
-    "compress": '<svg class="icon tonics-compress"> <use xlink:href="#tonics-compress"></use></svg>',
-    "exclamation": '<svg class="icon tonics-exclamation"> <use xlink:href="#tonics-exclamation"></use></svg>'
-  },
-  CONTEXT: {
-    "link": '<svg class="icon tonics-download-link"> <use xlink:href="#tonics-download-link"></use></svg>',
-    "preview_link": '<svg class="icon tonics-link"> <use xlink:href="#tonics-link"></use></svg>',
-    "edit": '<svg class="icon tonics-edit-icon"> <use xlink:href="#tonics-edit-icon"></use></svg>',
-    "cut": '<svg class="icon tonics-cut-icon"> <use xlink:href="#tonics-cut"></use></svg>',
-    "trash": '<svg class="icon tonics-trash-icon"> <use xlink:href="#tonics-trash-can"></use></svg>',
-    "paste": '<svg class="icon tonics-paste-icon"> <use xlink:href="#tonics-paste"></use></svg>',
-    "upload": '<svg class="icon tonics-plus-icon"> <use class="svgUse" xlink:href="#tonics-upload-icon"></use></svg>',
-    "refresh": '<svg class="icon tonics-refresh"><use class="svgUse" xlink:href="#tonics-refresh"></use></svg>',
-    "plus": '<svg class="icon tonics-plus"><use class="svgUse" xlink:href="#tonics-plus2"></use></svg>'
-  }
-};
-
-// src/Core/Configs/MenuEventAction.ts
-function MenuActions() {
-  return {
-    EDIT_IMAGE_FILE: "EditImageFileEvent",
-    DELETE_FILE: "DeleteFileEvent",
-    RENAME_FILE: "RenameFileEvent",
-    CUT_FILE: "CutFileEvent",
-    PASTE_FILE: "PasteFileEvent",
-    UPLOAD_FILE: "UploadFileEvent",
-    COPY_LINK: "CopyLinkEvent",
-    COPY_PREVIEW_LINK: "CopyPreviewLinkEvent",
-    CREATE_FOLDER: "NewFolderEvent",
-    REFRESH_FOLDER: "RefreshFolderEvent"
-  };
-}
-__name(MenuActions, "MenuActions");
-
-// src/Util/Others/Helpers.ts
-var import_sweetalert2 = __toModule(require_sweetalert2_all());
-function contextMenuListCreator(name, svg, menuAction) {
-  return `
-<li class="context-menu-item" data-menu-action=${menuAction}>
-      ${svg}
-      <a class="" href="javascript:void(0);">
-        ${name}
-      </a>
-    </li>
-`;
-}
-__name(contextMenuListCreator, "contextMenuListCreator");
-function inputToast(inputTitle, defaultValue = "", type = "text") {
-  return import_sweetalert2.default.fire({
-    title: inputTitle,
-    input: type,
-    inputValue: defaultValue,
-    inputAttributes: {
-      autocapitalize: "off"
-    },
-    showCancelButton: true,
-    confirmButtonText: "Save",
-    backdrop: true,
-    allowOutsideClick: () => !import_sweetalert2.default.isLoading(),
-    confirmButtonColor: "#0c132c",
-    focusConfirm: true,
-    background: "#eaeaea",
-    iconColor: "#264762d1"
-  });
-}
-__name(inputToast, "inputToast");
-function successToast(message, timer = 4e3) {
-  const Toast = import_sweetalert2.default.mixin({
-    toast: true,
-    position: "bottom-right",
-    showConfirmButton: false,
-    timer,
-    timerProgressBar: true,
-    background: "#eaeaea",
-    iconColor: "#264762d1",
-    didOpen: (toast) => {
-      toast.addEventListener("mouseenter", import_sweetalert2.default.stopTimer);
-      toast.addEventListener("mouseleave", import_sweetalert2.default.resumeTimer);
-    }
-  });
-  return Toast.fire({
-    customClass: {
-      title: "swal2-title-dark"
-    },
-    icon: "success",
-    title: message
-  });
-}
-__name(successToast, "successToast");
-function errorToast(message, timer = 5e3) {
-  const Toast = import_sweetalert2.default.mixin({
-    toast: true,
-    position: "bottom-right",
-    showConfirmButton: false,
-    timer,
-    timerProgressBar: true,
-    background: "#eaeaea",
-    iconColor: "#941943",
-    didOpen: (toast) => {
-      toast.addEventListener("mouseenter", import_sweetalert2.default.stopTimer);
-      toast.addEventListener("mouseleave", import_sweetalert2.default.resumeTimer);
-    }
-  });
-  return Toast.fire({
-    customClass: {
-      title: "swal2-title-red"
-    },
-    icon: "error",
-    title: message
-  });
-}
-__name(errorToast, "errorToast");
-function promptToast(title, confirmText = "Proceed", onConfirmed, onDenied = null, onDismiss = null) {
-  const Toast = import_sweetalert2.default.mixin({
-    toast: true,
-    position: "bottom-right",
-    timer: 5e4,
-    timerProgressBar: true,
-    showCancelButton: true,
-    showConfirmButton: true,
-    confirmButtonText: confirmText,
-    confirmButtonColor: "#0c132c",
-    focusConfirm: true,
-    background: "#eaeaea",
-    iconColor: "#264762d1",
-    didOpen: (toast) => {
-      toast.addEventListener("mouseenter", import_sweetalert2.default.stopTimer);
-      toast.addEventListener("mouseleave", import_sweetalert2.default.resumeTimer);
-    }
-  });
-  Toast.fire({
-    title
-  }).then((result) => {
-    if (result.isConfirmed) {
-      if (typeof onConfirmed == "function") {
-        onConfirmed();
-      }
-    } else if (result.isDenied) {
-      if (onDenied && typeof onDenied == "function") {
-        onDenied();
-      }
-    } else if (result.isDismissed) {
-      if (onDismiss && typeof onDismiss == "function") {
-        onDismiss();
-      }
-    }
-  });
-}
-__name(promptToast, "promptToast");
-function activateMenus($listOfMenuToActivate) {
-  let headerMenu = document.querySelector(FileManagerElements.HEAD.MENU_SECTION);
-  $listOfMenuToActivate.forEach(function(value, index) {
-    let eventMenu = headerMenu.querySelector(`[data-menu-action="${value}"]`);
-    if (eventMenu) {
-      eventMenu.closest(".menu-item").classList.remove("deactivate-menu-pointer");
-      eventMenu.querySelector(".icon").classList.remove("deactivate-menu");
-    }
-  });
-}
-__name(activateMenus, "activateMenus");
-function deActivateMenus($listOfMenuToActivate) {
-  let headerMenu = document.querySelector(FileManagerElements.HEAD.MENU_SECTION);
-  $listOfMenuToActivate.forEach(function(value, index) {
-    let eventMenu = headerMenu.querySelector(`[data-menu-action="${value}"]`);
-    if (eventMenu) {
-      eventMenu.closest(".menu-item").classList.add("deactivate-menu-pointer");
-      eventMenu.querySelector(".icon").classList.add("deactivate-menu");
-    }
-  });
-}
-__name(deActivateMenus, "deActivateMenus");
-function loadScriptDynamically($scriptPath, $uniqueIdentifier) {
-  return new Promise((resolve, reject) => {
-    let scriptCheck = document.querySelector(`[data-script_id="${$uniqueIdentifier}"]`);
-    if (scriptCheck) {
-      resolve();
-    } else {
-      const script = document.createElement("script");
-      script.dataset.script_id = $uniqueIdentifier;
-      document.body.appendChild(script);
-      script.onload = resolve;
-      script.onerror = reject;
-      script.async = true;
-      script.src = $scriptPath;
-    }
-  });
-}
-__name(loadScriptDynamically, "loadScriptDynamically");
-function fileLoadMoreButton(showLoadMoreText = true, animation = false) {
-  let loadMore = document.querySelector(FileManagerElements.Button.FILE_LOAD_MORE);
-  let loadingAnimation = document.querySelector(".dot-elastic.loading");
-  if (showLoadMoreText) {
-    loadMore == null ? void 0 : loadMore.classList.remove("display-none");
-    loadMore == null ? void 0 : loadMore.classList.add("display-flex");
-  } else {
-    loadMore == null ? void 0 : loadMore.classList.remove("display-flex");
-    loadMore == null ? void 0 : loadMore.classList.add("display-none");
-  }
-  animation ? loadingAnimation.classList.remove("display-none") : loadingAnimation.classList.add("display-none");
-}
-__name(fileLoadMoreButton, "fileLoadMoreButton");
-function filesLoadingAnimation(trigger = true) {
-  let fileContainerParent = document.querySelector(FileManagerElements.FILES.FILE_PARENT), loadingAnimation = document.querySelector(".dot-elastic.loading");
-  if (trigger) {
-    let firstFile = document.querySelector("[data-list_id]:nth-of-type(1)");
-    if (!firstFile) {
-      fileContainerParent == null ? void 0 : fileContainerParent.classList.remove("align-content-fs");
-      loadingAnimation.classList.remove("display-none");
-    }
-  } else {
-    fileContainerParent == null ? void 0 : fileContainerParent.classList.add("align-content-fs");
-    loadingAnimation.classList.add("display-none");
-  }
-}
-__name(filesLoadingAnimation, "filesLoadingAnimation");
-function dispatchEventToHandlers($eventObject, $eventClass) {
-  let eventHandlers = attachEventAndHandlersToHandlerProvider(EventsConfig, $eventClass);
-  let eventDispatcher = new EventDispatcher();
-  eventDispatcher.setHandler(eventHandlers).dispatch($eventObject);
-}
-__name(dispatchEventToHandlers, "dispatchEventToHandlers");
-
 // src/Core/Configs/Messages.ts
 var Message = {
   Rename: {
@@ -3115,259 +3068,6 @@ var Message = {
     Upload: "Upload",
     New_Folder: "New Folder"
   }
-};
-
-// src/Core/Events/OnAudioFileEvent.ts
-var OnAudioFileEvent = class {
-  get audioFile() {
-    return this._audioFile;
-  }
-  constructor(audioFile) {
-    this._audioFile = audioFile;
-  }
-};
-__name(OnAudioFileEvent, "OnAudioFileEvent");
-
-// src/Core/Commands/FilePlacement/AudioFilePlacement.ts
-var AudioFilePlacement = class {
-  extensions() {
-    return ["mp3", "wav", "tiff", "ogg", "webm", "aac", "flac"];
-  }
-  run($data, ext, callback = null) {
-    if (callback) {
-      if (typeof callback == "function") {
-        let audioFile = callback(ICONS.FILE.music, ext, $data);
-        dispatchEventToHandlers(new OnAudioFileEvent(audioFile), OnAudioFileEvent);
-        return audioFile;
-      }
-    }
-  }
-  fileContext($fileContainerEvent) {
-    return `
-    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
-    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
-    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
-    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
-    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
-  }
-};
-__name(AudioFilePlacement, "AudioFilePlacement");
-
-// src/Core/Events/OnImageFileEvent.ts
-var OnImageFileEvent = class {
-  get imageFile() {
-    return this._imageFile;
-  }
-  constructor(imageFile) {
-    this._imageFile = imageFile;
-  }
-};
-__name(OnImageFileEvent, "OnImageFileEvent");
-
-// src/Core/Commands/FilePlacement/ImageFilePlacement.ts
-var ImageFilePlacement = class {
-  extensions() {
-    return ["jpeg", "jpg", "jpe", "jfi", "jif", "jfif", "png", "gif", "bmp", "webp", "apng", "avif"];
-  }
-  run($data, ext, callback = null) {
-    if (callback) {
-      if (typeof callback == "function") {
-        let imageFile = callback(ICONS.FILE.image, ext, $data);
-        dispatchEventToHandlers(new OnImageFileEvent(imageFile), OnImageFileEvent);
-        return imageFile;
-      }
-    }
-  }
-  fileContext($fileContainerEvent) {
-    return `
-        ${contextMenuListCreator(Message.Context.Edit.Image, ICONS.FILE.image, MenuActions().EDIT_IMAGE_FILE)}
-    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
-    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
-    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
-    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
-    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
-  }
-};
-__name(ImageFilePlacement, "ImageFilePlacement");
-
-// src/Core/Events/OnDirectoryFileEvent.ts
-var OnDirectoryFileEvent = class {
-  get dirFile() {
-    return this._dirFile;
-  }
-  constructor(dirFile) {
-    this._dirFile = dirFile;
-  }
-};
-__name(OnDirectoryFileEvent, "OnDirectoryFileEvent");
-
-// src/Core/Commands/FilePlacement/DirectoryFilePlacement.ts
-var DirectoryFilePlacement = class {
-  extensions() {
-    return ["null", null];
-  }
-  run($data, ext, callback = null) {
-    if (callback) {
-      if (typeof callback == "function") {
-        let dirFile = callback(ICONS.FILE.folder, ext, $data);
-        dispatchEventToHandlers(new OnDirectoryFileEvent(dirFile), OnDirectoryFileEvent);
-        return dirFile;
-      }
-    }
-  }
-  fileContext($fileContainerEvent) {
-    let pasteLi = "";
-    if ($fileContainerEvent.cutFile.length > 0) {
-      pasteLi = contextMenuListCreator(Message.Context.Paste, ICONS.CONTEXT.paste, MenuActions().PASTE_FILE);
-    }
-    return `
-    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
-    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
-     ${pasteLi}
-    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
-  }
-  getCutFiles() {
-    return document.querySelectorAll('[data-cut="true"]');
-  }
-};
-__name(DirectoryFilePlacement, "DirectoryFilePlacement");
-
-// src/Core/Events/OnDocumentFileEvent.ts
-var OnDocumentFileEvent = class {
-  get docFile() {
-    return this._docFile;
-  }
-  constructor(docFile) {
-    this._docFile = docFile;
-  }
-};
-__name(OnDocumentFileEvent, "OnDocumentFileEvent");
-
-// src/Core/Commands/FilePlacement/DocumentsFilePlacement.ts
-var DocumentsFilePlacement = class {
-  extensions() {
-    return ["pdf", "docx", "doc", "txt"];
-  }
-  run($data, ext, callback = null) {
-    if (callback) {
-      if (typeof callback == "function") {
-        let docFile;
-        switch (ext) {
-          case "docx":
-          case "doc":
-            docFile = callback(ICONS.FILE.docx, ext, $data);
-            break;
-          case "pdf":
-            docFile = callback(ICONS.FILE.pdf, ext, $data);
-            break;
-          default:
-            docFile = callback(ICONS.FILE.note, ext, $data);
-        }
-        dispatchEventToHandlers(new OnDocumentFileEvent(docFile), OnDocumentFileEvent);
-        return docFile;
-      }
-    }
-  }
-  fileContext($fileContainerEvent) {
-    return `
-    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
-    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
-    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
-    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
-    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
-  }
-};
-__name(DocumentsFilePlacement, "DocumentsFilePlacement");
-
-// src/Core/Events/OnArchiveCompressFileEvent.ts
-var OnArchiveCompressFileEvent = class {
-  get archiveFile() {
-    return this._archiveFile;
-  }
-  constructor(archiveFile) {
-    this._archiveFile = archiveFile;
-  }
-};
-__name(OnArchiveCompressFileEvent, "OnArchiveCompressFileEvent");
-
-// src/Core/Commands/FilePlacement/ArchiveCompressFilePlacement.ts
-var ArchiveCompressFilePlacement = class {
-  extensions() {
-    return ["zip", "tar", "gz", "rar", "7z", "bz2", "xz", "wim"];
-  }
-  fileContext($fileContainerEvent) {
-    return `
-    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
-    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
-    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
-    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
-    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
-  }
-  run($data, ext, callback) {
-    if (callback) {
-      if (typeof callback == "function") {
-        let archiveFile;
-        switch (ext) {
-          case "zip":
-            archiveFile = callback(ICONS.FILE.zip, ext, $data);
-            break;
-          default:
-            archiveFile = callback(ICONS.FILE.compress, ext, $data);
-        }
-        dispatchEventToHandlers(new OnArchiveCompressFileEvent(archiveFile), OnArchiveCompressFileEvent);
-        return archiveFile;
-      }
-    }
-  }
-};
-__name(ArchiveCompressFilePlacement, "ArchiveCompressFilePlacement");
-
-// src/Core/Events/OnCodeFileEvent.ts
-var OnCodeFileEvent = class {
-  get codeFile() {
-    return this._codeFile;
-  }
-  constructor(codeFile) {
-    this._codeFile = codeFile;
-  }
-};
-__name(OnCodeFileEvent, "OnCodeFileEvent");
-
-// src/Core/Commands/FilePlacement/CodeFilePlacement.ts
-var CodeFilePlacement = class {
-  extensions() {
-    return ["php", "js", "css", "bat", "nim", "cs", "sql", "ts", "sh", "rb", "pyo", "pl", "o", "lua", "kt"];
-  }
-  fileContext($fileContainerEvent) {
-    return `
-    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
-    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
-    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
-    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
-    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
-  }
-  run($data, ext, callback) {
-    if (callback) {
-      if (typeof callback == "function") {
-        let codeFile = callback(ICONS.FILE.code, ext, $data);
-        dispatchEventToHandlers(new OnCodeFileEvent(codeFile), OnCodeFileEvent);
-        return codeFile;
-      }
-    }
-  }
-};
-__name(CodeFilePlacement, "CodeFilePlacement");
-
-// src/Core/Configs/CommandsConfig.ts
-var CommandsConfig = {
-  FileByExtensions: [
-    new AudioFilePlacement(),
-    new ArchiveCompressFilePlacement(),
-    new CodeFilePlacement(),
-    new ImageFilePlacement(),
-    new DirectoryFilePlacement(),
-    new DocumentsFilePlacement()
-  ]
 };
 
 // src/Core/Commands/FilePlacement/DefaultFilePlacement.ts
@@ -4242,6 +3942,90 @@ var TinymceCopyLinkHandler = class {
 };
 __name(TinymceCopyLinkHandler, "TinymceCopyLinkHandler");
 
+// src/Core/Events/OnImageFileEvent.ts
+var OnImageFileEvent = class {
+  get imageFile() {
+    return this._imageFile;
+  }
+  constructor(imageFile) {
+    this._imageFile = imageFile;
+  }
+};
+__name(OnImageFileEvent, "OnImageFileEvent");
+
+// src/Core/Commands/FilePlacement/ImageFilePlacement.ts
+var ImageFilePlacement = class {
+  extensions() {
+    return ["jpeg", "jpg", "jpe", "jfi", "jif", "jfif", "png", "gif", "bmp", "webp", "apng", "avif"];
+  }
+  run($data, ext, callback = null) {
+    if (callback) {
+      if (typeof callback == "function") {
+        let imageFile = callback(ICONS.FILE.image, ext, $data);
+        dispatchEventToHandlers(new OnImageFileEvent(imageFile), OnImageFileEvent);
+        return imageFile;
+      }
+    }
+  }
+  fileContext($fileContainerEvent) {
+    return `
+        ${contextMenuListCreator(Message.Context.Edit.Image, ICONS.FILE.image, MenuActions().EDIT_IMAGE_FILE)}
+    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
+    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
+    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
+    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
+    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
+  }
+};
+__name(ImageFilePlacement, "ImageFilePlacement");
+
+// src/Core/Events/OnDocumentFileEvent.ts
+var OnDocumentFileEvent = class {
+  get docFile() {
+    return this._docFile;
+  }
+  constructor(docFile) {
+    this._docFile = docFile;
+  }
+};
+__name(OnDocumentFileEvent, "OnDocumentFileEvent");
+
+// src/Core/Commands/FilePlacement/DocumentsFilePlacement.ts
+var DocumentsFilePlacement = class {
+  extensions() {
+    return ["pdf", "docx", "doc", "txt"];
+  }
+  run($data, ext, callback = null) {
+    if (callback) {
+      if (typeof callback == "function") {
+        let docFile;
+        switch (ext) {
+          case "docx":
+          case "doc":
+            docFile = callback(ICONS.FILE.docx, ext, $data);
+            break;
+          case "pdf":
+            docFile = callback(ICONS.FILE.pdf, ext, $data);
+            break;
+          default:
+            docFile = callback(ICONS.FILE.note, ext, $data);
+        }
+        dispatchEventToHandlers(new OnDocumentFileEvent(docFile), OnDocumentFileEvent);
+        return docFile;
+      }
+    }
+  }
+  fileContext($fileContainerEvent) {
+    return `
+    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
+    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
+    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
+    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
+    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
+  }
+};
+__name(DocumentsFilePlacement, "DocumentsFilePlacement");
+
 // src/Core/Handlers/Third-Party/TinymceCopyPreviewLinkHandler.ts
 var TinymceCopyPreviewLinkHandler = class {
   constructor($copyPreviewLinkEvent) {
@@ -4402,606 +4186,1007 @@ var EventsConfig = {
   NewFolderEvent: []
 };
 
-// src/Core/Events/CutFileEvent.ts
-var CutFileEvent = class {
-  constructor($fileContainerEvent) {
-    this.removePreviousCutFiles($fileContainerEvent);
-    this.cutSelectedFiles($fileContainerEvent);
-    $fileContainerEvent.removeContextMenu();
+// src/Event/EventDispatcher.ts
+var EventDispatcher = class {
+  constructor($handleProvider) {
+    if ($handleProvider) {
+      this.$handleProvider = $handleProvider;
+      return this;
+    }
   }
-  removePreviousCutFiles($fileContainerEvent) {
-    $fileContainerEvent.cutFile = [];
+  dispatch($event) {
+    let $eventName = $event.constructor;
+    const eventHandlers = this.getHandler().getEventHandlers($eventName);
+    for (let i = 0; i < eventHandlers.length; i++) {
+      if (!Object.getOwnPropertyNames(eventHandlers[i]).includes("arguments")) {
+        new eventHandlers[i]($event);
+      } else {
+        eventHandlers[i]($event);
+      }
+    }
+    return $event;
   }
-  cutSelectedFiles($fileContainerEvent) {
-    let selectedFiles = $fileContainerEvent.getAllSelectedFiles();
-    if (selectedFiles.length > 0) {
-      $fileContainerEvent.cutFile = selectedFiles;
+  setHandler($handler) {
+    this.$handleProvider = $handler;
+    return this;
+  }
+  getHandler() {
+    return this.$handleProvider;
+  }
+};
+__name(EventDispatcher, "EventDispatcher");
+
+// src/Util/Others/Helpers.ts
+function titleCase(str) {
+  return str.toLowerCase().replace(/\b(\w)/g, function(s) {
+    return s.toLocaleUpperCase();
+  });
+}
+__name(titleCase, "titleCase");
+function copyToClipBoard(clip) {
+  return new Promise((resolve, reject) => {
+    navigator.clipboard.writeText(clip).then(() => {
+      resolve(clip);
+    }).catch((e) => {
+      reject(e);
+    });
+  });
+}
+__name(copyToClipBoard, "copyToClipBoard");
+function contextMenuListCreator(name, svg, menuAction) {
+  return `
+<li class="context-menu-item" data-menu-action=${menuAction}>
+      ${svg}
+      <a class="" href="javascript:void(0);">
+        ${name}
+      </a>
+    </li>
+`;
+}
+__name(contextMenuListCreator, "contextMenuListCreator");
+function successToast(message, timer = 4e3) {
+  const Toast = import_sweetalert2.default.mixin({
+    toast: true,
+    position: "bottom-right",
+    showConfirmButton: false,
+    timer,
+    timerProgressBar: true,
+    background: "#eaeaea",
+    iconColor: "#264762d1",
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", import_sweetalert2.default.stopTimer);
+      toast.addEventListener("mouseleave", import_sweetalert2.default.resumeTimer);
+    }
+  });
+  return Toast.fire({
+    customClass: {
+      title: "swal2-title-dark"
+    },
+    icon: "success",
+    title: message
+  });
+}
+__name(successToast, "successToast");
+function errorToast(message, timer = 5e3) {
+  const Toast = import_sweetalert2.default.mixin({
+    toast: true,
+    position: "bottom-right",
+    showConfirmButton: false,
+    timer,
+    timerProgressBar: true,
+    background: "#eaeaea",
+    iconColor: "#941943",
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", import_sweetalert2.default.stopTimer);
+      toast.addEventListener("mouseleave", import_sweetalert2.default.resumeTimer);
+    }
+  });
+  return Toast.fire({
+    customClass: {
+      title: "swal2-title-red"
+    },
+    icon: "error",
+    title: message
+  });
+}
+__name(errorToast, "errorToast");
+function getCSRFFromInput(csrfNames) {
+  let csrf = "";
+  csrfNames.forEach((value, index) => {
+    let inputCSRF = document.querySelector(`input[name=${value}]`);
+    if (inputCSRF) {
+      csrf = inputCSRF.value;
+    }
+  });
+  return csrf;
+}
+__name(getCSRFFromInput, "getCSRFFromInput");
+function fileLoadMoreButton(showLoadMoreText = true, animation = false) {
+  let loadMore = document.querySelector(FileManagerElements.Button.FILE_LOAD_MORE);
+  let loadingAnimation = document.querySelector(".dot-elastic.loading");
+  if (showLoadMoreText) {
+    loadMore == null ? void 0 : loadMore.classList.remove("display-none");
+    loadMore == null ? void 0 : loadMore.classList.add("display-flex");
+  } else {
+    loadMore == null ? void 0 : loadMore.classList.remove("display-flex");
+    loadMore == null ? void 0 : loadMore.classList.add("display-none");
+  }
+  animation ? loadingAnimation.classList.remove("display-none") : loadingAnimation.classList.add("display-none");
+}
+__name(fileLoadMoreButton, "fileLoadMoreButton");
+function dispatchEventToHandlers($eventObject, $eventClass) {
+  let eventHandlers = attachEventAndHandlersToHandlerProvider(EventsConfig, $eventClass);
+  let eventDispatcher = new EventDispatcher();
+  eventDispatcher.setHandler(eventHandlers).dispatch($eventObject);
+}
+__name(dispatchEventToHandlers, "dispatchEventToHandlers");
+
+// src/Core/Events/OnAudioFileEvent.ts
+var OnAudioFileEvent = class {
+  get audioFile() {
+    return this._audioFile;
+  }
+  constructor(audioFile) {
+    this._audioFile = audioFile;
+  }
+};
+__name(OnAudioFileEvent, "OnAudioFileEvent");
+
+// src/Core/Commands/FilePlacement/AudioFilePlacement.ts
+var AudioFilePlacement = class {
+  extensions() {
+    return ["mp3", "wav", "tiff", "ogg", "webm", "aac", "flac"];
+  }
+  run($data, ext, callback = null) {
+    if (callback) {
+      if (typeof callback == "function") {
+        let audioFile = callback(ICONS.FILE.music, ext, $data);
+        dispatchEventToHandlers(new OnAudioFileEvent(audioFile), OnAudioFileEvent);
+        return audioFile;
+      }
+    }
+  }
+  fileContext($fileContainerEvent) {
+    return `
+    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
+    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
+    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
+    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
+    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
+  }
+};
+__name(AudioFilePlacement, "AudioFilePlacement");
+
+// src/Core/Events/OnDirectoryFileEvent.ts
+var OnDirectoryFileEvent = class {
+  get dirFile() {
+    return this._dirFile;
+  }
+  constructor(dirFile) {
+    this._dirFile = dirFile;
+  }
+};
+__name(OnDirectoryFileEvent, "OnDirectoryFileEvent");
+
+// src/Core/Commands/FilePlacement/DirectoryFilePlacement.ts
+var DirectoryFilePlacement = class {
+  extensions() {
+    return ["null", null];
+  }
+  run($data, ext, callback = null) {
+    if (callback) {
+      if (typeof callback == "function") {
+        let dirFile = callback(ICONS.FILE.folder, ext, $data);
+        dispatchEventToHandlers(new OnDirectoryFileEvent(dirFile), OnDirectoryFileEvent);
+        return dirFile;
+      }
+    }
+  }
+  fileContext($fileContainerEvent) {
+    let pasteLi = "";
+    if ($fileContainerEvent.cutFile.length > 0) {
+      pasteLi = contextMenuListCreator(Message.Context.Paste, ICONS.CONTEXT.paste, MenuActions().PASTE_FILE);
+    }
+    return `
+    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
+    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
+     ${pasteLi}
+    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
+  }
+  getCutFiles() {
+    return document.querySelectorAll('[data-cut="true"]');
+  }
+};
+__name(DirectoryFilePlacement, "DirectoryFilePlacement");
+
+// src/Core/Events/OnArchiveCompressFileEvent.ts
+var OnArchiveCompressFileEvent = class {
+  get archiveFile() {
+    return this._archiveFile;
+  }
+  constructor(archiveFile) {
+    this._archiveFile = archiveFile;
+  }
+};
+__name(OnArchiveCompressFileEvent, "OnArchiveCompressFileEvent");
+
+// src/Core/Commands/FilePlacement/ArchiveCompressFilePlacement.ts
+var ArchiveCompressFilePlacement = class {
+  extensions() {
+    return ["zip", "tar", "gz", "rar", "7z", "bz2", "xz", "wim"];
+  }
+  fileContext($fileContainerEvent) {
+    return `
+    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
+    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
+    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
+    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
+    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
+  }
+  run($data, ext, callback) {
+    if (callback) {
+      if (typeof callback == "function") {
+        let archiveFile;
+        switch (ext) {
+          case "zip":
+            archiveFile = callback(ICONS.FILE.zip, ext, $data);
+            break;
+          default:
+            archiveFile = callback(ICONS.FILE.compress, ext, $data);
+        }
+        dispatchEventToHandlers(new OnArchiveCompressFileEvent(archiveFile), OnArchiveCompressFileEvent);
+        return archiveFile;
+      }
     }
   }
 };
-__name(CutFileEvent, "CutFileEvent");
+__name(ArchiveCompressFilePlacement, "ArchiveCompressFilePlacement");
 
-// src/Core/Events/CopyPreviewLinkEvent.ts
-var CopyPreviewLinkEvent = class {
-  constructor($fileContainerEvent) {
-    this.fileContainerEvent = $fileContainerEvent;
-    this.copiedLinkFile = $fileContainerEvent.getSelectedFile();
-    this.copiedLink = "";
+// src/Core/Events/OnCodeFileEvent.ts
+var OnCodeFileEvent = class {
+  get codeFile() {
+    return this._codeFile;
   }
-  getFileContainerEvent() {
-    return this.fileContainerEvent;
-  }
-  handleCopyLink(selectedFile = null) {
-    let self2 = this;
-    return this.getFileContainerEvent().currentDrive.copyPreviewLinkHandler(this.fileContainerEvent, selectedFile);
-  }
-  onSuccess(message) {
-    this.setCopiedLink(message);
-    this.fileContainerEvent.removeContextMenu();
-    successToast(Message.Link.Copy.Preview.Success).then();
-    this.fileContainerEvent.dispatchEventToHandlers(this, CopyPreviewLinkEvent);
-  }
-  onError(message = null) {
-    errorToast(Message.Link.Copy.Preview.Error).then();
-  }
-  getCopiedLinkFile() {
-    return this.copiedLinkFile;
-  }
-  setCopiedLink(val) {
-    this.copiedLink = val;
-  }
-  getCopiedLink() {
-    return this.copiedLink;
+  constructor(codeFile) {
+    this._codeFile = codeFile;
   }
 };
-__name(CopyPreviewLinkEvent, "CopyPreviewLinkEvent");
+__name(OnCodeFileEvent, "OnCodeFileEvent");
 
-// src/Core/Events/RenameFileEvent.ts
-var RenameFileEvent = class {
-  get renamedFile() {
-    return this._renamedFile;
+// src/Core/Commands/FilePlacement/CodeFilePlacement.ts
+var CodeFilePlacement = class {
+  extensions() {
+    return ["php", "js", "css", "bat", "nim", "cs", "sql", "ts", "sh", "rb", "pyo", "pl", "o", "lua", "kt"];
   }
-  set renamedFile(value) {
-    this._renamedFile = value;
+  fileContext($fileContainerEvent) {
+    return `
+    ${contextMenuListCreator(Message.Context.Rename, ICONS.CONTEXT.edit, MenuActions().RENAME_FILE)}
+    ${contextMenuListCreator(Message.Context.Link.Copy, ICONS.CONTEXT.link, MenuActions().COPY_LINK)}
+    ${contextMenuListCreator(Message.Context.Link.Preview, ICONS.CONTEXT.preview_link, MenuActions().COPY_PREVIEW_LINK)}
+    ${contextMenuListCreator(Message.Context.Cut, ICONS.CONTEXT.cut, MenuActions().CUT_FILE)}
+    ${contextMenuListCreator(Message.Context.Delete, ICONS.CONTEXT.trash, MenuActions().DELETE_FILE)}`;
   }
-  constructor($fileContainerEvent) {
-    this.fileContainerEvent = $fileContainerEvent;
+  run($data, ext, callback) {
+    if (callback) {
+      if (typeof callback == "function") {
+        let codeFile = callback(ICONS.FILE.code, ext, $data);
+        dispatchEventToHandlers(new OnCodeFileEvent(codeFile), OnCodeFileEvent);
+        return codeFile;
+      }
+    }
   }
-  handleRenameFile() {
-    let fileToRename = this.fileContainerEvent.getSelectedFile();
-    if (fileToRename) {
-      let fileInput = fileToRename.querySelector(".tonics-file-filename-input");
-      this.fileContainerEvent.removeContextMenu();
-      inputToast("Rename File To: ", fileInput.value).then((result) => {
-        if (result.isConfirmed) {
-          fileInput.value = result.value;
-          this.fileContainerEvent.currentDrive.renameFileHandler(fileToRename, this.fileContainerEvent).then((message) => {
-            this.onSuccess(message);
-          }).catch(() => {
-            this.onError();
-          });
+};
+__name(CodeFilePlacement, "CodeFilePlacement");
+
+// src/Core/Configs/CommandsConfig.ts
+var CommandsConfig = {
+  FileByExtensions: [
+    new AudioFilePlacement(),
+    new ArchiveCompressFilePlacement(),
+    new CodeFilePlacement(),
+    new ImageFilePlacement(),
+    new DirectoryFilePlacement(),
+    new DocumentsFilePlacement()
+  ]
+};
+
+// src/StorageDriver/LocalDriver/LocalFileExtensionsCommands.ts
+var LocalFileExtensionsCommands = class {
+  get data() {
+    return this._data;
+  }
+  set data(value) {
+    this._data = value;
+  }
+  constructor($commands, $data, appendFile = false) {
+    this.commands = $commands;
+    this.data = $data;
+    this.append = appendFile;
+  }
+  getCommands() {
+    return this.commands;
+  }
+  placeFileByExtension() {
+    let self2 = this;
+    let commands = this.getCommands().getList();
+    if (!this.append) {
+      try {
+        document.querySelector(FileManagerElements.FILES.FILE_CONTAINER).replaceChildren();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    let key;
+    const data = this.data;
+    for (key in data) {
+      let file = data[key], list_id;
+      if (document.querySelector("[data-list_id]:last-of-type")) {
+        list_id = parseInt(document.querySelector("[data-list_id]:last-of-type").dataset.list_id) + 1;
+      } else {
+        list_id = key;
+      }
+      file.list_id = list_id;
+      file.properties = JSON.parse(file.properties);
+      let assignedAnExtension = false;
+      let ext = file.properties.ext;
+      commands.forEach((command, key2) => {
+        if (typeof command.extensions == "function" && typeof command.run == "function") {
+          if (command.extensions().includes(ext)) {
+            assignedAnExtension = true;
+            command.run(file, ext, function(icon, ext2, data2) {
+              return self2.createFile(icon, ext2, data2);
+            });
+          }
+        }
+      });
+      if (!assignedAnExtension) {
+        new DefaultFilePlacement().run(file, ext, function(icon, ext2, data2) {
+          return self2.createFile(icon, ext2, data2);
+        });
+      }
+    }
+  }
+  createFile($icon, ext, $data) {
+    let fileContainer = document.querySelector(FileManagerElements.FILES.FILE_CONTAINER);
+    let file = `
+        <li class="tonics-file" 
+                    data-list_id="${$data.list_id}"
+                    data-drive_id="${$data.drive_id}"
+                    data-drive_parent_id="${$data.drive_parent_id}"
+                    data-drive_unique_id="${$data.drive_unique_id}"
+                    data-filename="${$data.filename}" 
+                    data-file_type="${$data.type}"
+                    data-size="${$data.properties.size}"
+                    data-file_path="${$data.filepath}"
+                    data-time_created="${$data.properties.time_created}"
+                    data-time_modified="${$data.properties.time_modified}"
+                    data-ext="${ext}">
+          <button class="tonics-fm-link remove-button-styles">
+           ${$icon}
+            <div class="tonics-file-filename">
+              <input class="tonics-file-filename-input" type="text" value="${$data.filename}" readonly="" aria-label="${$data.filename}">
+            </div>
+            <span class="svg-per-file-loading display-none"></span>
+          </button>
+        </li>
+        `;
+    fileContainer == null ? void 0 : fileContainer.insertAdjacentHTML("beforeend", file);
+    return fileContainer == null ? void 0 : fileContainer.lastElementChild;
+  }
+};
+__name(LocalFileExtensionsCommands, "LocalFileExtensionsCommands");
+
+// src/StorageDriver/LocalDriver/LocalDiskDrive.ts
+var API_PREFIX = "/api/media/";
+var LocalDiskDriveAPI;
+(function(LocalDiskDriveAPI2) {
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["GetFiles"] = API_PREFIX + "files"] = "GetFiles";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["GetFileFromPath"] = API_PREFIX + "files?path="] = "GetFileFromPath";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["SearchFileFromPath"] = API_PREFIX + "files/search?path="] = "SearchFileFromPath";
+  LocalDiskDriveAPI2["IDQuery"] = "&id=";
+  LocalDiskDriveAPI2["SearchQuery"] = "&query=";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["MoveFiles"] = API_PREFIX + "files/move"] = "MoveFiles";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["PreFlight"] = API_PREFIX + "files/preflight"] = "PreFlight";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["DeleteFiles"] = API_PREFIX + "files"] = "DeleteFiles";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["PostFiles"] = API_PREFIX + "files"] = "PostFiles";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["RenameFile"] = API_PREFIX + "files/rename"] = "RenameFile";
+  LocalDiskDriveAPI2["ServeFile"] = "/serve/";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["CreateFolder"] = API_PREFIX + "files/create_folder"] = "CreateFolder";
+  LocalDiskDriveAPI2[LocalDiskDriveAPI2["CancelUpload"] = API_PREFIX + "files/cancel_create"] = "CancelUpload";
+})(LocalDiskDriveAPI || (LocalDiskDriveAPI = {}));
+var LocalDiskDrive = class {
+  constructor($driveSignature, $apiBearerToken, $fqdn) {
+    this._fetchInfo = {
+      lastStatus: {
+        ok: false,
+        status: 0,
+        statusText: "",
+        response: null
+      }
+    };
+    this.driveSignature = $driveSignature;
+    this.bearerToken = $apiBearerToken;
+    this.setFqdn($fqdn);
+  }
+  get currentPathID() {
+    return this._currentPathID;
+  }
+  set currentPathID(value) {
+    this._currentPathID = value;
+  }
+  get appendNewFiles() {
+    return this._appendNewFiles;
+  }
+  set appendNewFiles(value) {
+    this._appendNewFiles = value;
+  }
+  get filesFolderNextPageUrl() {
+    return this._filesFolderNextPageUrl;
+  }
+  set filesFolderNextPageUrl(value) {
+    this._filesFolderNextPageUrl = value;
+  }
+  get driveSignature() {
+    return this._driveSignature;
+  }
+  set driveSignature(value) {
+    this._driveSignature = value;
+  }
+  get currentDirectoryID() {
+    return this._currentDirectoryID;
+  }
+  set currentDirectoryID(value) {
+    this._currentDirectoryID = value;
+  }
+  get fetchInfo() {
+    return this._fetchInfo;
+  }
+  get bearerToken() {
+    return this._bearerToken;
+  }
+  set bearerToken(value) {
+    this._bearerToken = value;
+  }
+  get fqdn() {
+    return this._fqdn;
+  }
+  set fqdn(value) {
+    this._fqdn = value;
+  }
+  get storageData() {
+    return this._storageData;
+  }
+  set storageData(value) {
+    this._storageData = value;
+  }
+  getMaxRequestToSend() {
+    return 4;
+  }
+  getDriveIcon() {
+    return "#tonics-hdd";
+  }
+  getDriveName() {
+    return "local";
+  }
+  coldBootStorageDisk() {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      let getFilesURL = `${self2.fqdn}${LocalDiskDriveAPI.GetFiles}`;
+      let fileData = self2.fetchFileData(getFilesURL);
+      self2.storageData = fileData;
+      fileData.then((response) => {
+        self2.createIndividualDataElement(response);
+        resolve();
+      }).catch(() => reject());
+    });
+  }
+  createIndividualDataElement(fileData) {
+    const $command = new CommandRegistrar(CommandsConfig.FileByExtensions);
+    const $data = fileData.data;
+    this.currentPathID = fileData.more.drive_id;
+    if (fileData.more.has_more === true) {
+      this.filesFolderNextPageUrl = fileData.more.next_page_url;
+      fileLoadMoreButton();
+    } else {
+      fileLoadMoreButton(false, false);
+    }
+    if (this.appendNewFiles) {
+      return new LocalFileExtensionsCommands($command, $data, true).placeFileByExtension();
+    }
+    this.addCrumbNavigationPathTrail(fileData.more);
+    this.currentDirectoryID = fileData.more.drive_id;
+    new LocalFileExtensionsCommands($command, $data).placeFileByExtension();
+  }
+  loadMoreFiles($fileContainerEvent) {
+    return new Promise((resolve, reject) => {
+      let getFilesURL = `${this.fqdn}${this.filesFolderNextPageUrl}`;
+      this.fetchFileData(getFilesURL).then((response) => {
+        this.appendNewFiles = true;
+        this.createIndividualDataElement(response);
+        this.appendNewFiles = false;
+        resolve();
+      });
+    });
+  }
+  searchFiles(searchValue, $fileContainerEvent) {
+    return new Promise((resolve, reject) => {
+      let current_path = encodeURIComponent($fileContainerEvent.getCurrentDirectory()), queryString = `${LocalDiskDriveAPI.SearchFileFromPath}${current_path}${LocalDiskDriveAPI.IDQuery}${this.currentPathID}${LocalDiskDriveAPI.SearchQuery}${encodeURIComponent(searchValue)}`;
+      let searchFileUrl = `${this.fqdn}${queryString}`;
+      this.fetchFileData(searchFileUrl).then((response) => {
+        this.createIndividualDataElement(response);
+        resolve();
+      });
+    });
+  }
+  addCrumbNavigationPathTrail(info) {
+    var _a;
+    const path = info.current_path;
+    let split = path.split("/");
+    split = split.filter(String);
+    let breadcrumb = document.querySelector(".breadcrumb");
+    breadcrumb.innerHTML = "Navigating:  ";
+    let pathTrail = "";
+    split.forEach((path2, index, array) => {
+      pathTrail = pathTrail.concat(`/${path2}`);
+      let eachPath = titleCase(path2);
+      breadcrumb == null ? void 0 : breadcrumb.insertAdjacentHTML("beforeend", `<a data-pathtrail="${pathTrail}" data-filename="${path2}" 
+href="javascript:void(0);">${eachPath}</a><span class="delimiter"> \xBB </span>`);
+    });
+    (_a = breadcrumb == null ? void 0 : breadcrumb.lastElementChild) == null ? void 0 : _a.remove();
+  }
+  breadCrumbClickNavigationHandler(path) {
+    return new Promise((resolve, reject) => {
+      const pathTrail = encodeURIComponent(path);
+      let getFilesURL = `${this.fqdn}${LocalDiskDriveAPI.GetFileFromPath}${pathTrail}`;
+      this.fetchFileData(getFilesURL).then((response) => {
+        this.createIndividualDataElement(response);
+        resolve();
+      }).catch(() => reject());
+    });
+  }
+  createDirectoryElement(file_path) {
+    let newFile = document.createElement("li");
+    newFile.dataset.drive_id = this.currentDirectoryID;
+    newFile.dataset.file_path = file_path;
+    newFile.dataset.file_type = "directory";
+    newFile.dataset.ext = "null";
+    return newFile;
+  }
+  refresh($fileContainerEvent) {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      let directoryElement = self2.createDirectoryElement($fileContainerEvent.getCurrentDirectory());
+      self2.openFolderHandler(directoryElement, $fileContainerEvent).then(function() {
+        resolve();
+      });
+    });
+  }
+  createFolder($fileContainerEvent, $newFolderProperties) {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      let folderProperties = {
+        filename: $newFolderProperties.name,
+        uploadTo: $fileContainerEvent.getCurrentDirectory(),
+        uploadToID: self2.currentDirectoryID
+      };
+      let createFolderAPI = `${self2.fqdn}${LocalDiskDriveAPI.CreateFolder}`;
+      let XHRAPI = self2.defaultXHR({});
+      XHRAPI.Post(createFolderAPI, JSON.stringify(folderProperties), function(err, data) {
+        if (err) {
+          err = JSON.parse(err);
+          reject();
+        }
+        if (data) {
+          data = JSON.parse(data);
+          if (data.hasOwnProperty("status")) {
+            if (data.status == 200) {
+              resolve();
+            }
+          }
+        }
+      });
+    });
+  }
+  openFolderHandler(file, $fileContainerEvent) {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      if (file.dataset.file_type == "directory" && file.dataset.ext == "null") {
+        let dirRelativePath = encodeURIComponent(file.dataset.file_path);
+        let driveID = file.dataset.drive_id;
+        let getFilesURL = `${self2.fqdn}${LocalDiskDriveAPI.GetFileFromPath}${dirRelativePath}${LocalDiskDriveAPI.IDQuery}${driveID}`;
+        self2.fetchFileData(getFilesURL).then(function(response) {
+          self2.createIndividualDataElement(response);
+          resolve();
+        });
+      }
+    });
+  }
+  getStorageFileData() {
+    return this.storageData;
+  }
+  defaultXHR(requestHeaders = {}) {
+    let defaultHeader = {
+      "Authorization": `Bearer ${this.bearerToken}`,
+      "Tonics-CSRF-Token": `${getCSRFFromInput(["tonics_csrf_token", "csrf_token"])}`
+    };
+    return new XHRApi(__spreadValues(__spreadValues({}, defaultHeader), requestHeaders));
+  }
+  headers() {
+    let bearerToken = this.bearerToken;
+    return new Headers([
+      ["Content-Type", "application/json; charset=utf-8"],
+      ["Authorization", `Bearer ${bearerToken}`],
+      ["Tonics-CSRF-Token", `${getCSRFFromInput(["tonics_csrf_token", "csrf_token"])}`]
+    ]);
+  }
+  fetchFileData(url) {
+    return __async(this, null, function* () {
+      let self2 = this;
+      const myHeaders = this.headers();
+      const myRequest = new Request(url, {
+        method: "GET",
+        headers: myHeaders,
+        cache: "default",
+        mode: "cors"
+      });
+      return new FetchAPI(myRequest).run().then(function(response) {
+        return self2.processResponse(response);
+      }).then(function(json) {
+        self2.fetchInfo.lastStatus.response = json;
+        if (self2.fetchInfo.lastStatus.ok) {
+          return json;
+        } else {
+          console.log(self2.fetchInfo.lastStatus);
+        }
+      });
+    });
+  }
+  uploadFile(fileSettings, filename, $uploadFileEvent) {
+    let fileObject = fileSettings.fileObject;
+    let preFlightData = fileSettings.preFlightData;
+    let self2 = this;
+    if (preFlightData.dataToFill !== null) {
+      if (preFlightData.dataToFill.length > 0 && !fileSettings.uploaded) {
+        if (!fileSettings.pause) {
+          self2.throttleSend(fileSettings, filename, $uploadFileEvent);
+        }
+      }
+    } else {
+      let XHRAPI = this.defaultXHR({
+        "UploadTo": fileSettings.uploadTo,
+        "Filename": fileObject.name,
+        "Filetype": fileObject.type,
+        "Chunkstosend": preFlightData.chunksToSend,
+        "Totalblobsize": preFlightData.Totalblobsize,
+        "Byteperchunk": preFlightData.Byteperchunk
+      });
+      let preflight = `${this.fqdn}${LocalDiskDriveAPI.PreFlight}`;
+      XHRAPI.Get(preflight, function(err, data) {
+        if (data) {
+          fileSettings.fetched = true;
+          fileSettings.preFlightData.dataToFill = JSON.parse(data).data;
+          fileSettings.preFlightData.filename = JSON.parse(data).more.filename;
+          $uploadFileEvent.setUploadFileObject(filename, fileSettings);
+          if (preFlightData.dataToFill.length > 0 && !fileSettings.uploaded) {
+            if (!fileSettings.pause) {
+              self2.throttleSend(fileSettings, filename, $uploadFileEvent);
+            }
+          }
         }
       });
     }
   }
-  onSuccess(renamedFile = "") {
-    successToast(Message.Rename.Success).then();
-    this.renamedFile = renamedFile;
-    this.fileContainerEvent.clearSelection();
-    this.fileContainerEvent.dispatchEventToHandlers(this, RenameFileEvent);
-  }
-  onError(message = "") {
-    errorToast(Message.Rename.Error).then();
-  }
-};
-__name(RenameFileEvent, "RenameFileEvent");
-
-// src/Core/Events/DeleteFileEvent.ts
-var DeleteFileEvent = class {
-  constructor($fileContainerEvent) {
-    this.fileContainerEvent = $fileContainerEvent;
-  }
-  handleDeleteFile() {
-    return __async(this, null, function* () {
-      let fileContainerEvent = this.fileContainerEvent;
-      fileContainerEvent.removeDeletionMark(fileContainerEvent.getAllFiles());
-      let allSelectedFile = fileContainerEvent.getAllSelectedFiles();
-      let filesToBeDeleted = [];
-      if (allSelectedFile.length > 0) {
-        fileContainerEvent.markForDeletion(allSelectedFile);
-        fileContainerEvent.getFilesToBeDeleted().forEach((file) => {
-          filesToBeDeleted.push(file.dataset);
-        });
+  throttleSend(fileSettings, filename, $uploadFileEvent) {
+    let self2 = this;
+    let preFlightData = fileSettings.preFlightData, data = fileSettings.preFlightData.dataToFill, fileObject = fileSettings.fileObject;
+    for (let i = preFlightData.nextIndex, len = data.length; i < len; i++) {
+      if (data) {
+        let chunkPart = data[i];
+        let chunkPartMoreInfo = JSON.parse(chunkPart.moreBlobInfo);
+        let chunk = fileObject.slice(chunkPartMoreInfo.startSlice, chunkPartMoreInfo.endSlice);
+        let blobProperties = {
+          id: chunkPart.id,
+          filename: fileSettings.preFlightData.filename,
+          filetype: fileObject.type,
+          uploadTo: fileSettings.uploadTo,
+          uploadToID: self2.currentDirectoryID,
+          chunkPart: chunkPart.blob_chunk_part,
+          chunkSize: chunkPart.blob_chunk_size,
+          mbRate: 4 * 1048576,
+          totalChunks: preFlightData.chunksToSend,
+          totalBlobSize: fileObject.size,
+          startSlice: chunkPartMoreInfo.startSlice,
+          newFile: fileSettings.newFile
+        };
+        if (preFlightData.throttleSwitch) {
+          break;
+        }
+        fileSettings.preFlightData.sentApi = fileSettings.preFlightData.sentApi + 1;
+        $uploadFileEvent.setUploadFileObject(filename, fileSettings);
+        self2.uploadBlob(chunk, blobProperties, filename, $uploadFileEvent);
+        fileSettings.preFlightData.nextIndex = fileSettings.preFlightData.nextIndex + 1;
+        $uploadFileEvent.setUploadFileObject(filename, fileSettings);
       }
-      fileContainerEvent.removeContextMenu();
-      return fileContainerEvent.currentDrive.deleteFileHandler(filesToBeDeleted, fileContainerEvent);
+    }
+  }
+  uploadBlob(chunk, blobProperties, filename, $uploadFileEvent) {
+    let self2 = this, token = this.bearerToken, XHRAPI = this.defaultXHR({
+      "BlobDataInfo": JSON.stringify(blobProperties)
+    });
+    let fileSettings = $uploadFileEvent.getUploadFileObject(filename, this.driveSignature);
+    if (fileSettings.preFlightData.sentApi >= fileSettings.preFlightData.maxRequestToSend) {
+      fileSettings.preFlightData.throttleSwitch = true;
+      $uploadFileEvent.$uploadedFilesObject.set(filename, fileSettings);
+    }
+    let postFile = `${this.fqdn}${LocalDiskDriveAPI.PostFiles}`;
+    XHRAPI.Post(postFile, chunk, function(err, data) {
+      if (err) {
+      }
+      if (data) {
+        let receivedData = JSON.parse(data);
+        let percentageInt = Math.round(receivedData.data.uploadPercentage);
+        fileSettings.preFlightData.noOfReceivedResponse = fileSettings.preFlightData.noOfReceivedResponse + 1;
+        $uploadFileEvent.setUploadFileObject(filename, fileSettings);
+        if (!receivedData.data.isUploadCompleted) {
+          $uploadFileEvent.updateFileProgress(filename, percentageInt, self2.driveSignature);
+        }
+        if (fileSettings.preFlightData.noOfReceivedResponse === fileSettings.preFlightData.maxRequestToSend) {
+          $uploadFileEvent.releaseThrottle(filename, self2.driveSignature);
+          if (!receivedData.data.isUploadCompleted && !fileSettings.uploaded) {
+            self2.uploadFile(fileSettings, filename, $uploadFileEvent);
+          }
+        }
+        if (!fileSettings.uploaded) {
+          if (receivedData.data.isUploadCompleted) {
+            $uploadFileEvent.setUploadCompleted(filename, self2.driveSignature);
+            if ($uploadFileEvent.isUploadingSequentially()) {
+              $uploadFileEvent.setSequenceDone(filename, self2.driveSignature);
+              $uploadFileEvent.uploadFileNextSequence(self2.driveSignature);
+            }
+          }
+        }
+        return receivedData;
+      }
     });
   }
-  onSuccess(message = "") {
-    this.fileContainerEvent.resetPreviousFilesState();
-    if (!message) {
-      message = Message.Deleted.Success;
-    }
-    successToast(message).then();
-    this.fileContainerEvent.dispatchEventToHandlers(this, DeleteFileEvent);
+  cancelFileUploadHandler(fileSettings, $uploadFileEvent) {
+    let self2 = this;
+    fileSettings.pause = true;
+    fileSettings.uploaded = true;
+    fileSettings.preFlightData.throttleSwitch = true;
+    let uploadFilename = this.driveSignature + "_" + fileSettings.fileObject.name;
+    $uploadFileEvent.setUploadFileObject(uploadFilename, fileSettings);
+    return new Promise(function(resolve, reject) {
+      let preFlightData = fileSettings.preFlightData, blobProperties = {
+        filename: fileSettings.preFlightData.filename,
+        totalChunks: preFlightData.chunksToSend,
+        uploadTo: fileSettings.uploadTo,
+        totalBlobSize: fileSettings.fileObject.size
+      }, XHRAPI = self2.defaultXHR({}), data = JSON.stringify(blobProperties), cancelUpload = `${self2.fqdn}${LocalDiskDriveAPI.CancelUpload}`;
+      XHRAPI.Delete(cancelUpload, data, function(err, returnData) {
+        if (err) {
+          reject();
+        }
+        if (returnData) {
+          returnData = JSON.parse(returnData);
+          if (returnData.hasOwnProperty("status")) {
+            if (returnData.status == 200) {
+              resolve(returnData.message);
+            }
+          }
+        }
+      });
+    });
   }
-  onError(message = "") {
-    errorToast(Message.Deleted.Error).then();
+  renameFileHandler(fileToRename, $fileContainerEvent) {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      let fileInput = fileToRename.querySelector(".tonics-file-filename-input");
+      fileToRename.dataset.filename_new = fileInput.value;
+      let payload = JSON.stringify(fileToRename.dataset);
+      const myHeaders = self2.headers();
+      let renameURL = `${self2.fqdn}${LocalDiskDriveAPI.RenameFile}`;
+      const myRequest = new Request(renameURL, {
+        method: "PUT",
+        headers: myHeaders,
+        cache: "default",
+        mode: "cors",
+        body: payload
+      });
+      let fetchAPI = new FetchAPI(myRequest).run();
+      fetchAPI.then(function(response) {
+        return self2.processResponse(response);
+      }).then(function(json) {
+        if (json.status > 200) {
+          return reject();
+        }
+        if (json.hasOwnProperty("data")) {
+          fileInput.style.width = 175 + "px";
+          let data = json.data;
+          fileInput.value = data.filename;
+          fileInput.ariaLabel = data.filename;
+          fileToRename.dataset.drive_id = data.drive_id;
+          fileToRename.dataset.filename = data.filename;
+          fileToRename.dataset.file_path = data.file_path;
+          fileToRename.dataset.time_modified = data.time_modified;
+          return resolve(fileToRename);
+        }
+      });
+    });
   }
-};
-__name(DeleteFileEvent, "DeleteFileEvent");
-
-// src/Core/Events/PasteFileEvent.ts
-var PasteFileEvent = class {
-  constructor($fileContainerEvent) {
-    this.fileContainerEvent = $fileContainerEvent;
-  }
-  handlePasteFile() {
-    let fileContainerEvent = this.fileContainerEvent;
-    fileContainerEvent.removeContextMenu();
-    let directory = fileContainerEvent.getSelectedFile();
-    if (!directory) {
-      directory = document.createElement("li");
-      directory.dataset.file_type = "directory";
-      directory.dataset.file_path = fileContainerEvent.getCurrentDirectory();
-      directory.dataset.filename = fileContainerEvent.getCurrentDirectoryFilename();
-      directory.dataset.ext = "null";
-    }
-    if (directory) {
-      if (directory.dataset.ext == "null" && directory.dataset.file_type == "directory") {
-        directory.dataset.paste = "true";
-        return fileContainerEvent.currentDrive.moveFileHandler(directory, fileContainerEvent);
+  editImageHandler($uploadFileEvent) {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      let selectedFile = $uploadFileEvent.getFileContainerEvent().getSelectedFile(), url = `${self2.fqdn}${LocalDiskDriveAPI.ServeFile}` + selectedFile.dataset.drive_unique_id + "?render", config = {
+        translations: {
+          en: {
+            "toolbar.save": "Save",
+            "toolbar.apply": "Apply",
+            "toolbar.download": "Save Changes"
+          }
+        }
+      };
+      if (selectedFile) {
+        const onBeforeComplete = /* @__PURE__ */ __name(function(props) {
+          props.canvas.toBlob(function(blob) {
+            let file = new File([blob], selectedFile.dataset.filename);
+            const uploadTo = $uploadFileEvent.getFileContainerEvent().getCurrentDirectory();
+            let byteToSendPerChunk = $uploadFileEvent.byteToSendPerChunk;
+            let fileObject = {
+              fileObject: file,
+              driveSignature: $uploadFileEvent.getFileContainerEvent().currentDrive.driveSignature,
+              preFlightData: {
+                filename: file.name,
+                dataToFill: null,
+                chunksToSend: Math.ceil(file.size / byteToSendPerChunk),
+                Byteperchunk: byteToSendPerChunk,
+                Totalblobsize: file.size,
+                maxRequestToSend: $uploadFileEvent.maxRequestToSend,
+                noOfReceivedResponse: 0,
+                throttleSwitch: false,
+                sentApi: 0,
+                nextIndex: 0
+              },
+              newFile: false,
+              uploadTo,
+              fetched: false,
+              pause: false,
+              uploaded: false
+            };
+            $uploadFileEvent.updateFileProgress(file.name, 0, self2.driveSignature, " \u22EF Updating");
+            $uploadFileEvent.setUploadFileObject(file.name, fileObject);
+            self2.uploadFile(fileObject, file.name, $uploadFileEvent);
+          });
+        }, "onBeforeComplete");
+        const ImageEditor = new FilerobotImageEditor(config, {
+          onBeforeComplete
+        });
+        ImageEditor.open(url);
       }
+    });
+  }
+  copyLinkHandler($fileContainerEvent, selectedFile) {
+    let self2 = this;
+    return new Promise((resolve, reject) => {
+      if (selectedFile === null) {
+        selectedFile = $fileContainerEvent.getSelectedFile();
+      }
+      let link = `${self2.fqdn}${LocalDiskDriveAPI.ServeFile}` + selectedFile.dataset.drive_unique_id;
+      return copyToClipBoard(link).then(() => {
+        resolve(link);
+      }).catch(() => {
+        reject();
+      });
+    });
+  }
+  copyPreviewLinkHandler($fileContainerEvent, selectedFile) {
+    let self2 = this;
+    return new Promise((resolve, reject) => {
+      if (selectedFile === null) {
+        selectedFile = $fileContainerEvent.getSelectedFile();
+      }
+      let link = `${self2.fqdn}${LocalDiskDriveAPI.ServeFile}` + selectedFile.dataset.drive_unique_id + "?render";
+      return copyToClipBoard(link).then(() => {
+        resolve(link);
+      }).catch(() => {
+        reject();
+      });
+    });
+  }
+  moveFileHandler(moveTo, $fileContainerEvent) {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      let copiedFiles = [];
+      let pasteTo = moveTo.dataset;
+      if (!pasteTo.hasOwnProperty("drive_id")) {
+        pasteTo.drive_id = self2._currentDirectoryID;
+      }
+      $fileContainerEvent.getCutFiles().forEach((file) => {
+        if (file.dataset.drive_id == pasteTo.drive_id) {
+          reject(`Destination Folder \`${pasteTo.filename}\` is a subfolder of the source folder`);
+          throw new DOMException(`Destination Folder \`${pasteTo.filename}\` is a subfolder of the source folder, you can't paste the same folder into the same folder`);
+        } else {
+          copiedFiles.push(file.dataset);
+        }
+      });
+      let data = JSON.stringify({ files: copiedFiles, destination: pasteTo });
+      let XHRAPI = self2.defaultXHR({});
+      let moveURL = `${self2.fqdn}${LocalDiskDriveAPI.MoveFiles}`;
+      XHRAPI.Put(moveURL, data, function(err, returnData) {
+        if (err) {
+          err = JSON.parse(err);
+          return reject();
+        }
+        if (returnData) {
+          returnData = JSON.parse(returnData);
+          if (returnData.hasOwnProperty("status")) {
+            if (returnData.status == 200) {
+              self2.refresh($fileContainerEvent).then(function() {
+                resolve();
+              });
+            }
+          }
+        }
+      });
+    });
+  }
+  deleteFileHandler(filesToBeDeleted, $fileContainerEvent) {
+    let self2 = this;
+    return new Promise(function(resolve, reject) {
+      let XHRAPI = self2.defaultXHR({});
+      let data = JSON.stringify({ files: filesToBeDeleted });
+      let deleteFilesURL = `${self2.fqdn}${LocalDiskDriveAPI.DeleteFiles}`;
+      XHRAPI.Delete(deleteFilesURL, data, function(err, returnData) {
+        if (err) {
+          reject();
+        }
+        if (returnData) {
+          returnData = JSON.parse(returnData);
+          if (returnData.hasOwnProperty("status")) {
+            if (returnData.status == 200) {
+              self2.refresh($fileContainerEvent).then(function() {
+                resolve(returnData.message);
+              });
+            }
+          }
+        }
+      });
+    });
+  }
+  processResponse(response) {
+    return __async(this, null, function* () {
+      this.fetchInfo.lastStatus.ok = response.ok;
+      this.fetchInfo.lastStatus.status = response.status;
+      this.fetchInfo.lastStatus.statusText = response.statusText;
+      this.fetchInfo.lastStatus.response = null;
+      if (this.fetchInfo.lastStatus.ok) {
+        return yield response.json();
+      } else {
+        return yield response.json();
+      }
+    });
+  }
+  setFqdn($fqdn) {
+    let url = this.isValidURL($fqdn);
+    if (!url) {
+      throw new DOMException(`${$fqdn} is not a valid domain address, an example of a valid domain is https://google.com`);
+    }
+    this.fqdn = url;
+  }
+  isValidURL($fqdn) {
+    let url = document.createElement("input");
+    url.setAttribute("type", "url");
+    url.value = $fqdn;
+    if (url.validity.valid) {
+      return $fqdn;
     }
     return false;
   }
-  onSuccess(message = "") {
-    this.fileContainerEvent.resetPreviousFilesState();
-    this.fileContainerEvent.cutFile = [];
-    if (!message) {
-      message = Message.Move.Success;
-    }
-    successToast(message).then();
-    this.fileContainerEvent.dispatchEventToHandlers(this, PasteFileEvent);
-  }
-  onError(message = "") {
-    if (message) {
-      errorToast(message).then();
-    } else {
-      errorToast(Message.Move.Error).then();
-    }
-  }
 };
-__name(PasteFileEvent, "PasteFileEvent");
-
-// src/Core/Configs/Script.ts
-var Script = {
-  FileRobotImageEditor: {
-    ID: "filerobot-image-editor",
-    PATH: "/js/media/filerobot-image-editor.js"
-  },
-  DropboxSDK: {
-    ID: "dropbox-sdk",
-    PATH: "/js/media/dropbox.min.js"
-  }
-};
-
-// src/Core/Events/EditImageFileEvent.ts
-var EditImageFileEvent = class {
-  constructor($fileContainerEvent) {
-    this.fileContainerEvent = $fileContainerEvent;
-    this.handleEditImageFile();
-  }
-  handleEditImageFile() {
-    let self2 = this;
-    loadScriptDynamically(Script.FileRobotImageEditor.PATH, Script.FileRobotImageEditor.ID).then(function() {
-      return self2.fileContainerEvent.currentDrive.editImageHandler(new UploadFileEvent(self2.fileContainerEvent, null, null));
-    }.bind(self2));
-  }
-};
-__name(EditImageFileEvent, "EditImageFileEvent");
-
-// src/Core/Events/FileContainerEvent.ts
-var FileContainerEvent = class {
-  constructor($fileContainer, $loadDriveEventClass, currentDrive) {
-    this._cutFile = [];
-    this._pasteTo = null;
-    this.fileContainer = $fileContainer;
-    this.loadDriveEventClass = $loadDriveEventClass;
-    this.currentDrive = currentDrive;
-  }
-  get currentDrive() {
-    return this._currentDrive;
-  }
-  set currentDrive(value) {
-    this._currentDrive = value;
-  }
-  get cutFile() {
-    return this._cutFile;
-  }
-  set cutFile(value) {
-    this._cutFile = value;
-  }
-  get pasteTo() {
-    return this._pasteTo;
-  }
-  set pasteTo(value) {
-    this._pasteTo = value;
-  }
-  getFileContainer() {
-    return this.fileContainer;
-  }
-  getLoadDriveEventClass() {
-    return this.loadDriveEventClass;
-  }
-  getCurrentDirectory() {
-    var _a, _b;
-    return (_b = (_a = document.querySelector(".breadcrumb")) == null ? void 0 : _a.lastElementChild) == null ? void 0 : _b.getAttribute("data-pathtrail");
-  }
-  getCurrentDirectoryFilename() {
-    var _a, _b;
-    return (_b = (_a = document.querySelector(".breadcrumb")) == null ? void 0 : _a.lastElementChild) == null ? void 0 : _b.getAttribute("data-filename");
-  }
-  getBreadCrumbElement() {
-    return document.querySelector(".breadcrumb");
-  }
-  titleCase(str) {
-    return str.toLowerCase().replace(/\b(\w)/g, function(s) {
-      return s.toLocaleUpperCase();
-    });
-  }
-  getSelectedFile() {
-    return document.querySelector('[data-selected="true"]');
-  }
-  getAllSelectedFiles() {
-    return document.querySelectorAll('[data-selected="true"]');
-  }
-  getAllFiles() {
-    return document.querySelectorAll("li.tonics-file");
-  }
-  getCutFiles() {
-    return this.cutFile;
-  }
-  getFilesToBeDeleted() {
-    return document.querySelectorAll('[data-delete="true"]');
-  }
-  getFileByListID(id) {
-    return document.querySelector(`[data-list_id="${id}"]`);
-  }
-  getCopiedFiles() {
-    return document.querySelectorAll('[data-copied="true"]');
-  }
-  getContextMenu() {
-    return document.querySelector(FileManagerElements.FILES.CONTEXT);
-  }
-  getDiskDrives() {
-    return document.querySelector(FileManagerElements.DRIVE.FILE_DISK_DRIVES);
-  }
-  removeContextMenu() {
-    this.getContextMenu().classList.remove("show");
-  }
-  highlightFile(file) {
-    file.classList.add("selected-file");
-    file.dataset.selected = "true";
-    let headerMenu = document.querySelector(FileManagerElements.HEAD.PARENT);
-    headerMenu.style.top = "0";
-    switch (file.dataset.file_type) {
-      case "directory":
-        if (this.cutFile.length > 0) {
-          return activateMenus([MenuActions().PASTE_FILE, MenuActions().RENAME_FILE, MenuActions().CUT_FILE, MenuActions().DELETE_FILE]);
-        }
-        return activateMenus([MenuActions().RENAME_FILE, MenuActions().CUT_FILE, MenuActions().DELETE_FILE]);
-      case "file":
-        if (this.cutFile.length > 0) {
-          return activateMenus([MenuActions().PASTE_FILE, MenuActions().RENAME_FILE, MenuActions().CUT_FILE, MenuActions().DELETE_FILE]);
-        }
-        activateMenus([
-          MenuActions().RENAME_FILE,
-          MenuActions().CUT_FILE,
-          MenuActions().DELETE_FILE,
-          MenuActions().COPY_PREVIEW_LINK,
-          MenuActions().COPY_LINK
-        ]);
-    }
-  }
-  unHighlightFile(file) {
-    file.classList.remove("selected-file");
-    file.dataset.selected = "false";
-    file.setAttribute("readonly", "true");
-    if (this.getAllSelectedFiles().length < 1) {
-      deActivateMenus([
-        MenuActions().RENAME_FILE,
-        MenuActions().CUT_FILE,
-        MenuActions().DELETE_FILE,
-        MenuActions().PASTE_FILE,
-        MenuActions().COPY_PREVIEW_LINK,
-        MenuActions().COPY_LINK
-      ]);
-    }
-  }
-  resetPreviousFilesState() {
-    let singleFile = FileManagerElements.FILES.SINGLE_FILE;
-    let headerMenu = document.querySelector(FileManagerElements.HEAD.PARENT), headerHeight = headerMenu == null ? void 0 : headerMenu.getBoundingClientRect().height;
-    headerMenu.style.top = `-${headerHeight}px`;
-    document.querySelectorAll(singleFile).forEach((el) => {
-      var _a;
-      el.classList.remove("selected-file");
-      el.setAttribute("data-selected", "false");
-      (_a = el.querySelector(".tonics-file-filename-input")) == null ? void 0 : _a.setAttribute("readonly", "true");
-    });
-    deActivateMenus([
-      MenuActions().RENAME_FILE,
-      MenuActions().CUT_FILE,
-      MenuActions().DELETE_FILE,
-      MenuActions().PASTE_FILE,
-      MenuActions().COPY_PREVIEW_LINK,
-      MenuActions().COPY_LINK
-    ]);
-    if (this.cutFile.length > 0) {
-      return activateMenus([MenuActions().PASTE_FILE]);
-    }
-  }
-  removeAllDriveSelectionMark() {
-    this.loadDriveEventClass.removeAllDriveSelectionMark();
-  }
-  removeDeletionMark(files) {
-    if (files.length > 0) {
-      files.forEach((element) => {
-        element.dataset.delete = "false";
-      });
-    }
-  }
-  markForDeletion(selectedFiles) {
-    if (selectedFiles.length > 0) {
-      selectedFiles.forEach((element) => {
-        element.dataset.delete = "true";
-      });
-    }
-  }
-  clearSelection() {
-    var _a;
-    (_a = window == null ? void 0 : window.getSelection()) == null ? void 0 : _a.empty();
-  }
-  menuEventAction(menuItemEvent) {
-    let self2 = this;
-    if (EventsConfig.hasOwnProperty(menuItemEvent)) {
-      let menuEventActions = MenuActions(), key;
-      for (key in menuEventActions) {
-        let eventAction = menuEventActions[key];
-        if (eventAction == menuItemEvent) {
-          switch (eventAction) {
-            case "EditImageFileEvent":
-              return self2.editImageFileEvent();
-            case "DeleteFileEvent":
-              return self2.deleteFileEvent();
-            case "RenameFileEvent":
-              return self2.renameFileEvent();
-            case "PasteFileEvent":
-              return self2.pasteFileEvent();
-            case "UploadFileEvent":
-              return self2.uploadFileEvent();
-            case "CopyLinkEvent":
-              return self2.copyLinkEvent();
-            case "CopyPreviewLinkEvent":
-              return self2.copyPreviewLinkEvent();
-            case "CutFileEvent":
-              return new CutFileEvent(this);
-            case "NewFolderEvent":
-              inputToast("Folder Name").then((result) => {
-                this.removeContextMenu();
-                if (result.isConfirmed) {
-                  let folderProperties = {
-                    name: result.value
-                  };
-                  return self2.currentDrive.createFolder(this, folderProperties).then(function() {
-                    successToast(Message.Folder.Success).then();
-                    self2.currentDrive.refresh(self2).then();
-                  }.bind(self2)).catch(function() {
-                    errorToast(Message.Folder.Error).then();
-                  });
-                }
-              });
-              return;
-            case "RefreshFolderEvent":
-              return self2.refreshFolderEvent();
-            default:
-              break;
-          }
-        }
-      }
-    }
-  }
-  dispatchEventToHandlers($eventObject, $eventClass) {
-    dispatchEventToHandlers($eventObject, $eventClass);
-  }
-  editImageFileEvent() {
-    new EditImageFileEvent(this);
-  }
-  refreshFolderEvent() {
-    return this.currentDrive.refresh(this).then(() => {
-      this.removeContextMenu();
-      successToast(Message.Refresh.Success).then();
-    });
-  }
-  deleteFileEvent() {
-    let deleteFileEvent = new DeleteFileEvent(this);
-    promptToast("Are You Sure You Want To Delete File(s) ?", "Delete", () => {
-      deleteFileEvent.handleDeleteFile().then((message) => {
-        deleteFileEvent.onSuccess(message);
-      }).catch(function() {
-        deleteFileEvent.onError();
-      });
-    });
-  }
-  pasteFileEvent() {
-    let pasteFileEvent = new PasteFileEvent(this);
-    let promise = pasteFileEvent.handlePasteFile();
-    if (promise instanceof Promise) {
-      promise.then((message) => {
-        pasteFileEvent.onSuccess(message);
-      }).catch(function() {
-        pasteFileEvent.onError();
-      });
-    }
-    if (promise === false) {
-      pasteFileEvent.onError("Failed To Paste Into Directory");
-    }
-  }
-  copyLinkEvent() {
-    let copyLinkEvent = new CopyLinkEvent(this);
-    copyLinkEvent.handleCopyLink(this.getSelectedFile()).then((message) => {
-      copyLinkEvent.onSuccess(message);
-    }).catch((e) => {
-      copyLinkEvent.onError();
-    });
-  }
-  copyPreviewLinkEvent() {
-    let copyPreviewLinkEvent = new CopyPreviewLinkEvent(this);
-    copyPreviewLinkEvent.handleCopyLink(this.getSelectedFile()).then((message) => {
-      copyPreviewLinkEvent.onSuccess(message);
-    }).catch(function() {
-      copyPreviewLinkEvent.onError();
-    });
-  }
-  renameFileEvent() {
-    let renameFileEvent = new RenameFileEvent(this);
-    renameFileEvent.handleRenameFile();
-  }
-  uploadFileEvent() {
-    let self2 = this;
-    let input = document.createElement("input");
-    input.type = "file";
-    input.multiple = true;
-    input.click();
-    input.onchange = function(e) {
-      let files = e.target.files;
-      const uploadTo = self2.getCurrentDirectory();
-      new UploadFileEvent(self2, files, uploadTo);
-    };
-  }
-};
-__name(FileContainerEvent, "FileContainerEvent");
-
-// src/Core/Events/LoadDriveDataEvent.ts
-var LoadDriveDataEvent = class {
-  constructor($data, $loadDriveEventClass) {
-    this.data = $data;
-    this.loadDriveEventClass = $loadDriveEventClass;
-  }
-  getData() {
-    return this.data;
-  }
-  getLoadDriveEventClass() {
-    return this.loadDriveEventClass;
-  }
-  getFiles() {
-    var _a;
-    return (_a = this.getData()) == null ? void 0 : _a.data;
-  }
-  getCurrentPath() {
-    var _a;
-    return (_a = this.getData()) == null ? void 0 : _a.more;
-  }
-  getBreadCrumbElement() {
-    return document.querySelector(".breadcrumb");
-  }
-};
-__name(LoadDriveDataEvent, "LoadDriveDataEvent");
-
-// src/Core/Events/LoadDriveEvent.ts
-var LoadDriveEvent = class {
-  get appURL() {
-    return this._appURL;
-  }
-  set appURL(value) {
-    this._appURL = value;
-  }
-  get eventsConfig() {
-    return this._eventsConfig;
-  }
-  set eventsConfig(value) {
-    this._eventsConfig = value;
-  }
-  get driveStorageManager() {
-    return this._driveStorageManager;
-  }
-  set driveStorageManager(value) {
-    this._driveStorageManager = value;
-  }
-  constructor(driveStorageManager, AppURL = "") {
-    window.TonicsFileManager = {
-      events: {}
-    };
-    this._eventsConfig = EventsConfig;
-    this.driveStorageManager = driveStorageManager;
-    let fileParent = document.querySelector(".tonics-files-parent");
-    let filesContainer = fileParent == null ? void 0 : fileParent.querySelector(".tonics-files-container");
-    this._appURL = AppURL;
-    this.processDriveRootFolder();
-    if (filesContainer) {
-      let fileContainerEventHandler = attachEventAndHandlersToHandlerProvider(this.eventsConfig, FileContainerEvent);
-      let tonicsFileContainerEventObject = new FileContainerEvent(filesContainer, this, this.driveStorageManager.getFirstDriveStorage());
-      window.TonicsFileManager.events.fileContainerEvent = tonicsFileContainerEventObject;
-      window.TonicsFileManager.events.loadDriveEvent = this;
-      this.getEventDispatcher().setHandler(fileContainerEventHandler).dispatch(tonicsFileContainerEventObject);
-    }
-  }
-  processDriveRootFolder() {
-    let driveContainer = document.querySelector(FileManagerElements.DRIVE.DISK_DRIVE_CONTAINER);
-    driveContainer == null ? void 0 : driveContainer.replaceChildren();
-    this.driveStorageManager.$driveSystem.forEach(function(value, key) {
-      let icon = value.getDriveIcon();
-      driveContainer == null ? void 0 : driveContainer.insertAdjacentHTML("beforeend", `
-            <li class="tonics-individual-drive" data-drivename=${key}>
-          <a href="javascript:void(0);" class="drive-link">
-              <button class="drive-toggle" aria-expanded="false" aria-label="Expand child menu">
-                  <svg class="icon tonics-drive-icon">
-                      <use class="svgUse" xlink:href=${icon}></use>
-                  </svg>
-              </button>
-              <span class="tonics-drive-selected display-none"> \u2713 </span>
-              &nbsp;
-              <!-- DRIVE NAME -->
-              <span class="drive-name"> ${key} Drive</span>
-          </a>
-      </li>`);
-    });
-  }
-  processFiles(data) {
-    let driveInitDataListeners = attachEventAndHandlersToHandlerProvider(EventsConfig, LoadDriveDataEvent);
-    this.getEventDispatcher().setHandler(driveInitDataListeners).dispatch(new LoadDriveDataEvent(data, this));
-  }
-  bootDiskDrive($driveSignature) {
-    if (!this.driveStorageManager.$driveSystem.has($driveSignature)) {
-      throw new DOMException(`Couldn't Boot Drive "${$driveSignature}", Perhaps, It Doesn't Exit?`);
-    }
-    filesLoadingAnimation();
-    this.driveStorageManager.getDriveStorage($driveSignature).coldBootStorageDisk().then(() => {
-      filesLoadingAnimation(false);
-      this.removeAllDriveSelectionMark();
-      let driveElement = document.querySelector(`[data-drivename="${$driveSignature}"]`);
-      driveElement.querySelector(FileManagerElements.DRIVE.DRIVE_SELECTED).classList.remove("display-none");
-    });
-  }
-  removeAllDriveSelectionMark() {
-    let singleFile = FileManagerElements.DRIVE.DRIVE_SELECTED;
-    document.querySelectorAll(singleFile).forEach((el) => {
-      el.classList.add("display-none");
-    });
-  }
-  successMessage(message) {
-    return successToast(message);
-  }
-  errorMessage(message) {
-    return errorToast(message);
-  }
-  getEventDispatcher() {
-    return new EventDispatcher();
-  }
-};
-__name(LoadDriveEvent, "LoadDriveEvent");
+__name(LocalDiskDrive, "LocalDiskDrive");
 export {
-  LoadDriveEvent
+  LocalDiskDrive,
+  LocalDiskDriveAPI
 };
 /*!
 * sweetalert2 v11.1.10

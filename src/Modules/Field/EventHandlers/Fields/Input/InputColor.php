@@ -30,7 +30,6 @@ class InputColor implements HandlerInterface
      */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
-        $form = '';
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $inputColor =  (isset($data->inputColor)) ? $data->inputColor : '#000000';
@@ -38,12 +37,10 @@ class InputColor implements HandlerInterface
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        if (isset($data->_topHTMLWrapper)){
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $form = $topHTMLWrapper($fieldName, $slug);
-        }
-        $form .= <<<FORM
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
+        $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -81,10 +78,7 @@ class InputColor implements HandlerInterface
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
     }
 }

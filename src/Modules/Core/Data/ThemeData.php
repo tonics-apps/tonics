@@ -23,6 +23,8 @@ class ThemeData extends AbstractDataLayer
             if ($themeInstance instanceof PluginConfig) {
                 $themeDirName = helper()->getFileName(helper()->getClassDirectory($themeInstance));
                 $themePath = AppConfig::getThemesPath() . DIRECTORY_SEPARATOR . $themeDirName;
+                $info_url = isset($themeInstance->info()['info_url']) ? $themeInstance->info()['info_url'] : '';
+                $description = isset($themeInstance->info()['description']) ? $themeInstance->info()['description'] : '';
                 $themeName = isset($themeInstance->info()['name']) ? $themeInstance->info()['name'] : $themeDirName;
 
                 $installOrActivateLink = <<<HTML
@@ -49,7 +51,6 @@ HTML;
             <legend class="bg:pure-black color:white padding:default">$themeDirName</legend>
             <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">$themeName</div>
-         
                 <div class="form-group d:flex flex-gap:small">
                      $installOrActivateLink  
                    <form method="post" class="d:contents" action="$urlPrefix/$themeKey/delete">
@@ -61,14 +62,12 @@ HTML;
                 
                 <ul class="more-info list:style:none d:flex flex-gap justify-content:center">
                     <li class="menu-block" data-menu-depth="0">
-                        <a href="#0" class="extension-box flex-gap:small color:black border-width:default border:black" title="">
-                            
+                        <a href="$info_url" target="_blank" class="extension-box flex-gap:small color:black border-width:default border:black" title="">
                             <div class="text:paragraph-fluid-one text:no-wrap">Info</div>        
                         </a>
                     </li>
                     <li class="menu-block" data-menu-depth="0">
                         <a href="#0" class="extension-box flex-gap:small color:black border-width:default border:black" title="">
-                            
                             <div class="text:paragraph-fluid-one text:no-wrap">Update</div>        
                         </a>
                     </li>

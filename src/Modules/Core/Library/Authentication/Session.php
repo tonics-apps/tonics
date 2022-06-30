@@ -230,9 +230,10 @@ SQL, $jsonPath, $sessionID);
                 return false;
             }
 
-            if (property_exists($res, 'row')) {
-                # if row is null or 0, we return false, else true
-                return !(($res->row === null || $res->row === 0));
+            // if row is null, it would fall down since null is nothing in isset
+            if (isset($res->row)){
+                # if row is 0, we return false, else true
+                return !(($res->row === 0));
             }
         }
 
@@ -267,12 +268,12 @@ SQL, $jsonPath, $sessionID);
         $keys = explode('.', $key);
         $root = array_shift($keys);
         $formData = $this->getValue($root);
-        if ($formData !== false && $formData->row !== null){
+        if ($formData !== false && isset($formData->row)){
             $data = $formData->row;
-            while (is_string($data)){
+            if (is_string($data)){
                 $data = json_decode($data);
-                if (is_object($data)){
-                    break;
+                if (!is_object($data)){
+                    return '';
                 }
             }
             foreach ($keys as $k) {
@@ -406,11 +407,13 @@ SQL, $jsonPath, $sessionID);
         $sessionData = $this->retrieve($root, default: true, jsonDecode: true);
         if (is_string($sessionData) && !empty($sessionData)) {
             $sessionData = json_decode($sessionData);
-            foreach ($keys as $k) {
-                if (property_exists($sessionData, $k)) {
-                    $sessionData = $sessionData->{$k};
-                } else {
-                    $sessionData = '';
+            if (!empty($sessionData)){
+                foreach ($keys as $k) {
+                    if (property_exists($sessionData, $k)) {
+                        $sessionData = $sessionData->{$k};
+                    } else {
+                        $sessionData = '';
+                    }
                 }
             }
         }
@@ -435,7 +438,7 @@ SQL, $jsonPath, $sessionID);
         if (is_string($messages) && !empty($messages)) {
             $messages = json_decode($messages);
             if (is_object($messages)) {
-                $messages = json_decode(json_encode($messages), true);
+                $messages = json_decode(json_encode($messages), true) ?? [];
             }
             foreach ($keyExploded as $k) {
                 if (key_exists($k, $messages)) {

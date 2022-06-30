@@ -147,7 +147,7 @@ class FieldController
     public function delete(string $slug)
     {
         try {
-            $this->getFieldData()->deleteWithCondition(whereCondition: "field_slug = ?", parameter: [$slug], table: $this->getFieldData()->getFieldTable());
+            $this->getFieldData()->deleteWithCondition(whereCondition: "field_slug = ? AND can_delete = 1", parameter: [$slug], table: $this->getFieldData()->getFieldTable());
             session()->flash(['Field Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             
             redirect(route('fields.index'));
@@ -173,13 +173,14 @@ class FieldController
             'field_id',
             onSuccess: function (){
                 session()->flash(['Field Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-                
+
                 redirect(route('fields.index'));
             },
             onError: function (){
                 session()->flash(['Failed To Delete Field']);
                 redirect(route('fields.index'));
             },
+            moreWhereCondition: 'AND can_delete = 1',
         );
     }
 

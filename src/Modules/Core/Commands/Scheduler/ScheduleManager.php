@@ -7,6 +7,8 @@
 
 namespace App\Modules\Core\Commands\Scheduler;
 
+use App\Modules\Core\Commands\UpdateMechanism\AutoUpdate;
+use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Library\ConsoleColor;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
@@ -88,7 +90,8 @@ class ScheduleManager implements ConsoleCommand
     private function registerToBeScheduled(): array
     {
         return container()->resolveMany([
-            //
+            Updates::class,
+            AutoUpdate::class
         ]);
     }
 }

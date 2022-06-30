@@ -41,15 +41,10 @@ class MediaImage implements HandlerInterface
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
 
-        $form = '';
-        if (isset($data->_topHTMLWrapper)) {
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $name = $event->getRealName($slug);
-            $form = $topHTMLWrapper($name, $slug);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -98,11 +93,8 @@ class MediaImage implements HandlerInterface
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
     }
 
     /**
@@ -113,12 +105,11 @@ FORM;
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
         $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
         $defaultImage = (isset($data->defaultImage) && !empty($inputName)) ? $inputName : $data->defaultImage;
-        $topHTMLWrapper = $data->_topHTMLWrapper;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $form = $topHTMLWrapper($fieldName, $slug, $changeID);
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group">
  <label class="menu-settings-handle-name" for="featured-image-$changeID">
      <input id="featured-image-$changeID" class="tonics-featured-image color:black border-width:default border:black placeholder-color:gray" name="featured_image" type="file">
@@ -136,11 +127,8 @@ FORM;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 
     /**

@@ -16,8 +16,8 @@ use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
 use App\Modules\Track\EventHandlers\GenreMenuMetaBox;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
-use App\Modules\Track\EventHandlers\MediaMenus;
 use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
+use App\Modules\Track\EventHandlers\TrackMenus;
 use App\Modules\Track\Events\OnArtistCreate;
 use App\Modules\Track\Events\OnLicenseCreate;
 use App\Modules\Track\Events\OnTrackCreate;
@@ -61,7 +61,7 @@ class TrackActivator implements ModuleConfig, PluginConfig
             ],
 
             OnAdminMenu::class => [
-                MediaMenus::class
+                TrackMenus::class
             ],
 
 
@@ -126,5 +126,10 @@ class TrackActivator implements ModuleConfig, PluginConfig
             ],
             "credits" => []
         ];
+    }
+
+    public function onUpdate(): void
+    {
+        // TODO: Implement onUpdate() method.
     }
 }

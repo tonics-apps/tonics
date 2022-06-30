@@ -23,8 +23,21 @@ class InstallerChecker implements TonicsRouterRequestInterceptorInterface
        $urlPath = $request->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()->getFullRoutePath();
        $isAppInstalled = new IsAppInstalled();
        # Meaning the app hasn't been installed
+
+
        if ($isAppInstalled->getStateResult() === SimpleState::ERROR){
-           return;
+           // if it has an error and an error code of 200, it means things are okay, except that we do not have the required table,
+           // so, return to give chance for installation
+           if ($isAppInstalled->getErrorCode() === 200){
+               return;
+           } else {
+               ## For API
+               if (str_starts_with($urlPath, '/api') || str_starts_with($urlPath, 'api')){
+                   SimpleState::displayErrorMessage($isAppInstalled->getErrorCode(), $isAppInstalled->getErrorMessage(), true);
+               }
+               ## For Non-API
+               SimpleState::displayErrorMessage($isAppInstalled->getErrorCode(), $isAppInstalled->getErrorMessage());
+           }
        }
 
         # Anything Else Probably mean the app is installed
@@ -33,7 +46,7 @@ class InstallerChecker implements TonicsRouterRequestInterceptorInterface
        if (str_starts_with($urlPath, '/api') || str_starts_with($urlPath, 'api')){
            SimpleState::displayErrorMessage(SimpleState::ERROR_APP_ALREADY_INSTALLED__CODE, $msg, true);
        }
-       ## For Non-API
+        ## For Non-API
         SimpleState::displayErrorMessage(SimpleState::ERROR_APP_ALREADY_INSTALLED__CODE, $msg);
     }
 }

@@ -434,6 +434,7 @@ var Draggables = class extends ElementAbstract {
           shiftX = e.clientX;
           shiftY = e.clientY;
           draggable.classList.add("draggable-start");
+          draggable.classList.add("touch-action:none");
           draggable.classList.remove("draggable-animation");
           self._draggingOriginalRect = draggable.getBoundingClientRect();
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
@@ -466,6 +467,7 @@ var Draggables = class extends ElementAbstract {
         if (draggable && startDrag) {
           draggable.style["transform"] = "";
           draggable.classList.remove("draggable-start");
+          draggable.classList.remove("touch-action:none");
           draggable.classList.add("draggable-animation");
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
           if (draggables) {
@@ -3710,9 +3712,33 @@ if (menuArrangerLi){
     }
 }
 
+// handle dropdown click
+let parentMenuArranger = document.querySelector(parent);
+parentMenuArranger.addEventListener('click', (e) => {
+    let el = e.target;
+    if (el.closest('.dropdown-toggle')  && el.closest(fieldChild)){
+        let dropDown = el.closest('.dropdown-toggle'),
+            dropDownBool = dropDown.ariaExpanded === 'false';
+        console.log(dropDownBool)
+        if (dropDownBool){
+            // ${slug}
+            let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
+            let hiddenFieldSlug = el.closest(fieldChild).querySelector(`input[name="hide_field[${inputFieldSlugUniqueHash.value}]"]`);
+            if (hiddenFieldSlug){
+                hiddenFieldSlug.remove();
+            }
+        } else  {
+            let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
+            if (inputFieldSlugUniqueHash){
+                inputFieldSlugUniqueHash.insertAdjacentHTML('beforebegin', `<input type='hidden' name='hide_field[${inputFieldSlugUniqueHash.value}]' value='${inputFieldSlugUniqueHash.value}'>`)
+            }
+        }
+    }
+});
+
 if (document.querySelector(parent)){
     new myModule.Draggables(parent)
-        .settings(fieldChild, ['legend'], false) // draggable element
+        .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
         .onDragDrop(function (element, self) {
             // to the right
             let elementDragged = self.getDragging().closest(fieldChild);

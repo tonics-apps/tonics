@@ -434,6 +434,7 @@ var Draggables = class extends ElementAbstract {
           shiftX = e.clientX;
           shiftY = e.clientY;
           draggable.classList.add("draggable-start");
+          draggable.classList.add("touch-action:none");
           draggable.classList.remove("draggable-animation");
           self._draggingOriginalRect = draggable.getBoundingClientRect();
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
@@ -466,6 +467,7 @@ var Draggables = class extends ElementAbstract {
         if (draggable && startDrag) {
           draggable.style["transform"] = "";
           draggable.classList.remove("draggable-start");
+          draggable.classList.remove("touch-action:none");
           draggable.classList.add("draggable-animation");
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
           if (draggables) {

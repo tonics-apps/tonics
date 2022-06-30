@@ -40,6 +40,7 @@ class InputDate implements HandlerInterface
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
+
         $dateTypes = [
             'Date' => 'date',
             'DateTime Local' => 'datetime-local',
@@ -49,15 +50,10 @@ class InputDate implements HandlerInterface
         ];
         $dateFrag = '';
         foreach ($dateTypes as $dateK => $dateV){
-            if ($dateV === $dateType){
-                $dateFrag .= <<<HTML
-<option value="$dateV" name="dateType" selected>$dateK</option>
+            $dateSelected = ($dateV === $dateType) ? 'selected' : '';
+            $dateFrag .= <<<HTML
+<option value="$dateV" name="dateType" $dateSelected>$dateK</option>
 HTML;
-            } else {
-                $dateFrag .= <<<HTML
-<option value="$dateV" name="dateType">$dateK</option>
-HTML;
-            }
         }
 
         if (isset($data->readOnly) && $data->readOnly === '1'){
@@ -85,16 +81,12 @@ HTML;
         }
         $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
 
-        $form = '';
-        if (isset($data->_topHTMLWrapper)){
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $form = $topHTMLWrapper($fieldName, $slug);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -116,14 +108,14 @@ HTML;
 
 <div class="form-group">
      <label class="menu-settings-handle-name" for="min-date-$changeID">Min Date (Blank for no min)
-            <input id="min-date-$changeID" name="min" type="date" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            <input id="min-date-$changeID" name="min" type="$dateType" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$min" placeholder="blank for no limit">
     </label>
 </div>
 
 <div class="form-group">
      <label class="menu-settings-handle-name" for="max-date-$changeID">Max Date (Blank for no max)
-            <input id="max-date-$changeID" name="max" type="date" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            <input id="max-date-$changeID" name="max" type="$dateType" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$max" placeholder="a placeholder">
     </label>
 </div>
@@ -174,11 +166,8 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
     }
 
     /**
@@ -194,16 +183,15 @@ FORM;
         $dateType =  (isset($data->dateType)) ? $data->dateType : 'date';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
-        $topHTMLWrapper = $data->_topHTMLWrapper;
         $slug = $data->field_slug;
-        $form = $topHTMLWrapper($fieldName, $slug);
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $error = '';
         if ($data->_field->canValidate && !empty($data->field_validations)){
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
         $defaultValue = str_replace(' ', 'T', $defaultValue);
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group margin-top:0">
 $error
      <label class="menu-settings-handle-name" for="fieldName-$changeID">$fieldName
@@ -214,12 +202,8 @@ $error
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
-
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 
 }

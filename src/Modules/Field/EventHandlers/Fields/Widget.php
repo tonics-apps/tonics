@@ -38,8 +38,10 @@ class Widget implements HandlerInterface
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $widgetSlug = (isset($data->widgetSlug)) ? $data->widgetSlug : '';
+
         $elementName = (isset($data->elementName)) ? $data->elementName : 'li';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
+
         $frag = '';
         if (isset($data->_topHTMLWrapper)) {
             $topHTMLWrapper = $data->_topHTMLWrapper;
@@ -61,6 +63,7 @@ HTML;
 HTML;
             }
         }
+
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $frag .= <<<FORM

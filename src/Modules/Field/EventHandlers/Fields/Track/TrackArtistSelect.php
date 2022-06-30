@@ -31,16 +31,11 @@ class TrackArtistSelect implements HandlerInterface
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Track Artist Select';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-                $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
-        $form = '';
-        if (isset($data->_topHTMLWrapper)){
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $name = $event->getRealName($slug);
-            $form = $topHTMLWrapper($name, $slug);
-        }
+        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -59,11 +54,8 @@ class TrackArtistSelect implements HandlerInterface
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
     }
 
     /**
@@ -75,12 +67,11 @@ FORM;
         $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
         $trackData = new TrackData();
         $artistSelectListing = $trackData->artistSelectListing($inputName ?: null);
-        $topHTMLWrapper = $data->_topHTMLWrapper;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
-        $form = $topHTMLWrapper($fieldName, $slug);
-        $form .= <<<FORM
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $frag .= <<<FORM
 <div class="form-group margin-top:0">     
 <label class="menu-settings-handle-name screen-reader-text" for="trackArtistSelect-$changeID">$fieldName</label>
     <select id="trackArtistSelect-$changeID" name="$inputName" class="default-selector">
@@ -89,10 +80,7 @@ FORM;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 }

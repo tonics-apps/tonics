@@ -1,4 +1,8 @@
 import * as myModule from "./script-combined.js";
+
+const MESSAGE_LIMIT = 200;
+let messageInserted = 0;
+
 let preElement = document.querySelector('.installation-pre'),
     form = document.querySelector('form'),
     importButton = document.querySelector('.import-button'),
@@ -46,7 +50,7 @@ function submitForm(event) {
                     eventSource.addEventListener('close', function(e) {
                         importButton.classList.remove('d:none');
                         const data = JSON.parse(e.data);
-                        preElement.insertAdjacentHTML('beforeend', `<code>${data} Closed</code>`);
+                        preCodeMessage(`<code>${data} Closed</code>`);
                         eventSource.close();
                         eventSource = null;
                     }, false);
@@ -73,9 +77,15 @@ function submitForm(event) {
     }
 }
 
+
 function preCodeMessage(message = '') {
     if (preElement){
-        preElement.insertAdjacentHTML('beforeend', message)
+        preElement.insertAdjacentHTML('beforeend', message);
+        messageInserted = messageInserted + 1;
+        // This improves performance sort of
+        if (messageInserted > MESSAGE_LIMIT){
+            preElement.firstChild.remove();
+        }
         if (preElement.lastElementChild){
             preElement.scrollTop = preElement.scrollHeight;
         }

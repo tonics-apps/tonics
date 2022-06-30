@@ -262,33 +262,7 @@ function unSelectSelectedCell() {
 
 function generateFieldData(name, slug, more) {
     let changeID = (Math.random()*1e32).toString(36);
-    more = more.replace(/CHANGEID/gi, changeID);
-    return `<li tabIndex="0"
-               class="width:100% draggable menu-arranger-li cursor:move">
-        <fieldset
-            class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center flex-d:column owl">
-            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
-                <span class="menu-arranger-text-head">${name}</span>
-                <button class="dropdown-toggle bg:transparent border:none cursor:pointer"
-                        aria-expanded="false" aria-label="Expand child menu">
-                    <svg class="icon:admin tonics-arrow-down color:white">
-                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
-                    </svg>
-                </button>
-            </legend>
-            <div role="form" data-widget-form="true" class="widgetSettings d:none flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0">
-                <input type="hidden" name="field_slug" value="${slug}">
-                <input type="hidden" name="field_slug_unique_hash" value="${changeID}">
-                ${more}
-                <div class="form-group">
-                    <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cursor:pointer act-like-button">
-                        Delete Field Item
-                    </button>
-                </div>
-            </div>
-        </fieldset>
-    </li>`
+    return  more.replace(/CHANGEID/gi, changeID);
 }
 
 // delete menu or widget

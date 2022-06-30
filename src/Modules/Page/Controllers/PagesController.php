@@ -168,7 +168,7 @@ class PagesController
 
         try {
             $pageToUpdate = $this->pageData->createPage(['token']);
-            $pageToUpdate['page_slug'] = helper()->slug(input()->fromPost()->retrieve('page_slug'));
+            $pageToUpdate['page_slug'] = helper()->slugForPage(input()->fromPost()->retrieve('page_slug'));
             $this->pageData->updateWithCondition($pageToUpdate, ['page_id' => $id], $this->pageData->getPageTable());
         } catch (Exception) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());

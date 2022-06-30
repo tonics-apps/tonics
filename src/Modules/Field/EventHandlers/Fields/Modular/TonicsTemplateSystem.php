@@ -36,12 +36,9 @@ class TonicsTemplateSystem implements HandlerInterface
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsTemplateSystem';
         $tonicsTemplateFrag =  (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
-        $frag = '';
-        if (isset($data->_topHTMLWrapper)) {
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $frag = $topHTMLWrapper($fieldName, $slug);
-        }
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag .= <<<FORM
@@ -68,10 +65,7 @@ class TonicsTemplateSystem implements HandlerInterface
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $frag .= $data->_bottomHTMLWrapper;
-        }
-
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
 
@@ -81,14 +75,9 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsTemplateSystem';
-        $topHTMLWrapper = $data->_topHTMLWrapper;
-        $slug = $data->field_slug;
-        $form = $topHTMLWrapper($fieldName, $slug);
-        if (isset($data->_bottomHTMLWrapper)) {
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 
     /**

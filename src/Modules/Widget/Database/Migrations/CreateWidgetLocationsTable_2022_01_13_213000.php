@@ -43,6 +43,7 @@ VALUES
      * Reverse the migrations.
      *
      * @return void
+     * @throws \Exception
      */
     public function down()
     {

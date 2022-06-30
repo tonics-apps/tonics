@@ -9,6 +9,7 @@
 use Ahc\Env\Loader;
 use App\Modules\Core\Commands\ClearCache;
 use App\Modules\Core\Commands\Environmental\SetEnvironmentalPepper;
+use App\Modules\Core\Commands\InitConsole;
 use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Commands\Module\MigrateAllFresh;
 use App\Modules\Core\Commands\Module\ModuleMakeConsole;
@@ -25,7 +26,7 @@ use Devsrealm\TonicsConsole\Console;
 use Devsrealm\TonicsConsole\ProcessCommandLineArgs;
 use Devsrealm\TonicsContainer\Container;
 
-require dirname(__DIR__) . "/vendor/autoload.php";
+require dirname(__DIR__) . '/src/Modules/Core/Library/Composer/autoload.php';
 
 $args = new ProcessCommandLineArgs($argv);
 $container = new Container();
@@ -42,32 +43,8 @@ if ($args->passes()) {
     AppConfig::initLoaderOthers();
 
     #
-    # REGISTER COMMANDS
+    # INIT Essential COMMANDS
     #
-    try {
-        $commandRegistrar = new CommandRegistrar(
-            $container->resolveMany([
-                PreInstallerManager::class,
-                ScheduleManager::class,
-                ModuleMakeConsole::class,
-                ModuleMakeMigration::class,
-                ModuleMigrate::class,
-                MigrateAllFresh::class,
-                MigrateAll::class,
-                ModuleMigrateDown::class,
-                // SetEnvironmentalKey::class, <- No Longer Needed
-                SetEnvironmentalPepper::class,
-                ClearCache::class,
-                SyncDirectory::class,
-                Updates::class,
-            ])
-        );
-    } catch (ReflectionException $e) {
-        exit(1);
-        // dd($e);
-    }
-
-    $console = new Console($commandRegistrar, $args->getProcessArgs(), $container);
-    $console->bootConsole();
+    new InitConsole($container, $args);
 }
 exit(1);

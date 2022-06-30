@@ -78,7 +78,6 @@ class PostCategoryController
             $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
 
         }catch (\Exception $e){
-            dd($e->getMessage());
             helper()->sendMsg('PostCategoryController::storeFromImport()', $e->getMessage(), 'issue');
             return false;
         }
@@ -144,7 +143,7 @@ class PostCategoryController
 
         $categoryListing = '';
         if ($data !== null){
-            $categoryListing = $this->postData->adminCategoryListing($data->data);
+            $categoryListing = $this->postData->adminCategoryListing($data->data, $this->postData->getPageStatus());
             unset($data->data);
         }
 

@@ -56,8 +56,30 @@ class OnFieldUserForm implements EventInterface
                 $field->field_options->{"_field"} = $field;
                 $field->field_options->{"_field"}->canValidate = !empty($postData);
                 $field->field_options->{"_field"}->postData = $postData;
+
                 if ($viewProcessing === false){
-                    $field->field_options->{"_topHTMLWrapper"} = function ($name, $slug) use ($scriptPath){
+                    $uniqueHash =  $field->field_options->field_slug_unique_hash;
+                    $field->field_options->{"_topHTMLWrapper"} = function ($name, $slug, $hash = '') use ($scriptPath, $postData, $uniqueHash){
+                        $hash = $hash ?: $uniqueHash;
+                        $hideField = (isset($postData['hide_field'][$hash])) ? "<input type='hidden' name='hide_field[$hash]' value='$hash'>" : '';
+                        $toggle = [
+                            'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer toggle-on',
+                            'aria-expanded' => 'true',
+                            'aria-label' => 'Collapse child menu',
+                            'svg' => 'icon:admin tonics-arrow-down color:white',
+                            'use' => '#tonics-arrow-down',
+                            'div' => 'swing-in-top-fwd d:flex',
+                        ];
+                        if (!empty($hideField)){
+                            $toggle = [
+                                'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer',
+                                'aria-expanded' => 'false',
+                                'aria-label' => 'Expand child menu',
+                                'svg' => 'icon:admin tonics-arrow-up color:white',
+                                'use' => '#tonics-arrow-up',
+                                'div' => 'swing-out-top-fwd d:none',
+                            ];
+                        }
                         return <<<HTML
 <li tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
@@ -66,15 +88,17 @@ $scriptPath>
             class="width:100% padding:default d:flex justify-content:center flex-d:column owl">
             <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
-                <button class="dropdown-toggle bg:transparent border:none cursor:pointer"
-                        aria-expanded="true" aria-label="Collapse child menu" type="button">
-                    <svg class="icon:admin tonics-arrow-down color:white">
-                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                <button class="{$toggle['button']}"
+                        aria-expanded="{$toggle['aria-expanded']}" aria-label="{$toggle['aria-label']}" type="button">
+                    <svg class="{$toggle['svg']}">
+                        <use class="svgUse" xlink:href="{$toggle['use']}"></use>
                     </svg>
                 </button>
             </legend>
-            <div role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0 swing-in-top-fwd d:flex">
+            <div role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0 {$toggle['div']}">
+                $hideField
                 <input type="hidden" name="field_slug" value="$slug">
+                <input type="hidden" name="field_slug_unique_hash" value="$hash">
 HTML;
                     };
                     $field->field_options->{"_bottomHTMLWrapper"} = <<<HTML
@@ -112,6 +136,9 @@ HTML;
     {
         $sortedFieldItems = []; $fieldData = $this->fieldData;
         if (empty($sortedFieldItems)){
+            if (empty($fieldIDS)){
+                return $sortedFieldItems;
+            }
             $questionMarks = helper()->returnRequiredQuestionMarks($fieldIDS);
             $fieldItems =  $fieldData->selectWithCondition($fieldData->getFieldItemsTable(), ['*'], "fk_field_id IN ($questionMarks) ORDER BY id", $fieldIDS, false);
             foreach ($fieldItems as $fieldItem){

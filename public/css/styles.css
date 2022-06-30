@@ -571,6 +571,10 @@ fieldset {
     pointer-events: all;
 }
 
+.touch-action\:none {
+    touch-action: none;
+}
+
 /* MENU ARRANGER EXPERIENCE */
 .menu-arranger-li ul {
     list-style: none;
@@ -1083,6 +1087,10 @@ fieldset {
 
 .max-height\:300px {
     max-height: 300px;
+}
+
+.max-height\:145px {
+    max-height: 145px;
 }
 
 .max-height\:400px {

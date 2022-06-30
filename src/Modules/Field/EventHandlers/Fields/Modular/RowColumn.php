@@ -50,14 +50,10 @@ class RowColumn implements HandlerInterface
             $column = $data->column;
         }
 
-        $frag = '';
-        if (isset($data->_topHTMLWrapper)) {
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $frag = $topHTMLWrapper($fieldName, $slug);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
+
         $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
@@ -124,8 +120,6 @@ HTML;
                         if ($childCellNumber === $i) {
                             if (isset($child->field_options)) {
                                 $child->field_options->{"_field"} = $child;
-                                $child->field_options->{"_topHTMLWrapper"} = $data->_topHTMLWrapper;
-                                $child->field_options->{"_bottomHTMLWrapper"} = $data->_bottomHTMLWrapper;
                             }
                             $frag .= $event->getSettingsForm($child->field_name, $child->field_options ?? null);
                         }
@@ -150,10 +144,8 @@ HTML;
     </div>
 </div>
 HTML;
-        if (isset($data->_bottomHTMLWrapper)) {
-            $frag .= $data->_bottomHTMLWrapper;
-        }
 
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
 
     }
@@ -174,13 +166,7 @@ HTML;
             $column = $data->column;
         }
 
-        $frag = '';
-        if (isset($data->_topHTMLWrapper)) {
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-            $frag = $topHTMLWrapper($fieldName, $slug, $changeID);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
@@ -203,8 +189,6 @@ HTML;
                     if ($childCellNumber === $i) {
                         if (isset($child->field_options)) {
                             $child->field_options->{"_field"} = $child;
-                            $child->field_options->{"_topHTMLWrapper"} = $data->_topHTMLWrapper;
-                            $child->field_options->{"_bottomHTMLWrapper"} = $data->_bottomHTMLWrapper;
                         }
                         $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                     }
@@ -220,10 +204,7 @@ HTML;
     </div>
 </div>
 HTML;
-        if (isset($data->_bottomHTMLWrapper)) {
-            $frag .= $data->_bottomHTMLWrapper;
-        }
-
+        $frag .= $event->_bottomHTMLWrapper(true);
         return $frag;
     }
 

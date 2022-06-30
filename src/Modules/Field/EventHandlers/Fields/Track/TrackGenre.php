@@ -28,7 +28,7 @@ class TrackGenre implements \Devsrealm\TonicsEventSystem\Interfaces\HandlerInter
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Tracks Genre Settings';
         $genrePagination =  (isset($data->genrePagination)) ? $data->genrePagination : '1';
         $noOfGenrePerPage =  (isset($data->noOfGenrePerPage)) ? $data->noOfGenrePerPage : '6';
-                $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
+        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         if ($genrePagination=== '1'){
             $genrePagination = <<<HTML
 <option value="1" selected>True</option>
@@ -41,15 +41,10 @@ HTML;
 HTML;
         }
 
-        $form = '';
-        if (isset($data->_topHTMLWrapper)){
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $name = $event->getRealName($slug);
-            $form = $topHTMLWrapper($name, $slug);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group">
      <label class="menu-settings-handle-name" for="widget-name-$changeID">Field Name
             <input id="widget-name-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -80,11 +75,8 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
 
     }
 }

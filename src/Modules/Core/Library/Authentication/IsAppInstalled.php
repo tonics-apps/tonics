@@ -2,6 +2,7 @@
 
 namespace App\Modules\Core\Library\Authentication;
 
+use App\Library\ModuleRegistrar\Interfaces\ModuleConfig as ModuleConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Library\Database;
@@ -39,7 +40,7 @@ class IsAppInstalled extends SimpleState
                 DatabaseConfig::getPrefix(), DatabaseConfig::getUsername(), DatabaseConfig::getPassword()
             ]
         )){
-            $this->setErrorCode(self::ERROR_APP_ALREADY_INSTALLED__CODE)->setErrorMessage("Some DB Config Are Missing In Env File");
+            $this->setErrorCode(self::ERROR_FORBIDDEN__CODE)->setErrorMessage("Some DB Config Are Missing In Env File");
             return self::ERROR;
         }
 
@@ -59,11 +60,14 @@ class IsAppInstalled extends SimpleState
             return self::NEXT;
         } catch (PDOException $e) {
             # Would have used $e->getMessage() in the setErrorMessage, just wanna obscure the message a bit
-            $this->setErrorCode($e->getCode())->setErrorMessage("Can't Access The Database Server, Possible User/Pass Error");
+            $this->setErrorCode(self::ERROR_FORBIDDEN__CODE)->setErrorMessage("Can't Access The Database Server, Possible User/Pass Error");
             return self::ERROR;
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function IsAppInstalledDatabaseMigrationStateHandler(): string
     {
         $db = (new Database())->createNewDatabaseInstance();
@@ -73,8 +77,12 @@ class IsAppInstalled extends SimpleState
         $stm->execute();
 
         $tablesInDatabase = $stm->fetchAll(\PDO::FETCH_COLUMN, 0);
-        $requiredTables = AppConfig::requiredTables();
 
+        $modules = helper()->getModuleActivators([ModuleConfig::class]);
+        $requiredTables = [];
+        foreach ($modules as $module) {
+            $requiredTables = [...$requiredTables, ...$module->tables()];
+        }
         $intersectionCount = count(array_intersect($tablesInDatabase, $requiredTables));
 
         # We have the required tables...meaning, app is installed

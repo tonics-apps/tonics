@@ -40,12 +40,9 @@ class FieldSelection implements HandlerInterface
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $fieldSlug = (isset($data->fieldSlug)) ? $data->fieldSlug : '';
-        $frag = '';
-        if (isset($data->_topHTMLWrapper)) {
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $frag = $topHTMLWrapper($fieldName, $slug);
-        }
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
         $fieldFrag = '';
@@ -91,10 +88,7 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $frag .= $data->_bottomHTMLWrapper;
-        }
-
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
 
     }
@@ -108,9 +102,8 @@ FORM;
         $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
         $fieldSlug = (isset($data->fieldSlug) && !empty($inputName)) ? $inputName : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $topHTMLWrapper = $data->_topHTMLWrapper;
-        $slug = $data->field_slug;
-        $form = $topHTMLWrapper($fieldName, $slug);
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
@@ -127,7 +120,7 @@ HTML;
 HTML;
             }
         }
-        $form .= <<<HTML
+        $frag .= <<<HTML
 <div class="form-group margin-top:0">
      <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
      <select name="fieldSlug" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
@@ -137,11 +130,8 @@ HTML;
 </div>
 HTML;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 
     /**

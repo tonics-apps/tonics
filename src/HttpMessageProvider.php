@@ -40,8 +40,8 @@ class HttpMessageProvider implements ServiceProvider
         } catch (\ReflectionException | \Throwable $e) {
              $redirect_to = $this->tryURLRedirection();
              if ($redirect_to === false){
-                 // SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
-                 SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
+                 SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
+                // SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
              } else {
                  redirect($redirect_to, 302);
              }

@@ -55,14 +55,11 @@ HTML;
             }
         }
         $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
-        $form = '';
-        if (isset($data->_topHTMLWrapper)){
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $form = $topHTMLWrapper($fieldName, $slug);
-        }
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -115,11 +112,8 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
     }
 
     /**
@@ -143,9 +137,9 @@ FORM;
                 $choiceKeyValue[$choice[0] ?? ''] = $choice[1] ?? '';
             }
         }
-        $topHTMLWrapper = $data->_topHTMLWrapper;
+
         $slug = $data->field_slug;
-        $form = $topHTMLWrapper($fieldName, $slug, $changeID);
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $choiceFrag = '';
@@ -163,7 +157,7 @@ FORM;
 HTML;
 
         }
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group margin-top:0">
 <ul style="margin-left: 0;" class="list:style:none margin-top:0">
     $choiceFrag
@@ -171,11 +165,8 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 
 

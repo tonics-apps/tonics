@@ -17,6 +17,7 @@ class CreatePostToCategoriesTable_2022_01_13_213416 extends Migration {
      * Run the migrations.
      *
      * @return void
+     * @throws \Exception
      */
     public function up()
     {
@@ -46,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      * Reverse the migrations.
      *
      * @return void
+     * @throws \Exception
      */
     public function down()
     {

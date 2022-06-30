@@ -256,10 +256,20 @@ SQL, ...$parameter);
      * Col to use for parameters, e.g menu_id
      * @param callable $onSuccess
      * @param callable $onError
+     * @param string $moreWhereCondition
+     * e.g "AND data = 1"
+     *
+     * Specify where condition or uses $colParam if $whereCondition is empty
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
-    public function deleteMultiple(string $table, array $columns, string $colParam, callable $onSuccess, callable $onError)
+    public function deleteMultiple(
+        string $table,
+        array $columns,
+        string $colParam,
+        callable $onSuccess,
+        callable $onError,
+        string $moreWhereCondition = '')
     {
         $parameter = [];
         $itemsToDelete = array_map(function ($item) use ($colParam, $columns, &$parameter){
@@ -278,7 +288,7 @@ SQL, ...$parameter);
 
         try {
             $questionMarks = helper()->returnRequiredQuestionMarks([$itemsToDelete]);
-            db()->run("DELETE FROM $table WHERE `$colParam` IN ($questionMarks)", ...$parameter);
+            db()->run("DELETE FROM $table WHERE $colParam IN ($questionMarks) $moreWhereCondition", ...$parameter);
             $onSuccess();
         }catch (\Exception $e){
             $onError($e);

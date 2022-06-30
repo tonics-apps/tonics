@@ -67,6 +67,7 @@ class PostsController
                     $MenuWidgetsSidebarTitle = $data[0]->widget_name;
                 }
             }));
+        dd($post);
 
         $date = new DateTime($post['created_at']);
         $created_at_words = strtoupper($date->format('j M, Y'));

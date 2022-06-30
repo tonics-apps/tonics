@@ -125,6 +125,7 @@ var Draggables = class extends ElementAbstract {
           shiftX = e.clientX;
           shiftY = e.clientY;
           draggable.classList.add("draggable-start");
+          draggable.classList.add("touch-action:none");
           draggable.classList.remove("draggable-animation");
           self._draggingOriginalRect = draggable.getBoundingClientRect();
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
@@ -157,6 +158,7 @@ var Draggables = class extends ElementAbstract {
         if (draggable && startDrag) {
           draggable.style["transform"] = "";
           draggable.classList.remove("draggable-start");
+          draggable.classList.remove("touch-action:none");
           draggable.classList.add("draggable-animation");
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
           if (draggables) {
@@ -4013,7 +4015,7 @@ var UploadFileEvent = class {
   }
   handleUploadedFiles(files, uploadTo) {
     let self2 = this;
-    let $uploadFileEv = self2.UploadFileEvent;
+    let $uploadFileEv;
     let fileContainerEvent = self2.fileContainerEvent;
     fileContainerEvent.removeContextMenu();
     for (let i = 0, len = files.length; i < len; i++) {
@@ -4023,7 +4025,6 @@ var UploadFileEvent = class {
         fileContainerEvent.currentDrive.uploadFile(fileObject, filename, $uploadFileEv2);
       }, (fileObject, $uploadFileEv2) => {
         $uploadFileEv2 = self2.UploadFileEvent;
-        console.log($uploadFileEv2);
         fileContainerEvent.currentDrive.cancelFileUploadHandler(fileObject, $uploadFileEv2).then(() => {
           successToast(`${fileObject.fileObject.name} Upload Terminated`);
         }).catch(() => {
@@ -5656,11 +5657,13 @@ href="javascript:void(0);">${eachPath}</a><span class="delimiter"> \xBB </span>`
         let percentageInt = Math.round(receivedData.data.uploadPercentage);
         fileSettings.preFlightData.noOfReceivedResponse = fileSettings.preFlightData.noOfReceivedResponse + 1;
         $uploadFileEvent.setUploadFileObject(filename, fileSettings);
+        if (!receivedData.data.isUploadCompleted) {
+          $uploadFileEvent.updateFileProgress(filename, percentageInt, self2.driveSignature);
+        }
         if (fileSettings.preFlightData.noOfReceivedResponse === fileSettings.preFlightData.maxRequestToSend) {
           $uploadFileEvent.releaseThrottle(filename, self2.driveSignature);
           if (!receivedData.data.isUploadCompleted && !fileSettings.uploaded) {
             self2.uploadFile(fileSettings, filename, $uploadFileEvent);
-            $uploadFileEvent.updateFileProgress(filename, percentageInt, self2.driveSignature);
           }
         }
         if (!fileSettings.uploaded) {

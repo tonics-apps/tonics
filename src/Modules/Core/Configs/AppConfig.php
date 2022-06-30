@@ -233,8 +233,11 @@ class AppConfig
         $pages = db()->run("SELECT * FROM $pageTable");
         foreach ($pages as $page) {
             if ($page->page_status === 1) {
-                # e.g. page_slug with posts, would be viewPosts
-                $route->get($page->page_slug, [$controller, 'viewPage'], moreSettings: $page);
+                # If url has not been chosen or is not a reserved path
+                $foundURLNode = $route->getRouteTreeGenerator()->findURL($page->page_slug);
+                if ($foundURLNode->getFoundURLNode() === null || empty($foundURLNode->getFoundURLNode()->getSettings())){
+                    $route->get($page->page_slug, [$controller, 'viewPage'], moreSettings: $page);
+                }
             }
         }
         return $route;
@@ -273,6 +276,64 @@ class AppConfig
     public static function getAppUpdateKey(): string
     {
         return env('UPDATE_KEY', 'NULL');
+    }
+
+    /**
+     * If
+     * - `true` then, all plugins should be auto-updated.
+     *  - false, nothing should be auto_updated.
+     * - array, then only the array items should be auto_updated
+     *
+     * @return array|bool
+     */
+    public static function getAutoUpdatePlugins(): array|bool
+    {
+        $update = env('AUTO_UPDATE_PLUGINS', 'NULL');
+        return self::handleAutoUpdateReturn($update);
+    }
+
+    /**
+     * If
+     * - `true` then, all themes should be auto-updated.
+     *  - false, nothing should be auto_updated.
+     * - array, then only the array items should be auto_updated
+     *
+     * @return array|bool
+     */
+    public static function getAutoUpdateThemes(): array|bool
+    {
+        $update = env('AUTO_UPDATE_THEMES', 'NULL');
+        return self::handleAutoUpdateReturn($update);
+    }
+
+    /**
+     * If
+     * - `true` then, all modules should be auto-updated.
+     *  - false, nothing should be auto_updated.
+     * - array, then only the array items should be auto_updated
+     *
+     * @return array|bool
+     */
+    public static function getAutoUpdateModules(): array|bool
+    {
+        $update = env('AUTO_UPDATE_MODULES', 'NULL');
+        return self::handleAutoUpdateReturn($update);
+    }
+
+    private static function handleAutoUpdateReturn($update): array|bool
+    {
+        if ($update === '0'){
+            return false;
+        }
+
+        if ($update === '1'){
+            return true;
+        }
+        $updates = explode(',', $update);
+        if (is_array($updates) && !empty($updates)){
+            return $updates;
+        }
+        return false;
     }
 
     public static function getAppUrl(): string
@@ -362,65 +423,6 @@ class AppConfig
     public static function getEnvFilePath(): string
     {
         return APP_ROOT . DIRECTORY_SEPARATOR . '.env';
-    }
-
-    /**
-     * Required tables for the app to function
-     * @return array
-     */
-    public static function requiredTables(): array
-    {
-        return [
-            # Core
-            Tables::getTable(Tables::ADMINS) => Tables::getTable(Tables::ADMINS),
-            Tables::getTable(Tables::PLUGINS) => Tables::getTable(Tables::PLUGINS),
-            Tables::getTable(Tables::SESSIONS) => Tables::getTable(Tables::SESSIONS),
-            Tables::getTable(Tables::GLOBAL) => Tables::getTable(Tables::GLOBAL),
-            Tables::getTable(Tables::USER_TYPE) => Tables::getTable(Tables::USER_TYPE),
-            Tables::getTable(Tables::USERS) => Tables::getTable(Tables::USERS),
-
-            # Customer
-            Tables::getTable(Tables::CUSTOMERS) => Tables::getTable(Tables::CUSTOMERS),
-
-            # Media
-            Tables::getTable(Tables::DRIVE_BLOB_COLLATOR) => Tables::getTable(Tables::DRIVE_BLOB_COLLATOR),
-            Tables::getTable(Tables::DRIVE_SYSTEM) => Tables::getTable(Tables::DRIVE_SYSTEM),
-
-            # Menus
-            Tables::getTable(Tables::MENU_ITEMS) => Tables::getTable(Tables::MENU_ITEMS),
-            Tables::getTable(Tables::MENU_LOCATIONS) => Tables::getTable(Tables::MENU_LOCATIONS),
-            Tables::getTable(Tables::MENUS) => Tables::getTable(Tables::MENUS),
-
-            # Pages
-            Tables::getTable(Tables::PAGES) => Tables::getTable(Tables::PAGES),
-
-            # Posts
-            Tables::getTable(Tables::CATEGORIES) => Tables::getTable(Tables::CATEGORIES),
-            Tables::getTable(Tables::CAT_RELS) => Tables::getTable(Tables::CAT_RELS),
-            Tables::getTable(Tables::POSTS) => Tables::getTable(Tables::POSTS),
-            Tables::getTable(Tables::POST_CATEGORIES) => Tables::getTable(Tables::POST_CATEGORIES),
-            Tables::getTable(Tables::TAGS) => Tables::getTable(Tables::TAGS),
-            Tables::getTable(Tables::TAG_RELS) => Tables::getTable(Tables::TAG_RELS),
-
-            # Tracks
-            Tables::getTable(Tables::ARTISTS) => Tables::getTable(Tables::ARTISTS),
-            Tables::getTable(Tables::GENRES) => Tables::getTable(Tables::GENRES),
-            Tables::getTable(Tables::LICENSES) => Tables::getTable(Tables::LICENSES),
-            Tables::getTable(Tables::PURCHASES) => Tables::getTable(Tables::PURCHASES),
-            Tables::getTable(Tables::PURCHASE_TRACKS) => Tables::getTable(Tables::PURCHASE_TRACKS),
-            Tables::getTable(Tables::TRACKS) => Tables::getTable(Tables::TRACKS),
-            Tables::getTable(Tables::TRACK_LIKES) => Tables::getTable(Tables::TRACK_LIKES),
-            Tables::getTable(Tables::WISH_LIST) => Tables::getTable(Tables::WISH_LIST),
-
-            # Widgets
-            Tables::getTable(Tables::WIDGET_LOCATIONS) => Tables::getTable(Tables::WIDGET_LOCATIONS),
-            Tables::getTable(Tables::WIDGETS) => Tables::getTable(Tables::WIDGETS),
-            Tables::getTable(Tables::WIDGET_ITEMS) => Tables::getTable(Tables::WIDGET_ITEMS),
-
-            # Fields
-            Tables::getTable(Tables::FIELD) => Tables::getTable(Tables::FIELD),
-            Tables::getTable(Tables::FIELD_ITEMS) => Tables::getTable(Tables::FIELD_ITEMS),
-        ];
     }
 
 }

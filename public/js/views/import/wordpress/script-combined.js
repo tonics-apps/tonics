@@ -125,6 +125,7 @@ var Draggables = class extends ElementAbstract {
           shiftX = e.clientX;
           shiftY = e.clientY;
           draggable.classList.add("draggable-start");
+          draggable.classList.add("touch-action:none");
           draggable.classList.remove("draggable-animation");
           self._draggingOriginalRect = draggable.getBoundingClientRect();
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
@@ -157,6 +158,7 @@ var Draggables = class extends ElementAbstract {
         if (draggable && startDrag) {
           draggable.style["transform"] = "";
           draggable.classList.remove("draggable-start");
+          draggable.classList.remove("touch-action:none");
           draggable.classList.add("draggable-animation");
           let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
           if (draggables) {
@@ -3725,6 +3727,10 @@ export {
 * Released under the MIT License.
 */
 import * as myModule from "./script-combined.js";
+
+const MESSAGE_LIMIT = 200;
+let messageInserted = 0;
+
 let preElement = document.querySelector('.installation-pre'),
     form = document.querySelector('form'),
     importButton = document.querySelector('.import-button'),
@@ -3772,7 +3778,7 @@ function submitForm(event) {
                     eventSource.addEventListener('close', function(e) {
                         importButton.classList.remove('d:none');
                         const data = JSON.parse(e.data);
-                        preElement.insertAdjacentHTML('beforeend', `<code>${data} Closed</code>`);
+                        preCodeMessage(`<code>${data} Closed</code>`);
                         eventSource.close();
                         eventSource = null;
                     }, false);
@@ -3799,9 +3805,15 @@ function submitForm(event) {
     }
 }
 
+
 function preCodeMessage(message = '') {
     if (preElement){
-        preElement.insertAdjacentHTML('beforeend', message)
+        preElement.insertAdjacentHTML('beforeend', message);
+        messageInserted = messageInserted + 1;
+        // This improves performance sort of
+        if (messageInserted > MESSAGE_LIMIT){
+            preElement.firstChild.remove();
+        }
         if (preElement.lastElementChild){
             preElement.scrollTop = preElement.scrollHeight;
         }

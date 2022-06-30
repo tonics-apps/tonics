@@ -292,7 +292,7 @@ HTML;
             </button>
             </legend>
             <div class="menu-widget-information width:100% flex-d:column d:none">
-            <div class="menu-box-checkbox-items max-height:300px overflow:auto">
+            <div class="menu-box-checkbox-items max-height:145px overflow:auto">
                 <ul style="margin-left: 0;" class="list:style:none margin-top:0">
                     $fieldsFrag
                 </ul>
@@ -336,7 +336,8 @@ HTML;
         if (isset($field->field_options)){
             $field->field_options->{"_field"} = $field;
             $unique_hash = (isset($field->field_options->field_slug_unique_hash)) ? $field->field_options->field_slug_unique_hash : 'CHANGEID';
-            $field->field_options->{"_topHTMLWrapper"} = function ($name, $slug) use ($scriptPath, $unique_hash) {
+            $field->field_options->{"_topHTMLWrapper"} = function ($name, $slug, $hash = '') use ($scriptPath, $unique_hash) {
+                $hash = $hash ?: $unique_hash;
                 return <<<HTML
 <li tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move"
@@ -355,9 +356,8 @@ $scriptPath
             </legend>
             <div role="form" data-widget-form="true" class="widgetSettings d:none flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0">
                 <input type="hidden" name="field_slug" value="$slug">
-                <input type="hidden" name="field_slug_unique_hash" value="$unique_hash">
+                <input type="hidden" name="field_slug_unique_hash" value="$hash">
 HTML;
-
             };
 
             $field->field_options->{"_bottomHTMLWrapper"} = <<<HTML
@@ -381,10 +381,46 @@ HTML;
      */
     public function getFieldItemsAPI()
     {
-       if (url()->getHeaderByKey('action') === 'getFieldItems') {
+        if (url()->getHeaderByKey('action') === 'getFieldItems') {
             $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);
             $fieldItems = $this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag();
             helper()->onSuccess($fieldItems);
+        }
+    }
+
+    /**
+     * Note: fk_field_id should be the field.field_name and not field_items.fk_field_id,
+     * I am assuming you exported it as a json from a db tool, so, I'll re-add the appropriate fk_field_id
+     * @param array $fieldItems
+     * @return void
+     * @throws \Exception
+     */
+    public function importFieldItems(array $fieldItems)
+    {
+        $fieldNameToID = [];
+        foreach ($fieldItems as $k => $item){
+            $json = json_decode($item->field_options, true) ?? [];
+            if (isset($item->fk_field_id) && is_string($item->fk_field_id)){
+                if (!isset($fieldNameToID[$item->fk_field_id])){
+                    $return = db()->insertReturning(Tables::getTable(Tables::FIELD),  ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id']);
+                    if (isset($return->field_id)){
+                        $fieldNameToID[$item->fk_field_id] = $return->field_id;
+                        $item->fk_field_id = $return->field_id;
+                        $item->field_options = json_encode($json);
+                    }
+                } else {
+                    $item->fk_field_id = $fieldNameToID[$item->fk_field_id];
+                    $item->field_options = json_encode($json, flags: JSON_UNESCAPED_SLASHES);
+                }
+            }
+            $fieldItems[$k] = (array)$item;
+        }
+
+        try {
+            db()->insertBatch($this->getFieldItemsTable(), $fieldItems);
+        }catch (\Exception $exception){
+            // log...
+            var_dump($exception->getMessage(), $exception->getTraceAsString());
         }
     }
 }

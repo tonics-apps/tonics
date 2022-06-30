@@ -17,7 +17,7 @@ define('APP_ROOT', dirname(__DIR__));
         #-----------------------------
     # REQUIRE COMPOSER AUTOLOADER
 #---------------------------------
-require dirname(__FILE__, 2) . '/vendor/autoload.php';
+require dirname(__FILE__, 2) . '/src/Modules/Core/Library/Composer/autoload.php';
 
         #-----------------------------
     # LOAD ENV FILE
@@ -27,5 +27,6 @@ require dirname(__FILE__, 2) . '/vendor/autoload.php';
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING
 #-------------------------------------------
+//dd(  date('P'), date("O"));
 AppConfig::initLoaderMinimal(false)->init();
 AppConfig::initLoaderOthers(false)->BootDaBoot();

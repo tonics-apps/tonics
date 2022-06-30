@@ -159,7 +159,7 @@ HTML;
         <fieldset class="padding:default width:100% min-height:300 box-shadow-variant-1 draggable d:flex justify-content:center">
             <legend class="bg:pure-black color:white padding:default">[$catURLSlug] $isDraft</legend>
             <div class="admin-widget-information owl width:100%">
-            <div class="text-on-admin-util text-highlight">$post->post_title</div>
+            <div class="text-on-admin-util text-highlight">$postTitle</div>
          
                 <div class="form-group d:flex flex-gap:small">
                      <a href="/admin/posts/$post->post_slug/edit" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
@@ -185,25 +185,49 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function adminCategoryListing(array $categories): string
+    public function adminCategoryListing(array $categories, int|null $status = 1): string
     {
         $csrfToken = session()->getCSRFToken();
         $htmlFrag = '';
         foreach ($categories as $k => $category){
-            if ($category->cat_status >= 0){
+            if ($category->cat_status === $status || $status === null){
+                $isDraft = ($category->cat_status === 0) ?  'Draft' : 'Published';
                 $catURLSlug = (empty($category->cat_url_slug) ? '~' : $category->cat_url_slug);
+                $catTitle = helper()->htmlSpecChar($category->cat_name);
+                if ($category->cat_status === -1){
+                    $otherFrag = <<<HTML
+<form method="post" class="d:contents" action="/admin/posts/category/$category->cat_slug/delete">
+   <input type="hidden" name="token" value="$csrfToken">
+       <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
+        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete
+        </button>
+</form>
+HTML;
+                }
+                else {
+                    $otherFrag = <<<HTML
+<form method="post" class="d:contents" action="/admin/posts/category/$category->cat_slug/trash">
+   <input type="hidden" name="token" value="$csrfToken" >
+       <button data-click-onconfirmtrash="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
+        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Trash
+        </button>
+</form>
+HTML;
+                }
+
+
                 $htmlFrag .=<<<HTML
     <li 
     data-db_click_link="/admin/posts/category/$category->cat_slug/edit"
     data-list_id="$k" data-id="$category->cat_id" 
     data-cat_id="$category->cat_id" 
-    data-cat_name="$category->cat_name" 
+    data-cat_name="$catTitle" 
     data-cat_slug="$category->cat_slug" 
     data-cat_url_slug="$catURLSlug"
     tabindex="0" 
     class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
         <fieldset class="padding:default width:100% min-height:300 box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$catURLSlug</legend>
+            <legend class="bg:pure-black color:white padding:default">[$catURLSlug] $isDraft</legend>
             <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">$category->cat_name</div>
          
@@ -211,11 +235,7 @@ HTML;
                      <a href="/admin/posts/category/$category->cat_slug/edit" type="submit" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
                         margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
                    
-                   <form method="post" class="d:contents" action="/admin/posts/category/$category->cat_slug/trash">
-                    <input type="hidden" name="token" value="$csrfToken" >
-                       <button data-click-onconfirmtrash="true" type="button" class="bg:pure-black color:white border:none border-width:default border:black padding:default
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Trash</button>
-                    </form>
+                   $otherFrag
                 </div>
                 
             </div>

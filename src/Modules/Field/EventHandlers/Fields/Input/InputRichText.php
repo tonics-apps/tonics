@@ -61,16 +61,12 @@ HTML;
 HTML;
         }
         $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
-        $form = '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        if (isset($data->_topHTMLWrapper)){
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $form = $topHTMLWrapper($fieldName, $slug);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -140,11 +136,8 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)){
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
     }
 
     /**
@@ -159,15 +152,15 @@ FORM;
         $readOnly = ($data->readOnly == 1) ? 'readonly' : '';
         $required = ($data->required == 1) ? 'required' : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $topHTMLWrapper = $data->_topHTMLWrapper;
+
         $slug = $data->field_slug;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
-        $form = $topHTMLWrapper($fieldName, $slug);
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
         $error = '';
         if ($data->_field->canValidate && !empty($data->field_validations)){
             $error = $event->validationMake(['defaultValue' => $defaultValue], ['defaultValue' => $data->field_validations]);
         }
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group margin-top:0">
 $error
      <label class="menu-settings-handle-name screen-reader-text" for="fieldName-$changeID">$fieldName</label>
@@ -176,6 +169,7 @@ $error
 </div>
 FORM;
 
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 }

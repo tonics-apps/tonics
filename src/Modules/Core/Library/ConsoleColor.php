@@ -18,6 +18,11 @@ trait ConsoleColor
     private string $otherMessage = '';
     private bool $passes = true;
 
+    private bool $isCLI = true;
+
+    /**
+     * @throws \Exception
+     */
     public function initShellColors()
     {
         $this->fgColors['black'] = '0;30';
@@ -45,8 +50,17 @@ trait ConsoleColor
         $this->bgColors['magenta'] = '45';
         $this->bgColors['cyan'] = '46';
         $this->bgColors['light_gray'] = '47';
+
+        $this->isCLI = helper()->isCLI();
     }
 
+    /**
+     * @param string $fgColor
+     * @param string $bgColor
+     * @param string $message
+     * @return string
+     * @throws \Exception
+     */
     public function coloredText(string $fgColor = 'black', string $bgColor = 'yellow', string $message = ''): string
     {
         $this->initShellColors();
@@ -62,42 +76,54 @@ trait ConsoleColor
 
     /**
      * @param $message
+     * @throws \Exception
      */
     public function successMessage($message)
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        echo $this->coloredText("black","green", "$message ✔");
+        if ($this->isCLI){
+            echo $this->coloredText("black","green", "$message ✔");
+        }
     }
 
     /**
      * @param $message
+     * @throws \Exception
      */
     public function errorMessage($message)
     {
         $this->errorMessage = $message;
         $this->passes = false;
-        echo $this->coloredText("white","red", "$message ❌");
+        if ($this->isCLI){
+            echo $this->coloredText("white","red", "$message ❌");
+        }
     }
 
     /**
      * @param $message
+     * @throws \Exception
      */
     public function infoMessage($message)
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        echo $this->coloredText("black", "light_gray", "$message !!!");
+        if ($this->isCLI){
+            echo $this->coloredText("black", "light_gray", "$message !!!");
+        }
     }
 
     /**
      * @param $message
+     * @throws \Exception
      */
     public function delayMessage($message)
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        echo $this->coloredText("black", "yellow", "$message...");
+        if ($this->isCLI){
+            echo $this->coloredText("black", "yellow", "$message...");
+        }
     }
 
     /**

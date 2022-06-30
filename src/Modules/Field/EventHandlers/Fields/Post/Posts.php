@@ -55,15 +55,10 @@ HTML;
 HTML;
         }
 
-        $form = '';
-        if (isset($data->_topHTMLWrapper)) {
-            $topHTMLWrapper = $data->_topHTMLWrapper;
-            $slug = $data->_field->field_name ?? null;
-            $name = $event->getRealName($slug);
-            $form = $topHTMLWrapper($name, $slug);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $form .= <<<FORM
+        $frag .= <<<FORM
 <div class="form-group">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -113,11 +108,8 @@ HTML;
 </div>
 FORM;
 
-        if (isset($data->_bottomHTMLWrapper)) {
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
 
     }
 
@@ -127,14 +119,9 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Posts';
-        $topHTMLWrapper = $data->_topHTMLWrapper;
-        $slug = $data->field_slug;
-        $form = $topHTMLWrapper($fieldName, $slug);
-        if (isset($data->_bottomHTMLWrapper)) {
-            $form .= $data->_bottomHTMLWrapper;
-        }
-
-        return $form;
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
     }
 
     /**

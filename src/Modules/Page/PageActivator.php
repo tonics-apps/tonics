@@ -103,4 +103,9 @@ class PageActivator implements ModuleConfig, PluginConfig
             "credits" => []
         ];
     }
+
+    public function onUpdate(): void
+    {
+        // TODO: Implement onUpdate() method.
+    }
 }

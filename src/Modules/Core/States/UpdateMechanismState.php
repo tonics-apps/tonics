@@ -6,12 +6,14 @@ use App\Library\ModuleRegistrar\Interfaces\ModuleConfig as ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Media\FileManager\LocalDriver;
 
 class UpdateMechanismState extends SimpleState
 {
+    use ConsoleColor;
 
     # States For ExtractFileState
     const InitialState = 'InitialState';
@@ -19,12 +21,10 @@ class UpdateMechanismState extends SimpleState
     const ModuleUpdateState = 'ModuleUpdateState';
     const PluginUpdateState = 'PluginUpdateState';
     const ThemeUpdateState = 'ThemeUpdateState';
-    const FullUpdateState = 'FullUpdateState';
 
     const DownloadModulesState = 'DownloadModulesState';
     const DownloadPluginsState = 'DownloadPluginsState';
     const DownloadThemesState = 'DownloadThemesState';
-    const DownloadFullState = 'DownloadFullState';
 
     const ExamineCollation = 'ExamineCollation';
 
@@ -35,15 +35,13 @@ class UpdateMechanismState extends SimpleState
     public static array $TYPES = [
         'module' => self::ModuleUpdateState,
         'plugin' => self::PluginUpdateState,
-        'theme' => self::ThemeUpdateState,
-        'full' => self::FullUpdateState,
+        'theme' => self::ThemeUpdateState
     ];
 
     public static array $DOWNLOADER = [
         'module' => self::DownloadModulesState,
         'plugin' => self::DownloadPluginsState,
-        'theme' => self::DownloadThemesState,
-        'full' => self::DownloadFullState,
+        'theme' => self::DownloadThemesState
     ];
 
     private string $discoveredFrom;
@@ -62,12 +60,27 @@ class UpdateMechanismState extends SimpleState
     }
 
     /**
+     * Reset data and set state to InitialState
+     * @return UpdateMechanismState
+     */
+    public function reset()
+    {
+        $this->collate = [];
+        $this->updates = [];
+        $this->types = [];
+        $this->action = 'discover';
+        $this->setCurrentState(self::InitialState);
+        return $this;
+    }
+
+    /**
      * @throws \Exception
      */
     public function InitialState(): string
     {
         ## Require at-least a GB
         ini_set('memory_limit', '1024M');
+        $globalTable = Tables::getTable(Tables::GLOBAL);
 
         foreach ($this->types as $type) {
             $type = strtolower($type);
@@ -79,18 +92,25 @@ class UpdateMechanismState extends SimpleState
             }
         }
 
+        $oldCollate = db()->row("SELECT * FROM $globalTable WHERE `key` = 'updates'");
+        if (isset($oldCollate->value) && !empty($oldCollate->value)){
+            $oldCollate = json_decode($oldCollate->value, true);
+            $this->collate = [...$oldCollate, ...$this->collate];
+        }
 
-        db()->insertOnDuplicate(
-            Tables::getTable(Tables::GLOBAL),
-            [
-                'key' => 'updates',
-                'value' => json_encode($this->collate)
-            ],
-            ['value']
-        );
+        if (!empty($this->collate)){
+            db()->insertOnDuplicate(
+                $globalTable,
+                [
+                    'key' => 'updates',
+                    'value' => json_encode($this->collate)
+                ],
+                ['value']
+            );
 
-        if ($this->action === 'update') {
-            return $this->switchState(self::ExamineCollation, self::NEXT);
+            if ($this->action === 'update') {
+                return $this->switchState(self::ExamineCollation, self::NEXT);
+            }
         }
 
         return self::DONE;
@@ -130,35 +150,6 @@ class UpdateMechanismState extends SimpleState
         $themes = $tonicsHelper->getPluginActivators([ModuleConfig::class], $tonicsHelper->getAllThemesDirectory());
         helper()->sendMsg(self::getCurrentState(), "Discovering Theme Update URLS");
         $this->discover('theme', $themes);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function FullUpdateState()
-    {
-        $tonicsHelper = helper();
-        $fullJSON = $tonicsHelper->findFile('tonics.json', APP_ROOT);
-        $fullJSON = json_decode(file_get_contents($fullJSON), true);
-        helper()->sendMsg(self::getCurrentState(), "Discovering Full Update URL");
-
-        if (isset($fullJSON['update_discovery_url'])) {
-            $data = $this->getJSONFromURL($fullJSON['update_discovery_url']);
-            if (isset($data->tag_name) && isset($data->assets[0])) {
-                $releaseTimestamp = $this->getTimeStampFromVersion($data->tag_name);
-                $moduleTimestamp = $this->getTimeStampFromVersion($fullJSON['version'] ?? '');
-                $canUpdate = $releaseTimestamp > $moduleTimestamp;
-                $discovered = (isset($data->name)) ? $data->name : $fullJSON['name'];
-                $this->collate[$fullJSON['type']] = [
-                    'name' => $discovered,
-                    'version' => $data->tag_name,
-                    'discovered_from' => $this->discoveredFrom,
-                    'download_url' => (isset($data->assets[0]->browser_download_url)) ? $data->assets[0]->browser_download_url : '',
-                    'can_update' => $canUpdate
-                ];
-                $tonicsHelper->sendMsg(self::getCurrentState(), "Discovered $discovered");
-            }
-        }
     }
 
     /**
@@ -207,48 +198,27 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadFullState()
-    {
-        $tonicsHelper = helper();
-        $dirPath = AppConfig::getAppRoot();
-
-        $full = $this->collate['full'] ?? [];
-        $tempPath = DriveConfig::getTempPathForFull();
-        if (isset($full['can_update']) && $full['can_update'] && isset($full['download_url']) && !empty($full['download_url'])) {
-            $localDriver = new LocalDriver();
-            $name = $full['version'] . '.zip';
-            $localDriver->createFromURL($full['download_url'], $tempPath, $name, importToDB: false);
-            $result = $localDriver->extractFile($tempPath . "/$name", $tempPath, importToDB: false);
-            if ($result) {
-                $copyResult = $tonicsHelper->copyFolder($tempPath . "/$name", $dirPath );
-                if (!$copyResult) {
-                    $tonicsHelper->sendMsg($this->getCurrentState(), "An Error Occurred, Moving Some Files In: '$name'", 'issue');
-                } else {
-
-                }
-            } else {
-                helper()->sendMsg($this->getCurrentState(), "Failed To Extract: '$name'", 'issue');
-            }
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function reActivate($directory)
+    private function reActivate($directory, $folderName)
     {
         $tonicsHelper = helper();
         $file = $tonicsHelper->findFilesWithExtension(['php'], $directory);
-        $class = $tonicsHelper->getFullClassName(file_get_contents($file[0]));
-        $implements = @class_implements($class);
-        $implementors = [PluginConfig::class];
+        if (isset($file[0]) && $tonicsHelper->fileExists($file[0])){
+            $class = $tonicsHelper->getFullClassName(file_get_contents($file[0]));
+            $implements = @class_implements($class);
+            $implementors = [PluginConfig::class];
 
-        foreach ($implementors as $implement) {
-            if (is_array($implements) && key_exists($implement, $implements)) {
-                $moduleClass = new $class;
-                /**@var $moduleClass PluginConfig */
-                $moduleClass->onInstall();
+            foreach ($implementors as $implement) {
+                if (is_array($implements) && key_exists($implement, $implements)) {
+                    $moduleClass = new $class;
+                    /**@var $moduleClass PluginConfig */
+                    $moduleClass->onUpdate();
+                    $this->successMessage("$folderName Updated");
+                }
             }
+        } else {
+            $error = "Update Was Successfully But Failed To Call onUpdate method";
+            $this->errorMessage($error);
+            helper()->sendMsg($this->getCurrentState(), $error, 'issue');
         }
     }
 
@@ -307,21 +277,25 @@ class UpdateMechanismState extends SimpleState
         foreach ($modules as $module) {
             if ($module['can_update'] && !empty($module['download_url'])) {
                 $localDriver = new LocalDriver();
-                $name = $module['version'] . '.zip';
+                $name = strtolower($module['version']) . '.zip';
                 $folderName = $module['folder_name'];
+                $sep = DIRECTORY_SEPARATOR;
                 $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
-                $result = $localDriver->extractFile($tempPath . "/$name", $tempPath, importToDB: false);
-                if ($result) {
-                    $copyResult = $tonicsHelper->copyFolder($tempPath . "/$name", $dirPath . "/$folderName");
+                $result = $localDriver->extractFile($tempPath . $sep. "$name", $tempPath, importToDB: false);
+                if ($result && $tonicsHelper->fileExists($tempPath . $sep . "$folderName") && $tonicsHelper->fileExists($dirPath . $sep . "$folderName")) {
+                    $copyResult = $tonicsHelper->copyFolder($tempPath . $sep . "$folderName", $dirPath . $sep . "$folderName");
                     if (!$copyResult) {
-                        $tonicsHelper->sendMsg($this->getCurrentState(), "An Error Occurred, Moving Some Files In: '$name'", 'issue');
+                        $error = "An Error Occurred, Moving Some Files In: '$name'";
+                        $this->errorMessage($error);
+                        $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                     } else {
-                        $directory = $dirPath . $module['folder_name'];
-                        $this->reActivate($directory);
-
+                        $directory = $dirPath . $sep . "$folderName";
+                        $this->reActivate($directory, $folderName);
                     }
                 } else {
-                    helper()->sendMsg($this->getCurrentState(), "Failed To Extract: '$name'", 'issue');
+                    $error = "Failed To Extract: '$name'";
+                    $this->errorMessage($error);
+                    helper()->sendMsg($this->getCurrentState(), $error, 'issue');
                 }
             }
         }
@@ -344,7 +318,9 @@ class UpdateMechanismState extends SimpleState
 
     private function getJSONFromURL(string $url)
     {
-        $curl = curl_init($url);
+        $update_key = AppConfig::getAppUpdateKey();
+        // update_key could be used to identify a site in case of premium plugins and or themes
+        $curl = curl_init($url."?update_key=$update_key");
         curl_setopt_array($curl, [
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_PROXY_SSL_VERIFYPEER => false,
@@ -372,10 +348,12 @@ class UpdateMechanismState extends SimpleState
 
     /**
      * @param array $updates
+     * @return UpdateMechanismState
      */
-    public function setUpdates(array $updates): void
+    public function setUpdates(array $updates): UpdateMechanismState
     {
         $this->updates = $updates;
+        return $this;
     }
 
     /**
@@ -388,10 +366,12 @@ class UpdateMechanismState extends SimpleState
 
     /**
      * @param array $types
+     * @return UpdateMechanismState
      */
-    public function setTypes(array $types): void
+    public function setTypes(array $types): UpdateMechanismState
     {
         $this->types = $types;
+        return $this;
     }
 
     /**
@@ -404,10 +384,12 @@ class UpdateMechanismState extends SimpleState
 
     /**
      * @param string $action
+     * @return UpdateMechanismState
      */
-    public function setAction(string $action): void
+    public function setAction(string $action): UpdateMechanismState
     {
         $this->action = $action;
+        return $this;
     }
 
     /**
