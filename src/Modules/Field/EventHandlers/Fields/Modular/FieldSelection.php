@@ -40,6 +40,18 @@ class FieldSelection implements HandlerInterface
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $fieldSlug = (isset($data->fieldSlug)) ? $data->fieldSlug : '';
+        $expandField = (isset($data->expandField)) ? $data->expandField : '0';
+        if ($expandField === '1'){
+            $expandField = <<<HTML
+<option value="0">False</option>
+<option value="1" selected>True</option>
+HTML;
+        } else {
+            $expandField = <<<HTML
+<option value="0" selected>False</option>
+<option value="1">True</option>
+HTML;
+        }
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -48,16 +60,12 @@ class FieldSelection implements HandlerInterface
         $fieldFrag = '';
         foreach ($fields as $field){
             $uniqueSlug = "$field->field_slug:$field->field_id";
-            if ($fieldSlug === $uniqueSlug){
-                $fieldFrag .= <<<HTML
-<option value="$uniqueSlug" selected>$field->field_name</option>
+            $fieldSelected = ($fieldSlug === $uniqueSlug) ? 'selected' : '';
+            $fieldFrag .= <<<HTML
+<option value="$uniqueSlug" $fieldSelected>$field->field_name</option>
 HTML;
-            } else {
-                $fieldFrag .= <<<HTML
-<option value="$uniqueSlug">$field->field_name</option>
-HTML;
-            }
         }
+
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $frag .= <<<FORM
@@ -73,12 +81,21 @@ HTML;
 </div>
 
 <div class="form-group">
-     <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
-     <select name="fieldSlug" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
+    <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
+        <select name="fieldSlug" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
         $fieldFrag
+        </select>
+    </label>
+</div>
+
+<div class="form-group">
+     <label class="field-settings-handle-name" for="expandField-$changeID">Expand Field
+     <select name="expandField" class="default-selector mg-b-plus-1" id="expandField-$changeID">
+        $expandField
      </select>
     </label>
 </div>
+
 <div class="form-group">
      <label class="field-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
      <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
@@ -102,6 +119,7 @@ FORM;
         $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
         $fieldSlug = (isset($data->fieldSlug) && !empty($inputName)) ? $inputName : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+        $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -120,7 +138,14 @@ HTML;
 HTML;
             }
         }
-        $frag .= <<<HTML
+
+        $fieldSlug = explode(':', $fieldSlug);
+        $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1]: '';
+        if (!empty($fieldID) && $expandField === '1'){
+            $onFieldUserForm = new OnFieldUserForm([$fieldID], new FieldData(), $data->_field->postData, false);
+            $frag .= $onFieldUserForm->getHTMLFrag();
+        } else {
+            $frag .= <<<HTML
 <div class="form-group margin-top:0">
      <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
      <select name="fieldSlug" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
@@ -129,6 +154,7 @@ HTML;
     </label>
 </div>
 HTML;
+        }
 
         $frag .= $event->_bottomHTMLWrapper(true);
         return $frag;
