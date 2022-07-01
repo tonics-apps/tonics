@@ -95,7 +95,7 @@ HTML;
 HTML;
         }
 
-        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
+        $defaultValue =  (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -188,8 +188,11 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Text';
+
         $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
+        $defaultValue = helper()->htmlSpecChar($defaultValue);
+
         $maxChar =  (isset($data->maxChar)) ?  "maxlength=" .$data->maxChar . '"' : '';
         $placeholder =  (isset($data->placeholder)) ? $data->placeholder : '';
         $textType =  (isset($data->textType)) ? $data->textType : 'text';
@@ -239,6 +242,7 @@ FORM;
     {
         $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
+        $defaultValue = $event->getTemplateEngineValue($data, $defaultValue);
         $frag = '';
         $elementName = strtolower($data->elementWrapper);
         if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){

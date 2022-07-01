@@ -13,6 +13,7 @@ use App\Modules\Core\Library\View\Extensions\IfCondition;
 use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
 use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
 use App\Modules\Core\Library\View\Extensions\SessionView;
+use App\Modules\Core\Library\View\Extensions\StringFunctions;
 use App\Modules\Core\Library\View\Extensions\URLModeHandler;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTemplateSystem\Caching\TonicsTemplateApcuCache;
@@ -62,6 +63,37 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('foreach', EachLoop::class);
 
         $view->addModeHandler('ifBlock', IfBlock::class);
+
+        # String Functions
+        $view->addModeHandler('string_addslashes', StringFunctions::class);
+        $view->addModeHandler('string_chop', StringFunctions::class);
+        $view->addModeHandler('string_html_entity_decode', StringFunctions::class);
+        $view->addModeHandler('string_htmlentities', StringFunctions::class);
+        $view->addModeHandler('string_htmlspecialchars_decode', StringFunctions::class);
+        $view->addModeHandler('string_htmlspecialchars', StringFunctions::class);
+        $view->addModeHandler('string_implode', StringFunctions::class);
+        $view->addModeHandler('string_join', StringFunctions::class);
+        $view->addModeHandler('string_lcfirst', StringFunctions::class);
+        $view->addModeHandler('string_trim', StringFunctions::class);
+        $view->addModeHandler('string_ltrim', StringFunctions::class);
+        $view->addModeHandler('string_rtrim', StringFunctions::class);
+        $view->addModeHandler('string_nl2br', StringFunctions::class);
+        $view->addModeHandler('string_number_format', StringFunctions::class);
+        $view->addModeHandler('string_sprintf', StringFunctions::class);
+        $view->addModeHandler('string_str_ireplace', StringFunctions::class);
+        $view->addModeHandler('string_str_replace', StringFunctions::class);
+        $view->addModeHandler('string_str_pad', StringFunctions::class);
+        $view->addModeHandler('string_str_repeat', StringFunctions::class);
+        $view->addModeHandler('string_str_shuffle', StringFunctions::class);
+        $view->addModeHandler('string_strip_tags', StringFunctions::class);
+        $view->addModeHandler('string_stripcslashes', StringFunctions::class);
+        $view->addModeHandler('string_strrev', StringFunctions::class);
+        $view->addModeHandler('string_strtolower', StringFunctions::class);
+        $view->addModeHandler('string_strtoupper', StringFunctions::class);
+        $view->addModeHandler('string_substr', StringFunctions::class);
+        $view->addModeHandler('string_ucfirst', StringFunctions::class);
+        $view->addModeHandler('string_ucwords', StringFunctions::class);
+        $view->addModeHandler('string_wordwrap', StringFunctions::class);
 
         $event->addTemplateEngine('Native', $view);
     }

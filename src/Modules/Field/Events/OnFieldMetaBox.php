@@ -25,6 +25,15 @@ class OnFieldMetaBox implements EventInterface
     }
 
     /**
+     * @param string $name
+     * @param string $description
+     * @param string $category
+     * @param string $scriptPath
+     * @param callable|null $settingsForm
+     * @param callable|null $userForm
+     * @param callable|null $handleViewProcessing
+     * @param callable|null $passDataToTemplateEngine
+     * @return void
      * @throws \Exception
      */
     public function addFieldBox
@@ -35,7 +44,7 @@ class OnFieldMetaBox implements EventInterface
         string $scriptPath = '',
         callable $settingsForm = null,
         callable $userForm = null,
-        callable $handleViewProcessing = null,
+        callable $handleViewProcessing = null
     )
     {
         $nameKey = helper()->slug($name);
@@ -47,7 +56,7 @@ class OnFieldMetaBox implements EventInterface
                 'scriptPath' => $scriptPath,
                 'settingsForm' => $settingsForm ?? '',
                 'userForm' => $userForm ?? '',
-                'handleViewProcessing' => $handleViewProcessing ?? '',
+                'handleViewProcessing' => $handleViewProcessing ?? ''
             ];
         }
     }
@@ -170,6 +179,7 @@ HTML;
      * @param $fieldSlug
      * @param null $settings
      * @return string
+     * @throws \Exception
      */
     public function getViewProcessingFrag($fieldSlug, $settings = null): string
     {
@@ -188,6 +198,31 @@ HTML;
             return '';
         }
         return $formCallback($settings) ?? '';
+    }
+
+    /**
+     * @param $settings
+     * @param $value
+     * @return string
+     * @throws \Exception
+     */
+    public function getTemplateEngineValue($settings, $value): string
+    {
+        if (isset($settings->templateEngine)){
+            $name = $settings->templateEngine;
+            $tonicsTemplateEngine = AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
+            if ($tonicsTemplateEngine->exist($name)){
+                $engine = $tonicsTemplateEngine->getTemplateEngine($name);
+                $postData =  (isset($settings->_field->postData)) ? $settings->_field->postData: [];
+                AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
+                $engine->setVariableData(AppConfig::initLoaderMinimal()::getGlobalVariable());
+                $engine->splitStringCharByChar($value);
+                $engine->reset()->tokenize();
+                return $engine->outputContentData($engine->getContent()->getContents());
+            }
+        }
+
+        return $value;
     }
 
     /**

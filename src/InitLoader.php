@@ -48,10 +48,6 @@ class InitLoader
             die("Temporarily down for schedule maintenance, check back in few minutes");
         }
 
-        ## TimeZone
-        date_default_timezone_set(AppConfig::getTimeZone());
-        // dd(InitLoader::getAllThemes(), InitLoader::getAllPlugins());
-
                 #-----------------------------------
             # HEADERS SETTINGS TEST
         #-----------------------------------

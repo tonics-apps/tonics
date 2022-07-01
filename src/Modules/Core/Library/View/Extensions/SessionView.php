@@ -51,6 +51,7 @@ class SessionView extends TonicsTemplateViewAbstract implements TonicsModeInterf
     /**
      * @param string $content
      * @param array $args
+     * @param array $nodes
      * @return string
      * @throws \Exception
      */

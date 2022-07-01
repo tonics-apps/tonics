@@ -43,6 +43,11 @@ class TonicsTemplateEngines implements EventInterface
         throw new \Exception("$name is an unknown engine name");
     }
 
+    public function exist(string $name): bool
+    {
+        return isset($this->templateEngineNames[$name]);
+    }
+
     /**
      * @return array
      */

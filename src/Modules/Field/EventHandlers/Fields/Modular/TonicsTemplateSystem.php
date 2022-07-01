@@ -83,6 +83,7 @@ FORM;
             $tonicsTemplateFrag =  (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
             AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
             $tonicsView = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData(AppConfig::initLoaderMinimal()::getGlobalVariable());
+           // dd($tonicsView);
             $tonicsView->splitStringCharByChar($tonicsTemplateFrag);
             $tonicsView->reset()->tokenize();
             return $tonicsView->outputContentData($tonicsView->getContent()->getContents());

@@ -51,6 +51,15 @@ class InitLoaderMinimal
      */
     public function init()
     {
+        self::addToGlobalVariable('App_Config', [
+            'APP_NAME' => AppConfig::getAppName(),
+            'APP_URL' => AppConfig::getAppUrl(),
+            'APP_TIME_ZONE' => AppConfig::getTimeZone(),
+            'APP_TIME_ZONE_OFFSET' => date('P'),
+        ]);
+
+        ## TimeZone
+        date_default_timezone_set(AppConfig::getTimeZone());
                 #-----------------------------------
             # INCLUDE THE HELPERS
         #-----------------------------------

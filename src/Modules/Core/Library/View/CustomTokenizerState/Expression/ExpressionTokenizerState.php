@@ -5,6 +5,9 @@ namespace App\Modules\Core\Library\View\CustomTokenizerState\Expression;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateTokenizerStateAbstract;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
+/**
+ * DEPRECATED, USE ConditionalTokenizerState instead
+ */
 class ExpressionTokenizerState extends TonicsTemplateTokenizerStateAbstract
 {
     const ExpressionNumericStateHandler = 'ExpressionNumericStateHandler';

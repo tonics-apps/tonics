@@ -66,37 +66,6 @@ class AppConfig
             if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
                 $initLoader = apcu_fetch($initKey);
             } else {
-                ## Tonics View
-                $templateLoader = new TonicsTemplateFileLoader('html');
-                $templateLoader->resolveTemplateFiles(AppConfig::getModulesPath());
-                $templateLoader->resolveTemplateFiles(AppConfig::getPluginsPath());
-                $templateLoader->resolveTemplateFiles(AppConfig::getThemesPath());
-                $settings = [
-                    'templateLoader' => $templateLoader,
-                    'tokenizerState' => new DefaultTokenizerState(),
-                    'templateCache' => new TonicsTemplateApcuCache(),
-                    'content' => new Content()
-                ];
-                $view = new TonicsView($settings);
-                $view->addModeHandler('url', URLModeHandler::class);
-                $view->addModeHandler('csrf', CSRFModeHandler::class);
-                $view->addModeHandler('menu', MenuModeHandler::class);
-                $view->addModeHandler('combine', CombineModeHandler::class);
-                $view->addModeHandler('mFunc', ModuleFunctionModeHandler::class);
-
-                $view->addModeHandler('session', SessionView::class);
-                $view->addModeHandler('__session', SessionView::class);
-
-                $view->addModeHandler('event', Events::class);
-                $view->addModeHandler('__event', Events::class);
-
-                $view->addModeHandler('if', IfCondition::class);
-
-                $view->addModeHandler('each', EachLoop::class);
-                $view->addModeHandler('foreach', EachLoop::class);
-
-                $view->addModeHandler('ifBlock', IfBlock::class);
-
                 ## Router And Request
                 $onRequestProcess = new OnRequestProcess(
                     new RouteResolver(new Container()),
