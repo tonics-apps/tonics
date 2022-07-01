@@ -30,7 +30,9 @@ class TrackGenreRadio implements HandlerInterface
     }
 
     /**
-     * @throws \Exception
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
      */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {

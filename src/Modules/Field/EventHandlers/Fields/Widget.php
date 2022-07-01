@@ -65,7 +65,6 @@ HTML;
         }
 
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
@@ -94,13 +93,7 @@ HTML;
             value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
     </label>
 </div>
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+{$event->handleViewProcessingFrag($data)}
 FORM;
 
         if (isset($data->_bottomHTMLWrapper)) {

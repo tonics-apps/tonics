@@ -24,9 +24,12 @@ use App\Modules\Field\EventHandlers\Fields\Media\MediaFileManager;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaImage;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaImageWithLink;
 use App\Modules\Field\EventHandlers\Fields\Menu\Menu;
+use App\Modules\Field\EventHandlers\Fields\Modular\FieldFileHandler;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelection;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumn;
 use App\Modules\Field\EventHandlers\Fields\Modular\TonicsTemplateSystem;
+use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test;
+use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test2;
 use App\Modules\Field\EventHandlers\Fields\Post\PostAuthorSelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategory;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategorySelect;
@@ -38,6 +41,7 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackGenreRadio;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\Tracks;
 use App\Modules\Field\EventHandlers\Fields\Widget;
+use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnFieldCreate;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Routes\Routes;
@@ -97,6 +101,7 @@ class FieldActivator implements ModuleConfig, PluginConfig
                 RowColumn::class,
                 FieldSelection::class,
                 TonicsTemplateSystem::class,
+                FieldFileHandler::class,
 
                 # Menu
                 Menu::class,
@@ -104,6 +109,12 @@ class FieldActivator implements ModuleConfig, PluginConfig
                 # Widget
                 Widget::class,
 
+            ],
+
+            FieldTemplateFile::class => [
+                Test::class,
+                Test2::class,
+                FieldMenus::class
             ],
 
             OnFieldCreate::class => [

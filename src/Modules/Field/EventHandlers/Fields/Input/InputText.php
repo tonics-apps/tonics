@@ -57,7 +57,6 @@ class InputText implements HandlerInterface
         $textType =  (isset($data->textType)) ? $data->textType : 'text';
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $textTypes = $this->getTestTypes();
         $textFrag = '';
         foreach ($textTypes as $textK => $textV){
@@ -171,13 +170,8 @@ HTML;
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+{$event->handleViewProcessingFrag($data)}
+{$event->getTemplateEngineFrag($data)}
 
 <div class="form-group">
 $validationFrag

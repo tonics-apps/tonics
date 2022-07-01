@@ -33,8 +33,6 @@ class MediaAudio implements HandlerInterface
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
-
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -75,13 +73,8 @@ class MediaAudio implements HandlerInterface
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+{$event->handleViewProcessingFrag($data)}
+{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

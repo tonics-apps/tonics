@@ -12,6 +12,7 @@ use App\InitLoader;
 use App\InitLoaderMinimal;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig as ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\Router\RouteResolver;
@@ -155,11 +156,15 @@ class AppConfig
 
                 $eventQueue = new EventQueue();
                 $eventDispatcher = new EventDispatcher($eventQueue->addMultipleEventsAndHandlers($events));
+
+                /**@var TonicsTemplateEngines $tonicsTemplateEngine */
+                $tonicsTemplateEngine = $eventDispatcher->dispatch(new TonicsTemplateEngines());
                 ## Construct The GrandFather...
                 $initLoader = new InitLoader();
                 $initLoader
                     ->setRouter($router)
-                    ->setTonicsView($view)
+                    ->setTonicsView($tonicsTemplateEngine->getTemplateEngine('Native'))
+                    ->setTonicsTemplateEngines($tonicsTemplateEngine)
                     ->setEventDispatcher($eventDispatcher);
                 if (function_exists('apcu_enabled')) {
                     apcu_store($initKey, $initLoader);

@@ -37,7 +37,6 @@ class InputChoices implements HandlerInterface
         $choices =  (isset($data->choices)) ? helper()->htmlSpecChar($data->choices) : '';
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $choiceTypes = [
             'Checkbox' => 'checkbox',
             'Radio' => 'radio',
@@ -103,13 +102,8 @@ HTML;
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+{$event->handleViewProcessingFrag($data)}
+{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

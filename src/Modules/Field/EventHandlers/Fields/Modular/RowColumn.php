@@ -51,51 +51,42 @@ class RowColumn implements HandlerInterface
         }
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
-
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
-    <div class="form-group d:flex flex-gap align-items:flex-end">
-         <label class="menu-settings-handle-name" for="widget-name-$changeID">Field Name
-                <input id="widget-name-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-                value="$fieldName" placeholder="Field Name">
-        </label>
-     <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
-            <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$inputName" placeholder="(Optional) Input Name">
+<div class="form-group d:flex flex-gap align-items:flex-end">
+     <label class="menu-settings-handle-name" for="widget-name-$changeID">Field Name
+            <input id="widget-name-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$fieldName" placeholder="Field Name">
     </label>
-    </div>
-    <div class="form-group d:flex flex-d:row flex-gap:small rowColumn">
-        <label class="menu-settings-handle-name" for="widget-row-$changeID">Row
-            <input id="widget-row-$changeID" name="row" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="row" 
-            value="$row" placeholder="Overwrite the widget name">
-        </label>
-           <label class="menu-settings-handle-name" for="widget-column-$changeID">Column
-            <input id="widget-column-$changeID" name="column" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="column" 
-            value="$column">
-        </label>
-    </div>
-    <div class="form-group">
-     <label class="menu-settings-handle-name" for="elementName-$changeID">Element Name
-            <input id="elementName-$changeID" name="elementName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$elementName" placeholder="div, section, etc">
-    </label>
+ <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
+        <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+        value="$inputName" placeholder="(Optional) Input Name">
+</label>
 </div>
-    <div class="form-group">
-      <label class="menu-settings-handle-name" for="element-attributes-$changeID">Element Attributes
-            <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
+<div class="form-group d:flex flex-d:row flex-gap:small rowColumn">
+    <label class="menu-settings-handle-name" for="widget-row-$changeID">Row
+        <input id="widget-row-$changeID" name="row" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="row" 
+        value="$row" placeholder="Overwrite the widget name">
+    </label>
+       <label class="menu-settings-handle-name" for="widget-column-$changeID">Column
+        <input id="widget-column-$changeID" name="column" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="column" 
+        value="$column">
     </label>
 </div>
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
+ <label class="menu-settings-handle-name" for="elementName-$changeID">Element Name
+        <input id="elementName-$changeID" name="elementName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+        value="$elementName" placeholder="div, section, etc">
+</label>
 </div>
+<div class="form-group">
+  <label class="menu-settings-handle-name" for="element-attributes-$changeID">Element Attributes
+        <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+        value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
+</label>
+</div>
+{$event->handleViewProcessingFrag($data)}
     <div style="--row:$row; --column:$column;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 

@@ -56,7 +56,9 @@ class Events extends TonicsTemplateViewAbstract implements TonicsModeInterface, 
     /**
      * @param string $content
      * @param array $args
+     * @param array $nodes
      * @return string
+     * @throws \ReflectionException
      * @throws \Exception
      */
     public function render(string $content, array $args, array $nodes = []): string

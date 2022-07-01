@@ -11,6 +11,7 @@ class TonicsTemplateSystem implements HandlerInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
@@ -36,10 +37,7 @@ class TonicsTemplateSystem implements HandlerInterface
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsTemplateSystem';
         $tonicsTemplateFrag =  (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
-
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
@@ -56,13 +54,7 @@ class TonicsTemplateSystem implements HandlerInterface
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+{$event->handleViewProcessingFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

@@ -36,7 +36,6 @@ class InputRichText implements HandlerInterface
         $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         if (isset($data->readOnly) && $data->readOnly === '1'){
             $readOnly = <<<HTML
 <option value="0">False</option>
@@ -124,13 +123,10 @@ HTML;
             value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
     </label>
 </div>
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+
+{$event->handleViewProcessingFrag($data)}
+{$event->getTemplateEngineFrag($data)}
+
 <div class="form-group">
     $validationFrag
 </div>

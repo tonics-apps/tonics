@@ -27,6 +27,12 @@ class TrackLicenseSelect implements HandlerInterface
         );
     }
 
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
+     * @throws \Exception
+     */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Track License Select';

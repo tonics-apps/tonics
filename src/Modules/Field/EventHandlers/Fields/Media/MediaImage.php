@@ -39,7 +39,6 @@ class MediaImage implements HandlerInterface
         $imageLink = (isset($data->imageLink)) ? $data->imageLink : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -84,13 +83,8 @@ class MediaImage implements HandlerInterface
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+{$event->handleViewProcessingFrag($data)}
+{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

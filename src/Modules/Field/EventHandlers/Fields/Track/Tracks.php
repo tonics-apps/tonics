@@ -31,6 +31,11 @@ class Tracks implements HandlerInterface
         );
     }
 
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
+     */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Tracks Settings';

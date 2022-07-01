@@ -2,6 +2,7 @@
 
 namespace App\Modules\Field\Events;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsDomParser\Node\NodeTypes\Element;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
@@ -117,15 +118,22 @@ HTML;
     public function getSettingsForm($fieldSlug, $settings = null): string
     {
         $explodeSlug = explode('_', $fieldSlug);
-        $fieldCategory = $explodeSlug[0];
-        $fieldSlug = $explodeSlug[1];
-        if(!isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug])){
+        if (!key_exists(0, $explodeSlug) || !key_exists(1, $explodeSlug)){
             return '';
         }
-        $this->currentFieldBox = $this->FieldBoxSettings[$fieldCategory][$fieldSlug];
-        $formCallback = $this->FieldBoxSettings[$fieldCategory][$fieldSlug]->settingsForm;
+        $fieldCategory = $explodeSlug[0];
+        $slug = $explodeSlug[1];
+        if(!isset($this->FieldBoxSettings[$fieldCategory][$slug])){
+            return '';
+        }
+        $this->currentFieldBox = $this->FieldBoxSettings[$fieldCategory][$slug];
+        $formCallback = $this->FieldBoxSettings[$fieldCategory][$slug]->settingsForm;
         if (!is_callable($formCallback)){
             return '';
+        }
+        if ($settings === null){
+            $settings = new stdClass();
+            $settings->field_slug = $fieldSlug;
         }
         return $formCallback($settings);
     }
@@ -138,15 +146,22 @@ HTML;
     public function getUsersForm($fieldSlug, $settings = null): string
     {
         $explodeSlug = explode('_', $fieldSlug);
+        if (!key_exists(0, $explodeSlug) || !key_exists(1, $explodeSlug)){
+            return '';
+        }
         $fieldCategory = $explodeSlug[0];
-        $fieldSlug = $explodeSlug[1];
-        if(!isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug])){
+        $slug = $explodeSlug[1];
+        if(!isset($this->FieldBoxSettings[$fieldCategory][$slug])){
             return '';
         }
 
-        $formCallback = $this->FieldBoxSettings[$fieldCategory][$fieldSlug]->userForm;
+        $formCallback = $this->FieldBoxSettings[$fieldCategory][$slug]->userForm;
         if (!is_callable($formCallback)){
             return '';
+        }
+        if ($settings === null){
+            $settings = new stdClass();
+            $settings->field_slug = $fieldSlug;
         }
         return $formCallback($settings);
     }
@@ -159,6 +174,9 @@ HTML;
     public function getViewProcessingFrag($fieldSlug, $settings = null): string
     {
         $explodeSlug = explode('_', $fieldSlug);
+        if (!key_exists(0, $explodeSlug) || !key_exists(1, $explodeSlug)){
+            return '';
+        }
         $fieldCategory = $explodeSlug[0];
         $fieldSlug = $explodeSlug[1];
         if(!isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug])){
@@ -202,10 +220,7 @@ HTML;
 
     /**
      * @param string $name
-     * @param string $slug
-     * @param string $hash
-     * @param string $scriptPath
-     * @param array $postData
+     * @param $data
      * @return string
      */
     public function _topHTMLWrapper(string $name, $data): string
@@ -272,6 +287,7 @@ HTML;
     </li>
 HTML;
         }
+
         return <<<HTML
                 <div class="form-group">
                     <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
@@ -283,6 +299,33 @@ HTML;
         </fieldset>
     </li>
 HTML;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getTemplateEngineFrag($data = null): string
+    {
+        $current = (isset($data->templateEngine)) ? $data->templateEngine : '';
+        $engine = AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
+        $engineFrag = '<option value="" selected>None</option>';
+        foreach ($engine->getTemplateEngineNames() as $engineName){
+            $engineSelected = ($engineName === $current) ? 'selected' : '';
+            $engineFrag .= <<<HTML
+<option value="$engineName" $engineSelected>$engineName</option>
+HTML;
+        }
+
+        $changeID = helper()->randomString(10);
+        return <<<FORM
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="templateEngine-$changeID">Select Template Engines
+     <select name="templateEngine" class="default-selector mg-b-plus-1" id="templateEngine-$changeID">
+        $engineFrag
+     </select>
+    </label>
+</div>
+FORM;
     }
 
     /**
@@ -377,8 +420,12 @@ HTML;
         return $frag;
     }
 
-    public function handleViewProcessingFrag(string $handleViewProcessing = ''): string
+    /**
+     * @throws \Exception
+     */
+    public function handleViewProcessingFrag($data = null): string
     {
+        $handleViewProcessing = (isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '';
         if ($handleViewProcessing === '1'){
             $frag = <<<HTML
 <option value="0">False</option>
@@ -391,7 +438,16 @@ HTML;
 HTML;
         }
 
-        return $frag;
+        $changeID = helper()->randomString(10);
+        return <<<FORM
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
+     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
+        $frag
+     </select>
+    </label>
+</div>
+FORM;
     }
 
     /**

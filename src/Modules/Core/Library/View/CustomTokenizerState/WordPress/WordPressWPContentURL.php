@@ -6,6 +6,8 @@ use App\Modules\Core\Library\View\CustomTokenizerState\WordPress\Extensions\Word
 use Devsrealm\TonicsTemplateSystem\Content;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateRangeException;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
+use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateCustomRendererInterface;
+use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateHandleEOF;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateArrayLoader;
 use Devsrealm\TonicsTemplateSystem\Node\Tag;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
@@ -23,24 +25,8 @@ class WordPressWPContentURL
             'templateLoader' => $templateLoader,
             'tokenizerState' => new WordPressWPContentURLTokenizerState(),
             'content' => new Content(),
-            'handleEOF' => function(TonicsView $tv){
-                $tv->getTokenizerState()::finalEOFStackSort($tv);
-            },
-            'render' => function(TonicsView $tv){
-                $modeOutput = '';
-                /**@var Tag $tag */
-                foreach ($tv->getStackOfOpenTagEl() as $tag){
-                    try {
-                        $mode = $tv->getModeRendererHandler($tag->getTagName());
-                        if ($mode instanceof TonicsModeRendererInterface) {
-                            $modeOutput .= $mode->render($tag->getContent(), $tag->getArgs());
-                        }
-                    }catch (TonicsTemplateRangeException){
-                    }
-                }
-                $tv->reset();
-                return $modeOutput;
-            }
+            'handleEOF' => new WordPressWPContentURLHandleEOF(),
+            'render' => new WordPressWPContentURLCustomRenderer()
         ];
         $view = new TonicsView($settings);
         // clear in-built mode handler
@@ -55,3 +41,4 @@ class WordPressWPContentURL
         return $this->init;
     }
 }
+

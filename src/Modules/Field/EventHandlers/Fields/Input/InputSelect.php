@@ -34,7 +34,6 @@ class InputSelect implements HandlerInterface
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Select';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $selectData =  (isset($data->selectData)) ? helper()->htmlSpecChar($data->selectData) : '';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
@@ -57,7 +56,7 @@ class InputSelect implements HandlerInterface
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="selectData-$changeID">SelectsData (format: k1:kv, k2:v2)
+     <label class="menu-settings-handle-name" for="selectData-$changeID">SelectsData (format: k1:kv, k2:v2), (uses key as value if kv is empty)
      <textarea name="selectData" id="selectData-$changeID" placeholder="Key and Value should be separated by comma">$selectData</textarea>
     </label>
 </div>
@@ -80,13 +79,9 @@ class InputSelect implements HandlerInterface
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+{$event->handleViewProcessingFrag($data)}
+{$event->getTemplateEngineFrag($data)}
+
 <div class="form-group">
     $validationFrag
 </div>
@@ -113,7 +108,9 @@ FORM;
         if (is_array($selectData)){
             foreach ($selectData as $choice){
                 $choice = explode(':', $choice);
-                $choiceKeyValue[$choice[0] ?? ''] = $choice[1] ?? '';
+                if (key_exists(0, $choice)){
+                    $choiceKeyValue[$choice[0] ?? ''] = $choice[1] ?? $choice[0];
+                }
             }
         }
 

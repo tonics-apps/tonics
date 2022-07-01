@@ -10,7 +10,10 @@ namespace App\Modules\Core;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\EventHandlers\CoreMenus;
+use App\Modules\Core\EventHandlers\TemplateEngines\NativeTemplateEngine;
+use App\Modules\Core\EventHandlers\TemplateEngines\WordPressTemplateEngine;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -35,6 +38,11 @@ class CoreActivator implements ModuleConfig, PluginConfig
         return [
             OnAdminMenu::class => [
                 CoreMenus::class
+            ],
+
+            TonicsTemplateEngines::class => [
+                NativeTemplateEngine::class,
+                WordPressTemplateEngine::class,
             ]
         ];
 

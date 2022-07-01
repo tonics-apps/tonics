@@ -10,6 +10,7 @@ namespace App;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
@@ -33,6 +34,7 @@ class InitLoader
 {
     private Router $router;
     private TonicsView $tonicsView;
+    private TonicsTemplateEngines $tonicsTemplateEngines;
     private EventDispatcher $eventDispatcher;
 
     /**
@@ -122,6 +124,24 @@ class InitLoader
     public function getDomParser(): DomParser
     {
         return dom();
+    }
+
+    /**
+     * @return TonicsTemplateEngines
+     */
+    public function getTonicsTemplateEngines(): TonicsTemplateEngines
+    {
+        return $this->tonicsTemplateEngines;
+    }
+
+    /**
+     * @param TonicsTemplateEngines $tonicsTemplateEngines
+     * @return InitLoader
+     */
+    public function setTonicsTemplateEngines(TonicsTemplateEngines $tonicsTemplateEngines): InitLoader
+    {
+        $this->tonicsTemplateEngines = $tonicsTemplateEngines;
+        return $this;
     }
 
     /**

@@ -26,6 +26,9 @@ class MediaFileManager implements HandlerInterface
         );
     }
 
+    /**
+     * @throws \Exception
+     */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'MediaManager';

@@ -38,8 +38,6 @@ class InputRange implements HandlerInterface
         $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
-        $handleViewProcessingFrag = $event->handleViewProcessingFrag((isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '');
-
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -95,13 +93,10 @@ class InputRange implements HandlerInterface
             value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
     </label>
 </div>
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $handleViewProcessingFrag
-     </select>
-    </label>
-</div>
+
+{$event->handleViewProcessingFrag($data)}
+{$event->getTemplateEngineFrag($data)}
+
 <div class="form-group">
     $validationFrag
 </div>
