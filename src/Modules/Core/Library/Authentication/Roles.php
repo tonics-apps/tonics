@@ -83,6 +83,7 @@ final class Roles
         ];
         return self::gmpOr($permissions);
     }
+
     #[Pure] public static function POST_WRITER(): string
     {
         $permissions = [

@@ -40,8 +40,7 @@ class RowColumn implements HandlerInterface
         $row = 1;
         $column = 1;
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
-        $elementName = (isset($data->elementName)) ? $data->elementName : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
+
         if (isset($data->row)) {
             $row = $data->row;
         }
@@ -74,19 +73,7 @@ class RowColumn implements HandlerInterface
         value="$column">
     </label>
 </div>
-<div class="form-group">
- <label class="menu-settings-handle-name" for="elementName-$changeID">Element Name
-        <input id="elementName-$changeID" name="elementName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-        value="$elementName" placeholder="div, section, etc">
-</label>
-</div>
-<div class="form-group">
-  <label class="menu-settings-handle-name" for="element-attributes-$changeID">Element Attributes
-        <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-        value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
-</label>
-</div>
-{$event->handleViewProcessingFrag($data)}
+
     <div style="--row:$row; --column:$column;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
@@ -205,29 +192,12 @@ HTML;
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
         $frag = '';
-        $elementName = strtolower($data->elementName);
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
-            if (key_exists($elementName, helper()->htmlTags())) {
-                $frag .= <<<HTML
-<$elementName 
-HTML;
-                if (!empty($data->attributes)) {
-                    $attributes = $event->flatHTMLTagAttributes($data->attributes);
-                    $frag .= $attributes;
+        if (isset($data->_field->_children)) {
+            foreach ($data->_field->_children as $child) {
+                if (isset($child->field_options)) {
+                    $child->field_options->{"_field"} = $child;
                 }
-                $frag .= ">";
-
-            if (isset($data->_field->_children)) {
-                foreach ($data->_field->_children as $child) {
-                    if (isset($child->field_options)) {
-                        $child->field_options->{"_field"} = $child;
-                    }
-                    $frag .= $event->getViewProcessingFrag($child->field_name, $child->field_options ?? null);
-                }
-            }
-                $frag .= <<<HTML
-</$elementName>
-HTML;
+                $event->getViewProcessingFrag($child->field_name, $child->field_options ?? null);
             }
         }
 

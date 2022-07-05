@@ -55,7 +55,7 @@ class MediaImage implements HandlerInterface
     </label>
 </div>
 <div class="form-group">
- <label class="menu-settings-handle-name" for="imageLink-$changeID">Enter a image Link
+ <label class="menu-settings-handle-name" for="imageLink-$changeID">Enter a image Link (Access Using [[_v('Image_$inputName')]] in Templates)
      <input id="imageLink-$changeID" value="$imageLink" class="color:black border-width:default border:black placeholder-color:gray" name="imageLink" type="text" placeholder="Would be used if uploaded image does not exist">
  </label>
 </div>
@@ -75,15 +75,6 @@ class MediaImage implements HandlerInterface
         Remove Featured Image
     </button>
 </div>
-
-<div class="form-group">
-      <label class="menu-settings-handle-name" for="element-attributes-$changeID">More Image Attributes
-            <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
-    </label>
-</div>
-
-{$event->handleViewProcessingFrag($data)}
 {$event->getTemplateEngineFrag($data)}
 FORM;
 
@@ -97,7 +88,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
-        $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultImage = (isset($data->defaultImage) && !empty($inputName)) ? $inputName : $data->defaultImage;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -130,25 +121,16 @@ FORM;
      */
     public function viewFrag(OnFieldMetaBox $event, $data = null): string
     {
-        $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultImage = (isset($data->defaultImage) && !empty($inputName)) ? $inputName : $data->defaultImage;
         $imageLink = (isset($data->imageLink)) ? $data->imageLink : '';
         if (empty($defaultImage)) {
             $defaultImage = $imageLink;
         }
-        $frag = '';
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1') {
-            $frag .= <<<HTML
-<img src="$defaultImage" 
-HTML;
-            if (!empty($data->attributes)) {
-                $attributes = $event->flatHTMLTagAttributes($data->attributes);
-                $frag .= $attributes;
-            }
-            $frag .= ">";
-        }
-
-        return $frag;
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        addToGlobalVariable("Image_$inputName", $defaultImage);
+        $event->handleTemplateEngineView($data);
+        return '';
     }
 
 }

@@ -55,7 +55,7 @@ class FieldData extends AbstractDataLayer
      * @return OnFieldUserForm
      * @throws \Exception
      */
-    public function generateFieldWithFieldSlug(array $slugs, array $postData = [], bool $viewProcessing = false): OnFieldUserForm
+    public function generateFieldWithFieldSlug(array $slugs, array $postData = []): OnFieldUserForm
     {
         if (!empty($slugs)){
             $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
@@ -66,9 +66,9 @@ class FieldData extends AbstractDataLayer
             foreach ($fields as $field){
                 $fieldIDS[] = $field->field_id;
             }
-            return new OnFieldUserForm($fieldIDS, $this, $postData, $viewProcessing);
+            return new OnFieldUserForm($fieldIDS, $this, $postData);
         }
-        return new OnFieldUserForm([], $this, $postData, $viewProcessing);
+        return new OnFieldUserForm([], $this, $postData);
     }
 
     /**
@@ -248,7 +248,7 @@ HTML;
             </div>
         </div>
         </fieldset>
-    </li>
+</li>
 HTML;
     }
 
@@ -326,54 +326,55 @@ HTML;
     }
 
     /**
-     * @throws \Exception
+     * @param $field
+     * @param OnFieldMetaBox $onFieldMetaBox
+     * @return string
      */
     protected function getFieldItemsListingFrag($field, OnFieldMetaBox $onFieldMetaBox): string
     {
         $slug = $field->field_name ?? null;
-        $settings = $onFieldMetaBox->getFieldMetaSettings($slug);
-        $scriptPath = isset($settings->scriptPath) && !empty($settings->scriptPath) ? "data-script_path={$settings->scriptPath}" : '';
         if (isset($field->field_options)){
             $field->field_options->{"_field"} = $field;
-            $unique_hash = (isset($field->field_options->field_slug_unique_hash)) ? $field->field_options->field_slug_unique_hash : 'CHANGEID';
-            $field->field_options->{"_topHTMLWrapper"} = function ($name, $slug, $hash = '') use ($scriptPath, $unique_hash) {
-                $hash = $hash ?: $unique_hash;
-                return <<<HTML
-<li tabIndex="0"
-class="width:100% draggable menu-arranger-li cursor:move"
-$scriptPath
->
-        <fieldset
-            class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center flex-d:column owl">
-            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
-                <span class="menu-arranger-text-head">$name</span>
-                <button class="dropdown-toggle bg:transparent border:none cursor:pointer"
-                        aria-expanded="false" aria-label="Expand child menu">
-                    <svg class="icon:admin tonics-arrow-down color:white">
-                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
-                    </svg>
-                </button>
-            </legend>
-            <div role="form" data-widget-form="true" class="widgetSettings d:none flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0">
-                <input type="hidden" name="field_slug" value="$slug">
-                <input type="hidden" name="field_slug_unique_hash" value="$hash">
-HTML;
-            };
+        }
+        return $onFieldMetaBox->getSettingsForm($slug, $field->field_options ?? null);
+    }
 
-            $field->field_options->{"_bottomHTMLWrapper"} = <<<HTML
-                <div class="form-group">
-                    <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cursor:pointer act-like-button">
-                        Delete Field Item
-                    </button>
-                </div>
-            </div>
-        </fieldset>
-    </li>
-HTML;
+
+    /**
+     * @param array $fieldSlugs
+     * @return void
+     */
+    public function sortAndCacheFieldItemsForFrontEnd(array $fieldSlugs): void
+    {
+
+        if (empty($fieldSlugs)){
+            return;
         }
 
-        return $onFieldMetaBox->getSettingsForm($slug, $field->field_options ?? null);
+        try {
+            $sortedFieldItems = $this->getFieldSortedItems($fieldSlugs);
+
+            ## Sort
+            foreach ($sortedFieldItems as $k => $sortFieldItem){
+                $sortedFieldItems[$k] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $sortFieldItem, onData: function ($field) {
+                    return $field;
+                });
+            }
+
+            $sortedFieldItems = array_merge(...$sortedFieldItems);
+
+            $key = 'sortedField_' . implode('_', $fieldSlugs);
+            db()->insertOnDuplicate(
+                Tables::getTable(Tables::GLOBAL),
+                [
+                    'key' => $key,
+                    'value' => json_encode($sortedFieldItems,  JSON_UNESCAPED_SLASHES)
+                ],
+                ['value']
+            );
+        }catch (\Exception $exception){
+            // log...
+        }
     }
 
     /**

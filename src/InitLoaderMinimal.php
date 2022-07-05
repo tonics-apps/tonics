@@ -52,6 +52,7 @@ class InitLoaderMinimal
     public function init()
     {
         self::addToGlobalVariable('App_Config', [
+            'SiteURL' => AppConfig::getAppUrl(),
             'APP_NAME' => AppConfig::getAppName(),
             'APP_URL' => AppConfig::getAppUrl(),
             'APP_TIME_ZONE' => AppConfig::getTimeZone(),
@@ -112,6 +113,33 @@ class InitLoaderMinimal
         return self::$globalVariable;
     }
 
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public static function getGlobalVariableData($key): mixed
+    {
+        if (isset(self::$globalVariable[$key])){
+            return self::$globalVariable[$key];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $key
+     * @return bool
+     */
+    public static function globalVariableKeyExist($key): bool
+    {
+        return isset(self::$globalVariable[$key]);
+    }
+
+    /**
+     * @param $key
+     * @param $data
+     * @return array
+     */
     public static function addToGlobalVariable($key, $data): array
     {
         self::$globalVariable[$key] = $data;

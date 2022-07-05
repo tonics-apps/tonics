@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\MyPDO;
 use Devsrealm\TonicsContainer\Container;
@@ -9,6 +10,8 @@ use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInputInterface;
 use Devsrealm\TonicsRouterSystem\Response;
+use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateCustomRendererInterface;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 use JetBrains\PhpStorm\NoReturn;
 
 /**
@@ -128,6 +131,14 @@ function db(): MyPDO
 }
 
 /**
+ * @throws Exception
+ */
+function templateEngines(): TonicsTemplateEngines
+{
+    return AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
+}
+
+/**
  * @param string $key
  * @param $data
  * @return void
@@ -139,14 +150,63 @@ function addToGlobalVariable(string $key, $data): void
 }
 
 /**
- * @param string $viewname
- * @param array|stdClass $data
+ * Load Base Template If Not Already Loaded
  * @throws Exception
  */
-function view(string $viewname, array|stdClass $data = []): void
+function loadTemplateBase(): void
+{
+    if (AppConfig::initLoaderMinimal()::globalVariableKeyExist('BASE_TEMPLATE') === false){
+        addToGlobalVariable('BASE_TEMPLATE', view('Modules::Core/Views/Templates/theme', condition: TonicsView::RENDER_TOKENIZE_ONLY));
+    }
+}
+
+/**
+ * @return TonicsView|null
+ * @throws Exception
+ */
+function getBaseTemplate(): TonicsView|null
+{
+    if (AppConfig::initLoaderMinimal()::globalVariableKeyExist('BASE_TEMPLATE') === false){
+        loadTemplateBase();
+    }
+
+    return AppConfig::initLoaderMinimal()::getGlobalVariableData('BASE_TEMPLATE');
+}
+
+/**
+ * @throws Exception
+ */
+function renderBaseTemplate(): void
+{
+    echo getBaseTemplate()->outputContentData(getBaseTemplate()->getContent()->getContents());
+}
+
+/**
+ * @throws Exception
+ */
+function getPostData()
+{
+    return AppConfig::initLoaderMinimal()::getGlobalVariableData('Data') ?? [];
+}
+
+/**
+ * For $condition, you can use:
+ *
+ * - `TonicsView::RENDER_CONCATENATE_AND_OUTPUT` if you want to concatenate and output to the browser (default)
+ * - `TonicsView::RENDER_CONCATENATE` if you only want to concatenate and get the string output
+ * - `TonicsView::RENDER_TOKENIZE_ONLY` if you only want to tokenize and get the view object
+ *
+ * Note: If you have a custom render, It won't respect $condition
+ * @param string $viewname
+ * @param array|stdClass $data
+ * @param int $condition
+ * @return mixed
+ * @throws Exception
+ */
+function view(string $viewname, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
-    $view->render($viewname);
+    return $view->render($viewname, $condition);
 }
 
 /**

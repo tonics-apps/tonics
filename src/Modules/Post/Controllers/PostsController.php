@@ -16,6 +16,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Post\Data\PostData;
+use App\Modules\Post\Events\OnBeforePostSave;
 use App\Modules\Post\Events\OnPostCreate;
 use App\Modules\Post\Events\OnPostDefaultField;
 use App\Modules\Post\Events\OnPostUpdate;
@@ -106,6 +107,8 @@ class PostsController
         }
 
         $post = $this->postData->createPost(['token']);
+
+        event()->dispatch(new OnBeforePostSave($post));
         $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
 
         $onPostCreate = new OnPostCreate($postReturning, $this->postData);
@@ -195,11 +198,14 @@ class PostsController
 
         $postToUpdate = $this->postData->createPost(['token']);
         $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
+
+        event()->dispatch(new OnBeforePostSave($postToUpdate));
         $this->postData->updateWithCondition($postToUpdate, ['post_slug' => $slug], $this->postData->getPostTable());
         $postToCategoryUpdate = [
             'fk_cat_id' => input()->fromPost()->retrieve('fk_cat_id', ''),
             'fk_post_id' => input()->fromPost()->retrieve('post_id', ''),
         ];
+
         $this->postData->updateWithCondition($postToCategoryUpdate, ['fk_post_id' => input()->fromPost()->retrieve('post_id')], $this->postData->getPostToCategoryTable());
 
         $slug = $postToUpdate['post_slug'];

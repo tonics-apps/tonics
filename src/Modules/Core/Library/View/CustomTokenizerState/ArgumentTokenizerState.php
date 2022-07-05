@@ -8,25 +8,9 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
 class ArgumentTokenizerState extends TonicsTemplateTokenizerStateAbstract
 {
 
-    /**
-     * @var string[]
-     */
-    private static array $allowedModeInArgument = [];
-
-    public static function setupInit()
-    {
-        self::$allowedModeInArgument = [
-            'block' => 'block',
-            'v' => 'v',
-            'var' => 'var'
-        ];
-    }
-
     public static function InitialStateHandler(TonicsView $tv): void
     {
-        if (empty(self::$allowedModeInArgument)){
-            self::setupInit();
-        }
+        $char = $tv->getChar();
 
         if ($tv->charIsEOF()){
             return;
@@ -36,10 +20,7 @@ class ArgumentTokenizerState extends TonicsTemplateTokenizerStateAbstract
             $tv->createNewTagInOpenStackTag("argument");
         }
 
-        if ($tv->charIsTabOrLFOrFFOrSpace()) {
-            return;
-        }
-
+        $tv->appendCharToArgValue($char);
     }
 
     public static function TonicsTagLeftSquareBracketStateHandler(TonicsView $tonicsView): void
@@ -65,13 +46,5 @@ class ArgumentTokenizerState extends TonicsTemplateTokenizerStateAbstract
     public static function TonicsTagOpenArgValueDoubleQuotedStateHandler(TonicsView $tonicsView): void
     {
         // TODO: Implement TonicsTagOpenArgValueDoubleQuotedStateHandler() method.
-    }
-
-    /**
-     * @return array
-     */
-    public static function getAllowedModeInArgument(): array
-    {
-        return self::$allowedModeInArgument;
     }
 }

@@ -70,8 +70,8 @@ FORM;
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $genre = $trackData->getGenrePaginationData();
         $onTrackCreate = null;
-        if (!empty($data->_field->postData)){
-            $onTrackCreate = new OnTrackCreate((object)$data->_field->postData, $trackData);
+        if (!empty(getPostData())){
+            $onTrackCreate = new OnTrackCreate((object)getPostData(), $trackData);
         }
         $genreCheckBoxListing = $trackData->genreCheckBoxListing($genre, onTrackCreate: $onTrackCreate, inputname: $inputName);
         $frag = $event->_topHTMLWrapper($fieldName, $data);

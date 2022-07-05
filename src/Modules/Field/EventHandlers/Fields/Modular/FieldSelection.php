@@ -38,10 +38,11 @@ class FieldSelection implements HandlerInterface
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $fieldSlug = (isset($data->fieldSlug)) ? $data->fieldSlug : '';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
-        if ($expandField === '1'){
+
+        if ($expandField === '1') {
             $expandField = <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
@@ -58,15 +59,25 @@ HTML;
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
         $fieldFrag = '';
-        foreach ($fields as $field){
+        foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug:$field->field_id";
             $fieldSelected = ($fieldSlug === $uniqueSlug) ? 'selected' : '';
             $fieldFrag .= <<<HTML
 <option value="$uniqueSlug" $fieldSelected>$field->field_name</option>
 HTML;
         }
-
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
+        $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
+<div class="form-group">
+     <label class="field-settings-handle-name" for="expandField-$changeID">Expand Field
+     <select name="expandField" class="default-selector mg-b-plus-1" id="expandField-$changeID">
+        $expandField
+     </select>
+    </label>
+</div>
+HTML
+        );
+
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="field-settings-handle-name" for="fieldName-$changeID">Field Name
@@ -78,7 +89,6 @@ HTML;
             value="$inputName" placeholder="(Optional) Input Name">
     </label>
 </div>
-
 <div class="form-group">
     <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
         <select name="fieldSlug" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
@@ -86,16 +96,7 @@ HTML;
         </select>
     </label>
 </div>
-
-<div class="form-group">
-     <label class="field-settings-handle-name" for="expandField-$changeID">Expand Field
-     <select name="expandField" class="default-selector mg-b-plus-1" id="expandField-$changeID">
-        $expandField
-     </select>
-    </label>
-</div>
-
-{$event->handleViewProcessingFrag($data)}
+$moreSettings
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -108,8 +109,8 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Field';
-        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $fieldSlug = (isset($data->fieldSlug) && !empty($inputName)) ? $inputName : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
@@ -119,9 +120,9 @@ FORM;
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
         $fieldFrag = '';
-        foreach ($fields as $field){
+        foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug:$field->field_id";
-            if ($fieldSlug === $uniqueSlug){
+            if ($fieldSlug === $uniqueSlug) {
                 $fieldFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$field->field_name</option>
 HTML;
@@ -133,9 +134,9 @@ HTML;
         }
 
         $fieldSlug = explode(':', $fieldSlug);
-        $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1]: '';
-        if (!empty($fieldID) && $expandField === '1'){
-            $onFieldUserForm = new OnFieldUserForm([$fieldID], new FieldData(), $data->_field->postData, false);
+        $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1] : '';
+        if (!empty($fieldID) && $expandField === '1') {
+            $onFieldUserForm = new OnFieldUserForm([$fieldID], new FieldData(), getPostData());
             $frag .= $onFieldUserForm->getHTMLFrag();
         } else {
             $frag .= <<<HTML
@@ -159,21 +160,19 @@ HTML;
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
         $frag = '';
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1') {
-            $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
-            $fieldSlug = (isset($data->fieldSlug) && !empty($inputName)) ? $inputName : $data->fieldSlug;
-            if (empty($fieldSlug)) {
-                return $frag;
-            }
-            $fieldSlug = explode(':', $fieldSlug);
-            $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1]: '';
-            if (empty($fieldID)){
-                return $frag;
-            }
-            $onFieldUserForm = new OnFieldUserForm([$fieldID], new FieldData(), $data->_field->postData, true);
-            return $onFieldUserForm->getHTMLFrag();
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $fieldSlug = (isset($data->fieldSlug) && !empty($inputName)) ? $inputName : $data->fieldSlug;
+        if (empty($fieldSlug)) {
+            return $frag;
+        }
+        $fieldSlug = explode(':', $fieldSlug);
+        $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1] : '';
+        if (empty($fieldID)) {
+            return $frag;
         }
 
+        $onFieldUserForm = new OnFieldUserForm([], new FieldData());
+        $onFieldUserForm->handleFrontEnd([$fieldSlug[0]], getPostData());
         return $frag;
     }
 

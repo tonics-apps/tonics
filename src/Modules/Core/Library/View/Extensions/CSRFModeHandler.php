@@ -32,6 +32,7 @@ class CSRFModeHandler extends TonicsTemplateViewAbstract implements TonicsModeIn
     /**
      * @param string $content
      * @param array $args
+     * @param array $nodes
      * @return string
      * @throws \Exception
      */

@@ -64,7 +64,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TrackLicenseSelect';
-        $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $trackData = new TrackData();
         $artistSelectListing = $trackData->artistSelectListing($inputName ?: null);
         $slug = $data->field_slug;

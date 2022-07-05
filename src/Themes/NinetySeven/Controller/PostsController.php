@@ -12,6 +12,7 @@ use App\Modules\Field\Events\OnFieldUserForm;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Widget\Data\WidgetData;
 use DateTime;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class PostsController
 {
@@ -55,36 +56,17 @@ class PostsController
      */
     private function showPost($post)
     {
+        addToGlobalVariable('Assets', ['css' => AppConfig::getThemesAsset('NinetySeven', 'css/styles.css')]);
         $post = [...json_decode($post->field_settings, true), ...(array)$post];
-        $foundURL = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode();
-        $postMoreSettings = $foundURL->getMoreSettings('GET');
         $onFieldUserForm = new OnFieldUserForm([], new FieldData());
-
-        $MenuWidgetsSidebarTitle = null;
-        $MenuWidgetsSidebarData = $this->getWidgetData()->getWidgetViewListing(
-            $this->getWidgetData()->getWidgetLocationItems(onBeforeDecodingWidget: function ($data) use (&$MenuWidgetsSidebarTitle) {
-                if (isset($data[0]->widget_name)) {
-                    $MenuWidgetsSidebarTitle = $data[0]->widget_name;
-                }
-            }));
 
         $date = new DateTime($post['created_at']);
         $created_at_words = strtoupper($date->format('j M, Y'));
         $post['created_at_words'] = $created_at_words;
 
-        view('Themes::NinetySeven/Views/Post/single', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $post,
-            'Assets' => [
-                'css' => AppConfig::getThemesAsset('NinetySeven', 'css/styles.css')
-            ],
-            'MenuWidgetsSidebar' => [
-                'Title' => $MenuWidgetsSidebarTitle,
-                'Data' => $MenuWidgetsSidebarData,
-            ],
-            'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $onFieldUserForm->generateHTMLFrags($postMoreSettings, $post, true),
-        ]);
+        $fieldSlugs = json_decode($post['field_ids']) ?? [];
+        $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
+        renderBaseTemplate();
     }
 
     /**

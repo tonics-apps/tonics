@@ -4,8 +4,10 @@ namespace App\Themes\NinetySeven;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Modules\Core\Events\OnSelectTonicsTemplateHooks;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Themes\NinetySeven\EventHandler\TemplateEngines\ThemeTemplateHooks;
 use App\Themes\NinetySeven\Route\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -32,7 +34,11 @@ class NinetySevenActivator implements ModuleConfig, PluginConfig
      */
     public function events(): array
     {
-        return [];
+        return [
+            OnSelectTonicsTemplateHooks::class => [
+                ThemeTemplateHooks::class
+            ]
+        ];
     }
 
     /**

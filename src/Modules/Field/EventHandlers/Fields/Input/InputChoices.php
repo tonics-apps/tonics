@@ -22,7 +22,9 @@ class InputChoices implements HandlerInterface
             userForm: function ($data) use ($event){
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
+            handleViewProcessing: function ($data) use ($event) {
+                return $this->viewFrag($event, $data);
+            }
         );
     }
 
@@ -163,5 +165,14 @@ FORM;
         return $frag;
     }
 
-
+    /**
+     * @throws \Exception
+     */
+    public function viewFrag(OnFieldMetaBox $event, $data): string
+    {
+        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
+            $event->handleTemplateEngineView($data);
+        }
+        return '';
+    }
 }

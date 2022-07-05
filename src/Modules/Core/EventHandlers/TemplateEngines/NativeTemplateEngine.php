@@ -8,12 +8,14 @@ use App\Modules\Core\Library\View\Extensions\CombineModeHandler;
 use App\Modules\Core\Library\View\Extensions\CSRFModeHandler;
 use App\Modules\Core\Library\View\Extensions\EachLoop;
 use App\Modules\Core\Library\View\Extensions\Events;
+use App\Modules\Core\Library\View\Extensions\Hook;
 use App\Modules\Core\Library\View\Extensions\IfBlock;
 use App\Modules\Core\Library\View\Extensions\IfCondition;
 use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
 use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
 use App\Modules\Core\Library\View\Extensions\SessionView;
 use App\Modules\Core\Library\View\Extensions\StringFunctions;
+use App\Modules\Core\Library\View\Extensions\TriggerBlockOnTheFly;
 use App\Modules\Core\Library\View\Extensions\URLModeHandler;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTemplateSystem\Caching\TonicsTemplateApcuCache;
@@ -29,6 +31,7 @@ class NativeTemplateEngine implements HandlerInterface
     /**
      * @inheritDoc
      * @throws TonicsTemplateLoaderError
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
@@ -64,6 +67,8 @@ class NativeTemplateEngine implements HandlerInterface
 
         $view->addModeHandler('ifBlock', IfBlock::class);
 
+        $view->addModeHandler('trigger_block', TriggerBlockOnTheFly::class);
+
         # String Functions
         $view->addModeHandler('string_addslashes', StringFunctions::class);
         $view->addModeHandler('string_chop', StringFunctions::class);
@@ -94,6 +99,27 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('string_ucfirst', StringFunctions::class);
         $view->addModeHandler('string_ucwords', StringFunctions::class);
         $view->addModeHandler('string_wordwrap', StringFunctions::class);
+
+        // HOOK
+        $view->addModeHandler('add_hook', Hook::class);
+        $view->addModeHandler('add_placeholder', Hook::class); // alias of add_hook
+        $view->addModeHandler('add_hook_after', Hook::class);
+        $view->addModeHandler('add_placeholder_after', Hook::class); // alias of add_placeholder_after
+        $view->addModeHandler('add_hook_before', Hook::class);
+        $view->addModeHandler('add_placeholder_before', Hook::class); // alias of add_placeholder_after
+
+        $view->addModeHandler('reset_hook', Hook::class);
+        $view->addModeHandler('reset_placeholder', Hook::class); // alias of reset_hook
+
+        $view->addModeHandler('hook_into', Hook::class);
+        $view->addModeHandler('place_into', Hook::class); // alias of hook_into
+
+        // HTML TAGS
+       /* foreach (helper()->htmlTags() as $tag){
+            $view->addModeHandler('html_' .$tag, HTMLTags::class);
+        }*/
+
+        //
 
         $event->addTemplateEngine('Native', $view);
     }

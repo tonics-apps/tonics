@@ -21,7 +21,9 @@ class InputColor implements HandlerInterface
             userForm: function ($data) use ($event){
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
+            handleViewProcessing: function ($data) use ($event) {
+                return $this->viewFrag($event, $data);
+            }
         );
     }
 
@@ -52,8 +54,8 @@ class InputColor implements HandlerInterface
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="color-$changeID">Default Color
-     <input name="color" value="$inputColor" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="color-$changeID">
+     <label class="menu-settings-handle-name" for="inputColor-$changeID">Default Color
+     <input name="inputColor" value="$inputColor" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="inputColor-$changeID">
     </label>
 </div>
 
@@ -75,4 +77,42 @@ FORM;
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function userForm(OnFieldMetaBox $event, $data): string
+    {
+        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
+        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $defaultColor = (isset($data->inputColor) && !empty($inputName)) ? $inputName : $data->inputColor;
+        $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+        $slug = $data->field_slug;
+        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $frag .= <<<FORM
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="inputColor-$changeID">Choose Color
+     <input name="$inputName" value="$defaultColor" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="inputColor-$changeID">
+    </label>
+</div>
+FORM;
+
+        $frag .= $event->_bottomHTMLWrapper(true);
+        return $frag;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function viewFrag(OnFieldMetaBox $event, $data): string
+    {
+        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
+            $event->handleTemplateEngineView($data);
+        }
+        return '';
+    }
+
 }

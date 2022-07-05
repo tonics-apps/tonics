@@ -37,13 +37,13 @@ class Menu implements HandlerInterface
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Menu';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $menuSlug = (isset($data->menuSlug)) ? $data->menuSlug : '';
-        $displayName =  (isset($data->displayName)) ? $data->displayName : '1';
+        $displayName = (isset($data->displayName)) ? $data->displayName : '1';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
-        if ($displayName === '1'){
+        if ($displayName === '1') {
             $displayName = <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
@@ -57,9 +57,9 @@ HTML;
         $menuData = new MenuData();
         $menuFrag = '';
         $menus = $menuData->getMenus();
-        foreach ($menus as $menu){
+        foreach ($menus as $menu) {
             $uniqueSlug = "$menu->menu_slug:$menu->menu_id";
-            if ($menuSlug === $uniqueSlug){
+            if ($menuSlug === $uniqueSlug) {
                 $menuFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$menu->menu_name</option>
 HTML;
@@ -83,7 +83,7 @@ HTML;
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="menuSlug-$changeID">Choose Menu
+     <label class="menu-settings-handle-name" for="menuSlug-$changeID">Choose Menu (Access Using [[_v('Menu_$inputName')]] in Templates)
      <select name="menuSlug" class="default-selector mg-b-plus-1" id="menuSlug-$changeID">
         $menuFrag
      </select>
@@ -96,7 +96,8 @@ HTML;
      </select>
     </label>
 </div>
-{$event->handleViewProcessingFrag($data)}
+
+{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -109,8 +110,8 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Menu';
-        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Menu';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $menuSlug = (isset($data->menuSlug) && !empty($inputName)) ? $inputName : $data->menuSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
@@ -119,9 +120,9 @@ FORM;
         $menuFrag = '';
         $menuData = new MenuData();
         $menus = $menuData->getMenus();
-        foreach ($menus as $menu){
+        foreach ($menus as $menu) {
             $uniqueSlug = "$menu->menu_slug:$menu->menu_id";
-            if ($menuSlug === $uniqueSlug){
+            if ($menuSlug === $uniqueSlug) {
                 $menuFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$menu->menu_name</option>
 HTML;
@@ -151,25 +152,26 @@ HTML;
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
         $frag = '';
-        $displayName =  (isset($data->displayName)) ? $data->displayName : '';
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
-            $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
-            $menuSlug = (isset($data->menuSlug) && !empty($inputName)) ? $inputName : $data->menuSlug;
-            if (empty($menuSlug)){
-                return $frag;
-            }
-            $menuSlug = explode(':', $menuSlug);
-            $menuID = (isset($menuSlug[1]) && is_numeric($menuSlug[1])) ? (int)$menuSlug[1]: '';
-            if (empty($menuID)){
-                return $frag;
-            }
-            $menuData = new MenuData();
-            $tree = $menuData->getMenuItems($menuID);
-            foreach ($tree as $t){
-                $frag .= $this->getMenuHTMLFragment($t, 0, $displayName);
-            }
+        $displayName = (isset($data->displayName)) ? $data->displayName : '';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $menuSlug = (isset($data->menuSlug) && !empty($inputName)) ? $inputName : $data->menuSlug;
+        if (empty($menuSlug)) {
+            return $frag;
         }
-        return $frag;
+        $menuSlug = explode(':', $menuSlug);
+        $menuID = (isset($menuSlug[1]) && is_numeric($menuSlug[1])) ? (int)$menuSlug[1] : '';
+        if (empty($menuID)) {
+            return $frag;
+        }
+        $menuData = new MenuData();
+        $tree = $menuData->getMenuItems($menuID);
+        foreach ($tree as $t) {
+            $frag .= $this->getMenuHTMLFragment($t, 0, $displayName);
+        }
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        addToGlobalVariable("Menu_$inputName", $frag);
+        $event->handleTemplateEngineView($data);
+        return '';
     }
 
     /**
@@ -178,12 +180,12 @@ HTML;
     protected function getMenuHTMLFragment($menu, $depth = 0, $displayName = '1'): string
     {
         $svgIcon = '';
-        if (!empty($menu->mt_icon)){
+        if (!empty($menu->mt_icon)) {
             $svgIcon = helper()->htmlSpecChar($menu->mt_icon);
             $svgIcon = "<svg class='icon:admin $svgIcon'><use xlink:href='#$svgIcon'></use></svg>";
         }
         $name = '';
-        if ($displayName == '1'){
+        if ($displayName == '1') {
             $name = <<<HTML
 <div class="text:paragraph-fluid-one text:no-wrap">$menu->mt_name</div>
 HTML;
@@ -191,7 +193,7 @@ HTML;
         }
         $url = helper()->htmlSpecChar($menu->mt_url_slug);
         $target = 'target="_blank"';
-        if ($menu->mt_target == 0){
+        if ($menu->mt_target == 0) {
             $target = 'target="_self"';
         }
         $htmlFrag = <<<MENU
@@ -200,7 +202,7 @@ HTML;
         $svgIcon
        $name
 MENU;
-        if (isset($menu->_children)){
+        if (isset($menu->_children)) {
             $htmlFrag .= <<<MENU
         <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false" aria-label="Expand child menu">
             <svg class="icon:admin tonics-arrow-down">
@@ -212,7 +214,7 @@ MENU;
     <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
 MENU;
             $depth = $depth + 1;
-            foreach ($menu->_children as $menu){
+            foreach ($menu->_children as $menu) {
                 $htmlFrag .= $this->getMenuHTMLFragment($menu, $depth, $displayName);
             }
             $htmlFrag .= <<<MENU

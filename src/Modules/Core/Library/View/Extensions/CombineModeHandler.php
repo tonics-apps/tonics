@@ -60,6 +60,7 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
     /**
      * @param string $content
      * @param array $args
+     * @param array $nodes
      * @return string
      */
     public function render(string $content, array $args, array $nodes = []): string

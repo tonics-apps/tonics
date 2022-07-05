@@ -97,10 +97,11 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Choice';
-        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $selectData =  (isset($data->selectData)) ? $data->selectData : '';
+
         $choiceKeyValue = [];
         if (!empty($selectData)){
             $selectData = explode(',', $selectData);

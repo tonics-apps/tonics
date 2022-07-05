@@ -23,7 +23,9 @@ class InputDate implements HandlerInterface
             userForm: function ($data) use ($event){
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
+            handleViewProcessing: function ($data) use ($event) {
+                return $this->viewFrag($event, $data);
+            }
         );
     }
 
@@ -171,7 +173,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Text';
-        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $min = (isset($data->min)) ? "min=" . $data->min . '"' : '';
         $max = (isset($data->max)) ? "max=" . $data->max . '"' : '';
@@ -199,6 +201,17 @@ FORM;
 
         $frag .= $event->_bottomHTMLWrapper(true);
         return $frag;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function viewFrag(OnFieldMetaBox $event, $data): string
+    {
+        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
+            $event->handleTemplateEngineView($data);
+        }
+        return '';
     }
 
 }

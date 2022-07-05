@@ -9,8 +9,10 @@ namespace App\Modules\Field;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Modules\Core\EventHandlers\Field\CacheFieldIDItems;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Controllers\OnFieldItemsSave;
 use App\Modules\Field\EventHandlers\FieldMenus;
 use App\Modules\Field\EventHandlers\Fields\Input\InputChoices;
 use App\Modules\Field\EventHandlers\Fields\Input\InputColor;
@@ -66,6 +68,10 @@ class FieldActivator implements ModuleConfig, PluginConfig
     public function events(): array
     {
         return [
+
+            OnFieldItemsSave::class => [
+              CacheFieldIDItems::class
+            ],
 
             OnFieldMetaBox::class => [
                 # INPUT

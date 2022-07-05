@@ -21,7 +21,9 @@ class InputRichText implements HandlerInterface
             userForm: function ($data) use ($event){
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
+            handleViewProcessing: function ($data) use ($event) {
+                return $this->viewFrag($event, $data);
+            }
         );
     }
 
@@ -143,7 +145,7 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Rich Text';
         $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
-        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $readOnly = ($data->readOnly == 1) ? 'readonly' : '';
         $required = ($data->required == 1) ? 'required' : '';
@@ -167,5 +169,16 @@ FORM;
 
         $frag .= $event->_bottomHTMLWrapper(true);
         return $frag;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function viewFrag(OnFieldMetaBox $event, $data): string
+    {
+        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
+            $event->handleTemplateEngineView($data);
+        }
+        return '';
     }
 }

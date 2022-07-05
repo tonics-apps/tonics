@@ -1,8 +1,92 @@
 <!DOCTYPE html>
-[[import("Themes::NinetySeven/Views/Blocks/Post")]]
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[- BLOCKS -]]
+
+[[b('Post::Single::Header')
+<header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
+    <h1 class="entry-title"> [[v('Data.post_title')]]</h1>
+
+    <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
+        <nav>
+            <ul style="gap: 5px; font-size: 85%;" class="d:flex flex-wrap:wrap justify-content:center list:style:none">
+                [[each("cat in Data.categories")
+                <style>
+                    .box {
+                        display: flex;
+                        flex-direction: row;
+                        padding: 5px clamp(20px, 2vw, 25px);
+                        align-items: center;
+                        border-radius: 5px;
+                        text-decoration: none;
+                    }
+                </style>
+                <li class="menu-block">
+                    <a href="/[[v('cat.path')]]" class="box flex-gap:small color:black border-width:default border:black" title="[[v('cat.cat_name')]]">
+                        <div class="text:no-wrap">[[v('cat.cat_name')]]</div>
+                    </a>
+                </li>
+                ]]
+            </ul>
+        </nav>
+        <div class="by-line-and-date d:flex justify-content:center flex-gap:small">
+            <div class="by-line d:flex align-items:center flex-gap:small">
+                <span class="posted-by">
+                    By [[v('Data.user_name')]]
+                </span>
+            </div>
+            |
+            <div class="date-published d:flex align-items:center flex-gap:small">
+                <span class="date">
+                    On [[v('Data.created_at_words')]]
+                </span>
+            </div>
+        </div>
+    </div>
+    <figure class="featured-image full-bleed">
+        <div class="post-thumbnail">
+            [[if("v[Data.image_url] !== block[empty]")
+            <img width="2000" height="1200"
+                 loading="lazy"
+                 decoding="async"
+                 src="[[v('Data.image_url')]]"
+                 class="" alt="[[v('Data.post_title')]]">
+            ]]
+        </div><!-- .post-thumbnail -->
+    </figure>
+</header>
+]]
+
+[[b('NinetySevenPostSingleEntry')
+
+[[hook_into('in_head')
+<link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
+]]
+
+[[hook_into('in_header')
+<section class="site-header:admin d:flex flex-wrap:wrap flex-gap padding:default justify-content:space-around">
+
+    [[add_hook('in_site_header_section')]]
+
+    <div class="site-logo">
+        [[add_hook('in_site_header_section_logo')]]
+    </div>
+
+    <nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
+        [[add_hook('in_site_header_section_nav')]]
+        <ul class="site-navigation-ul d:flex flex-gap list:style:none">
+            [[add_hook('in_site_header_section_nav_ul')]]
+            [[_v('Menu_site_header_menu')]]
+        </ul>
+    </nav>
+
+</section>
+]]
+
+]]
+
+
+[[-
+
 <html lang="en">
 <head>
     [[_use("default-meta")]]
@@ -10,10 +94,18 @@
     <title>[[v('Data.post_title')]]</title>
 </head>
 
+-]]
+
 <body class="body-sticky-footer">
+[[-
 [[_use("default-inline-svg")]]
+-]]
+
+[[-
 
 [[_v("FieldItems")]]
+
+-]]
 
 [[-
 <header>
@@ -47,8 +139,7 @@
     </div>
 </footer>
 
--]]
-
 [[_use("script:post-front")]]
+-]]
 </body>
 </html>

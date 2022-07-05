@@ -70,7 +70,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TrackLicenseSelect';
-        $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $trackData = new TrackData();
         $trackLicenseSelect = $trackData->licenseSelectListing($inputName ?: null);
         $slug = $data->field_slug;
@@ -78,7 +78,6 @@ FORM;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
-        $new = (isset($data->_field->postData) && empty($data->_field->postData)) ? 'true': 'false';
         $frag .= <<<FORM
 <div class="form-group margin-top:0">     
 <label class="menu-settings-handle-name screen-reader-text" for="tracklicenseselector-$changeID">$fieldName</label>

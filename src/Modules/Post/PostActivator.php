@@ -10,6 +10,7 @@ namespace App\Modules\Post;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Modules\Core\EventHandlers\Field\CacheFieldIDItems;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
@@ -20,6 +21,7 @@ use App\Modules\Post\EventHandlers\HandleNewPostToCategoryMapping;
 use App\Modules\Post\EventHandlers\HandleUpdatePostToCategoryMapping;
 use App\Modules\Post\EventHandlers\PostMenuMetaBox;
 use App\Modules\Post\EventHandlers\PostMenus;
+use App\Modules\Post\Events\OnBeforePostSave;
 use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Post\Events\OnPostCreate;
 use App\Modules\Post\Events\OnPostDefaultField;
@@ -50,9 +52,14 @@ class PostActivator implements ModuleConfig, PluginConfig
                 PostMenuMetaBox::class,
                 CategoryMenuMetaBox::class
             ],
+
             OnAdminMenu::class => [
                 PostMenus::class
             ],
+
+            OnBeforePostSave::class => [
+            ],
+
             OnPostCategoryCreate::class => [
 
             ],

@@ -17,10 +17,8 @@ trait Routes
     public function routeWeb(Route $route)
     {
         AppConfig::autoResolvePageRoutes(PagesController::class, $route);
-        $fieldItems = (new FieldData())->getFieldSortedItems(['single-post']);
-
-        $route->group('/posts', function (Route $route) use ($fieldItems) {
-            $route->get(':slug-id/:post', [PostsController::class, 'singlePage'], moreSettings: $fieldItems);
+        $route->group('/posts', function (Route $route) {
+            $route->get(':slug-id/:post', [PostsController::class, 'singlePage']);
         });
 
         return $route;

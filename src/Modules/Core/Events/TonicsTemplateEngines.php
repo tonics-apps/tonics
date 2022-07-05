@@ -20,7 +20,7 @@ class TonicsTemplateEngines implements EventInterface
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @param TonicsView $tonicsView
      * @return $this
      */

@@ -48,6 +48,12 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
         return '';
     }
 
+    /**
+     * @param string $content
+     * @param array $args
+     * @param array $nodes
+     * @return string
+     */
     public function render(string $content, array $args, array $nodes = []): string
     {
         /** @var $conditionalView TonicsView  */

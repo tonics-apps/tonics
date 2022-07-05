@@ -64,7 +64,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostCategorySelect';
-        $inputName = (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $userData = new UserData();
         $categories = $userData->getPostAuthorHTMLSelect($inputName ?: null);
         $slug = $data->field_slug;

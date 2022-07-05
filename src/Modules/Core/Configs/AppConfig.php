@@ -217,6 +217,11 @@ class AppConfig
         return $route;
     }
 
+    public static function getBaseTemplateRenderName(): string
+    {
+        return 'Modules::Core/Views/Templates/theme';
+    }
+
     public static function isMaintenanceMode(): bool
     {
         return (bool)env('MAINTENANCE_MODE', false);

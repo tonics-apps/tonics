@@ -102,26 +102,8 @@ HTML;
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
-        $frag .= <<<FORM
-<div class="form-group d:flex flex-gap align-items:flex-end">
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
-            <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$fieldName" placeholder="Field Name">
-    </label>
-    <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
-            <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$inputName" placeholder="(Optional) Input Name">
-    </label>
-</div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="text-type-$changeID">Text Type
-     <select name="textType" class="default-selector mg-b-plus-1" id="text-type-$changeID">
-        $textFrag
-     </select>
-    </label>
-</div>
-
+        $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
 <div class="form-group">
      <label class="menu-settings-handle-name" for="max-char-$changeID">Max Character (Blank for no limit)
             <input id="max-char-$changeID" name="maxChar" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -152,13 +134,6 @@ HTML;
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="default-value-$changeID">Default Value
-            <input id="default-value-$changeID" name="defaultValue" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$defaultValue" placeholder="a default value">
-    </label>
-</div>
-
 <div class="form-group d:flex flex-gap align-items:flex-end">
       <label class="menu-settings-handle-name" for="element-wrapper-$changeID">Element Wrapper
             <input id="element-wrapper-$changeID" name="elementWrapper" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -169,10 +144,37 @@ HTML;
             value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
     </label>
 </div>
+HTML);
 
-{$event->handleViewProcessingFrag($data)}
+        $frag .= <<<FORM
+<div class="form-group d:flex flex-gap align-items:flex-end">
+     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
+            <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$fieldName" placeholder="Field Name">
+    </label>
+    <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
+            <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$inputName" placeholder="(Optional) Input Name">
+    </label>
+</div>
+
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="text-type-$changeID">Text Type
+     <select name="textType" class="default-selector mg-b-plus-1" id="text-type-$changeID">
+        $textFrag
+     </select>
+    </label>
+</div>
+
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="default-value-$changeID">Default Value
+            <input id="default-value-$changeID" name="defaultValue" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$defaultValue" placeholder="a default value">
+    </label>
+</div>
+
+$moreSettings
 {$event->getTemplateEngineFrag($data)}
-
 <div class="form-group">
 $validationFrag
 </div>
@@ -188,12 +190,11 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Text';
-
-        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
+        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $defaultValue = helper()->htmlSpecChar($defaultValue);
 
-        $maxChar =  (isset($data->maxChar)) ?  "maxlength=" .$data->maxChar . '"' : '';
+        $maxChar =  (isset($data->maxChar)) ?  'maxlength="' . $data->maxChar . '"' : '';
         $placeholder =  (isset($data->placeholder)) ? $data->placeholder : '';
         $textType =  (isset($data->textType)) ? $data->textType : 'text';
         $readOnly =  ($data->readOnly == 1) ? 'readonly' : '';
@@ -240,31 +241,8 @@ FORM;
      */
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
-        $inputName =  (isset($data->_field->postData[$data->inputName])) ? $data->_field->postData[$data->inputName] : '';
-        $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
-        $defaultValue = $event->getTemplateEngineValue($data, $defaultValue);
-        $frag = '';
-        $elementName = strtolower($data->elementWrapper);
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
-
-            if (key_exists($elementName, helper()->htmlTags())) {
-                $frag .= <<<HTML
-<$elementName
-HTML;
-                if (!empty($data->attributes)) {
-                    $attributes = $event->flatHTMLTagAttributes($data->attributes);
-                    $frag .= $attributes;
-                }
-                $frag .= ">";
-            }
-            $frag .= helper()->htmlSpecChar($defaultValue);
-            if (key_exists($elementName, helper()->htmlTags())) {
-                $frag .= <<<HTML
-</$elementName>
-HTML;
-            }
-        }
-        return $frag;
+        $event->handleTemplateEngineView($data);
+        return '';
     }
 
 }

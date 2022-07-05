@@ -4,7 +4,9 @@ namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
+use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsTemplateSystem\Content;
 
 class TonicsTemplateSystem implements HandlerInterface
 {
@@ -21,7 +23,7 @@ class TonicsTemplateSystem implements HandlerInterface
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
             handleViewProcessing: function ($data) use ($event) {
@@ -36,7 +38,7 @@ class TonicsTemplateSystem implements HandlerInterface
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsTemplateSystem';
-        $tonicsTemplateFrag =  (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
+        $tonicsTemplateFrag = (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag .= <<<FORM
@@ -48,13 +50,11 @@ class TonicsTemplateSystem implements HandlerInterface
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="tonicsTemplateFrag-$changeID">Template Text:
+     <label class="menu-settings-handle-name" for="tonicsTemplateFrag-$changeID">Template Text: (You can only use hooks, any other thing is discarded)
             <textarea rows="10" id="tonicsTemplateFrag-$changeID" name="tonicsTemplateFrag" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
              placeholder="Start writing the template logic, you have access to the template functions">$tonicsTemplateFrag</textarea>
     </label>
 </div>
-
-{$event->handleViewProcessingFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -66,6 +66,12 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
+        $free = <<<HTML
+[[hook_into('in_body_attribute')class="body-sticky-footer"]]
+
+
+HTML;
+
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsTemplateSystem';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $frag .= $event->_bottomHTMLWrapper(true);
@@ -77,19 +83,9 @@ FORM;
      */
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
-        $frag = '';
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
-            $postData =  (isset($data->_field->postData)) ? $data->_field->postData: [];
-            $tonicsTemplateFrag =  (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
-            AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
-            $tonicsView = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData(AppConfig::initLoaderMinimal()::getGlobalVariable());
-           // dd($tonicsView);
-            $tonicsView->splitStringCharByChar($tonicsTemplateFrag);
-            $tonicsView->reset()->tokenize();
-            return $tonicsView->outputContentData($tonicsView->getContent()->getContents());
-        }
-
-        return $frag;
+        $data->templateEngine = 'Native';
+        $event->handleTemplateEngineView($data);
+        return '';
     }
 
 }

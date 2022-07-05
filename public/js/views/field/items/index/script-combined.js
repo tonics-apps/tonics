@@ -641,7 +641,6 @@ var Draggables = class extends ElementAbstract {
       }
     });
     $draggableContainer.addEventListener("pointermove", function(e) {
-      e.preventDefault();
       if (self.isMouseActive()) {
         let el = e.target, startDrag = true;
         self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
@@ -651,6 +650,7 @@ var Draggables = class extends ElementAbstract {
         });
         let draggable = self.getDragging();
         if (el.closest(".draggable") && startDrag && draggable) {
+          e.preventDefault();
           let tx = e.clientX - shiftX;
           let ty = e.clientY - shiftY;
           if (!self.constrainedQuad) {

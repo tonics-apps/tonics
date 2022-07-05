@@ -5,6 +5,7 @@ namespace App\Modules\Core\Controllers\Auth;
 use App\Modules\Core\Configs\AppConfig;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateLoaderError;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateFileLoader;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 use JetBrains\PhpStorm\NoReturn;
 
 class CacheController
@@ -47,7 +48,7 @@ class CacheController
         $view = AppConfig::initLoaderOthers()->getTonicsView();
         foreach ($templateLoader->getTemplates() as $templateKey => $template){
             # Warming cache
-            $view->render(helper()->rtrim($templateKey, '.html'), false);
+            $view->render(helper()->rtrim($templateKey, '.html'), TonicsView::RENDER_TOKENIZE_ONLY);
         }
         response()->header('Cache-Result: ' . 1);
         response()->httpResponseCode(200);

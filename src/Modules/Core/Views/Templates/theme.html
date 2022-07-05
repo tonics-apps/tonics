@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[add_hook('before_html')]]
+<html lang="en" [[add_hook('in_html_attribute')]]>
+
+[[add_hook('before_head')]]
+
+<head [[add_hook('in_head_attribute')]]>
+    [[_use("default-meta")]]
+    [[add_hook('in_head')]]
+</head>
+
+[[add_hook('before_body')]]
+<body [[add_hook('in_body_attribute')]]>
+    [[_use("default-inline-svg")]]
+
+    [[add_hook('in_body')]]
+
+    [[add_hook('before_header')]]
+<header [[add_hook('in_header_attribute')]]>
+    [[add_hook('in_header')]]
+</header>
+    [[add_hook('after_header')]]
+
+</body>
+    [[add_hook('after_body')]]
+
+    [[add_hook('before_footer')]]
+<footer [[add_hook('in_footer_attribute')]]>
+    [[add_hook('in_footer')]]
+</footer>
+    [[add_hook('after_footer')]]
+</html>

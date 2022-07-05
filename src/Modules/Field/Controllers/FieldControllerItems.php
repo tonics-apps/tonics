@@ -81,8 +81,10 @@ class FieldControllerItems extends Controller
                 # Reinsert it
                 db()->insertBatch($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
                 db()->commit();
+                event()->dispatch(new OnFieldItemsSave($fieldDetails));
                 $error = true;
             }catch (\Exception $exception){
+                // log..
             }
         }
 

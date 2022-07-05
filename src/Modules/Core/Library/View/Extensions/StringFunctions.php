@@ -61,7 +61,6 @@ class StringFunctions extends TonicsTemplateViewAbstract implements TonicsModeIn
 
     public function stringInfo(): array
     {
-
         $htmlFlag = [
             'ENT_COMPAT' => ENT_COMPAT,
             'ENT_QUOTES' => ENT_QUOTES,
@@ -177,7 +176,6 @@ class StringFunctions extends TonicsTemplateViewAbstract implements TonicsModeIn
             'string_wordwrap' => ['min_arg' => 1, 'max_arg' => 4, 'name' => 'wordwrap', 'handle' => function ($args) {
                 return wordwrap($args[0] ?? '',  intval($args[1]),$args[2] ?? "\n", (bool)$args[3] ?? false);
             }],
-
         ];
 
     }
@@ -221,7 +219,20 @@ class StringFunctions extends TonicsTemplateViewAbstract implements TonicsModeIn
         foreach ($args as $k => $arg){
             if (isset($arg['mode'])){
                 if ($arg['mode'] === 'var'){
-                    $args[$k] = $this->getTonicsView()->accessArrayWithSeparator($arg['value']);
+                    if (str_contains($arg['value'], '..')){
+                        $variable = explode('..', $arg['value']);
+                        if (is_array($variable)){
+                            foreach ($variable as $var){
+                                $variable = $this->getTonicsView()->accessArrayWithSeparator($var);
+                                if (!empty($variable)){
+                                    $args[$k] = $variable;
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        $args[$k] = $this->getTonicsView()->accessArrayWithSeparator($arg['value']);
+                    }
                 }
 
                 if ($arg['mode'] === 'block'){
