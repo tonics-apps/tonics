@@ -20,35 +20,17 @@ class MenuData extends AbstractDataLayer
         return Tables::getTable(Tables::MENU_ITEMS);
     }
 
-    public function getMenuLocationTable(): string
-    {
-        return Tables::getTable(Tables::MENU_LOCATIONS);
-    }
-
     public function getMenuColumns(): array
     {
         return [ 'menu_id', 'menu_name', 'menu_slug', 'created_at', 'updated_at' ];
     }
 
-    public function getMenuLocationColumns(): array
-    {
-        return [ 'ml_id', 'ml_name', 'ml_slug', 'fk_menu_id' ];
-    }
 
     public function getMenuItemsColumns(): array
     {
         return [
             'id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at'
         ];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getMenuLocationRows()
-    {
-        $locationTable = $this->getMenuLocationTable();
-        return db()->run("SELECT * FROM $locationTable;");
     }
 
     /**
@@ -227,47 +209,6 @@ HTML;
         }
 
         return $htmlFrag;
-    }
-
-    /**
-     * @param $menuLocations
-     * @param $menuID
-     * @return string
-     */
-    public function getMenuLocationListing($menuLocations,  $menuID): string
-    {
-        $frag = '';
-        foreach ($menuLocations as $location){
-            if ($location->fk_menu_id === $menuID){
-             $checkExisting =<<<HTML
-<input type="checkbox" 
-data-ml-id="$location->fk_menu_id" 
-data-ml-name="$location->ml_name"
-data-ml-slug="$location->ml_slug" 
-id="$location->ml_slug" name="menu-location" value="$location->ml_slug" checked="checked">
-<label for="$location->ml_slug">$location->ml_name
-</label>
-HTML;
-            }else{
-                $checkExisting =<<<HTML
-<input type="checkbox" 
-data-ml-id="$location->fk_menu_id" 
-data-ml-name="$location->ml_name"
-data-ml-slug="$location->ml_slug" 
-id="$location->ml_slug" name="menu-location" value="$location->ml_slug">
-<label for="$location->ml_slug">$location->ml_name
-</label>
-HTML;
-            }
-            $frag .=<<<HTML
- <li class="menu-item">
- $checkExisting
-</li>
-HTML;
-
-        }
-
-        return $frag;
     }
 
     /**

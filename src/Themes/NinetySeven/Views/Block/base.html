@@ -48,5 +48,21 @@
         [[add_hook('site_credits')]]
       </div>
     ]]
-
 ]]
+
+[[-
+
+[[SELECT("table_name", "[EXCEPT(field_settings, something)]"
+  [[FROM post_to_cat_table [AS(whatever)], post_table [AS(whatever2] ]]
+]]
+
+[[SELECT "new_table_name", "[EXCEPT(field_settings, something)]" ]]
+
+
+[[SELECT cat_id [AS(_data)], cat_url_slug [AS(something)], cat_slug, cat_name, created_at, updated_at ]]
+[[FROM post_to_cat_table [AS(whatever)], post_table [AS(whatever2] ]]
+[[JOIN post_table [ON(post_cat_table.fk_cat_id)] [EQUALS(new_table.post_id)] ]]
+[[WHERE post_status [EQUALS_(1)] [AND(cat_slug)] [IN_(data, data, data)] [LIKE] [CONCAT(%, ?, %)]], [ORDER(post_table.created_at)] [DESC] [LIMIT(_variable_name)] [OFFSET(_var_name_2)] ]]
+
+
+-]]

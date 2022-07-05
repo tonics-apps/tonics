@@ -52,7 +52,6 @@ class MenuControllerItems extends Controller
             'SiteURL' => AppConfig::getAppUrl(),
             'MetaBox' => $dispatched->generateMenuMetaBox(),
             'MenuItems' => $this->getMenuData()->getMenuItemsListing($this->getMenuData()->getMenuItems($menuID)),
-            'MenuLocation' => $this->getMenuData()->getMenuLocationListing($this->getMenuData()->getMenuLocationRows(), $menuID),
             'MenuBuilderName' => ucwords(str_replace('-', ' ', $slug)),
             'MenuSlug' => $slug,
             'MenuID' => $menuID,
@@ -85,12 +84,10 @@ class MenuControllerItems extends Controller
                     whereCondition: "fk_menu_id = ?", parameter: [$menuDetails['menuID']], table: $this->getMenuData()->getMenuItemsTable());
                 # Reinsert it
                 db()->insertBatch($this->getMenuData()->getMenuItemsTable(), $menuDetails['menuItems']);
-                # Insert or Update The Location
-                db()->insertOnDuplicate($this->getMenuData()->getMenuLocationTable(), $menuDetails['menuLocation'], ['fk_menu_id', 'ml_name']);
                 db()->commit();
                 $error = true;
             } catch (Exception $exception) {
-
+                // log..
             }
         }
 

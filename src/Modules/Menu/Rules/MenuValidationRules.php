@@ -38,8 +38,7 @@ trait MenuValidationRules
     {
         return [
             'menuSlug' => ['required', 'string'],
-            'menuItems' => ['array'],
-            'menuLocation' => ['required', 'array'],
+            'menuItems' => ['array']
         ];
     }
 

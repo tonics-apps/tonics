@@ -5,7 +5,6 @@ let draggable = document.getElementsByClassName('draggable'),
     widgetChild = `.menu-arranger-li`,
     top = false, bottom = false,
     sensitivity = 0, sensitivityMax = 5,
-    menuLocationPicker = document.querySelector('.menu-location-picker'),
     menuWidgetSlug = document.querySelector('input[name="widget_slug"]').value,
     menuWidgetID = document.querySelector('input[name="widget_id"]').value,
     widgetFormCollected = new Map();
@@ -97,39 +96,6 @@ function getListDataArray() {
             }
         });
         return ListArray;
-    }
-}
-
-if(menuLocationPicker){
-    menuLocationPicker.addEventListener('input', (e) => {
-       let el = e.target;
-       if (el.getAttribute("data-wl-id") === menuWidgetID && !el.checked){
-           el.setAttribute("data-wl-id", '')
-       } else {
-           el.setAttribute("data-wl-id", menuWidgetID)
-       }
-    });
-}
-
-function menuLocationGetter() {
-    if(menuLocationPicker){
-        let LocationArray = [];
-        let LocationItems = menuLocationPicker.querySelectorAll('input[name=menu-location]');
-        LocationArray.length = 0; // clear array
-        for (let i=0; i < LocationItems.length; i++)  {
-            let mlID = null;
-            if(LocationItems[i].checked){
-                mlID = menuWidgetID;
-            } else if(LocationItems[i].getAttribute("data-wl-id")){
-                mlID = LocationItems[i].getAttribute("data-wl-id");
-            }
-            LocationArray.push({
-                "fk_widget_id": mlID,
-                "wl_slug": LocationItems[i].getAttribute("data-wl-slug"),
-                "wl_name": LocationItems[i].getAttribute("data-wl-name"),
-            });
-        }
-        return LocationArray;
     }
 }
 
@@ -242,7 +208,6 @@ if(saveAllMenu && saveMenuChangesForm){
             menuWidgetID: menuWidgetID, // This is the widget_slug that houses the menu items
             menuWidgetSlug: menuWidgetSlug, // This is the widget_slug that houses the menu items
             menuWidgetItems: getListDataArray(),
-            menuWidgetLocation: menuLocationGetter()
         }));
         saveMenuChangesForm.submit();
     })

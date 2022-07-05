@@ -38,8 +38,7 @@ trait WidgetValidationRules
     {
         return [
             'menuWidgetSlug' => ['required', 'string'],
-            'menuWidgetItems' => ['array'],
-            'menuWidgetLocation' => ['required', 'array'],
+            'menuWidgetItems' => ['array']
         ];
     }
 }

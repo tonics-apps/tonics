@@ -11,8 +11,6 @@ class WidgetData extends AbstractDataLayer
 {
     use UniqueSlug;
 
-    private const WidgetLocation_Sidebar = 'sidebar-section';
-
     public function getWidgetTable(): string
     {
         return Tables::getTable(Tables::WIDGETS);
@@ -23,19 +21,9 @@ class WidgetData extends AbstractDataLayer
         return Tables::getTable(Tables::WIDGET_ITEMS);
     }
 
-    public function getWidgetLocationTable(): string
-    {
-        return Tables::getTable(Tables::WIDGET_LOCATIONS);
-    }
-
     public function getWidgetColumns(): array
     {
         return [ 'widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at' ];
-    }
-
-    public function getWidgetLocationColumns(): array
-    {
-        return [ 'wl_id', 'wl_name', 'wl_slug', 'fk_widget_id' ];
     }
 
     public function getWidgetItemsColumns(): array
@@ -52,15 +40,6 @@ class WidgetData extends AbstractDataLayer
     {
         $table = $this->getWidgetTable();
         return db()->run("SELECT * FROM $table");
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getWidgetLocationRows()
-    {
-        $widgetTable = $this->getWidgetLocationTable();
-        return db()->run("SELECT * FROM $widgetTable;");
     }
 
     /**
@@ -81,30 +60,6 @@ class WidgetData extends AbstractDataLayer
     {
         $table = $this->getWidgetItemsTable();
         $result = db()->run("SELECT * FROM $table WHERE `fk_widget_id` = ?", $fkWidgetID);
-        return $this->decodeWidgetOptions($result);
-    }
-
-    /**
-     * @param string $location
-     * @param callable|null $onBeforeDecodingWidget
-     * @return array
-     * @throws \Exception
-     */
-    public function getWidgetLocationItems(string $location = self::WidgetLocation_Sidebar, callable $onBeforeDecodingWidget = null): array
-    {
-        $widgetLocationTable = $this->getWidgetLocationTable();
-        $widgetItemTable = $this->getWidgetItemsTable();
-        $widgetTable = $this->getWidgetTable();
-
-        $result = db()->run(<<<SQL
-            SELECT * FROM $widgetItemTable
-            JOIN $widgetLocationTable ON $widgetLocationTable.fk_widget_id = $widgetItemTable.fk_widget_id
-            JOIN $widgetTable ON $widgetTable.widget_id = $widgetLocationTable.fk_widget_id
-WHERE wl_slug = ?
-SQL, $location);
-        if ($onBeforeDecodingWidget !== null){
-            $onBeforeDecodingWidget($result);
-        }
         return $this->decodeWidgetOptions($result);
     }
 

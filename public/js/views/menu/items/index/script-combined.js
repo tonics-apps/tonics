@@ -3767,7 +3767,6 @@ let draggable = document.getElementsByClassName('draggable'),
     widgetChild = `.menu-arranger-li`,
     right = false, left = false, top = false, bottom = false,
     sensitivity = 0, sensitivityMax = 5,
-    menuLocationPicker = document.querySelector('.menu-location-picker'),
     menuSlug = document.querySelector('input[name="menu_slug"]').value,
     menuID = document.querySelector('input[name="menu_id"]').value;
 
@@ -3912,39 +3911,6 @@ function getListDataArray() {
             });
         }
         return ListArray;
-    }
-}
-
-if(menuLocationPicker){
-    menuLocationPicker.addEventListener('input', (e) => {
-       let el = e.target;
-       if (el.getAttribute("data-ml-id") === menuID && !el.checked){
-           el.setAttribute("data-ml-id", '')
-       } else {
-           el.setAttribute("data-ml-id", menuID)
-       }
-    });
-}
-
-function menuLocationGetter() {
-    if(menuLocationPicker){
-        let LocationArray = [];
-        let LocationItems = menuLocationPicker.querySelectorAll('input[name=menu-location]');
-        LocationArray.length = 0; // clear array
-        for (let i=0; i < LocationItems.length; i++)  {
-            let mlID = null;
-            if(LocationItems[i].checked){
-                mlID = menuID;
-            } else if(LocationItems[i].getAttribute("data-ml-id")){
-                mlID = LocationItems[i].getAttribute("data-ml-id");
-            }
-            LocationArray.push({
-                "fk_menu_id": mlID,
-                "ml_slug": LocationItems[i].getAttribute("data-ml-slug"),
-                "ml_name": LocationItems[i].getAttribute("data-ml-name"),
-            });
-        }
-        return LocationArray;
     }
 }
 
@@ -4135,7 +4101,6 @@ if(saveAllMenu && saveMenuChangesForm){
             menuID: menuID, // This is the menu_slug that houses the menu items
             menuSlug: menuSlug, // This is the menu_slug that houses the menu items
             menuItems: getListDataArray(),
-            menuLocation: menuLocationGetter()
         }));
         saveMenuChangesForm.submit();
     })

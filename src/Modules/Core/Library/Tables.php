@@ -13,40 +13,35 @@ use App\Modules\Core\Configs\DatabaseConfig;
 final class Tables
 {
     static array $TABLES = [
-        self::POST_TYPE,
-        self::ARTISTS,
-        self::PAGES,
-        self::CAT_RELS,
-        self::CATEGORIES,
-        self::GENRES,
-        self::LICENSES,
-        self::MENU_ITEMS,
-        self::MENU_LOCATIONS,
-        self::MENUS,
-        self::FIELD_ITEMS,
-        self::FIELD,
-        self::MIGRATIONS,
-        self::PLUGINS,
-        self::POST_CATEGORIES,
-        self::POSTS,
-        self::PURCHASES,
-        self::PURCHASE_TRACKS,
-        self::SESSIONS,
-        self::GLOBAL,
-        self::TAG_RELS,
-        self::TAGS,
-        self::TRACK_LIKES,
-        self::TRACKS,
-        self::USER_TYPE,
-        self::USERS,
-        self::ADMINS,
-        self::CUSTOMERS,
-        self::WIDGET_ITEMS,
-        self::WIDGET_LOCATIONS,
-        self::WIDGETS,
-        self::WISH_LIST,
-        self::DRIVE_SYSTEM,
-        self::DRIVE_BLOB_COLLATOR
+        self::ARTISTS => ['artist_id', 'artist_name', 'artist_slug', 'artist_bio', 'image_url', 'created_at', 'updated_at'],
+        self::PAGES => ['page_id', 'field_ids', 'page_title', 'page_slug', 'page_status', 'field_settings', 'created_at', 'updated_at'],
+        self::CAT_RELS => ['catrel_id', 'post_id', 'cat_parent_id'],
+        self::CATEGORIES => ['cat_id', 'cat_parent_id', 'cat_name', 'cat_slug', 'cat_url_slug', 'cat_content', 'cat_status', 'created_at', 'updated_at'],
+        self::GENRES => ['genre_id', 'genre_name', 'genre_slug', 'genre_description', 'can_delete', 'created_at', 'updated_at'],
+        self::LICENSES => [],
+        self::MENU_ITEMS => [],
+        self::MENUS => [],
+        self::FIELD_ITEMS => [],
+        self::FIELD => [],
+        self::MIGRATIONS => [],
+        self::PLUGINS => [],
+        self::POST_CATEGORIES => [],
+        self::POSTS => [],
+        self::PURCHASES => [],
+        self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
+        self::SESSIONS => ['id', 'session_id', 'session_data', 'updated_at'],
+        self::GLOBAL => ['id', '`key`', 'value', 'created_at', 'updated_at'],
+        self::TRACK_LIKES => ['id', 'fk_customer_id', 'fk_track_id', 'is_like', 'created_at', 'updated_at'],
+        self::TRACKS => ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'track_title', 'track_plays', 'track_bpm', 'track_status', 'license_attr_id_link', 'field_settings', 'fk_genre_id', 'fk_artist_id', 'fk_license_id', 'field_ids', 'created_at', 'updated_at'],
+        self::USER_TYPE => ['user_type_id', 'user_type_name'],
+        self::USERS => ['user_id', 'user_type', 'user_name', 'email', 'email_verified_at', 'user_password', 'created_at', 'updated_at'],
+        self::ADMINS => ['user_id', 'user_type_id', '`role`', 'settings'],
+        self::CUSTOMERS => ['user_id', 'user_type_id', 'is_guest', 'settings'],
+        self::WIDGET_ITEMS => ['id', 'fk_widget_id', 'wgt_id', 'wgt_name', 'wgt_options', 'created_at', 'updated_at'],
+        self::WIDGETS => ['widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at'],
+        self::WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
+        self::DRIVE_SYSTEM => ['drive_id', 'drive_parent_id', 'drive_unique_id', 'drive_name', 'filename', '`type`', 'status', 'properties', '`security`'],
+        self::DRIVE_BLOB_COLLATOR => [ 'id', 'hash_id', 'blob_name', 'blob_chunk_part', 'blob_chunk_size', 'live_blob_chunk_size', 'missing_blob_chunk_byte', 'moreBlobInfo']
     ];
 
     const ARTISTS = 'artists';
@@ -55,8 +50,6 @@ final class Tables
     const CATEGORIES = 'categories';
     const GENRES = 'genres';
     const LICENSES = 'licenses';
-
-    const POST_TYPE = 'post_type';
 
     const FIELD_ITEMS = 'field_items';
     const FIELD = 'fields';
@@ -91,6 +84,7 @@ final class Tables
     const WISH_LIST = 'wish_list';
 
     const DRIVE_SYSTEM = 'drive_system';
+    // Backward Compatibility
     static array $DRIVE_SYSTEM_COLUMN = [
         'drive_id', 'drive_parent_id', 'drive_unique_id', 'drive_name', 'type', 'filename', 'status', 'properties', 'security'
     ];
@@ -99,7 +93,7 @@ final class Tables
 
     public static function getTable(string $tablename): string
     {
-        if (!key_exists($tablename, array_flip(self::$TABLES))){
+        if (!key_exists($tablename, self::$TABLES)){
             throw new \InvalidArgumentException("`$tablename` is an invalid table name");
         }
 

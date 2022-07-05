@@ -48,7 +48,6 @@ class WidgetControllerItems extends Controller
             'SiteURL' => AppConfig::getAppUrl(),
             'MetaBox' => $dispatched->generateMenuWidgetMetaBox(),
             'MenuWidgetItems' => $this->getWidgetData()->getWidgetItemsListing($this->getWidgetData()->getWidgetItems($widgetID)),
-            'MenuWidgetLocation' => $this->getWidgetData()->getWidgetLocationListing($this->getWidgetData()->getWidgetLocationRows(), $widgetID),
             'MenuWidgetBuilderName' => ucwords(str_replace('-', ' ', $slug)),
             'MenuWidgetSlug' => $slug,
             'MenuWidgetID' => $widgetID,
@@ -81,8 +80,6 @@ class WidgetControllerItems extends Controller
                     whereCondition: "fk_widget_id = ?", parameter: [$menuDetails['menuWidgetID']], table: $this->getWidgetData()->getWidgetItemsTable());
                 # Reinsert it
                 db()->insertBatch($this->getWidgetData()->getWidgetItemsTable(), $menuDetails['menuWidgetItems']);
-                # Insert or Update The Location
-                db()->insertOnDuplicate($this->getWidgetData()->getWidgetLocationTable(), $menuDetails['menuWidgetLocation'], ['fk_widget_id', 'wl_name']);
                 db()->commit();
                 $error = true;
             }catch (\Exception){
