@@ -72,7 +72,7 @@
     ]]
 
     [[hook_into('in_main')
-    <article class="owl" id="post_slug_id_[[v('Data.slug_id')]]">
+        <article class="owl" id="post_slug_id_[[v('Data.slug_id')]]">
         [[_use("Post::Single::Header")]]
 
         <section class="content-body bg:pure-white d:flex justify-content:space-evenly flex-wrap:wrap">
@@ -97,6 +97,14 @@
         </section>
     </article>
     ]]
+
+    [[hook_into('in_site_footer_nav_ul')
+        [[_v('Menu_site_footer_menu.Data')]]
+    ]]
+
+    [[hook_into('before_closing_body')
+        [[_use("script:post-front")]]
+    ]]
 ]]
 
 [[-
@@ -112,40 +120,9 @@
 
 <body class="body-sticky-footer">
 [[-
-[[_use("default-inline-svg")]]
--]]
-
-[[-
-
-[[_v("FieldItems")]]
-
--]]
-
-[[-
-<header>
-    [[func('body.header.section', 'body.header.section-site-header-classes', 'body.header.section-site-header-site-navigation')]]
-</header>
 
 <main id="main"  class="flex:one" tabindex="-1">
     <article class="owl" id="post_slug_id_[[v('Data.slug_id')]]">
-        [[_use("Post::Single::Header")]]
-
-        <section class="content-body bg:pure-white d:flex justify-content:space-evenly flex-wrap:wrap">
-            <article class="owl entry-content">
-                [[_v('Data.post_content')]]
-            </article>
-            [[if("v[MenuWidgetsSidebar.Data] !== block[empty]")
-                <aside>
-                    <div class="owl sidebar-widget position:sticky top:0">
-                        <h4>[[_v('MenuWidgetsSidebar.Title')]]</h4>
-                        <ul class="owl list:style:none">
-                            [[_v('MenuWidgetsSidebar.Data')]]
-                        </ul>
-                    </div>
-                </aside>
-            ]]
-        </section>
-
     </article>
 </main>
 

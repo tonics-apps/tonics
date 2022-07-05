@@ -16,7 +16,7 @@ class NativeHooks implements HandlerInterface
         /** @var $event OnSelectTonicsTemplateHooks */
         $event->addMultipleHooks([
             'before_html', 'before_head', 'in_head_attribute', 'in_head', 'before_body', 'in_body_attribute', 'in_body', 'before_header',
-            'in_header_attribute', 'in_header', 'after_header', 'after_body', 'before_footer', 'in_footer_attribute', 'in_footer', 'after_footer'
+            'in_header_attribute', 'in_header', 'after_header', 'before_closing_body', 'after_body', 'before_footer', 'in_footer_attribute', 'in_footer', 'after_footer'
         ]);
     }
 }
