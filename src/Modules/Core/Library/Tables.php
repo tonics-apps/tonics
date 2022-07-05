@@ -18,16 +18,15 @@ final class Tables
         self::CAT_RELS => ['catrel_id', 'post_id', 'cat_parent_id'],
         self::CATEGORIES => ['cat_id', 'cat_parent_id', 'cat_name', 'cat_slug', 'cat_url_slug', 'cat_content', 'cat_status', 'created_at', 'updated_at'],
         self::GENRES => ['genre_id', 'genre_name', 'genre_slug', 'genre_description', 'can_delete', 'created_at', 'updated_at'],
-        self::LICENSES => [],
-        self::MENU_ITEMS => [],
-        self::MENUS => [],
-        self::FIELD_ITEMS => [],
-        self::FIELD => [],
-        self::MIGRATIONS => [],
-        self::PLUGINS => [],
-        self::POST_CATEGORIES => [],
-        self::POSTS => [],
-        self::PURCHASES => [],
+        self::LICENSES => ['license_id', 'license_name', 'license_slug', 'license_status', 'license_attr'],
+        self::MENU_ITEMS => ['id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at'],
+        self::MENUS => ['menu_id', 'menu_name', 'menu_slug', 'created_at', 'updated_at'],
+        self::FIELD_ITEMS => ['id', 'fk_field_id', 'field_id', 'field_parent_id', 'field_name', 'field_options', 'created_at', 'updated_at'],
+        self::FIELD => ['field_id', 'field_name', 'field_slug', 'can_delete', 'created_at', 'updated_at'],
+        self::MIGRATIONS => ['id', 'migration'],
+        self::POST_CATEGORIES => ['id', 'fk_cat_id', 'fk_post_id', 'created_at', 'updated_at'],
+        self::POSTS => ['post_id', 'slug_id', 'user_id', 'field_ids', 'image_url', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at'],
+        self::PURCHASES => ['purchase_id', 'slug_id', 'fk_customer_id', 'total_price', 'payment_status', '`others`', 'created_at', 'updated_at'],
         self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
         self::SESSIONS => ['id', 'session_id', 'session_data', 'updated_at'],
         self::GLOBAL => ['id', '`key`', 'value', 'created_at', 'updated_at'],
@@ -41,7 +40,7 @@ final class Tables
         self::WIDGETS => ['widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at'],
         self::WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
         self::DRIVE_SYSTEM => ['drive_id', 'drive_parent_id', 'drive_unique_id', 'drive_name', 'filename', '`type`', 'status', 'properties', '`security`'],
-        self::DRIVE_BLOB_COLLATOR => [ 'id', 'hash_id', 'blob_name', 'blob_chunk_part', 'blob_chunk_size', 'live_blob_chunk_size', 'missing_blob_chunk_byte', 'moreBlobInfo']
+        self::DRIVE_BLOB_COLLATOR => [ 'id', 'hash_id', 'blob_name', 'blob_chunk_part', 'blob_chunk_size', 'live_blob_chunk_size', 'missing_blob_chunk_byte', 'moreBlobInfo'],
     ];
 
     const ARTISTS = 'artists';
@@ -55,19 +54,15 @@ final class Tables
     const FIELD = 'fields';
 
     const MENU_ITEMS = 'menu_items';
-    const MENU_LOCATIONS = 'menu_locations';
     const MENUS = 'menus';
 
     const MIGRATIONS = 'migrations';
-    const PLUGINS = 'plugins';
     const POST_CATEGORIES = 'post_categories';
     const POSTS = 'posts';
 
     const PURCHASES = 'purchases';
     const SESSIONS = 'sessions';
     const GLOBAL = 'global';
-    const TAG_RELS = 'tag_rels';
-    const TAGS = 'tags';
 
     const TRACK_LIKES = 'track_likes';
     const TRACKS = 'tracks';
@@ -79,7 +74,6 @@ final class Tables
     const CUSTOMERS = 'customer';
 
     const WIDGET_ITEMS = 'widget_items';
-    const WIDGET_LOCATIONS = 'widget_locations';
     const WIDGETS = 'widgets';
     const WISH_LIST = 'wish_list';
 

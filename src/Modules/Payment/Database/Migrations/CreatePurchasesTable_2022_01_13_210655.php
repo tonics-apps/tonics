@@ -6,7 +6,7 @@
  * This program is licensed under the PolyForm Noncommercial License 1.0.0. You should have received a copy of the PolyForm Noncommercial License 1.0.0 along with this program, if not, visit: https://polyformproject.org/licenses/noncommercial/1.0.0/
  */
 
-namespace App\Modules\Track\Database\Migrations;
+namespace App\Modules\Payment\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
