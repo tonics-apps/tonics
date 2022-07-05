@@ -34,7 +34,7 @@ class InputColor implements HandlerInterface
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $inputColor =  (isset($data->inputColor)) ? $data->inputColor : '#000000';
+        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '#000000';
         $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
         $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -54,23 +54,11 @@ class InputColor implements HandlerInterface
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="inputColor-$changeID">Default Color
-     <input name="inputColor" value="$inputColor" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="inputColor-$changeID">
+     <label class="menu-settings-handle-name" for="defaultValue-$changeID">Default Color
+     <input name="defaultValue" value="$defaultValue" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="defaultValue-$changeID">
     </label>
 </div>
 
-<div class="form-group d:flex flex-gap align-items:flex-end">
-      <label class="menu-settings-handle-name" for="element-wrapper-$changeID">Element Wrapper
-            <input id="element-wrapper-$changeID" name="elementWrapper" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$elementWrapper" placeholder="e.g div, section, input">
-    </label>
-      <label class="menu-settings-handle-name" for="element-attributes-$changeID">Element Attributes
-            <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
-    </label>
-</div>
-
-{$event->handleViewProcessingFrag($data)}
 {$event->getTemplateEngineFrag($data)}
 FORM;
 
@@ -86,7 +74,7 @@ FORM;
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
         $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $defaultColor = (isset($data->inputColor) && !empty($inputName)) ? $inputName : $data->inputColor;
+        $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $slug = $data->field_slug;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
@@ -95,7 +83,7 @@ FORM;
         $frag .= <<<FORM
 <div class="form-group">
      <label class="menu-settings-handle-name" for="inputColor-$changeID">Choose Color
-     <input name="$inputName" value="$defaultColor" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="inputColor-$changeID">
+     <input name="$inputName" value="$defaultValue" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="inputColor-$changeID">
     </label>
 </div>
 FORM;
@@ -109,9 +97,7 @@ FORM;
      */
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
-            $event->handleTemplateEngineView($data);
-        }
+        $event->defaultInputViewHandler('InputColor', $data);
         return '';
     }
 

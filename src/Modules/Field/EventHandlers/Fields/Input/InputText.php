@@ -241,7 +241,7 @@ FORM;
      */
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
-        $event->handleTemplateEngineView($data);
+        $event->defaultInputViewHandler('InputText', $data);
         return '';
     }
 

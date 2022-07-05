@@ -85,18 +85,6 @@ class InputRange implements HandlerInterface
     </label>
 </div>
 
-<div class="form-group d:flex flex-gap align-items:flex-end">
-      <label class="menu-settings-handle-name" for="element-wrapper-$changeID">Element Wrapper
-            <input id="element-wrapper-$changeID" name="elementWrapper" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$elementWrapper" placeholder="e.g div, section, input">
-    </label>
-      <label class="menu-settings-handle-name" for="element-attributes-$changeID">Element Attributes
-            <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
-    </label>
-</div>
-
-{$event->handleViewProcessingFrag($data)}
 {$event->getTemplateEngineFrag($data)}
 
 <div class="form-group">
@@ -151,9 +139,7 @@ FORM;
      */
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
-        if (isset($data->handleViewProcessing) && $data->handleViewProcessing === '1'){
-            $event->handleTemplateEngineView($data);
-        }
+        $event->defaultInputViewHandler('InputRange', $data);
         return '';
     }
 }
