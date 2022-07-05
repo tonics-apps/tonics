@@ -39,9 +39,6 @@ class Widget implements HandlerInterface
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $widgetSlug = (isset($data->widgetSlug)) ? $data->widgetSlug : '';
 
-        $elementName = (isset($data->elementName)) ? $data->elementName : 'li';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
-
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $widgetData = new WidgetData();
         $widgetFrag = '';
@@ -62,7 +59,7 @@ HTML;
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
+     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name ((via [[_v('Widget_$inputName.Name')]])
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$fieldName" placeholder="Field Name">
     </label>
@@ -72,7 +69,7 @@ HTML;
     </label>
 </div>
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="widgetSlug-$changeID">Choose Widget (Access Widget Data in Template Using [[_v('Widget_$inputName')]])
+     <label class="menu-settings-handle-name" for="widgetSlug-$changeID">Choose Widget (via [[_v('Widget_$inputName.Data')]])
      <select name="widgetSlug" class="default-selector mg-b-plus-1" id="widgetSlug-$changeID">
         $widgetFrag
      </select>
@@ -131,6 +128,7 @@ HTML;
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
         $frag = '';
+        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $widgetSlug = (isset($data->widgetSlug) && !empty($inputName)) ? $inputName : $data->widgetSlug;
         if (empty($widgetSlug)){
@@ -144,16 +142,12 @@ HTML;
         $widgetData = new WidgetData();
         $widget = $widgetData->decodeWidgetOptions($widgetData->getWidgetItems($widgetID));
 
-        $widgetData->getWidgetViewListing($widget, function ($widgetViewDataInstance, $widgetItem) use (&$frag){
-            $frag .=<<<HTML
-<nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
-<span class="widget-title bg:pure-black color:white padding:small">$widgetItem->widgetName</span>
-$widgetViewDataInstance
-</nav>
-HTML;
+        $widgetDataArray = [];
+        $widgetData->getWidgetViewListing($widget, function ($widgetViewDataInstance, $widgetItem) use (&$frag, &$widgetDataArray){
+            $widgetDataArray[] = ['htmlFrag' => $widgetViewDataInstance, 'options' => $widgetItem];
         });
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        addToGlobalVariable("Widget_$inputName", $frag);
+        addToGlobalVariable("Widget_$inputName", ['Name' => $fieldName, 'inputName' => $inputName, 'Data' => $widgetDataArray]);
         return '';
     }
 }

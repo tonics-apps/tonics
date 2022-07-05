@@ -72,7 +72,7 @@ HTML;
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
+     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name ((via [[_v('Menu_$inputName.Name')]])
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$fieldName" placeholder="Field Name">
     </label>
@@ -83,7 +83,7 @@ HTML;
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="menuSlug-$changeID">Choose Menu (Access Using [[_v('Menu_$inputName')]] in Templates)
+     <label class="menu-settings-handle-name" for="menuSlug-$changeID">Choose Menu (via [[_v('Menu_$inputName.Data')]])
      <select name="menuSlug" class="default-selector mg-b-plus-1" id="menuSlug-$changeID">
         $menuFrag
      </select>
@@ -169,7 +169,7 @@ HTML;
             $frag .= $this->getMenuHTMLFragment($t, 0, $displayName);
         }
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
-        addToGlobalVariable("Menu_$inputName", $frag);
+        addToGlobalVariable("Menu_$inputName", ['Name' => $displayName, 'inputName' => $inputName, 'Data' => $frag]);
         $event->handleTemplateEngineView($data);
         return '';
     }

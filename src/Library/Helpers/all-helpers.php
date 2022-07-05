@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\CacheKeys;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\MyPDO;
@@ -174,10 +175,36 @@ function getBaseTemplate(): TonicsView|null
 }
 
 /**
+ * @param string $cacheKey
+ * @param callable|null $cacheNotFound
+ * Callback to call if cache doesn't exist
+ * @param callable|null $cacheFound
+ * Callback to call if cache exist
+ * @return void
  * @throws Exception
  */
-function renderBaseTemplate(): void
+function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = null, callable $cacheFound = null): void
 {
+    if (!apcu_exists($cacheKey)){
+        if ($cacheNotFound !== null){
+            $cacheNotFound();
+        }
+        getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
+        apcu_store($cacheKey, [
+           'contents' => getBaseTemplate()->getContent(),
+           'modeStorage' => getBaseTemplate()->getModeStorages(),
+           'variable' => getBaseTemplate()->getVariableData()
+        ]);
+    } else {
+        $cacheData = apcu_fetch($cacheKey);
+        getBaseTemplate()->setContent($cacheData['contents']);
+        getBaseTemplate()->setModeStorages($cacheData['modeStorage']);
+        getBaseTemplate()->setVariableData($cacheData['variable']);
+        if ($cacheFound !== null){
+            $cacheFound();
+        }
+    }
+
     echo getBaseTemplate()->outputContentData(getBaseTemplate()->getContent()->getContents());
 }
 

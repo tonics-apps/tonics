@@ -72,7 +72,7 @@ class OnFieldUserForm implements EventInterface
      * @param array $postData
      * @return void
      */
-    public function handleFrontEnd(array $fieldSlugs, array $postData = [])
+    public function handleFrontEnd(array $fieldSlugs, array $postData = []): void
     {
         if (empty($fieldSlugs)){
             return;
@@ -101,6 +101,7 @@ class OnFieldUserForm implements EventInterface
                 if (isset($fields->value)){
                     $fields = json_decode($fields->value ?: '') ?? [];
                     foreach ($fields as $field){
+                        $field->field_options->{"_field"} = $field;
                         $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);
                     }
                 }

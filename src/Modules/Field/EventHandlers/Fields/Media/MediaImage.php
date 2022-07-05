@@ -55,7 +55,7 @@ class MediaImage implements HandlerInterface
     </label>
 </div>
 <div class="form-group">
- <label class="menu-settings-handle-name" for="imageLink-$changeID">Enter a image Link (Access Using [[_v('Image_$inputName')]] in Templates)
+ <label class="menu-settings-handle-name" for="imageLink-$changeID">Enter a image Link (via [[v('Image_$inputName.Link')]])
      <input id="imageLink-$changeID" value="$imageLink" class="color:black border-width:default border:black placeholder-color:gray" name="imageLink" type="text" placeholder="Would be used if uploaded image does not exist">
  </label>
 </div>
@@ -121,6 +121,7 @@ FORM;
      */
     public function viewFrag(OnFieldMetaBox $event, $data = null): string
     {
+        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultImage = (isset($data->defaultImage) && !empty($inputName)) ? $inputName : $data->defaultImage;
         $imageLink = (isset($data->imageLink)) ? $data->imageLink : '';
@@ -128,7 +129,7 @@ FORM;
             $defaultImage = $imageLink;
         }
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
-        addToGlobalVariable("Image_$inputName", $defaultImage);
+        addToGlobalVariable("Image_$inputName", ['Name' => $fieldName, 'inputName' => $inputName, 'Link' => $defaultImage]);
         $event->handleTemplateEngineView($data);
         return '';
     }

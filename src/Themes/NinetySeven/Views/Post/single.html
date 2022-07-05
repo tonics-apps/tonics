@@ -1,6 +1,7 @@
 <!DOCTYPE html>
+[[import("Themes::NinetySeven/Views/Block/base")]]
 
-[[- BLOCKS -]]
+[[- POST BLOCKS -]]
 
 [[b('Post::Single::Header')
 <header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
@@ -57,33 +58,46 @@
 ]]
 
 [[b('NinetySevenPostSingleEntry')
+    [[- Loads MarkUp -]]
+    [[trigger_block('BaseMarkup')]]
 
-[[hook_into('in_head')
-<link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
+    [[hook_into('in_site_header_section_nav_ul')
+        [[_v('Menu_site_header_menu.Data')]]
+    ]]
+
+    [[hook_into('in_site_header_section_logo')
+        <a href="/" rel="home" itemprop="url">
+            <img src="[[v('Image_site_logo.Link')]] " class="image:avatar" alt="Site Logo" title="Site Logo">
+        </a>
+    ]]
+
+    [[hook_into('in_main')
+    <article class="owl" id="post_slug_id_[[v('Data.slug_id')]]">
+        [[_use("Post::Single::Header")]]
+
+        <section class="content-body bg:pure-white d:flex justify-content:space-evenly flex-wrap:wrap">
+            <article class="owl entry-content">
+                [[_v('Data.post_content')]]
+            </article>
+            [[if("v[Widget_sidebar_widget.Data] !== block[empty]")
+            <aside>
+                <div class="owl sidebar-widget position:sticky top:0">
+                    <h4>[[_v('Widget_sidebar_widget.Name')]]</h4>
+                    <ul class="owl list:style:none">
+                        [[each("widgetData in Widget_sidebar_widget.Data")
+                            <li style="margin-top: clamp(3rem, 2.5vw, 2rem);" tabindex="0" class="owl width:100% padding:default menu-arranger-li color:black bg:white-one border-width:default border:black position:relative">
+                                <span class="widget-title bg:pure-black color:white padding:small">[[v('widgetData.options.widgetName')]]</span>
+                                [[_v('widgetData.htmlFrag')]]
+                            </li>
+                        ]]
+                    </ul>
+                </div>
+            </aside>
+            ]]
+        </section>
+    </article>
+    ]]
 ]]
-
-[[hook_into('in_header')
-<section class="site-header:admin d:flex flex-wrap:wrap flex-gap padding:default justify-content:space-around">
-
-    [[add_hook('in_site_header_section')]]
-
-    <div class="site-logo">
-        [[add_hook('in_site_header_section_logo')]]
-    </div>
-
-    <nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
-        [[add_hook('in_site_header_section_nav')]]
-        <ul class="site-navigation-ul d:flex flex-gap list:style:none">
-            [[add_hook('in_site_header_section_nav_ul')]]
-            [[_v('Menu_site_header_menu')]]
-        </ul>
-    </nav>
-
-</section>
-]]
-
-]]
-
 
 [[-
 
@@ -131,6 +145,7 @@
                 </aside>
             ]]
         </section>
+
     </article>
 </main>
 

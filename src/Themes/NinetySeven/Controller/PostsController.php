@@ -3,6 +3,7 @@
 namespace App\Themes\NinetySeven\Controller;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\CacheKeys;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
@@ -64,9 +65,12 @@ class PostsController
         $created_at_words = strtoupper($date->format('j M, Y'));
         $post['created_at_words'] = $created_at_words;
 
-        $fieldSlugs = json_decode($post['field_ids']) ?? [];
-        $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
-        renderBaseTemplate();
+        renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
+            $fieldSlugs = json_decode($post['field_ids']) ?? [];
+            $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
+        }, cacheFound: function () use ($post) {
+            getBaseTemplate()->addToVariableData('Data', $post);
+        });
     }
 
     /**

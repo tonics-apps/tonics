@@ -502,7 +502,7 @@ HTML;
             getBaseTemplate()->splitStringCharByChar($content);
             getBaseTemplate()->reset();
             getBaseTemplate()->tokenize()->setContent($initialContent->addBlocks($newContentInstance->getBlocks())); // tokenize and reset the initial content
-            // dd(getBaseTemplate()->getModeStorage('add_hook'));
+            // dd($initialContent->getBlocks(), getBaseTemplate()->getModeStorage('add_hook'));
         }
     }
 
