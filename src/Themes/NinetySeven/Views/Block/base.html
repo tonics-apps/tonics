@@ -52,17 +52,26 @@
 
 [[-
 
-[[SELECT("table_name", "[EXCEPT(field_settings, something)]"
-  [[FROM post_to_cat_table [AS(whatever)], post_table [AS(whatever2] ]]
+[[SQL('storage_name_key')
+
+  [[SELECT('table_name')
+    [[COLS('ALL')]]
+    [[COLS('PICK', 'one, two, three, four')]]
+    [[COLS_AS('one', 'two')]]
+    [[COLS('EXCEPT', 'five, six, seven')]]
+  ]]
+
+  [[FROM('table_1', 'table_2')]]
+
+  [[INNER_JOIN('table', 'table.col', 'table.col2')]]
+
+  [[WHERE('post_status')
+    [[EQUALS('1')]] [[AND('cat_slug')]] [[IN('data, data, data')]] [[LIKE()]] [[CONCAT('%', '?', '%')]]
+    [[ORDER('tablename.one', 'ASC')]]
+    [[LIMIT('10')]]
+    [[OFFSET('10')]]
+  ]]
+
 ]]
-
-[[SELECT "new_table_name", "[EXCEPT(field_settings, something)]" ]]
-
-
-[[SELECT cat_id [AS(_data)], cat_url_slug [AS(something)], cat_slug, cat_name, created_at, updated_at ]]
-[[FROM post_to_cat_table [AS(whatever)], post_table [AS(whatever2] ]]
-[[JOIN post_table [ON(post_cat_table.fk_cat_id)] [EQUALS(new_table.post_id)] ]]
-[[WHERE post_status [EQUALS_(1)] [AND(cat_slug)] [IN_(data, data, data)] [LIKE] [CONCAT(%, ?, %)]], [ORDER(post_table.created_at)] [DESC] [LIMIT(_variable_name)] [OFFSET(_var_name_2)] ]]
-
 
 -]]
