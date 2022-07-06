@@ -14,6 +14,7 @@ use App\Modules\Core\Library\View\Extensions\IfCondition;
 use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
 use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
 use App\Modules\Core\Library\View\Extensions\SessionView;
+use App\Modules\Core\Library\View\Extensions\SQLSelectModeHandler;
 use App\Modules\Core\Library\View\Extensions\StringFunctions;
 use App\Modules\Core\Library\View\Extensions\TriggerBlockOnTheFly;
 use App\Modules\Core\Library\View\Extensions\URLModeHandler;
@@ -114,12 +115,26 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('hook_into', Hook::class);
         $view->addModeHandler('place_into', Hook::class); // alias of hook_into
 
-        // HTML TAGS
-       /* foreach (helper()->htmlTags() as $tag){
-            $view->addModeHandler('html_' .$tag, HTMLTags::class);
-        }*/
-
-        //
+        // SQL_SELECT
+        $view->addModeHandler('sql', SQLSelectModeHandler::class);
+        $view->addModeHandler('cols', SQLSelectModeHandler::class);
+        $view->addModeHandler('select', SQLSelectModeHandler::class);
+        $view->addModeHandler('cols', SQLSelectModeHandler::class);
+        $view->addModeHandler('from', SQLSelectModeHandler::class);
+        $view->addModeHandler('join', SQLSelectModeHandler::class);
+        $view->addModeHandler('inner_join', SQLSelectModeHandler::class);
+        $view->addModeHandler('cross_join', SQLSelectModeHandler::class);
+        $view->addModeHandler('outer_join', SQLSelectModeHandler::class);
+        $view->addModeHandler('where', SQLSelectModeHandler::class);
+        // Operator
+        $view->addModeHandler('op', SQLSelectModeHandler::class);
+        // others
+        $view->addModeHandler('order', SQLSelectModeHandler::class);
+        $view->addModeHandler('like', SQLSelectModeHandler::class);
+        $view->addModeHandler('limit', SQLSelectModeHandler::class);
+        $view->addModeHandler('offset', SQLSelectModeHandler::class);
+        // common functions
+        $view->addModeHandler('sql_func', SQLSelectModeHandler::class);
 
         $event->addTemplateEngine('Native', $view);
     }

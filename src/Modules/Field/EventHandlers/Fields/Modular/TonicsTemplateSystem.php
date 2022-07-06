@@ -85,6 +85,7 @@ HTML;
     {
         $data->templateEngine = 'Native';
         $event->handleTemplateEngineView($data);
+        dd(getBaseTemplate());
         return '';
     }
 

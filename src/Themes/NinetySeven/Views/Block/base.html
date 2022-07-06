@@ -50,8 +50,6 @@
     ]]
 ]]
 
-[[-
-
 [[SQL('storage_name_key')
 
   [[SELECT('table_name')
@@ -66,12 +64,10 @@
   [[INNER_JOIN('table', 'table.col', 'table.col2')]]
 
   [[WHERE('post_status')
-    [[EQUALS('1')]] [[AND('cat_slug')]] [[IN('data, data, data')]] [[LIKE()]] [[CONCAT('%', '?', '%')]]
+    [[OP('1')]] [[OP('AND', 'cat_slug')]] [[IN('data, data, data')]] [[LIKE()]] [[CONCAT('%', '?', '%')]]
     [[ORDER('tablename.one', 'ASC')]]
     [[LIMIT('10')]]
     [[OFFSET('10')]]
   ]]
 
 ]]
-
--]]
