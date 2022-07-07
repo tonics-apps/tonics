@@ -136,6 +136,8 @@ class NativeTemplateEngine implements HandlerInterface
         // common functions
         $view->addModeHandler('sql_func', SQLSelectModeHandler::class);
 
+        $view->addModeHandler('param', SQLSelectModeHandler::class);
+
         $event->addTemplateEngine('Native', $view);
     }
 }

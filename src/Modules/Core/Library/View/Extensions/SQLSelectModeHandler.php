@@ -23,6 +23,8 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
     private array $validCols = [];
     private array $fromTable = [];
 
+    private array $params = [];
+
     private ?Tag $currentParent = null;
 
     public function validate(OnTagToken $tagToken): bool
@@ -60,12 +62,13 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         return '';
     }
 
-    public function handleSelect(Tag $tag): void
+    private function handleSelect(Tag $tag): void
     {
         foreach ($tag->getArgs() as $arg) {
             if (Tables::isTable($arg)) {
                 $this->validCols[$arg] = [];
                 $this->validCols[$arg] = [...$this->validCols[$arg], ...Tables::$TABLES[$arg]];
+                $this->validCols[$arg] = array_combine($this->validCols[$arg], $this->validCols[$arg]);
                 $this->fromTable[] = $arg;
             }
         }
@@ -73,7 +76,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         $this->handleSQLNodes($tag);
     }
 
-    public function handleCols(Tag $tag): void
+    private function handleCols(Tag $tag): void
     {
         if ($tag->parentNode()->getTagName() !== 'select') {
             $this->getTonicsView()->exception(TonicsTemplateRuntimeException::class, ['Select should be a parent of cols']);
@@ -96,7 +99,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
                 if (is_array($cols)) {
                     foreach ($cols as $col) {
                         $col = trim($col);
-                        if (in_array($col, $this->validCols[$table_name], true)) {
+                        if (isset($this->validCols[$table_name][$col])){
                             $this->sqlString .= "$table_name.$col, ";
                         }
                     }
@@ -115,7 +118,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         $this->sqlString = rtrim($this->sqlString, ', ') . ' ';
     }
 
-    public function handleColAs(Tag $tag): void
+    private function handleColAs(Tag $tag): void
     {
         if ($tag->parentNode()->getTagName() !== 'select') {
             $this->getTonicsView()->exception(TonicsTemplateRuntimeException::class, ['Select should be a parent of col_as']);
@@ -132,13 +135,13 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         }
 
         $colName = $tag->getFirstArgChild();
-        if (in_array($colName, $this->validCols[$table_name], true)) {
+        if (isset($this->validCols[$table_name][$colName])){
             $this->sqlString .= "$table_name.$colName AS $asCol, ";
         }
         $this->sqlString = rtrim($this->sqlString, ', ') . ' ';
     }
 
-    public function handleInnerJoin(Tag $tag): void
+    private function handleInnerJoin(Tag $tag): void
     {
         $join = $this->joinValidateAndFrag($tag);
         if ($join !== false){
@@ -146,7 +149,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         }
     }
 
-    public function handleRightJoin(Tag $tag): void
+    private function handleRightJoin(Tag $tag): void
     {
         $join = $this->joinValidateAndFrag($tag);
         if ($join !== false){
@@ -154,12 +157,73 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         }
     }
 
-    public function handleLeftJoin(Tag $tag): void
+    private function handleLeftJoin(Tag $tag): void
     {
         $join = $this->joinValidateAndFrag($tag);
         if ($join !== false){
             $this->sqlString .= " LEFT JOIN $join";
         }
+    }
+
+    private function handleWhere(Tag $tag): void
+    {
+        $whereCol = $tag->getFirstArgChild();
+        foreach ($this->validCols as $validCol){
+            if (isset($validCol[$whereCol])){
+                $this->sqlString .= " WHERE $whereCol ";
+                $this->handleSQLNodes($tag);
+                break;
+            }
+        }
+    }
+
+    private function handleOP(Tag $tag): void
+    {
+        $op = $tag->getFirstArgChild();
+        $op = strtoupper($op);
+
+        $validOP = [
+            '+', 'DIV', '/', 'MOD', '%', '*', '-', '=', 'TRUE', 'FALSE', '!=', '<', '<=', '<=>', '>', '>=', 'IS', 'IS NOT', 'IS NOT NULL',
+            'IS NULL', 'NOT BETWEEN', 'AND', 'OR'
+        ];
+
+        $validOP = array_combine($validOP, $validOP);
+        if (!isset($validOP[$op])){
+           $this->getTonicsView()->exception(TonicsTemplateRuntimeException::class, ["OP [[('$op')]] is not supported"]);
+        }
+
+        $this->sqlString .= " $op ";
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function handleParam(Tag $tag): void
+    {
+        $args = $this->resolveArgs($tag->getTagName(), $tag->getArgs());
+        $args = $args[$tag->getTagName()];
+        $args = $this->expandArgs($args);
+        $qmark = helper()->returnRequiredQuestionMarks($args);
+
+        $this->sqlString .= " $qmark ";
+        $this->params = [...$this->params, ...$args];
+    }
+
+    private function handleOrder($tag)
+    {
+
+    }
+
+    private function handleLimit($tag)
+    {
+    }
+
+    private function handleOffset($tag)
+    {
+    }
+
+    private function handleLike($tag)
+    {
     }
 
     private function joinValidateAndFrag(Tag $tag): bool|string
@@ -185,13 +249,13 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         }
 
         if (isset($firstArg[0]) && Tables::isTable($firstArg[0])){
-            if (isset($firstArg[1]) && in_array($firstArg[1], $this->validCols[$firstArg[0]], true)){
+            if (isset($firstArg[1]) && isset($this->validCols[$firstArg[0]][$firstArg[1]])){
                 $frag .= "{$firstArg[0]} ON {$firstArg[0]}.{$firstArg[1]} = ";
             }
         }
 
         if (isset($secondArg[0]) && Tables::isTable($secondArg[0])){
-            if (isset($secondArg[1]) && in_array($secondArg[1], $this->validCols[$secondArg[0]], true)){
+            if (isset($secondArg[1]) && isset($this->validCols[$secondArg[0]][$secondArg[1]])){
                 $frag .= "{$secondArg[0]}.{$secondArg[1]}";
                 return $frag;
             }
@@ -236,6 +300,27 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
             },
             'left_join' => function ($tag) {
                 $this->handleLeftJoin($tag);
+            },
+            'where' => function ($tag) {
+                $this->handleWhere($tag);
+            },
+            'op' => function ($tag) {
+                $this->handleOP($tag);
+            },
+            'param' => function ($tag) {
+                $this->handleParam($tag);
+            },
+            'order' => function ($tag) {
+                $this->handleOrder($tag);
+            },
+            'limit' => function ($tag) {
+                $this->handleLimit($tag);
+            },
+            'offset' => function ($tag) {
+                $this->handleOffset($tag);
+            },
+            'like' => function ($tag) {
+                $this->handleLike($tag);
             },
         ];
     }
