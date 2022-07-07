@@ -38,7 +38,6 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
     public function stickToContent(OnTagToken $tagToken)
     {
         $view =  $this->getTonicsView();
-        $tagToken->getTag()->setContextFree(false);
         $result = $this->handleConditionalTokenization($tagToken->getTag());
         $view->getContent()->addToContent('if', $tagToken->getContent(), $result);
     }

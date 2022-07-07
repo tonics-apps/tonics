@@ -61,10 +61,10 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('event', Events::class);
         $view->addModeHandler('__event', Events::class);
 
-        $view->addModeHandler('if', IfCondition::class);
+        $view->addModeHandler('if', IfCondition::class, false);
 
-        $view->addModeHandler('each', EachLoop::class);
-        $view->addModeHandler('foreach', EachLoop::class);
+        $view->addModeHandler('each', EachLoop::class, false);
+        $view->addModeHandler('foreach', EachLoop::class, false);
 
         $view->addModeHandler('ifBlock', IfBlock::class);
 
@@ -118,14 +118,14 @@ class NativeTemplateEngine implements HandlerInterface
         // SQL_SELECT
         $view->addModeHandler('sql', SQLSelectModeHandler::class);
         $view->addModeHandler('cols', SQLSelectModeHandler::class);
-        $view->addModeHandler('select', SQLSelectModeHandler::class);
+        $view->addModeHandler('select', SQLSelectModeHandler::class, false);
         $view->addModeHandler('cols', SQLSelectModeHandler::class);
-        $view->addModeHandler('from', SQLSelectModeHandler::class);
+        $view->addModeHandler('col_as', SQLSelectModeHandler::class);
         $view->addModeHandler('join', SQLSelectModeHandler::class);
         $view->addModeHandler('inner_join', SQLSelectModeHandler::class);
-        $view->addModeHandler('cross_join', SQLSelectModeHandler::class);
-        $view->addModeHandler('outer_join', SQLSelectModeHandler::class);
-        $view->addModeHandler('where', SQLSelectModeHandler::class);
+        $view->addModeHandler('left_join', SQLSelectModeHandler::class);
+        $view->addModeHandler('right_join', SQLSelectModeHandler::class);
+        $view->addModeHandler('where', SQLSelectModeHandler::class, false);
         // Operator
         $view->addModeHandler('op', SQLSelectModeHandler::class);
         // others

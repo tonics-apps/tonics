@@ -2,7 +2,7 @@
 
 namespace App\Modules\Core\Library\View\Extensions\Traits;
 
-trait ArgResolverAndExpander
+trait TonicsTemplateSystemHelper
 {
     public function resolveArgs($tagName, $tagArgs = [])
     {

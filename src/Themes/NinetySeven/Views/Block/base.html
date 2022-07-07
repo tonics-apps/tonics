@@ -52,19 +52,24 @@
 
 [[SQL('storage_name_key')
 
-  [[SELECT('table_name')
+  [[SELECT('drive_system')
     [[COLS('ALL')]]
     [[COLS('PICK', 'one, two, three, four')]]
-    [[COLS_AS('one', 'two')]]
-    [[COLS('EXCEPT', 'five, six, seven')]]
+    [[COL_AS('drive_unique_id', 'link')]]
+    [[COLS('EXCEPT', 'drive_unique_id, drive_name, type')]]
   ]]
 
-  [[FROM('table_1', 'table_2')]]
+[[SELECT('posts')
+  [[COLS('ALL')]]
+]]
 
-  [[INNER_JOIN('table', 'table.col', 'table.col2')]]
+  [[INNER_JOIN('posts.slug_id', 'drive_system.drive_id')]]
 
   [[WHERE('post_status')
-    [[OP('1')]] [[OP('AND', 'cat_slug')]] [[IN('data, data, data')]] [[LIKE()]] [[CONCAT('%', '?', '%')]]
+    [[OP('1')]] [[OP('AND', 'cat_slug')]]
+    [[- [[IN('data, data, data')]] -]]
+    [[LIKE()]]
+    [[- [[CONCAT('%', '?', '%')]] -]]
     [[ORDER('tablename.one', 'ASC')]]
     [[LIMIT('10')]]
     [[OFFSET('10')]]

@@ -94,6 +94,15 @@ final class Tables
         return DatabaseConfig::getPrefix() . $tablename;
     }
 
+    /**
+     * @param string $tablename
+     * @return bool
+     */
+    public static function isTable(string $tablename): bool
+    {
+        return isset(self::$TABLES[$tablename]);
+    }
+
     private static function DbTablePrefix(): string
     {
         return DatabaseConfig::getPrefix();

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Core\Library\View\Extensions;
 
-use App\Modules\Core\Library\View\Extensions\Traits\ArgResolverAndExpander;
+use App\Modules\Core\Library\View\Extensions\Traits\TonicsTemplateSystemHelper;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
@@ -24,7 +24,7 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  */
 class StringFunctions extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
-    use ArgResolverAndExpander;
+    use TonicsTemplateSystemHelper;
 
     private string $error = '';
 

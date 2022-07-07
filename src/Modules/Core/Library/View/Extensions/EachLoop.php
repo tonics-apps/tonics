@@ -53,18 +53,13 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
         $tagToken->getTag()->setArgs(['_name' => $explodedArgs[0], '_variable' => $explodedArgs[array_key_last($explodedArgs)]]);
         if ($tagToken->hasChildren()) {
             foreach ($tagToken->getChildren(true) as $node) {
-                if ($node->getTagName() === 'if') {
-                    $node->setContextFree(false);
-                }
                 if ($node->getTagName() === 'each' || $node->getTagName() === 'foreach') {
-                    $node->setContextFree(false);
                     $explodedArgs = explode(" ", $node->getArgs()[0]);
                     $this->validateEach($explodedArgs);
                     $node->setArgs(['_name' => $explodedArgs[0], '_variable' => $explodedArgs[array_key_last($explodedArgs)]]);
                 }
             }
         }
-        $tagToken->getTag()->setContextFree(false);
         $view->getContent()->addToContent('each', $tagToken->getContent(), ['loop' => $tagToken]);
     }
 
