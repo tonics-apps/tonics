@@ -59,20 +59,21 @@
     [[COLS('EXCEPT', 'drive_unique_id, drive_name, type')]]
   ]]
 
-[[SELECT('posts')
-  [[COLS('ALL')]]
-]]
+  [[SELECT('posts')
+    [[COLS('ALL')]]
+  ]]
+
+  [[FROM('drive_system')]]
 
   [[INNER_JOIN('posts.slug_id', 'drive_system.drive_id')]]
 
   [[WHERE('post_status')
     [[OP('=')]] [[PARAM('1', '2', '3', '4', '5', 'v[nest.nest.nest]')]]
     [[- [[IN('data, data, data')]] -]]
-    [[LIKE()]]
     [[- [[CONCAT('%', '?', '%')]] -]]
-    [[ORDER('tablename.one', 'ASC')]]
-    [[LIMIT('10')]]
-    [[OFFSET('10')]]
+    [[ORDER('posts.post_id', 'DESC')]]
+    [[KEYWORD('LIKE')]] [[PARAM('20')]]
+    [[KEYWORD('OFFSET')]] [[PARAM('10')]]
   ]]
 
 ]]

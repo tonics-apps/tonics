@@ -117,8 +117,9 @@ class NativeTemplateEngine implements HandlerInterface
 
         // SQL_SELECT
         $view->addModeHandler('sql', SQLSelectModeHandler::class);
-        $view->addModeHandler('cols', SQLSelectModeHandler::class);
         $view->addModeHandler('select', SQLSelectModeHandler::class, false);
+        $view->addModeHandler('from', SQLSelectModeHandler::class);
+        $view->addModeHandler('cols', SQLSelectModeHandler::class);
         $view->addModeHandler('cols', SQLSelectModeHandler::class);
         $view->addModeHandler('col_as', SQLSelectModeHandler::class);
         $view->addModeHandler('join', SQLSelectModeHandler::class);
@@ -130,9 +131,7 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('op', SQLSelectModeHandler::class);
         // others
         $view->addModeHandler('order', SQLSelectModeHandler::class);
-        $view->addModeHandler('like', SQLSelectModeHandler::class);
-        $view->addModeHandler('limit', SQLSelectModeHandler::class);
-        $view->addModeHandler('offset', SQLSelectModeHandler::class);
+        $view->addModeHandler('keyword', SQLSelectModeHandler::class);
         // common functions
         $view->addModeHandler('sql_func', SQLSelectModeHandler::class);
 

@@ -76,6 +76,22 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         $this->handleSQLNodes($tag);
     }
 
+    private function handleFrom(Tag $tag): void
+    {
+        if (Tables::isTable($tag->getFirstArgChild())){
+            $this->sqlString .= " FROM ";
+        }
+
+        foreach ($tag->getArgs() as $arg){
+            if (Tables::isTable($arg)){
+                $table = Tables::getTable($arg);
+                $this->sqlString .= " $table, ";
+            }
+        }
+
+        $this->sqlString = rtrim($this->sqlString, ', ') . ' ';
+    }
+
     private function handleCols(Tag $tag): void
     {
         if ($tag->parentNode()->getTagName() !== 'select') {
@@ -211,19 +227,36 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     private function handleOrder($tag)
     {
+        if (!isset($tag->getArgs()[1])){
+            $this->getTonicsView()->exception(TonicsTemplateRuntimeException::class, ["ORDER needs an order type, e.g [[ORDER('table.col', 'ASC')]]"]);
+        }
+
+        $firstArg = $tag->getFirstArgChild();
+        $secondArg = strtoupper($tag->getArgs()[1]);
+        if ($firstArg = ($this->validateTableDotCol($firstArg))){
+            if ($secondArg !== 'ASC'){
+                $secondArg = 'DESC';
+            }
+            $table = Tables::getTable($firstArg[0]);
+            $this->sqlString .= " ORDER BY $table.$firstArg[1] $secondArg ";
+            return;
+        }
+
+        $this->getTonicsView()->exception(TonicsTemplateRuntimeException::class, ["ORDER first args should contain valid table and col, e.g [[ORDER('table.col', 'ASC')]]"]);
 
     }
 
-    private function handleLimit($tag)
+    private function handleKeyword(Tag $tag)
     {
-    }
+        $keywords = ['LIMIT', 'OFFSET', 'LIKE'];
+        $keywords = array_combine($keywords, $keywords);
 
-    private function handleOffset($tag)
-    {
-    }
+        $key = strtoupper($tag->getFirstArgChild());
 
-    private function handleLike($tag)
-    {
+        if (isset($keywords[$key])){
+            $this->sqlString .= " $key ";
+        }
+
     }
 
     private function joinValidateAndFrag(Tag $tag): bool|string
@@ -236,31 +269,33 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         $frag = '';
 
         $secondArg = $tag->getArgs()[1];
-        $firstArg = explode('.', $firstArg);
-        $secondArg = explode('.', $secondArg);
 
-        // check table cols validation
-        if (!isset($this->validCols[$firstArg[0]])){
+        if ($firstArg = ($this->validateTableDotCol($firstArg))){
+            $table = Tables::getTable($firstArg[0]);
+            $frag .= "$table ON $table.$firstArg[1] = ";
+        }
+
+        if ($secondArg = ($this->validateTableDotCol($secondArg))){
+            $table = Tables::getTable($secondArg[0]);
+            $frag .= "$table.$secondArg[1]";
+            return $frag;
+        }
+
+        return false;
+    }
+
+    public function validateTableDotCol(string $arg): array|bool
+    {
+        $arg = explode('.', $arg);
+        if (!isset($arg[1])){
             return false;
         }
-
-        if (!isset($this->validCols[$secondArg[0]])){
-            return false;
-        }
-
-        if (isset($firstArg[0]) && Tables::isTable($firstArg[0])){
-            if (isset($firstArg[1]) && isset($this->validCols[$firstArg[0]][$firstArg[1]])){
-                $frag .= "{$firstArg[0]} ON {$firstArg[0]}.{$firstArg[1]} = ";
+        $table = $arg[0]; $col = $arg[1];
+        if (Tables::isTable($table)){
+            if (isset($this->validCols[$table][$col])){
+                return $arg;
             }
         }
-
-        if (isset($secondArg[0]) && Tables::isTable($secondArg[0])){
-            if (isset($secondArg[1]) && isset($this->validCols[$secondArg[0]][$secondArg[1]])){
-                $frag .= "{$secondArg[0]}.{$secondArg[1]}";
-                return $frag;
-            }
-        }
-
         return false;
     }
 
@@ -282,6 +317,9 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         return [
             'select' => function ($tag) {
                 $this->handleSelect($tag);
+            },
+            'from' => function ($tag) {
+                $this->handleFrom($tag);
             },
             'cols' => function ($tag) {
                 $this->handleCols($tag);
@@ -313,14 +351,8 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
             'order' => function ($tag) {
                 $this->handleOrder($tag);
             },
-            'limit' => function ($tag) {
-                $this->handleLimit($tag);
-            },
-            'offset' => function ($tag) {
-                $this->handleOffset($tag);
-            },
-            'like' => function ($tag) {
-                $this->handleLike($tag);
+            'keyword' => function ($tag) {
+                $this->handleKeyword($tag);
             },
         ];
     }
