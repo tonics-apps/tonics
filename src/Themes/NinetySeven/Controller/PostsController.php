@@ -65,6 +65,9 @@ class PostsController
         $created_at_words = strtoupper($date->format('j M, Y'));
         $post['created_at_words'] = $created_at_words;
 
+        //$rr = db()->row("SELECT COUNT(?) FROM tonics_posts", '*');
+        //dd($rr);
+
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
             $fieldSlugs = json_decode($post['field_ids']) ?? [];
             $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);

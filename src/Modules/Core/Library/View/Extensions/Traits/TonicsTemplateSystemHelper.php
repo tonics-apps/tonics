@@ -4,13 +4,15 @@ namespace App\Modules\Core\Library\View\Extensions\Traits;
 
 trait TonicsTemplateSystemHelper
 {
-    public function resolveArgs($tagName, $tagArgs = [])
+    public function resolveArgs($tagName, $tagArgs = [], $moreMode = [])
     {
         $mode = [
             'v[' => 'var',
             'var[' => 'var',
             'block[' => 'block',
         ];
+        $mode = [...$mode, ...$moreMode];
+
         $args = [];
         foreach ($tagArgs as $k => $arg){
             $catch = false;
@@ -38,7 +40,7 @@ trait TonicsTemplateSystemHelper
         return [$tagName => $args ];
     }
 
-    public function expandArgs($args = [])
+    public function expandArgs($args = [], callable $customMode = null)
     {
         foreach ($args as $k => $arg){
             if (isset($arg['mode'])){
@@ -62,8 +64,60 @@ trait TonicsTemplateSystemHelper
                 if ($arg['mode'] === 'block'){
                     $args[$k] = $this->getTonicsView()->renderABlock($arg['value']);
                 }
+
+                if ($customMode !== null){
+                    $args[$k] = $customMode($arg['mode'], $arg['value']);
+                }
+
             } else {
                 $args[$k] = $arg['value'];
+            }
+        }
+
+        return $args;
+    }
+
+    public function expandArgsSQL($args = [], array &$params = [])
+    {
+        foreach ($args as $k => $arg){
+            if (isset($arg['mode'])){
+                if ($arg['mode'] === 'var'){
+                    if (str_contains($arg['value'], '..')){
+                        $variable = explode('..', $arg['value']);
+                        if (is_array($variable)){
+                            foreach ($variable as $var){
+                                $variable = $this->getTonicsView()->accessArrayWithSeparator($var);
+                                if (!empty($variable)){
+                                    $args[$k] = "?";
+                                    $params[] = $variable;
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        $args[$k] = '?';
+                        $params[] = $this->getTonicsView()->accessArrayWithSeparator($arg['value']);
+                    }
+                }
+
+                if ($arg['mode'] === 'block'){
+                    $args[$k] = '?';
+                    $params[] = $this->getTonicsView()->renderABlock($arg['value']);
+                    continue;
+                }
+
+                if ($arg['mode'] === 'column'){
+                    if (($tableCol = $this->validateTableDotCol($arg['value']))){
+                        $args[$k] = $tableCol[1];
+                    } else {
+                        $args[$k] = '?';
+                        $params[] = $arg['value'];
+                    }
+                }
+
+            } else {
+                $args[$k] = '?';
+                $params[] = $arg['value'];
             }
         }
 

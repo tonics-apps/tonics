@@ -12,6 +12,7 @@ use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeHooks;
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeTemplateEngine;
+use App\Modules\Core\EventHandlers\TemplateEngines\SQLSelectTemplateEngine;
 use App\Modules\Core\EventHandlers\TemplateEngines\WordPressTemplateEngine;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\OnSelectTonicsTemplateHooks;
@@ -45,6 +46,7 @@ class CoreActivator implements ModuleConfig, PluginConfig
             TonicsTemplateEngines::class => [
                 NativeTemplateEngine::class,
                 WordPressTemplateEngine::class,
+                SQLSelectTemplateEngine::class
             ],
 
             OnSelectTonicsTemplateHooks::class => [

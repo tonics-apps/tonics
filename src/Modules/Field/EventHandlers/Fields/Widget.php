@@ -68,6 +68,7 @@ HTML;
             value="$inputName" placeholder="(Optional) Input Name">
     </label>
 </div>
+
 <div class="form-group">
      <label class="menu-settings-handle-name" for="widgetSlug-$changeID">Choose Widget (via [[_v('Widget_$inputName.Data')]])
      <select name="widgetSlug" class="default-selector mg-b-plus-1" id="widgetSlug-$changeID">

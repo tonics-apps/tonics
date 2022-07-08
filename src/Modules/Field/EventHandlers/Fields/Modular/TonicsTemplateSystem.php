@@ -66,12 +66,6 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $free = <<<HTML
-[[hook_into('in_body_attribute')class="body-sticky-footer"]]
-
-
-HTML;
-
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsTemplateSystem';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $frag .= $event->_bottomHTMLWrapper(true);

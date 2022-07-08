@@ -50,8 +50,16 @@
     ]]
 ]]
 
-[[SQL('storage_name_key')
+[[SQL('quick_test')
+  [[SELECT('posts')
+    [[SQLFUNC('CONCAT', "col[posts.post_title], ,col[posts.post_id]")]]
+  ]]
+  [[FROM('drive_system')]]
+]]
 
+[[-
+
+[[SQL('storage_name_key')
   [[SELECT('drive_system')
     [[COLS('ALL')]]
     [[COLS('PICK', 'one, two, three, four')]]
@@ -74,6 +82,9 @@
     [[ORDER('posts.post_id', 'DESC')]]
     [[KEYWORD('LIKE')]] [[PARAM('20')]]
     [[KEYWORD('OFFSET')]] [[PARAM('10')]]
+    [[SQLFUNC('IN', """val1,val2,v[nested.nested],col[posts.post_title]""")]]
+    [[SQLFUNC('CONCAT', """val1,val2,v[nested.nested]""")]]
   ]]
-
 ]]
+
+-]]
