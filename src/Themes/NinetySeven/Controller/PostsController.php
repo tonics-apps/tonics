@@ -69,16 +69,15 @@ class PostsController
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
             $fieldSlugs = $this->getFieldSlug($post);
             $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
-            $this->saveSingleTemplateCache();
+            $this->saveTemplateCache();
         }, cacheFound: function () use ($onFieldUserForm, $post) {
             # quick check if single template parts have not been cached...if not we force parse it...
             if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])){
                 $fieldSlugs = $this->getFieldSlug($post);
                 $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
                 // re-save cache data
-                $this->saveSingleTemplateCache();
+                $this->saveTemplateCache();
             }
-
             getBaseTemplate()->addToVariableData('Data', $post);
         });
     }
@@ -108,7 +107,7 @@ class PostsController
     /**
      * @throws \Exception
      */
-    public function saveSingleTemplateCache(): void
+    public function saveTemplateCache(): void
     {
         getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
         apcu_store(CacheKeys::getSinglePostTemplateKey(), [

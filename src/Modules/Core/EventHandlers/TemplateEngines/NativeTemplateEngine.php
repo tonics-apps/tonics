@@ -114,6 +114,9 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('reset_hook', Hook::class);
         $view->addModeHandler('reset_placeholder', Hook::class); // alias of reset_hook
 
+        $view->addModeHandler('reset_all_hooks', Hook::class);
+        $view->addModeHandler('reset_all_placeholder', Hook::class); // alias of reset_all_hooks
+
         $view->addModeHandler('hook_into', Hook::class);
         $view->addModeHandler('place_into', Hook::class); // alias of hook_into
 

@@ -57,6 +57,15 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
             }
         }
 
+        if ($tagname === 'reset_all_hooks' || $tagname === 'reset_all_placeholder'){
+            $storage = $view->getModeStorage('add_hook');
+            foreach ($storage as $k => $s){
+                $storage[$k]['nodes'] = [];
+            }
+            $view->storeDataInModeStorage('add_hook', $storage);
+            // dd($view, getBaseTemplate());
+        }
+
         if ($tagname === 'reset_hook' || $tagname === 'reset_placeholder'){
             $storage = $view->getModeStorage('add_hook');
             $hook_name = $tagToken->getFirstArgChild();
@@ -65,6 +74,7 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
                 $view->storeDataInModeStorage('add_hook', $storage);
             }
         }
+
     }
 
     public function error(): string

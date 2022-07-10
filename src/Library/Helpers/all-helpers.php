@@ -191,7 +191,7 @@ function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = nul
     } else {
         $cacheData = apcu_fetch($cacheKey);
         getBaseTemplate()->setContent($cacheData['contents']);
-        getBaseTemplate()->setModeStorages($cacheData['modeStorage']);
+        getBaseTemplate()->setModeStorages($cacheData['modeStorage'] ?? []);
         getBaseTemplate()->setVariableData($cacheData['variable']);
         if ($cacheFound !== null){
             $cacheFound();
