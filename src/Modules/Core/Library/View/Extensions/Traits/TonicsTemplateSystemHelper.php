@@ -11,7 +11,9 @@ trait TonicsTemplateSystemHelper
             'var[' => 'var',
             'block[' => 'block',
         ];
-        $mode = [...$mode, ...$moreMode];
+        if (!empty($moreMode)){
+            $mode = [...$mode, ...$moreMode];
+        }
 
         $args = [];
         foreach ($tagArgs as $k => $arg){
@@ -81,29 +83,9 @@ trait TonicsTemplateSystemHelper
     {
         foreach ($args as $k => $arg){
             if (isset($arg['mode'])){
-                if ($arg['mode'] === 'var'){
-                    if (str_contains($arg['value'], '..')){
-                        $variable = explode('..', $arg['value']);
-                        if (is_array($variable)){
-                            foreach ($variable as $var){
-                                $variable = $this->getTonicsView()->accessArrayWithSeparator($var);
-                                if (!empty($variable)){
-                                    $args[$k] = "?";
-                                    $params[] = $variable;
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        $args[$k] = '?';
-                        $params[] = $this->getTonicsView()->accessArrayWithSeparator($arg['value']);
-                    }
-                }
-
-                if ($arg['mode'] === 'block'){
+                if ($arg['mode'] === 'var' || $arg['mode'] === 'block'){
                     $args[$k] = '?';
-                    $params[] = $this->getTonicsView()->renderABlock($arg['value']);
-                    continue;
+                    $params[] = $arg;
                 }
 
                 if ($arg['mode'] === 'column'){
@@ -117,7 +99,7 @@ trait TonicsTemplateSystemHelper
 
             } else {
                 $args[$k] = '?';
-                $params[] = $arg['value'];
+                $params[] = $arg;
             }
         }
 

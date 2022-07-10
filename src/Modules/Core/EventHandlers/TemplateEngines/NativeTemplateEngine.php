@@ -13,6 +13,7 @@ use App\Modules\Core\Library\View\Extensions\IfBlock;
 use App\Modules\Core\Library\View\Extensions\IfCondition;
 use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
 use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
+use App\Modules\Core\Library\View\Extensions\QueryModeHandler;
 use App\Modules\Core\Library\View\Extensions\SessionView;
 use App\Modules\Core\Library\View\Extensions\SQLSelectModeHandler;
 use App\Modules\Core\Library\View\Extensions\StringFunctions;
@@ -54,6 +55,7 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('menu', MenuModeHandler::class);
         $view->addModeHandler('combine', CombineModeHandler::class);
         $view->addModeHandler('mFunc', ModuleFunctionModeHandler::class);
+        $view->addModeHandler('bArg', ModuleFunctionModeHandler::class);
 
         $view->addModeHandler('session', SessionView::class);
         $view->addModeHandler('__session', SessionView::class);
@@ -135,6 +137,10 @@ class NativeTemplateEngine implements HandlerInterface
         // common functions
         $view->addModeHandler('sqlFunc', SQLSelectModeHandler::class);
         $view->addModeHandler('param', SQLSelectModeHandler::class);
+        $view->addModeHandler('sql_block', SQLSelectModeHandler::class);
+        $view->addModeHandler('reuse_sql', SQLSelectModeHandler::class);
+
+        $view->addModeHandler('query', QueryModeHandler::class);
 
         $event->addTemplateEngine('Native', $view);
     }

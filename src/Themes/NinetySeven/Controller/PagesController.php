@@ -35,8 +35,12 @@ class PagesController
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$page];
         }
+
+        $cacheKey = url()->getRequestURL() ?: env('APP_NAME', 'Tonics') . '_Home';
+        dd($fieldSettings, $cacheKey);
+
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
-        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($fieldIDS, $fieldSettings, viewProcessing: true)->getHTMLFrag();
+        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($fieldIDS, $fieldSettings)->getHTMLFrag();
 
         view('Themes::NinetySeven/Views/Page/single', [
             'SiteURL' => AppConfig::getAppUrl(),

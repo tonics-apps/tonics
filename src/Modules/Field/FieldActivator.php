@@ -33,10 +33,7 @@ use App\Modules\Field\EventHandlers\Fields\Modular\TonicsTemplateSystem;
 use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test;
 use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test2;
 use App\Modules\Field\EventHandlers\Fields\Post\PostAuthorSelect;
-use App\Modules\Field\EventHandlers\Fields\Post\PostCategory;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategorySelect;
-use App\Modules\Field\EventHandlers\Fields\Post\Posts;
-use App\Modules\Field\EventHandlers\Fields\Query;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtist;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtistSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackGenre;
@@ -85,8 +82,6 @@ class FieldActivator implements ModuleConfig, PluginConfig
                 InputColor::class,
 
                 # POSTS
-                Posts::class,
-                PostCategory::class,
                 PostCategorySelect::class,
                 PostAuthorSelect::class,
 
@@ -115,9 +110,6 @@ class FieldActivator implements ModuleConfig, PluginConfig
 
                 # Widget
                 Widget::class,
-
-                # Query
-                Query::class,
             ],
 
             FieldTemplateFile::class => [

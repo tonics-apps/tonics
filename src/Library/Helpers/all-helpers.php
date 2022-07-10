@@ -170,7 +170,6 @@ function getBaseTemplate(): TonicsView|null
     if (AppConfig::initLoaderMinimal()::globalVariableKeyExist('BASE_TEMPLATE') === false){
         loadTemplateBase();
     }
-
     return AppConfig::initLoaderMinimal()::getGlobalVariableData('BASE_TEMPLATE');
 }
 
@@ -189,12 +188,6 @@ function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = nul
         if ($cacheNotFound !== null){
             $cacheNotFound();
         }
-        getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
-        apcu_store($cacheKey, [
-           'contents' => getBaseTemplate()->getContent(),
-           'modeStorage' => getBaseTemplate()->getModeStorages(),
-           'variable' => getBaseTemplate()->getVariableData()
-        ]);
     } else {
         $cacheData = apcu_fetch($cacheKey);
         getBaseTemplate()->setContent($cacheData['contents']);

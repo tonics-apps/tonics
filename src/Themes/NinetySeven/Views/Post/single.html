@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 [[import("Themes::NinetySeven/Views/Block/base")]]
 
 [[- POST BLOCKS -]]
@@ -82,7 +81,7 @@
             [[if("v[Widget_sidebar_widget.Data] !== block[empty]")
             <aside>
                 <div class="owl sidebar-widget position:sticky top:0">
-                    <h4>[[_v('Widget_sidebar_widget.Name')]]</h4>
+                    <h4 style="text-transform: capitalize;">[[_v('Widget_sidebar_widget.Name')]]</h4>
                     <ul class="owl list:style:none">
                         [[each("widgetData in Widget_sidebar_widget.Data")
                             <li style="margin-top: clamp(3rem, 2.5vw, 2rem);" tabindex="0" class="owl width:100% padding:default menu-arranger-li color:black bg:white-one border-width:default border:black position:relative">
@@ -106,32 +105,3 @@
         [[_use("script:post-front")]]
     ]]
 ]]
-
-[[-
-
-<html lang="en">
-<head>
-    [[_use("default-meta")]]
-    <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
-    <title>[[v('Data.post_title')]]</title>
-</head>
-
--]]
-
-<body class="body-sticky-footer">
-[[-
-
-<main id="main"  class="flex:one" tabindex="-1">
-    <article class="owl" id="post_slug_id_[[v('Data.slug_id')]]">
-    </article>
-</main>
-
-<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
-    <div class="footer-section">
-    </div>
-</footer>
-
-[[_use("script:post-front")]]
--]]
-</body>
-</html>

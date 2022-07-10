@@ -1,5 +1,53 @@
 [[b('BaseMarkup')
 
+[[SQL_BLOCK('reusable_sql')
+  [[FROM('post_categories')]]
+  [[JOIN('posts.post_id', 'post_categories.fk_post_id')]]
+  [[JOIN('categories.cat_id', 'post_categories.fk_cat_id')]]
+]]
+
+[[SQL('post_query_table_count')
+  [[SQLFUNC('COUNT', "*")]]
+  [[REUSE_SQL('reusable_sql')]]
+  [[WHERE('posts.post_status')
+    [[OP('=')]] [[PARAM('1')]]
+  ]]
+]]
+
+[[SQL('post_query_search_table_count')
+  [[SQLFUNC('COUNT', "*")]]
+  [[REUSE_SQL('reusable_sql')]]
+  [[WHERE('posts.post_status')
+    [[OP('=')]] [[PARAM('1')]] [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+  ]]
+]]
+
+[[SQL('post_query_search_row_with_offset_limit')
+  [[SELECT('post_categories') [[COLS('ALL')]] ]]
+  [[SELECT('posts') [[COLS('ALL')]] ]]
+  [[SELECT('categories') [[COLS('ALL')]] ]]
+  [[REUSE_SQL('reusable_sql')]]
+  [[WHERE('posts.post_status')
+    [[OP('=')]] [[PARAM('1')]] [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+    [[ORDER('posts.created_at', 'DESC')]]
+    [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
+    [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
+  ]]
+]]
+
+[[SQL('post_query_get_row_with_offset_limit')
+  [[SELECT('post_categories') [[COLS('ALL')]] ]]
+  [[SELECT('posts') [[COLS('ALL')]] ]]
+  [[SELECT('categories') [[COLS('ALL')]] ]]
+  [[REUSE_SQL('reusable_sql')]]
+  [[WHERE('posts.post_status')
+    [[OP('=')]] [[PARAM('1')]]
+    [[ORDER('posts.created_at', 'DESC')]]
+    [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
+    [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
+  ]]
+]]
+
   [[hook_into('in_head')
   <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
   ]]
@@ -41,50 +89,12 @@
         [[add_hook('after_in_site_footer_nav_ul')]]
       </nav>
       [[add_hook('after_in_site_footer_nav')]]
-    ]]
+  ]]
 
     [[hook_into('after_in_site_footer_nav_ul')
       <div class="site-info">
         [[add_hook('site_credits')]]
       </div>
     ]]
+
 ]]
-
-[[SQL('quick_test')
-  [[SELECT('posts')
-    [[SQLFUNC('CONCAT', "col[posts.post_title], ,col[posts.post_id]")]]
-  ]]
-  [[FROM('drive_system')]]
-]]
-
-[[-
-
-[[SQL('storage_name_key')
-  [[SELECT('drive_system')
-    [[COLS('ALL')]]
-    [[COLS('PICK', 'one, two, three, four')]]
-    [[COL_AS('drive_unique_id', 'link')]]
-    [[COLS('EXCEPT', 'drive_unique_id, drive_name, type')]]
-  ]]
-
-  [[SELECT('posts')
-    [[COLS('ALL')]]
-  ]]
-
-  [[FROM('drive_system')]]
-
-  [[INNER_JOIN('posts.slug_id', 'drive_system.drive_id')]]
-
-  [[WHERE('post_status')
-    [[OP('=')]] [[PARAM('1', '2', '3', '4', '5', 'v[nest.nest.nest]')]]
-    [[- [[IN('data, data, data')]] -]]
-    [[- [[CONCAT('%', '?', '%')]] -]]
-    [[ORDER('posts.post_id', 'DESC')]]
-    [[KEYWORD('LIKE')]] [[PARAM('20')]]
-    [[KEYWORD('OFFSET')]] [[PARAM('10')]]
-    [[SQLFUNC('IN', """val1,val2,v[nested.nested],col[posts.post_title]""")]]
-    [[SQLFUNC('CONCAT', """val1,val2,v[nested.nested]""")]]
-  ]]
-]]
-
--]]

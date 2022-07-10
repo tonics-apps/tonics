@@ -8,6 +8,7 @@ use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldUserForm;
 use App\Modules\Post\Data\PostData;
@@ -65,15 +66,56 @@ class PostsController
         $created_at_words = strtoupper($date->format('j M, Y'));
         $post['created_at_words'] = $created_at_words;
 
-        //$rr = db()->row("SELECT COUNT(?) FROM tonics_posts", '*');
-        //dd($rr);
-
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
-            $fieldSlugs = json_decode($post['field_ids']) ?? [];
+            $fieldSlugs = $this->getFieldSlug($post);
             $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
-        }, cacheFound: function () use ($post) {
+            $this->saveSingleTemplateCache();
+        }, cacheFound: function () use ($onFieldUserForm, $post) {
+            # quick check if single template parts have not been cached...if not we force parse it...
+            if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])){
+                $fieldSlugs = $this->getFieldSlug($post);
+                $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
+                // re-save cache data
+                $this->saveSingleTemplateCache();
+            }
+
             getBaseTemplate()->addToVariableData('Data', $post);
         });
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getFieldSlug($post): array
+    {
+        $slug = $post['field_ids'];
+        $fieldSlugs = json_decode($slug) ?? [];
+        if (is_object($fieldSlugs)){
+            $fieldSlugs = (array)$fieldSlugs;
+        }
+
+        if (empty($fieldSlugs) || !is_array($fieldSlugs)){
+            // re-save default fields
+            $default = ["post-page","seo-settings"];
+            $updatePost = ['field_ids' => json_encode($default)];
+            $this->postData->updateWithCondition($updatePost, ['post_id' => (int)$post['post_id']], Tables::getTable(Tables::POSTS));
+            return $default;
+        }
+
+        return $fieldSlugs;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function saveSingleTemplateCache(): void
+    {
+        getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
+        apcu_store(CacheKeys::getSinglePostTemplateKey(), [
+            'contents' => getBaseTemplate()->getContent(),
+            'modeStorage' => getBaseTemplate()->getModeStorages(),
+            'variable' => getBaseTemplate()->getVariableData()
+        ]);
     }
 
     /**

@@ -15,6 +15,19 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
 /**
  * The whole purpose of this mode handler is for paginating data from tables, it should never be used to replace actual sql select,
  * besides, it only supports few keywords and functions that is required to work with data pagination.
+ *
+ * To use the sql query, you call it with the Query Mode Handler which is an interface to the pagination function.
+ *
+ * Note: To create a reusable sql blocks do:
+ * ```
+ * [[sql_block('reusable_sql')
+        [[FROM('post_categories')]]
+        [[JOIN('posts.post_id', 'post_categories.fk_post_id')]]
+        [[JOIN('categories.cat_id', 'post_categories.fk_cat_id')]]
+    ]]
+ * ```
+ *
+ * call it with `[[reuse_sql('reusable_sql')]]` within your `[[SQL('...')...]]` tag
  */
 class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
@@ -31,8 +44,8 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     public function validate(OnTagToken $tagToken): bool
     {
-        if (strtolower($tagToken->getTagName()) !== 'sql') {
-            dd($tagToken, $this->getTonicsView());
+        $tagname = strtolower($tagToken->getTagName());
+        if ($tagname !== 'sql' && $tagname !== 'sql_block') {
             $this->error = "SQL Statements should start with an SQL Tag, i.e [[SQl(..)...]]";
             return false;
         }
@@ -43,7 +56,8 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     public function stickToContent(OnTagToken $tagToken)
     {
-        if (strtoupper($tagToken->getTagName()) === 'SQL' && $tagToken->getTag()->hasChildren()) {
+        $tagName = strtoupper($tagToken->getTagName());
+        if ($tagName === 'SQL' && $tagToken->getTag()->hasChildren()) {
             $sql_storage_name = $tagToken->getFirstArgChild();
             $storage = $this->getTonicsView()->getModeStorage('sql');
             $this->handleSQLNodes($tagToken->getTag());
@@ -51,10 +65,16 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
               'sql' => $this->sqlString,
               'params' => $this->params
             ];
+
             $this->getTonicsView()->storeDataInModeStorage('sql', $storage);
+
+            $this->params = [];
+            $this->sqlString = " SELECT ";
         }
 
-        // dd($this, $this->getTonicsView()->getModeStorages());
+        if ($tagName === 'SQL_BLOCK'){
+            $this->handleSQLBlock($tagToken->getTag());
+        }
     }
 
     public function error(): string
@@ -64,8 +84,20 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     public function render(string $content, array $args, array $nodes = []): string
     {
-        $current = $this->getTonicsView()->getCurrentRenderingContentMode();
+
+        $current = strtolower($this->getTonicsView()->getCurrentRenderingContentMode());
         $tag = (new Tag($current))->setArgs($args)->setNodes($nodes)->setContent($content)->setParentNode($this->currentParent);
+
+        // called from a block or a nested tag
+        if ($current === 'sql_block'){
+            $this->handleSQLBlock($tag);
+        }
+
+        // called from a block or a nested tag
+        if ($current === 'sql'){
+            $this->stickToContent(new OnTagToken($tag));
+        }
+
         if (isset($this->mapperHandler()[$current])) {
             $this->mapperHandler()[$current]($tag);
         }
@@ -87,7 +119,10 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     private function handleFrom(Tag $tag): void
     {
+
         if (Tables::isTable($tag->getFirstArgChild())){
+            $this->sqlString = trim($this->sqlString);
+            $this->sqlString = rtrim($this->sqlString, ',') . ' ';
             $this->sqlString .= " FROM ";
         }
 
@@ -116,7 +151,8 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         switch ($colType) {
             case 'ALL';
                 foreach ($this->validCols[$table_name] as $col) {
-                    $this->sqlString .= "$table_name.$col, ";
+                    $t = Tables::getTable($table_name);
+                    $this->sqlString .= "$t.$col, ";
                 }
                 break;
             case 'PICK';
@@ -125,7 +161,8 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
                     foreach ($cols as $col) {
                         $col = trim($col);
                         if (isset($this->validCols[$table_name][$col])){
-                            $this->sqlString .= "$table_name.$col, ";
+                            $t = Tables::getTable($table_name);
+                            $this->sqlString .= "$t.$col, ";
                         }
                     }
                 }
@@ -133,14 +170,15 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
             case 'EXCEPT';
                 $cols = isset($tag->getArgs()[1]) ? explode(',', $tag->getArgs()[1]) : [];
                 foreach ($this->validCols[$table_name] as $col) {
+                    $t = Tables::getTable($table_name);
                     if (in_array($col, $cols, true)) {
                         continue;
                     }
-                    $this->sqlString .= "$table_name.$col, ";
+                    $this->sqlString .= "$t.$col, ";
                 }
                 break;
         }
-        $this->sqlString = rtrim($this->sqlString, ', ') . ' ';
+
     }
 
     private function handleColAs(Tag $tag): void
@@ -161,9 +199,10 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
         $colName = $tag->getFirstArgChild();
         if (isset($this->validCols[$table_name][$colName])){
-            $this->sqlString .= "$table_name.$colName AS $asCol, ";
+            $t = Tables::getTable($table_name);
+            $this->sqlString .= "$t.$colName AS $asCol, ";
         }
-        $this->sqlString = rtrim($this->sqlString, ', ') . ' ';
+
     }
 
     private function handleInnerJoin(Tag $tag): void
@@ -192,14 +231,15 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     private function handleWhere(Tag $tag): void
     {
-        $whereCol = $tag->getFirstArgChild();
-        foreach ($this->validCols as $validCol){
-            if (isset($validCol[$whereCol])){
-                $this->sqlString .= " WHERE $whereCol ";
-                $this->handleSQLNodes($tag);
-                break;
-            }
+        $tableCol = $this->validateTableDotCol($tag->getFirstArgChild());
+        if ($tableCol === false){
+            $this->getTonicsView()->exception(TonicsTemplateRuntimeException::class, ['SQL Where should be in the format [[WHERE(table.col)...]]']);
         }
+        $tableCol[0] = Tables::getTable($tableCol[0]);
+        $where = implode('.', $tableCol);
+
+        $this->sqlString .= " WHERE $where ";
+        $this->handleSQLNodes($tag);
     }
 
     private function handleOP(Tag $tag): void
@@ -225,13 +265,11 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
      */
     private function handleParam(Tag $tag): void
     {
-        $args = $this->resolveArgs($tag->getTagName(), $tag->getArgs());
+        $args = $this->resolveArgsSQL($tag->getTagName(), $tag->getArgs());
         $args = $args[$tag->getTagName()];
-        $args = $this->expandArgs($args);
-        $qmark = helper()->returnRequiredQuestionMarks($args);
-
+        $args = $this->expandArgsSQL($args, $this->params);
+        $qmark = helper()->delimitArrayByComma($args);
         $this->sqlString .= " $qmark ";
-        $this->params = [...$this->params, ...$args];
     }
 
     private function handleOrder($tag)
@@ -283,7 +321,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         $argOkay = false; $qmark = '';
         if (is_array($args)){
             $argOkay = true;
-            $args = $this->resolveArgs($tag->getTagName(), $args, ['col[' => 'column']);
+            $args = $this->resolveArgsSQL($tag->getTagName(), $args);
             $args = $args[$tag->getTagName()];
             $args = $this->expandArgsSQL($args, $this->params);
             $qmark = helper()->delimitArrayByComma($args);
@@ -342,6 +380,10 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         }
         $table = $arg[0]; $col = $arg[1];
         if (Tables::isTable($table)){
+            if (!isset($this->validCols[$table])){
+                $this->validCols[$table] = Tables::$TABLES[$table];
+                $this->validCols[$table] = array_combine($this->validCols[$table], $this->validCols[$table]);
+            }
             if (isset($this->validCols[$table][$col])){
                 return $arg;
             }
@@ -352,14 +394,29 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
     public function handleSQLNodes(Tag $tag)
     {
         // nothing to output, if any sql function makes it through, it would be tacked to the sql storage key
+        /** @var Tag $node */
         foreach ($tag->getNodes() as $node) {
-            $mode = $this->getTonicsView()->getModeRendererHandler($node->getTagName(), $this);
+            if (isset($this->mapperHandler()[strtolower($node->getTagName())])){
+                $mode = $this->getTonicsView()->getModeRendererHandler($node->getTagName(), $this);
+            } else {
+                $mode = $this->getTonicsView()->getModeRendererHandler($node->getTagName());
+            }
             if ($mode instanceof TonicsModeRendererInterface) {
                 $this->currentParent = $tag;
                 $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
                 $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
             }
         }
+    }
+
+    private function handleReuseSQL(Tag $tag)
+    {
+        $storage = $this->getTonicsView()->getModeStorage('sql_block');
+        $sql_block_name = $tag->getFirstArgChild();
+        if (isset($storage[$sql_block_name])){
+            $tag->setNodes($storage[$sql_block_name]);
+        }
+        $this->handleSQLNodes($tag);
     }
 
     public function mapperHandler()
@@ -407,6 +464,27 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
             'sqlfunc' => function ($tag) {
                 $this->handleSQLFunc($tag);
             },
+            'reuse_sql' => function ($tag) {
+                $this->handleReuseSQL($tag);
+            },
         ];
     }
+
+    public function handleSQLBlock(Tag $tag)
+    {
+        $storage = $this->getTonicsView()->getModeStorage('sql_block');
+        $storage[$tag->getFirstArgChild()] = $tag->getNodes();
+        $this->getTonicsView()->storeDataInModeStorage('sql_block', $storage);
+    }
+
+    /**
+     * @param $tagName
+     * @param array $tagArgs
+     * @return array[]
+     */
+    private function resolveArgsSQL($tagName, array $tagArgs = []): array
+    {
+        return $this->resolveArgs($tagName, $tagArgs, ['col[' => 'column']);
+    }
+
 }

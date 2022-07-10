@@ -98,6 +98,7 @@ class MenuControllerItems extends Controller
             redirect(route('menus.items.index', ['menu' => $menuSlug]));
         }
         session()->flash(['Menu Successfully Saved'], $menuDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);
+        apcu_clear_cache();
         redirect(route('menus.items.index', ['menu' => $menuSlug]));
     }
 
