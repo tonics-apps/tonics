@@ -104,7 +104,7 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
                 $this->getTonicsView()->setVariableData($variable);
                 $sql = $sqlStorage[$search_row_with_offset_limit]['sql'];
                 $params = $this->expandArgs($sqlStorage[$search_row_with_offset_limit]['params']);
-                // dd($sql, $params);
+                //dd($sql, $params);
                 return db()->run($sql, ...$params);
             },
             'customGetRowWithOffsetLimit' => function ($table, $offset, $limit) use ($get_row_with_offset_limit, $sqlStorage) {
@@ -122,7 +122,7 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
 
         try {
             $data = $abstractDataLayer->generatePaginationData('', '', '', 20, $customCallable);
-            // dd($data, $this->getTonicsView()->getVariableData());
+            dd($data, $sqlStorage);
             // $this->getTonicsView()->addToVariableData($variable_name, $data);
             $callback = null;
             if (isset($args[2])){

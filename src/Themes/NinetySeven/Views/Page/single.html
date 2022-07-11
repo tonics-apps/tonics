@@ -84,11 +84,13 @@
 
 [[SQL_BLOCK('reusable_search_sql')
     [[OP('=')]] [[PARAM('1')]]
-    [[if('v[URL.PARAMS.post_cat]')
+    [[if('v[URL.PARAMS.post_cat] !== block[empty]')
         [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_name')]] ]] [[OP('=')]] [[PARAM('v[URL.PARAMS.post_cat]')]]
     ]]
-    [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
-    [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+    [[if('v[URL.PARAMS.query] !== block[empty]')
+        [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
+        [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+    ]]
 ]]
 
 [[SQL('post_query_table_count')
