@@ -82,6 +82,15 @@
     [[JOIN('categories.cat_id', 'post_categories.fk_cat_id')]]
 ]]
 
+[[SQL_BLOCK('reusable_search_sql')
+    [[OP('=')]] [[PARAM('1')]]
+    [[if('v[URL.PARAMS.post_cat]')
+        [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_name')]] ]] [[OP('=')]] [[PARAM('v[URL.PARAMS.post_cat]')]]
+    ]]
+    [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
+    [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+]]
+
 [[SQL('post_query_table_count')
     [[SQLFUNC('COUNT', "*")]]
     [[REUSE_SQL('reusable_sql')]]
@@ -94,12 +103,7 @@
     [[SQLFUNC('COUNT', "*")]]
     [[REUSE_SQL('reusable_sql')]]
     [[WHERE('posts.post_status')
-        [[OP('=')]] [[PARAM('1')]]
-        [[if('v[URL.PARAMS.post_cat]')
-            [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_name')]] ]] [[OP('=')]] [[PARAM('v[URL.PARAMS.post_cat]')]]
-        ]]
-        [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
-        [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+        [[REUSE_SQL('reusable_search_sql')]]
     ]]
 ]]
 
@@ -109,9 +113,7 @@
     [[SELECT('categories') [[COLS('ALL')]] ]]
     [[REUSE_SQL('reusable_sql')]]
     [[WHERE('posts.post_status')
-        [[OP('=')]] [[PARAM('1')]]
-        [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
-        [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+        [[REUSE_SQL('reusable_search_sql')]]
         [[ORDER('posts.created_at', 'DESC')]]
         [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
         [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]

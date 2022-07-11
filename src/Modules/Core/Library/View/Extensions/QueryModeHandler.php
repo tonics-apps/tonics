@@ -76,7 +76,6 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
         $search_row_with_offset_limit = $variable_name .'_search_row_with_offset_limit';
         $get_row_with_offset_limit = $variable_name .'_get_row_with_offset_limit';
         $sqlStorage = $this->getTonicsView()->getModeStorage('sql');
-        dd($sqlStorage);
         if (!isset($sqlStorage[$table_count]) || !isset($sqlStorage[$search_table_count])
             || !isset($sqlStorage[$search_row_with_offset_limit]) || !isset($sqlStorage[$get_row_with_offset_limit])){
             $this->getTonicsView()->exception(TonicsTemplateInvalidNumberOfArgument::class);
