@@ -6,5 +6,5 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 interface QueryModeHandlerInterface
 {
-    public function handleQueryData(TonicsView $tonicsView, \stdClass $queryData): string;
+    public function handleQueryData(TonicsView $tonicsView, string $query_name, \stdClass $queryData, callable $callback = null): string;
 }

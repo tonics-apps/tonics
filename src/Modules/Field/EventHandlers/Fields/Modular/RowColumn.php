@@ -73,7 +73,7 @@ class RowColumn implements HandlerInterface
         value="$column">
     </label>
 </div>
-
+{$event->generateMoreSettingsFrag($data)}
     <div style="--row:$row; --column:$column;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 

@@ -198,7 +198,6 @@ class PostsController
 
         $postToUpdate = $this->postData->createPost(['token']);
         $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
-
         event()->dispatch(new OnBeforePostSave($postToUpdate));
         $this->postData->updateWithCondition($postToUpdate, ['post_slug' => $slug], $this->postData->getPostTable());
         $postToCategoryUpdate = [

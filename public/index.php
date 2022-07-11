@@ -7,6 +7,7 @@
 
 use Ahc\Env\Loader;
 use App\Modules\Core\Configs\AppConfig;
+use App\Themes\NinetySeven\Library\PostLoop;
 
 ## Remove this in production
 error_reporting(E_ALL);

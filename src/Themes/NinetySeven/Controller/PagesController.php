@@ -39,6 +39,7 @@ class PagesController
             $fieldSettings = [...$fieldSettings, ...(array)$page];
         }
         $onFieldUserForm = new OnFieldUserForm([], new FieldData());
+
         renderBaseTemplate($this->getCacheKey(), cacheNotFound: function () use ($onFieldUserForm, $fieldSettings) {
             $fieldSlugs = $this->getFieldSlug($fieldSettings);
             $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings);

@@ -169,7 +169,7 @@ HTML;
             $frag .= $this->getMenuHTMLFragment($t, 0, $displayName);
         }
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
-        addToGlobalVariable("Menu_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Data' => $frag]);
+        addToGlobalVariable("Menu_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Data' => $frag, 'Tree' => $tree]);
         $event->handleTemplateEngineView($data);
         return '';
     }

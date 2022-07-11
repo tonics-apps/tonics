@@ -15,5 +15,6 @@ class ThemeTemplateHooks implements HandlerInterface
     {
         /** @var $event OnSelectTonicsTemplateHooks */
         $event->addMultipleHooks(['in_site_header_section', 'in_site_header_section_logo', 'in_site_header_section_nav', 'in_site_header_section_nav_ul']);
+        $event->addMultipleHooks(['post_cat_filter_option',]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Modules\Core\Library\View\Extensions;
 
 use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Library\View\Extensions\Interfaces\QueryModeHandlerInterface;
 use App\Modules\Core\Library\View\Extensions\Traits\TonicsTemplateSystemHelper;
 use App\Themes\NinetySeven\Library\PostLoop;
@@ -18,7 +19,7 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  * call it with the Query Handler which in turns connects it to the pagination API.
  *
  * <br>
- * This handler expects 2 arguments:
+ * This handler can have a min of 2 and a max of 3 arguments:
  *
  * The first arguments would be a prefix for the sql argument, e.g, if you pass it: `post_query` arg to Query, then
  * it expects the sql tags to have arg:
@@ -33,6 +34,9 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  *
  * Note: The result of the query would be stored in a variable with the name `post_query`
  *
+ * <br>
+ * The third argument is optional, it is a callback that takes the block_name you want to use has a callback...
+ *
  */
 class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
@@ -43,7 +47,7 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
     public function validate(OnTagToken $tagToken): bool
     {
         $view = $this->getTonicsView();
-        return $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName(), 2, 2);
+        return $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName(), 3, 2);
     }
 
     public function stickToContent(OnTagToken $tagToken)
@@ -72,7 +76,7 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
         $search_row_with_offset_limit = $variable_name .'_search_row_with_offset_limit';
         $get_row_with_offset_limit = $variable_name .'_get_row_with_offset_limit';
         $sqlStorage = $this->getTonicsView()->getModeStorage('sql');
-
+        dd($sqlStorage);
         if (!isset($sqlStorage[$table_count]) || !isset($sqlStorage[$search_table_count])
             || !isset($sqlStorage[$search_row_with_offset_limit]) || !isset($sqlStorage[$get_row_with_offset_limit])){
             $this->getTonicsView()->exception(TonicsTemplateInvalidNumberOfArgument::class);
@@ -101,6 +105,7 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
                 $this->getTonicsView()->setVariableData($variable);
                 $sql = $sqlStorage[$search_row_with_offset_limit]['sql'];
                 $params = $this->expandArgs($sqlStorage[$search_row_with_offset_limit]['params']);
+                // dd($sql, $params);
                 return db()->run($sql, ...$params);
             },
             'customGetRowWithOffsetLimit' => function ($table, $offset, $limit) use ($get_row_with_offset_limit, $sqlStorage) {
@@ -118,11 +123,18 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
 
         try {
             $data = $abstractDataLayer->generatePaginationData('', '', '', 20, $customCallable);
-            $this->getTonicsView()->addToVariableData($variable_name, $data);
+            // dd($data, $this->getTonicsView()->getVariableData());
+            // $this->getTonicsView()->addToVariableData($variable_name, $data);
+            $callback = null;
+            if (isset($args[2])){
+                $callback = function () use ($args) {
+                    return $this->getTonicsView()->renderABlock($args[2]);
+                };
+            }
             if (isset($args[1])){
                 $handler = new $args[1];
-                if ($handler instanceof QueryModeHandlerInterface){
-                    return $handler->handleQueryData($this->getTonicsView(), $data);
+                if ($handler instanceof QueryModeHandlerInterface && is_object($data)){
+                    return $handler->handleQueryData($this->getTonicsView(), $variable_name, $data, $callback);
                 }
             }
         }catch (\Exception $exception){

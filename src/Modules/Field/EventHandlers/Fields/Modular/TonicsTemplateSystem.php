@@ -55,6 +55,7 @@ class TonicsTemplateSystem implements HandlerInterface
              placeholder="Start writing the template logic, you have access to the template functions">$tonicsTemplateFrag</textarea>
     </label>
 </div>
+{$event->generateMoreSettingsFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

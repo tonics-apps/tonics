@@ -1,53 +1,5 @@
 [[b('BaseMarkup')
 
-[[SQL_BLOCK('reusable_sql')
-  [[FROM('post_categories')]]
-  [[JOIN('posts.post_id', 'post_categories.fk_post_id')]]
-  [[JOIN('categories.cat_id', 'post_categories.fk_cat_id')]]
-]]
-
-[[SQL('post_query_table_count')
-  [[SQLFUNC('COUNT', "*")]]
-  [[REUSE_SQL('reusable_sql')]]
-  [[WHERE('posts.post_status')
-    [[OP('=')]] [[PARAM('1')]]
-  ]]
-]]
-
-[[SQL('post_query_search_table_count')
-  [[SQLFUNC('COUNT', "*")]]
-  [[REUSE_SQL('reusable_sql')]]
-  [[WHERE('posts.post_status')
-    [[OP('=')]] [[PARAM('1')]] [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
-  ]]
-]]
-
-[[SQL('post_query_search_row_with_offset_limit')
-  [[SELECT('post_categories') [[COLS('ALL')]] ]]
-  [[SELECT('posts') [[COLS('ALL')]] ]]
-  [[SELECT('categories') [[COLS('ALL')]] ]]
-  [[REUSE_SQL('reusable_sql')]]
-  [[WHERE('posts.post_status')
-    [[OP('=')]] [[PARAM('1')]] [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
-    [[ORDER('posts.created_at', 'DESC')]]
-    [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
-    [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
-  ]]
-]]
-
-[[SQL('post_query_get_row_with_offset_limit')
-  [[SELECT('post_categories') [[COLS('ALL')]] ]]
-  [[SELECT('posts') [[COLS('ALL')]] ]]
-  [[SELECT('categories') [[COLS('ALL')]] ]]
-  [[REUSE_SQL('reusable_sql')]]
-  [[WHERE('posts.post_status')
-    [[OP('=')]] [[PARAM('1')]]
-    [[ORDER('posts.created_at', 'DESC')]]
-    [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
-    [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
-  ]]
-]]
-
   [[hook_into('in_head')
   <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
   ]]
@@ -102,5 +54,25 @@
             <a href="https://devsrealm.com/">Powered by Tonics</a> | Theme: <a href="#">NinetySeven by DevsRealmGuy</a>
         </span>
     ]]
+]]
+
+[[b('reusable_hooks')
+  [[hook_into('in_site_header_section_nav_ul')
+    [[_v('Menu_site_header_menu.Data')]]
+  ]]
+
+  [[hook_into('in_site_header_section_logo')
+    <a href="/" rel="home" itemprop="url">
+    <img src="[[v('Image_site_logo.Link')]] " class="image:avatar" alt="Site Logo" title="Site Logo">
+  </a>
+  ]]
+
+  [[hook_into('in_site_footer_nav_ul')
+    [[_v('Menu_site_footer_menu.Data')]]
+  ]]
+
+  [[hook_into('before_closing_body')
+    [[_use("script:post-front")]]
+  ]]
 
 ]]

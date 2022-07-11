@@ -144,7 +144,6 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('reuse_sql', SQLSelectModeHandler::class);
 
         $view->addModeHandler('query', QueryModeHandler::class);
-
         $event->addTemplateEngine('Native', $view);
     }
 }

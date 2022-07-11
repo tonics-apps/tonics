@@ -65,6 +65,7 @@ class PostsController
         $date = new DateTime($post['created_at']);
         $created_at_words = strtoupper($date->format('j M, Y'));
         $post['created_at_words'] = $created_at_words;
+        $post['_full_link'] = AppConfig::getAppUrl() . "/posts/{$post['slug_id']}/{$post['post_slug']}";
 
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
             $fieldSlugs = $this->getFieldSlug($post);
@@ -78,6 +79,7 @@ class PostsController
                 // re-save cache data
                 $this->saveTemplateCache();
             }
+
             getBaseTemplate()->addToVariableData('Data', $post);
         });
     }
@@ -97,6 +99,14 @@ class PostsController
             // re-save default fields
             $default = ["post-page","seo-settings"];
             $updatePost = ['field_ids' => json_encode($default)];
+            $post['field_settings'] = (array)json_decode($post['field_settings']);
+            if (empty($post['field_settings']['seo_title'])){
+                $post['field_settings']['seo_title'] = $post['post_title'];
+            }
+            if (empty($post['field_settings']['seo_description'])){
+                $post['field_settings']['seo_description'] = substr(strip_tags($post['post_content']), 0, 200);
+            }
+            $updatePost['field_settings'] = json_encode($post['field_settings']);
             $this->postData->updateWithCondition($updatePost, ['post_id' => (int)$post['post_id']], Tables::getTable(Tables::POSTS));
             return $default;
         }

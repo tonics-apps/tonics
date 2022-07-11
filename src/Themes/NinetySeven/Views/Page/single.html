@@ -1,20 +1,140 @@
-<!DOCTYPE html>
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
-<html lang="en">
-<head>
-  [[_use("default-meta")]]
-  <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
-  <title>[[v('Data.post_title')]]</title>
-</head>
+[[import("Themes::NinetySeven/Views/Block/base")]]
 
-<body class="body-sticky-footer">
-[[_use("default-inline-svg")]]
+[[b('post_query_callback')
+<li tabindex="0"
+    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer position:relative justify-content:flex-start">
+    <div class="owl width:100% border-width:default border:black color:black height:100%">
+        <div class="post-thumbnail">
+            [[if("v[QUERY_MODE.post_query.image_url]")
+            [[- <img loading="lazy" decoding="async" src="[[v('QUERY_MODE.post_query.image_url')]]" class=""
+                     alt="[[v('QUERY_MODE.post_query.post_title')]]"> -]]
+            ]]
+        </div>
+        <div class="text-on-admin-util padding:default owl cursor:text d:flex flex-d:column height:100% margin-top:0">
+            <h4 class="margin-left:0">[[v('QUERY_MODE.post_query.post_title')]]</h4>
+            <p style="max-width:unset;">[[v('QUERY_MODE.post_query._og_description')]]...</p>
+            <div class="form-group d:flex flex-gap:small">
+                <a title="[[v('QUERY_MODE.post_query.post_title')]]" href="[[v('QUERY_MODE.post_query._full_link')]]"
+                   class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default
+                                margin-top:0 cart-width cursor:pointer">Read More</a>
+            </div>
+        </div>
+    </div>
+</li>
+]]
 
-[[_v("FieldItems")]]
+[[b('NinetySevenPageSingleEntry')
+[[- Loads MarkUp -]]
+[[trigger_block('BaseMarkup')]]
 
-[[_use("script:post-front")]]
-[[_use("script:fm-modules")]]
-</body>
-</html>
+[[trigger_block('reusable_hooks')]]
+
+[[hook_into('in_main')
+<section class="section color:black owl text-align:center padding:default">
+    <div class="owl header-wrapper">
+        <style>
+            .header-wrapper > .header-title {
+                font-size: clamp(2.05rem, 2.04rem + 5.07vw, 4.65rem);
+                max-width: 20ch;
+                margin-inline: auto;
+            }
+
+            .header-wrapper > .header-description {
+                font-size: clamp(1.56rem, 1.39rem + 0.85vw, 1.7rem);
+                font-family: inherit;
+                max-width: 30ch;
+                margin-inline: auto;
+                font-style: italic;
+            }
+        </style>
+        <h1 class="header-title margin-top:0">[[v('InputText_header_title_text.Value')]]</h1>
+        <p class="header-description">[[v('InputText_header_description_text.Value')]]</p>
+        <div></div>
+    </div>
+    [[- sfc meaning search form container -]]
+    <div id="sfc">
+        <form style="padding: 0 6.5em;" action="#sfc" class="d:flex justify-content:center owl" method="GET">
+            <div class="d:flex flex-d:column justify-content:center flex-wrap:wrap width:100%">
+                <div class="d:flex justify-content:center flex-wrap:wrap">
+                    <div class="form-group flex:auto">
+                        <select class="default-selector border-width:default border:black color:black" name="post_cat">
+                            <option value="" selected >All Category</option>
+                            [[add_hook('post_cat_filter_option')]]
+                        </select>
+                    </div>
+                </div>
+                <div class="d:flex flex-wrap:wrap flex-d:row width:100%">
+                    <input type="search" class="width:70% flex:auto border-width:default border:black color:black" name="query"
+                           aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter" value="[[v('URL.PARAMS.query')]]">
+                    <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);"
+                            class="save-menu-builder-changes text-align:center bg:transparent border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-3">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+[[SQL_BLOCK('reusable_sql')
+    [[FROM('post_categories')]]
+    [[JOIN('posts.post_id', 'post_categories.fk_post_id')]]
+    [[JOIN('categories.cat_id', 'post_categories.fk_cat_id')]]
+]]
+
+[[SQL('post_query_table_count')
+    [[SQLFUNC('COUNT', "*")]]
+    [[REUSE_SQL('reusable_sql')]]
+    [[WHERE('posts.post_status')
+        [[OP('=')]] [[PARAM('1')]]
+    ]]
+]]
+
+[[SQL('post_query_search_table_count')
+    [[SQLFUNC('COUNT', "*")]]
+    [[REUSE_SQL('reusable_sql')]]
+    [[WHERE('posts.post_status')
+        [[OP('=')]] [[PARAM('1')]]
+        [[if('v[URL.PARAMS.post_cat]')
+            [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_name')]] ]] [[OP('=')]] [[PARAM('v[URL.PARAMS.post_cat]')]]
+        ]]
+        [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
+        [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+    ]]
+]]
+
+[[SQL('post_query_search_row_with_offset_limit')
+    [[SELECT('post_categories') [[COLS('ALL')]] ]]
+    [[SELECT('posts') [[COLS('ALL')]] ]]
+    [[SELECT('categories') [[COLS('ALL')]] ]]
+    [[REUSE_SQL('reusable_sql')]]
+    [[WHERE('posts.post_status')
+        [[OP('=')]] [[PARAM('1')]]
+        [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
+        [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+        [[ORDER('posts.created_at', 'DESC')]]
+        [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
+        [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
+    ]]
+]]
+
+[[SQL('post_query_get_row_with_offset_limit')
+    [[SELECT('post_categories') [[COLS('ALL')]] ]]
+    [[SELECT('posts') [[COLS('ALL')]] ]]
+    [[SELECT('categories') [[COLS('ALL')]] ]]
+    [[REUSE_SQL('reusable_sql')]]
+    [[WHERE('posts.post_status')
+        [[OP('=')]] [[PARAM('1')]]
+        [[ORDER('posts.created_at', 'DESC')]]
+        [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
+        [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
+    ]]
+]]
+
+<ul style="margin: 0 auto; padding: 0 6.5em;" id="postloop"
+    class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+    [[Query('post_query', 'App\Themes\NinetySeven\Library\PostLoop', 'post_query_callback')]]
+</ul>
+]]
+
+]]

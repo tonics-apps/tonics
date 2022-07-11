@@ -37,8 +37,6 @@ class InputChoices implements HandlerInterface
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $choiceType =  (isset($data->choiceType)) ? $data->choiceType : 'checkbox';
         $choices =  (isset($data->choices)) ? helper()->htmlSpecChar($data->choices) : '';
-        $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $choiceTypes = [
             'Checkbox' => 'checkbox',
             'Radio' => 'radio',

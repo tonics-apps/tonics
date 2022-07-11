@@ -58,7 +58,12 @@ class InitLoaderMinimal
             # INCLUDE THE HELPERS
         #-----------------------------------
         AppConfig::includeHelpers();
+        self::initGlobalVariables();
 
+    }
+
+    public static function initGlobalVariables(): void
+    {
         self::addToGlobalVariable('App_Config', [
             'SiteURL' => AppConfig::getAppUrl(),
             'APP_NAME' => AppConfig::getAppName(),

@@ -380,6 +380,12 @@ HTML;
         }
 
         if (isset($post['field_settings'])){
+            if (isset($post['field_settings']['seo_title']) && empty($post['field_settings']['seo_title'])){
+                $post['field_settings']['seo_title'] = $post['post_title'];
+            }
+            if (isset($post['field_settings']['seo_description']) && empty($post['field_settings']['seo_description'])){
+                $post['field_settings']['seo_description'] = substr(strip_tags($post['field_settings']['post_content']), 0, 200);
+            }
             $post['field_settings'] = json_encode($post['field_settings']);
             if (isset($post['field_ids'])){
                 $_POST['field_settings']['field_ids'] = $post['field_ids'];
