@@ -2,11 +2,8 @@
 
 namespace App\Modules\Core\Library\View\Extensions;
 
-use App\Modules\Core\Library\AbstractDataLayer;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Library\View\Extensions\Interfaces\QueryModeHandlerInterface;
 use App\Modules\Core\Library\View\Extensions\Traits\TonicsTemplateSystemHelper;
-use App\Themes\NinetySeven\Library\PostLoop;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateInvalidNumberOfArgument;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
@@ -25,8 +22,6 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  * it expects the sql tags to have arg:
  *
  * - `post_query_table_count`
- * - `post_query_search_table_count`
- * - `post_query_search_row_with_offset_limit`
  * - `post_query_get_row_with_offset_limit`
  *
  * <br>
@@ -72,57 +67,32 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
     {
         $variable_name = $args[0];
         $table_count = $variable_name .'_table_count';
-        $search_table_count = $variable_name .'_search_table_count';
-        $search_row_with_offset_limit = $variable_name .'_search_row_with_offset_limit';
         $get_row_with_offset_limit = $variable_name .'_get_row_with_offset_limit';
         $sqlStorage = $this->getTonicsView()->getModeStorage('sql');
-        if (!isset($sqlStorage[$table_count]) || !isset($sqlStorage[$search_table_count])
-            || !isset($sqlStorage[$search_row_with_offset_limit]) || !isset($sqlStorage[$get_row_with_offset_limit])){
+        if (!isset($sqlStorage[$table_count]) || !isset($sqlStorage[$get_row_with_offset_limit])){
             $this->getTonicsView()->exception(TonicsTemplateInvalidNumberOfArgument::class);
         }
 
-        $abstractDataLayer = new AbstractDataLayer();
-        $customCallable = [
-            'customSearchTableCount' => function () use($sqlStorage, $search_table_count) {
-            $sql = $sqlStorage[$search_table_count]['sql'];
-            $params = $this->expandArgs($sqlStorage[$search_table_count]['params']);
-            $result = (array)db()->row($sql, ...$params);
-                return $result[array_key_first($result)];
-            },
-            'customTableCount' => function () use ($sqlStorage, $table_count) {
-                $sql = $sqlStorage[$table_count]['sql'];
-                $params = $this->expandArgs($sqlStorage[$table_count]['params']);
-                $result = (array)db()->row($sql, ...$params);
-                return $result[array_key_first($result)];
-            },
-            'customSearchRowWithOffsetLimit' => function ($table, $searchTerm, $offset, $limit) use ($sqlStorage, $search_row_with_offset_limit) {
-                $variable = $this->getTonicsView()->getVariableData();
-                $variable['QUERY_MODE'] = [
-                    'LIMIT' => $limit,
-                    'OFFSET' => $offset
-                ];
-                $this->getTonicsView()->setVariableData($variable);
-                $sql = $sqlStorage[$search_row_with_offset_limit]['sql'];
-                $params = $this->expandArgs($sqlStorage[$search_row_with_offset_limit]['params']);
-                //dd($sql, $params);
-                return db()->run($sql, ...$params);
-            },
-            'customGetRowWithOffsetLimit' => function ($table, $offset, $limit) use ($get_row_with_offset_limit, $sqlStorage) {
-                $variable = $this->getTonicsView()->getVariableData();
-                $variable['QUERY_MODE'] = [
-                    'LIMIT' => $limit,
-                    'OFFSET' => $offset
-                ];
-                $this->getTonicsView()->setVariableData($variable);
-                $sql = $sqlStorage[$get_row_with_offset_limit]['sql'];
-                $params = $this->expandArgs($sqlStorage[$get_row_with_offset_limit]['params']);
-                return db()->run($sql, ...$params);
-            },
-        ];
-
         try {
-            $data = $abstractDataLayer->generatePaginationData('', '', '', 20, $customCallable);
-            dd($data, $sqlStorage);
+            $sql = $sqlStorage[$table_count]['sql'];
+            $params = $this->expandArgs($sqlStorage[$table_count]['params']);
+            $result = (array)db()->row($sql, ...$params);
+            $tableRows = $result[array_key_first($result)];
+            $data = db()->paginate(
+                tableRows: $tableRows,
+                callback: function ($perPage, $offset) use ($get_row_with_offset_limit, $sqlStorage) {
+                    $variable = $this->getTonicsView()->getVariableData();
+                    $variable['QUERY_MODE'] = [
+                        'LIMIT' => $perPage,
+                        'OFFSET' => $offset
+                    ];
+                    $this->getTonicsView()->setVariableData($variable);
+                    $sql = $sqlStorage[$get_row_with_offset_limit]['sql'];
+                    $params = $this->expandArgs($sqlStorage[$get_row_with_offset_limit]['params']);
+                    return db()->run($sql, ...$params);
+                }, perPage: url()->getParam('per_page', 20));
+
+            // dd($data, $sqlStorage);
             // $this->getTonicsView()->addToVariableData($variable_name, $data);
             $callback = null;
             if (isset($args[2])){

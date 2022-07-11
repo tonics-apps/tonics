@@ -97,28 +97,7 @@
     [[SQLFUNC('COUNT', "*")]]
     [[REUSE_SQL('reusable_sql')]]
     [[WHERE('posts.post_status')
-        [[OP('=')]] [[PARAM('1')]]
-    ]]
-]]
-
-[[SQL('post_query_search_table_count')
-    [[SQLFUNC('COUNT', "*")]]
-    [[REUSE_SQL('reusable_sql')]]
-    [[WHERE('posts.post_status')
         [[REUSE_SQL('reusable_search_sql')]]
-    ]]
-]]
-
-[[SQL('post_query_search_row_with_offset_limit')
-    [[SELECT('post_categories') [[COLS('ALL')]] ]]
-    [[SELECT('posts') [[COLS('ALL')]] ]]
-    [[SELECT('categories') [[COLS('ALL')]] ]]
-    [[REUSE_SQL('reusable_sql')]]
-    [[WHERE('posts.post_status')
-        [[REUSE_SQL('reusable_search_sql')]]
-        [[ORDER('posts.created_at', 'DESC')]]
-        [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
-        [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
     ]]
 ]]
 
@@ -128,7 +107,7 @@
     [[SELECT('categories') [[COLS('ALL')]] ]]
     [[REUSE_SQL('reusable_sql')]]
     [[WHERE('posts.post_status')
-        [[OP('=')]] [[PARAM('1')]]
+        [[REUSE_SQL('reusable_search_sql')]]
         [[ORDER('posts.created_at', 'DESC')]]
         [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
         [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
