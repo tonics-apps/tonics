@@ -131,6 +131,40 @@ SQL;
     private function arrangePagination($sqlResult, $page, $totalPages, $perPage, $pageName): object
     {
         $currentUrl = url()->getRequestURLWithQueryString();
+        $numberLinks = []; $windowSize = 5;
+        if ($page > 1) {;
+            // Number links that should appear on the left
+            for($i = $page - $windowSize; $i < $page; $i++){
+                if($i > 0){
+                    $numberLinks[] = [
+                        'link' => url()->appendQueryString("$pageName=" . $i)->getRequestURLWithQueryString(),
+                        'number' => $i,
+                        'current' => false,
+                        'current_text' => 'Page Number ' . $i,
+                    ];
+                }
+            }
+        }
+        // current page
+        $numberLinks[] = [
+            'link' => url()->appendQueryString("$pageName=" . $page)->getRequestURLWithQueryString(),
+            'number' => $page,
+            'current' => true,
+            'current_text' => 'Current Page',
+        ];
+        // Number links that should appear on the right
+        for($i = $page + 1; $i <= $totalPages; $i++){
+            $numberLinks[] = [
+                'link' => url()->appendQueryString("$pageName=" . $i)->getRequestURLWithQueryString(),
+                'number' => $i,
+                'current' => false,
+                'current_text' => 'Page Number ' . $i,
+            ];
+            if($i >= $page + $windowSize){
+                break;
+            }
+        }
+
         return (object)[
             'current_page' => (int)$page,
             'data' => $sqlResult,
@@ -145,7 +179,8 @@ SQL;
             'per_page' => $perPage,
             'to' => $totalPages,
             'total' => $totalPages,
-            'has_more' => !(((int)$page === $totalPages))
+            'has_more' => !(((int)$page === $totalPages)),
+            'number_links' => $numberLinks
         ];
 
     }

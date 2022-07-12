@@ -32,6 +32,8 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  * <br>
  * The third argument is optional, it is a callback that takes the block_name you want to use has a callback...
  *
+ * Note: You also get the query result in Query_Mode.Result variable if you want some further customization...
+ *
  */
 class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
@@ -92,8 +94,10 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
                     return db()->run($sql, ...$params);
                 }, perPage: url()->getParam('per_page', 20));
 
-            // dd($data, $sqlStorage);
-            // $this->getTonicsView()->addToVariableData($variable_name, $data);
+            $variable = $this->getTonicsView()->getVariableData();
+            $variable['QUERY_MODE']['Result'] = $data;
+            $this->getTonicsView()->setVariableData($variable);
+
             $callback = null;
             if (isset($args[2])){
                 $callback = function () use ($args) {
