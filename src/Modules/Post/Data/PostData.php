@@ -450,7 +450,7 @@ HTML;
         $userTable = Tables::getTable(Tables::USERS);
 
         $data = db()->row(<<<SQL
-SELECT * FROM $postToCatTable 
+SELECT *, $postTable.created_at as 'post_created_at', $postTable.updated_at as 'post_updated_at' FROM $postToCatTable 
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $userTable ON $userTable.user_id = $postTable.user_id
     JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id

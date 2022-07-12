@@ -59,13 +59,14 @@
     [[- Loads MarkUp -]]
     [[trigger_block('BaseMarkup')]]
 
+    [[hook_into('in_head_title')[[v('InputText_seo_title.Value .. Data.post_title')]] ]]
+    [[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.post_title")]] ]]
+
     [[hook_into('in_head')
-        <title>[[v('InputText_seo_title.Value .. Data.post_title')]]</title>
-        <meta name="description" content='[[v("Data.seo_description .. Data.og_description")]]'>
-        <meta property="og:title" content='[[v("Data.seo_title .. Data.post_title")]]'>
-        <meta property="og:description" content='[[v("Data.seo_description .. Data.og_description")]]'>
-        <meta property="og:url" content='[[v("URL.FULL_URL")]]'>
-        <meta property="og:type" content="article" />
+        <meta property="og:type" content="article">
+        <meta property="author" content="[[v('Data.user_name')]]">
+        <meta property="article:published_time" content="[[string_str_replace(' ', 'T', 'v[Data.post_created_at]')]][[v('App_Config.APP_TIME_ZONE_OFFSET')]]">
+        <meta property="article:modified_time" content="[[string_str_replace(' ', 'T', 'v[Data.post_updated_at]')]][[v('App_Config.APP_TIME_ZONE_OFFSET')]]">
         [[if('v[Data.image_url]')
             <meta property="og:image" content='[[v("Data.image_url")]]'>
         ]]

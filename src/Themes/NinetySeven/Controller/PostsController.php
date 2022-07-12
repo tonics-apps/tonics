@@ -35,8 +35,7 @@ class PostsController
     public function singlePage($slugUniqueID, $slugString)
     {
         $post = $this->getPostData()->singlePost($slugUniqueID);
-
-        if (property_exists('post_status', $post)) {
+        if (is_object($post) && property_exists($post, 'post_status')) {
             if ($post->post_status === 1 && $post->cat_status === 1) {
                 $this->showPost($post);
             }
@@ -59,7 +58,7 @@ class PostsController
         $post = [...json_decode($post->field_settings, true), ...(array)$post];
         $onFieldUserForm = new OnFieldUserForm([], new FieldData());
 
-        $date = new DateTime($post['created_at']);
+        $date = new DateTime($post['post_created_at']);
         $created_at_words = strtoupper($date->format('j M, Y'));
         $post['created_at_words'] = $created_at_words;
 

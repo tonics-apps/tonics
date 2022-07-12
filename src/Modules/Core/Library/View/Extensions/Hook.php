@@ -63,7 +63,6 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
                 $storage[$k]['nodes'] = [];
             }
             $view->storeDataInModeStorage('add_hook', $storage);
-            // dd($view, getBaseTemplate());
         }
 
         if ($tagname === 'reset_hook' || $tagname === 'reset_placeholder'){
@@ -135,6 +134,7 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
         if (isset($storage[$hook_name])){
             $storage[$hook_name]['nodes'] = [...$storage[$hook_name]['nodes'], ...$tagToken->getTag()->getNodes()];
         }
+
         $this->getTonicsView()->storeDataInModeStorage('add_hook', $storage);
     }
 

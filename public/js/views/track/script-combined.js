@@ -4542,7 +4542,7 @@ if (document.querySelector(parent)){
     });
 
     new myModule.Draggables(parent)
-        .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
+        .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label', '.widgetSettings'], false) // draggable element
         .onDragDrop(function (element, self) {
             // to the right
             let elementDragged = self.getDragging().closest(fieldChild);
