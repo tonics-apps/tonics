@@ -29,6 +29,14 @@
 
 [[trigger_block('reusable_hooks')]]
 
+[[hook_into('in_head')
+    <title>[[v('InputText_seo_title.Value .. Data.page_title')]]</title>
+    <meta name="description" content='[[v("Data.seo_description .. Data.og_description")]]'>
+    <meta property="og:title" content='[[v("Data.seo_title .. Data.page_title")]]'>
+    <meta property="og:description" content='[[v("Data.seo_description .. Data.og_description")]]'>
+    <meta property="og:url" content='[[v("URL.FULL_URL")]]'>
+]]
+
 [[hook_into('in_main')
 <section class="section color:black owl text-align:center padding:default">
     <div class="owl header-wrapper">

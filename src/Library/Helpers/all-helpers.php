@@ -192,14 +192,9 @@ function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = nul
         $cacheData = apcu_fetch($cacheKey);
         getBaseTemplate()->setContent($cacheData['contents']);
         getBaseTemplate()->setModeStorages($cacheData['modeStorage'] ?? []);
-        // reset query param
-        if (isset($cacheData['variable']['URL'])){
-            $cacheData['variable']['URL'] = [
-                'REQUEST_URL' => url()->getRequestURL(),
-                'PARAMS' => url()->getParams(),
-                'REFERER' => url()->getReferer()
-            ];
-        }
+
+        // reload global variable to evade caching
+        $cacheData['variable'] = [...$cacheData['variable'], ...AppConfig::initLoaderMinimal()::getGlobalVariable()];
         getBaseTemplate()->setVariableData($cacheData['variable']);
         if ($cacheFound !== null){
             $cacheFound();

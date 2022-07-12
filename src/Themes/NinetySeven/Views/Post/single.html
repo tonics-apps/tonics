@@ -5,7 +5,6 @@
 [[b('Post::Single::Header')
 <header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
     <h1 class="entry-title"> [[v('Data.post_title')]]</h1>
-
     <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
         <nav>
             <ul style="gap: 5px; font-size: 85%;" class="d:flex flex-wrap:wrap justify-content:center list:style:none">
@@ -65,7 +64,7 @@
         <meta name="description" content='[[v("Data.seo_description .. Data.og_description")]]'>
         <meta property="og:title" content='[[v("Data.seo_title .. Data.post_title")]]'>
         <meta property="og:description" content='[[v("Data.seo_description .. Data.og_description")]]'>
-        <meta property="og:url" content='[[v("Data._full_link")]]'>
+        <meta property="og:url" content='[[v("URL.FULL_URL")]]'>
         <meta property="og:type" content="article" />
         [[if('v[Data.image_url]')
             <meta property="og:image" content='[[v("Data.image_url")]]'>

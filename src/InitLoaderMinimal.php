@@ -62,6 +62,9 @@ class InitLoaderMinimal
 
     }
 
+    /**
+     * @throws Exception
+     */
     public static function initGlobalVariables(): void
     {
         self::addToGlobalVariable('App_Config', [
@@ -74,10 +77,12 @@ class InitLoaderMinimal
 
         url()->reset();
         self::addToGlobalVariable('URL', [
+            'FULL_URL' => url()->getFullURL(),
             'REQUEST_URL' => url()->getRequestURL(),
             'PARAMS' => url()->getParams(),
             'REFERER' => url()->getReferer()
         ]);
+
         # contains the pagination limit and offset, it would be populated from the queryModeHandler render method
         self::addToGlobalVariable('QUERY_MODE', [
             'LIMIT' => 0,

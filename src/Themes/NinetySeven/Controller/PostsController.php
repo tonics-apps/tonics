@@ -36,17 +36,14 @@ class PostsController
     {
         $post = $this->getPostData()->singlePost($slugUniqueID);
 
-        if (isset($post->post_status) && $post->post_status === 1 && $post->cat_status === 1) {
-            $this->showPost($post);
-            exit();
-        }
-
-        ## If Post is in draft, check if user is logged in and has a read access
-        if (isset($post->post_status) && $post->post_status === 0) {
+        if (property_exists('post_status', $post)) {
+            if ($post->post_status === 1 && $post->cat_status === 1) {
+                $this->showPost($post);
+            }
+            ## Else, post is in draft, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
             if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {
                 $this->showPost($post);
-                exit();
             }
         }
 
@@ -65,7 +62,6 @@ class PostsController
         $date = new DateTime($post['created_at']);
         $created_at_words = strtoupper($date->format('j M, Y'));
         $post['created_at_words'] = $created_at_words;
-        $post['_full_link'] = AppConfig::getAppUrl() . "/posts/{$post['slug_id']}/{$post['post_slug']}";
 
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
             $fieldSlugs = $this->getFieldSlug($post);
@@ -73,7 +69,7 @@ class PostsController
             $this->saveTemplateCache();
         }, cacheFound: function () use ($onFieldUserForm, $post) {
             # quick check if single template parts have not been cached...if not we force parse it...
-            if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])){
+            if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])) {
                 $fieldSlugs = $this->getFieldSlug($post);
                 $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
                 // re-save cache data
@@ -82,6 +78,7 @@ class PostsController
 
             getBaseTemplate()->addToVariableData('Data', $post);
         });
+        exit();
     }
 
     /**
@@ -91,19 +88,19 @@ class PostsController
     {
         $slug = $post['field_ids'];
         $fieldSlugs = json_decode($slug) ?? [];
-        if (is_object($fieldSlugs)){
+        if (is_object($fieldSlugs)) {
             $fieldSlugs = (array)$fieldSlugs;
         }
 
-        if (empty($fieldSlugs) || !is_array($fieldSlugs)){
+        if (empty($fieldSlugs) || !is_array($fieldSlugs)) {
             // re-save default fields
-            $default = ["post-page","seo-settings"];
+            $default = ["post-page", "seo-settings"];
             $updatePost = ['field_ids' => json_encode($default)];
             $post['field_settings'] = (array)json_decode($post['field_settings']);
-            if (empty($post['field_settings']['seo_title'])){
+            if (empty($post['field_settings']['seo_title'])) {
                 $post['field_settings']['seo_title'] = $post['post_title'];
             }
-            if (empty($post['field_settings']['seo_description'])){
+            if (empty($post['field_settings']['seo_description'])) {
                 $post['field_settings']['seo_description'] = substr(strip_tags($post['post_content']), 0, 200);
             }
             $updatePost['field_settings'] = json_encode($post['field_settings']);
