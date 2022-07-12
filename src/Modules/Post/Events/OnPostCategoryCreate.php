@@ -2,14 +2,16 @@
 
 namespace App\Modules\Post\Events;
 
+use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
 class OnPostCategoryCreate implements EventInterface
 {
 
     private \stdClass $category;
+    private PostData $postData;
 
-    public function __construct(\stdClass $category)
+    public function __construct(\stdClass $category, PostData $postData = null)
     {
         $this->category = $category;
         if (property_exists($category, 'created_at')){
@@ -17,6 +19,10 @@ class OnPostCategoryCreate implements EventInterface
         }
         if (property_exists($category, 'updated_at')){
             $this->category->updated_at = $this->getCatUpdatedAt();
+        }
+
+        if ($postData){
+            $this->postData = $postData;
         }
     }
 
@@ -81,5 +87,37 @@ class OnPostCategoryCreate implements EventInterface
     public function event(): static
     {
         return $this;
+    }
+
+    /**
+     * @return PostData
+     */
+    public function getPostData(): PostData
+    {
+        return $this->postData;
+    }
+
+    /**
+     * @param PostData $postData
+     */
+    public function setPostData(PostData $postData): void
+    {
+        $this->postData = $postData;
+    }
+
+    /**
+     * @return \stdClass
+     */
+    public function getCategory(): \stdClass
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param \stdClass $category
+     */
+    public function setCategory(\stdClass $category): void
+    {
+        $this->category = $category;
     }
 }

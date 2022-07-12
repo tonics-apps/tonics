@@ -11,7 +11,7 @@
             ]]
         </div>
         <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
-            <h4 class="margin-left:0">[[v('QUERY_MODE.post_query.post_title')]]</h4>
+            <h4 class="margin-left:0">[[_v('QUERY_MODE.post_query.post_title')]]</h4>
             <p style="max-width:unset;">[[v('QUERY_MODE.post_query._og_description')]]</p>
         </div>
         <div class="form-group d:flex flex-gap:small padding:default margin-top:auto">
@@ -58,7 +58,7 @@
                 <div></div>
             </div>
             [[- sfc meaning search form container -]]
-            <div id="sfc">
+            <div>
                 <form style="padding: 0 6.5em;" action="#sfc" class="d:flex justify-content:center owl" method="GET">
                     <div class="d:flex flex-d:column justify-content:center owl flex-wrap:wrap width:100%">
                         <div class="d:flex justify-content:center flex-wrap:wrap">
@@ -122,40 +122,12 @@
             ]]
         ]]
 
-        <ul style="margin: 0 auto; padding: 0 6.5em;" id="postloop"
+        <ul style="margin: 0 auto; padding: 0 6.5em;" id="sfc"
             class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
             [[Query('post_query', 'App\Themes\NinetySeven\Library\PostLoop', 'post_query_callback')]]
         </ul>
 
-        <div class="d:flex flex-gap justify-content:center padding:default flex-wrap:wrap">
-            [[if("v[QUERY_MODE.Result.prev_page_url]")
-            <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
-               title="Previous" href="[[v('QUERY_MODE.Result.prev_page_url')]]#sfc">
-                Previous
-            </a>
-            ]]
-
-            [[if("v[QUERY_MODE.Result]")
-                <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
-                    [[each("numberLinks in QUERY_MODE.Result.number_links")
-                        <li class="d:flex">
-                            <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
-                                    [[if('v[numberLinks.current] === bool[false]') color:black ]]
-                                    [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
-                                    border-width:default border:black padding:default
-                                    margin-top:0 cursor:pointer max-width:200 text-align:center text-underline" href="[[v('numberLinks.link')]]#sfc">[[v('numberLinks.number')]]</a>
-                        </li>
-                    ]]
-                </ul>
-            ]]
-
-            [[if("v[QUERY_MODE.Result.next_page_url]")
-            <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
-               title="Next" href="[[v('QUERY_MODE.Result.next_page_url')]]#sfc">
-                Next
-            </a>
-            ]]
-        </div>
+       [[_use('pagination')]]
     ]]
 
     [[hook_into('in_main_header_wrapper')

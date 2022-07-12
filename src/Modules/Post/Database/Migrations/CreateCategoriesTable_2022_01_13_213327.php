@@ -26,6 +26,7 @@ class CreateCategoriesTable_2022_01_13_213327 extends Migration {
         $this->getDB()->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `cat_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `slug_id` char(16) DEFAULT NULL,
   `cat_parent_id` int(10) unsigned DEFAULT NULL,
   `cat_name` varchar(100) NOT NULL,
   `cat_slug` varchar(100) NOT NULL,

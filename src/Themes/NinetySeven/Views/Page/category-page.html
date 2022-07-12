@@ -70,10 +70,12 @@
             ]]
         ]]
 
-        <ul style="margin: 0 auto; padding: 0 6.5em;" id="catloop"
+        <ul style="margin: 0 auto; padding: 0 6.5em;" id="sfc"
             class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
             [[Query('category_query', 'App\Themes\NinetySeven\Library\CategoryLoop', 'category_query_callback')]]
         </ul>
+
+        [[_use('pagination')]]
     ]]
 
 ]]
