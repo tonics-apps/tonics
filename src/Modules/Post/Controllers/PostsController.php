@@ -13,6 +13,7 @@ use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Post\Data\PostData;
@@ -316,19 +317,26 @@ class PostsController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function redirect($id)
+    #[NoReturn] public function redirect($id): void
     {
+        $redirection = new CommonResourceRedirection(
+            onSlugIDState: function ($slugID){
+                $post = $this->getPostData()
+                    ->selectWithConditionFromPost(['*'], "slug_id = ?", [$slugID]);
+                if (isset($post->slug_id) && isset($post->post_slug)){
+                    return "/posts/$post->slug_id/$post->post_slug";
+                }
+                return false;
+        }, onSlugState: function ($slug){
+            $post = $this->getPostData()
+                ->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
+            if (isset($post->slug_id) && isset($post->post_slug)){
+                return "/posts/$post->slug_id/$post->post_slug";
+            }
+            return false;
+        });
 
-        $postRedirection = new PostRedirection($this->getPostData());
-        $postRedirection->setCurrentState(PostRedirection::OnPostInitialState);
-        $postRedirection->setRequest(request());
-
-        $postRedirection->runStates(false);
-        if ($postRedirection->getStateResult() === SimpleState::DONE) {
-            redirect($postRedirection->getIntendedPostURL());
-        }
-
-        SimpleState::displayUnauthorizedErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+        $redirection->runStates();
     }
 
     /**

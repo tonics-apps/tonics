@@ -15,6 +15,7 @@ use App\Modules\Post\Data\PostData;
 use App\Modules\Widget\Data\WidgetData;
 use DateTime;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
+use JetBrains\PhpStorm\NoReturn;
 
 class PostsController
 {
@@ -27,12 +28,13 @@ class PostsController
         $this->postData = $postData;
         $this->userData = $userData;
         $this->widgetData = $widgetData;
+        addToGlobalVariable('Assets', ['css' => AppConfig::getThemesAsset('NinetySeven', 'css/styles.css')]);
     }
 
     /**
      * @throws \Exception
      */
-    public function singlePage($slugUniqueID, $slugString)
+    public function singlePost($slugUniqueID, $slugString)
     {
         $post = $this->getPostData()->singlePost($slugUniqueID);
         if (is_object($post) && property_exists($post, 'post_status')) {
@@ -54,13 +56,11 @@ class PostsController
      */
     private function showPost($post)
     {
-        addToGlobalVariable('Assets', ['css' => AppConfig::getThemesAsset('NinetySeven', 'css/styles.css')]);
         $post = [...json_decode($post->field_settings, true), ...(array)$post];
         $onFieldUserForm = new OnFieldUserForm([], new FieldData());
 
         $date = new DateTime($post['post_created_at']);
-        $created_at_words = strtoupper($date->format('j M, Y'));
-        $post['created_at_words'] = $created_at_words;
+        $post['created_at_words'] = strtoupper($date->format('j M, Y'));
 
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
             $fieldSlugs = $this->getFieldSlug($post);
@@ -77,7 +77,54 @@ class PostsController
 
             getBaseTemplate()->addToVariableData('Data', $post);
         });
-        exit();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] public function singleCategory($slugUniqueID, $slugString)
+    {
+        $category = $this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugUniqueID]);
+        if (is_object($category) && property_exists($category, 'cat_status')) {
+            if ($category->cat_status === 1) {
+                $this->showCategory($category);
+            }
+            ## Else, category is in draft, check if user is logged in and has a read access
+            $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
+            if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {
+                $this->showCategory($category);
+            }
+        }
+
+        SimpleState::displayUnauthorizedErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function showCategory($category)
+    {
+        $category = (array)$category;
+        $date = new DateTime($category['created_at']);
+        $category['created_at_words'] = strtoupper($date->format('j M, Y'));
+        $onFieldUserForm = new OnFieldUserForm([], new FieldData());
+
+        // category doesn't have the concepts of fields, but we could still use hard-coded field
+        $fieldSlugs = ['single-category-view'];
+        renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($fieldSlugs, $onFieldUserForm, $category) {
+            $onFieldUserForm->handleFrontEnd($fieldSlugs, $category);
+            $this->saveTemplateCache();
+        }, cacheFound: function () use ($onFieldUserForm, $category) {
+            # quick check if single template parts have not been cached...if not we force parse it...
+            if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])) {
+                $fieldSlugs = $this->getFieldSlug($category);
+                $onFieldUserForm->handleFrontEnd($fieldSlugs, $category);
+                // re-save cache data
+                $this->saveTemplateCache();
+            }
+
+            getBaseTemplate()->addToVariableData('Data', $category);
+        });
     }
 
     /**

@@ -17,9 +17,8 @@ trait Routes
     public function routeWeb(Route $route)
     {
         AppConfig::autoResolvePageRoutes(PagesController::class, $route);
-        $route->group('/posts', function (Route $route) {
-            $route->get(':slug-id/:post', [PostsController::class, 'singlePage']);
-        });
+        $route->get('/posts/:slug-id/:slug', [PostsController::class, 'singlePost']);
+        $route->get('/categories/:slug-id/:slug', [PostsController::class, 'singleCategory']);
 
         return $route;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Themes\NinetySeven\Library;
 
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Library\View\Extensions\Interfaces\QueryModeHandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
@@ -14,7 +15,7 @@ class CategoryLoop implements QueryModeHandlerInterface
         $categories = (isset($queryData->data)) ? $queryData->data : [];
         foreach ($categories as $cat) {
             $cat->cat_name = strip_tags($cat->cat_name);
-            $cat->_full_link = "/categories/$cat->cat_slug"; $stripTagsContent = strip_tags($cat->cat_content);
+            $cat->_full_link = "/categories/$cat->slug_id/$cat->cat_slug"; $stripTagsContent = strip_tags($cat->cat_content);
             $cat->_og_description = substr($stripTagsContent, 0, 200);
             if (strlen($stripTagsContent) > 200){
                 $cat->_og_description .="...";

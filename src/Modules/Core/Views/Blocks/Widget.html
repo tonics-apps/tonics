@@ -288,15 +288,6 @@ MAINLY FOR POST CATEGORIES
                        value="[[session('getOldFormInput', 'old_form_input.cat_slug', '')]]"
                        name="cat_slug" id="slug" placeholder="Category Slug: Auto-generates from title if empty" type="text">
             </div>
-            <!-- Cat URL Slug -->
-            <div class="form-group">
-                <label for="cat_url_slug">Category URL Slug:</label>
-                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_url_slug')]]
-                <input class="color:black border-width:default border:black placeholder-color:gray"
-                       value="[[session('getOldFormInput', 'old_form_input.cat_url_slug', '')]]"
-                       id="cat_url_slug" placeholder="Category URL Slug: Auto-generates from selected categories if empty"
-                       name="cat_url_slug" type="text">
-            </div>
         </div>
     </fieldset>
 </li>
@@ -316,15 +307,6 @@ MAINLY FOR POST CATEGORIES
                 <input data-widget-title-slugtoupdate="[[arg('1')]]" class="color:black border-width:default border:black placeholder-color:gray"
                        value="[[v('Data.cat_slug')]]"
                        name="cat_slug" id="slug" placeholder="Category Slug: Auto-generates from title if empty" type="text">
-            </div>
-            <!-- Cat URL Slug -->
-            <div class="form-group">
-                <label for="cat_url_slug">Category URL Slug:</label>
-                [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.cat_url_slug')]]
-                <input class="color:black border-width:default border:black placeholder-color:gray"
-                       value="[[v('Data.cat_url_slug')]]"
-                       id="cat_url_slug" placeholder="Category URL Slug: Auto-generates from selected categories if empty"
-                       name="cat_url_slug" type="text">
             </div>
         </div>
     </fieldset>

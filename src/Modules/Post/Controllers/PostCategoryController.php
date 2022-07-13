@@ -7,6 +7,7 @@ use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnPostCategoryCreate;
@@ -51,7 +52,7 @@ class PostCategoryController
         $category = $this->postData->createCategory();
         $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
 
-        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning);
+        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
         event()->dispatch($onPostCategoryCreate);
 
         session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -62,7 +63,7 @@ class PostCategoryController
      * @throws \ReflectionException
      * @throws Exception
      */
-    public function storeFromImport(array $categoryData): bool
+    public function storeFromImport(array $categoryData): bool|object
     {
         $previousPOSTGlobal = $_POST;
         $validator = $this->getValidator()->make($categoryData, $this->postCategoryStoreRule());
@@ -81,10 +82,10 @@ class PostCategoryController
             helper()->sendMsg('PostCategoryController::storeFromImport()', $e->getMessage(), 'issue');
             return false;
         }
-        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning);
+        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
         event()->dispatch($onPostCategoryCreate);
         $_POST = $previousPOSTGlobal;
-        return true;
+        return $onPostCategoryCreate;
 
     }
 
@@ -124,6 +125,7 @@ class PostCategoryController
         }
 
         $categoryToUpdate = $this->postData->createCategory();
+        $categoryToUpdate['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_slug'));
         $this->postData->updateWithCondition($categoryToUpdate, ['cat_slug' => $slug], $this->postData->getCategoryTable());
 
         $slug = $categoryToUpdate['cat_slug'];
@@ -197,6 +199,31 @@ class PostCategoryController
         }
         session()->flash(['Categories Trashed'], type: Session::SessionCategories_FlashMessageSuccess);
         redirect(route('posts.category.index'));
+    }
+
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] public function redirect($id): void
+    {
+        $redirection = new CommonResourceRedirection(
+            onSlugIDState: function ($slugID){
+                $category = $this->getPostData()
+                    ->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugID]);
+                if (isset($category->slug_id) && isset($category->cat_slug)){
+                    return "/categories/$category->slug_id/$category->cat_slug";
+                }
+                return false;
+            }, onSlugState: function ($slug){
+            $category = $this->getPostData()
+                ->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
+            if (isset($category->slug_id) && isset($category->cat_slug)){
+                return "/categories/$category->slug_id/$category->cat_slug";
+            }
+            return false;
+        });
+
+        $redirection->runStates();
     }
 
     public function delete(string $slug)

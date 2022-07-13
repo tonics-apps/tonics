@@ -34,11 +34,11 @@ class PostData extends AbstractDataLayer
         // tcs stands for tonics category system ;)
         return db()->run("
         WITH RECURSIVE cat_recursive AS 
-	( SELECT cat_id, cat_parent_id, cat_slug, `cat_url_slug`, cat_content, cat_name, CAST(cat_slug AS VARCHAR (255))
+	( SELECT cat_id, cat_parent_id, cat_slug,  cat_content, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
       FROM {$categoryTable} WHERE cat_parent_id IS NULL
       UNION ALL
-      SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs.cat_url_slug, tcs .cat_content, tcs.cat_name, CONCAT(path, '/' , tcs.cat_slug)
+      SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs .cat_content, tcs.cat_name, CONCAT(path, '/' , tcs.cat_slug)
       FROM cat_recursive as fr JOIN {$categoryTable} as tcs ON fr.cat_id = tcs.cat_parent_id
       ) 
      SELECT * FROM cat_recursive;
@@ -80,7 +80,7 @@ class PostData extends AbstractDataLayer
      */
     private function getCategoryHTMLSelectFragments($category, $currentCatData = null): string
     {
-        $currentCatData = (isset($currentCatData->cat_parent_id)) ? $currentCatData->cat_parent_id: $currentCatData;
+        $currentCatData = (is_object($currentCatData) && property_exists($currentCatData, 'cat_parent_id')) ? $currentCatData->cat_parent_id: $currentCatData;
         $catSelectFrag = '';
         $catID =  $category->cat_id;
         if ($category->depth === 0){
@@ -126,7 +126,6 @@ CAT;
         foreach ($posts as $k => $post){
             if ($post->post_status === $status || $status === null){
                 $isDraft = ($post->post_status === 0) ?  'Draft' : 'Published';
-                $catURLSlug = (empty($post->cat_url_slug) ? '~' : $post->cat_url_slug);
                 $postTitle = helper()->htmlSpecChar($post->post_title);
                 if ($post->post_status === -1){
                     $otherFrag = <<<HTML
@@ -150,14 +149,14 @@ HTML;
             }
                 $htmlFrag .=<<<HTML
     <li 
-    data-list_id="$k" data-id="$post->post_id"  data-post_id="$post->post_id" data-cat_url_slug="$catURLSlug" 
+    data-list_id="$k" data-id="$post->post_id"  data-post_id="$post->post_id" 
     data-post_slug="$post->post_slug" data-post_title="$postTitle"
     data-db_click_link="/admin/posts/$post->post_slug/edit"
     data-user_id="$post->user_id"
     tabindex="0" 
     class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
         <fieldset class="padding:default width:100% min-height:300 box-shadow-variant-1 draggable d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">[$catURLSlug] $isDraft</legend>
+            <legend class="bg:pure-black color:white padding:default">$isDraft</legend>
             <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">$postTitle</div>
          
@@ -165,7 +164,7 @@ HTML;
                      <a href="/admin/posts/$post->post_slug/edit" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
                         margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
                         
-                      <a href="/posts/$post->slug_id/$post->post_slug" target="_blank"
+                      <a href="/posts/$post->post_slug_id/$post->post_slug" target="_blank"
                       class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
                         margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Preview</a>
                   
@@ -192,7 +191,6 @@ HTML;
         foreach ($categories as $k => $category){
             if ($category->cat_status === $status || $status === null){
                 $isDraft = ($category->cat_status === 0) ?  'Draft' : 'Published';
-                $catURLSlug = (empty($category->cat_url_slug) ? '~' : $category->cat_url_slug);
                 $catTitle = helper()->htmlSpecChar($category->cat_name);
                 if ($category->cat_status === -1){
                     $otherFrag = <<<HTML
@@ -222,12 +220,11 @@ HTML;
     data-list_id="$k" data-id="$category->cat_id" 
     data-cat_id="$category->cat_id" 
     data-cat_name="$catTitle" 
-    data-cat_slug="$category->cat_slug" 
-    data-cat_url_slug="$catURLSlug"
+    data-cat_slug="$category->cat_slug"
     tabindex="0" 
     class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
         <fieldset class="padding:default width:100% min-height:300 box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">[$catURLSlug] $isDraft</legend>
+            <legend class="bg:pure-black color:white padding:default">$isDraft</legend>
             <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">$category->cat_name</div>
          
@@ -270,8 +267,7 @@ HTML;
     public function getCategoryColumns(): array
     {
         return [
-                'cat_id', 'cat_parent_id', 'cat_name', 'cat_slug', 'cat_status',
-                'cat_url_slug', 'cat_content', 'created_at', 'updated_at'
+                'cat_id', 'cat_parent_id', 'cat_name', 'cat_slug', 'cat_status', 'cat_content', 'created_at', 'updated_at'
             ];
     }
 
@@ -299,8 +295,6 @@ HTML;
         $slug = $this->generateUniqueSlug($this->getCategoryTable(),
             'cat_slug',
             helper()->slug(input()->fromPost()->retrieve('cat_slug')));
-        $catUrlSlug = filter_var(input()->fromPost()->retrieve('cat_url_slug'), FILTER_SANITIZE_URL);
-        $catUrlSlug = preg_replace("#//+#", "\\1/", $catUrlSlug);
 
         $category = []; $categoryCols = array_flip($this->getCategoryColumns());
         if (input()->fromPost()->hasValue('cat_parent_id')){
@@ -320,10 +314,6 @@ HTML;
                 }
                 if ($inputKey === 'cat_slug'){
                     $category[$inputKey] = $slug;
-                    continue;
-                }
-                if ($inputKey === 'cat_url_slug'){
-                    $category[$inputKey] = $catUrlSlug;
                     continue;
                 }
                 $category[$inputKey] = $inputValue;
@@ -426,11 +416,11 @@ HTML;
         }
         return db()->run("
         WITH RECURSIVE child_to_parent AS 
-	( SELECT cat_id, cat_parent_id, cat_slug, `cat_url_slug`, cat_content, cat_name, CAST(cat_slug AS VARCHAR (255))
+	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_content, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
       FROM $categoryTable WHERE $where
       UNION ALL
-      SELECT fr.cat_id, fr.cat_parent_id, fr.cat_slug, fr.cat_url_slug, fr.cat_content, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
+      SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_content, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
       FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.cat_id = cp.cat_parent_id
       ) 
      SELECT * FROM child_to_parent;
@@ -450,11 +440,12 @@ HTML;
         $userTable = Tables::getTable(Tables::USERS);
 
         $data = db()->row(<<<SQL
-SELECT *, $postTable.created_at as 'post_created_at', $postTable.updated_at as 'post_updated_at' FROM $postToCatTable 
+SELECT *, $postTable.created_at as 'post_created_at', $postTable.updated_at as 'post_updated_at', $postTable.slug_id as post_slug_id, $categoryTable.slug_id as cat_slug_id
+    FROM $postToCatTable 
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $userTable ON $userTable.user_id = $postTable.user_id
     JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-WHERE slug_id = ?
+WHERE $postTable.slug_id = ?
 SQL, $slugNumericID);
         if (isset($data->user_password)){
             unset($data->user_password);
@@ -544,7 +535,6 @@ SQL, ...$parameter);
             $defaultCategory = [
                 'cat_name' => 'Default Category',
                 'cat_slug' => 'default-category',
-                'cat_url_slug' => '',
                 'cat_content' => '',
                 'cat_status' => 1,
             ];
@@ -568,7 +558,7 @@ SQL, ...$parameter);
      */
     public function getCategoryPaginationColumns(): string
     {
-        return '`cat_id`, `cat_parent_id`, `cat_name`, `cat_slug`, `cat_url_slug`, `created_at`, `cat_status`, `updated_at`,
+        return '`cat_id`, `cat_parent_id`, `cat_name`, `cat_slug`, `created_at`, `cat_status`, `updated_at`,
         CONCAT_WS( "/", "posts/category", cat_slug ) AS `_link`, `cat_name` AS `_name`, `cat_id` AS `_id`';
     }
 
@@ -610,7 +600,7 @@ SQL, $this->getPageStatus())->r;
                 $postInCategories[] = $limit;
                 $postInCategories[] = $offset;
                 return db()->run(<<<SQL
-SELECT * FROM $postToCatTable 
+SELECT *, $postTable.slug_id as post_slug_id FROM $postToCatTable 
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
 $where
@@ -622,7 +612,7 @@ SQL, ...$postInCategories);
                 $postInCategories[] = $limit;
                 $postInCategories[] = $offset;
                 return  db()->run(<<<SQL
-SELECT * FROM $postToCatTable
+SELECT *, $postTable.slug_id as post_slug_id FROM $postToCatTable
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
 $where ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ? 

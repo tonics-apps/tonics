@@ -19,7 +19,6 @@ trait PostValidationRules
             'cat_slug' => ['required', 'string', 'unique' => [
                 $catSlugUnique => input()->fromPost()->retrieve('cat_slug', '')]
             ],
-            'cat_url_slug' => ['string'],
             'created_at' => ['required', 'string'],
         ];
     }
@@ -36,7 +35,6 @@ trait PostValidationRules
             'cat_slug' => ['required', 'string', 'unique' => [
                 $catSlugUnique => input()->fromPost()->retrieve('cat_id', '')]
             ],
-            'cat_url_slug' => ['string'],
             'created_at' => ['required', 'string'],
         ];
     }

@@ -75,7 +75,6 @@ class WidgetActivator implements ModuleConfig, PluginConfig
     {
         return
             [
-                Tables::getTable(Tables::WIDGET_LOCATIONS) => Tables::getTable(Tables::WIDGET_LOCATIONS),
                 Tables::getTable(Tables::WIDGETS) => Tables::getTable(Tables::WIDGETS),
                 Tables::getTable(Tables::WIDGET_ITEMS) => Tables::getTable(Tables::WIDGET_ITEMS),
             ];

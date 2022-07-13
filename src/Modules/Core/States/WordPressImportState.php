@@ -13,6 +13,7 @@ use App\Modules\Media\FileManager\LocalDriver;
 use App\Modules\Post\Controllers\PostCategoryController;
 use App\Modules\Post\Controllers\PostsController;
 use App\Modules\Post\Data\PostData;
+use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Post\Events\OnPostCreate;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateArrayLoader;
 use SimpleXMLElement;
@@ -26,6 +27,7 @@ class WordPressImportState extends SimpleState
     private string $siteURL;
     private false|SimpleXMLElement $xmlObject = false;
     private array $categoryData = [];
+    private array $urlRedirections = [];
 
     private array $infoOfUniqueID = [];
 
@@ -229,7 +231,6 @@ class WordPressImportState extends SimpleState
             $cat[$slug] = [
                 'cat_id' => $id,
                 'cat_slug' => $slug,
-                'cat_url_slug' => $slug,
                 'created_at' => helper()->date(),
                 'cat_parent_id' => (!empty($parent) && key_exists($parent, $cat)) ? $cat[$parent]['cat_id'] : '',
                 'cat_name' => $name,
@@ -247,6 +248,14 @@ class WordPressImportState extends SimpleState
                 helper()->sendMsg($this->getCurrentState(), "Failed To Import Category: '$name', Moving On Regardless...", 'issue');
             }
             ++$lastHighestID;
+
+            if ($result instanceof OnPostCategoryCreate){
+                $cat_slug = $cat[array_key_last($cat)]['cat_slug'];
+                $postCatParents = $postData->getPostCategoryParents($cat_slug);
+                $lastCat = isset($postCatParents[array_key_last($postCatParents)]) ? $postCatParents[array_key_last($postCatParents)]->path. '/' : '';
+                // 'old' url is the key, and the value is where to redirect to...
+                $this->urlRedirections[ "/$lastCat"] = "/categories/{$result->getSlugID()}/$slug";
+            }
         }
 
         $this->categoryData = $cat;
@@ -265,7 +274,6 @@ class WordPressImportState extends SimpleState
         $userData = new UserData();
         $postController = new PostsController($postData, $userData);
         $attachment = [];
-        $oldWPUrl = [];
         $noNameID = 1;
 
         $userType = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserType);
@@ -376,11 +384,12 @@ class WordPressImportState extends SimpleState
 
                 if ($result instanceof OnPostCreate){
                     if (!empty($postCatParents)){
-                        $lastCat = $postCatParents[array_key_last($postCatParents)];
+                        $lastCat = isset($postCatParents[array_key_last($postCatParents)]) ? $postCatParents[array_key_last($postCatParents)]->path. '/' : '';
                         // 'old' url is the key, and the value is where to redirect to...
-                        $oldWPUrl[ "/$lastCat->path/$postSlug"] = "/posts/{$result->getSlugID()}/$postSlug";
+                        $this->urlRedirections[ "/{$lastCat}$postSlug"] = "/posts/{$result->getSlugID()}/$postSlug";
                     }
                 }
+
             }
         }
 
@@ -388,7 +397,7 @@ class WordPressImportState extends SimpleState
             Tables::getTable(Tables::GLOBAL),
             [
                 'key' => 'url_redirections',
-                'value' => json_encode($oldWPUrl, JSON_UNESCAPED_SLASHES)
+                'value' => json_encode($this->urlRedirections, JSON_UNESCAPED_SLASHES)
             ],
             ['value']
         );

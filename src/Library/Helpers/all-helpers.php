@@ -182,7 +182,7 @@ function getBaseTemplate(): TonicsView|null
  * @return void
  * @throws Exception
  */
-function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = null, callable $cacheFound = null): void
+#[NoReturn] function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = null, callable $cacheFound = null): void
 {
     if (!apcu_exists($cacheKey)){
         if ($cacheNotFound !== null){
@@ -202,6 +202,7 @@ function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = nul
     }
 
     echo getBaseTemplate()->outputContentData(getBaseTemplate()->getContent()->getContents());
+    exit();
 }
 
 /**

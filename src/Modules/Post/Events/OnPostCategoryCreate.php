@@ -41,6 +41,11 @@ class OnPostCategoryCreate implements EventInterface
         return (property_exists($this->category, 'cat_id')) ? $this->category->cat_id : '';
     }
 
+    public function getSlugID(): mixed
+    {
+        return (property_exists($this->category, 'slug_id')) ? $this->category->slug_id : '';
+    }
+
     public function getCatStatus(): string|int
     {
         return (property_exists($this->category, 'cat_status')) ? $this->category->cat_status : '';
@@ -59,11 +64,6 @@ class OnPostCategoryCreate implements EventInterface
     public function getCatSlug(): string
     {
         return (property_exists($this->category, 'cat_slug')) ? $this->category->cat_slug : '';
-    }
-
-    public function getCatURLSlug(): string
-    {
-        return (property_exists($this->category, 'cat_url_slug')) ? $this->category->cat_url_slug : '';
     }
 
     public function getCatContent(): string

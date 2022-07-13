@@ -16,6 +16,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Post\EventHandlers\CategoryMenuMetaBox;
 use App\Modules\Post\EventHandlers\DefaultPostFieldHandler;
+use App\Modules\Post\EventHandlers\HandleNewCategorySlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostSlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostToCategoryMapping;
 use App\Modules\Post\EventHandlers\HandleUpdatePostToCategoryMapping;
@@ -61,7 +62,7 @@ class PostActivator implements ModuleConfig, PluginConfig
             ],
 
             OnPostCategoryCreate::class => [
-
+                HandleNewCategorySlugIDGeneration::class
             ],
 
             OnPostCreate::class => [

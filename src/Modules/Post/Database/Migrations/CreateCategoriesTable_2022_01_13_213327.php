@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `cat_parent_id` int(10) unsigned DEFAULT NULL,
   `cat_name` varchar(100) NOT NULL,
   `cat_slug` varchar(100) NOT NULL,
-  `cat_url_slug` varchar(255) DEFAULT NULL,
   `cat_content` text DEFAULT NULL,
   `cat_status` tinyint(4) DEFAULT 1,
   `created_at` timestamp DEFAULT current_timestamp(),

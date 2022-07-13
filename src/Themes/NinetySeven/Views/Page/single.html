@@ -33,7 +33,7 @@
     [[hook_into('in_head')
         <meta property="og:type" content="website">
     ]]
-    [[hook_into('in_head_title')[[v('InputText_seo_title.Value .. Data.page_title')]] ]]
+    [[hook_into('in_head_title')[[v('Data.seo_title .. Data.page_title')]] ]]
     [[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.page_title")]] ]]
 
     [[hook_into('in_main')
@@ -111,7 +111,7 @@
 
         [[SQL('post_query_get_row_with_offset_limit')
             [[SELECT('post_categories') [[COLS('ALL')]] ]]
-            [[SELECT('posts') [[COLS('ALL')]] ]]
+            [[SELECT('posts') [[COLS('ALL')]] [[COL_AS('slug_id', 'post_slug_id')]] ]]
             [[SELECT('categories') [[COLS('ALL')]] ]]
             [[REUSE_SQL('reusable_sql')]]
             [[WHERE('posts.post_status')

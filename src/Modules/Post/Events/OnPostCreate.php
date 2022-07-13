@@ -66,11 +66,6 @@ class OnPostCreate implements EventInterface
         return (property_exists($this->post, 'post_slug')) ? $this->post->post_slug : '';
     }
 
-    public function getCatURLSlug(): string
-    {
-        return (property_exists($this->post, 'cat_url_slug')) ? $this->post->cat_url_slug : '';
-    }
-
     public function getImageURL(): string
     {
         return (property_exists($this->post, 'image_url')) ? $this->post->image_url : '';

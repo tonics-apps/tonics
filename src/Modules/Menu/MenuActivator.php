@@ -66,7 +66,6 @@ class MenuActivator implements ModuleConfig, PluginConfig
         return
             [
                 Tables::getTable(Tables::MENU_ITEMS) => Tables::getTable(Tables::MENU_ITEMS),
-                Tables::getTable(Tables::MENU_LOCATIONS) => Tables::getTable(Tables::MENU_LOCATIONS),
                 Tables::getTable(Tables::MENUS) => Tables::getTable(Tables::MENUS),
             ];
     }
