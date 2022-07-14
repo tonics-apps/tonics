@@ -133,7 +133,7 @@
 
 [[b('Post::Single::Header')
 <header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
-  <h1 class="entry-title"> [[v('Data.post_title .. Data.cat_name')]]</h1>
+  <h1 class="entry-title"> [[_v('Data.post_title .. Data.cat_name')]]</h1>
   <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
     [[if('v[Data.categories]')
     <nav>

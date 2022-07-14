@@ -550,7 +550,7 @@ SQL, ...$parameter);
     public function getPostPaginationColumns(): string
     {
         return '`post_id`, `slug_id`, `post_title`, `post_slug`, `post_status`, `user_id`, `created_at` AS `post_created_at`, `updated_at`,
-        CONCAT_WS( "/", "posts", slug_id, post_slug ) AS `_link`, `post_title` AS `_name`, `post_id` AS `_id`';
+        CONCAT_WS( "/", "/posts", slug_id, post_slug ) AS `_link`, `post_title` AS `_name`, `post_id` AS `_id`';
     }
 
     /**
@@ -558,8 +558,8 @@ SQL, ...$parameter);
      */
     public function getCategoryPaginationColumns(): string
     {
-        return '`cat_id`, `cat_parent_id`, `cat_name`, `cat_slug`, `created_at`, `cat_status`, `updated_at`,
-        CONCAT_WS( "/", "posts/category", cat_slug ) AS `_link`, `cat_name` AS `_name`, `cat_id` AS `_id`';
+        return '`cat_id`, `cat_parent_id`, slug_id, `cat_name`, `cat_slug`, `created_at`, `cat_status`, `updated_at`,
+        CONCAT_WS( "/", "/categories", slug_id, cat_slug ) AS `_link`, `cat_name` AS `_name`, `cat_id` AS `_id`';
     }
 
     /**
