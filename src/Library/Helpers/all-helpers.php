@@ -214,6 +214,14 @@ function getPostData()
 }
 
 /**
+ * @throws Exception
+ */
+function getGlobalVariableData()
+{
+    return AppConfig::initLoaderMinimal()::getGlobalVariable();
+}
+
+/**
  * For $condition, you can use:
  *
  * - `TonicsView::RENDER_CONCATENATE_AND_OUTPUT` if you want to concatenate and output to the browser (default)
@@ -229,6 +237,7 @@ function getPostData()
  */
 function view(string $viewname, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
+    $data = [...$data, ...getGlobalVariableData()];
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
     return $view->render($viewname, $condition);
 }

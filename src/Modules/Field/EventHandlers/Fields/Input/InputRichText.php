@@ -145,6 +145,7 @@ FORM;
         if ($data->_field->canValidate && !empty($data->field_validations)){
             $error = $event->validationMake(['defaultValue' => $defaultValue], ['defaultValue' => $data->field_validations]);
         }
+        $defaultValue = helper()->htmlSpecChar($defaultValue);
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
 $error

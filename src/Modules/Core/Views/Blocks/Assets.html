@@ -82,8 +82,19 @@
 </script>
 ]]
 
+
 [[b('script:post')
-<script type="module" src="[[combine('/js/views/post/script-combined.js',
+
+<template class="tiny-mce-assets">
+    <input class="css" value="https://cringe.com/assets/themes/NinetySeven/?path=css/styles.css">
+<!--    <input class="js" value="/js/views/field/items/user/index.js">-->
+</template>
+
+<!--<tonics-field>-->
+<!--    This is a test-->
+<!--</tonics-field>-->
+
+<script class="script-with-field" type="module" src="[[combine('/js/views/post/script-combined.js',
         '/js/Modules/Element/MenuToggle.js',
         '/js/Modules/Element/Query.js',
         '/js/Modules/Others/Draggables.js',

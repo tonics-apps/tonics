@@ -97,6 +97,20 @@ html {
     box-sizing: inherit;
 }
 
+
+/* FOR TINYMCE */
+body#tinymce {
+    padding-top: 1em;
+}
+body#tinymce > * + * {
+    margin-top: clamp(1.3rem, 2.5vw, 2rem);
+}
+
+.mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {
+    left: 1px;
+    padding: 0 1em;
+}
+
 input:focus {
     outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
     outline: 2px solid #727272;

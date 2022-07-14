@@ -515,6 +515,10 @@ fieldset {
     user-select: all;
 }
 
+.admin-post-widget {
+    padding: 0 6em;
+}
+
 .admin-widget-item {
     flex: 1 1 clamp(clamp(clamp((100% / 4 - 2rem), (800px - 100vw) * 1000, 100% - 2rem), (1200px - 100vw) * 1000, 100% / 2 - 2rem), (1800px - 100vw) * 1000, 100% / 3 - 2rem);
     position: relative;

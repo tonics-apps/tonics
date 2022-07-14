@@ -3664,6 +3664,14 @@ let previousTinyPositionBeforeFullScreenStateChange = null,
     fromOnFullScreenState = false;
 
 function addTiny(editorID) {
+    let tinyAssets = document.querySelector('template.tiny-mce-assets'),
+        tinyJSAssets = tinyAssets.content.querySelectorAll('.js'),
+        tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
+
+    let content_css = '';
+    tinyCSSAssets.forEach((css) => {
+        content_css += css.value + ',';
+    })
     return tinymce.init({
         // add support for image lazy loading
         extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]",
@@ -3673,7 +3681,7 @@ function addTiny(editorID) {
         plugins: [
             'advlist', 'tonics-drivemanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
             'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount',
         ],
         // fullscreen_native: true,
         toolbar: 'undo redo | tonics-drivemanager link image media | ' +
@@ -3682,7 +3690,23 @@ function addTiny(editorID) {
             'removeformat | help',
         content_style: 'body { font-family:IBMPlexSans-Regular,Times New Roman,serif; font-size:20px }',
         contextmenu: "link image | copy searchreplace tonics-drivemanager | bold italic blocks align",
+        content_css : content_css,
+        body_class : "entry-content",
+        remove_trailing_brs: true,
+        entity_encoding: "raw",
         setup: function (editor) {
+            if (tinyAssets){
+                const scriptLoader = new tinymce.dom.ScriptLoader();
+                if (tinyJSAssets.length > 0){
+                    tinyJSAssets.forEach((js) => {
+                        scriptLoader.add(js.value);
+                    });
+                    scriptLoader.loadQueue(function() {
+                        console.log('tiny-mce 3rd-party scripts loaded');
+                    });
+                }
+            }
+
             editor.on('init', function (e) {
                 if (fromOnFullScreenState) {
                     tinymce.execCommand("mceFullScreen", false, e.target.id);
@@ -3718,6 +3742,7 @@ function addTiny(editorID) {
                         tinymce.execCommand("mceRemoveEditor", false, IDQuery.id);
                         IDQuery.id = 'tinyMCEBodyArea' + new Date().valueOf();
                         fromOnFullScreenState = false;
+                        previousTinyPositionBeforeFullScreenStateChange = null;
                         addTiny('#' + IDQuery.id);
                     }
                 }
