@@ -4542,7 +4542,7 @@ if (document.querySelector(parent)){
     });
 
     new myModule.Draggables(parent)
-        .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label', '.widgetSettings'], false) // draggable element
+        .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
         .onDragDrop(function (element, self) {
             // to the right
             let elementDragged = self.getDragging().closest(fieldChild);
@@ -4640,13 +4640,14 @@ function insertFieldItems(data, checkedSlug) {
         });
     }
 }hookTinyMCE();
+
 function hookTinyMCE() {
     if (typeof tinymce !== 'undefined') {
         let allTinyArea = document.querySelectorAll('.tinyMCEBodyArea');
         allTinyArea.forEach(tinyArea => {
             tinyArea.dataset.tinyinstance = 'true';
             tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
-            addTiny('#' +tinyArea.id);
+            addTiny('#' + tinyArea.id);
         });
 
         const tinyDialogObserver = new MutationObserver(((mutationsList, observer) => {
@@ -4657,12 +4658,12 @@ function hookTinyMCE() {
                     let tinyArea = addedNode.querySelector('.tinyMCEBodyArea');
                     if (tinyArea) {
                         // if tinyInstance is available, re-initialize it
-                        if (tinyArea.dataset.tinyinstance === 'true'){
+                        if (tinyArea.dataset.tinyinstance === 'true') {
                             let allTinyArea = document.querySelectorAll('.tinyMCEBodyArea');
                             allTinyArea.forEach(tinyArea => {
                                 tinymce.execCommand("mceRemoveEditor", false, tinyArea.id);
                                 tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
-                                addTiny('#' +tinyArea.id);
+                                addTiny('#' + tinyArea.id);
                             });
                             return;
                         }
@@ -4670,7 +4671,7 @@ function hookTinyMCE() {
                         // else...
                         tinyArea.dataset.tinyinstance = 'true';
                         tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
-                        addTiny('#' +tinyArea.id);
+                        addTiny('#' + tinyArea.id);
                     }
                 }
             }
@@ -4680,18 +4681,22 @@ function hookTinyMCE() {
     }
 }
 
+let previousTinyPositionBeforeFullScreenStateChange = null,
+    fromOnFullScreenState = false;
+
 function addTiny(editorID) {
-    tinymce.init({
+    return tinymce.init({
         // add support for image lazy loading
-        extended_valid_elements : "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]",
+        extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]",
         selector: editorID,
-        height: 800,
+        height: 900,
         menubar: true,
         plugins: [
             'advlist', 'tonics-drivemanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
             'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount',
         ],
+        // fullscreen_native: true,
         toolbar: 'undo redo | tonics-drivemanager link image media | ' +
             'bold italic backcolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist | ' +
@@ -4699,8 +4704,44 @@ function addTiny(editorID) {
         content_style: 'body { font-family:IBMPlexSans-Regular,Times New Roman,serif; font-size:20px }',
         contextmenu: "link image | copy searchreplace tonics-drivemanager | bold italic blocks align",
         setup: function (editor) {
+            editor.on('init', function (e) {
+                if (fromOnFullScreenState) {
+                    tinymce.execCommand("mceFullScreen", false, e.target.id);
+                }
+            });
             editor.on('init change blur', function (e) {
-                 tinymce.triggerSave();
+                tinymce.triggerSave();
+            });
+
+            editor.on('FullscreenStateChanged', function (e) {
+                // hack to get full screen to work from a nested container
+                if (fromOnFullScreenState === false){
+                    let tinyArea = e.target.container,
+                        tinyID = e.target.id,
+                        IDQuery = document.querySelector('#' + tinyID);
+
+                    if (previousTinyPositionBeforeFullScreenStateChange === null) {
+                        previousTinyPositionBeforeFullScreenStateChange = tinyArea.parentElement;
+                    }
+                    if (tinyArea.classList.contains('tox-fullscreen')) {
+                        // we add the editor to body first child, this way, fullscreen works with no quirks
+                        document.querySelector('body').insertAdjacentElement('afterbegin', IDQuery);
+                        tinymce.execCommand("mceRemoveEditor", false, IDQuery.id);
+                        IDQuery.id = 'tinyMCEBodyArea' + new Date().valueOf();
+                        fromOnFullScreenState = true;
+                        addTiny('#' + IDQuery.id).then(function(editors) {
+                            // reset for next event, this would be called after editor.on('init')
+                            fromOnFullScreenState = false;
+                        });
+                    } else {
+                        // we return the editor back to its position
+                        previousTinyPositionBeforeFullScreenStateChange.insertAdjacentElement('beforeend', IDQuery);
+                        tinymce.execCommand("mceRemoveEditor", false, IDQuery.id);
+                        IDQuery.id = 'tinyMCEBodyArea' + new Date().valueOf();
+                        fromOnFullScreenState = false;
+                        addTiny('#' + IDQuery.id);
+                    }
+                }
             });
         }
     });
