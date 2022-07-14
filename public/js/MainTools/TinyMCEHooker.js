@@ -98,6 +98,7 @@ function addTiny(editorID) {
                         tinymce.execCommand("mceRemoveEditor", false, IDQuery.id);
                         IDQuery.id = 'tinyMCEBodyArea' + new Date().valueOf();
                         fromOnFullScreenState = false;
+                        previousTinyPositionBeforeFullScreenStateChange = null;
                         addTiny('#' + IDQuery.id);
                     }
                 }
