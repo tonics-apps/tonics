@@ -77,7 +77,7 @@ class ClearCache implements ConsoleCommand
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_RESOLVE => $resolveUrl,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADERFUNCTION =>  function($curl, $header) use ($helper, &$headers,)
+            CURLOPT_HEADERFUNCTION =>  function($curl, $header) use ($helper, &$headers)
             {
                 return $helper->getCurlHeaders($curl, $header, $headers, ['cache-result']);
             },

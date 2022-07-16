@@ -132,7 +132,7 @@ SQL;
     {
         $currentUrl = url()->getRequestURLWithQueryString();
         $numberLinks = []; $windowSize = 5;
-        if ($page > 1) {;
+        if ($page > 1) {
             // Number links that should appear on the left
             for($i = $page - $windowSize; $i < $page; $i++){
                 if($i > 0){

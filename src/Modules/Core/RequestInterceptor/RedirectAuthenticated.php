@@ -132,4 +132,20 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
             ->setErrorMessage(self::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
         return self::ERROR;
     }
+
+    /**
+     * @return null
+     */
+    public function getUserType()
+    {
+        return $this->userType;
+    }
+
+    /**
+     * @return null
+     */
+    public function getUserTypeName()
+    {
+        return $this->userTypeName;
+    }
 }

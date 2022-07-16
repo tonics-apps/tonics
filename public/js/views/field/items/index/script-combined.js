@@ -3960,13 +3960,16 @@ let previousTinyPositionBeforeFullScreenStateChange = null,
 
 function addTiny(editorID) {
     let tinyAssets = document.querySelector('template.tiny-mce-assets'),
-        tinyJSAssets = tinyAssets.content.querySelectorAll('.js'),
-        tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
+        content_css = '';
+        if(tinyAssets){
+            let tinyJSAssets = tinyAssets.content.querySelectorAll('.js'),
+                tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
 
-    let content_css = '';
-    tinyCSSAssets.forEach((css) => {
-        content_css += css.value + ',';
-    })
+            tinyCSSAssets.forEach((css) => {
+                content_css += css.value + ',';
+            })
+        }
+
     return tinymce.init({
         // add support for image lazy loading
         extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]",
@@ -3980,11 +3983,10 @@ function addTiny(editorID) {
         ],
         noneditable_class: 'tonics-legend',
         editable_class: 'widgetSettings,dropdown-toggle',
-        fullscreen_native: true,
+        // fullscreen_native: true,
         toolbar: 'undo redo | tonics-drivemanager link image media | ' +
             'bold italic backcolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist | ' +
-            'removeformat | help',
+            'alignright alignjustify | bullist numlist | help',
         content_style: 'body { font-family:IBMPlexSans-Regular,Times New Roman,serif; font-size:20px }',
         contextmenu: "link image | copy searchreplace tonics-drivemanager | bold italic blocks align",
         content_css : content_css,

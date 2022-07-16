@@ -140,7 +140,7 @@ abstract class SimpleState
     public function switchState(string $state, string $stateResult = null): SimpleState|string
     {
         $this->setCurrentState($state);
-        if ($this->debug) {;
+        if ($this->debug) {
             print "State Switched To $state" . "<br>";
         }
         if ($stateResult !== null){

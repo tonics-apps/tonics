@@ -191,4 +191,12 @@ class OnFieldUserForm implements EventInterface
     {
         $this->fieldIDS = $fieldIDS;
     }
+
+    /**
+     * @return OnFieldMetaBox
+     */
+    public function getFieldMetaBox(): OnFieldMetaBox
+    {
+        return $this->fieldMetaBox;
+    }
 }

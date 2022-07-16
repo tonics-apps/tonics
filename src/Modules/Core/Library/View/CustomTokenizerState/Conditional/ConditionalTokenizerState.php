@@ -140,7 +140,6 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
                         $tv->switchState(self::StringModeState);
                         break;
                 }
-                return;
             }
         }
     }
@@ -264,7 +263,6 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
         }
 
         $tv->reconsumeIn(self::InitConditionalOperatorState);
-        return;
     }
 
     public static function InitConditionalOperatorState(TonicsView $tv): void
@@ -554,7 +552,6 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
         if ($token['type'] === 'mode'){
             self::$operandA = self::getModeOperandData($token, $tv);
             $tv->switchState(self::EvaluateFirstTypeState);
-            return;
         }
     }
 

@@ -149,10 +149,6 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
             $tv->reconsumeIn(self::WordPressShortCodeOpenAttributeStateHandler);
             return;
         }
-
-        if ($tv->charIsTabOrLFOrFFOrSpace()) {
-            return;
-        }
     }
 
     public static function WordPressShortCodeOpenAttributeValue(TonicsView $tv)
@@ -377,26 +373,21 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
 
     public static function TonicsTagLeftSquareBracketStateHandler(TonicsView $tonicsView): void
     {
-        return;
     }
 
     public static function TonicsTagOpenStateHandler(TonicsView $view): void
     {
-        return;
     }
 
     public static function TonicsTagNameStateHandler(TonicsView $tonicsView): void
     {
-        return;
     }
 
     public static function TonicsTagOpenArgValueSingleQuotedStateHandler(TonicsView $tonicsView): void
     {
-        return;
     }
 
     public static function TonicsTagOpenArgValueDoubleQuotedStateHandler(TonicsView $tonicsView): void
     {
-        return;
     }
 }

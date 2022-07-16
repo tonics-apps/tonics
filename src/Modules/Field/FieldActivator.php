@@ -42,6 +42,7 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\Tracks;
 use App\Modules\Field\EventHandlers\Fields\Widget;
 use App\Modules\Field\Events\FieldTemplateFile;
+use App\Modules\Field\Events\OnEditorFieldSelection;
 use App\Modules\Field\Events\OnFieldCreate;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Routes\Routes;
@@ -112,10 +113,12 @@ class FieldActivator implements ModuleConfig, PluginConfig
                 Widget::class,
             ],
 
+            OnEditorFieldSelection::class => [
+
+            ],
+
             FieldTemplateFile::class => [
-                Test::class,
-                Test2::class,
-                FieldMenus::class
+
             ],
 
             OnFieldCreate::class => [

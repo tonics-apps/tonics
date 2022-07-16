@@ -24,6 +24,7 @@ trait Routes
                 # FIELD RESOURCES...
             #---------------------------------
             $route->group('/field', function (Route $route){
+
                 $route->get('', [FieldController::class, 'index'],  alias: 'index');
                 $route->post('store', [FieldController::class, 'store']);
                 $route->get('create', [FieldController::class, 'create'], alias: 'create');
@@ -31,15 +32,18 @@ trait Routes
                 $route->match(['post', 'put'], ':field/update', [FieldController::class, 'update']);
                 $route->match(['post', 'delete'], ':field/delete', [FieldController::class, 'delete']);
                 $route->match(['post', 'delete'], 'delete/multiple', [FieldController::class, 'deleteMultiple'], alias: 'deleteMultiple');
-            });
 
-                    #---------------------------------
-                # field ITEMS RESOURCES...
-            #---------------------------------
-            $route->group('/field/items', function (Route $route){
-                $route->get(':field/builder', [FieldControllerItems::class, 'index'],  alias: 'index');
-                $route->post('store', [FieldControllerItems::class, 'store']);
-            }, alias: 'items');
+                        #---------------------------------
+                    # field ITEMS RESOURCES...
+                #---------------------------------
+                $route->group('/items', function (Route $route){
+                    $route->get(':field/builder', [FieldControllerItems::class, 'index'],  alias: 'index');
+                    $route->post('store', [FieldControllerItems::class, 'store']);
+                }, alias: 'items');
+
+                // for post editors
+                $route->get('/selection-manager', [FieldControllerItems::class, 'fieldSelectionManager']);
+            });
 
         }, [StartSession::class, CSRFGuard::class, Authenticated::class, FieldAccess::class], alias: 'fields');
 

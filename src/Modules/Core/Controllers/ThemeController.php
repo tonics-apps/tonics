@@ -94,7 +94,7 @@ class ThemeController
                     $mime = 'application/javascript';
                     break;
                 default:
-                    $mime =  mime_content_type($path);;
+                    $mime =  mime_content_type($path);
             }
             $this->serveDownloadableFile($aliasPath, helper()->fileSize($path), false, $mime);
         }

@@ -52,7 +52,7 @@ class OnFieldMetaBox implements EventInterface
         string   $scriptPath = '',
         callable $settingsForm = null,
         callable $userForm = null,
-        callable $handleViewProcessing = null
+        callable $handleViewProcessing = null,
     )
     {
         $nameKey = helper()->slug($name);
@@ -60,6 +60,7 @@ class OnFieldMetaBox implements EventInterface
         if (!key_exists($nameKey, $this->FieldBoxSettings)) {
             $this->FieldBoxSettings[$category][$nameKey] = (object)[
                 'name' => $name,
+                'category' => $category,
                 'description' => $description,
                 'scriptPath' => $scriptPath,
                 'settingsForm' => $settingsForm ?? '',
@@ -502,7 +503,6 @@ HTML;
             getBaseTemplate()->splitStringCharByChar($content);
             getBaseTemplate()->reset();
             getBaseTemplate()->tokenize()->setContent($initialContent->addBlocks($newContentInstance->getBlocks())); // tokenize and reset the initial content
-            // dd($initialContent->getBlocks(), getBaseTemplate()->getModeStorage('add_hook'));
         }
     }
 

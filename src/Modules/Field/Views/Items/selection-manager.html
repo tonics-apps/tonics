@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+[[import("Modules::Core/Views/Blocks/Field")]]
+<html lang="en">
+<head>
+    [[_use("default-secure-meta")]]
+    [[_use("main-css-style")]]
+    <title>Field Selection Manager</title>
+</head>
+
+<body class="body-sticky-footer bg:gray-two">
+[[_use("default-inline-svg")]]
+
+<main id="main"  class="flex:one" tabindex="-1">
+    [[b('body.main.header-text')Field Selection Manager ]]
+    [[func('body.main.header', 'body.main.header-text')]]
+    <div class="d:flex justify-content:center flex-wrap:wrap flex-gap padding:default">
+        <ul class="width:100% menu-arranger border-width:default border:black list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
+            [[_v('FieldItems')]]
+        </ul>
+    </div>
+</main>
+
+<div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+    <button name="delete" class="save-menu-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                    margin-top:0 cursor:pointer button:box-shadow-variant-2">
+        Choose Field(s)
+    </button>
+</div>
+
+[[_use("script:variables")]]
+[[_use("script:tinymce")]]
+[[_use("script:field-item-index")]]
+[[_use("session:delete-artifacts")]]
+</body>
+</html>

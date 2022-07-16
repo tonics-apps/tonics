@@ -462,4 +462,12 @@ class WordPressImportState extends SimpleState
     {
         return $this->xmlObject;
     }
+
+    /**
+     * @return array
+     */
+    public function getCategoryData(): array
+    {
+        return $this->categoryData;
+    }
 }

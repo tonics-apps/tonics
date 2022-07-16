@@ -174,13 +174,14 @@ class PostsController
         $onPostDefaultField->setPostDefaultFieldSlug($fieldIDS);
         event()->dispatch($onPostDefaultField);
 
-        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPostDefaultField->getPostDefaultFieldSlug(), $fieldSettings)->getHTMLFrag();
+        $fieldForm = $this->fieldData->generateFieldWithFieldSlug($onPostDefaultField->getPostDefaultFieldSlug(), $fieldSettings);
+        $fieldItems = $fieldForm->getHTMLFrag();
         view('Modules::Post/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
             'Data' => $post,
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPostDefaultField->getPostDefaultFieldSlug()),
-            'FieldItems' => $fieldItems
+            'FieldItems' => $fieldItems,
         ]);
     }
 
