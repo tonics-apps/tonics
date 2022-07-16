@@ -53,7 +53,7 @@ HTML;
         return <<<HTML
 <li class="width:100% menu-item-parent-picker menu-box-li cursor:pointer">
     <fieldset class="padding:default d:flex">
-        <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+        <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
         Widgets
             <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">

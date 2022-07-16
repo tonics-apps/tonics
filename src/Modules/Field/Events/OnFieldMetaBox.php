@@ -100,7 +100,7 @@ HTML;
             $htmlFrag .= <<<HTML
 <li class="width:100% menu-item-parent-picker menu-box-li cursor:pointer">
     <fieldset class="padding:default d:flex">
-        <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+        <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
         $category
             <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
@@ -314,7 +314,7 @@ class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
 $scriptPath>
         <fieldset
             class="width:100% padding:default d:flex justify-content:center flex-d:column owl">
-            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
                 <button class="{$toggle['button']}"
                         aria-expanded="{$toggle['aria-expanded']}" aria-label="{$toggle['aria-label']}" type="button">
@@ -382,7 +382,7 @@ HTML;
         return <<<FORM
 <li tabindex="0" class="menu-arranger-li max-width:350">
         <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">Template Engine</span>
                 <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
@@ -439,7 +439,7 @@ HTML;
         return <<<FORM
 <li tabindex="0" class="menu-arranger-li max-width:350">
         <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">More Settings</span>
                 <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">

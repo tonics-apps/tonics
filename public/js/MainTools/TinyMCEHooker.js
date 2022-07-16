@@ -63,6 +63,8 @@ function addTiny(editorID) {
             'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount',
         ],
+        noneditable_class: 'tonics-legend',
+        editable_class: 'widgetSettings,dropdown-toggle',
         // fullscreen_native: true,
         toolbar: 'undo redo | tonics-drivemanager link image media | ' +
             'bold italic backcolor | alignleft aligncenter ' +

@@ -232,7 +232,7 @@ HTML;
         return <<<HTML
 <li tabindex="0" class="menu-arranger-li max-width:350 field-selection-container">
         <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">Fields Validation</span>
                 <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
@@ -283,7 +283,7 @@ HTML;
         return <<<HTML
 <li tabindex="0" class="menu-arranger-li max-width:350 field-selection-container">
         <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">Fields</span>
                 <button type="button" class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
