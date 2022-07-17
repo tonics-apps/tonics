@@ -105,7 +105,7 @@ class FieldControllerItems extends Controller
      */
     public function fieldSelectionManager()
     {
-        $this->getFieldData()->getFieldItemsAPI();
+        $this->getFieldData()->getFieldItemsAPIForEditor();
 
         $onEditorFieldSelection = new OnEditorFieldSelection();
         $dispatched = event()->dispatch($onEditorFieldSelection);

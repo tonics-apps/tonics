@@ -390,6 +390,23 @@ HTML;
     }
 
     /**
+     * @throws \Exception
+     */
+    public function getFieldItemsAPIForEditor()
+    {
+        if (url()->getHeaderByKey('action') === 'getFieldItems') {
+            $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);
+            $fieldItems = $this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag();
+                $fieldItems = <<<HTML
+<ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
+$fieldItems
+</ul>
+HTML;
+            helper()->onSuccess(str_replace('width:100%', '', $fieldItems));
+        }
+    }
+
+    /**
      * Note: fk_field_id should be the field.field_name and not field_items.fk_field_id,
      * I am assuming you exported it as a json from a db tool, so, I'll re-add the appropriate fk_field_id
      * @param array $fieldItems

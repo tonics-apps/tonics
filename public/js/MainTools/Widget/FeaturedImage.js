@@ -1,5 +1,14 @@
 // FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredImageHandler);
+let featuredMain = document.querySelector('main');
+if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelect = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelect.length > 0){
+        tinySelect[0].addEventListener('click', featuredImageHandler);
+    }
+}
+if (featuredMain){
+    featuredMain.addEventListener('click', featuredImageHandler);
+}
 let featuredImageWithSRC, featuredImageInput, featuredImageInputName, removeFeaturedImage, windowInstance = null;
 
 function featuredImageHandler(e) {

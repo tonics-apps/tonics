@@ -61,58 +61,73 @@ function setShiftClick(file) {
     }
 }
 
-containerForSelection.addEventListener('click', (e) => {
-    let el = e.target;
-    // e.preventDefault();
-    e.stopPropagation();
-    if (el.closest(singleFileStringName)) {
-        let file = el.closest(singleFileStringName);
+if (containerForSelection){
+    containerForSelection.addEventListener('click', (e) => {
+        let el = e.target;
+        // e.preventDefault();
+        e.stopPropagation();
+        if (el.closest(singleFileStringName)) {
+            let file = el.closest(singleFileStringName);
 
-        if (document.querySelector('[data-simulate_ctrl_key="true"]')){
-            (file.classList.contains('selected-file')) ? unHighlightFile(file) : highlightFile(file);
-            return false;
-        }
+            if (document.querySelector('[data-simulate_ctrl_key="true"]')){
+                (file.classList.contains('selected-file')) ? unHighlightFile(file) : highlightFile(file);
+                return false;
+            }
 
-        if (document.querySelector('[data-simulate_shift_key="true"]')){
-            setShiftClick(file);
-            return false;
-        }
+            if (document.querySelector('[data-simulate_shift_key="true"]')){
+                setShiftClick(file);
+                return false;
+            }
 
-        // if this is a ctrlKey, we assume, the user wanna select multiple files
-        if (e.ctrlKey) {
-            (file.classList.contains('selected-file')) ? unHighlightFile(file) : highlightFile(file);
-            return false;
-        }
-        // shift clicking, selecting in ranges
-        else if (e.shiftKey) {
-            // reset previous state
-            resetPreviousFilesState()
-            setShiftClick(file);
+            // if this is a ctrlKey, we assume, the user wanna select multiple files
+            if (e.ctrlKey) {
+                (file.classList.contains('selected-file')) ? unHighlightFile(file) : highlightFile(file);
+                return false;
+            }
+            // shift clicking, selecting in ranges
+            else if (e.shiftKey) {
+                // reset previous state
+                resetPreviousFilesState()
+                setShiftClick(file);
+            } else {
+                // this is a norm mouse click
+                resetPreviousFilesState();
+                highlightFile(file);
+
+                // for shift key
+                resetShiftClick();
+                setShiftClick(file);
+            }
         } else {
-            // this is a norm mouse click
-            resetPreviousFilesState();
-            highlightFile(file);
-
-            // for shift key
             resetShiftClick();
-            setShiftClick(file);
+            resetPreviousFilesState();
         }
-    } else {
-        resetShiftClick();
-        resetPreviousFilesState();
-    }
-});
+    });
 
-containerForSelection.addEventListener('dblclick', (e) => {
-    let el = e.target;
-    if (el.closest(singleFileStringName)) {
-        let file = el.closest(singleFileStringName);
-        let link = file.dataset.db_click_link;
-        if (link) {
-            window.location.href = link;
+    containerForSelection.addEventListener('dblclick', (e) => {
+        let el = e.target;
+        if (el.closest(singleFileStringName)) {
+            let file = el.closest(singleFileStringName);
+            let link = file.dataset.db_click_link;
+            if (link) {
+                window.location.href = link;
+            }
         }
-    }
-});
+    });
+
+    containerForSelection.addEventListener('keydown', (e) => {
+        let el = e.target;
+        if (el.closest(singleFileStringName)) {
+            let file = el.closest(singleFileStringName);
+            switch (e.code) {
+                case 'Enter':
+                    highlightFile(file);
+                    navigateEnter(file);
+                    break;
+            }
+        }
+    });
+}
 
 function navigateEnter(file) {
     let link = file.dataset.db_click_link;
@@ -125,16 +140,3 @@ function navigateEnter(file) {
 function getSelectedFile() {
     return document.querySelector('[data-selected="true"]');
 }
-
-containerForSelection.addEventListener('keydown', (e) => {
-    let el = e.target;
-    if (el.closest(singleFileStringName)) {
-        let file = el.closest(singleFileStringName);
-        switch (e.code) {
-            case 'Enter':
-                highlightFile(file);
-                navigateEnter(file);
-                break;
-        }
-    }
-});

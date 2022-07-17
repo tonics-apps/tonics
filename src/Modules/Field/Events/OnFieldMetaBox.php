@@ -313,9 +313,9 @@ HTML;
 <li tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
 $scriptPath>
-        <fieldset
+        <fieldset contenteditable="false"
             class="width:100% padding:default d:flex justify-content:center flex-d:column owl">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend  class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
                 <button class="{$toggle['button']}"
                         aria-expanded="{$toggle['aria-expanded']}" aria-label="{$toggle['aria-label']}" type="button">
@@ -324,7 +324,7 @@ $scriptPath>
                     </svg>
                 </button>
             </legend>
-            <div role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0 {$toggle['div']}">
+            <div contenteditable="true" role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0 {$toggle['div']}">
                 $hideField
                 <input type="hidden" name="field_slug" value="$slug">
                 <input type="hidden" name="field_slug_unique_hash" value="$hash">

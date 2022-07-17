@@ -1,5 +1,14 @@
 // FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredLinkHandler);
+if (document.querySelector('main')){
+    document.querySelector('main').addEventListener('click', featuredLinkHandler);
+}
+
+if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelectLinkHandler = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelectLinkHandler.length > 0){
+        tinySelectLinkHandler[0].addEventListener('click', featuredLinkHandler);
+    }
+}
 let  featuredLinkInput, featuredLinkWindowInstance = null;
 function featuredLinkHandler(e){
     let el = e.target,

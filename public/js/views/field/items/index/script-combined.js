@@ -1,5 +1,14 @@
 // FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredImageHandler);
+let featuredMain = document.querySelector('main');
+if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelect = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelect.length > 0){
+        tinySelect[0].addEventListener('click', featuredImageHandler);
+    }
+}
+if (featuredMain){
+    featuredMain.addEventListener('click', featuredImageHandler);
+}
 let featuredImageWithSRC, featuredImageInput, featuredImageInputName, removeFeaturedImage, windowInstance = null;
 
 function featuredImageHandler(e) {
@@ -75,7 +84,16 @@ if (ImageFeaturedImage.length > 0) {
     })
 }
 // audio featured selection
-document.querySelector('main').addEventListener('click', audioFeaturedHandler);
+if (document.querySelector('main')){
+    document.querySelector('main').addEventListener('click', audioFeaturedHandler);
+}
+
+if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelectAudioHandler = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelectAudioHandler.length > 0){
+        tinySelectAudioHandler[0].addEventListener('click', audioFeaturedHandler);
+    }
+}
 let audioDemoInput, audioDemoInputName, removeAudioDemo, windowAudioFeaturedInstance = null;
 function audioFeaturedHandler(e) {
     let el = e.target,
@@ -120,7 +138,16 @@ window.addEventListener('message', (e) => {
     }
 });
 // FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredLinkHandler);
+if (document.querySelector('main')){
+    document.querySelector('main').addEventListener('click', featuredLinkHandler);
+}
+
+if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelectLinkHandler = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelectLinkHandler.length > 0){
+        tinySelectLinkHandler[0].addEventListener('click', featuredLinkHandler);
+    }
+}
 let  featuredLinkInput, featuredLinkWindowInstance = null;
 function featuredLinkHandler(e){
     let el = e.target,
@@ -3961,53 +3988,58 @@ let previousTinyPositionBeforeFullScreenStateChange = null,
 function addTiny(editorID) {
     let tinyAssets = document.querySelector('template.tiny-mce-assets'),
         content_css = '',
-        tinyJSAssets = null;
+        tinyJSAssets = null, tinyCSSAssets = null;
         if(tinyAssets){
-            let tinyJSAssets = tinyAssets.content.querySelectorAll('.js'),
-                tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
+            tinyJSAssets = tinyAssets.content.querySelectorAll('.js');
+            tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
 
             tinyCSSAssets.forEach((css) => {
                 content_css += css.value + ',';
-            })
+            });
+            content_css = content_css.slice(0, -1);
         }
 
     return tinymce.init({
         // add support for image lazy loading
-        extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]",
+        extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]," +
+        "svg[*],path[*],def[*],script[*],use[*]",
         selector: editorID,
         height: 900,
         menubar: true,
         plugins: [
-            'advlist', 'tonics-drivemanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
+            'advlist', 'tonics-drivemanager', 'tonics-fieldselectionmanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
             'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount',
         ],
         noneditable_class: 'tonics-legend',
         editable_class: 'widgetSettings,dropdown-toggle',
         // fullscreen_native: true,
-        toolbar: 'undo redo | tonics-drivemanager link image media | ' +
+        toolbar: 'undo redo | tonics-drivemanager tonics-fieldselectionmanager link image media | ' +
             'bold italic backcolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist | help',
         content_style: 'body { font-family:IBMPlexSans-Regular,Times New Roman,serif; font-size:20px }',
-        contextmenu: "link image | copy searchreplace tonics-drivemanager | bold italic blocks align",
+        contextmenu: "link image | copy searchreplace tonics-drivemanager | tonics-fieldselectionmanager | bold italic blocks align",
         content_css : content_css,
         body_class : "entry-content",
         remove_trailing_brs: true,
-        entity_encoding: "raw",
         setup: function (editor) {
-            if (tinyJSAssets){
-                const scriptLoader = new tinymce.dom.ScriptLoader();
-                if (tinyJSAssets.length > 0){
+            editor.on('init', function (e) {
+                if (tinyJSAssets.length > 0) {
                     tinyJSAssets.forEach((js) => {
-                        scriptLoader.add(js.value);
-                    });
-                    scriptLoader.loadQueue(function() {
-                        console.log('tiny-mce 3rd-party scripts loaded');
+                        let script = document.createElement("script");
+                        script.type = 'module';
+                        script.src = js.value;
+                        script.async = true;
+                        editor.getBody().appendChild(script);
                     });
                 }
-            }
 
-            editor.on('init', function (e) {
+                let svgInline = document.querySelector('.tonics-inline-svg');
+                if (svgInline){
+                    svgInline = svgInline.cloneNode(true);
+                    editor.getBody().previousElementSibling.insertAdjacentElement('afterbegin', svgInline);
+                }
+
                 if (fromOnFullScreenState) {
                     tinymce.execCommand("mceFullScreen", false, e.target.id);
                 }
@@ -4347,8 +4379,6 @@ if(saveAllMenu && saveMenuChangesForm){
         saveMenuChangesForm.submit();
     })
 }
-
-
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
@@ -4369,7 +4399,7 @@ try {
     }
 
 } catch (e) {
-    console.log(e.toLocaleString());
+   // console.log(e.toLocaleString());
 }try {
     new myModule.MenuToggle('.site-nav', new myModule.Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')

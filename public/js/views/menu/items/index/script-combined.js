@@ -4105,8 +4105,6 @@ if(saveAllMenu && saveMenuChangesForm){
         saveMenuChangesForm.submit();
     })
 }
-
-
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
@@ -4127,7 +4125,7 @@ try {
     }
 
 } catch (e) {
-    console.log(e.toLocaleString());
+   // console.log(e.toLocaleString());
 }try {
     new myModule.MenuToggle('.site-nav', new myModule.Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')

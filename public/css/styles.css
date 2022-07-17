@@ -856,6 +856,10 @@ fieldset {
     flex-direction: row;
 }
 
+.align-content\:flex-start {
+    align-content: flex-start;
+}
+
 .align-items\:center {
     align-items: center;
 }

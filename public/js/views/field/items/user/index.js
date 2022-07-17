@@ -14,15 +14,15 @@ let draggable = document.getElementsByClassName('draggable'),
 let fieldSlug = document.querySelector('input[name="field_slug"]'),
     fieldID = document.querySelector('input[name="field_id"]'),
     fieldSelectionContainer = document.querySelector('.field-selection-container');
-if (fieldSlug){
+if (fieldSlug) {
     fieldSlug = fieldSlug.value
 }
-if (fieldID){
+if (fieldID) {
     fieldID = fieldID.value
 }
 
 let menuArrangerLi = document.querySelector('.menu-arranger-li');
-if (menuArrangerLi){
+if (menuArrangerLi) {
     try {
         new myModule.MenuToggle('form', new myModule.Query())
             .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
@@ -37,25 +37,25 @@ if (menuArrangerLi){
     }
 }
 
-if (document.querySelector(parent)){
+
+if (document.querySelector(parent)) {
     // handle dropdown click
     let parentMenuArranger = document.querySelector(parent);
     parentMenuArranger.addEventListener('click', (e) => {
         let el = e.target;
-        if (el.closest('.dropdown-toggle')  && el.closest(fieldChild)){
+        if (el.closest('.dropdown-toggle') && el.closest(fieldChild)) {
             let dropDown = el.closest('.dropdown-toggle'),
                 dropDownBool = dropDown.ariaExpanded === 'false';
-            console.log(dropDownBool)
-            if (dropDownBool){
+            if (dropDownBool) {
                 // ${slug}
                 let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
                 let hiddenFieldSlug = el.closest(fieldChild).querySelector(`input[name="hide_field[${inputFieldSlugUniqueHash.value}]"]`);
-                if (hiddenFieldSlug){
+                if (hiddenFieldSlug) {
                     hiddenFieldSlug.remove();
                 }
-            } else  {
+            } else {
                 let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
-                if (inputFieldSlugUniqueHash){
+                if (inputFieldSlugUniqueHash) {
                     inputFieldSlugUniqueHash.insertAdjacentHTML('beforebegin', `<input type='hidden' name='hide_field[${inputFieldSlugUniqueHash.value}]' value='${inputFieldSlugUniqueHash.value}'>`)
                 }
             }
@@ -76,23 +76,23 @@ if (document.querySelector(parent)){
             }
 
             let dragToTheTop = document.querySelector(parent).querySelector('.drag-to-the-top');
-            if (top && dragToTheTop){
+            if (top && dragToTheTop) {
                 swapNodes(elementDragged, dragToTheTop, self.draggingOriginalRect);
                 dragToTheTop.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
                 top = false;
             }
             // setListDataArray();
         }).onDragTop((element) => {
-        if (sensitivity++ >= sensitivityMax){
+        if (sensitivity++ >= sensitivityMax) {
             let dragToTheTop = element.previousElementSibling;
-            if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')){
+            if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')) {
                 top = true;
                 dragToTheTop.classList.add('drag-to-the-top');
             }
             sensitivity = 0;
         }
-    }).onDragBottom( (element) => {
-        if (sensitivity++ >= sensitivityMax){
+    }).onDragBottom((element) => {
+        if (sensitivity++ >= sensitivityMax) {
             let dragToTheBottom = element.nextElementSibling;
             if (dragToTheBottom && dragToTheBottom.classList.contains('menu-arranger-li')) {
                 bottom = true;
@@ -103,25 +103,25 @@ if (document.querySelector(parent)){
     }).run();
 }
 
-if(fieldSelectionContainer){
+if (fieldSelectionContainer) {
     let fieldContainerButton = fieldSelectionContainer.querySelector('.field-add-button');
-    fieldContainerButton.addEventListener('click',  (e) => {
+    fieldContainerButton.addEventListener('click', (e) => {
         handleFieldSelection();
     });
 
 }
 
 function handleFieldSelection() {
-    if (fieldSelectionContainer){
+    if (fieldSelectionContainer) {
         let checkedSlug = [];
         let checkedItems = fieldSelectionContainer.querySelectorAll("input[name='field_ids[]']:checked");
         checkedItems.forEach((field) => {
-            if (field.dataset.hasOwnProperty('cant_retrieve_field_items') === false){
+            if (field.dataset.hasOwnProperty('cant_retrieve_field_items') === false) {
                 checkedSlug.push(field.value);
             }
         });
 
-        if (checkedSlug.length > 0){
+        if (checkedSlug.length > 0) {
             let slug = {
                 action: 'getFieldItems',
                 fieldSlug: JSON.stringify(checkedSlug)
@@ -138,12 +138,12 @@ function handleFieldSelection() {
 }
 
 // delete menu or widget
-if (fieldMenuUL){
+if (fieldMenuUL) {
     fieldMenuUL.addEventListener('click', (e) => {
         let el = e.target;
-        if (el.classList.contains('delete-menu-arrange-item')){
+        if (el.classList.contains('delete-menu-arrange-item')) {
             let arranger = el.closest('.draggable');
-            if (arranger){
+            if (arranger) {
                 arranger.remove();
             }
         }
@@ -151,7 +151,7 @@ if (fieldMenuUL){
 }
 
 function insertFieldItems(data, checkedSlug) {
-    if (fieldMenuUL){
+    if (fieldMenuUL) {
         fieldMenuUL.insertAdjacentHTML('beforeend', data.data);
         let draggableElements = fieldMenuUL.querySelectorAll('.draggable');
         checkedSlug.forEach((slug) => {

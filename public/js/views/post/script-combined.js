@@ -3689,15 +3689,15 @@ let draggable = document.getElementsByClassName('draggable'),
 let fieldSlug = document.querySelector('input[name="field_slug"]'),
     fieldID = document.querySelector('input[name="field_id"]'),
     fieldSelectionContainer = document.querySelector('.field-selection-container');
-if (fieldSlug){
+if (fieldSlug) {
     fieldSlug = fieldSlug.value
 }
-if (fieldID){
+if (fieldID) {
     fieldID = fieldID.value
 }
 
 let menuArrangerLi = document.querySelector('.menu-arranger-li');
-if (menuArrangerLi){
+if (menuArrangerLi) {
     try {
         new myModule.MenuToggle('form', new myModule.Query())
             .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
@@ -3712,25 +3712,25 @@ if (menuArrangerLi){
     }
 }
 
-if (document.querySelector(parent)){
+
+if (document.querySelector(parent)) {
     // handle dropdown click
     let parentMenuArranger = document.querySelector(parent);
     parentMenuArranger.addEventListener('click', (e) => {
         let el = e.target;
-        if (el.closest('.dropdown-toggle')  && el.closest(fieldChild)){
+        if (el.closest('.dropdown-toggle') && el.closest(fieldChild)) {
             let dropDown = el.closest('.dropdown-toggle'),
                 dropDownBool = dropDown.ariaExpanded === 'false';
-            console.log(dropDownBool)
-            if (dropDownBool){
+            if (dropDownBool) {
                 // ${slug}
                 let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
                 let hiddenFieldSlug = el.closest(fieldChild).querySelector(`input[name="hide_field[${inputFieldSlugUniqueHash.value}]"]`);
-                if (hiddenFieldSlug){
+                if (hiddenFieldSlug) {
                     hiddenFieldSlug.remove();
                 }
-            } else  {
+            } else {
                 let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
-                if (inputFieldSlugUniqueHash){
+                if (inputFieldSlugUniqueHash) {
                     inputFieldSlugUniqueHash.insertAdjacentHTML('beforebegin', `<input type='hidden' name='hide_field[${inputFieldSlugUniqueHash.value}]' value='${inputFieldSlugUniqueHash.value}'>`)
                 }
             }
@@ -3751,23 +3751,23 @@ if (document.querySelector(parent)){
             }
 
             let dragToTheTop = document.querySelector(parent).querySelector('.drag-to-the-top');
-            if (top && dragToTheTop){
+            if (top && dragToTheTop) {
                 swapNodes(elementDragged, dragToTheTop, self.draggingOriginalRect);
                 dragToTheTop.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
                 top = false;
             }
             // setListDataArray();
         }).onDragTop((element) => {
-        if (sensitivity++ >= sensitivityMax){
+        if (sensitivity++ >= sensitivityMax) {
             let dragToTheTop = element.previousElementSibling;
-            if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')){
+            if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')) {
                 top = true;
                 dragToTheTop.classList.add('drag-to-the-top');
             }
             sensitivity = 0;
         }
-    }).onDragBottom( (element) => {
-        if (sensitivity++ >= sensitivityMax){
+    }).onDragBottom((element) => {
+        if (sensitivity++ >= sensitivityMax) {
             let dragToTheBottom = element.nextElementSibling;
             if (dragToTheBottom && dragToTheBottom.classList.contains('menu-arranger-li')) {
                 bottom = true;
@@ -3778,25 +3778,25 @@ if (document.querySelector(parent)){
     }).run();
 }
 
-if(fieldSelectionContainer){
+if (fieldSelectionContainer) {
     let fieldContainerButton = fieldSelectionContainer.querySelector('.field-add-button');
-    fieldContainerButton.addEventListener('click',  (e) => {
+    fieldContainerButton.addEventListener('click', (e) => {
         handleFieldSelection();
     });
 
 }
 
 function handleFieldSelection() {
-    if (fieldSelectionContainer){
+    if (fieldSelectionContainer) {
         let checkedSlug = [];
         let checkedItems = fieldSelectionContainer.querySelectorAll("input[name='field_ids[]']:checked");
         checkedItems.forEach((field) => {
-            if (field.dataset.hasOwnProperty('cant_retrieve_field_items') === false){
+            if (field.dataset.hasOwnProperty('cant_retrieve_field_items') === false) {
                 checkedSlug.push(field.value);
             }
         });
 
-        if (checkedSlug.length > 0){
+        if (checkedSlug.length > 0) {
             let slug = {
                 action: 'getFieldItems',
                 fieldSlug: JSON.stringify(checkedSlug)
@@ -3813,12 +3813,12 @@ function handleFieldSelection() {
 }
 
 // delete menu or widget
-if (fieldMenuUL){
+if (fieldMenuUL) {
     fieldMenuUL.addEventListener('click', (e) => {
         let el = e.target;
-        if (el.classList.contains('delete-menu-arrange-item')){
+        if (el.classList.contains('delete-menu-arrange-item')) {
             let arranger = el.closest('.draggable');
-            if (arranger){
+            if (arranger) {
                 arranger.remove();
             }
         }
@@ -3826,7 +3826,7 @@ if (fieldMenuUL){
 }
 
 function insertFieldItems(data, checkedSlug) {
-    if (fieldMenuUL){
+    if (fieldMenuUL) {
         fieldMenuUL.insertAdjacentHTML('beforeend', data.data);
         let draggableElements = fieldMenuUL.querySelectorAll('.draggable');
         checkedSlug.forEach((slug) => {
@@ -3835,9 +3835,7 @@ function insertFieldItems(data, checkedSlug) {
             })
         });
     }
-}
-
-try {
+}try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
             myModule.errorToast(value, 6000);
@@ -3857,7 +3855,7 @@ try {
     }
 
 } catch (e) {
-    console.log(e.toLocaleString());
+   // console.log(e.toLocaleString());
 }hookTinyMCE();
 
 function hookTinyMCE() {
@@ -3906,53 +3904,58 @@ let previousTinyPositionBeforeFullScreenStateChange = null,
 function addTiny(editorID) {
     let tinyAssets = document.querySelector('template.tiny-mce-assets'),
         content_css = '',
-        tinyJSAssets = null;
+        tinyJSAssets = null, tinyCSSAssets = null;
         if(tinyAssets){
-            let tinyJSAssets = tinyAssets.content.querySelectorAll('.js'),
-                tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
+            tinyJSAssets = tinyAssets.content.querySelectorAll('.js');
+            tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
 
             tinyCSSAssets.forEach((css) => {
                 content_css += css.value + ',';
-            })
+            });
+            content_css = content_css.slice(0, -1);
         }
 
     return tinymce.init({
         // add support for image lazy loading
-        extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]",
+        extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]," +
+        "svg[*],path[*],def[*],script[*],use[*]",
         selector: editorID,
         height: 900,
         menubar: true,
         plugins: [
-            'advlist', 'tonics-drivemanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
+            'advlist', 'tonics-drivemanager', 'tonics-fieldselectionmanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
             'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount',
         ],
         noneditable_class: 'tonics-legend',
         editable_class: 'widgetSettings,dropdown-toggle',
         // fullscreen_native: true,
-        toolbar: 'undo redo | tonics-drivemanager link image media | ' +
+        toolbar: 'undo redo | tonics-drivemanager tonics-fieldselectionmanager link image media | ' +
             'bold italic backcolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist | help',
         content_style: 'body { font-family:IBMPlexSans-Regular,Times New Roman,serif; font-size:20px }',
-        contextmenu: "link image | copy searchreplace tonics-drivemanager | bold italic blocks align",
+        contextmenu: "link image | copy searchreplace tonics-drivemanager | tonics-fieldselectionmanager | bold italic blocks align",
         content_css : content_css,
         body_class : "entry-content",
         remove_trailing_brs: true,
-        entity_encoding: "raw",
         setup: function (editor) {
-            if (tinyJSAssets){
-                const scriptLoader = new tinymce.dom.ScriptLoader();
-                if (tinyJSAssets.length > 0){
+            editor.on('init', function (e) {
+                if (tinyJSAssets.length > 0) {
                     tinyJSAssets.forEach((js) => {
-                        scriptLoader.add(js.value);
-                    });
-                    scriptLoader.loadQueue(function() {
-                        console.log('tiny-mce 3rd-party scripts loaded');
+                        let script = document.createElement("script");
+                        script.type = 'module';
+                        script.src = js.value;
+                        script.async = true;
+                        editor.getBody().appendChild(script);
                     });
                 }
-            }
 
-            editor.on('init', function (e) {
+                let svgInline = document.querySelector('.tonics-inline-svg');
+                if (svgInline){
+                    svgInline = svgInline.cloneNode(true);
+                    editor.getBody().previousElementSibling.insertAdjacentElement('afterbegin', svgInline);
+                }
+
                 if (fromOnFullScreenState) {
                     tinymce.execCommand("mceFullScreen", false, e.target.id);
                 }
@@ -4005,7 +4008,16 @@ function addTiny(editorID) {
 }catch (e) {
     console.error("An Error Occur Setting MenuToggle: Site-Nav")
 }// FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredImageHandler);
+let featuredMain = document.querySelector('main');
+if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelect = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelect.length > 0){
+        tinySelect[0].addEventListener('click', featuredImageHandler);
+    }
+}
+if (featuredMain){
+    featuredMain.addEventListener('click', featuredImageHandler);
+}
 let featuredImageWithSRC, featuredImageInput, featuredImageInputName, removeFeaturedImage, windowInstance = null;
 
 function featuredImageHandler(e) {
@@ -4081,7 +4093,16 @@ if (ImageFeaturedImage.length > 0) {
     })
 }
 // FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredLinkHandler);
+if (document.querySelector('main')){
+    document.querySelector('main').addEventListener('click', featuredLinkHandler);
+}
+
+if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelectLinkHandler = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelectLinkHandler.length > 0){
+        tinySelectLinkHandler[0].addEventListener('click', featuredLinkHandler);
+    }
+}
 let  featuredLinkInput, featuredLinkWindowInstance = null;
 function featuredLinkHandler(e){
     let el = e.target,

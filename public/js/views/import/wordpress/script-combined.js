@@ -3854,9 +3854,7 @@ if (adminPostWidget) {
             }
         }
     });
-}
-
-try {
+}try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
             myModule.errorToast(value, 6000);
@@ -3876,7 +3874,7 @@ try {
     }
 
 } catch (e) {
-    console.log(e.toLocaleString());
+   // console.log(e.toLocaleString());
 }try {
     new myModule.MenuToggle('.site-nav', new myModule.Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')

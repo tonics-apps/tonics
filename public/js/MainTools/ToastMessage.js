@@ -1,5 +1,3 @@
-
-
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
@@ -20,5 +18,5 @@ try {
     }
 
 } catch (e) {
-    console.log(e.toLocaleString());
+   // console.log(e.toLocaleString());
 }
