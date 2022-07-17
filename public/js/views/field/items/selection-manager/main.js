@@ -44,10 +44,10 @@ if (parent.tinymce && parent.tinymce.activeEditor) {
     window.tinymce = parent.tinymce;
     try {
         let tinyEntryContent = tinymce.activeEditor.dom.select('.entry-content')[0];
-        let tinyMenuToggle = new myModule.MenuToggle('.entry-content', new myModule.Query().setQueryResult(tinyEntryContent));
+        let tinyMenuToggle = new myModule.MenuToggle('.menu-arranger', new myModule.Query().setQueryResult(tinyEntryContent));
         tinyMenuToggle.setQueryResult(tinyEntryContent);
         tinyMenuToggle
-            .settings('.entry-content', '.dropdown-toggle', '.menu-widget-information')
+            .settings('.menu-arranger', '.dropdown-toggle', '.menu-widget-information')
             .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
             .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
             .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
