@@ -124,7 +124,7 @@ function addTiny(editorID) {
                         }
                     });
                     let inputForFields = document.createElement('input');
-                    inputForFields.type = 'hidden'; inputForFields.name = 'fieldDataFromTinyMCE';
+                    inputForFields.type = 'hidden'; inputForFields.name = 'fieldItemsDataFromEditor';
                     inputForFields.value = JSON.stringify(nodesData);
                     if (document.querySelector('form')){
                         document.querySelector('form').insertAdjacentElement('afterbegin', inputForFields);

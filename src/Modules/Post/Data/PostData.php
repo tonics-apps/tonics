@@ -370,7 +370,7 @@ HTML;
         }
 
         if (isset($post['field_settings'])){
-            if (isset($_POST['fieldDataFromTinyMCE'])){
+            if (isset($_POST['fieldItemsDataFromEditor'])){
                 $post['field_settings']['fieldDataFromTinyMCE'] = $_POST['fieldDataFromTinyMCE'];
             }
 
