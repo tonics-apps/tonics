@@ -3507,7 +3507,7 @@ if (parent.tinymce && parent.tinymce.activeEditor) {
             .closeOnClickOutSide(false)
             .run();
     } catch (e) {
-        console.log("Can't set MenuToggle: menu-widget or menu-arranger");
+     //   console.log("Can't set MenuToggle: menu-widget or menu-arranger");
     }
 }
 

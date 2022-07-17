@@ -4030,7 +4030,7 @@ function addTiny(editorID) {
                         script.type = 'module';
                         script.src = js.value;
                         script.async = true;
-                        editor.getBody().appendChild(script);
+                        tinymce.activeEditor.dom.select('head')[0].appendChild(script);
                     });
                 }
 
@@ -4045,6 +4045,27 @@ function addTiny(editorID) {
                 }
             });
             editor.on('init change blur', function (e) {
+                if (editor.getBody().hasChildNodes()){
+                    let nodesData = {}, key = 0;
+                    let nodesMap = new Map();
+                    let bodyNode = editor.getBody().childNodes;
+                    bodyNode.forEach((node) => {
+                        if (node.classList.contains('tonics-field-items-unique')){
+                            if (nodesData.hasOwnProperty(key)){
+                                ++key;
+                            }
+                            nodesData[key] = {content: node.outerHTML, raw: false};
+                        } else {
+                            if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false){
+                                ++key;
+                            }
+
+                            let previousContent = (nodesData.hasOwnProperty(key)) ?  nodesData[key].content : '';
+                            nodesData[key] = {content: previousContent + node.outerHTML, raw: true};
+                        }
+                    });
+                    console.log(nodesData);
+                }
                 tinymce.triggerSave();
             });
 
