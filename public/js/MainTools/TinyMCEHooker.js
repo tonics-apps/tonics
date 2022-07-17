@@ -123,7 +123,12 @@ function addTiny(editorID) {
                             nodesData[key] = {content: previousContent + node.outerHTML, raw: true};
                         }
                     });
-                    console.log(nodesData);
+                    let inputForFields = document.createElement('input');
+                    inputForFields.type = 'hidden'; inputForFields.name = 'fieldDataFromTinyMCE';
+                    inputForFields.value = JSON.stringify(nodesData);
+                    if (document.querySelector('form')){
+                        document.querySelector('form').insertAdjacentElement('afterbegin', inputForFields);
+                    }
                 }
                 tinymce.triggerSave();
             });
@@ -223,6 +228,10 @@ function getFieldListDataArray(fieldSettingsEl) {
                 });
 
                 elements.forEach((inputs) => {
+                    try {
+                        inputs.defaultValue  = inputs.value;
+                    }catch (e) {
+                    }
                     if (inputs.closest('.draggable').dataset.id === firstElementParentID){
                         if (!widgetSettings.hasOwnProperty(inputs.name)){
                             widgetSettings[inputs.name] = inputs.value;

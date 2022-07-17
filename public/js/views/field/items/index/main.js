@@ -289,8 +289,8 @@ if(saveAllMenu && saveMenuChangesForm){
         setListDataArray();
         addHiddenInputToForm(saveMenuChangesForm, 'fieldSlug', fieldSlug);
         addHiddenInputToForm(saveMenuChangesForm, 'fieldDetails', JSON.stringify({
-            fieldID: fieldID, // This is the field_slug that houses the menu items
-            fieldSlug: fieldSlug, // This is the field_slug that houses the menu items
+            fieldID: fieldID,
+            fieldSlug: fieldSlug,
             fieldItems: getListDataArray(),
         }));
         saveMenuChangesForm.submit();

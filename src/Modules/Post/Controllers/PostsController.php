@@ -22,7 +22,6 @@ use App\Modules\Post\Events\OnPostCreate;
 use App\Modules\Post\Events\OnPostDefaultField;
 use App\Modules\Post\Events\OnPostUpdate;
 use App\Modules\Post\Rules\PostValidationRules;
-use App\Modules\Post\States\PostRedirection;
 use JetBrains\PhpStorm\NoReturn;
 use stdClass;
 
@@ -199,7 +198,6 @@ class PostsController
         }
 
         $postToUpdate = $this->postData->createPost(['token']);
-        // dd($postToUpdate);
         $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
         event()->dispatch(new OnBeforePostSave($postToUpdate));
         $this->postData->updateWithCondition($postToUpdate, ['post_slug' => $slug], $this->postData->getPostTable());

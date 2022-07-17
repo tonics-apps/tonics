@@ -370,6 +370,10 @@ HTML;
         }
 
         if (isset($post['field_settings'])){
+            if (isset($_POST['fieldDataFromTinyMCE'])){
+                $post['field_settings']['fieldDataFromTinyMCE'] = $_POST['fieldDataFromTinyMCE'];
+            }
+
             if (isset($post['field_settings']['seo_title']) && empty($post['field_settings']['seo_title'])){
                 $post['field_settings']['seo_title'] = $post['post_title'];
             }
