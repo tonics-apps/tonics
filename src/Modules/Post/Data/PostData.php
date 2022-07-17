@@ -370,9 +370,6 @@ HTML;
         }
 
         if (isset($post['field_settings'])){
-            if (isset($_POST['fieldItemsDataFromEditor'])){
-                $post['field_settings']['fieldDataFromTinyMCE'] = $_POST['fieldDataFromTinyMCE'];
-            }
 
             if (isset($post['field_settings']['seo_title']) && empty($post['field_settings']['seo_title'])){
                 $post['field_settings']['seo_title'] = $post['post_title'];
@@ -380,6 +377,12 @@ HTML;
             if (isset($post['field_settings']['seo_description']) && empty($post['field_settings']['seo_description'])){
                 $post['field_settings']['seo_description'] = substr(strip_tags($post['field_settings']['post_content']), 0, 200);
             }
+
+            if (isset($_POST['fieldItemsDataFromEditor'])){
+                $post['field_settings']['post_content'] = $_POST['fieldItemsDataFromEditor'];
+                unset($_POST['fieldItemsDataFromEditor']);
+            }
+
             $post['field_settings'] = json_encode($post['field_settings']);
             if (isset($post['field_ids'])){
                 $_POST['field_settings']['field_ids'] = $post['field_ids'];
@@ -387,6 +390,21 @@ HTML;
         }
 
         return $post;
+    }
+
+    public function unwrapPostContent(&$fieldSettings):void
+    {
+        if (isset($fieldSettings['post_content'])){
+            $postContent = json_decode($fieldSettings['post_content']);
+            if (is_object($postContent)){
+                $fieldSettings['post_content'] = '';
+                foreach ($postContent as $field){
+                    if (isset($field->content)){
+                        $fieldSettings['post_content'] .= $field->content;
+                    }
+                }
+            }
+        }
     }
 
     /**
