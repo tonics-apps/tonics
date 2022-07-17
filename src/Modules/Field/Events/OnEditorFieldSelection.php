@@ -16,7 +16,7 @@ class OnEditorFieldSelection implements EventInterface
        return $this;
     }
 
-    public function addField(string $name, string $slug, string $icon = ''): static
+    public function addField(string $name, string $slug, string $icon = null): static
     {
         $this->fields[] = [
             'name' => $name,
@@ -32,6 +32,9 @@ class OnEditorFieldSelection implements EventInterface
      */
     public function getFields(): array
     {
+      usort($this->fields, function ($a, $b){
+            return strcasecmp($a['name'], $b['name']);
+        });
         return $this->fields;
     }
 }

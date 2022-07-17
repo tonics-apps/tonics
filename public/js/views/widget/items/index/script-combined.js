@@ -3883,7 +3883,8 @@ let previousTinyPositionBeforeFullScreenStateChange = null,
 
 function addTiny(editorID) {
     let tinyAssets = document.querySelector('template.tiny-mce-assets'),
-        content_css = '';
+        content_css = '',
+        tinyJSAssets = null;
         if(tinyAssets){
             let tinyJSAssets = tinyAssets.content.querySelectorAll('.js'),
                 tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
@@ -3917,7 +3918,7 @@ function addTiny(editorID) {
         remove_trailing_brs: true,
         entity_encoding: "raw",
         setup: function (editor) {
-            if (tinyAssets){
+            if (tinyJSAssets){
                 const scriptLoader = new tinymce.dom.ScriptLoader();
                 if (tinyJSAssets.length > 0){
                     tinyJSAssets.forEach((js) => {

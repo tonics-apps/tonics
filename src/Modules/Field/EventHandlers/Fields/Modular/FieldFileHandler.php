@@ -73,6 +73,7 @@ HTML;
      </select>
     </label>
 </div>
+{$event->generateMoreSettingsFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

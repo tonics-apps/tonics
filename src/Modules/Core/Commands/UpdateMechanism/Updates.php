@@ -14,7 +14,7 @@ use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
  * Where:
  *
  * - --update: can take a comma list of items to update, leave it as is to update or discover all
- * - --type: type of update you are doing, e.g. `php bin/console --update --type=module --action=discover`, type can be module, plugin, theme or full
+ * - --type: type of update you are doing, e.g. `php bin/console --update --type=module --action=discover`, type can be module, plugin, or theme
  * if no type is given, it would do nothing.
  * - --action: action would either be to discover latest or update, when set to update, it discovers and update
  *

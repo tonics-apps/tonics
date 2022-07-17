@@ -29,6 +29,8 @@ use App\Modules\Field\EventHandlers\Fields\Menu\Menu;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldFileHandler;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelection;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumn;
+use App\Modules\Field\EventHandlers\Fields\Modular\TestField;
+use App\Modules\Field\EventHandlers\Fields\Modular\TestFieldTwo;
 use App\Modules\Field\EventHandlers\Fields\Modular\TonicsTemplateSystem;
 use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test;
 use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test2;
@@ -41,6 +43,7 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackGenreRadio;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\Tracks;
 use App\Modules\Field\EventHandlers\Fields\Widget;
+use App\Modules\Field\EventHandlers\FieldSelection\DefaultFieldSelection;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnEditorFieldSelection;
 use App\Modules\Field\Events\OnFieldCreate;
@@ -114,11 +117,12 @@ class FieldActivator implements ModuleConfig, PluginConfig
             ],
 
             OnEditorFieldSelection::class => [
-
+                DefaultFieldSelection::class
             ],
 
             FieldTemplateFile::class => [
-
+                TestField::class,
+                TestFieldTwo::class,
             ],
 
             OnFieldCreate::class => [

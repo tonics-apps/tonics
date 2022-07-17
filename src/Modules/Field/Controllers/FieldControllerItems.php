@@ -9,6 +9,7 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Events\OnEditorFieldSelection;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Rules\FieldValidationRules;
 
@@ -99,10 +100,19 @@ class FieldControllerItems extends Controller
         redirect(route('fields.items.index', ['field' => $fieldSlug]));
     }
 
+    /**
+     * @throws \Exception
+     */
     public function fieldSelectionManager()
     {
+        $this->getFieldData()->getFieldItemsAPI();
+
+        $onEditorFieldSelection = new OnEditorFieldSelection();
+        $dispatched = event()->dispatch($onEditorFieldSelection);
+
         view('Modules::Field/Views/Items/selection-manager', [
             'SiteURL' => AppConfig::getAppUrl(),
+            'FieldItems' => $dispatched->getFields()
         ]);
     }
 

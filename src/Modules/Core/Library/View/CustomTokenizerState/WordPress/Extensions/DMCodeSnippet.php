@@ -18,9 +18,7 @@ class DMCodeSnippet extends TonicsTemplateViewAbstract implements TonicsModeRend
      */
     public function render(string $content, array $args, Tag $tag): string
     {
-        //dd($tag);
         return $content;
-        // return helper()->htmlSpecChar($content);
     }
 
     public function defaultArgs(): array

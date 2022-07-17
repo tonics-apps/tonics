@@ -3657,7 +3657,7 @@ try {
     }
 }
 let containerForSelection = document.querySelector('[data-container_for_selection="true"]');
-    let singleFileStringName = '.admin-widget-item-for-listing';
+    let singleFileStringName = '[data-list_id]';
     let shiftClick = new Map();
 
 function unHighlightFile(file) {

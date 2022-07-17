@@ -1,741 +1,3 @@
-// FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredImageHandler);
-let featuredImageWithSRC, featuredImageInput, featuredImageInputName, removeFeaturedImage, windowInstance = null;
-
-function featuredImageHandler(e) {
-    let el = e.target,
-        parent = el.closest('[data-widget-form="true"]');
-    if (!parent) {
-        parent =  el.closest('form');
-    }
-    if (parent) {
-        featuredImageWithSRC = parent.querySelector('[class^="image:featured-image"]');
-        featuredImageInput = parent.querySelector('.tonics-featured-image');
-        featuredImageInputName = parent.querySelector('[data-widget-image-name="true"]');
-        removeFeaturedImage = parent.querySelector('.remove-featured-image');
-    }
-
-    if (el.classList.contains('tonics-featured-image')) {
-        if (tonicsFileManagerURL) {
-            let windowFeatures = "left=95,top=100";
-            windowInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
-        }
-    } else if (el.classList.contains('remove-featured-image')) {
-        if (featuredImageInputName) {
-            featuredImageInputName.value = '';
-        }
-        featuredImageWithSRC.src = '';
-        featuredImageInput.classList.remove('d:none');
-        removeFeaturedImage.classList.add('d:none');
-    }
-}
-
-window.addEventListener('message', (e) => {
-    if (e.origin !== siteURL) {
-        return;
-    }
-    let data = e.data;
-    if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:ImageLink') {
-        if (featuredImageWithSRC && featuredImageInput) {
-            if (featuredImageInputName) {
-                featuredImageInputName.value = data.value;
-            }
-            featuredImageWithSRC.src = data.value;
-            featuredImageInput.classList.add('d:none');
-            removeFeaturedImage.classList.remove('d:none');
-            windowInstance.close();
-        }
-    }
-});
-
-let ImageFeaturedImage = document.querySelectorAll('[class^="image:featured-image"]');
-if (ImageFeaturedImage.length > 0) {
-    ImageFeaturedImage.forEach((value, key) => {
-        let parent = value.closest('[data-widget-form="true"]');
-        if (!parent) {
-            parent =  value.closest('form');
-        }
-        let featuredImageInput = parent.querySelector('.tonics-featured-image'),
-            removeFeaturedImage = parent.querySelector('.remove-featured-image');
-
-        let image = new Image();
-        image.src = value.src;
-        image.onload = function () {
-            // image can be loaded
-            if (featuredImageInput){
-                featuredImageInput.classList.add('d:none');
-            }
-            if (removeFeaturedImage){
-                removeFeaturedImage.classList.remove('d:none');
-            }
-        }
-        image.onerror = () => {
-            // image can't be loaded
-        }
-    })
-}
-// audio featured selection
-document.querySelector('main').addEventListener('click', audioFeaturedHandler);
-let audioDemoInput, audioDemoInputName, removeAudioDemo, windowAudioFeaturedInstance = null;
-function audioFeaturedHandler(e) {
-    let el = e.target,
-        parent = el.closest('[data-widget-form="true"]');
-    if (!parent) {
-        parent =  el.closest('form');
-    }
-    if (parent) {
-        audioDemoInput = parent.querySelector('.tonics-audio-featured');
-        audioDemoInputName = parent.querySelector('[data-widget-audio-url="true"]');
-        removeAudioDemo = parent.querySelector('.remove-audio-demo');
-    }
-
-    if (el.classList.contains('tonics-audio-featured')) {
-        if (tonicsFileManagerURL) {
-            let windowFeatures = "left=95,top=100";
-            windowAudioFeaturedInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
-        }
-    }else if (el.classList.contains('remove-audio-demo')) {
-        if (audioDemoInputName) {
-            audioDemoInputName.value = '';
-        }
-        audioDemoInput.classList.remove('d:none');
-        removeAudioDemo.classList.add('d:none');
-    }
-}
-
-window.addEventListener('message', (e) => {
-    if (e.origin !== siteURL) {
-        return;
-    }
-    let data = e.data;
-    if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:MediaLink') {
-        if (audioDemoInput) {
-            if (audioDemoInputName) {
-                audioDemoInputName.value = data.value;
-            }
-            audioDemoInput.classList.add('d:none');
-            removeAudioDemo.classList.remove('d:none');
-            windowAudioFeaturedInstance.close();
-        }
-    }
-});
-// FOR FEATURED IMAGE
-document.querySelector('main').addEventListener('click', featuredLinkHandler);
-let  featuredLinkInput, featuredLinkWindowInstance = null;
-function featuredLinkHandler(e){
-    let el = e.target,
-        parent = el.closest('[data-widget-form="true"]');
-    if (parent) {
-        featuredLinkInput = parent.querySelector('[data-widget-file-url="true"]');
-    }
-
-    if (el.classList.contains('tonics-featured-link')) {
-        if (tonicsFileManagerURL) {
-            let windowFeatures = "left=95,top=100";
-            featuredLinkWindowInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
-        }
-    }
-}
-
-window.addEventListener('message', (e) => {
-    if (e.origin !== siteURL) {
-        return;
-    }
-    let data = e.data;
-    if (data.hasOwnProperty('cmd')) {
-        if (featuredLinkInput) {
-            if (featuredLinkInput) {
-                featuredLinkInput.value = data.value;
-            }
-            featuredLinkWindowInstance.close();
-        }
-    }
-});
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
-// src/Util/Element/Abstract/ElementAbstract.ts
-var ElementAbstract = class {
-  constructor($Element) {
-    if ($Element) {
-      return this.query($Element);
-    }
-    return this;
-  }
-  query($classOrID) {
-    let $temp = document.querySelector(`${$classOrID}`);
-    if ($temp) {
-      this.setQueryResult($temp);
-      return this;
-    }
-    console.log(`Invalid class or id name - ${$classOrID}`);
-  }
-  setQueryResult($result) {
-    this.$queryResult = $result;
-    return this;
-  }
-  getQueryResult() {
-    return this.$queryResult;
-  }
-};
-__name(ElementAbstract, "ElementAbstract");
-
-// src/Util/Element/MenuToggle.ts
-var MenuToggle = class extends ElementAbstract {
-  constructor($parentElement, $queryAdapter) {
-    super($parentElement);
-    this.$menuDetails = {};
-    this.queryAdapter = $queryAdapter;
-  }
-  getQueryAdapter() {
-    return this.queryAdapter;
-  }
-  settings($menuItemElement, $buttonElement, $subMenuElement) {
-    this.getMenuDetails().menu = {
-      parent: {
-        element: this.getQueryResult(),
-        event: ""
-      },
-      propagate: true,
-      menuClass: $menuItemElement,
-      buttonClass: $buttonElement,
-      subMenuClass: $subMenuElement,
-      on: {
-        button: { icon: { add: "", remove: "" } },
-        subMenu: { class: { add: "", remove: "", animation: { start: "", end: "" } } }
-      },
-      off: {
-        button: { icon: { add: "", remove: "" } },
-        subMenu: { class: { add: "", remove: "", animation: { start: "", end: "" } } }
-      }
-    };
-    return this;
-  }
-  stopPropagation($bool = true) {
-    if (this.getMenuDetails().hasOwnProperty("menu")) {
-      this.getMenuDetails().menu.propagate = $bool;
-      return this;
-    }
-  }
-  buttonIcon($add, $remove) {
-    if (this.getMenuDetails().hasOwnProperty("menu")) {
-      this.getMenuDetails().menu.on.button.icon.add = $add;
-      this.getMenuDetails().menu.off.button.icon.add = $remove;
-      return this;
-    }
-    throw new DOMException("No Menu Element Added");
-  }
-  menuIsOn($addClass, $removeClass) {
-    if (this.getMenuDetails().hasOwnProperty("menu")) {
-      this.getMenuDetails().menu.on.subMenu.class.add = $addClass;
-      this.getMenuDetails().menu.on.subMenu.class.remove = $removeClass;
-      return this;
-    }
-    throw new DOMException("No Menu Element Added");
-  }
-  menuIsOff($addClass, $removeClass) {
-    if (this.getMenuDetails().hasOwnProperty("menu")) {
-      this.getMenuDetails().menu.off.subMenu.class.add = $addClass;
-      this.getMenuDetails().menu.off.subMenu.class.remove = $removeClass;
-      return this;
-    }
-    throw new DOMException("No Menu Element Added");
-  }
-  run() {
-    let $parent = this.getMenuDetails().menu.parent.element;
-    if ($parent) {
-      $parent.addEventListener("click", (e) => {
-        var _a, _b;
-        if (this.getMenuDetails().menu.propagate) {
-          e.stopPropagation();
-        }
-        let el = e.target;
-        if (el.closest(this.getMenuDetails().menu.buttonClass)) {
-          e.preventDefault();
-          let $button = el.closest(this.getMenuDetails().menu.buttonClass);
-          $button.classList.toggle("toggle-on");
-          $button.ariaLabel = "Expand child menu";
-          $button.ariaExpanded = "false";
-          if ($button.classList.contains("toggle-on")) {
-            if ($button.closest("[data-menu-depth]")) {
-              let menuDepth = $button.closest("[data-menu-depth]");
-              let allMenuOnSameDepth = document.querySelectorAll(`[data-menu-depth="${menuDepth.dataset.menuDepth}"]`);
-              if (allMenuOnSameDepth.length > 0) {
-                allMenuOnSameDepth.forEach((el2) => {
-                  let allMenuOnSameDepthMenu = el2.querySelector(this.getMenuDetails().menu.buttonClass);
-                  if (allMenuOnSameDepthMenu === $button) {
-                    return;
-                  }
-                  if (allMenuOnSameDepthMenu) {
-                    if (allMenuOnSameDepthMenu.classList.contains("toggle-on")) {
-                      allMenuOnSameDepthMenu.click();
-                    }
-                  }
-                });
-              }
-            }
-            $button.ariaLabel = "Collapse child menu";
-            $button.ariaExpanded = "true";
-          }
-          let $menuItem = $button.closest(this.getMenuDetails().menu.menuClass);
-          let $subMenu = (_b = (_a = this.getQueryAdapter().addNodeElement($menuItem).in()) == null ? void 0 : _a.forward(this.getMenuDetails().menu.subMenuClass)) == null ? void 0 : _b.getQueryResult();
-          if (!$subMenu) {
-            $subMenu = this.getQueryAdapter().addNodeElement($menuItem).queryChildren(this.getMenuDetails().menu.subMenuClass).getQueryResult();
-          }
-          if ($subMenu.classList.contains(this.getMenuDetails().menu.on.subMenu.class.add[0])) {
-            if (this.hasAnimation($subMenu)) {
-              const flexString = this.getMenuDetails().menu.off.subMenu.class.remove.find((a) => a.includes("flex") || a.includes("display-block"));
-              let toRemove = this.getMenuDetails().menu.off.subMenu.class.remove.filter((e2) => e2 !== flexString);
-              const noneString = this.getMenuDetails().menu.off.subMenu.class.add.find((a) => a.includes("none"));
-              let toAdd = this.getMenuDetails().menu.off.subMenu.class.add.filter((e2) => e2 !== noneString);
-              $subMenu.classList.remove(toRemove);
-              $subMenu.classList.add(toAdd);
-              $subMenu.addEventListener("animationend", () => {
-                $subMenu.classList.remove(flexString);
-                $subMenu.classList.add(noneString);
-              }, { once: true });
-            } else {
-              $subMenu.classList.remove(...this.getMenuDetails().menu.off.subMenu.class.remove);
-              $subMenu.classList.add(...this.getMenuDetails().menu.off.subMenu.class.add);
-            }
-          } else {
-            $subMenu.classList.add(...this.getMenuDetails().menu.on.subMenu.class.add);
-            $subMenu.classList.remove(...this.getMenuDetails().menu.on.subMenu.class.remove);
-          }
-          if (this.getMenuDetails().menu.off.button.icon.add) {
-            let $svgUse = $button.querySelector(".svgUse");
-            if ($svgUse) {
-              let $svgUseAttribute = $svgUse.getAttribute("xlink:href");
-              if ($svgUseAttribute === this.getMenuDetails().menu.off.button.icon.add) {
-                this.getQueryAdapter().addNodeElement($svgUse).setSVGUseAttribute(this.getMenuDetails().menu.on.button.icon.add);
-              } else {
-                this.getQueryAdapter().addNodeElement($svgUse).setSVGUseAttribute(this.getMenuDetails().menu.off.button.icon.add);
-              }
-            } else {
-              throw new DOMException("Add class `svgUse` to svg use element");
-            }
-          }
-        }
-      });
-    }
-  }
-  getMenuDetails() {
-    return this.$menuDetails;
-  }
-  closeMenuToggle($parent = null) {
-    let self = this;
-    if ($parent === null) {
-      $parent = document;
-    }
-    $parent.querySelectorAll(self.getMenuDetails().menu.buttonClass).forEach((button) => {
-      if (button.classList.contains("toggle-on") && button.dataset.hasOwnProperty("menutoggle_click_outside") && button.dataset.menutoggle_click_outside === "true") {
-        button.click();
-      }
-    });
-  }
-  closeOnClickOutSide($bool) {
-    if ($bool) {
-      let $parent = this.getMenuDetails().menu.parent.element;
-      $parent.querySelectorAll(this.getMenuDetails().menu.buttonClass).forEach((button) => {
-        button.setAttribute("data-menutoggle_click_outside", "true");
-      });
-    }
-    let self = this;
-    document.addEventListener("click", function(e) {
-      self.closeMenuToggle();
-    });
-    document.addEventListener("keyup", function(e) {
-      if (e.key === "Escape") {
-        self.closeMenuToggle();
-      }
-    });
-    return this;
-  }
-  hasAnimation($el) {
-    let styles = window.getComputedStyle($el, null);
-    const animDuration = parseFloat(styles.getPropertyValue("animation-duration") || "0");
-    const transDuration = parseFloat(styles.getPropertyValue("transition-duration") || "0");
-    return animDuration > 0 || transDuration > 0;
-  }
-};
-__name(MenuToggle, "MenuToggle");
-export {
-  MenuToggle
-};
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
-// src/Util/Element/Abstract/ElementAbstract.ts
-var ElementAbstract = class {
-  constructor($Element) {
-    if ($Element) {
-      return this.query($Element);
-    }
-    return this;
-  }
-  query($classOrID) {
-    let $temp = document.querySelector(`${$classOrID}`);
-    if ($temp) {
-      this.setQueryResult($temp);
-      return this;
-    }
-    console.log(`Invalid class or id name - ${$classOrID}`);
-  }
-  setQueryResult($result) {
-    this.$queryResult = $result;
-    return this;
-  }
-  getQueryResult() {
-    return this.$queryResult;
-  }
-};
-__name(ElementAbstract, "ElementAbstract");
-
-// src/Util/Element/Query.ts
-var Query = class extends ElementAbstract {
-  addNodeElement($element) {
-    this.setQueryResult($element);
-    return this;
-  }
-  forward($classOrID) {
-    let $nextElement = this.getQueryResult().nextElementSibling;
-    while ($nextElement) {
-      if ($nextElement.matches($classOrID)) {
-        this.setQueryResult($nextElement);
-        return this;
-      }
-      $nextElement = $nextElement.nextElementSibling;
-    }
-    return null;
-  }
-  backward($classOrID) {
-    let $prevElement = this.getQueryResult().previousElementSibling;
-    while ($prevElement) {
-      if ($prevElement.matches($classOrID)) {
-        this.setQueryResult($prevElement);
-        return this;
-      }
-      $prevElement = $prevElement.previousElementSibling;
-    }
-    return null;
-  }
-  in() {
-    let $in = this.getQueryResult().firstElementChild;
-    if ($in) {
-      this.setQueryResult($in);
-      return this;
-    }
-    return null;
-  }
-  out() {
-    let $out = this.getQueryResult().parentElement;
-    if ($out) {
-      this.setQueryResult($out);
-      return this;
-    }
-    return null;
-  }
-  queryChildren($classOrID, setQueryResult = true) {
-    let $childElement = this.getQueryResult().querySelector($classOrID);
-    if ($childElement) {
-      if (setQueryResult) {
-        this.setQueryResult($childElement);
-        return this;
-      }
-      return $childElement;
-    }
-    return null;
-  }
-  setSVGUseAttribute($attributeName) {
-    let $svgUseAttribute = this.getQueryResult();
-    if ($svgUseAttribute.tagName == "use") {
-      $svgUseAttribute.removeAttribute("xlink:href");
-      $svgUseAttribute.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", $attributeName);
-    } else {
-      throw new DOMException("Not a valid svg use element");
-    }
-  }
-};
-__name(Query, "Query");
-export {
-  Query
-};
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
-// src/Util/Element/Abstract/ElementAbstract.ts
-var ElementAbstract = class {
-  constructor($Element) {
-    if ($Element) {
-      return this.query($Element);
-    }
-    return this;
-  }
-  query($classOrID) {
-    let $temp = document.querySelector(`${$classOrID}`);
-    if ($temp) {
-      this.setQueryResult($temp);
-      return this;
-    }
-    console.log(`Invalid class or id name - ${$classOrID}`);
-  }
-  setQueryResult($result) {
-    this.$queryResult = $result;
-    return this;
-  }
-  getQueryResult() {
-    return this.$queryResult;
-  }
-};
-__name(ElementAbstract, "ElementAbstract");
-
-// src/Util/Others/Draggables.ts
-var Draggables = class extends ElementAbstract {
-  constructor($draggableContainer) {
-    super($draggableContainer);
-    this.dragging = null;
-    this._draggingOriginalRect = null;
-    this.xPosition = 0;
-    this.yPosition = -1;
-    this.mouseActive = false;
-    this._constrainedQuad = false;
-    this.$draggableElementDetails = {};
-  }
-  get draggingOriginalRect() {
-    return this._draggingOriginalRect;
-  }
-  set draggingOriginalRect(value) {
-    this._draggingOriginalRect = value;
-  }
-  get constrainedQuad() {
-    return this._constrainedQuad;
-  }
-  set constrainedQuad(value) {
-    this._constrainedQuad = value;
-  }
-  settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
-    this.constrainedQuad = $constrainedQuad;
-    this.getDraggableElementDetails().draggable = {
-      constrainedQuad: $constrainedQuad,
-      draggableElement: $draggableElement,
-      ignoreElements: $elementsToIgnore,
-      callbacks: {
-        onDragging: null,
-        onDragDrop: null,
-        onDragRight: null,
-        onDragLeft: null,
-        onDragBottom: null,
-        onDragTop: null
-      }
-    };
-    return this;
-  }
-  getDraggableElementDetails() {
-    return this.$draggableElementDetails;
-  }
-  checkIfSettingsIsSet() {
-    return this.getDraggableElementDetails().draggable;
-  }
-  onDragDrop($onDragDrop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
-      return this;
-    }
-  }
-  onDragRight($onDragRight) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
-      return this;
-    }
-  }
-  onDragLeft($onDragLeft) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
-      return this;
-    }
-  }
-  onDragBottom($onDragBottom) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
-      return this;
-    }
-  }
-  onDragTop($onDragTop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
-      return this;
-    }
-  }
-  run() {
-    let $draggableContainer = this.getQueryResult();
-    let self = this;
-    let shiftX;
-    let shiftY;
-    if ($draggableContainer) {
-      $draggableContainer.addEventListener("pointerdown", function(e) {
-        self.setMouseActive(true);
-        let el = e.target;
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        if (el.closest('.draggable') && startDrag) {
-          self == null ? void 0 : self.setDragging(el.closest('.draggable'));
-          let draggable = self.getDragging();
-          shiftX = e.clientX;
-          shiftY = e.clientY;
-          draggable.classList.add("draggable-start");
-          draggable.classList.add("touch-action:none");
-          draggable.classList.remove("draggable-animation");
-          self._draggingOriginalRect = draggable.getBoundingClientRect();
-          let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
-          if (draggables) {
-            for (let i = 0, len = draggables.length; i < len; i++) {
-              if (draggables[i] !== draggable) {
-                let hiddenAboveDraggable = draggables[i].querySelector(".draggable-hidden-over");
-                if (hiddenAboveDraggable) {
-                  hiddenAboveDraggable.classList.add("position:absolute");
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-    $draggableContainer.addEventListener("pointerup", function(e) {
-      let el = e.target;
-      if (self.isMouseActive()) {
-        self.setMouseActive(false);
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        self.setXPosition(0);
-        self.setYPosition(-1);
-        let draggable = self.getDragging();
-        if (draggable && startDrag) {
-          draggable.style["transform"] = "";
-          draggable.classList.remove("draggable-start");
-          draggable.classList.remove("touch-action:none");
-          draggable.classList.add("draggable-animation");
-          let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
-          if (draggables) {
-            for (let i = 0, len = draggables.length; i < len; i++) {
-              let hiddenAboveDraggable = draggables[i].querySelector(".draggable-hidden-over");
-              if (hiddenAboveDraggable) {
-                hiddenAboveDraggable.classList.remove("position:absolute");
-              }
-            }
-          }
-        } else {
-          return false;
-        }
-        let onDragDrop = self.getDraggableElementDetails().draggable.callbacks.onDragDrop;
-        if (onDragDrop !== null && typeof onDragDrop == "function") {
-          onDragDrop(el, self);
-        }
-      }
-    });
-    $draggableContainer.addEventListener("pointermove", function(e) {
-      if (self.isMouseActive()) {
-        let el = e.target, startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        let draggable = self.getDragging();
-        if (el.closest(".draggable") && startDrag && draggable) {
-          e.preventDefault();
-          let tx = e.clientX - shiftX;
-          let ty = e.clientY - shiftY;
-          if (!self.constrainedQuad) {
-            draggable.style.transform = "translate3d(" + tx + "px," + ty + "px, 0px)";
-          }
-          if (e.movementX >= 1 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragRight = self.getDraggableElementDetails().draggable.callbacks.onDragRight;
-            if (onDragRight !== null && typeof onDragRight == "function") {
-              onDragRight(draggable);
-            }
-          }
-          if (e.movementX < 0 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragLeft = self.getDraggableElementDetails().draggable.callbacks.onDragLeft;
-            if (onDragLeft !== null && typeof onDragLeft == "function") {
-              onDragLeft(draggable, self);
-            }
-          }
-          if (e.movementX === 0 && e.movementY > 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragBottom = self.getDraggableElementDetails().draggable.callbacks.onDragBottom;
-            if (onDragBottom !== null && typeof onDragBottom == "function") {
-              onDragBottom(draggable, self);
-            }
-          } else if (e.movementX === 0 && e.movementY < 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragTop = self.getDraggableElementDetails().draggable.callbacks.onDragTop;
-            if (onDragTop !== null && typeof onDragTop == "function") {
-              onDragTop(draggable, self);
-            }
-          }
-        }
-      }
-    });
-  }
-  getXPosition() {
-    return this.xPosition;
-  }
-  setXPosition(xPosition) {
-    this.xPosition = xPosition;
-  }
-  getYPosition() {
-    return this.yPosition;
-  }
-  setYPosition(yPosition) {
-    this.yPosition = yPosition;
-  }
-  incrementXPosition() {
-    return ++this.xPosition;
-  }
-  decrementXPosition() {
-    return this.xPosition = this.xPosition - 1;
-  }
-  incrementYPosition() {
-    return ++this.yPosition;
-  }
-  decrementYPosition() {
-    return this.yPosition = this.xPosition - 1;
-  }
-  getDragging() {
-    return this.dragging;
-  }
-  setDragging(draggedData) {
-    this.dragging = draggedData;
-  }
-  isMouseActive() {
-    return this.mouseActive;
-  }
-  setMouseActive(result) {
-    this.mouseActive = result;
-  }
-};
-__name(Draggables, "Draggables");
-export {
-  Draggables
-};
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -3879,474 +3141,34 @@ export {
 * sweetalert2 v11.1.10
 * Released under the MIT License.
 */
-export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
-    let x1, y1, x2, y2;
+import * as myModule from "./script-combined.js";
 
-    x1 = el1InitialRect.left - el2.getBoundingClientRect().left;
-    y1 = el1InitialRect.top - el2.getBoundingClientRect().top;
 
-    x2 = el2.getBoundingClientRect().left - el1InitialRect.left;
-    y2 = el2.getBoundingClientRect().top - el1InitialRect.top;
+let chooseMenuFields = document.querySelector('.choose-field-button');
 
-    el1.classList.add('draggable-transition');
-    el2.classList.add('draggable-transition');
-
-    el2.style.transform = "translate(" + x1 + "px," + y1 + "px)";
-    el1.style.transform = "translate(" + x2 + "px," + y2 + "px)";
-
-    function swap(){
-        el1.classList.remove('draggable-transition');
-        el2.classList.remove('draggable-transition');
-
-        el1.removeAttribute('style');
-        el2.removeAttribute('style');
-
-        let copyEl2 = el2.cloneNode(true);
-        el1.parentNode.insertBefore(copyEl2, el1);
-        el2.parentNode.insertBefore(el1, el2);
-        el2.parentNode.replaceChild(el2, copyEl2);
-    }
-
-    el2.addEventListener("transitionend", () => {
-        swap();
-        if (onSwapDone){
-            onSwapDone();
+chooseMenuFields.addEventListener('click', (e) => {
+   let selectedFields = document.querySelectorAll('[data-selected="true"]'),
+       selectedFieldSlug = [];
+   selectedFields.forEach((field) => {
+       selectedFieldSlug.push(field.dataset.field_id);
+   });
+    if (selectedFieldSlug.length > 0){
+        let slug = {
+            action: 'getFieldItems',
+            fieldSlug: JSON.stringify(selectedFieldSlug)
         }
-    }, { once: true });
-}hookTinyMCE();
-
-function hookTinyMCE() {
-    if (typeof tinymce !== 'undefined') {
-        let allTinyArea = document.querySelectorAll('.tinyMCEBodyArea');
-        allTinyArea.forEach(tinyArea => {
-            tinyArea.dataset.tinyinstance = 'true';
-            tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
-            addTiny('#' + tinyArea.id);
-        });
-
-        const tinyDialogObserver = new MutationObserver(((mutationsList, observer) => {
-            for (const mutation of mutationsList) {
-                // added nodes.
-                let addedNode = mutation.addedNodes[0];
-                if (mutation.addedNodes.length > 0 && addedNode.nodeType === Node.ELEMENT_NODE) {
-                    let tinyArea = addedNode.querySelector('.tinyMCEBodyArea');
-                    if (tinyArea) {
-                        // if tinyInstance is available, re-initialize it
-                        if (tinyArea.dataset.tinyinstance === 'true') {
-                            let allTinyArea = document.querySelectorAll('.tinyMCEBodyArea');
-                            allTinyArea.forEach(tinyArea => {
-                                tinymce.execCommand("mceRemoveEditor", false, tinyArea.id);
-                                tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
-                                addTiny('#' + tinyArea.id);
-                            });
-                            return;
-                        }
-
-                        // else...
-                        tinyArea.dataset.tinyinstance = 'true';
-                        tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
-                        addTiny('#' + tinyArea.id);
-                    }
-                }
-            }
-        }));
-        // Start observing the target node for configured mutations
-        tinyDialogObserver.observe(document.querySelector('main'), {attributes: false, childList: true, subtree: true});
-    }
-}
-
-let previousTinyPositionBeforeFullScreenStateChange = null,
-    fromOnFullScreenState = false;
-
-function addTiny(editorID) {
-    let tinyAssets = document.querySelector('template.tiny-mce-assets'),
-        content_css = '',
-        tinyJSAssets = null;
-        if(tinyAssets){
-            let tinyJSAssets = tinyAssets.content.querySelectorAll('.js'),
-                tinyCSSAssets = tinyAssets.content.querySelectorAll('.css');
-
-            tinyCSSAssets.forEach((css) => {
-                content_css += css.value + ',';
-            })
-        }
-
-    return tinymce.init({
-        // add support for image lazy loading
-        extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]",
-        selector: editorID,
-        height: 900,
-        menubar: true,
-        plugins: [
-            'advlist', 'tonics-drivemanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
-            'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'help', 'wordcount',
-        ],
-        noneditable_class: 'tonics-legend',
-        editable_class: 'widgetSettings,dropdown-toggle',
-        // fullscreen_native: true,
-        toolbar: 'undo redo | tonics-drivemanager link image media | ' +
-            'bold italic backcolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist | help',
-        content_style: 'body { font-family:IBMPlexSans-Regular,Times New Roman,serif; font-size:20px }',
-        contextmenu: "link image | copy searchreplace tonics-drivemanager | bold italic blocks align",
-        content_css : content_css,
-        body_class : "entry-content",
-        remove_trailing_brs: true,
-        entity_encoding: "raw",
-        setup: function (editor) {
-            if (tinyJSAssets){
-                const scriptLoader = new tinymce.dom.ScriptLoader();
-                if (tinyJSAssets.length > 0){
-                    tinyJSAssets.forEach((js) => {
-                        scriptLoader.add(js.value);
-                    });
-                    scriptLoader.loadQueue(function() {
-                        console.log('tiny-mce 3rd-party scripts loaded');
-                    });
-                }
-            }
-
-            editor.on('init', function (e) {
-                if (fromOnFullScreenState) {
-                    tinymce.execCommand("mceFullScreen", false, e.target.id);
-                }
-            });
-            editor.on('init change blur', function (e) {
-                tinymce.triggerSave();
-            });
-
-            editor.on('FullscreenStateChanged', function (e) {
-                // hack to get full screen to work from a nested container
-                if (fromOnFullScreenState === false){
-                    let tinyArea = e.target.container,
-                        tinyID = e.target.id,
-                        IDQuery = document.querySelector('#' + tinyID);
-
-                    if (previousTinyPositionBeforeFullScreenStateChange === null) {
-                        previousTinyPositionBeforeFullScreenStateChange = tinyArea.parentElement;
-                    }
-                    if (tinyArea.classList.contains('tox-fullscreen')) {
-                        // we add the editor to body first child, this way, fullscreen works with no quirks
-                        document.querySelector('body').insertAdjacentElement('afterbegin', IDQuery);
-                        tinymce.execCommand("mceRemoveEditor", false, IDQuery.id);
-                        IDQuery.id = 'tinyMCEBodyArea' + new Date().valueOf();
-                        fromOnFullScreenState = true;
-                        addTiny('#' + IDQuery.id).then(function(editors) {
-                            // reset for next event, this would be called after editor.on('init')
-                            fromOnFullScreenState = false;
-                        });
-                    } else {
-                        // we return the editor back to its position
-                        previousTinyPositionBeforeFullScreenStateChange.insertAdjacentElement('beforeend', IDQuery);
-                        tinymce.execCommand("mceRemoveEditor", false, IDQuery.id);
-                        IDQuery.id = 'tinyMCEBodyArea' + new Date().valueOf();
-                        fromOnFullScreenState = false;
-                        previousTinyPositionBeforeFullScreenStateChange = null;
-                        addTiny('#' + IDQuery.id);
-                    }
-                }
-            });
-        }
-    });
-}import * as myModule from "./script-combined.js";
-window.myModule = myModule;
-
-// Load Fields Scripts:
-let scripts = document.querySelectorAll("[data-script_path]");
-scripts.forEach((script) => {
-    myModule.loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
-});
-
-let draggable = document.getElementsByClassName('draggable'),
-    parent = '.menu-arranger',
-    fieldChild = `.menu-arranger-li`,
-    top = false, bottom = false,
-    sensitivity = 0, sensitivityMax = 5,
-    fieldFormCollected = new Map();
-
-let menuArranger = document.getElementsByClassName('menu-arranger')[0];
-let fieldPickerContainer = document.getElementsByClassName('menu-field')[0];
-
-let fieldSlug = document.querySelector('input[name="field_slug"]'),
-    fieldID = document.querySelector('input[name="field_id"]');
-if (fieldSlug){
-    fieldSlug = fieldSlug.value
-}
-if (fieldID){
-    fieldID = fieldID.value
-}
-
-try {
-    let menuField = document.querySelector('.menu-field');
-    if (menuField){
-        new myModule.MenuToggle('.menu-field', new myModule.Query())
-            .settings('.menu-box-li', '.dropdown-toggle', '.child-menu')
-            .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
-            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-            .stopPropagation(false)
-            .closeOnClickOutSide(false)
-            .run();
-    }
-
-    if (menuArranger){
-        new myModule.MenuToggle('.menu-arranger', new myModule.Query())
-            .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
-            .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
-            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-            .closeOnClickOutSide(false)
-            .stopPropagation(false)
-            .run();
-    }
-} catch (e) {
-    console.log("Can't set MenuToggle: menu-widget or menu-arranger");
-}
-
-new myModule.Draggables(parent)
-    .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
-    .onDragDrop(function (element, self) {
-        // to the right
-        let elementDragged = self.getDragging().closest(fieldChild);
-
-        let dragToTheBottom = document.querySelector(parent).querySelector('.drag-to-the-bottom');
-        if (bottom && dragToTheBottom) {
-            swapNodes(elementDragged, dragToTheBottom, self.draggingOriginalRect);
-            dragToTheBottom.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
-            bottom = false;
-        }
-
-        let dragToTheTop = document.querySelector(parent).querySelector('.drag-to-the-top');
-        if (top && dragToTheTop){
-            swapNodes(elementDragged, dragToTheTop, self.draggingOriginalRect);
-            dragToTheTop.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
-            top = false;
-        }
-        setListDataArray();
-    }).onDragTop((element) => {
-    if (sensitivity++ >= sensitivityMax){
-        let dragToTheTop = element.previousElementSibling;
-        if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')){
-            top = true;
-            dragToTheTop.classList.add('drag-to-the-top');
-        }
-        sensitivity = 0;
-    }
-}).onDragBottom( (element) => {
-    if (sensitivity++ >= sensitivityMax){
-        let dragToTheBottom = element.nextElementSibling;
-        if (dragToTheBottom && dragToTheBottom.classList.contains('menu-arranger-li')) {
-            bottom = true;
-            dragToTheBottom.classList.add('drag-to-the-bottom');
-        }
-        sensitivity = 0;
-    }
-}).run();
-
-function setListDataArray() {
-    if(draggable){
-        for(let i = 0, len = draggable.length ; i < len ; i++) {
-            let id = i + 1;
-            draggable[i].setAttribute("data-id", id); // add ID's to all draggable item
-            let parentID = null;
-            let parentDraggable = draggable[i].parentElement.closest('.draggable');
-            if (parentDraggable){
-                parentID = parentDraggable.getAttribute("data-id");
-            }
-            draggable[i].setAttribute("data-parentid",
-                (draggable[i].classList.contains('menu-arranger-li'))  ? parentID : null)
-        }
-        for(let i = 0, len = draggable.length ; i < len ; i++) {
-            let cell = 1;
-            let cellsEl = draggable[i].querySelectorAll('.row-col-item');
-            cellsEl.forEach((cellEl) => {
-                if (cellEl.querySelector('.draggable')){
-                    if (cellEl.querySelector('.draggable').dataset.parentid === draggable[i].dataset.id){
-                        cellEl.dataset.cell =`${cell}`;
-                        cell++;
-                    }
-                }
-            });
-        }
-        return getListDataArray();
-    }
-}
-
-function getListDataArray() {
-    if(draggable){
-        let ListArray = [],
-            fieldName = '',
-            fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
-            i = 0,
-            parentID = null;
-        fieldSettingsEl.forEach(form => {
-            let formTagname = form.tagName.toLowerCase();
-            if (formTagname === 'form' || formTagname === 'div'){
-                let draggable = form.closest('.draggable');
-                parentID = draggable.getAttribute('data-parentid');
-                if (parentID === 'null'){
-                    parentID = null;
-                }
-                if(draggable.querySelector('input[name="field_slug"]') ){
-                    fieldName = draggable.querySelector('input[name="field_slug"]').value;
-                }
-                let elements = form.querySelectorAll('input, textarea, select'),
-                    firstElementParentID = elements[0].closest('.draggable').getAttribute('data-id');
-
-                let widgetSettings = {};
-                let collectCheckboxes = draggable.querySelectorAll("[data-collect_checkboxes]");
-                collectCheckboxes.forEach((checkbox) => {
-                    let checkboxName = checkbox.name;
-                    if (!widgetSettings.hasOwnProperty(checkboxName)){
-                        widgetSettings[checkboxName] = [];
-                    }
-                    if (checkbox.checked){
-                        widgetSettings[checkboxName].push(checkbox.value);
-                    }
-                });
-
-                elements.forEach((inputs) => {
-                    if (inputs.closest('.draggable').dataset.id === firstElementParentID){
-                        if (!widgetSettings.hasOwnProperty(inputs.name)){
-                            widgetSettings[inputs.name] = inputs.value;
-                            if (draggable.closest("[data-cell]")){
-                                widgetSettings[`${fieldName}_cell`] = draggable.closest("[data-cell]").dataset.cell;
-                            }
-                        }
-                    }
-                });
-                i = i+1;
-                ListArray.push({
-                    "fk_field_id": fieldID,
-                    "field_id": i,
-                    "field_parent_id": (draggable.classList.contains('menu-arranger-li')) ? parentID : null,
-                    "field_name": fieldName,
-                    "field_options": JSON.stringify(widgetSettings),
-                });
-            }
-        });
-        return ListArray;
-    }
-}
-
-/**
- * @param requestHeaders
- * @protected
- */
-function defaultXHR(requestHeaders = {})
-{
-    let defaultHeader = {};
-    return new XHRApi({...defaultHeader, ...requestHeaders});
-}
-
-if(fieldPickerContainer){
-    fieldPickerContainer.addEventListener('click',  (e) => {
-        let el = e.target
-        if(el.classList.contains('is-menu-checked')) {
-            let checkedItems = el.parentNode.querySelectorAll('input[name=field-item]:checked');
-            if (checkedItems.length > 0){
-                checkedItems.forEach(((checkbox, key) => {
-                    if (checkbox.dataset.hasOwnProperty('script_path')) {
-                        myModule.loadScriptDynamically(checkbox.dataset.script_path, checkbox.dataset.script_path).then((e) => {
-                            fieldSelectedHandler(checkbox);
-                        });
-                    } else {
-                        fieldSelectedHandler(checkbox);
-                    }
-                }));
-            }
-        }
-    });
-}
-
-function fieldSelectedHandler(checkbox) {
-    let selectedCellItems = document.querySelectorAll('input[name=cell]:checked');
-    checkbox.checked = false;
-    let action = checkbox.dataset.action,
-        name = checkbox.dataset.name,
-        slug = checkbox.dataset.slug,
-        url = window.location.href + `?action=${action}&slug=${slug}`;
-
-    let form = '';
-    if (fieldFormCollected.has(slug)) {
-        form = fieldFormCollected.get(slug);
-        if (selectedCellItems.length > 0){
-            selectedCellItems.forEach(cell => {
-                cell = cell.closest('.row-col-item');
-                cell.insertAdjacentHTML('beforeend', generateFieldData(name, slug, form))
-            });
-        } else {
-            if (menuArranger) {
-                menuArranger.insertAdjacentHTML('beforeend', generateFieldData(name, slug, form))
-            }
-        }
-    } else {
-        defaultXHR().Get(url, function (err, data) {
+        let url = window.location.href + "?action=getFieldItems";
+        new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
             if (data) {
                 data = JSON.parse(data);
-                if (data.hasOwnProperty('status') && data.status === 200) {
-                    fieldFormCollected.set(slug, data.data);
-                    form = fieldFormCollected.get(slug);
-                    if (selectedCellItems.length > 0){
-                        selectedCellItems.forEach(cell => {
-                            cell = cell.closest('.row-col-item');
-                            cell.insertAdjacentHTML('beforeend', generateFieldData(name, slug, form))
-                        });
-                    } else {
-                        if (menuArranger) {
-                            menuArranger.insertAdjacentHTML('beforeend', generateFieldData(name, slug, form))
-                        }
-                    }
-                }
+                console.log(data);
             }
         });
     }
-}
-
-function unSelectSelectedCell() {
-    let selectedCellItems = document.querySelectorAll('[data-selected="true"]');
-    selectedCellItems.forEach(cell => {
-        unHighlightFile(cell);
-    });
-}
-
-function generateFieldData(name, slug, more) {
-    let changeID = (Math.random()*1e32).toString(36);
-    return  more.replace(/CHANGEID/gi, changeID);
-}
-
-// delete menu or widget
-if (menuArranger){
-    menuArranger.addEventListener('click', (e) => {
-        let el = e.target;
-        if (el.classList.contains('delete-menu-arrange-item')){
-            let arranger = el.closest('.draggable');
-            if (arranger){
-                arranger.remove();
-                setListDataArray();
-            }
-        }
-    });
-}
+    console.log(selectedFieldSlug);
+});
 
 
-// save menu builder
-let saveAllMenu = document.querySelector('.save-menu-builder-changes'),
-    saveMenuChangesForm = document.getElementById('saveFieldBuilderItems');
-if(saveAllMenu && saveMenuChangesForm){
-    saveAllMenu.addEventListener('click', function (e) {
-        e.preventDefault();
-        setListDataArray();
-        addHiddenInputToForm(saveMenuChangesForm, 'fieldSlug', fieldSlug);
-        addHiddenInputToForm(saveMenuChangesForm, 'fieldDetails', JSON.stringify({
-            fieldID: fieldID, // This is the field_slug that houses the menu items
-            fieldSlug: fieldSlug, // This is the field_slug that houses the menu items
-            fieldItems: getListDataArray(),
-        }));
-        saveMenuChangesForm.submit();
-    })
-}
 
 
 try {
@@ -4370,14 +3192,143 @@ try {
 
 } catch (e) {
     console.log(e.toLocaleString());
-}try {
-    new myModule.MenuToggle('.site-nav', new myModule.Query())
-        .settings('.menu-block', '.dropdown-toggle', '.child-menu')
-        .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .closeOnClickOutSide(true)
-        .run();
-}catch (e) {
-    console.error("An Error Occur Setting MenuToggle: Site-Nav")
 }
+let containerForSelection = document.querySelector('[data-container_for_selection="true"]');
+    let singleFileStringName = '[data-list_id]';
+    let shiftClick = new Map();
+
+function unHighlightFile(file) {
+    file.classList.remove('selected-file');
+    file.dataset.selected = 'false';
+}
+
+function highlightFile(file) {
+    file.classList.add('selected-file');
+    file.dataset.selected = 'true';
+}
+
+function resetPreviousFilesState() {
+    document.querySelectorAll(singleFileStringName).forEach(el => {
+        el.classList.remove('selected-file');
+        el.setAttribute('data-selected', 'false');
+    });
+
+    if (document.querySelector('[data-simulate_shift_key="true"]')){
+        document.querySelector('[data-simulate_shift_key="true"]').dataset.simulate_shift_key = 'false';
+    }
+
+    if (document.querySelector('[data-simulate_ctrl_key="true"]')){
+        document.querySelector('[data-simulate_ctrl_key="true"]').dataset.simulate_ctrl_key = 'false';
+    }
+
+}
+
+function resetShiftClick() {
+    shiftClick = new Map();
+}
+
+function setShiftClick(file) {
+    highlightFile(file);
+    let id = file.dataset.list_id;
+
+    // remove file that have previously been set, so, they can be pushed below
+    if (shiftClick.get(id)) {
+        shiftClick.delete(id);
+    }
+
+    shiftClick.set(id, file);
+    if (shiftClick.size >= 2) {
+        // this is getting the first and last shift clicked item, and we sorting the integer
+        let firstItem = [...shiftClick][0][0],
+            lastItem = [...shiftClick][shiftClick.size - 1][0],
+            listIDToLoop = [firstItem, lastItem];
+        listIDToLoop.sort();
+
+        // loop over the sorted ranges. and highlight 'em
+        for (let i = listIDToLoop[0]; i <= listIDToLoop[1]; i++) {
+            // highlight file
+            let file = document.querySelector(`[data-list_id="${i}"]`);
+            if (file) {
+                highlightFile(file);
+            }
+        }
+    }
+}
+
+containerForSelection.addEventListener('click', (e) => {
+    let el = e.target;
+    // e.preventDefault();
+    e.stopPropagation();
+    if (el.closest(singleFileStringName)) {
+        let file = el.closest(singleFileStringName);
+
+        if (document.querySelector('[data-simulate_ctrl_key="true"]')){
+            (file.classList.contains('selected-file')) ? unHighlightFile(file) : highlightFile(file);
+            return false;
+        }
+
+        if (document.querySelector('[data-simulate_shift_key="true"]')){
+            setShiftClick(file);
+            return false;
+        }
+
+        // if this is a ctrlKey, we assume, the user wanna select multiple files
+        if (e.ctrlKey) {
+            (file.classList.contains('selected-file')) ? unHighlightFile(file) : highlightFile(file);
+            return false;
+        }
+        // shift clicking, selecting in ranges
+        else if (e.shiftKey) {
+            // reset previous state
+            resetPreviousFilesState()
+            setShiftClick(file);
+        } else {
+            // this is a norm mouse click
+            resetPreviousFilesState();
+            highlightFile(file);
+
+            // for shift key
+            resetShiftClick();
+            setShiftClick(file);
+        }
+    } else {
+        resetShiftClick();
+        resetPreviousFilesState();
+    }
+});
+
+containerForSelection.addEventListener('dblclick', (e) => {
+    let el = e.target;
+    if (el.closest(singleFileStringName)) {
+        let file = el.closest(singleFileStringName);
+        let link = file.dataset.db_click_link;
+        if (link) {
+            window.location.href = link;
+        }
+    }
+});
+
+function navigateEnter(file) {
+    let link = file.dataset.db_click_link;
+    if (link) {
+        window.location.href = link;
+    }
+}
+
+
+function getSelectedFile() {
+    return document.querySelector('[data-selected="true"]');
+}
+
+containerForSelection.addEventListener('keydown', (e) => {
+    let el = e.target;
+    if (el.closest(singleFileStringName)) {
+        let file = el.closest(singleFileStringName);
+        switch (e.code) {
+            case 'Enter':
+                highlightFile(file);
+                navigateEnter(file);
+                break;
+        }
+    }
+});

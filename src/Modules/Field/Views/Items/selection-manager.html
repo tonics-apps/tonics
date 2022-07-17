@@ -13,26 +13,36 @@
 <body class="body-sticky-footer bg:gray-two">
 [[_use("default-inline-svg")]]
 
-<main id="main"  class="flex:one" tabindex="-1">
+<main id="main"  class="flex:one no-text-highlight" tabindex="-1" data-container_for_selection="true">
     [[b('body.main.header-text')Field Selection Manager ]]
     [[func('body.main.header', 'body.main.header-text')]]
     <div class="d:flex justify-content:center flex-wrap:wrap flex-gap padding:default">
-        <ul class="width:100% menu-arranger border-width:default border:black list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
-            [[_v('FieldItems')]]
+        <ul style="gap: 5em;" class="width:100% max-height:800px overflow:auto field-container border-width:default border:black list:style:none d:flex flex-wrap:wrap flex-d:row justify-content:center flex-gap padding:default align-items:center flex-basis:min-content flex:four">
+            [[each('field in FieldItems')
+                <li data-list_id="[[v('_loop.iteration')]]" data-field_id="[[v('field.slug')]]" tabindex="0"
+                    class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer box-shadow-variant-1" data-selected="false">
+                    <fieldset class="padding:default width:100% d:flex justify-content:center">
+                        [[if('v[field.icon]')
+                            [[_v('field.icon')]]
+                        ]]
+                        <div class="d:flex flex-gap:small align-items:center">
+                            <div class="text-on-admin-util">[[v('field.name')]]</div>
+                        </div>
+                    </fieldset>
+                </li>
+            ]]
         </ul>
     </div>
 </main>
 
 <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
-    <button name="delete" class="save-menu-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+    <button name="delete" class="choose-field-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
                     margin-top:0 cursor:pointer button:box-shadow-variant-2">
         Choose Field(s)
     </button>
 </div>
 
 [[_use("script:variables")]]
-[[_use("script:tinymce")]]
-[[_use("script:field-item-index")]]
-[[_use("session:delete-artifacts")]]
+[[_use("script:field-item-selectionManager")]]
 </body>
 </html>
