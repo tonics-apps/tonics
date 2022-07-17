@@ -3499,7 +3499,7 @@ if (parent.tinymce && parent.tinymce.activeEditor) {
         let tinyMenuToggle = new myModule.MenuToggle('.menu-arranger', new myModule.Query().setQueryResult(tinyEntryContent));
         tinyMenuToggle.setQueryResult(tinyEntryContent);
         tinyMenuToggle
-            .settings('.menu-arranger', '.dropdown-toggle', '.menu-widget-information')
+            .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
             .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
             .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
             .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
