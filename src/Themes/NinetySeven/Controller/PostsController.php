@@ -56,7 +56,7 @@ class PostsController
      */
     private function showPost($post)
     {
-        $post = [...json_decode($post->field_settings, true), ...(array)$post];
+        $this->postData->preparePostData($post);
         $onFieldUserForm = new OnFieldUserForm([], new FieldData());
 
         $date = new DateTime($post['post_created_at']);

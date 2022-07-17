@@ -4741,7 +4741,7 @@ function addTiny(editorID) {
                     tinymce.execCommand("mceFullScreen", false, e.target.id);
                 }
             });
-            editor.on('init change blur', function (e) {
+            editor.on('blur', function (e) {
                 if (editor.getBody().hasChildNodes()){
                     let nodesData = {}, key = 0;
                     let bodyNode = editor.getBody().childNodes;

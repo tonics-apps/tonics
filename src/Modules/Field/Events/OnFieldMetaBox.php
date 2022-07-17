@@ -515,12 +515,13 @@ HTML;
     public function defaultInputViewHandler($varKey, $data): void
     {
         $displayName =  (isset($data->fieldName)) ? $data->fieldName : 'Select';
-        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
-
-        $inputName = (isset($data->inputName)) ? $data->inputName : '';
-        addToGlobalVariable("{$varKey}_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Value' => $defaultValue]);
-        $this->handleTemplateEngineView($data);
+        if (isset($data->inputName)){
+            $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+            $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
+            $inputName = (isset($data->inputName)) ? $data->inputName : '';
+            addToGlobalVariable("{$varKey}_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Value' => $defaultValue]);
+            $this->handleTemplateEngineView($data);
+        }
     }
 
     /**

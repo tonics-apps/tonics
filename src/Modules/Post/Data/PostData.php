@@ -5,6 +5,7 @@ namespace App\Modules\Post\Data;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Events\OnFieldMetaBox;
 
 class PostData extends AbstractDataLayer
 {
@@ -380,7 +381,7 @@ HTML;
 
             if (isset($_POST['fieldItemsDataFromEditor'])){
                 $post['field_settings']['post_content'] = $_POST['fieldItemsDataFromEditor'];
-                unset($_POST['fieldItemsDataFromEditor']);
+                unset($post['field_settings']['fieldItemsDataFromEditor']);
             }
 
             $post['field_settings'] = json_encode($post['field_settings']);
@@ -390,6 +391,37 @@ HTML;
         }
 
         return $post;
+    }
+
+    /**
+     * @param $post
+     * @return void
+     * @throws \Exception
+     */
+    public function preparePostData(&$post):void
+    {
+        $post = [...json_decode($post->field_settings, true), ...(array)$post];
+        addToGlobalVariable('Data', $post);
+        $onFieldMetaBox = event()->dispatch(new OnFieldMetaBox());
+        if (isset($post['post_content'])){
+            $postContent = json_decode($post['post_content']);
+            if (is_object($postContent)){
+                $post['post_content'] = '';
+                foreach ($postContent as $field){
+                    if (isset($field->content)){
+                        if (isset($field->fields)){
+                            foreach ($field->fields as $f){
+                                $f->field_options = json_decode($f->field_options);
+                                $f->field_options->{"_field"} = $f;
+                                $post['post_content'] .=$onFieldMetaBox->getViewProcessingFrag($f->field_options->field_slug, $f->field_options);
+                            }
+                        } else {
+                            $post['post_content'] .= $field->content;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function unwrapPostContent(&$fieldSettings):void
