@@ -160,8 +160,8 @@ FORM;
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Date';
         $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
-        $min = (isset($data->min)) ? "min=" . $data->min . '"' : '';
-        $max = (isset($data->max)) ? "max=" . $data->max . '"' : '';
+        $min = (isset($data->min)) ? "min='$data->min'" : '';
+        $max = (isset($data->max)) ? "max='$data->max'" : '';
         $dateType =  (isset($data->dateType)) ? $data->dateType : 'date';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 

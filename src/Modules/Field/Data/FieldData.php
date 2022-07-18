@@ -47,6 +47,15 @@ class FieldData extends AbstractDataLayer
         return db()->row("SELECT `field_id` FROM $table WHERE `field_slug` = ?", $slug)->field_id ?? null;
     }
 
+    public function getFieldAndFieldItemsCols(): string
+    {
+        $fieldTable = $this->getFieldTable(); $fieldItemsTable = $this->getFieldItemsTable();
+        return <<<COLUMNS
+$fieldTable.field_id as main_field_id, $fieldTable.field_name as main_field_name, $fieldTable.field_slug as main_field_slug,
+$fieldItemsTable.field_id as field_id, $fieldItemsTable.field_name as field_name, field_options, `id`, field_parent_id, fk_field_id
+COLUMNS;
+    }
+
 
     /**
      * @param array $slugs
@@ -59,12 +68,13 @@ class FieldData extends AbstractDataLayer
         if (!empty($slugs)){
             $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
             # For Field
-            $fields =  $this->selectWithCondition($this->getFieldTable(), ['field_id'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
+            $fields =  $this->selectWithCondition($this->getFieldTable(), ['field_id', 'field_slug'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
             # For Field Items
             $fieldIDS = [];
             foreach ($fields as $field){
                 $fieldIDS[] = $field->field_id;
             }
+
             return new OnFieldUserForm($fieldIDS, $this, $postData);
         }
         return new OnFieldUserForm([], $this, $postData);

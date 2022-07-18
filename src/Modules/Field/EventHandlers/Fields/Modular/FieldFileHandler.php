@@ -85,12 +85,6 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $templateFile =  (isset($data->templateFile)) ? $data->templateFile : '';
-        if (url()->getHeaderByKey('action') === 'getFieldItems') {
-            // in a context editor, fieldFileHandler should be at most one in a field items,
-            // the rest of the field would be delegated to the handler on viewFrag func()
-            return "<li style='display: none;' class='fieldFileHandler' data-value=$templateFile></li>";
-        }
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'FieldFileHandler';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $frag .= $event->_bottomHTMLWrapper(true);

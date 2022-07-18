@@ -162,7 +162,7 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        $this->postData->unwrapPostContent($fieldSettings);
+       // $this->postData->unwrapPostContent($fieldSettings, $this->fieldData);
 
         if (empty($fieldSettings)){
             $fieldSettings = (array)$post;

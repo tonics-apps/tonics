@@ -45,10 +45,7 @@ class OnFieldUserForm implements EventInterface
     {
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
         $htmlFrag = '';
-        # re-dispatch so we can get the form values
-        $onFieldMetaBox = new OnFieldMetaBox();
-        /**@var $onFieldMetaBox OnFieldMetaBox */
-        $onFieldMetaBox = event()->dispatch($onFieldMetaBox);
+
         foreach ($sortedFieldItems as $k => $sortFieldItem) {
             $sortedFieldItems[$k] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $sortFieldItem, onData: function ($field) {
                 $field->field_options->{"_field"} = $field;
@@ -58,12 +55,29 @@ class OnFieldUserForm implements EventInterface
         }
 
         foreach ($sortedFieldItems as $fieldBox) {
-            foreach ($fieldBox as $field) {
-                $htmlFrag .= $onFieldMetaBox->getUsersForm($field->field_options->field_slug, $field->field_options);
+            $htmlFrag .= $this->getUsersForm($fieldBox, $postData);
+        }
+        return $htmlFrag;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getUsersForm($fields, array $postData = []): string
+    {
+        $htmlFrag = '';
+        # re-dispatch so we can get the form values=
+        /**@var $onFieldMetaBox OnFieldMetaBox */
+        $onFieldMetaBox = event()->dispatch(new OnFieldMetaBox());
+        foreach ($fields as $field) {
+            if (is_string($field->field_options)){
+                $field->field_options = json_decode($field->field_options);
             }
+            $field->field_options->{"_field"} = $field;
+            $field->field_options->{"_field"}->canValidate = !empty($postData);
+            $htmlFrag .= $onFieldMetaBox->getUsersForm($field->field_options->field_slug, $field->field_options);
         }
         $this->fieldMetaBox = $onFieldMetaBox;
-
         return $htmlFrag;
     }
 
@@ -74,11 +88,11 @@ class OnFieldUserForm implements EventInterface
      */
     public function handleFrontEnd(array $fieldSlugs, array $postData = []): void
     {
-        if (empty($fieldSlugs)){
+        if (empty($fieldSlugs)) {
             return;
         }
 
-        foreach ($fieldSlugs as $k => $fieldSlug){
+        foreach ($fieldSlugs as $k => $fieldSlug) {
             $fieldSlugs[$k] = 'sortedField_' . $fieldSlug;
         }
 
@@ -89,7 +103,7 @@ class OnFieldUserForm implements EventInterface
             $questionMarks = helper()->returnRequiredQuestionMarks($fieldSlugs);
             $fieldItemsSortedString = db()->run("SELECT `value` FROM $table WHERE `key` IN ($questionMarks)", ...$fieldSlugs);
 
-            if (!is_array($fieldItemsSortedString)){
+            if (!is_array($fieldItemsSortedString)) {
                 return;
             }
 
@@ -98,9 +112,9 @@ class OnFieldUserForm implements EventInterface
             /**@var $onFieldMetaBox OnFieldMetaBox */
             $onFieldMetaBox = event()->dispatch($onFieldMetaBox);
             foreach ($fieldItemsSortedString as $fields) {
-                if (isset($fields->value)){
+                if (isset($fields->value)) {
                     $fields = json_decode($fields->value ?: '') ?? [];
-                    foreach ($fields as $field){
+                    foreach ($fields as $field) {
                         $field->field_options->{"_field"} = $field;
                         $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);
                     }
@@ -126,7 +140,16 @@ class OnFieldUserForm implements EventInterface
                 return $sortedFieldItems;
             }
             $questionMarks = helper()->returnRequiredQuestionMarks($fieldIDS);
-            $fieldItems = $fieldData->selectWithCondition($fieldData->getFieldItemsTable(), ['*'], "fk_field_id IN ($questionMarks) ORDER BY id", $fieldIDS, false);
+            $fieldTable = $fieldData->getFieldTable(); $fieldItemsTable = $fieldData->getFieldItemsTable();
+            $cols = $fieldData->getFieldAndFieldItemsCols();
+
+            $sql = <<<SQL
+SELECT $cols FROM $fieldItemsTable 
+JOIN $fieldTable ON $fieldTable.field_id = $fieldItemsTable.fk_field_id
+WHERE fk_field_id IN ($questionMarks)
+ORDER BY id;
+SQL;
+            $fieldItems = db()->run($sql, ...$fieldIDS);
             foreach ($fieldItems as $fieldItem) {
                 $fieldOption = json_decode($fieldItem->field_options);
                 $fieldItem->field_options = $fieldOption;

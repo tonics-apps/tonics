@@ -5,7 +5,9 @@ namespace App\Modules\Post\Data;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
+use App\Modules\Field\Events\OnFieldUserForm;
 
 class PostData extends AbstractDataLayer
 {
@@ -424,13 +426,24 @@ HTML;
         }
     }
 
-    public function unwrapPostContent(&$fieldSettings):void
+    /**
+     * @param $fieldSettings
+     * @param FieldData $fieldData
+     * @return void
+     * @throws \Exception
+     */
+    public function unwrapPostContent(&$fieldSettings, FieldData $fieldData):void
     {
+        $onFieldUserForm = new OnFieldUserForm([], $fieldData);
         if (isset($fieldSettings['post_content'])){
             $postContent = json_decode($fieldSettings['post_content']);
             if (is_object($postContent)){
                 $fieldSettings['post_content'] = '';
                 foreach ($postContent as $field){
+                    if (isset($field->fields)){
+                      //  dd($field, $onFieldUserForm->getUsersForm($field->fields));
+                      //  $fieldSettings['post_content'] .= $field->content;
+                    }
                     if (isset($field->content)){
                         $fieldSettings['post_content'] .= $field->content;
                     }
