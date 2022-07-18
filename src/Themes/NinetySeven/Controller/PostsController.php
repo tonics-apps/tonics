@@ -21,13 +21,17 @@ class PostsController
 {
     private PostData $postData;
     private UserData $userData;
-    private WidgetData $widgetData;
 
-    public function __construct(PostData $postData, UserData $userData, WidgetData $widgetData)
+    /**
+     * @param PostData $postData
+     * @param UserData $userData
+     * @param WidgetData $widgetData
+     * @throws \Exception
+     */
+    public function __construct(PostData $postData, UserData $userData)
     {
         $this->postData = $postData;
         $this->userData = $userData;
-        $this->widgetData = $widgetData;
         addToGlobalVariable('Assets', ['css' => AppConfig::getThemesAsset('NinetySeven', 'css/styles.css')]);
     }
 
@@ -186,11 +190,4 @@ class PostsController
         return $this->userData;
     }
 
-    /**
-     * @return WidgetData
-     */
-    public function getWidgetData(): WidgetData
-    {
-        return $this->widgetData;
-    }
 }

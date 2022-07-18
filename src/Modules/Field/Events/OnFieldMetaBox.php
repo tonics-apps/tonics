@@ -165,7 +165,8 @@ HTML;
     public function getUsersForm($fieldSlug, $settings = null): string
     {
         $hideFrag = (isset($settings->hideInUserEditForm)) ? $settings->hideInUserEditForm : '';
-        if ($hideFrag === '1'){
+
+        if($hideFrag === '1') {
             return '';
         }
 
@@ -313,9 +314,9 @@ HTML;
 <li tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
 $scriptPath>
-        <fieldset contenteditable="false"
+        <fieldset
             class="width:100% padding:default d:flex justify-content:center flex-d:column owl">
-            <legend  class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend contenteditable="false" class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
                 <button class="{$toggle['button']}"
                         aria-expanded="{$toggle['aria-expanded']}" aria-label="{$toggle['aria-label']}" type="button">

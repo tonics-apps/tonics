@@ -51,7 +51,6 @@ class FieldData extends AbstractDataLayer
     /**
      * @param array $slugs
      * @param array $postData
-     * @param bool $viewProcessing
      * @return OnFieldUserForm
      * @throws \Exception
      */

@@ -4049,13 +4049,14 @@ function addTiny(editorID) {
                     let nodesData = {}, key = 0;
                     let bodyNode = editor.getBody().childNodes;
                     bodyNode.forEach((node) => {
-                        if (node.classList.contains('tonics-field-items-unique')){
+                        if (node.classList.contains('tonics-field-items-unique') && node.querySelector('.fieldFileHandler')){
                             if (nodesData.hasOwnProperty(key)){
                                 ++key;
                             }
+                            let fieldHandlerValue = node.querySelector('.fieldFileHandler').dataset.value;
                             setFieldListDataArray(node.querySelectorAll('.draggable'))
                             let fieldSettingsEl = node.querySelectorAll('.widgetSettings');
-                            nodesData[key] = {content: node.outerHTML, raw: false, fields: getFieldListDataArray(fieldSettingsEl)};
+                            nodesData[key] = {content: node.outerHTML, raw: false, fields: getFieldListDataArray(fieldSettingsEl), fieldHandler: fieldHandlerValue};
                         } else {
                             if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false){
                                 ++key;
@@ -4067,6 +4068,7 @@ function addTiny(editorID) {
                     });
                     let inputForFields = document.createElement('input');
                     inputForFields.type = 'hidden'; inputForFields.name = 'fieldItemsDataFromEditor';
+                    console.log(nodesData);
                     inputForFields.value = JSON.stringify(nodesData);
                     if (document.querySelector('form')){
                         document.querySelector('form').insertAdjacentElement('afterbegin', inputForFields);
