@@ -34,7 +34,6 @@ class MediaFileManager implements HandlerInterface
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'MediaManager';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $defaultFileLink = (isset($data->file_url)) ? $data->file_url : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -74,7 +73,8 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'MediaManager';
-        $defaultFileLink = (isset($data->file_url)) ? $data->file_url : '';
+        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $defaultFileLink = (isset($data->file_url) && !empty($inputName)) ? $inputName : $data->file_url;
 
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
