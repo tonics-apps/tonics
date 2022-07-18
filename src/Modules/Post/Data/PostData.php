@@ -2,6 +2,7 @@
 
 namespace App\Modules\Post\Data;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
@@ -435,14 +436,47 @@ HTML;
     public function unwrapPostContent(&$fieldSettings, FieldData $fieldData):void
     {
         $onFieldUserForm = new OnFieldUserForm([], $fieldData);
+        $fieldTableSlugs = json_decode($fieldSettings['fieldTableSlugsInEditor'], true);
+        $postDataFromEditor = json_decode($fieldSettings['fieldPostDataInEditor'], true);
+
+        $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
+        if (is_array($postDataFromEditor)){
+            addToGlobalVariable('Data', $postDataFromEditor);
+        }
+
+        $fieldItemsByMainFieldSlug = [];
+
+        if (is_array($fieldTableSlugs)){
+            $fieldTableSlugs = array_values($fieldTableSlugs);
+            $questionMarks = helper()->returnRequiredQuestionMarks($fieldTableSlugs);
+            $fieldTable = $fieldData->getFieldTable(); $fieldItemsTable = $fieldData->getFieldItemsTable();
+            $cols = $fieldData->getFieldAndFieldItemsCols();
+
+            $sql = <<<SQL
+SELECT $cols FROM $fieldItemsTable 
+JOIN $fieldTable ON $fieldTable.field_id = $fieldItemsTable.fk_field_id
+WHERE $fieldTable.field_slug IN ($questionMarks)
+ORDER BY id;
+SQL;
+            $fieldItems = db()->run($sql, ...$fieldTableSlugs);
+            foreach ($fieldItems as $fieldItem) {
+                $fieldOption = json_decode($fieldItem->field_options);
+                $fieldItem->field_options = $fieldOption;
+                $fieldItemsByMainFieldSlug[$fieldItem->main_field_slug][] = $fieldItem;
+            }
+        }
+
         if (isset($fieldSettings['post_content'])){
             $postContent = json_decode($fieldSettings['post_content']);
             if (is_object($postContent)){
                 $fieldSettings['post_content'] = '';
                 foreach ($postContent as $field){
-                    if (isset($field->fields)){
-                      //  dd($field, $onFieldUserForm->getUsersForm($field->fields));
-                      //  $fieldSettings['post_content'] .= $field->content;
+                    if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
+                       $fieldSettings['post_content'] .= <<<HTML
+<ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
+{$onFieldUserForm->getUsersForm($fieldItemsByMainFieldSlug[$field->fieldTableSlug])}
+</ul>
+HTML;
                     }
                     if (isset($field->content)){
                         $fieldSettings['post_content'] .= $field->content;
@@ -450,6 +484,9 @@ HTML;
                 }
             }
         }
+
+        // restore old postData;
+        addToGlobalVariable('Data', $oldPostData);
     }
 
     /**

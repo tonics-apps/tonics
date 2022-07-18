@@ -161,86 +161,27 @@ function addTiny(editorID) {
     });
 }
 
-function setFieldListDataArray(draggable) {
-    if (draggable) {
-        for (let i = 0, len = draggable.length; i < len; i++) {
-            let id = i + 1;
-            draggable[i].setAttribute("data-id", id); // add ID's to all draggable item
-            let parentID = null;
-            let parentDraggable = draggable[i].parentElement.closest('.draggable');
-            if (parentDraggable) {
-                parentID = parentDraggable.getAttribute("data-id");
-            }
-            draggable[i].setAttribute("data-parentid",
-                (draggable[i].classList.contains('menu-arranger-li')) ? parentID : null)
-        }
-        for (let i = 0, len = draggable.length; i < len; i++) {
-            let cell = 1;
-            let cellsEl = draggable[i].querySelectorAll('.row-col-item');
-            cellsEl.forEach((cellEl) => {
-                if (cellEl.querySelector('.draggable')) {
-                    if (cellEl.querySelector('.draggable').dataset.parentid === draggable[i].dataset.id) {
-                        cellEl.dataset.cell = `${cell}`;
-                        cell++;
-                    }
-                }
-            });
-        }
-    }
-}
-
 function getFieldListDataArray(fieldSettingsEl) {
-    let ListArray = [],
-        fieldName = '',
-        i = 0,
-        parentID = null;
-    fieldSettingsEl.forEach(form => {
-        let formTagname = form.tagName.toLowerCase();
-        if (formTagname === 'form' || formTagname === 'div') {
-            let draggable = form.closest('.draggable');
-            parentID = draggable.getAttribute('data-parentid');
-            if (parentID === 'null') {
-                parentID = null;
-            }
-            if (draggable.querySelector('input[name="field_slug"]')) {
-                fieldName = draggable.querySelector('input[name="field_slug"]').value;
-            }
-            let elements = form.querySelectorAll('input, textarea, select'),
-                firstElementParentID = elements[0].closest('.draggable').getAttribute('data-id');
+    let widgetSettings = {};
+    let elements = fieldSettingsEl.querySelectorAll('input, textarea, select');
+    elements.forEach((inputs) => {
 
-            let widgetSettings = {};
-            let collectCheckboxes = draggable.querySelectorAll("[data-collect_checkboxes]");
-            collectCheckboxes.forEach((checkbox) => {
-                let checkboxName = checkbox.name;
-                if (!widgetSettings.hasOwnProperty(checkboxName)) {
-                    widgetSettings[checkboxName] = [];
-                }
-                if (checkbox.checked) {
-                    widgetSettings[checkboxName].push(checkbox.value);
-                }
-            });
+        // collect checkbox
+        if (inputs.type === 'checkbox'){
+            let checkboxName = inputs.name;
+            if (!widgetSettings.hasOwnProperty(checkboxName)){
+                widgetSettings[checkboxName] = [];
+            }
+            if (inputs.checked){
+                widgetSettings[checkboxName].push(inputs.value);
+            }
+        }
 
-            elements.forEach((inputs) => {
-                if (inputs.closest('.draggable').dataset.id === firstElementParentID) {
-                    if (!widgetSettings.hasOwnProperty(inputs.name)) {
-                        widgetSettings[inputs.name] = inputs.value;
-                        if (draggable.closest("[data-cell]")) {
-                            widgetSettings[`${fieldName}_cell`] = draggable.closest("[data-cell]").dataset.cell;
-                        }
-                    }
-                }
-            });
-            i = i + 1;
-            ListArray.push({
-                "fk_field_id": fieldID,
-                "field_id": i,
-                "field_parent_id": (draggable.classList.contains('menu-arranger-li')) ? parentID : null,
-                "field_name": fieldName,
-                "field_options": JSON.stringify(widgetSettings),
-            });
+        if (!widgetSettings.hasOwnProperty(inputs.name)) {
+            widgetSettings[inputs.name] = inputs.value;
         }
     });
-    return ListArray;
+    return widgetSettings;
 }
 
 let tinyEditorsForm = document.getElementById('EditorsForm');
@@ -250,21 +191,20 @@ if (tinyEditorsForm){
         if (tinymce.activeEditor.getBody().hasChildNodes()) {
             let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
+            let postData = getFieldListDataArray(tinymce.activeEditor.getBody());
             bodyNode.forEach((node) => {
                 if (node.classList.contains('tonics-field-items-unique')) {
                     if (nodesData.hasOwnProperty(key)) {
                         ++key;
                     }
-                    setFieldListDataArray(node.querySelectorAll('.draggable'))
                     let fieldSettingsEl = node.querySelectorAll('.widgetSettings');
-                    let fieldTable = node.querySelector('input[name="main_field_slug"]');
-                    if (fieldTable){
-                        fieldTable = fieldTable.value;
+                    let fieldTableSlug = node.querySelector('input[name="main_field_slug"]');
+                    if (fieldTableSlug){
+                        fieldTableSlug = fieldTableSlug.value;
                     }
                     nodesData[key] = {
-                        fieldTable: fieldTable,
+                        fieldTableSlug: fieldTableSlug,
                         raw: false,
-                        fields: getFieldListDataArray(fieldSettingsEl),
                     };
                 } else {
                     if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false) {
@@ -275,9 +215,15 @@ if (tinyEditorsForm){
                     nodesData[key] = {content: previousContent + node.outerHTML, raw: true};
                 }
             });
-            console.log(nodesData);
+
             addHiddenInputToForm(tinyEditorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
-            // tinyEditorsForm.submit();
+            let fieldTables = {};
+            tinymce.activeEditor.getBody().querySelectorAll('input[name="main_field_slug"]').forEach((table) => {
+                fieldTables[table.value] =table.value;
+            });
+            addHiddenInputToForm(tinyEditorsForm, 'fieldTableSlugsInEditor', JSON.stringify(fieldTables));
+            addHiddenInputToForm(tinyEditorsForm, 'fieldPostDataInEditor', JSON.stringify(postData));
+            tinyEditorsForm.submit();
         }
     });
 }
