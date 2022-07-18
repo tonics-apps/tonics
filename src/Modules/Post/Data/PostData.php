@@ -467,6 +467,10 @@ SQL;
         }
 
         if (isset($fieldSettings['post_content'])){
+
+            // fake getFieldItems action header
+            url()->addToHeader('HTTP_ACTION', 'getFieldItems');
+
             $postContent = json_decode($fieldSettings['post_content']);
             if (is_object($postContent)){
                 $fieldSettings['post_content'] = '';
@@ -487,6 +491,8 @@ HTML;
 
         // restore old postData;
         addToGlobalVariable('Data', $oldPostData);
+        // remove fake header action
+        url()->removeFromHeader('HTTP_ACTION');
     }
 
     /**

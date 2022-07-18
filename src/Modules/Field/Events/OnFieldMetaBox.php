@@ -312,7 +312,6 @@ HTML;
 
         $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
         $isEditorWidgetSettings = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="true"' : '';
-
         $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
         return <<<HTML
 <li $isEditorLi tabIndex="0"
