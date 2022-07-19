@@ -415,13 +415,12 @@ HTML;
      */
     public function wrapFieldsForPostEditor(string $data): string
     {
-        $firstTab = helper()->randomString(10);
-        $secondTab = helper()->randomString(10);
+        $id = helper()->randomString(10);
         $uniqueRadioName = helper()->randomString(5);
         return <<<HTML
-<section class="tabs">
-      <input type="radio" id="$firstTab" name="$uniqueRadioName" checked>
-      <label style="cursor: pointer; caret-color: transparent;" for="$firstTab">Fields</label>
+<section class="tabs tonicsFieldTabsContainer">
+      <input type="radio" id="$id-fields" name="$uniqueRadioName" checked>
+      <label style="cursor: pointer; caret-color: transparent;" for="$id-fields">Fields</label>
       
      <div>
         <ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
@@ -429,11 +428,16 @@ HTML;
         </ul>
      </div>
      
-     <input type="radio" id="$secondTab" name="$uniqueRadioName">
-      <label class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$secondTab">Preview</label>
-      <div>
-        Height!
-        <div id="big-yellow-square"></div>
+     <input type="radio" id="$id-preview" name="$uniqueRadioName">
+      <label class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$id-preview">Preview</label>
+      <div class="fieldsPreviewContent">
+      </div>
+      
+      <input type="radio" id="$id-delete" name="$uniqueRadioName">
+      <label class="fieldsDelete color:white border-width:default border:black" style="background: black !important; cursor: pointer; caret-color: transparent;" for="$id-delete">
+        Delete Field
+      </label>
+       <div>
       </div>
       
 </section>

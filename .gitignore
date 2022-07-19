@@ -4,3 +4,4 @@ vendor/
 .env
 composer.phar
 src/Modules/*.zip
+/build/

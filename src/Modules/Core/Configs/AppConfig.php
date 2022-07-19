@@ -252,6 +252,11 @@ class AppConfig
         return env('APP_ENV', 'production');
     }
 
+    public static function isProduction(): bool
+    {
+        return AppConfig::getAppEnv() === 'production';
+    }
+
     public static function getAppUpdateKey(): string
     {
         return env('UPDATE_KEY', 'NULL');

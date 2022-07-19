@@ -73,6 +73,8 @@ class InitLoaderMinimal
             'APP_URL' => AppConfig::getAppUrl(),
             'APP_TIME_ZONE' => AppConfig::getTimeZone(),
             'APP_TIME_ZONE_OFFSET' => date('P'),
+            'APP_ENV' => AppConfig::getAppEnv(),
+            'isProduction' => AppConfig::isProduction()
         ]);
 
         url()->reset();

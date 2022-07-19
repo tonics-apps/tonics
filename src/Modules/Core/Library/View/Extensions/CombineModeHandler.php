@@ -3,6 +3,7 @@
 namespace App\Modules\Core\Library\View\Extensions;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Events\TonicsTemplateViewEvent\BeforeCombineModeOperation;
 use Devsrealm\TonicsHelpers\Exceptions\FileException;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
@@ -24,15 +25,22 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
         $args = $tagToken->getArg();
 
         $outputFile = array_shift($args);
+
+        /** @var BeforeCombineModeOperation $beforeCombineOperationEvent */
+        $beforeCombineOperationEvent = event()->dispatch(new BeforeCombineModeOperation($outputFile));
+        if ($beforeCombineOperationEvent->combineFiles() === false) {
+            return true;
+        }
+
         $finalFile = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($outputFile, '/\\');
         $finalFileHandle = @fopen($finalFile, "w");
-        if ($finalFileHandle === false){
+        if ($finalFileHandle === false) {
             throw new FileException("Cant Open File `$finalFile`, Permission Issue?");
         }
 
-        foreach ($args as $fileToAppend){
+        foreach ($args as $fileToAppend) {
             $fileToAppend = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($fileToAppend, '/\\');
-            if (helper()->fileExists($fileToAppend)){
+            if (helper()->fileExists($fileToAppend)) {
                 $data = file_get_contents($fileToAppend);
                 fwrite($finalFileHandle, $data);
                 $data = null;
@@ -40,7 +48,8 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
             }
         }
 
-        fclose($finalFileHandle); $finalFileHandle = null;
+        fclose($finalFileHandle);
+        $finalFileHandle = null;
         $tagToken->getTag()->setContent($outputFile);
         $tagToken->getTag()->setArgs([]);
         return true;

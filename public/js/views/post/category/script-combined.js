@@ -3702,6 +3702,38 @@ function addTiny(editorID) {
         remove_trailing_brs: true,
         setup: function (editor) {
             editor.on('init', function (e) {
+
+                editor.getBody().addEventListener('click', (e) => {
+                    let target = e.target;
+                    if (target.classList.contains('fieldsPreview')){
+                        let tabContainer = target.closest('.tabs');
+                        let dataToSend = {
+                            action: 'fieldPreviewFromEditor',
+                            fieldPostDataInEditor: JSON.stringify(getPostData(tabContainer)),
+                            fieldTableSlugsInEditor: JSON.stringify(getFieldSlugsTable(tabContainer)),
+                        };
+                        let url = window.location.href + "?action=fieldPreviewFromEditor";
+                        new XHRApi({...{}, ...dataToSend}).Get(url, function (err, data) {
+                            if (data) {
+                                data = JSON.parse(data);
+                                if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')){
+                                    target.nextElementSibling.innerHTML = '';
+                                    target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
+                                }
+                            }
+                        });
+                    }
+
+                    if (target.classList.contains('fieldsDelete')){
+                        let tabContainer = target.closest('.tabs');
+                        if (tabContainer){
+                            myModule.promptToast("Field deletion could be irreversible", "Delete Field", () => {
+                                tabContainer.remove();
+                            })
+                        }
+                    }
+                });
+
                editor.getBody().addEventListener('change', (e) => {
                    let input = e.target, tagName = input.tagName;
                    if (tagName.toLowerCase() === 'input'){
@@ -3718,7 +3750,6 @@ function addTiny(editorID) {
                                });
                            }
                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-                           console.log(input, input.name)
                        }
                    }
 
@@ -3794,7 +3825,7 @@ function addTiny(editorID) {
     });
 }
 
-function getFieldListDataArray(fieldSettingsEl) {
+function getPostData(fieldSettingsEl) {
     let widgetSettings = {};
     let elements = fieldSettingsEl.querySelectorAll('input, textarea, select');
     elements.forEach((inputs) => {
@@ -3824,13 +3855,12 @@ if (tinyEditorsForm){
         if (tinymce.activeEditor.getBody().hasChildNodes()) {
             let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
-            let postData = getFieldListDataArray(tinymce.activeEditor.getBody());
+            let postData = getPostData(tinymce.activeEditor.getBody());
             bodyNode.forEach((node) => {
-                if (node.classList.contains('tonics-field-items-unique')) {
+                if (node.classList.contains('tonicsFieldTabsContainer')) {
                     if (nodesData.hasOwnProperty(key)) {
                         ++key;
                     }
-                    let fieldSettingsEl = node.querySelectorAll('.widgetSettings');
                     let fieldTableSlug = node.querySelector('input[name="main_field_slug"]');
                     if (fieldTableSlug){
                         fieldTableSlug = fieldTableSlug.value;
@@ -3850,15 +3880,22 @@ if (tinyEditorsForm){
             });
 
             addHiddenInputToForm(tinyEditorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
-            let fieldTables = {};
-            tinymce.activeEditor.getBody().querySelectorAll('input[name="main_field_slug"]').forEach((table) => {
-                fieldTables[table.value] =table.value;
-            });
-            addHiddenInputToForm(tinyEditorsForm, 'fieldTableSlugsInEditor', JSON.stringify(fieldTables));
+            addHiddenInputToForm(tinyEditorsForm, 'fieldTableSlugsInEditor', JSON.stringify(getFieldSlugsTable()));
             addHiddenInputToForm(tinyEditorsForm, 'fieldPostDataInEditor', JSON.stringify(postData));
             tinyEditorsForm.submit();
         }
     });
+}
+
+function getFieldSlugsTable(el = null) {
+    if (el === null){
+        el = tinymce.activeEditor.getBody();
+    }
+    let fieldTables = {};
+    el.querySelectorAll('input[name="main_field_slug"]').forEach((table) => {
+        fieldTables[table.value] =table.value;
+    });
+    return fieldTables;
 }try {
     new myModule.MenuToggle('.site-nav', new myModule.Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')

@@ -436,8 +436,19 @@ HTML;
     public function unwrapPostContent(&$fieldSettings, FieldData $fieldData):void
     {
         $onFieldUserForm = new OnFieldUserForm([], $fieldData);
-        $fieldTableSlugs = json_decode($fieldSettings['fieldTableSlugsInEditor'], true);
-        $postDataFromEditor = json_decode($fieldSettings['fieldPostDataInEditor'], true);
+
+        $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'];
+        $fieldPostDataInEditor = $fieldSettings['fieldPostDataInEditor'];
+
+        # FOR FIELD PREVIEW IN POST EDITOR
+        if (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') {
+            $fieldTableSlugsInEditor = url()->getHeaderByKey('fieldTableSlugsInEditor');
+            $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
+        }
+
+        $fieldTableSlugs = json_decode($fieldTableSlugsInEditor, true);
+        $postDataFromEditor = json_decode($fieldPostDataInEditor, true);
+
 
         $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
         if (is_array($postDataFromEditor)){
@@ -466,29 +477,35 @@ SQL;
             }
         }
 
-        if (isset($fieldSettings['post_content'])){
-
-            // fake getFieldItems action header
-            url()->addToHeader('HTTP_ACTION', 'getFieldItems');
-
-            $postContent = json_decode($fieldSettings['post_content']);
-            if (is_object($postContent)){
-                $fieldSettings['post_content'] = '';
-                foreach ($postContent as $field){
-                    if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
-                        $fieldSettings['post_content'] .= $fieldData->wrapFieldsForPostEditor($onFieldUserForm->getUsersForm($fieldItemsByMainFieldSlug[$field->fieldTableSlug]));
-                    }
-                    if (isset($field->content)){
-                        $fieldSettings['post_content'] .= $field->content;
+        # FOR FIELD PREVIEW IN POST EDITOR
+        if (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') {
+            $previewFrag = '';
+            foreach ($fieldItemsByMainFieldSlug as $fields){
+                $previewFrag .= $onFieldUserForm->getViewFragFrag($fields);
+            }
+            helper()->onSuccess($previewFrag);
+        } else {
+            if (isset($fieldSettings['post_content'])){
+                // fake getFieldItems action header
+                url()->addToHeader('HTTP_ACTION', 'getFieldItems');
+                $postContent = json_decode($fieldSettings['post_content']);
+                if (is_object($postContent)){
+                    $fieldSettings['post_content'] = '';
+                    foreach ($postContent as $field){
+                        if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
+                            $fieldSettings['post_content'] .= $fieldData->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field->fieldTableSlug]));
+                        }
+                        if (isset($field->content)){
+                            $fieldSettings['post_content'] .= $field->content;
+                        }
                     }
                 }
             }
+            // restore old postData;
+            addToGlobalVariable('Data', $oldPostData);
+            // remove fake header action
+            url()->removeFromHeader('HTTP_ACTION');
         }
-
-        // restore old postData;
-        addToGlobalVariable('Data', $oldPostData);
-        // remove fake header action
-        url()->removeFromHeader('HTTP_ACTION');
     }
 
     /**

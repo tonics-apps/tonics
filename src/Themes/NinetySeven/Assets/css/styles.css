@@ -111,7 +111,7 @@ body#tinymce > * + * {
     padding: 0 1em;
 }
 
-
+/* TABS SECTION, CREDIT TO:  https://kmoerman.github.io/css-tabs/ */
 body#tinymce > .tabs {
     display: flex;
     flex-flow: row wrap;
@@ -153,12 +153,7 @@ body#tinymce > .tabs [type=radio]:checked + label,
 body#tinymce > .tabs [type=radio]:checked + label + * {
     background: #eee;
 }
-
-#big-yellow-square {
-    height: 20em;
-    width: 20em;
-    background: #7c17b1;
-}
+/* END TABS SECTION */
 
 input:focus {
     outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);

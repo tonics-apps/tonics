@@ -55,7 +55,7 @@ class OnFieldUserForm implements EventInterface
         }
 
         foreach ($sortedFieldItems as $fieldBox) {
-            $htmlFrag .= $this->getUsersForm($fieldBox, $postData);
+            $htmlFrag .= $this->getUsersFormFrag($fieldBox, $postData);
         }
         return $htmlFrag;
     }
@@ -63,19 +63,33 @@ class OnFieldUserForm implements EventInterface
     /**
      * @throws \Exception
      */
-    public function getUsersForm($fields, array $postData = []): string
+    public function getUsersFormFrag($fields, array $postData = []): string
     {
         $htmlFrag = '';
         # re-dispatch so we can get the form values=
         /**@var $onFieldMetaBox OnFieldMetaBox */
         $onFieldMetaBox = event()->dispatch(new OnFieldMetaBox());
         foreach ($fields as $field) {
-            if (is_string($field->field_options)){
-                $field->field_options = json_decode($field->field_options);
-            }
             $field->field_options->{"_field"} = $field;
             $field->field_options->{"_field"}->canValidate = !empty($postData);
             $htmlFrag .= $onFieldMetaBox->getUsersForm($field->field_options->field_slug, $field->field_options);
+        }
+        $this->fieldMetaBox = $onFieldMetaBox;
+        return $htmlFrag;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getViewFragFrag($fields): string
+    {
+        $htmlFrag = '';
+        # re-dispatch so we can get the form values=
+        /**@var $onFieldMetaBox OnFieldMetaBox */
+        $onFieldMetaBox = event()->dispatch(new OnFieldMetaBox());
+        foreach ($fields as $field) {
+            $field->field_options->{"_field"} = $field;
+            $htmlFrag .= $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);
         }
         $this->fieldMetaBox = $onFieldMetaBox;
         return $htmlFrag;
