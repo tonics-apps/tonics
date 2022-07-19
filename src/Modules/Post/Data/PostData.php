@@ -476,11 +476,7 @@ SQL;
                 $fieldSettings['post_content'] = '';
                 foreach ($postContent as $field){
                     if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
-                       $fieldSettings['post_content'] .= <<<HTML
-<ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
-{$onFieldUserForm->getUsersForm($fieldItemsByMainFieldSlug[$field->fieldTableSlug])}
-</ul>
-HTML;
+                        $fieldSettings['post_content'] .= $fieldData->wrapFieldsForPostEditor($onFieldUserForm->getUsersForm($fieldItemsByMainFieldSlug[$field->fieldTableSlug]));
                     }
                     if (isset($field->content)){
                         $fieldSettings['post_content'] .= $field->content;

@@ -405,14 +405,40 @@ HTML;
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
             $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);
-            $fieldItems = $this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag();
-                $fieldItems = <<<HTML
-<ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
-$fieldItems
-</ul>
-HTML;
+            $fieldItems = $this->wrapFieldsForPostEditor($this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag());
             helper()->onSuccess(str_replace('width:100%', '', $fieldItems));
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function wrapFieldsForPostEditor(string $data): string
+    {
+        $firstTab = helper()->randomString(10);
+        $secondTab = helper()->randomString(10);
+        $uniqueRadioName = helper()->randomString(5);
+        return <<<HTML
+<section class="tabs">
+      <input type="radio" id="$firstTab" name="$uniqueRadioName" checked>
+      <label style="cursor: pointer; caret-color: transparent;" for="$firstTab">Fields</label>
+      
+     <div>
+        <ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
+            $data
+        </ul>
+     </div>
+     
+     <input type="radio" id="$secondTab" name="$uniqueRadioName">
+      <label class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$secondTab">Preview</label>
+      <div>
+        Height!
+        <div id="big-yellow-square"></div>
+      </div>
+      
+</section>
+HTML;
+
     }
 
     /**

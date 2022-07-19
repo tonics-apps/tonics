@@ -1,4 +1,3 @@
-
 :root {
     scrollbar-color: #9e9e9e !important;
     scrollbar-width: 7px !important;
@@ -99,6 +98,7 @@ html {
 
 
 /* FOR TINYMCE */
+
 body#tinymce {
     padding-top: 1em;
 }
@@ -109,6 +109,55 @@ body#tinymce > * + * {
 .mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {
     left: 1px;
     padding: 0 1em;
+}
+
+
+body#tinymce > .tabs {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+body#tinymce > .tabs > [type=radio] {
+    display: none;
+}
+
+body#tinymce > .tabs > [type=radio] + label {
+    order: 1;
+    cursor: pointer;
+}
+
+body#tinymce > .tabs > [type=radio] + label + * {
+    width: 100%;
+    order: 2;
+}
+
+body#tinymce > .tabs > [type=radio]:not(:checked) + label + * {
+    display: none;
+}
+
+body#tinymce > .tabs {
+    width: 50%;
+    min-width: 30em;
+    max-width: 60em;
+}
+
+body#tinymce > .tabs label {
+    padding: 0.5em 1em;
+}
+
+body#tinymce > .tabs label + * {
+    padding: 1em;
+}
+
+body#tinymce > .tabs [type=radio]:checked + label,
+body#tinymce > .tabs [type=radio]:checked + label + * {
+    background: #eee;
+}
+
+#big-yellow-square {
+    height: 20em;
+    width: 20em;
+    background: #7c17b1;
 }
 
 input:focus {

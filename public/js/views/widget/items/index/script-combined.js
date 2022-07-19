@@ -3903,6 +3903,10 @@ function addTiny(editorID) {
         });
         content_css = content_css.slice(0, -1);
     }
+    let fieldSelectionManager = '';
+    if (tinyAssets){
+        fieldSelectionManager = 'tonics-fieldselectionmanager';
+    }
 
     return tinymce.init({
         // add support for image lazy loading
@@ -3912,16 +3916,16 @@ function addTiny(editorID) {
         height: 900,
         menubar: true,
         plugins: [
-            'advlist', 'tonics-drivemanager', 'tonics-fieldselectionmanager', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
+            'advlist', 'tonics-drivemanager', fieldSelectionManager, 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
             'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount',
         ],
         // fullscreen_native: true,
-        toolbar: 'undo redo | tonics-drivemanager tonics-fieldselectionmanager link image media | ' +
+        toolbar: `undo redo | tonics-drivemanager ${fieldSelectionManager} link image media | ` +
             'bold italic backcolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist | help',
         content_style: 'body { font-family:IBMPlexSans-Regular,Times New Roman,serif; font-size:20px }',
-        contextmenu: "link image | copy searchreplace tonics-drivemanager | tonics-fieldselectionmanager | bold italic blocks align",
+        contextmenu: `link image | copy searchreplace tonics-drivemanager | ${fieldSelectionManager} | bold italic blocks align`,
         content_css: content_css,
         body_class: "entry-content",
         remove_trailing_brs: true,
@@ -3931,8 +3935,19 @@ function addTiny(editorID) {
                    let input = e.target, tagName = input.tagName;
                    if (tagName.toLowerCase() === 'input'){
                        input.setAttribute('value', input.value);
-                       if (input.type === 'checkbox' || input.type === 'radio'){
+                       if (input.type === 'checkbox'){
                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                       }
+
+                       if(input.type === 'radio'){
+                           let parentRadio = input.parentElement;
+                           if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0){
+                               parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
+                                   radio.removeAttribute('checked');
+                               });
+                           }
+                           (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                           console.log(input, input.name)
                        }
                    }
 
@@ -3949,7 +3964,7 @@ function addTiny(editorID) {
 
                 });
 
-                if (tinyJSAssets.length > 0) {
+                if (tinyJSAssets && tinyJSAssets.length > 0) {
                     tinyJSAssets.forEach((js) => {
                         let script = document.createElement("script");
                         script.type = 'module';
