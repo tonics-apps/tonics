@@ -25,14 +25,17 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
         $args = $tagToken->getArg();
 
         $outputFile = array_shift($args);
+        $finalFile = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($outputFile, '/\\');
 
         /** @var BeforeCombineModeOperation $beforeCombineOperationEvent */
         $beforeCombineOperationEvent = event()->dispatch(new BeforeCombineModeOperation($outputFile));
         if ($beforeCombineOperationEvent->combineFiles() === false) {
+           // dd($beforeCombineOperationEvent);
+            $tagToken->getTag()->setContent($beforeCombineOperationEvent->getOutputFile());
+            $tagToken->getTag()->setArgs([]);
             return true;
         }
 
-        $finalFile = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($outputFile, '/\\');
         $finalFileHandle = @fopen($finalFile, "w");
         if ($finalFileHandle === false) {
             throw new FileException("Cant Open File `$finalFile`, Permission Issue?");

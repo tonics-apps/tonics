@@ -7,12 +7,12 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 class BeforeCombineModeOperation implements EventInterface
 {
 
-    private string $outputName;
+    private string $outputFile;
     private bool $combineFiles = true;
 
     public function __construct(string $outputName)
     {
-        $this->outputName = $outputName;
+        $this->outputFile = $outputName;
     }
 
     /**
@@ -26,9 +26,17 @@ class BeforeCombineModeOperation implements EventInterface
     /**
      * @return string
      */
-    public function getOutputName(): string
+    public function getOutputFile(): string
     {
-        return $this->outputName;
+        return $this->outputFile;
+    }
+
+    /**
+     * @param string $outputFile
+     */
+    public function setOutputFile(string $outputFile): void
+    {
+        $this->outputFile = $outputFile;
     }
 
     /**

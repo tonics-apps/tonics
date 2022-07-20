@@ -109,7 +109,7 @@ a:focus {
 h1, h2, h3, h4, h5, h6, p, .main-header {
     /* font-size: clamp(var(--font-min), var(--font-pref-val), var(--font-max)); */
     font-size: max(var(--font-min), min(var(--font-pref-val), var(--font-max)));
-    padding: 0 1rem 0 1rem;
+    /*padding: 0 1rem 0 1rem;*/
     margin: auto;
 }
 

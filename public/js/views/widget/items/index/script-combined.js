@@ -3963,7 +3963,7 @@ function addTiny(editorID) {
                     }
                 });
 
-               editor.getBody().addEventListener('change', (e) => {
+                editor.getBody().addEventListener('change', (e) => {
                    let input = e.target, tagName = input.tagName;
                    if (tagName.toLowerCase() === 'input'){
                        input.setAttribute('value', input.value);
@@ -4015,6 +4015,17 @@ function addTiny(editorID) {
                     tinymce.execCommand("mceFullScreen", false, e.target.id);
                 }
             });
+
+            editor.on('keydown',  (e) => {
+                if (e.code === 'Backspace' || e.code === 'Delete')  {
+                    console.log('Delete or backspace key pressed!', editor.selection.getContent({ format: "text" }));
+                    console.log(e.target);
+                   // event.preventDefault();
+                   // event.stopPropagation();
+                   // return false;
+                }
+            });
+
             editor.on('blur', function (e) {
                 tinymce.triggerSave();
             });
