@@ -276,7 +276,7 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    public function _topHTMLWrapper(string $name, $data): string
+    public function _topHTMLWrapper(string $name, $data, $root = false): string
     {
         $slug = isset($data->field_slug) ? $data->field_slug : '';
         $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -313,12 +313,13 @@ HTML;
         $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
         $isEditorWidgetSettings = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="true"' : '';
         $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
+        $rootOwl = ($root) ? 'owl' : '';
         return <<<HTML
 <li $isEditorLi tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
 $scriptPath>
         <fieldset
-            class="width:100% padding:default d:flex justify-content:center flex-d:column owl">
+            class="width:100% padding:default d:flex justify-content:center flex-d:column $rootOwl">
             <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
                 <button class="{$toggle['button']}"
@@ -328,7 +329,7 @@ $scriptPath>
                     </svg>
                 </button>
             </legend>
-            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer owl width:100% margin-top:0 {$toggle['div']}">
+            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% margin-top:0 {$toggle['div']}">
                 $hideField
                 <input type="hidden" name="field_slug" value="$slug">
                 $field_table_slug

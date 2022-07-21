@@ -2,13 +2,9 @@
 
 namespace App\Modules\Post\Data;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Field\Data\FieldData;
-use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Field\Events\OnFieldUserForm;
 
 class PostData extends AbstractDataLayer
 {
@@ -397,118 +393,6 @@ HTML;
     }
 
     /**
-     * @param $post
-     * @return void
-     * @throws \Exception
-     */
-    public function preparePostData(&$post):void
-    {
-        $post = [...json_decode($post->field_settings, true), ...(array)$post];
-        addToGlobalVariable('Data', $post);
-        $onFieldMetaBox = event()->dispatch(new OnFieldMetaBox());
-        if (isset($post['post_content'])){
-            $postContent = json_decode($post['post_content']);
-            if (is_object($postContent)){
-                $post['post_content'] = '';
-                foreach ($postContent as $field){
-                    if (isset($field->content)){
-                        if (isset($field->fields)){
-                            foreach ($field->fields as $f){
-                                $f->field_options = json_decode($f->field_options);
-                                $f->field_options->{"_field"} = $f;
-                                $post['post_content'] .=$onFieldMetaBox->getViewProcessingFrag($f->field_options->field_slug, $f->field_options);
-                            }
-                        } else {
-                            $post['post_content'] .= $field->content;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @param $fieldSettings
-     * @param FieldData $fieldData
-     * @return void
-     * @throws \Exception
-     */
-    public function unwrapPostContent(&$fieldSettings, FieldData $fieldData):void
-    {
-        $onFieldUserForm = new OnFieldUserForm([], $fieldData);
-
-        $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'];
-        $fieldPostDataInEditor = $fieldSettings['fieldPostDataInEditor'];
-
-        # FOR FIELD PREVIEW IN POST EDITOR
-        if (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') {
-            $fieldTableSlugsInEditor = url()->getHeaderByKey('fieldTableSlugsInEditor');
-            $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
-        }
-
-        $fieldTableSlugs = json_decode($fieldTableSlugsInEditor, true);
-        $postDataFromEditor = json_decode($fieldPostDataInEditor, true);
-
-
-        $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
-        if (is_array($postDataFromEditor)){
-            addToGlobalVariable('Data', $postDataFromEditor);
-        }
-
-        $fieldItemsByMainFieldSlug = [];
-
-        if (is_array($fieldTableSlugs)){
-            $fieldTableSlugs = array_values($fieldTableSlugs);
-            $questionMarks = helper()->returnRequiredQuestionMarks($fieldTableSlugs);
-            $fieldTable = $fieldData->getFieldTable(); $fieldItemsTable = $fieldData->getFieldItemsTable();
-            $cols = $fieldData->getFieldAndFieldItemsCols();
-
-            $sql = <<<SQL
-SELECT $cols FROM $fieldItemsTable 
-JOIN $fieldTable ON $fieldTable.field_id = $fieldItemsTable.fk_field_id
-WHERE $fieldTable.field_slug IN ($questionMarks)
-ORDER BY id;
-SQL;
-            $fieldItems = db()->run($sql, ...$fieldTableSlugs);
-            foreach ($fieldItems as $fieldItem) {
-                $fieldOption = json_decode($fieldItem->field_options);
-                $fieldItem->field_options = $fieldOption;
-                $fieldItemsByMainFieldSlug[$fieldItem->main_field_slug][] = $fieldItem;
-            }
-        }
-
-        # FOR FIELD PREVIEW IN POST EDITOR
-        if (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') {
-            $previewFrag = '';
-            foreach ($fieldItemsByMainFieldSlug as $fields){
-                $previewFrag .= $onFieldUserForm->getViewFragFrag($fields);
-            }
-            helper()->onSuccess($previewFrag);
-        } else {
-            if (isset($fieldSettings['post_content'])){
-                // fake getFieldItems action header
-                url()->addToHeader('HTTP_ACTION', 'getFieldItems');
-                $postContent = json_decode($fieldSettings['post_content']);
-                if (is_object($postContent)){
-                    $fieldSettings['post_content'] = '';
-                    foreach ($postContent as $field){
-                        if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
-                            $fieldSettings['post_content'] .= $fieldData->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field->fieldTableSlug]));
-                        }
-                        if (isset($field->content)){
-                            $fieldSettings['post_content'] .= $field->content;
-                        }
-                    }
-                }
-            }
-            // restore old postData;
-            addToGlobalVariable('Data', $oldPostData);
-            // remove fake header action
-            url()->removeFromHeader('HTTP_ACTION');
-        }
-    }
-
-    /**
      * @throws \Exception
      */
     public function insertForPost(array $data, int $type = PostData::Post_INT, array $return = []): bool|\stdClass
@@ -551,31 +435,35 @@ SQL;
     }
 
     /**
-     * @param $slugNumericID
+     * You should get an array
+     * @param $uniqueID
      * @return array|mixed
      * @throws \Exception
      */
-    public function singlePost($slugNumericID)
+    public function getPostByUniqueID($uniqueID): mixed
     {
         $postTable = Tables::getTable(Tables::POSTS);
         $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
         $categoryTable = Tables::getTable(Tables::CATEGORIES);
         $userTable = Tables::getTable(Tables::USERS);
 
-        $data = db()->row(<<<SQL
+        $sql = <<<SQL
 SELECT *, $postTable.created_at as 'post_created_at', $postTable.updated_at as 'post_updated_at', $postTable.slug_id as post_slug_id, $categoryTable.slug_id as cat_slug_id
     FROM $postToCatTable 
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $userTable ON $userTable.user_id = $postTable.user_id
     JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
 WHERE $postTable.slug_id = ?
-SQL, $slugNumericID);
-        if (isset($data->user_password)){
-            unset($data->user_password);
-        }
+SQL;
 
-        if (isset($data->cat_id)){
-            $data->categories = $this->getPostCategoryParents($data->cat_id);
+        $stmt = db()->prepare($sql);
+        $stmt->execute([$uniqueID]);
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        unset($data['user_password']);
+
+        if (isset($data['cat_id'])){
+            $data['categories'] = $this->getPostCategoryParents($data['cat_id']);
         }
 
         return $data;

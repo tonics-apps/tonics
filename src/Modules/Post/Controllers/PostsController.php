@@ -162,7 +162,8 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        $this->postData->unwrapPostContent($fieldSettings, $this->fieldData);
+        $mode = (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') ? FieldData::UNWRAP_FIELD_CONTENT_PREVIEW_MODE : FieldData::UNWRAP_FIELD_CONTENT_EDITOR_MODE;
+        $this->fieldData->unwrapFieldContent($fieldSettings, $mode, 'post_content');
 
         if (empty($fieldSettings)){
             $fieldSettings = (array)$post;

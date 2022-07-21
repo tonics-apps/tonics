@@ -144,7 +144,7 @@ HTML;
             $column = $data->column;
         }
 
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">

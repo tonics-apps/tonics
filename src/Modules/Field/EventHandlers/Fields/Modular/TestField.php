@@ -10,7 +10,7 @@ class TestField implements FieldTemplateFileInterface
 
     public function handleFieldLogic(OnFieldMetaBox $event, $data): string
     {
-        return getPostData()['quick_text'];
+        return getPostData()['quick_text'] . '<br>' . getPostData()['date_test'];
     }
 
     public function name(): string

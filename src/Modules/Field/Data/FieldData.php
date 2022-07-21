@@ -480,4 +480,109 @@ HTML;
             var_dump($exception->getMessage(), $exception->getTraceAsString());
         }
     }
+
+    const UNWRAP_FIELD_CONTENT_PREVIEW_MODE = 1;
+    const UNWRAP_FIELD_CONTENT_EDITOR_MODE = 2;
+    const UNWRAP_FIELD_CONTENT_FRONTEND_MODE = 3;
+
+    /**
+     * @param $fieldSettings
+     * @param int $mode
+     * @param string $contentKey
+     * @return void
+     * @throws \Exception
+     */
+    public function unwrapFieldContent(&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
+    {
+        $onFieldUserForm = new OnFieldUserForm([], $this);
+
+        $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'] ?? null;
+        $fieldPostDataInEditor = $fieldSettings['fieldPostDataInEditor'] ?? null;
+
+        if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
+            $fieldTableSlugsInEditor = url()->getHeaderByKey('fieldTableSlugsInEditor');
+            $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
+        }
+
+        if (!$fieldTableSlugsInEditor || !$fieldPostDataInEditor){
+            return;
+        }
+
+        $fieldTableSlugs = json_decode($fieldTableSlugsInEditor, true);
+        $postDataFromEditor = json_decode($fieldPostDataInEditor, true);
+
+        $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
+        if (is_array($postDataFromEditor)){
+            addToGlobalVariable('Data', $postDataFromEditor);
+        }
+
+        $fieldItemsByMainFieldSlug = [];
+
+        if (is_array($fieldTableSlugs)){
+            $fieldTableSlugs = array_values($fieldTableSlugs);
+            $questionMarks = helper()->returnRequiredQuestionMarks($fieldTableSlugs);
+            $fieldTable = $this->getFieldTable(); $fieldItemsTable = $this->getFieldItemsTable();
+            $cols = $this->getFieldAndFieldItemsCols();
+            $sql = <<<SQL
+SELECT $cols FROM $fieldItemsTable 
+JOIN $fieldTable ON $fieldTable.field_id = $fieldItemsTable.fk_field_id
+WHERE $fieldTable.field_slug IN ($questionMarks)
+ORDER BY id;
+SQL;
+            $fieldItems = db()->run($sql, ...$fieldTableSlugs);
+            foreach ($fieldItems as $fieldItem) {
+                $fieldOption = json_decode($fieldItem->field_options);
+                $fieldItem->field_options = $fieldOption;
+                $fieldItemsByMainFieldSlug[$fieldItem->main_field_slug][] = $fieldItem;
+            }
+        }
+
+        if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
+            $previewFrag = '';
+            foreach ($fieldItemsByMainFieldSlug as $fields){
+                $previewFrag .= $onFieldUserForm->getViewFragFrag($fields);
+            }
+            helper()->onSuccess($previewFrag);
+        }
+
+        if (isset($fieldSettings[$contentKey])){
+            // fake getFieldItems action header
+            url()->addToHeader('HTTP_ACTION', 'getFieldItems');
+            $postContent = json_decode($fieldSettings[$contentKey]);
+            if (is_object($postContent)){
+                $fieldSettings[$contentKey] = '';
+                foreach ($postContent as $field){
+                    if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
+                        if ($mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE){
+                            $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field->fieldTableSlug]));
+                        }
+
+                        if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE){
+                            $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFragFrag($fieldItemsByMainFieldSlug[$field->fieldTableSlug]);
+                        }
+                    }
+                    if (isset($field->content)){
+                        $fieldSettings[$contentKey] .= $field->content;
+                    }
+                }
+            }
+        }
+
+        // restore old postData;
+        addToGlobalVariable('Data', $oldPostData);
+        // remove fake header action
+        url()->removeFromHeader('HTTP_ACTION');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function unwrapForPost(&$post)
+    {
+        $fieldSettings = json_decode($post['field_settings'], true);
+        $this->unwrapFieldContent($fieldSettings);
+        $post = [...$fieldSettings, ...$post];
+        $date = new \DateTime($post['post_created_at']);
+        $post['created_at_words'] = strtoupper($date->format('j M, Y'));
+    }
 }

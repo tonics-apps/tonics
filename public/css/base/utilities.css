@@ -1,3 +1,65 @@
+.owl > * + * {
+    margin-top: clamp(1.3rem, 2.5vw, 2rem);
+}
+
+/* FOR TINYMCE */
+
+body#tinymce {
+    padding-top: 1em;
+}
+body#tinymce > * + * {
+    margin-top: clamp(1.3rem, 2.5vw, 2rem);
+}
+
+.mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {
+    left: 1px;
+    padding: 0 1em;
+}
+
+/* TABS SECTION, CREDIT TO:  https://kmoerman.github.io/css-tabs/ */
+body#tinymce > .tabs {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+body#tinymce > .tabs > [type=radio] {
+    display: none;
+}
+
+body#tinymce > .tabs > [type=radio] + label {
+    order: 1;
+    cursor: pointer;
+}
+
+body#tinymce > .tabs > [type=radio] + label + * {
+    width: 100%;
+    order: 2;
+}
+
+body#tinymce > .tabs > [type=radio]:not(:checked) + label + * {
+    display: none;
+}
+
+body#tinymce > .tabs {
+    width: 50%;
+    min-width: 30em;
+    max-width: 60em;
+}
+
+body#tinymce > .tabs label {
+    padding: 0.5em 1em;
+}
+
+body#tinymce > .tabs label + * {
+    padding: 1em;
+}
+
+body#tinymce > .tabs [type=radio]:checked + label,
+body#tinymce > .tabs [type=radio]:checked + label + * {
+    background: #eee;
+}
+/* END TABS SECTION */
+
 .overflow\:hidden {
     overflow: hidden;
 }
@@ -123,6 +185,10 @@
 
 .z-index\:audio-sticky-footer\:license-in-queue {
     z-index: 50;
+}
+
+.swal2-container, .z-index-swal2-container {
+    z-index: 10000 !important;
 }
 
 /*--------------------------------------------------------------

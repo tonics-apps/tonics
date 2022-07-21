@@ -174,6 +174,19 @@ function getBaseTemplate(): TonicsView|null
 }
 
 /**
+ * @throws Exception
+ */
+function cacheBaseTemplate(): void
+{
+    getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
+    apcu_store(CacheKeys::getSinglePostTemplateKey(), [
+        'contents' => getBaseTemplate()->getContent(),
+        'modeStorage' => getBaseTemplate()->getModeStorages(),
+        'variable' => getBaseTemplate()->getVariableData()
+    ]);
+}
+
+/**
  * @param string $cacheKey
  * @param callable|null $cacheNotFound
  * Callback to call if cache doesn't exist

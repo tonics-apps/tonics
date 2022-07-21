@@ -21,17 +21,19 @@ class PostsController
 {
     private PostData $postData;
     private UserData $userData;
+    private FieldData $fieldData;
 
     /**
      * @param PostData $postData
      * @param UserData $userData
-     * @param WidgetData $widgetData
+     * @param FieldData $fieldData
      * @throws \Exception
      */
-    public function __construct(PostData $postData, UserData $userData)
+    public function __construct(PostData $postData, UserData $userData, FieldData $fieldData)
     {
         $this->postData = $postData;
         $this->userData = $userData;
+        $this->fieldData = $fieldData;
         addToGlobalVariable('Assets', ['css' => AppConfig::getThemesAsset('NinetySeven', 'css/styles.css')]);
     }
 
@@ -40,12 +42,13 @@ class PostsController
      */
     public function singlePost($slugUniqueID, $slugString)
     {
-        $post = $this->getPostData()->singlePost($slugUniqueID);
-        if (is_object($post) && property_exists($post, 'post_status')) {
-            if ($post->post_status === 1 && $post->cat_status === 1) {
+        $post = $this->getPostData()->getPostByUniqueID($slugUniqueID);
+        if (is_array($post) && key_exists('post_status', $post)) {
+            if ($post['post_status'] === 1 && $post['cat_status'] === 1) {
                 $this->showPost($post);
             }
-            ## Else, post is in draft, check if user is logged in and has a read access
+
+            ## Else, post is in draft or trash, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
             if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {
                 $this->showPost($post);
@@ -60,23 +63,20 @@ class PostsController
      */
     private function showPost($post)
     {
-        $this->postData->preparePostData($post);
-        $onFieldUserForm = new OnFieldUserForm([], new FieldData());
-
-        $date = new DateTime($post['post_created_at']);
-        $post['created_at_words'] = strtoupper($date->format('j M, Y'));
+        $this->fieldData->unwrapForPost($post);
+        $onFieldUserForm = new OnFieldUserForm([], $this->fieldData);
 
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($onFieldUserForm, $post) {
             $fieldSlugs = $this->getFieldSlug($post);
             $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
-            $this->saveTemplateCache();
+            cacheBaseTemplate();
         }, cacheFound: function () use ($onFieldUserForm, $post) {
             # quick check if single template parts have not been cached...if not we force parse it...
             if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])) {
                 $fieldSlugs = $this->getFieldSlug($post);
                 $onFieldUserForm->handleFrontEnd($fieldSlugs, $post);
                 // re-save cache data
-                $this->saveTemplateCache();
+               cacheBaseTemplate();
             }
 
             getBaseTemplate()->addToVariableData('Data', $post);
@@ -117,14 +117,14 @@ class PostsController
         $fieldSlugs = ['single-category-view'];
         renderBaseTemplate(CacheKeys::getSinglePostTemplateKey(), cacheNotFound: function () use ($fieldSlugs, $onFieldUserForm, $category) {
             $onFieldUserForm->handleFrontEnd($fieldSlugs, $category);
-            $this->saveTemplateCache();
+            cacheBaseTemplate();
         }, cacheFound: function () use ($onFieldUserForm, $category) {
             # quick check if single template parts have not been cached...if not we force parse it...
             if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])) {
                 $fieldSlugs = $this->getFieldSlug($category);
                 $onFieldUserForm->handleFrontEnd($fieldSlugs, $category);
                 // re-save cache data
-                $this->saveTemplateCache();
+                cacheBaseTemplate();
             }
 
             getBaseTemplate()->addToVariableData('Data', $category);
@@ -162,19 +162,6 @@ class PostsController
     }
 
     /**
-     * @throws \Exception
-     */
-    public function saveTemplateCache(): void
-    {
-        getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
-        apcu_store(CacheKeys::getSinglePostTemplateKey(), [
-            'contents' => getBaseTemplate()->getContent(),
-            'modeStorage' => getBaseTemplate()->getModeStorages(),
-            'variable' => getBaseTemplate()->getVariableData()
-        ]);
-    }
-
-    /**
      * @return PostData
      */
     public function getPostData(): PostData
@@ -188,6 +175,14 @@ class PostsController
     public function getUserData(): UserData
     {
         return $this->userData;
+    }
+
+    /**
+     * @return FieldData
+     */
+    public function getFieldData(): FieldData
+    {
+        return $this->fieldData;
     }
 
 }

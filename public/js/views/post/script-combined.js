@@ -3899,7 +3899,8 @@ function hookTinyMCE() {
 }
 
 let previousTinyPositionBeforeFullScreenStateChange = null,
-    fromOnFullScreenState = false;
+    fromOnFullScreenState = false,
+    currentEditedInputInTonicsFieldTab = null;
 
 function addTiny(editorID) {
     let tinyAssets = document.querySelector('template.tiny-mce-assets'),
@@ -4003,7 +4004,6 @@ function addTiny(editorID) {
                        input.options[input.selectedIndex].selected = 'selected';
                        input.options[input.selectedIndex].setAttribute('selected', 'selected');
                    }
-
                 });
 
                 if (tinyJSAssets && tinyJSAssets.length > 0) {
@@ -4024,16 +4024,6 @@ function addTiny(editorID) {
 
                 if (fromOnFullScreenState) {
                     tinymce.execCommand("mceFullScreen", false, e.target.id);
-                }
-            });
-
-            editor.on('keydown',  (e) => {
-                if (e.code === 'Backspace' || e.code === 'Delete')  {
-                    console.log('Delete or backspace key pressed!', editor.selection.getContent({ format: "text" }));
-                    console.log(e.target);
-                   // event.preventDefault();
-                   // event.stopPropagation();
-                   // return false;
                 }
             });
 
