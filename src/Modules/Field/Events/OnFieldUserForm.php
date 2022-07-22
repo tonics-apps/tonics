@@ -81,7 +81,7 @@ class OnFieldUserForm implements EventInterface
     /**
      * @throws \Exception
      */
-    public function getViewFragFrag($fields): string
+    public function getViewFrag($fields): string
     {
         $htmlFrag = '';
         # re-dispatch so we can get the form values=

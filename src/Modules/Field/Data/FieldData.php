@@ -7,8 +7,10 @@ use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
+use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Events\OnFieldUserForm;
+use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 
 class FieldData extends AbstractDataLayer
 {
@@ -498,6 +500,7 @@ HTML;
 
         $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'] ?? null;
 
+        # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
             $fieldTableSlugsInEditor = url()->getHeaderByKey('fieldTableSlugsInEditor');
         }
@@ -529,13 +532,14 @@ SQL;
             }
         }
 
+        # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
             $previewFrag = '';
             $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
             $postDataInstance = json_decode($fieldPostDataInEditor, true) ?? [];
             addToGlobalVariable('Data', $postDataInstance);
             foreach ($fieldItemsByMainFieldSlug as $fields){
-                $previewFrag .= $onFieldUserForm->getViewFragFrag($fields);
+                $previewFrag .= $onFieldUserForm->getViewFrag($fields);
             }
             helper()->onSuccess($previewFrag);
         }
@@ -543,24 +547,37 @@ SQL;
         if (isset($fieldSettings[$contentKey])){
             // fake getFieldItems action header
             url()->addToHeader('HTTP_ACTION', 'getFieldItems');
-            $postContent = json_decode($fieldSettings[$contentKey]);
-            if (is_object($postContent)){
+            $postContent = json_decode($fieldSettings[$contentKey], true);
+            if (is_array($postContent)){
                 $fieldSettings[$contentKey] = '';
                 foreach ($postContent as $field){
-                    if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
+                    if (isset($field['fieldTableSlug']) && isset($fieldItemsByMainFieldSlug[$field['fieldTableSlug']])){
                         # Instance of each postData
-                        $postDataInstance = (isset($field->postData) && is_object($field->postData)) ? (array)$field->postData : [];
-                        addToGlobalVariable('Data', $postDataInstance);
+                        addToGlobalVariable('Data',  $field['postData'] ?? []);
                         if ($mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE){
-                            $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field->fieldTableSlug]));
+                            $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]));
                         }
 
+                        #
+                        # We Check If There is a FieldHandler in the PostData (meaning the logic should be handled there), if there is,
+                        # we validate it. and pass it for handling...
+                        #
+                        # If there is no FieldHanlder in the PostData, then we pass it to getViewFrag (this might be slow if you have multiple fields),
+                        # so it is not recommended...
+                        #
                         if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE){
-                            $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFragFrag($fieldItemsByMainFieldSlug[$field->fieldTableSlug]);
+                            $fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler']);
+                            if (isset($field['postData']['FieldHandler']) && $fieldHandler !== null){
+                                $fieldSettings[$contentKey] .=$this->handleWithFieldHandler($fieldHandler, getPostData());
+                            }else {
+                                $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]);
+                            }
                         }
+
+
                     }
-                    if (isset($field->content)){
-                        $fieldSettings[$contentKey] .= $field->content;
+                    if (isset($field['content'])){
+                        $fieldSettings[$contentKey] .= $field['content'];
                     }
                 }
             }
@@ -570,6 +587,11 @@ SQL;
         addToGlobalVariable('Data', $oldPostData);
         // remove fake header action
         url()->removeFromHeader('HTTP_ACTION');
+    }
+
+    public function handleWithFieldHandler(FieldTemplateFileInterface $fieldHandler, $data): string
+    {
+        return $fieldHandler->handleFieldLogic(data: $data);
     }
 
     /**

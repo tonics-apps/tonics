@@ -40,6 +40,7 @@ class FieldFileHandler implements HandlerInterface
         $templateFile =  (isset($data->templateFile)) ? $data->templateFile : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
+        $isPostEditor =  (isset($data->postEditor)) ? $data->postEditor : '1';
 
         $handlers = [];
         if (isset(event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class])){
@@ -58,6 +59,28 @@ HTML;
             }
         }
 
+        if ($isPostEditor === '1'){
+            $postEditor = <<<HTML
+<option value="0">False</option>
+<option value="1" selected>True</option>
+HTML;
+        } else {
+            $postEditor = <<<HTML
+<option value="0" selected>False</option>
+<option value="1">True</option>
+HTML;
+        }
+
+        $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="postEditor-$changeID">Set To True If It's Been Used In Post Editor
+     <select name="postEditor" class="default-selector mg-b-plus-1" id="postEditor-$changeID">
+           $postEditor
+      </select>
+    </label>
+</div>
+HTML);
+
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
@@ -73,7 +96,7 @@ HTML;
      </select>
     </label>
 </div>
-{$event->generateMoreSettingsFrag($data)}
+$moreSettings
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -85,6 +108,13 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
+        $templateFile =  (isset($data->templateFile)) ? $data->templateFile : '';
+        $isPostEditor =  (isset($data->postEditor)) ? $data->postEditor : '1';
+
+        if ($isPostEditor === '1'){
+            return "<input type='hidden' name='FieldHandler' value='$templateFile'>";
+        }
+
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'FieldFileHandler';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $frag .= $event->_bottomHTMLWrapper(true);

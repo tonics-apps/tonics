@@ -4890,7 +4890,7 @@ if (tinyEditorsForm){
                     nodesData[key] = {
                         fieldTableSlug: fieldTableSlug,
                         raw: false,
-                        postData: getPostData(node)
+                        postData: getPostData(node),
                     };
                 } else {
                     if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false) {

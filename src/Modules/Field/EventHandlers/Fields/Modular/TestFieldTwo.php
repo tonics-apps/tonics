@@ -8,7 +8,7 @@ use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 class TestFieldTwo implements FieldTemplateFileInterface
 {
 
-    public function handleFieldLogic(OnFieldMetaBox $event, $data): string
+    public function handleFieldLogic(OnFieldMetaBox $event = null, $data = null): string
     {
         return "Test Two";
     }
