@@ -144,7 +144,8 @@ trait Routes
             // you pass the path as a query string...
             $route->get('themes/:theme-name', [ThemeController::class, 'serve']);
         });
-            return $route;
+
+        return $route;
     }
 
     /**

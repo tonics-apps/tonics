@@ -4890,6 +4890,7 @@ if (tinyEditorsForm){
                     nodesData[key] = {
                         fieldTableSlug: fieldTableSlug,
                         raw: false,
+                        postData: getPostData(node)
                     };
                 } else {
                     if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false) {
@@ -4903,7 +4904,6 @@ if (tinyEditorsForm){
 
             addHiddenInputToForm(tinyEditorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
             addHiddenInputToForm(tinyEditorsForm, 'fieldTableSlugsInEditor', JSON.stringify(getFieldSlugsTable()));
-            addHiddenInputToForm(tinyEditorsForm, 'fieldPostDataInEditor', JSON.stringify(postData));
             tinyEditorsForm.submit();
         }
     });

@@ -24,7 +24,7 @@ class Authenticated implements TonicsRouterRequestInterceptorInterface
     public function handle(OnRequestProcess $request): void
     {
        if (UserData::isAuthenticated() === false){
-           // set the current url to session here, just in case we wanna redirect to intended after loggin in
+           // set the current url to session here, just in case we wanna redirect to intended after log in
            session()->append(Session::SessionCategories_URLReferer, request()->getHeaderByKey('REQUEST_URI'));
 
            # If this is for admin, then redirect to admin login

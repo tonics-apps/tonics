@@ -15,11 +15,8 @@ class PostLoop implements QueryModeHandlerInterface
         foreach ($posts as $post) {
             $post->post_title = strip_tags($post->post_title);
             $post->_full_link = "/posts/$post->post_slug_id/$post->post_slug";
-            $post->field_settings = json_decode($post->field_settings); $stripTagsContent = strip_tags($post->field_settings->post_content);
-            $post->_og_description = substr($stripTagsContent, 0, 200);
-            if (strlen($stripTagsContent) > 200){
-                $post->_og_description .="...";
-            }
+            $post->field_settings = json_decode($post->field_settings);
+            $post->_og_description = $post->field_settings->seo_description;
             if ($callback !== null){
                 $queryMode = $tonicsView->getVariableData()['QUERY_MODE'];
                 $queryMode[$query_name] = $post;

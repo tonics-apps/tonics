@@ -43,6 +43,11 @@ class LoginController extends Controller
         (new RedirectAuthenticated())->handle(request());
     }
 
+    public function logout()
+    {
+        dd(input()->fromPost()->all());
+    }
+
     /**
      * @throws \Exception
      */

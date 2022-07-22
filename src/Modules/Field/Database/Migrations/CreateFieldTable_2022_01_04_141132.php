@@ -26,7 +26,8 @@ class CreateFieldTable_2022_01_04_141132 extends Migration {
    `can_delete` tinyint(4) DEFAULT 1, -- 1 for deleteable and 0 for non-deleteable
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`field_id`)
+  PRIMARY KEY (`field_id`),
+  UNIQUE KEY (`field_slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
     }
 

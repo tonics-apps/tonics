@@ -389,7 +389,6 @@ class WordPressImportState extends SimpleState
                         $this->urlRedirections[ "/{$lastCat}$postSlug"] = "/posts/{$result->getSlugID()}/$postSlug";
                     }
                 }
-
             }
         }
 

@@ -497,32 +497,24 @@ HTML;
         $onFieldUserForm = new OnFieldUserForm([], $this);
 
         $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'] ?? null;
-        $fieldPostDataInEditor = $fieldSettings['fieldPostDataInEditor'] ?? null;
 
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
             $fieldTableSlugsInEditor = url()->getHeaderByKey('fieldTableSlugsInEditor');
-            $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
         }
 
-        if (!$fieldTableSlugsInEditor || !$fieldPostDataInEditor){
+        if (!$fieldTableSlugsInEditor){
             return;
         }
 
         $fieldTableSlugs = json_decode($fieldTableSlugsInEditor, true);
-        $postDataFromEditor = json_decode($fieldPostDataInEditor, true);
-
         $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
-        if (is_array($postDataFromEditor)){
-            addToGlobalVariable('Data', $postDataFromEditor);
-        }
-
         $fieldItemsByMainFieldSlug = [];
-
-        if (is_array($fieldTableSlugs)){
+        if (is_array($fieldTableSlugs) && !empty($fieldTableSlugs)){
             $fieldTableSlugs = array_values($fieldTableSlugs);
             $questionMarks = helper()->returnRequiredQuestionMarks($fieldTableSlugs);
             $fieldTable = $this->getFieldTable(); $fieldItemsTable = $this->getFieldItemsTable();
             $cols = $this->getFieldAndFieldItemsCols();
+
             $sql = <<<SQL
 SELECT $cols FROM $fieldItemsTable 
 JOIN $fieldTable ON $fieldTable.field_id = $fieldItemsTable.fk_field_id
@@ -539,6 +531,9 @@ SQL;
 
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
             $previewFrag = '';
+            $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
+            $postDataInstance = json_decode($fieldPostDataInEditor, true) ?? [];
+            addToGlobalVariable('Data', $postDataInstance);
             foreach ($fieldItemsByMainFieldSlug as $fields){
                 $previewFrag .= $onFieldUserForm->getViewFragFrag($fields);
             }
@@ -553,6 +548,9 @@ SQL;
                 $fieldSettings[$contentKey] = '';
                 foreach ($postContent as $field){
                     if (isset($field->fieldTableSlug) && isset($fieldItemsByMainFieldSlug[$field->fieldTableSlug])){
+                        # Instance of each postData
+                        $postDataInstance = (isset($field->postData) && is_object($field->postData)) ? (array)$field->postData : [];
+                        addToGlobalVariable('Data', $postDataInstance);
                         if ($mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE){
                             $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field->fieldTableSlug]));
                         }

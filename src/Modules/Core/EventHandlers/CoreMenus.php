@@ -34,7 +34,7 @@ class CoreMenus implements HandlerInterface
             return $event->addMenu(OnAdminMenu::SettingsMenuID, 'Settings', helper()->getIcon('cog', 'icon:admin'), route('general.settings'))
                 ->addMenu(OnAdminMenu::SettingsMenuID + 1, 'Profile', helper()->getIcon('cog', 'icon:admin'), route('profile.settings'), parent: OnAdminMenu::SettingsMenuID)
                 ->addMenu(OnAdminMenu::SettingsMenuID + 2, 'General', helper()->getIcon('cog', 'icon:admin'), route('general.settings'), parent: OnAdminMenu::SettingsMenuID)
-                ->addMenu(OnAdminMenu::SettingsMenuID + 3, 'Logout', helper()->getIcon('sign-out', 'icon:admin'), '', parent: OnAdminMenu::SettingsMenuID)
+                ->addMenu(OnAdminMenu::SettingsMenuID + 3, 'Logout', helper()->getIcon('sign-out', 'icon:admin'), route('admin.logout'), parent: OnAdminMenu::SettingsMenuID)
 
                 ->addMenu(
                     OnAdminMenu::ToolsMenuID,

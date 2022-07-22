@@ -123,6 +123,10 @@ body#tinymce > .tabs [type=radio]:checked + label + * {
     max-width: 100px;
 }
 
+.width\:70\% {
+    width: 70%;
+}
+
 .width\:60px {
     width: 60px;
 }
@@ -317,6 +321,10 @@ body#tinymce > .tabs [type=radio]:checked + label + * {
 
 .list\:style\:none {
     list-style: none;
+}
+
+.flex\:auto {
+    flex: auto;
 }
 
 .flex-basis\:min-content {
