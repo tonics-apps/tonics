@@ -562,12 +562,11 @@ SQL;
                         # We Check If There is a FieldHandler in the PostData (meaning the logic should be handled there), if there is,
                         # we validate it. and pass it for handling...
                         #
-                        # If there is no FieldHanlder in the PostData, then we pass it to getViewFrag (this might be slow if you have multiple fields),
+                        # If there is no FieldHandler in the PostData, then we pass it to getViewFrag (this might be slow if you have multiple fields),
                         # so it is not recommended...
                         #
                         if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE){
-                            $fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler']);
-                            if (isset($field['postData']['FieldHandler']) && $fieldHandler !== null){
+                            if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null){
                                 $fieldSettings[$contentKey] .=$this->handleWithFieldHandler($fieldHandler, getPostData());
                             }else {
                                 $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]);

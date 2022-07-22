@@ -112,7 +112,7 @@ FORM;
         $isPostEditor =  (isset($data->postEditor)) ? $data->postEditor : '1';
 
         if ($isPostEditor === '1'){
-            return "<input type='hidden' name='FieldHandler' value='$templateFile'>";
+            return "<li style='display: none;'><input type='hidden' name='FieldHandler' value='$templateFile'></li>";
         }
 
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'FieldFileHandler';
