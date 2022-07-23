@@ -1,0 +1,27 @@
+[[hook_into('in_main')
+<form method="post" id="EditorsForm"  action="[[add_hook('form_action')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+  <input type="hidden" name="token" value="[[csrf()]]" >
+  [[add_hook('before_form_section')]]
+  <section class="post-admin-wrapper owl">
+    <div class="admin-post-widget">
+      <ul class="field-menu-ul padding:default width:100% menu-arranger list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
+        [[if("v[FieldItems]")
+        [[_v('FieldItems')]]
+        ]]
+      </ul>
+
+      [[if("v[FieldSelection]")
+      <ul class="admin-widget menu-arranger list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+        [[_v('FieldSelection')]]
+      </ul>
+      ]]
+    </div>
+  </section>
+  <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+    <button name="delete" class="save-menu-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
+      Save Changes
+    </button>
+  </div>
+</form>
+]]

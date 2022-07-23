@@ -420,28 +420,25 @@ HTML;
         $id = helper()->randomString(10);
         $uniqueRadioName = helper()->randomString(5);
         return <<<HTML
-<section class="tabs tonicsFieldTabsContainer">
-      <input type="radio" id="$id-fields" name="$uniqueRadioName" checked>
-      <label style="cursor: pointer; caret-color: transparent;" for="$id-fields">Fields</label>
+<section contenteditable="false" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
+      <input contenteditable="true" type="radio" id="$id-fields" name="$uniqueRadioName" checked>
+      <label class="fields-label" contenteditable="true" style="cursor: pointer; caret-color: transparent;" for="$id-fields">Fields</label>
       
-     <div>
+     <div contenteditable="true">
         <ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
             $data
         </ul>
      </div>
      
-     <input type="radio" id="$id-preview" name="$uniqueRadioName">
-      <label class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$id-preview">Preview</label>
-      <div class="fieldsPreviewContent">
+     <input contenteditable="true" type="radio" id="$id-preview" name="$uniqueRadioName">
+      <label contenteditable="true" class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$id-preview">Preview</label>
+      <div class="fieldsPreviewContent" contenteditable="true">
       </div>
       
-      <input type="radio" id="$id-delete" name="$uniqueRadioName">
-      <label class="fieldsDelete color:white border-width:default border:black" style="background: black !important; cursor: pointer; caret-color: transparent;" for="$id-delete">
+      <input contenteditable="true" type="radio" id="$id-delete" name="$uniqueRadioName">
+      <label contenteditable="true" class="fieldsDelete color:white border-width:default border:black" style="background: black !important; cursor: pointer; caret-color: transparent;" for="$id-delete">
         Delete Field
       </label>
-       <div>
-      </div>
-      
 </section>
 HTML;
 

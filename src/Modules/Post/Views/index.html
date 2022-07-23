@@ -1,50 +1,32 @@
-<!DOCTYPE html>
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
+[[inherit("Modules::Core/Views/Templates/core")]]
+
 [[import("Modules::Core/Views/Blocks/Post")]]
-<html lang="en">
-<head>
-    [[_use("default-secure-meta")]]
-    [[_use("main-css-style")]]
-    <title>Posts Index</title>
-</head>
 
-<body class="body-sticky-footer bg:gray-two">
-[[_use("default-inline-svg")]]
+[[hook_into('in_head_title')Posts Index]]
 
-<header>
-    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
-</header>
-
-<main id="main"  class="flex:one" tabindex="-1" data-container_for_selection="true">
-    [[b('body.main.header-text')Posts]]
-    [[func('body.main.header', 'body.main.header-text')]]
+[[hook_into('in_main_header_title')Posts]]
+[[hook_into('in_main')
     <div class="search-admin width:100% margin-top:0">
         [[func('Post::form::search', 'empty', 'method-get')]]
     </div>
     [[_use('Post::view::index')]]
-</main>
+]]
 
-[[_use('Admin-Next-Prev-Link')]]
+[[hook_into('after_main')
+    [[_use('Admin-Next-Prev-Link')]]
+    <form id="selectUtilitiesForm" method="get" action="" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+        <input type="hidden" name="token" value="[[csrf()]]" >
+        <div class="form-group">
+            [[_use('SelectUtilitiesForm::PerPageGroup')]]
+        </div>
+        <div class="form-group">
+            [[func('SelectUtilitiesForm::ActionGroup', 'SelectUtilitiesForm::ActionGroup::MoreActionForPost')]]
+        </div>
+    </form>
+]]
 
-<form id="selectUtilitiesForm" method="get" action="" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
-    <input type="hidden" name="token" value="[[csrf()]]" >
-    <div class="form-group">
-        [[_use('SelectUtilitiesForm::PerPageGroup')]]
-    </div>
-    <div class="form-group">
-        [[func('SelectUtilitiesForm::ActionGroup', 'SelectUtilitiesForm::ActionGroup::MoreActionForPost')]]
-    </div>
-</form>
-
-<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
-    <div class="footer-section">
-    </div>
-</footer>
-
-[[_use("script:variables")]]
-[[_use("script:post-index")]]
-[[_use("session:delete-artifacts")]]
-</body>
-</html>
+[[hook_into('before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:post-index")]]
+    [[_use("session:delete-artifacts")]]
+]]

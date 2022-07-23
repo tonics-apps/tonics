@@ -16,7 +16,7 @@
 </head>
 
 [[add_hook('before_body')]]
-<body [[add_hook('in_body_attribute')]]>
+<body class="body-sticky-footer bg:gray-two" [[add_hook('in_body_attribute')]]>
 
     [[_use("default-inline-svg")]]
 
@@ -24,20 +24,41 @@
 
     [[add_hook('before_header')]]
     <header [[add_hook("in_header_attribute")]]>
+    <section class="site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:space-around">
+        <div class="site-logo">
+            <a href="[[url('admin.dashboard')]]" rel="home" itemprop="url">
+                <img src="/logo/o-ola-micky-logo.svg" class="image:avatar" alt="Tonics Official Logo" title="O-Ọlá Official Logo">
+            </a>
+        </div>
+        <nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
+            <ul class="site-navigation-ul d:flex flex-gap list:style:none">
+                [[event('\App\Modules\Core\Events\OnAdminMenu', 'generateMenuTree')]]
+                [[add_hook('in_site_navigation_ul')]]
+            </ul>
+        </nav>
+    </section>
         [[add_hook('in_header')]]
     </header>
     [[add_hook('after_header')]]
 
     <main id="main" class="flex:one" tabindex="-1" data-container_for_selection="true">
+        <header class="main-header text-align:center padding:default">[[add_hook('in_main_header_title')]]</header>
         [[add_hook('in_main')]]
     </main>
+    [[add_hook('after_main')]]
 
     [[add_hook('before_closing_body')]]
 </body>
     [[add_hook('after_body')]]
 
     [[add_hook('before_footer')]]
-<footer [[add_hook('in_footer_attribute')]]>
+<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
+    <nav class="footer-section d:flex flex-d:column justify-content:center align-items:center flex-gap:small">
+        <div class="site-info">
+            <span class="site-footer-info"> © 2022 Devsrealm | <a href="https://tonics.app/">Powered by Tonics</a>
+            </span>
+        </div>
+    </nav>
     [[add_hook('in_footer')]]
 </footer>
     [[add_hook('after_footer')]]

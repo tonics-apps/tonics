@@ -1,37 +1,15 @@
-<!DOCTYPE html>
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field")]]
 [[import("Modules::Core/Views/Blocks/Track")]]
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
-[[import("Modules::Core/Views/Blocks/AudioPlayer")]]
-<html lang="en">
-<head>
-    [[_use("default-secure-meta")]]
-    [[_use("main-css-style")]]
-    <title>Track Create</title>
-</head>
 
-<body class="body-sticky-footer bg:gray-two">
-[[_use("default-inline-svg")]]
+[[hook_into('in_head_title')Tracks Create]]
 
-<header>
-    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
-</header>
+[[hook_into('in_main_header_title')Add New Track]]
 
-<main id="main"  class="flex:one" tabindex="-1">
-    [[b('body.main.header-text')Add New Track]]
-    [[func('body.main.header', 'body.main.header-text')]]
-    [[_use('Track::form::create')]]
-</main>
+[[hook_into('form_action')[[use('Track::route::posts.store')]]]]
 
-<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
-    <div class="footer-section">
-    </div>
-</footer>
-
-[[_use("script:variables")]]
-[[_use("script:tinymce")]]
-[[_use("script:track")]]
-[[_use("session:delete-artifacts")]]
-</body>
-</html>
+[[hook_into('before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:tinymce")]]
+    [[_use("script:track")]]
+    [[_use("session:delete-artifacts")]]
+]]

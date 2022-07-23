@@ -1,37 +1,15 @@
-<!DOCTYPE html>
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field")]]
 [[import("Modules::Core/Views/Blocks/Page")]]
-<html lang="en">
-<head>
-    [[_use("default-secure-meta")]]
-    [[_use("main-css-style")]]
-    <title>Pages Create</title>
-</head>
 
-<body class="body-sticky-footer bg:gray-two">
-[[_use("default-inline-svg")]]
+[[hook_into('in_head_title')Pages Create]]
 
+[[hook_into('in_main_header_title')Add New Page]]
 
-<header>
-    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
-</header>
+[[hook_into('form_action')[[use('Page::route::posts.store')]]]]
 
-<main id="main"  class="flex:one" tabindex="-1">
-    [[b('body.main.header-text')Add New Page]]
-    [[func('body.main.header', 'body.main.header-text')]]
-    [[_use('Page::form::create')]]
-</main>
-
-<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
-    <div class="footer-section">
-    </div>
-</footer>
-
-[[_use("script:variables")]]
-[[_use("script:tinymce")]]
-[[_use("script:post")]]
-[[_use("session:delete-artifacts")]]
-</body>
-</html>
+[[hook_into('before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:post")]]
+    [[_use("script:tinymce")]]
+    [[_use("session:delete-artifacts")]]
+]]
