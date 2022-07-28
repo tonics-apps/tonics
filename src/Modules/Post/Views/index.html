@@ -5,20 +5,96 @@
 [[hook_into('in_head_title')Posts Index]]
 
 [[hook_into('in_main_header_title')Posts]]
+
+[[b('admin_post_query_callback')
+<li data-list_id="[[_v('QUERY_MODE.admin_post_query.list_id')]]" data-post_slug="[[_v('QUERY_MODE.admin_post_query.post_slug')]]"
+    data-post_title="[[_v('QUERY_MODE.admin_post_query.post_title')]]"
+    data-db_click_link="[[_v('QUERY_MODE.admin_post_query.edit_link')]]"
+    tabindex="0" class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight"
+    data-selected="false">
+    <fieldset class="padding:default width:100% height:100% box-shadow-variant-1 draggable d:flex justify-content:center">
+        <legend class="bg:pure-black color:white padding:default">[[_v('QUERY_MODE.admin_post_query.cat_name')]]</legend>
+        <div class="admin-widget-information owl width:100%">
+            <div class="text-on-admin-util text-highlight">[[_v('QUERY_MODE.admin_post_query.post_title')]]</div>
+
+            <div class="form-group d:flex flex-gap:small">
+                <a href="[[_v('QUERY_MODE.admin_post_query.edit_link')]]" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
+
+                <a href="[[_v('QUERY_MODE.admin_post_query.preview_link')]]" target="_blank" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Preview</a>
+                <form method="post" class="d:contents" action="[[_v('QUERY_MODE.admin_post_query.destroy_link')]]">
+                    <input type="hidden" name="token" value="[[csrf()]]">
+                    <button data-click-onconfirmtrash="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
+        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">[[_v('QUERY_MODE.admin_post_query.destroy_text')]]
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </fieldset>
+</li>
+]]
+
 [[hook_into('in_main')
     <div class="search-admin width:100% margin-top:0">
         [[func('Post::form::search', 'empty', 'method-get')]]
     </div>
-    [[_use('Post::view::index')]]
+
+    [[SQL_BLOCK('reusable_sql')
+        [[FROM('post_categories')]]
+        [[JOIN('posts.post_id', 'post_categories.fk_post_id')]]
+        [[JOIN('categories.cat_id', 'post_categories.fk_cat_id')]]
+    ]]
+
+    [[SQL_BLOCK('reusable_search_sql')
+        [[OP('=')]] [[PARAM('v[URL.PARAMS.status]')]]
+        [[if('v[URL.PARAMS.start_date] && v[URL.PARAMS.end_date]')
+            [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'created_at')]] ]] [[KEYWORD('BETWEEN')]]
+            [[SQLFUNC('DATE_FORMAT', "v[URL.PARAMS.start_date], %Y-%m-%d %H:%i:%s")]] [[OP('AND')]] [[SQLFUNC('DATE_FORMAT', "v[URL.PARAMS.end_date], %Y-%m-%d %H:%i:%s")]]
+        ]]
+        [[if('v[URL.PARAMS.cat] !== block[empty]')
+            [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_id')]] ]] [[SQLFUNC('IN', "v[URL.PARAMS.cat]")]]
+        ]]
+        [[if('v[URL.PARAMS.query] !== block[empty]')
+            [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
+            [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+        ]]
+    ]]
+
+    [[SQL('admin_post_query_table_count')
+        [[SQLFUNC('COUNT', "*")]]
+        [[REUSE_SQL('reusable_sql')]]
+            [[WHERE('posts.post_status')
+        [[REUSE_SQL('reusable_search_sql')]]
+        ]]
+    ]]
+
+    [[SQL('admin_post_query_get_row_with_offset_limit')
+        [[SELECT('post_categories') [[COLS('ALL')]] ]]
+        [[SELECT('posts') [[COLS('ALL')]] [[COL_AS('slug_id', 'post_slug_id')]] ]]
+        [[SELECT('categories') [[COLS('ALL')]] ]]
+        [[REUSE_SQL('reusable_sql')]]
+        [[WHERE('posts.post_status')
+            [[REUSE_SQL('reusable_search_sql')]]
+            [[ORDER('posts.created_at', 'DESC')]]
+            [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
+            [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
+        ]]
+    ]]
+
+    <ul id="sfc" class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+        [[Query('admin_post_query', 'App\Modules\Post\Helper\PostLoop', 'admin_post_query_callback')]]
+    </ul>
+
+    [[_use('pagination')]]
+
 ]]
 
 [[hook_into('after_main')
     [[_use('Admin-Next-Prev-Link')]]
     <form id="selectUtilitiesForm" method="get" action="" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
         <input type="hidden" name="token" value="[[csrf()]]" >
-        <div class="form-group">
-            [[_use('SelectUtilitiesForm::PerPageGroup')]]
-        </div>
         <div class="form-group">
             [[func('SelectUtilitiesForm::ActionGroup', 'SelectUtilitiesForm::ActionGroup::MoreActionForPost')]]
         </div>

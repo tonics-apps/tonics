@@ -285,7 +285,7 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
             if ($tv->consumeMultipleCharactersIf('==')){
                 $log = [
                     'type' => 'comparison',
-                    'value' => '==='
+                    'value' => '=='
                 ];
                 $tv->getLastOpenTag()->addArgs([$log]);
                 $tv->switchState(self::InitialStateHandler);
@@ -424,7 +424,6 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
             'value' => self::$identifier
         ];
         $tv->getLastOpenTag()->addArgs([$log]);
-        // dd($tv, 'hhh');
         $tv->switchState(self::InitConditionalOperatorState);
         self::$identifier = '';
     }
@@ -553,6 +552,7 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
             self::$operandA = self::getModeOperandData($token, $tv);
             $tv->switchState(self::EvaluateFirstTypeState);
         }
+
     }
 
     public static function EvaluateFirstTypeState(TonicsView $tv)
@@ -614,6 +614,7 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
                 $tv->exception(TonicsTemplateRuntimeException::class, ["No Operand Type After `{$token['value']}` "]);
             });
 
+
             self::$operandA = self::$evaluationResult;
             $opA = self::$evaluationResult;
             if ($nextChar['type'] === 'mode'){
@@ -624,7 +625,7 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
                 $tv->exception(TonicsTemplateRuntimeException::class, ["Invalid Operand Type:  `$opA {$token['value']} {$nextChar['type']}`"]);
             }
 
-            self::$evaluationResult = (bool) self::expExecute(self::$operandB, self::$operandB, $token['value']);
+            self::$evaluationResult = (bool) self::expExecute(self::$operandA, self::$operandB, $token['value']);
             $tv->nextCharacterKey();
             $tv->switchState(self::AfterEvaluationState);
             return;
@@ -692,6 +693,7 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
             '/' => $digit1 / $digit2,
             '%' => $digit1 % $digit2,
             '^' => $digit1 ^ $digit2,
+            '==' => $digit1 == $digit2,
             '===' => $digit1 === $digit2,
             '>=' => $digit1 >= $digit2,
             '>' => $digit1 > $digit2,

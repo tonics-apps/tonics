@@ -76,6 +76,7 @@
 
 html {
     font-size: 100%;
+    scroll-behavior: smooth;
 }
 
 *, *::before, *::after {
@@ -341,9 +342,7 @@ SET THE main element to flex:1 so, it can push the footer down (sit at the botto
     appearance: none;
     padding: 14px;
     border-radius: 4px;
-    /*border-width: 0.2px;*/
     color: #3E3E3E;
-    /*background: rgba(241, 241, 241, 0.7);*/
 }
 
 fieldset {

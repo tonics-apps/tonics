@@ -44,6 +44,10 @@ final class Tables
     ];
 
     const ARTISTS = 'artists';
+
+    const OBJECTS = 'objects';
+    const OBJECT_TYPE = 'object_type';
+
     const PAGES =  'pages';
     const CAT_RELS = 'cat_rels';
     const CATEGORIES = 'categories';

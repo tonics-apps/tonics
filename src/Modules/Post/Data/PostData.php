@@ -574,67 +574,73 @@ SQL, ...$parameter);
     }
 
     /**
-     * SHOULD BE REPLACED WITH A POST UNIVERSAL QUERY
      * @throws \Exception
      */
-    public function getPostAdminPagination()
+    public function getCategoriesPaginationData(): ?object
     {
-        $postTable = Tables::getTable(Tables::POSTS);
-        $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
-        $categoryTable = Tables::getTable(Tables::CATEGORIES);
-        $customCallable = [
-            'customSearchTableCount' => function ($table, $searchTerm, $colToSearch) use ($categoryTable, $postTable, $postToCatTable) {
+        # Removing params shouldn't affect the one in the template since it has been added to global variable
+        url()->removeParam('per_page');
+        url()->removeParam('query');
+        return $this->generatePaginationData($this->getCategoryPaginationColumns(), 'cat_name', $this->getCategoryTable(), 5);
+    }
 
-                $where = "WHERE post_status = ?  LIKE CONCAT('%', ?, '%')";
-                $postInCategories[] = $this->getPageStatus();
-                $postInCategories[] = $searchTerm;
-                return db()->row(<<<SQL
-SELECT COUNT(*) AS 'r' FROM $postToCatTable 
-    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
-    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-$where
-SQL, ...$postInCategories)->r;
-            },
-            'customTableCount' => function ($table) use ($categoryTable, $postTable, $postToCatTable) {
-                $where = "WHERE post_status = ?";
-                return db()->row(<<<SQL
-SELECT COUNT(*) AS 'r' FROM $postToCatTable 
-    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
-    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-$where
-SQL, $this->getPageStatus())->r;
-            },
-            'customSearchRowWithOffsetLimit' => function ($table, $searchTerm, $offset, $limit, $colToSearch, $cols) use ($postTable, $categoryTable, $postToCatTable) {
-                $where = "WHERE post_status = ? AND $colToSearch LIKE CONCAT('%', ?, '%') ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ?";
-                $postInCategories[] = $this->getPageStatus();
-                $postInCategories[] = $searchTerm;
-                $postInCategories[] = $limit;
-                $postInCategories[] = $offset;
-                return db()->run(<<<SQL
-SELECT *, $postTable.slug_id as post_slug_id FROM $postToCatTable 
-    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
-    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-$where
-SQL, ...$postInCategories);
-            },
-            'customGetRowWithOffsetLimit' => function ($table, $offset, $limit, $cols) use ($postTable, $postToCatTable, $categoryTable) {
-                $where = "WHERE post_status = ?";
-                $postInCategories[] = $this->getPageStatus();
-                $postInCategories[] = $limit;
-                $postInCategories[] = $offset;
-                return  db()->run(<<<SQL
-SELECT *, $postTable.slug_id as post_slug_id FROM $postToCatTable
-    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
-    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-$where ORDER BY $postTable.created_at DESC LIMIT ? OFFSET ? 
-SQL, ...$postInCategories);
-            },
-        ];
+    /**
+     * @param object|null $categories
+     * @return void
+     * @throws \Exception
+     */
+    public function categoryMetaBox(?object $categories)
+    {
+        if (url()->getHeaderByKey('menuboxname') === 'category') {
+            if (url()->getHeaderByKey('action') === 'more') {
+                $frag = $this->categoryCheckBoxListing($categories);
+                helper()->onSuccess($frag);
+            }
+        }
+    }
 
-        return $this->generatePaginationData(
-            $this->getPostPaginationColumns(),
-            'post_title',
-            $this->getPostTable(), 10, $customCallable);
+    public function categoryCheckBoxListing(?object $categories, $selected = [], string $inputName = 'cat[]', string $type = 'radio'): string
+    {
+        $htmlFrag = ''; $htmlMoreFrag = '';
+        $type = ($type !== 'radio') ? 'checkbox' : 'radio';
+        $selected = array_combine($selected, $selected);
+
+        if(isset($categories->data) && is_array($categories->data) && !empty($categories->data)){
+
+            foreach ($categories->data as $category){
+                $id = 'category'. $category->cat_id . '_' . $category->cat_slug;
+                if (key_exists($category->cat_id, $selected)){
+                    $htmlFrag .= <<<HTML
+<li class="menu-item">
+    <input type="$type"
+    id="$id" checked="checked" name="$inputName" value="{$category->cat_id}">
+    <label for="$id">{$category->cat_name}</label>
+</li>
+HTML;
+                    continue;
+                }
+                $htmlFrag .= <<<HTML
+<li class="menu-item">
+    <input type="$type"
+    id="$id" name="$inputName" value="{$category->cat_id}">
+    <label for="$id">{$category->cat_name}</label>
+</li>
+HTML;
+            }
+
+            # MORE BUTTON
+            if(isset($categories->has_more) && $categories->has_more){
+                $htmlMoreFrag = <<<HTML
+ <button 
+ data-morepageUrl="$categories->next_page_url" 
+ data-menuboxname = "category"
+ data-nextpageid="$categories->next_page"
+ data-action = "more"
+ class="border:none bg:white-one border-width:default border:black padding:gentle margin-top:0 cursor:pointer act-like-button more-button">More →</button>
+HTML;
+            }
+        }
+        return $htmlFrag . $htmlMoreFrag;
     }
 
 }

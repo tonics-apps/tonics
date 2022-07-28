@@ -83,9 +83,24 @@ trait TonicsTemplateSystemHelper
     {
         foreach ($args as $k => $arg){
             if (isset($arg['mode'])){
-                if ($arg['mode'] === 'var' || $arg['mode'] === 'block'){
+
+                if ($arg['mode'] === 'block'){
                     $args[$k] = '?';
                     $params[] = $arg;
+                }
+
+                if ($arg['mode'] === 'var'){
+                    $getVarValue = $this->getTonicsView()->accessArrayWithSeparator($arg['value']);
+                    if (is_array($getVarValue)){
+                        $key = $k;
+                        foreach ($getVarValue as $value){
+                            $args[$key] = '?'; ++$key;
+                            $params[] = ['value' => $value];
+                        }
+                    } else {
+                        $args[$k] = '?';
+                        $params[] = $arg;
+                    }
                 }
 
                 if ($arg['mode'] === 'column'){

@@ -60,28 +60,10 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     public function stickToContent(OnTagToken $tagToken)
     {
-        $tagName = strtoupper($tagToken->getTagName());
-        if ($tagName === 'SQL' && $tagToken->getTag()->hasChildren()) {
-            $sql_storage_name = $tagToken->getFirstArgChild();
-            $storage = $this->getTonicsView()->getModeStorage('sql');
-            $this->storeCurrentSQLThis($sql_storage_name);
-            $this->handleSQLNodes($tagToken->getTag());
-            $storage[$sql_storage_name] = [
-              'sql' => $this->currentThis->sqlString,
-              'params' => $this->currentThis->params
-            ];
-
-            $this->getTonicsView()->storeDataInModeStorage('sql', $storage);
-
-            $this->currentThis->params = [];
-            $this->currentThis->sqlString = " SELECT ";
-        }
-
-        if ($tagName === 'SQL_BLOCK'){
-            $this->newInstance = false;
-            $this->currentThis = $this;
-            $this->handleSQLBlock($tagToken->getTag());
-        }
+        // No Point Sticking Anything To Content Since some fragment of SQL SELECT
+        // can be dynamic, so, the entry point starts from sqlEntryHandler() which would be called
+        // at the time of rendering.
+        return;
     }
 
     public function storeCurrentSQLThis($sql_storage_name)
@@ -98,11 +80,36 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
         return $this->error;
     }
 
+    public function sqlEntryHandler(OnTagToken $tagToken)
+    {
+        $tagName = strtoupper($tagToken->getTagName());
+        if ($tagName === 'SQL' && $tagToken->getTag()->hasChildren()) {
+            $sql_storage_name = $tagToken->getFirstArgChild();
+            $storage = $this->getTonicsView()->getModeStorage('sql');
+            $this->storeCurrentSQLThis($sql_storage_name);
+            $this->handleSQLNodes($tagToken->getTag());
+            $storage[$sql_storage_name] = [
+                'sql' => $this->currentThis->sqlString,
+                'params' => $this->currentThis->params
+            ];
+
+            $this->getTonicsView()->storeDataInModeStorage('sql', $storage);
+
+            $this->currentThis->params = [];
+            $this->currentThis->sqlString = " SELECT ";
+        }
+
+        if ($tagName === 'SQL_BLOCK'){
+            $this->newInstance = false;
+            $this->currentThis = $this;
+            $this->handleSQLBlock($tagToken->getTag());
+        }
+    }
+
     public function render(string $content, array $args, array $nodes = []): string
     {
         $current = strtolower($this->getTonicsView()->getCurrentRenderingContentMode());
         $tag = (new Tag($current))->setArgs($args)->setNodes($nodes)->setContent($content)->setParentNode($this->currentParent);
-
         // called from a block or a nested tag
         if ($current === 'sql_block'){
             $this->handleSQLBlock($tag);
@@ -110,7 +117,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
         // called from a block or a nested tag
         if ($current === 'sql'){
-            $this->stickToContent(new OnTagToken($tag));
+            $this->sqlEntryHandler(new OnTagToken($tag));
         }
 
         // probably called from an if function or a nested tag, we reset it with the actual instance
@@ -314,7 +321,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     private function handleKeyword(Tag $tag)
     {
-        $keywords = ['LIMIT', 'OFFSET', 'LIKE'];
+        $keywords = ['LIMIT', 'OFFSET', 'LIKE', 'BETWEEN'];
         $keywords = array_combine($keywords, $keywords);
 
         $key = strtoupper($tag->getFirstArgChild());
@@ -361,6 +368,11 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
             case 'COUNT':
                 if ($argOkay){
                     $this->currentThis->sqlString .= " COUNT($qmark) ";
+                }
+                break;
+            case 'DATE_FORMAT':
+                if ($argOkay){
+                    $this->currentThis->sqlString .= " DATE_FORMAT($qmark) ";
                 }
                 break;
         }

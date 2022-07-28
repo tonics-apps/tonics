@@ -4,6 +4,7 @@ namespace App\Modules\Core\Library\View\Extensions;
 
 use App\Modules\Core\Library\View\Extensions\Interfaces\QueryModeHandlerInterface;
 use App\Modules\Core\Library\View\Extensions\Traits\TonicsTemplateSystemHelper;
+use App\Modules\Post\Helper\PostLoop;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateInvalidNumberOfArgument;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
@@ -84,6 +85,7 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
                 tableRows: $tableRows,
                 callback: function ($perPage, $offset) use ($get_row_with_offset_limit, $sqlStorage) {
                     $variable = $this->getTonicsView()->getVariableData();
+                    $this->getTonicsView()->setDontCacheVariable(true);
                     $variable['QUERY_MODE'] = [
                         'LIMIT' => $perPage,
                         'OFFSET' => $offset

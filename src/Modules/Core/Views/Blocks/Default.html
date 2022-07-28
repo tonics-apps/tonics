@@ -32,6 +32,38 @@
 </div>
 ]]
 
+[[b('pagination')
+<div class="d:flex flex-gap justify-content:center padding:default flex-wrap:wrap">
+    [[if("v[QUERY_MODE.Result.prev_page_url]")
+    <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
+       title="Previous" href="[[v('QUERY_MODE.Result.prev_page_url')]]#sfc">
+        Previous
+    </a>
+    ]]
+
+    [[if("v[QUERY_MODE.Result]")
+    <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
+        [[each("numberLinks in QUERY_MODE.Result.number_links")
+        <li class="d:flex">
+            <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
+                                    [[if('v[numberLinks.current] === bool[false]') color:black ]]
+                                    [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
+                                    border-width:default border:black padding:default
+                                    margin-top:0 cursor:pointer max-width:200 text-align:center text-underline" href="[[v('numberLinks.link')]]#sfc">[[v('numberLinks.number')]]</a>
+        </li>
+        ]]
+    </ul>
+    ]]
+
+    [[if("v[QUERY_MODE.Result.next_page_url]")
+    <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
+       title="Next" href="[[v('QUERY_MODE.Result.next_page_url')]]#sfc">
+        Next
+    </a>
+    ]]
+</div>
+]]
+
 [[b('SelectUtilitiesForm::ActionGroup')
 <label for="page_action" class="screen-reader-text">Action: </label>
 <div class="wrap-select border:none border-width:default border:black">
@@ -50,9 +82,6 @@
 <option data-form_action="[[url('posts.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
 <option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
 <option data-simulate_shift_key="false" value='shift'>Shift Key</option>
-<option data-form_action="[[url('posts.index')]]" data-form_method="[[use('method-get')]]" value='viewAll'>View All</option>
-<option data-form_action="[[url('posts.index')]]" data-form_method="[[use('method-get')]]" value='viewTrash'>View Trash</option>
-<option data-form_action="[[url('posts.index')]]" data-form_method="[[use('method-get')]]" value='viewDraft'>View Draft</option>
 ]]
 
 [[b('SelectUtilitiesForm::ActionGroup::MoreActionForPage')
@@ -60,9 +89,6 @@
 <option data-form_action="[[url('pages.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
 <option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
 <option data-simulate_shift_key="false" value='shift'>Shift Key</option>
-<option data-form_action="[[url('pages.index')]]" data-form_method="[[use('method-get')]]" value='viewAll'>View All</option>
-<option data-form_action="[[url('pages.index')]]" data-form_method="[[use('method-get')]]" value='viewTrash'>View Trash</option>
-<option data-form_action="[[url('pages.index')]]" data-form_method="[[use('method-get')]]" value='viewDraft'>View Draft</option>
 ]]
 
 
@@ -71,17 +97,10 @@
 <option data-form_action="[[url('tracks.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>
 <option data-simulate_ctrl_key="false" value='ctrl'>Ctrl Key</option>
 <option data-simulate_shift_key="false" value='shift'>Shift Key</option>
-<option data-form_action="[[url('tracks.index')]]" data-form_method="[[use('method-get')]]" value='viewAll'>View All</option>
-<option data-form_action="[[url('tracks.index')]]" data-form_method="[[use('method-get')]]" value='viewTrash'>View Trash</option>
-<option data-form_action="[[url('tracks.index')]]" data-form_method="[[use('method-get')]]" value='viewDraft'>View Draft</option>
 ]]
 
 
-[[b('SelectUtilitiesForm::ActionGroup::MoreActionForCategory')
-<option data-form_action="[[url('posts.category.index')]]" data-form_method="[[use('method-get')]]" value='viewTrash'>View Trash</option>
-<option data-form_action="[[url('posts.category.index')]]" data-form_method="[[use('method-get')]]" value='viewDraft'>View Draft</option>
-<option data-form_action="[[url('posts.category.trashMultiple')]]" data-form_method="[[use('method-post')]]" value='trash'>Trash</option>
-]]
+[[b('SelectUtilitiesForm::ActionGroup::MoreActionForCategory')]]
 
 [[b('SelectUtilitiesForm::ActionGroup::MoreActionForMenu')
 <option data-form_action="[[url('menus.deleteMultiple')]]" data-form_method="[[use('method-post')]]" value='delete'>Delete</option>

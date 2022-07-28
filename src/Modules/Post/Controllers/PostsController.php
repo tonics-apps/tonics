@@ -47,17 +47,13 @@ class PostsController
      */
     public function index()
     {
-        $data = $this->getPostData()->getPostAdminPagination();
-        $postListing = '';
-        if ($data !== null) {
-            $postListing = $this->postData->adminPostListing($data->data, $this->postData->getPageStatus());
-            unset($data->data);
-        }
+       $categories = $this->getPostData()->getCategoriesPaginationData();
+       # For Category Meta Box API
+       $this->getPostData()->categoryMetaBox($categories);
 
         view('Modules::Post/Views/index', [
             'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $data,
-            'PostListing' => $postListing
+            'DefaultCategoriesMetaBox' => $this->getPostData()->categoryCheckBoxListing($categories, url()->getParam('cat') ?? [], type: 'checkbox'),
         ]);
     }
 

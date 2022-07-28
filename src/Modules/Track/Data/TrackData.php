@@ -211,12 +211,12 @@ HTML;
      * @param $genres
      * @param bool $showSearch
      * @param OnTrackCreate|null $onTrackCreate
-     * @param string $inputname
+     * @param string $inputName
      * @return string
      */
-    public function genreCheckBoxListing($genres, bool $showSearch = true, OnTrackCreate $onTrackCreate = null, string $inputname = 'fk_genre_id'): string
+    public function genreCheckBoxListing($genres, bool $showSearch = true, OnTrackCreate $onTrackCreate = null, string $inputName = 'fk_genre_id', string $type = 'radio'): string
     {
-        $htmlFrag = ''; $htmlMoreFrag = '';
+        $htmlFrag = ''; $htmlMoreFrag = ''; $type = ($type !== 'radio') ? 'checkbox' : 'radio';
         # RADIO-BOX
         if(isset($genres->data) && is_array($genres->data) && !empty($genres->data)){
             if ($showSearch){
@@ -238,8 +238,8 @@ HTML;
                 $id = 'genre'. $onTrackCreate->getTrackFKGenreID() . '_' . $onTrackCreate->getTrackGenreSlug();
                 $htmlFrag .= <<<HTML
 <li class="menu-item">
-    <input type="radio"
-    id="$id" checked="checked" name="$inputname" value="{$onTrackCreate->getTrackFKGenreID()}">
+    <input type="$type"
+    id="$id" checked="checked" name="$inputName" value="{$onTrackCreate->getTrackFKGenreID()}">
     <label for="$id">{$onTrackCreate->getTrackGenreName()}</label>
 </li>
 HTML;
@@ -254,8 +254,8 @@ HTML;
 
                 $htmlFrag .= <<<HTML
 <li class="menu-item">
-    <input type="radio"
-    id="$id" name="$inputname" value="$genre->genre_id">
+    <input type="$type"
+    id="$id" name="$inputName" value="$genre->genre_id">
     <label for="$id">$genre->genre_name</label>
 </li>
 HTML;
@@ -272,6 +272,7 @@ HTML;
  class="border:none bg:white-one border-width:default border:black padding:gentle margin-top:0 cursor:pointer act-like-button more-button">More →</button>
 HTML;
             }
+
         }
 
         return $htmlFrag . $htmlMoreFrag;
@@ -750,6 +751,7 @@ HTML;
      * @throws \Exception
      */
     public function genreMetaBox($genre){
+
         if (url()->getHeaderByKey('menuboxname') === 'genre') {
             if (url()->getHeaderByKey('action') === 'more' || url()->getHeaderByKey('action') === 'search') {
                 $frag = $this->genreCheckBoxListing($genre, false);

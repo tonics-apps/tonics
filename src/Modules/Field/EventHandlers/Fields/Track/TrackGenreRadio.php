@@ -73,7 +73,7 @@ FORM;
         if (!empty(getPostData())){
             $onTrackCreate = new OnTrackCreate((object)getPostData(), $trackData);
         }
-        $genreCheckBoxListing = $trackData->genreCheckBoxListing($genre, onTrackCreate: $onTrackCreate, inputname: $inputName);
+        $genreCheckBoxListing = $trackData->genreCheckBoxListing($genre, onTrackCreate: $onTrackCreate, inputName: $inputName);
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $frag .= <<<FORM
