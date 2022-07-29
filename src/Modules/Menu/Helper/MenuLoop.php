@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Track\Helper;
+namespace App\Modules\Menu\Helper;
 
 use App\Modules\Core\Library\View\Extensions\Interfaces\QueryModeHandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
