@@ -58,7 +58,7 @@
         [[if('v[URL.PARAMS.status] == block[empty]')
             [[PARAM('1')]]
         ]]
-        [[if('v[URL.PARAMS.status]')
+        [[if('v[URL.PARAMS.status] !== block[empty]')
             [[PARAM('v[URL.PARAMS.status]')]]
         ]]
 

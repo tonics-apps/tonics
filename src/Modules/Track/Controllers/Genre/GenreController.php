@@ -27,22 +27,8 @@ class GenreController
      */
     public function index()
     {
-        $cols = '`genre_id`, `genre_name`, `genre_slug`, `genre_description`, `can_delete`';
-        $data = $this->getTrackData()->generatePaginationData(
-            $cols,
-            'genre_name',
-            $this->getTrackData()->getGenreTable());
-
-        $genreListing = '';
-        if ($data !== null){
-            $genreListing = $this->getTrackData()->adminGenreListing($data->data);
-            unset($data->data);
-        }
-
         view('Modules::Track/Views/Genre/index', [
             'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $data,
-            'GenreListing' => $genreListing
         ]);
     }
 

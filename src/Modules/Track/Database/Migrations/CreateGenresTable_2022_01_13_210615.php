@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `genre_slug` varchar(255) NOT NULL,
   `genre_description` text DEFAULT NULL,
   `can_delete` tinyint(4) DEFAULT 1, -- 1 for deleteable and 0 for non-deleteable
+  `genre_status` tinyint(4) DEFAULT 1,
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`genre_id`),

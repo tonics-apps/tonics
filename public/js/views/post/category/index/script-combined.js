@@ -3606,9 +3606,9 @@ import * as myModule from "./script-combined.js";try {
     console.error("An Error Occur Setting MenuToggle: Form-Filter")
 }
 
-let form = document.querySelector('form');
-if (form) {
-    form.addEventListener('submit', (e) => {
+let formFilter = document.querySelector('form');
+if (formFilter) {
+    formFilter.addEventListener('submit', (e) => {
         let target = e.target;
         let inputs = target.querySelectorAll('input');
         if (inputs.length > 0) {

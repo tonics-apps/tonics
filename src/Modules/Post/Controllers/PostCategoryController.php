@@ -138,23 +138,9 @@ class PostCategoryController
      */
     public function index()
     {
-        $data = $this->getPostData()->generatePaginationData(
-            $this->getPostData()->getCategoryPaginationColumns(),
-            'cat_name',
-            $this->getPostData()->getCategoryTable());
-
-        $categoryListing = '';
-        if ($data !== null){
-            $categoryListing = $this->postData->adminCategoryListing($data->data, $this->postData->getPageStatus());
-            unset($data->data);
-        }
-
         view('Modules::Post/Views/Category/index', [
             'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $data,
-            'CategoryListing' => $categoryListing,
         ]);
-
     }
 
     /**

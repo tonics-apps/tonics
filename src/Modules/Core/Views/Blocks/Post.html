@@ -31,8 +31,6 @@ POSTS CATEGORY ROUTES
 POSTS FORMS
 ------- -]]
 
-[[- --SEARCH FORM-- -]]
-
 [[b('Post::Category::form::create')
 <form method="post" action="[[use('Post::Category::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
     <input type="hidden" name="token" value="[[csrf()]]" >
@@ -101,23 +99,4 @@ POSTS FORMS
         </div>
     </section>
 </form>
-]]
-
-[[- -------
-POSTS VIEWS
-------- -]]
-
-[[b('Post::view::index')
-<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
-    [[_v('PostListing')]]
-</ul>
-]]
-
-[[- ----------
-CATEGORY VIEWS
----------- -]]
-[[b('Post::Category::view::index')
-<ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
-    [[_v('CategoryListing')]]
-</ul>
 ]]

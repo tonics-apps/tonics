@@ -88,8 +88,9 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
             $storage = $this->getTonicsView()->getModeStorage('sql');
             $this->storeCurrentSQLThis($sql_storage_name);
             $this->handleSQLNodes($tagToken->getTag());
+            $sql = trim(trim($this->currentThis->sqlString), ',');
             $storage[$sql_storage_name] = [
-                'sql' => $this->currentThis->sqlString,
+                'sql' => $sql,
                 'params' => $this->currentThis->params
             ];
 

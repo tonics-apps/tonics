@@ -32,22 +32,8 @@ class ArtistController
      */
     public function index()
     {
-        $cols = '`artist_id`, `artist_name`, `artist_slug`, `artist_bio`, `image_url`';
-        $data = $this->getTrackData()->generatePaginationData(
-            $cols,
-            'artist_name',
-            $this->getTrackData()->getArtistTable());
-
-        $artistListing = '';
-        if ($data !== null){
-            $artistListing = $this->getTrackData()->adminArtistListing($data->data);
-            unset($data->data);
-        }
-
         view('Modules::Track/Views/Artist/index', [
             'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $data,
-            'ArtistListing' => $artistListing
         ]);
     }
 

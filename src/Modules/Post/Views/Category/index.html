@@ -11,6 +11,7 @@
     tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight"
     data-selected="false">
     <fieldset class="padding:default width:100% draggable d:flex justify-content:center">
+        <legend class="bg:pure-black color:white padding:default">[[_v('QUERY_MODE.admin_post_category_query.cat_name')]]</legend>
         <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">[[_v('QUERY_MODE.admin_post_category_query.cat_name')]]</div>
 
@@ -33,8 +34,6 @@
 </li>
 ]]
 
-[[reset_hook('after_in_main_form_and_filter')]]
-
 [[hook_into('after_in_main_form_and_filter')
 
     [[SQL_BLOCK('reusable_sql')[[FROM('categories')]] ]]
@@ -44,7 +43,7 @@
         [[if('v[URL.PARAMS.status] == block[empty]')
             [[PARAM('1')]]
         ]]
-        [[if('v[URL.PARAMS.status]')
+        [[if('v[URL.PARAMS.status] !== block[empty]')
             [[PARAM('v[URL.PARAMS.status]')]]
         ]]
 

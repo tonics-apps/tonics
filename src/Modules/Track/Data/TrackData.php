@@ -33,17 +33,17 @@ class TrackData extends AbstractDataLayer
 
     public function getLicenseColumns(): array
     {
-        return [ 'license_id', 'license_name', 'license_slug', 'license_status', 'license_attr' ];
+        return Tables::$TABLES[Tables::LICENSES];
     }
 
     public function getArtistColumns(): array
     {
-        return [ 'artist_id', 'artist_name', 'artist_slug', 'artist_bio', 'image_url', 'created_at', 'updated_at' ];
+        return Tables::$TABLES[Tables::ARTISTS];
     }
 
     public function getGenreColumns(): array
     {
-        return ['genre_id', 'genre_name', 'genre_slug', 'genre_description', 'can_delete', 'created_at', 'updated_at'];
+        return Tables::$TABLES[Tables::GENRES];
     }
 
     public function getTrackColumns(): array
@@ -336,99 +336,6 @@ HTML;
                         margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Builder</a>
                    
                    <form method="post" class="d:contents" action="$urlPrefix/$license->license_slug/delete">
-                    <input type="hidden" name="token" value="$csrfToken" >
-                       <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete</button>
-                    </form>
-                </div>
-                
-            </div>
-        </fieldset>
-    </li>
-HTML;
-        }
-
-        return $htmlFrag;
-    }
-
-    /**
-     * @param $genres
-     * @return string
-     * @throws \Exception
-     */
-    public function adminGenreListing($genres): string
-    {
-        $csrfToken = session()->getCSRFToken();
-        $htmlFrag = ''; $urlPrefix = "/admin/genres";
-        foreach ($genres as $k => $genre) {
-            $canDelete = '';
-            if ($genre->can_delete === 1){
-                $canDelete=<<<HTML
-             <form method="post" class="d:contents" action="$urlPrefix/$genre->genre_slug/delete">
-                    <input type="hidden" name="token" value="$csrfToken" >
-                       <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete</button>
-             </form>
-HTML;
-            }
-
-            $htmlFrag .= <<<HTML
-    <li 
-    data-list_id="$k" data-id="$genre->genre_id"  
-    data-genre_id="$genre->genre_id" 
-    data-genre_slug="$genre->genre_slug" 
-    data-genre_name="$genre->genre_name"
-    data-db_click_link="$urlPrefix/$genre->genre_slug/edit"
-    tabindex="0" 
-    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-        <fieldset class="padding:default width:100% box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$genre->genre_name</legend>
-            <div class="admin-widget-information owl width:100%">
-            <div class="text-on-admin-util text-highlight">$genre->genre_name</div>
-                <div class="form-group d:flex flex-gap:small">
-                     <a href="$urlPrefix/$genre->genre_slug/edit" 
-                     class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
-                        $canDelete
-                </div>
-            </div>
-        </fieldset>
-    </li>
-HTML;
-        }
-
-        return $htmlFrag;
-    }
-
-    /**
-     * @param $artists
-     * @return string
-     * @throws \Exception
-     */
-    public function adminArtistListing($artists): string
-    {
-        $csrfToken = session()->getCSRFToken();
-        $htmlFrag = ''; $urlPrefix = "/admin/artists";
-        foreach ($artists as $k => $artist) {
-            $htmlFrag .= <<<HTML
-    <li 
-    data-list_id="$k" data-id="$artist->artist_id"  
-    data-artist_id="$artist->artist_id" 
-    data-artist_slug="$artist->artist_slug" 
-    data-artist_name="$artist->artist_name"
-    data-db_click_link="$urlPrefix/$artist->artist_slug/edit"
-    tabindex="0" 
-    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-        <fieldset class="padding:default width:100% box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$artist->artist_name</legend>
-            <div class="admin-widget-information owl width:100%">
-            <div class="text-on-admin-util text-highlight">$artist->artist_name</div>
-         
-                <div class="form-group d:flex flex-gap:small">
-                     <a href="$urlPrefix/$artist->artist_slug/edit" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
-
-                   <form method="post" class="d:contents" action="$urlPrefix/$artist->artist_slug/delete">
                     <input type="hidden" name="token" value="$csrfToken" >
                        <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
                         margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete</button>
