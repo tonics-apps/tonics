@@ -4176,9 +4176,9 @@ function getPostData(fieldSettingsEl) {
 let tinyEditorsForm = document.getElementById('EditorsForm');
 if (tinyEditorsForm){
     tinyEditorsForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (tinymce.activeEditor.getBody().hasChildNodes()) {
-            let nodesData = {}, key = 0;
+
+        if (tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
+            e.preventDefault(); let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
             let postData = getPostData(tinymce.activeEditor.getBody());
             bodyNode.forEach((node) => {
