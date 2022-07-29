@@ -1,5 +1,4 @@
-[[inherit("Modules::Core/Views/Templates/core")]]
-
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
 [[import("Modules::Core/Views/Blocks/Post")]]
 
 [[hook_into('in_head_title')Posts Index]]
@@ -36,10 +35,17 @@
 </li>
 ]]
 
-[[hook_into('in_main')
-    <div class="search-admin width:100% margin-top:0">
-        [[func('Post::form::search', 'empty', 'method-get')]]
+[[hook_into('after_in_main_form_and_filter_date')
+    <div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
+    <div class="menu-box-checkbox-items max-height:300px overflow:auto">Choose Categories (All By Default)
+        <ul class="menu-box-radiobox-items list:style:none">
+            [[_v('DefaultCategoriesMetaBox')]]
+        </ul>
     </div>
+</div>
+]]
+
+[[hook_into('after_in_main_form_and_filter')
 
     [[SQL_BLOCK('reusable_sql')
         [[FROM('post_categories')]]
@@ -60,20 +66,23 @@
             [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'created_at')]] ]] [[KEYWORD('BETWEEN')]]
             [[SQLFUNC('DATE_FORMAT', "v[URL.PARAMS.start_date], %Y-%m-%d %H:%i:%s")]] [[OP('AND')]] [[SQLFUNC('DATE_FORMAT', "v[URL.PARAMS.end_date], %Y-%m-%d %H:%i:%s")]]
         ]]
+
         [[if('v[URL.PARAMS.cat] !== block[empty]')
             [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_id')]] ]] [[SQLFUNC('IN', "v[URL.PARAMS.cat]")]]
         ]]
+
         [[if('v[URL.PARAMS.query] !== block[empty]')
             [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
             [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
         ]]
+
     ]]
 
     [[SQL('admin_post_query_table_count')
         [[SQLFUNC('COUNT', "*")]]
         [[REUSE_SQL('reusable_sql')]]
-            [[WHERE('posts.post_status')
-        [[REUSE_SQL('reusable_search_sql')]]
+        [[WHERE('posts.post_status')
+            [[REUSE_SQL('reusable_search_sql')]]
         ]]
     ]]
 
