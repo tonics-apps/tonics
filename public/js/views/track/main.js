@@ -69,6 +69,7 @@ let adminPostWidget = document.querySelector('.admin-post-widget'),
     inputLicenseDownloadURL = null,
     selectedLicense = null,
     licenseDownloadsContainer = null;
+
 if (adminPostWidget) {
     adminPostWidget.addEventListener('click', (e) => {
         let el = e.target;

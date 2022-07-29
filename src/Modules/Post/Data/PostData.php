@@ -581,7 +581,7 @@ SQL, ...$parameter);
         # Removing params shouldn't affect the one in the template since it has been added to global variable
         url()->removeParam('per_page');
         url()->removeParam('query');
-        return $this->generatePaginationData($this->getCategoryPaginationColumns(), 'cat_name', $this->getCategoryTable(), 5);
+        return $this->generatePaginationData($this->getCategoryPaginationColumns(), 'cat_name', $this->getCategoryTable(), 200);
     }
 
     /**
