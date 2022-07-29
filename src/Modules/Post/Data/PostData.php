@@ -578,10 +578,12 @@ SQL, ...$parameter);
      */
     public function getCategoriesPaginationData(): ?object
     {
-        # Removing params shouldn't affect the one in the template since it has been added to global variable
-        url()->removeParam('per_page');
-        url()->removeParam('query');
-        return $this->generatePaginationData($this->getCategoryPaginationColumns(), 'cat_name', $this->getCategoryTable(), 200);
+        $settings = [
+            'query_name' => 'cat_query',
+            'page_name' => 'cat_page',
+            'per_page_name' => 'cat_per_page',
+        ];
+        return $this->generatePaginationData($this->getCategoryPaginationColumns(), 'cat_name', $this->getCategoryTable(), 200, $settings);
     }
 
     /**

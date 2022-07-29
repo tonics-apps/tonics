@@ -16,7 +16,7 @@ class PostLoop implements QueryModeHandlerInterface
             $post->list_id = $k;
             $post->post_title = strip_tags($post->post_title);
             $post->edit_link = '/admin/posts/' . $post->post_slug . '/edit';
-            $post->preview_link = '/posts/' . $post->slug_id . '/' . $post->post_slug;
+            $post->preview_link = '/posts/' . $post->post_slug_id . '/' . $post->post_slug;
             if ($post->post_status === -1){
                 $post->destroy_link = '/admin/posts/' . $post->post_slug . '/delete';
                 $post->destroy_text = 'Delete';

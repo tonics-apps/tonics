@@ -34,14 +34,14 @@ POSTS FORMS
 [[- --SEARCH FORM-- -]]
 [[b('Post::form::search')
 <form action="[[arg('1')]]" class="form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="[[arg('2')]]">
-    <div class="width:100% d:flex justify-content:center flex-gap:small form-search">
+    <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
         <input type="search" value="[[v('URL.PARAMS.query')]]" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
         <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-3">
             <svg class="icon:admin tonics-filter"><use xlink:href="#tonics-filter"></use></svg>
             Filter Options
         </button>
     </div>
-    <div class="d:none filter-container border-width:default border:black color:black padding:default flex-d:column flex-wrap:wrap d:flex flex-gap">
+    <div class="d:none overflow:auto filter-container border-width:default border:black color:black padding:small flex-d:column flex-wrap:wrap d:flex flex-gap">
         <div class="form-group d:flex flex-gap align-items:flex-end flex-wrap:wrap">
             <label for="status">Choose Status
                 <select class="default-selector border-width:default border:black color:black" name="status" id="status">
