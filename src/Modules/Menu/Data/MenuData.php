@@ -169,51 +169,6 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function adminMenuListing($menus): string
-    {
-        $csrfToken = session()->getCSRFToken();
-        $htmlFrag = '';
-        foreach ($menus as $k => $menu) {
-            $htmlFrag .= <<<HTML
-    <li 
-    data-list_id="$k" data-id="$menu->menu_id"  
-    data-menu_id="$menu->menu_id" 
-    data-menu_slug="$menu->menu_slug" 
-    data-menu_name="$menu->menu_name"
-    data-db_click_link="/admin/tools/menu/$menu->menu_slug/edit"
-    tabindex="0" 
-    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:move no-text-highlight">
-        <fieldset class="padding:default width:100% box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$menu->menu_name</legend>
-            <div class="admin-widget-information owl width:100%">
-            <div class="text-on-admin-util text-highlight">$menu->menu_name</div>
-         
-                <div class="form-group d:flex flex-gap:small">
-                     <a href="/admin/tools/menu/$menu->menu_slug/edit" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
-                        
-                         <a href="/admin/tools/menu/items/$menu->menu_slug/builder" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Builder</a>
-                   
-                   <form method="post" class="d:contents" action="/admin/tools/menu/$menu->menu_slug/delete">
-                    <input type="hidden" name="token" value="$csrfToken" >
-                       <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete</button>
-                    </form>
-                </div>
-                
-            </div>
-        </fieldset>
-    </li>
-HTML;
-        }
-
-        return $htmlFrag;
-    }
-
-    /**
-     * @throws \Exception
-     */
     public function createMenu(array $ignore = []): array
     {
         $slug = $this->generateUniqueSlug($this->getMenuTable(),

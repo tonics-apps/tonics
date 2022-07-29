@@ -33,22 +33,8 @@ class MenuController
      */
     public function index()
     {
-        $cols = '`menu_id`, `menu_name`, `menu_slug`, `created_at`';
-        $data = $this->getMenuData()->generatePaginationData(
-            $cols,
-            'menu_name',
-            $this->getMenuData()->getMenuTable());
-
-        $menuListing = '';
-        if ($data !== null){
-            $menuListing = $this->getMenuData()->adminMenuListing($data->data);
-            unset($data->data);
-        }
-
         view('Modules::Menu/Views/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $data,
-            'MenuListing' => $menuListing
+            'SiteURL' => AppConfig::getAppUrl()
         ]);
     }
 
