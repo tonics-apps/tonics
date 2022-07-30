@@ -143,9 +143,9 @@ COLUMNS;
             $htmlFrag .= <<<HTML
     <li 
     data-list_id="$k" data-id="$field->field_id"  
-    data-Field_id="$field->field_id" 
-    data-Field_slug="$field->field_slug" 
-    data-Field_name="$field->field_name"
+    data-field_id="$field->field_id" 
+    data-field_slug="$field->field_slug" 
+    data-field_name="$field->field_name"
     data-db_click_link="/admin/tools/field/$field->field_slug/edit"
     tabindex="0" 
     class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
