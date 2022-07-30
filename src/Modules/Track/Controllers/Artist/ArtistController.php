@@ -150,7 +150,7 @@ class ArtistController
     /**
      * @throws \Exception
      */
-    public function deleteMultiple()
+    public function deleteMultiple(): void
     {
         if (!input()->fromPost()->hasValue('itemsToDelete')){
             session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);

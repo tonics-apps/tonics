@@ -25,9 +25,11 @@ class PageLoop implements QueryModeHandlerInterface
             if ($page->page_status === -1){
                 $page->destroy_link = $pagePrefix . $page->page_id . '/delete';
                 $page->destroy_text = 'Delete';
+                $page->button_data_attr = 'data-click-onconfirmdelete="true"';
             } else {
                 $page->destroy_link = $pagePrefix . $page->page_id . '/trash';
                 $page->destroy_text = 'Trash';
+                $page->button_data_attr = 'data-click-onconfirmtrash="true"';
             }
 
             if ($callback !== null){

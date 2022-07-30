@@ -4149,7 +4149,7 @@ function getFieldSlugsTable(el = null) {
     console.error("An Error Occur Setting MenuToggle: Site-Nav")
 }// FOR FEATURED IMAGE
 let featuredMain = document.querySelector('main');
-if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
     let tinySelect = tinymce.activeEditor.dom.select(".entry-content");
     if (tinySelect.length > 0){
         tinySelect[0].addEventListener('click', featuredImageHandler);

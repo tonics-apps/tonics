@@ -149,22 +149,22 @@ COLUMNS;
     data-db_click_link="/admin/tools/field/$field->field_slug/edit"
     tabindex="0" 
     class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-        <fieldset class="padding:default width:100% box-shadow-variant-1 d:flex justify-content:center">
+        <fieldset class="padding:default width:100% d:flex justify-content:center">
             <legend class="bg:pure-black color:white padding:default">$field->field_name</legend>
             <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">$field->field_name</div>
          
-                <div class="form-group d:flex flex-gap:small">
+                <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
                      <a href="/admin/tools/field/$field->field_slug/edit" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
+                        margin-top:0 cursor:pointer">Edit</a>
                         
                          <a href="/admin/tools/field/items/$field->field_slug/builder" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Builder</a>
+                        margin-top:0 cursor:pointer">Builder</a>
                    
                    <form method="post" class="d:contents" action="/admin/tools/field/$field->field_slug/delete">
                     <input type="hidden" name="token" value="$csrfToken" >
                        <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete</button>
+                        margin-top:0 cursor:pointer">Delete</button>
                     </form>
                 </div>
                 

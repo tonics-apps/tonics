@@ -5,6 +5,7 @@
 
 [[b('admin_page_query_callback')
 <li data-list_id="[[_v('QUERY_MODE.admin_page_query.list_id')]]" data-page_slug="[[_v('QUERY_MODE.admin_page_query.page_slug')]]"
+    data-page_id="[[_v('QUERY_MODE.admin_page_query.page_id')]]"
     data-page_title="[[_v('QUERY_MODE.admin_page_query.page_title')]]"
     data-db_click_link="[[_v('QUERY_MODE.admin_page_query.edit_link')]]"
     tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight"
@@ -24,7 +25,7 @@
                 [[if('v[QUERY_MODE.admin_page_query.destroy_link]')
                 <form method="post" class="d:contents" action="[[_v('QUERY_MODE.admin_page_query.destroy_link')]]">
                     <input type="hidden" name="token" value="[[csrf()]]">
-                    <button data-click-onconfirmtrash="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
+                    <button [[_v('QUERY_MODE.admin_page_query.button_data_attr')]] type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
           margin-top:0 cursor:pointer">[[_v('QUERY_MODE.admin_page_query.destroy_text')]]
                     </button>
                 </form>
@@ -92,7 +93,7 @@
 <form id="selectUtilitiesForm" method="get" action="" class="margin-top:0 admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
     <input type="hidden" name="token" value="[[csrf()]]" >
     <div class="form-group">
-        [[func('SelectUtilitiesForm::ActionGroup', 'SelectUtilitiesForm::ActionGroup::MoreActionForGenre')]]
+        [[func('SelectUtilitiesForm::ActionGroup', 'SelectUtilitiesForm::ActionGroup::MoreActionForPage')]]
     </div>
 </form>
 ]]

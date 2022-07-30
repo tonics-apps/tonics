@@ -47,7 +47,7 @@ class GenreController
      * Store a newly created resource in storage.
      * @throws \Exception
      */
-    #[NoReturn] public function store()
+    #[NoReturn] public function store(): void
     {
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->genreStoreRule());
@@ -77,7 +77,7 @@ class GenreController
      * @return void
      * @throws \Exception
      */
-    public function edit(string $slug)
+    public function edit(string $slug): void
     {
         $genre = $this->getTrackData()->selectWithCondition($this->getTrackData()->getGenreTable(), ['*'], "genre_slug = ?", [$slug]);
         if (!is_object($genre)) {
@@ -96,7 +96,7 @@ class GenreController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    #[NoReturn] public function update(string $slug)
+    #[NoReturn] public function update(string $slug): void
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->genreUpdateRule());
         if ($validator->fails()){
@@ -123,7 +123,7 @@ class GenreController
      * @return void
      * @throws \Exception
      */
-    public function delete(string $slug)
+    public function delete(string $slug): void
     {
         try {
             $genre = $this->getTrackData()->selectWithCondition($this->getTrackData()->getGenreTable(), ['*'], "genre_slug = ?", [$slug]);

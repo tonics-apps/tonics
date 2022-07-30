@@ -93,7 +93,7 @@ class PostCategoryController
      * @param string $slug
      * @throws \Exception
      */
-    public function edit(string $slug)
+    public function edit(string $slug): void
     {
         $category = $this->postData->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
 
@@ -116,7 +116,7 @@ class PostCategoryController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function update(string $slug)
+    #[NoReturn] public function update(string $slug): void
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryUpdateRule());
         if ($validator->fails()){
@@ -188,6 +188,28 @@ class PostCategoryController
     }
 
     /**
+     * @param string $slug
+     * @return void
+     * @throws Exception
+     */
+    public function delete(string $slug): void
+    {
+        try {
+            $this->getPostData()->deleteWithCondition(whereCondition: "cat_slug = ?", parameter: [$slug], table: $this->getPostData()->getCategoryTable());
+            session()->flash(['Category Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('posts.category.index'));
+        } catch (\Exception $e){
+            $errorCode = $e->getCode();
+            switch ($errorCode){
+                default:
+                    session()->flash(['Failed To Delete Category']);
+                    break;
+            }
+            redirect(route('Category'));
+        }
+    }
+
+    /**
      * @throws \Exception
      */
     #[NoReturn] public function redirect($id): void
@@ -210,11 +232,6 @@ class PostCategoryController
         });
 
         $redirection->runStates();
-    }
-
-    public function delete(string $slug)
-    {
-        dd($slug);
     }
 
     /**

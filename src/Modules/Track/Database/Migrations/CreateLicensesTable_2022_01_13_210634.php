@@ -39,9 +39,11 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `license_slug` varchar(255) NOT NULL,
   `license_status` tinyint(1) NOT NULL DEFAULT 1,
   `license_attr` longtext NOT NULL DEFAULT '$licenseAttrJSON' CHECK (json_valid(`license_attr`)),
+   `created_at` timestamp DEFAULT current_timestamp(),
+  `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`license_id`),
   CONSTRAINT `CONSTRAINT_1` CHECK (`license_attr` is null or json_valid(`license_attr`))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
         // Default Insert
         $this->getDB()->run("

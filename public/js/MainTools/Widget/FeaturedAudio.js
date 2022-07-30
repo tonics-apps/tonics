@@ -3,7 +3,7 @@ if (document.querySelector('main')){
     document.querySelector('main').addEventListener('click', audioFeaturedHandler);
 }
 
-if (tinymce && tinymce.activeEditor && tinymce.activeEditor.dom){
+if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
     let tinySelectAudioHandler = tinymce.activeEditor.dom.select(".entry-content");
     if (tinySelectAudioHandler.length > 0){
         tinySelectAudioHandler[0].addEventListener('click', audioFeaturedHandler);

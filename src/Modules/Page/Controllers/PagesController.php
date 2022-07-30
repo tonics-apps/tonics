@@ -40,22 +40,8 @@ class PagesController
      */
     public function index()
     {
-        $cols = '`page_id`, `page_title`, `page_slug`, `page_status`';
-        $data = $this->getPageData()->generatePaginationData(
-            $cols,
-            'page_title',
-            $this->getPageData()->getPageTable());
-
-        $pageListing = '';
-        if ($data !== null) {
-            $pageListing = $this->getPageData()->adminPageListing($data->data, $this->pageData->getPageStatus());
-            unset($data->data);
-        }
-
         view('Modules::Page/Views/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $data,
-            'PageListing' => $pageListing
+            'SiteURL' => AppConfig::getAppUrl()
         ]);
     }
 

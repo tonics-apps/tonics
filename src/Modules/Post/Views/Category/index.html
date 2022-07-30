@@ -6,6 +6,7 @@
 
 [[b('admin_post_category_query_callback')
 <li data-list_id="[[_v('QUERY_MODE.admin_post_category_query.list_id')]]" data-cat_slug="[[_v('QUERY_MODE.admin_post_category_query.cat_slug')]]"
+    data-cat_id="[[_v('QUERY_MODE.admin_post_category_query.cat_id')]]"
     data-cat_title="[[_v('QUERY_MODE.admin_post_category_query.cat_name')]]"
     data-db_click_link="[[_v('QUERY_MODE.admin_post_category_query.edit_link')]]"
     tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight"
@@ -23,7 +24,7 @@
                         margin-top:0 cursor:pointer">Preview</a>
                 <form method="post" class="d:contents" action="[[_v('QUERY_MODE.admin_post_category_query.destroy_link')]]">
                     <input type="hidden" name="token" value="[[csrf()]]">
-                    <button data-click-onconfirmtrash="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
+                    <button [[_v('QUERY_MODE.admin_post_category_query.button_data_attr')]] type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
         margin-top:0 cursor:pointer">[[_v('QUERY_MODE.admin_post_category_query.destroy_text')]]
                     </button>
                 </form>

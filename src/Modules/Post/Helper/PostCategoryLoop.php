@@ -21,9 +21,11 @@ class PostCategoryLoop implements QueryModeHandlerInterface
             if ($category->cat_status === -1){
                 $category->destroy_link = $categoryPrefix . $category->cat_slug . '/delete';
                 $category->destroy_text = 'Delete';
+                $category->button_data_attr = 'data-click-onconfirmdelete="true"';
             } else {
                 $category->destroy_link = $categoryPrefix . $category->cat_slug . '/trash';
                 $category->destroy_text = 'Trash';
+                $category->button_data_attr = 'data-click-onconfirmtrash="true"';
             }
 
             if ($callback !== null){

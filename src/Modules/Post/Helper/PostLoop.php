@@ -22,9 +22,11 @@ class PostLoop implements QueryModeHandlerInterface
             if ($post->post_status === -1){
                 $post->destroy_link = $postPrefix . $post->post_slug . '/delete';
                 $post->destroy_text = 'Delete';
+                $post->button_data_attr = 'data-click-onconfirmdelete="true"';
             } else {
                 $post->destroy_link = $postPrefix . $post->post_slug . '/trash';
                 $post->destroy_text = 'Trash';
+                $post->button_data_attr = 'data-click-onconfirmtrash="true"';
             }
 
             if ($callback !== null){
