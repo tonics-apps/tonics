@@ -7995,15 +7995,15 @@ function defaultXHR(requestHeaders = {}) {
     return new XHRApi({...defaultHeader, ...requestHeaders});
 }
 
-let adminPostWidget = document.querySelector('.admin-post-widget'),
+let trackMainContainer = document.querySelector('main'),
     licenseIDMap = new Map(),
     windowInstanceForDownloadURL = null,
     inputLicenseDownloadURL = null,
     selectedLicense = null,
     licenseDownloadsContainer = null;
 
-if (adminPostWidget) {
-    adminPostWidget.addEventListener('click', (e) => {
+if (trackMainContainer) {
+    trackMainContainer.addEventListener('click', (e) => {
         let el = e.target;
         // MORE BUTTON
         if (el.classList.contains('more-button')) {
@@ -8057,7 +8057,7 @@ if (adminPostWidget) {
         searchBoxInitials[value.dataset.menuboxname] = value.parentElement.cloneNode(true);
     }));
 
-    adminPostWidget.addEventListener('keydown', (e) => {
+    trackMainContainer.addEventListener('keydown', (e) => {
         let el = e.target;
         if (el.classList.contains('menu-box-item-search')) {
             let value = el;
@@ -8084,7 +8084,7 @@ if (adminPostWidget) {
         }
     })
 
-    adminPostWidget.addEventListener('change', (e) => {
+    trackMainContainer.addEventListener('change', (e) => {
         let el = e.target;
         // License Selector
         if (el.classList.contains('license-selector')) {
@@ -8092,7 +8092,7 @@ if (adminPostWidget) {
         }
     });
 
-    adminPostWidget.addEventListener('input', (e) => {
+    trackMainContainer.addEventListener('input', (e) => {
         let el = e.target,
             value = el;
         if (el.classList.contains('menu-box-item-search')) {

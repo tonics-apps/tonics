@@ -37,6 +37,16 @@
 </li>
 ]]
 
+[[hook_into('after_in_main_form_and_filter_date')
+<div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
+  <div class="menu-box-checkbox-items max-height:300px overflow:auto">Choose Genres (All By Default)
+    <ul class="menu-box-radiobox-items list:style:none">
+      [[_v('DefaultGenresMetaBox')]]
+    </ul>
+  </div>
+</div>
+]]
+
 [[hook_into('after_in_main_form_and_filter')
 
   [[SQL_BLOCK('reusable_sql')
@@ -103,6 +113,6 @@
 
 [[hook_into('before_footer')
   [[_use("script:variables")]]
-  [[_use("script:post-index")]]
+  [[_use("script:track-index")]]
   [[_use("session:delete-artifacts")]]
 ]]

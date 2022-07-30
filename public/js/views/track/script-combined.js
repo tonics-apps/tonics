@@ -4315,15 +4315,15 @@ function defaultXHR(requestHeaders = {}) {
     return new XHRApi({...defaultHeader, ...requestHeaders});
 }
 
-let adminPostWidget = document.querySelector('.admin-post-widget'),
+let trackMainContainer = document.querySelector('main'),
     licenseIDMap = new Map(),
     windowInstanceForDownloadURL = null,
     inputLicenseDownloadURL = null,
     selectedLicense = null,
     licenseDownloadsContainer = null;
 
-if (adminPostWidget) {
-    adminPostWidget.addEventListener('click', (e) => {
+if (trackMainContainer) {
+    trackMainContainer.addEventListener('click', (e) => {
         let el = e.target;
         // MORE BUTTON
         if (el.classList.contains('more-button')) {
@@ -4377,7 +4377,7 @@ if (adminPostWidget) {
         searchBoxInitials[value.dataset.menuboxname] = value.parentElement.cloneNode(true);
     }));
 
-    adminPostWidget.addEventListener('keydown', (e) => {
+    trackMainContainer.addEventListener('keydown', (e) => {
         let el = e.target;
         if (el.classList.contains('menu-box-item-search')) {
             let value = el;
@@ -4404,7 +4404,7 @@ if (adminPostWidget) {
         }
     })
 
-    adminPostWidget.addEventListener('change', (e) => {
+    trackMainContainer.addEventListener('change', (e) => {
         let el = e.target;
         // License Selector
         if (el.classList.contains('license-selector')) {
@@ -4412,7 +4412,7 @@ if (adminPostWidget) {
         }
     });
 
-    adminPostWidget.addEventListener('input', (e) => {
+    trackMainContainer.addEventListener('input', (e) => {
         let el = e.target,
             value = el;
         if (el.classList.contains('menu-box-item-search')) {
@@ -4455,6 +4455,33 @@ function getLicenseDownloadInfo(el) {
             }
         }
     });
+}try {
+    new myModule.MenuToggle('.form-and-filter', new myModule.Query())
+        .settings('.form-and-filter', '.filter-button-toggle', '.filter-container')
+        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+        .closeOnClickOutSide(false)
+        .stopPropagation(false)
+        .run();
+}catch (e) {
+    console.error("An Error Occur Setting MenuToggle: Form-Filter")
+}
+
+let formFilter = document.querySelector('form');
+if (formFilter) {
+    formFilter.addEventListener('submit', (e) => {
+        let target = e.target;
+        let inputs = target.querySelectorAll('input');
+        if (inputs.length > 0) {
+            inputs.forEach((input) => {
+                let value = input.value;
+                value.trim();
+                if (!value) {
+                    input.disabled = true;
+                }
+            })
+        }
+    })
 }try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {

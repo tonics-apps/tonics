@@ -61,6 +61,24 @@
 
 ]]
 
+[[b('script:track-index')
+<script type="module" src="[[combine('/js/views/track/index/script-combined.js',
+        '/js/Modules/Element/MenuToggle.js',
+        '/js/Modules/Element/Query.js',
+        '/js/Modules/Others/Draggables.js',
+        '/js/Modules/Others/Helpers.js',
+
+        '/js/views/track/main.js',
+        '/js/MainTools/FormFilter.js',
+        '/js/MainTools/ToastMessage.js',
+        '/js/MainTools/DeleteTrashPromptOnButtonSubmit.js',
+        '/js/MainTools/ItemSelection.js',
+        '/js/MainTools/SiteNavToggle.js',
+        '/js/MainTools/AdminSelectUtilities.js',
+        )]]">
+</script>
+]]
+
 [[b('script:track')
 <script type="module" src="[[combine('/js/views/track/script-combined.js',
         '/js/Modules/Element/MenuToggle.js',
@@ -72,6 +90,7 @@
         '/js/MainTools/AudioPlayer.js',
 
         '/js/views/track/main.js',
+        '/js/MainTools/FormFilter.js',
         '/js/MainTools/ToastMessage.js',
         '/js/views/field/items/user/index.js',
         '/js/MainTools/TinyMCEHooker.js',

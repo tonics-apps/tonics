@@ -223,10 +223,10 @@ HTML;
                 $htmlFrag =<<<HTML
 <input id="genre-search" style="margin-bottom: 1em;"
  data-action ="search" 
- data-query="{$genres->path}&query="
+ data-query="{$genres->path}&genre_query="
  data-menuboxname = "genre"
  data-searchvalue =""
- class="menu-box-item-search position:sticky top:0" type="search" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+ class="menu-box-item-search position:sticky top:0" type="search" aria-label="Search Genre and Hit Enter" placeholder="Search Genre &amp; Hit Enter">
 HTML;
             }
 
@@ -265,6 +265,7 @@ HTML;
             if(isset($genres->has_more) && $genres->has_more){
                 $htmlMoreFrag = <<<HTML
  <button 
+ type="button"
  data-morepageUrl="$genres->next_page_url" 
  data-menuboxname = "genre"
  data-nextpageid="$genres->next_page"
@@ -648,20 +649,25 @@ HTML;
      */
     public function getGenrePaginationData(): ?object
     {
+        $settings = [
+            'query_name' => 'genre_query',
+            'page_name' => 'genre_page',
+            'per_page_name' => 'genre_per_page',
+        ];
        return $this->generatePaginationData(
             $this->getGenrePaginationColumn(),
             'genre_name',
-            $this->getGenreTable(), 500);
+            $this->getGenreTable(), 200, $settings);
     }
 
     /**
      * @throws \Exception
      */
-    public function genreMetaBox($genre){
+    public function genreMetaBox($genre, $type = 'radio'){
 
         if (url()->getHeaderByKey('menuboxname') === 'genre') {
             if (url()->getHeaderByKey('action') === 'more' || url()->getHeaderByKey('action') === 'search') {
-                $frag = $this->genreCheckBoxListing($genre, false);
+                $frag = $this->genreCheckBoxListing($genre, false, type: $type);
                 helper()->onSuccess($frag);
             }
         }

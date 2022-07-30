@@ -37,22 +37,13 @@ class TracksController extends Controller
      */
     public function index()
     {
-        $cols = '`track_id`, `track_status`, `slug_id`, `track_slug`, `track_title`, `fk_genre_id`, `fk_artist_id`, `fk_license_id`';
-        $data = $this->getTrackData()->generatePaginationData(
-            $cols,
-            'track_title',
-            $this->getTrackData()->getTrackTable());
-
-        $trackListing = '';
-        if ($data !== null){
-            $trackListing = $this->getTrackData()->adminTrackListing($data->data, $this->trackData->getPageStatus());
-            unset($data->data);
-        }
+        $genres = $this->getTrackData()->getGenrePaginationData();
+        # For Genre Meta Box API
+        $this->getTrackData()->genreMetaBox($genres, 'checkbox');
 
         view('Modules::Track/Views/index', [
             'SiteURL' => AppConfig::getAppUrl(),
-            'Data' => $data,
-            'TrackListing' => $trackListing
+            'DefaultGenresMetaBox' => $this->getTrackData()->genreCheckBoxListing($genres, type: 'checkbox'),
         ]);
     }
 
