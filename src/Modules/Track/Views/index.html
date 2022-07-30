@@ -67,6 +67,10 @@
       [[OP('AND')]]  [[SELECT('tracks') [[COLS('PICK', 'created_at')]] ]] [[KEYWORD('BETWEEN')]]
       [[SQLFUNC('DATE_FORMAT', "v[URL.PARAMS.start_date], %Y-%m-%d %H:%i:%s")]] [[OP('AND')]] [[SQLFUNC('DATE_FORMAT', "v[URL.PARAMS.end_date], %Y-%m-%d %H:%i:%s")]]
     ]]
+
+    [[if('v[URL.PARAMS.genre] !== block[empty]')
+      [[OP('AND')]] [[SELECT('genres') [[COLS('PICK', 'genre_id')]] ]] [[SQLFUNC('IN', "v[URL.PARAMS.genre]")]]
+    ]]
     
     [[if('v[URL.PARAMS.query] !== block[empty]')
       [[OP('AND')]]  [[SELECT('tracks') [[COLS('PICK', 'track_title')]] ]]

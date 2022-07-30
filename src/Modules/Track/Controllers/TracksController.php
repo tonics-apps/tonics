@@ -39,11 +39,11 @@ class TracksController extends Controller
     {
         $genres = $this->getTrackData()->getGenrePaginationData();
         # For Genre Meta Box API
-        $this->getTrackData()->genreMetaBox($genres, 'checkbox');
+        $this->getTrackData()->genreMetaBox($genres, 'genre[]', 'checkbox');
 
         view('Modules::Track/Views/index', [
             'SiteURL' => AppConfig::getAppUrl(),
-            'DefaultGenresMetaBox' => $this->getTrackData()->genreCheckBoxListing($genres, type: 'checkbox'),
+            'DefaultGenresMetaBox' => $this->getTrackData()->genreCheckBoxListing($genres, inputName: 'genre[]', type: 'checkbox'),
         ]);
     }
 

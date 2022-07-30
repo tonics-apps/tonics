@@ -663,11 +663,11 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function genreMetaBox($genre, $type = 'radio'){
+    public function genreMetaBox($genre, string $inputName='fk_genre_id', $type = 'radio'){
 
         if (url()->getHeaderByKey('menuboxname') === 'genre') {
             if (url()->getHeaderByKey('action') === 'more' || url()->getHeaderByKey('action') === 'search') {
-                $frag = $this->genreCheckBoxListing($genre, false, type: $type);
+                $frag = $this->genreCheckBoxListing($genre, false, inputName: $inputName, type: $type);
                 helper()->onSuccess($frag);
             }
         }
