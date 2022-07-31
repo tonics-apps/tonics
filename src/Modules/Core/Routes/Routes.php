@@ -20,7 +20,7 @@ use App\Modules\Core\RequestInterceptor\ModuleAccess;
 use App\Modules\Core\RequestInterceptor\PluginAccess;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\RequestInterceptor\StartSession;
-use App\Modules\Core\RequestInterceptor\ThemeAccess;
+use App\Modules\Core\RequestInterceptor\AppAccess;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait Routes
@@ -111,12 +111,12 @@ trait Routes
                     #---------------------------------
                 # Apps Routes...
             #---------------------------------
-            $route->group('/themes', function (Route $route) {
+            $route->group('/apps', function (Route $route) {
                 $route->get('', [AppsController::class, 'index'], alias: 'index');
-                $route->get(':theme/install', [AppsController::class, 'install'], alias: 'install');
-                $route->get(':theme/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
+                $route->get(':app/install', [AppsController::class, 'install'], alias: 'install');
+                $route->get(':app/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
                 $route->match(['post', 'delete'], ':theme/delete', [AppsController::class, 'delete']);
-            }, [ThemeAccess::class], alias: 'themes');
+            }, [AppAccess::class], alias: 'apps');
 
         }, [StartSession::class, CSRFGuard::class, Authenticated::class]);
 

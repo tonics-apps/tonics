@@ -61,46 +61,6 @@ if (document.querySelector(parent)) {
             }
         }
     });
-
-    new myModule.Draggables(parent)
-        .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
-        .onDragDrop(function (element, self) {
-            // to the right
-            let elementDragged = self.getDragging().closest(fieldChild);
-
-            let dragToTheBottom = document.querySelector(parent).querySelector('.drag-to-the-bottom');
-            if (bottom && dragToTheBottom) {
-                swapNodes(elementDragged, dragToTheBottom, self.draggingOriginalRect);
-                dragToTheBottom.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
-                bottom = false;
-            }
-
-            let dragToTheTop = document.querySelector(parent).querySelector('.drag-to-the-top');
-            if (top && dragToTheTop) {
-                swapNodes(elementDragged, dragToTheTop, self.draggingOriginalRect);
-                dragToTheTop.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
-                top = false;
-            }
-            // setListDataArray();
-        }).onDragTop((element) => {
-        if (sensitivity++ >= sensitivityMax) {
-            let dragToTheTop = element.previousElementSibling;
-            if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')) {
-                top = true;
-                dragToTheTop.classList.add('drag-to-the-top');
-            }
-            sensitivity = 0;
-        }
-    }).onDragBottom((element) => {
-        if (sensitivity++ >= sensitivityMax) {
-            let dragToTheBottom = element.nextElementSibling;
-            if (dragToTheBottom && dragToTheBottom.classList.contains('menu-arranger-li')) {
-                bottom = true;
-                dragToTheBottom.classList.add('drag-to-the-bottom');
-            }
-            sensitivity = 0;
-        }
-    }).run();
 }
 
 if (fieldSelectionContainer) {

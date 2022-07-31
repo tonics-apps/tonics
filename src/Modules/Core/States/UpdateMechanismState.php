@@ -19,12 +19,10 @@ class UpdateMechanismState extends SimpleState
     const InitialState = 'InitialState';
 
     const ModuleUpdateState = 'ModuleUpdateState';
-    const PluginUpdateState = 'PluginUpdateState';
-    const ThemeUpdateState = 'ThemeUpdateState';
+    const AppUpdateState = 'AppUpdateState';
 
     const DownloadModulesState = 'DownloadModulesState';
-    const DownloadPluginsState = 'DownloadPluginsState';
-    const DownloadThemesState = 'DownloadThemesState';
+    const DownloadAppsState = 'DownloadPluginsState';
 
     const ExamineCollation = 'ExamineCollation';
 
@@ -34,14 +32,12 @@ class UpdateMechanismState extends SimpleState
 
     public static array $TYPES = [
         'module' => self::ModuleUpdateState,
-        'plugin' => self::PluginUpdateState,
-        'theme' => self::ThemeUpdateState
+        'app' => self::AppUpdateState,
     ];
 
     public static array $DOWNLOADER = [
         'module' => self::DownloadModulesState,
-        'plugin' => self::DownloadPluginsState,
-        'theme' => self::DownloadThemesState
+        'app' => self::DownloadAppsState,
     ];
 
     private string $discoveredFrom;
@@ -131,25 +127,13 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function PluginUpdateState()
+    public function AppUpdateState()
     {
         $tonicsHelper = helper();
-        # Discover Plugin Releases...
-        $plugins = $tonicsHelper->getAppsActivator([PluginConfig::class]);
-        helper()->sendMsg(self::getCurrentState(), "Discovering Plugin Update URLS");
-        $this->discover('plugin', $plugins);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function ThemeUpdateState()
-    {
-        $tonicsHelper = helper();
-        # Discover Theme Releases...
-        $themes = $tonicsHelper->getAppsActivator([ModuleConfig::class], $tonicsHelper->getAllThemesDirectory());
-        helper()->sendMsg(self::getCurrentState(), "Discovering Theme Update URLS");
-        $this->discover('theme', $themes);
+        # Discover Applications Releases...
+        $appsActivators = $tonicsHelper->getAppsActivator([PluginConfig::class]);
+        helper()->sendMsg(self::getCurrentState(), "Discovering Apps Update URLS");
+        $this->discover('app', $appsActivators);
     }
 
     /**
@@ -174,26 +158,19 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
+    public function DownloadAppsState()
+    {
+        $this->downloadExtractCopy('app', DriveConfig::getTempPathForPlugins(), AppConfig::getAppsPath());
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function DownloadModulesState()
     {
-        $this->downloadExtractCopy('module', DriveConfig::getTempPathForPlugins(), AppConfig::getPluginsPath());
+        $this->downloadExtractCopy('module', DriveConfig::getTempPathForPlugins(), AppConfig::getModulesPath());
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function DownloadPluginsState()
-    {
-        $this->downloadExtractCopy('plugin', DriveConfig::getTempPathForPlugins(), AppConfig::getPluginsPath());
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function DownloadThemesState()
-    {
-        $this->downloadExtractCopy('theme', DriveConfig::getTempPathForThemes(), AppConfig::getThemesPath());
-    }
 
     /**
      * @throws \Exception

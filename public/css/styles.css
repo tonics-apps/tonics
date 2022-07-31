@@ -28,11 +28,6 @@
     height: 10px;
 }
 
-:focus {
-    outline: thin solid grey;
-    outline-offset: .18593rem
-}
-
 /* IBMPlexSans regular */
 @font-face {
     font-family: "IBMPlexSans-Regular";
@@ -426,7 +421,8 @@ fieldset {
 }
 
 .admin-post-widget {
-    padding: 0 6em;
+    /*IF VIEWPORT IS GREATER THAN 1200PX, USE 6EM, IF IT IS LOWER THAN 1200 USE 1EM*/
+    padding: 0 clamp( (1em), (100vw - 1200px )*1000, 6em);
 }
 
 .admin-widget-item {

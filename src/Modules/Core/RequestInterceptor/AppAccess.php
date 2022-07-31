@@ -8,7 +8,7 @@ use App\Modules\Core\Library\SimpleState;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 
-class PluginAccess implements TonicsRouterRequestInterceptorInterface
+class AppAccess implements TonicsRouterRequestInterceptorInterface
 {
 
     /**
@@ -17,7 +17,7 @@ class PluginAccess implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::CAN_ACCESS_PLUGIN) === false){
+        if (UserData::canAccess(Roles::CAN_ACCESS_THEME) === false){
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

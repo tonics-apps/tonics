@@ -35,11 +35,8 @@ class OnAdminMenu implements EventInterface
         const FieldMenuID = 1200;
         const LicenseMenuID = 1300;
 
-    const ExtensionMenuID = 1400;
-        const SettingsMenuID = 1500;
-        const ThemesMenuID = 1600;
-        const PluginMenuID = 1700;
-        const ModuleMenuID = 1800;
+    const AppsMenuID = 1400;
+    const SettingsMenuID = 1500;
 
     const ImportsMenuID = 1900;
 

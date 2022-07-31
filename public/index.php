@@ -7,8 +7,6 @@
 
 use Ahc\Env\Loader;
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Library\Tables;
-use App\Themes\NinetySeven\Library\PostLoop;
 
 define('APP_ROOT', dirname(__DIR__));
 

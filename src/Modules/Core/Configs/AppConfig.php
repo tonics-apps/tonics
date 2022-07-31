@@ -255,29 +255,15 @@ class AppConfig
 
     /**
      * If
-     * - `true` then, all plugins should be auto-updated.
+     * - `true` then, all apps should be auto-updated.
      *  - false, nothing should be auto_updated.
      * - array, then only the array items should be auto_updated
      *
      * @return array|bool
      */
-    public static function getAutoUpdatePlugins(): array|bool
+    public static function getAutoUpdateApps(): array|bool
     {
-        $update = env('AUTO_UPDATE_PLUGINS', 'NULL');
-        return self::handleAutoUpdateReturn($update);
-    }
-
-    /**
-     * If
-     * - `true` then, all themes should be auto-updated.
-     *  - false, nothing should be auto_updated.
-     * - array, then only the array items should be auto_updated
-     *
-     * @return array|bool
-     */
-    public static function getAutoUpdateThemes(): array|bool
-    {
-        $update = env('AUTO_UPDATE_THEMES', 'NULL');
+        $update = env('AUTO_UPDATE_APPS', 'NULL');
         return self::handleAutoUpdateReturn($update);
     }
 

@@ -14,7 +14,7 @@ use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
  * <br>
  * `php bin/console --auto-update`
  *
- * This would check the env file to see if all items should be auto updated or some items, this works for plugins, themes and modules
+ * This would check the env file to see if all items should be auto updated or some items, this works for modules and apps
  */
 class AutoUpdate implements ConsoleCommand
 {
@@ -32,31 +32,23 @@ class AutoUpdate implements ConsoleCommand
      */
     public function run(array $commandOptions): void
     {
-        $moduleUpdates = AppConfig::getAutoUpdateModules();
-        $pluginUpdates = AppConfig::getAutoUpdatePlugins();
-        $themeUpdates = AppConfig::getAutoUpdateThemes();
+        $autoUpdateModules = AppConfig::getAutoUpdateModules();
+        $autoUpdateApps = AppConfig::getAutoUpdateApps();
 
         $updateMechanismState = new UpdateMechanismState();
 
-        if ($moduleUpdates === true || is_array($moduleUpdates)) {
+        if ($autoUpdateModules === true || is_array($autoUpdateModules)) {
             $this->infoMessage("Modules Update Initializing...");
-            $moduleUpdates = ($moduleUpdates === true) ? [] : $moduleUpdates;
-            $updateMechanismState->reset()->setUpdates($moduleUpdates)->setTypes(['module'])->setAction('update')
+            $autoUpdateModules = ($autoUpdateModules === true) ? [] : $autoUpdateModules;
+            $updateMechanismState->reset()->setUpdates($autoUpdateModules)->setTypes(['module'])->setAction('update')
                 ->runStates(false);
         }
 
 
-        if ($pluginUpdates === true || is_array($pluginUpdates)) {
-            $this->infoMessage("Plugins Update Initializing...");
-            $pluginUpdates = ($pluginUpdates === true) ? [] : $pluginUpdates;
-            $updateMechanismState->reset()->setUpdates($pluginUpdates)->setTypes(['plugin'])->setAction('update')
-                ->runStates(false);
-        }
-
-        if ($themeUpdates === true || is_array($themeUpdates)) {
-            $this->infoMessage("Themes Update Initializing...");
-            $themeUpdates = ($themeUpdates === true) ? [] : $themeUpdates;
-            $updateMechanismState->reset()->setUpdates($themeUpdates)->setTypes(['theme'])->setAction('update')
+        if ($autoUpdateApps === true || is_array($autoUpdateApps)) {
+            $this->infoMessage("Apps Update Initializing...");
+            $autoUpdateApps = ($autoUpdateApps === true) ? [] : $autoUpdateApps;
+            $updateMechanismState->reset()->setUpdates($autoUpdateApps)->setTypes(['app'])->setAction('update')
                 ->runStates(false);
         }
 

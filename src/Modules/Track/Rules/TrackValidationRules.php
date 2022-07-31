@@ -68,7 +68,7 @@ trait TrackValidationRules
             'artist_name' => ['required', 'string'],
             'artist_bio' => ['string'],
             'artist_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('artist_slug', '')]
+                $slugUnique => input()->fromPost()->retrieve('artist_id', '')]
             ],
             'image_url' => ['string']
         ];
@@ -99,7 +99,7 @@ trait TrackValidationRules
             'genre_name' => ['required', 'string'],
             'genre_description' => ['string'],
             'genre_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('genre_slug', '')]
+                $slugUnique => input()->fromPost()->retrieve('genre_id', '')]
             ]
         ];
     }

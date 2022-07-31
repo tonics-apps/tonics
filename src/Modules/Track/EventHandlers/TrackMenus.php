@@ -32,8 +32,8 @@ class TrackMenus implements HandlerInterface
                     ->addMenu(OnAdminMenu::GenreMenuID + 2, 'All Genres', helper()->getIcon('archive', 'icon:admin'), route('genres.index'), parent: OnAdminMenu::GenreMenuID)
 
                 ->addMenu(OnAdminMenu::ArtistMenuID, 'Artist', helper()->getIcon('user-solid-circle', 'icon:admin'), route('artists.create'), parent:  OnAdminMenu::MediaMenuID)
-                    ->addMenu(OnAdminMenu::ArtistMenuID + 1, 'All Artist', helper()->getIcon('users', 'icon:admin'), route('artists.index'), parent: OnAdminMenu::ArtistMenuID)
-                    ->addMenu(OnAdminMenu::ArtistMenuID + 2, 'New Artist', helper()->getIcon('plus', 'icon:admin'), route('artists.create'), parent: OnAdminMenu::ArtistMenuID);
+                ->addMenu(OnAdminMenu::ArtistMenuID + 1, 'New Artist', helper()->getIcon('plus', 'icon:admin'), route('artists.create'), parent: OnAdminMenu::ArtistMenuID)
+                ->addMenu(OnAdminMenu::ArtistMenuID + 2, 'All Artist', helper()->getIcon('users', 'icon:admin'), route('artists.index'), parent: OnAdminMenu::ArtistMenuID);
         });
     }
 }
