@@ -338,8 +338,8 @@ SQL, $f);
         if (isset($searchResult['data']) && is_array($searchResult['data'])) {
             foreach ($searchResult['data'] as $file) {
                 if ($file->filepath === $filePath && $file->filename === $searchData['query']) {
-                    $file->urlPreview = "/serve/{$file->drive_unique_id}?render";
-                    $file->urlDownload = "/serve/{$file->drive_unique_id}";
+                    $file->urlPreview = DriveConfig::serveFilePath() . "$file->drive_unique_id?render";
+                    $file->urlDownload = DriveConfig::serveFilePath() . "$file->drive_unique_id";
                     return $file;
                 }
             }
@@ -853,7 +853,7 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
         $fileSecurity = json_decode($mainFile->security);
         $path = $fileInfo[array_key_last($fileInfo)];
         $fullFilePath = DriveConfig::getPrivatePath() . '/' . $path->filepath;
-        $aliasPath = '/download/' . $path->filepath;
+        $aliasPath = DriveConfig::xAccelDownloadFilePath() . $path->filepath;
 
         return [
             'mainFile' => $mainFile,

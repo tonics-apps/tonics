@@ -1,0 +1,139 @@
+[[import("Apps::NinetySeven/Views/Block/base")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[b('post_query_callback')
+<li tabindex="0"
+    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer position:relative justify-content:flex-start">
+    <div class="width:100% border-width:default border:black color:black height:100% d:flex flex-d:column">
+        <div class="post-thumbnail">
+            [[if("v[QUERY_MODE.post_query.image_url]")
+            [[- <img loading="lazy" decoding="async" src="[[v('QUERY_MODE.post_query.image_url')]]" class=""
+                     alt="[[v('QUERY_MODE.post_query.post_title')]]"> -]]
+            ]]
+        </div>
+        <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
+            <h4 class="margin-left:0">[[_v('QUERY_MODE.post_query.post_title')]]</h4>
+            <p style="max-width:unset;">[[v('QUERY_MODE.post_query._og_description')]]</p>
+        </div>
+        <div class="form-group d:flex flex-gap:small padding:default margin-top:auto">
+            <a title="[[v('QUERY_MODE.post_query.post_title')]]" href="[[v('QUERY_MODE.post_query._full_link')]]"
+               class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default
+                                margin-top:0 cursor:pointer">Read More</a>
+        </div>
+    </div>
+</li>
+]]
+
+[[b('NinetySevenPageSingleEntry')
+
+    [[- Loads MarkUp -]]
+    [[trigger_block('BaseMarkup')]]
+
+    [[trigger_block('reusable_hooks')]]
+
+    [[hook_into('in_head')
+        <meta property="og:type" content="website">
+    ]]
+    [[hook_into('in_head_title')[[v('Data.seo_title .. Data.page_title')]] ]]
+    [[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.page_title")]] ]]
+
+    [[hook_into('in_main')
+        <section class="section color:black owl text-align:center padding:default">
+            <div class="owl header-wrapper">
+                <style>
+                    .header-wrapper > .header-title {
+                        font-size: clamp(2.05rem, 2.04rem + 5.07vw, 4.65rem);
+                        max-width: 20ch;
+                        margin-inline: auto;
+                    }
+
+                    .header-wrapper > .header-description {
+                        font-size: clamp(1.56rem, 1.39rem + 0.85vw, 1.7rem);
+                        font-family: inherit;
+                        max-width: 30ch;
+                        margin-inline: auto;
+                        font-style: italic;
+                    }
+                </style>
+                [[add_hook('in_main_header_wrapper')]]
+                <div></div>
+            </div>
+            [[- sfc meaning search form container -]]
+            <div>
+                <form style="padding: 0 6.5em;" action="#sfc" class="d:flex justify-content:center owl" method="GET">
+                    <div class="d:flex flex-d:column justify-content:center owl flex-wrap:wrap width:100%">
+                        <div class="d:flex justify-content:center flex-wrap:wrap">
+                            <div class="form-group flex:auto">
+                                <select class="default-selector border-width:default border:black color:black" name="post_cat">
+                                    <option value="" selected >All Category</option>
+                                    [[add_hook('post_cat_filter_option')]]
+                                    <template data-hookname="in_site_header_section"></template>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d:flex flex-wrap:wrap flex-d:row width:100% margin-top:0">
+                            <input style="width: 70%;" type="search" class="flex:auto border-width:default border:black color:black" name="query"
+                                   aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter" value="[[v('URL.PARAMS.query')]]">
+                            <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);"
+                                    class="save-menu-builder-changes text-align:center bg:transparent border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-3">
+                                Filter
+                            </button>
+                        </div>
+                        <div></div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        [[SQL_BLOCK('reusable_sql')
+            [[FROM('post_categories')]]
+            [[JOIN('posts.post_id', 'post_categories.fk_post_id')]]
+            [[JOIN('categories.cat_id', 'post_categories.fk_cat_id')]]
+        ]]
+
+        [[SQL_BLOCK('reusable_search_sql')
+            [[OP('=')]] [[PARAM('1')]]
+            [[if('v[URL.PARAMS.post_cat] !== block[empty]')
+                [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_name')]] ]] [[OP('=')]] [[PARAM('v[URL.PARAMS.post_cat]')]]
+            ]]
+            [[if('v[URL.PARAMS.query] !== block[empty]')
+                [[OP('AND')]]  [[SELECT('posts') [[COLS('PICK', 'post_title')]] ]]
+                [[KEYWORD('LIKE')]] [[SQLFUNC('CONCAT', "%,v[URL.PARAMS.query],%")]]
+            ]]
+        ]]
+
+        [[SQL('post_query_table_count')
+            [[SQLFUNC('COUNT', "*")]]
+            [[REUSE_SQL('reusable_sql')]]
+            [[WHERE('posts.post_status')
+                [[REUSE_SQL('reusable_search_sql')]]
+            ]]
+        ]]
+
+        [[SQL('post_query_get_row_with_offset_limit')
+            [[SELECT('post_categories') [[COLS('ALL')]] ]]
+            [[SELECT('posts') [[COLS('ALL')]] [[COL_AS('slug_id', 'post_slug_id')]] ]]
+            [[SELECT('categories') [[COLS('ALL')]] ]]
+            [[REUSE_SQL('reusable_sql')]]
+            [[WHERE('posts.post_status')
+                [[REUSE_SQL('reusable_search_sql')]]
+                [[ORDER('posts.created_at', 'DESC')]]
+                [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
+                [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
+            ]]
+        ]]
+
+        <ul style="margin: 0 auto; padding: 0 6.5em;" id="sfc"
+            class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+            [[Query('post_query', 'App\Apps\NinetySeven\Library\PostLoop', 'post_query_callback')]]
+        </ul>
+
+       [[_use('pagination')]]
+    ]]
+
+    [[hook_into('in_main_header_wrapper')
+    <h1 class="header-title margin-top:0">[[v('InputText_header_title_text.Value')]]</h1>
+    <p class="header-description">[[v('InputText_header_description_text.Value')]]</p>
+    ]]
+
+]]

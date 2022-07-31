@@ -33,7 +33,7 @@ class ThemeSystem extends SimpleState
      */
     public function __construct(ModuleConfig $themeToInstall)
     {
-        $theme = helper()->getPluginActivators([ModuleConfig::class], helper()->getAllThemesDirectory());
+        $theme = helper()->getAppsActivator([ModuleConfig::class], helper()->getAllThemesDirectory());
         if (!empty($theme)){
             $theme = $theme[array_key_first($theme)];
             $this->currentInstalledTheme = $theme;

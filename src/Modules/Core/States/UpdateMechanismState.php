@@ -135,7 +135,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         # Discover Plugin Releases...
-        $plugins = $tonicsHelper->getPluginActivators([PluginConfig::class]);
+        $plugins = $tonicsHelper->getAppsActivator([PluginConfig::class]);
         helper()->sendMsg(self::getCurrentState(), "Discovering Plugin Update URLS");
         $this->discover('plugin', $plugins);
     }
@@ -147,7 +147,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         # Discover Theme Releases...
-        $themes = $tonicsHelper->getPluginActivators([ModuleConfig::class], $tonicsHelper->getAllThemesDirectory());
+        $themes = $tonicsHelper->getAppsActivator([ModuleConfig::class], $tonicsHelper->getAllThemesDirectory());
         helper()->sendMsg(self::getCurrentState(), "Discovering Theme Update URLS");
         $this->discover('theme', $themes);
     }

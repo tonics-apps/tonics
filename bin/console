@@ -38,9 +38,13 @@ if ($args->passes()) {
     #
     define('APP_ROOT', dirname(__DIR__));
     (new Loader)->load(APP_ROOT . '/.env');
-    AppConfig::initLoaderMinimal();
-    AppConfig::includeHelpers();
-    AppConfig::initLoaderOthers();
+    try {
+        AppConfig::initLoaderMinimal();
+        AppConfig::includeHelpers();
+        AppConfig::initLoaderOthers();
+    } catch (Exception $e) {
+        echo "Error constructing Console Constructor";
+    }
 
     #
     # INIT Essential COMMANDS

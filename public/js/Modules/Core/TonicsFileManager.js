@@ -4735,7 +4735,7 @@ var LocalDiskDriveAPI;
   LocalDiskDriveAPI2[LocalDiskDriveAPI2["DeleteFiles"] = API_PREFIX + "files"] = "DeleteFiles";
   LocalDiskDriveAPI2[LocalDiskDriveAPI2["PostFiles"] = API_PREFIX + "files"] = "PostFiles";
   LocalDiskDriveAPI2[LocalDiskDriveAPI2["RenameFile"] = API_PREFIX + "files/rename"] = "RenameFile";
-  LocalDiskDriveAPI2["ServeFile"] = "/serve/";
+  LocalDiskDriveAPI2["ServeFile"] = "/serve_file_path_987654321/";
   LocalDiskDriveAPI2[LocalDiskDriveAPI2["CreateFolder"] = API_PREFIX + "files/create_folder"] = "CreateFolder";
   LocalDiskDriveAPI2[LocalDiskDriveAPI2["CancelUpload"] = API_PREFIX + "files/cancel_create"] = "CancelUpload";
 })(LocalDiskDriveAPI || (LocalDiskDriveAPI = {}));

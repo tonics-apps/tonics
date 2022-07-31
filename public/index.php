@@ -31,6 +31,5 @@ if (AppConfig::isProduction() === false){
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING
 #-------------------------------------------
-//dd(  date('P'), date("O"));
 AppConfig::initLoaderMinimal(false)->init();
 AppConfig::initLoaderOthers(false)->BootDaBoot();

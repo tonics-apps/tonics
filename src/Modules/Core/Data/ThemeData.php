@@ -89,7 +89,7 @@ HTML;
      */
     public function getThemeObject(string $themeName)
     {
-        $themeFullClass = "App\Themes\\$themeName\\{$themeName}Activator";
+        $themeFullClass = "App\Apps\\$themeName\\{$themeName}Activator";
         $implements = class_implements($themeFullClass);
         if (is_array($implements) && key_exists(ModuleConfig::class, $implements)) {
             return new $themeFullClass;

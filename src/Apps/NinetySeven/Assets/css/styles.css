@@ -1,0 +1,1191 @@
+/*CHANGE THIS WITH ESBUILD*/
+@import "../../../../../public/css/base/utilities.css";
+
+:root {
+    scrollbar-color: #9e9e9e !important;
+    scrollbar-width: 7px !important;
+    box-sizing: border-box;
+    --global-font-family: 'IBMPlexSans-Light', "Times New Roman", serif;
+    --global-font-line-height: 1.5;
+    --theme-name: 'NinetySeven';
+    --color-quote-border: #000;
+    --color-quote-citation: #6c7781;
+    --assetPath: 'serve_app_file_path_987654321';
+}
+
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+    background-color: black;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #9e9e9e !important;
+    outline: 1px solid black !important;
+    border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: #e7e7e7;
+    height: 10px;
+}
+
+:focus {
+    outline: thin solid grey;
+    outline-offset: .18593rem
+}
+
+/* IBMPlexSans light */
+@font-face {
+    font-family: "IBMPlexSans-Light";
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.eot");
+    /* IE9 Compat Modes */
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* IBMPlexSans regular */
+@font-face {
+    font-family: "IBMPlexSans-Regular";
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.eot");
+    /* IE9 Compat Modes */
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* IBMPlexSans italic */
+
+@font-face {
+    font-family: "IBMPlexSans-Italic";
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.eot");
+    /* IE9 Compat Modes */
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* IBMPlexSans bold */
+
+@font-face {
+    font-family: "IBMPlexSans-Bold";
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.eot");
+    /* IE9 Compat Modes */
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+html {
+    font-size: 100%;
+    scroll-behavior: smooth;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+input:focus {
+    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
+    outline: 2px solid #727272;
+}
+
+input.placeholder-color\:gray::placeholder {
+    color: darkgray;
+    font-size: 80%;
+}
+
+a:focus {
+    outline: dotted 2px;
+    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6, p, .main-header, .entry-content>ul>li, .entry-content>ol>li {
+    /* font-size: clamp(var(--font-min), var(--font-pref-val), var(--font-max)); */
+    font-size: max(var(--font-min), min(var(--font-pref-val), var(--font-max)));
+    margin: auto;
+    font-weight: 400;
+}
+
+a, abbr, acronym, address, applet, article, aside, big, blockquote, body, caption, cite, code, dd, del, details,
+dfn, div, dl, dt, em, fieldset, figcaption, figure, font, footer,
+form, hgroup, html, iframe, ins, kbd, label, legend, li, menu, nav, object, ol, p,
+pre, q, s, samp, section, small, span, strike, strong, sub, sup, table,
+tbody, td, tfoot, th, thead, tr, tt, ul, var {
+    font-family: var(--global-font-family);
+    line-height: var(--global-font-line-height);
+    font-style: inherit;
+    font-weight: inherit;
+}
+
+h1, h2, h3, h4, h5, h6, header {
+    font-family: var(--global-font-family);
+    clear: both;
+    line-height: 1.4;
+    letter-spacing: -0.04em;
+}
+
+h1, .main-header {
+    --font-min: calc(1rem * 2.5);
+    --font-pref-val: 4vw;
+    --font-max: calc(1rem * 3.2);
+}
+
+h2 {
+    --font-min: calc(1rem * 2);
+    --font-pref-val: 3.5vw;
+    --font-max: calc(1rem * 2.2);
+}
+
+h3 {
+    --font-min: calc(1rem * 1.8);
+    --font-pref-val: 3vw;
+    --font-max: calc(1rem * 2);
+}
+
+h4 {
+    --font-min: calc(1rem * 1.6);
+    --font-pref-val: 2.5vw;
+    --font-max: calc(1rem * 1.7);
+}
+
+h5 {
+    --font-min: calc(1rem * 1.2);
+    --font-pref-val: 2vw;
+    --font-max: calc(1rem * 1.4);
+}
+
+p {
+    --font-min: 1rem;
+    --font-pref-val: 2vw;
+    --font-max: 1.1rem;
+    line-height: 1.5;
+}
+
+li {
+    --font-min: 1rem;
+    --font-pref-val: 2vw;
+    --font-max: 1.1rem;
+    line-height: 1.5;
+}
+
+h6 {
+    --font-min: calc(1rem * 1.2);
+    --font-pref-val: 1.7vw;
+    --font-max: calc(1rem * 1.4);
+}
+
+pre {
+    background: #f7f7f7;
+    border-top: 10px solid #000000;
+    max-height: 900px;
+    overflow: auto;
+    margin: 0 auto;
+    padding: 1.5em;
+    border-radius: 4px;
+    border-left-style: double;
+    border-left-width: 5px;
+    border-right-style: double;
+    border-right-width: 5px;
+    border-bottom-style: double;
+    border-bottom-width: 5px;
+    overscroll-behavior-y: contain;
+    scroll-snap-type: y proximity;
+    width: 90%;
+    white-space: pre-wrap;
+}
+
+code {
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+}
+
+pre code {
+    display: block;
+    padding: 1em;
+    overflow-x: auto;
+    overflow-y: hidden;
+    color: #000000;
+    white-space: pre-wrap;
+}
+
+.screen-reader-text {
+    clip: rect(1px, 1px, 1px, 1px);
+    position: absolute !important;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    z-index: 100000;
+}
+
+.screen-reader-text:hover,
+.screen-reader-text:active,
+.screen-reader-text:focus {
+    background-color: #f1f1f1;
+    border-radius: 3px;
+    box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+    clip: auto !important;
+    color: #21759b;
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    height: auto;
+    left: 5px;
+    line-height: normal;
+    padding: 15px 23px 14px;
+    text-decoration: none;
+    top: 5px;
+    width: auto;
+}
+
+[class^="text"] {
+    font-family: var(--global-font-family);
+}
+
+.icon {
+    display: inline-block;
+    /* font-size: 24px; */
+    transform: scale(1.5);
+    /*margin-right: 0.5em;*/
+    width: 2em;
+    height: 2em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+    align-self: center;
+}
+
+.icon\:audio {
+    display: inline-block;
+    transform: scale(1);
+    /*margin-right: 0.5em;*/
+    width: 2em;
+    height: 2em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+    align-self: center;
+}
+
+.icon\:audio-x-2 {
+    display: inline-block;
+    font-size: 1.3em;
+    width: 2em;
+    height: 2em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+    align-self: center;
+}
+
+.toggle-on .icon\:admin {
+    width: 1.4em;
+    background: black;
+    border: 1px solid #000000;
+    border-radius: 5px;
+}
+
+.toggle-on .icon\:admin use {
+    color: white;
+}
+
+.icon\:admin {
+    display: inline-block;
+    transform: scale(1.5);
+    margin-right: 0.5em;
+    width: 1.3em;
+    height: 2em;
+    stroke-width: 0;
+    stroke: currentColor;
+    fill: currentColor;
+    align-self: center;
+}
+
+.site-logo {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    padding-right: 2em;
+}
+
+.site-header {
+    flex-direction: row;
+    position: relative;
+    box-shadow: 0px 4px 4px #3f51b561, 0px 0px 0px 0px rgb(45 35 66 / 30%), inset 0px 0px 0px #89464833;
+}
+
+.site-header\:admin {
+    flex-direction: row;
+    position: relative;
+    box-shadow: 1px 1px 0px #000000, 0px 0px 0px 0px rgb(45 35 66 / 30%), inset 0px 0px 0px #89464833;
+}
+
+.menu-block > .child-menu {
+    position: absolute;
+    padding: 16px;
+    margin-top: 70px;
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    justify-content: center;
+    border-top: 1px solid;
+    flex-wrap: wrap;
+}
+
+.menu-block:last-child {
+    margin-right: 20px;
+}
+
+.site-nav {
+    overflow: auto;
+}
+
+main > * + * {
+    margin-top: clamp(1.5rem, 1.5rem + 1.5vw, 2.5rem);
+}
+
+/**
+SET THE main element to flex:1 so, it can push the footer down (sit at the bottom)
+ */
+.body-sticky-footer {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.footer-area {
+    box-shadow: 0px -2px 0px 0 #00000061, 0 2px 4px 0 rgb(93 100 148 / 20%);
+    text-align: center;
+}
+
+[type=date], [type=email], [type=number], [type=url], [type=password], [type=search], [type=tel], [type=text], [type=date], [type=file], [type="datetime-local"], textarea {
+    width: 100%;
+    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
+    line-height: 1.25;
+    font-family: inherit;
+    appearance: none;
+    padding: 14px;
+    border-radius: 4px;
+    /*border-width: 0.2px;*/
+    color: #3E3E3E;
+    /*background: rgba(241, 241, 241, 0.7);*/
+}
+
+fieldset {
+    padding-block-end: 2em;
+    min-inline-size: min-content;
+    border-width: clamp(0.2rem, 2vw, 0.1rem);
+    border-style: groove;
+    margin: 0 auto;
+}
+
+.field-label {
+    font-size: clamp(1.3rem, (800px - 100vw) * 1000, 1.1rem);
+    line-height: 1.38889;
+}
+
+.form-group.row {
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-error > li {
+    margin: 1rem 0;
+    list-style: none;
+    font-size: 1rem;
+    font-size: 80%;
+}
+
+.list-error-span {
+    background-color: #bf2f02;
+    color: white;
+    padding: 5px;
+    margin-right: 1rem;
+    margin-left: 1rem;
+    white-space: nowrap;
+    border-radius: 20%;
+}
+
+.list-info-span {
+    background-color: #000000;
+    color: white;
+    padding: 5px;
+    margin-right: 1rem;
+    margin-left: 1rem;
+    white-space: nowrap;
+    border-radius: 20%;
+}
+
+.show-password {
+    position: absolute;
+    border: none;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    width: clamp(20%, (800px - 100vw) * 1000, 30%);
+}
+
+.show-password:focus {
+    outline: red dotted 2px;
+    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
+}
+
+
+/*--------------------------------------------------------------
+                ADMIN DASHBOARD SPECIFIC
+--------------------------------------------------------------*/
+.selected-file {
+    background: #c2dbffa3;
+}
+
+.no-text-highlight {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.text-highlight {
+    -webkit-touch-callout: all;
+    -webkit-user-select: all;
+    user-select: all;
+}
+
+.admin-widget-item {
+    min-height: 400px;
+    flex: 1 1 clamp(clamp(clamp((100% / 4 - 2rem), (800px - 100vw) * 1000, 100% - 2rem), (1200px - 100vw) * 1000, 100% / 2 - 2rem), (1800px - 100vw) * 1000, 100% / 3 - 2rem);
+    position: relative;
+}
+
+.admin-widget-item-for-listing {
+    min-height: 300px;
+    flex: 1 1 clamp(clamp(clamp((100% / 4 - 2rem), (800px - 100vw) * 1000, 100% - 2rem), (1200px - 100vw) * 1000, 100% / 2 - 2rem), (1800px - 100vw) * 1000, 100% / 3 - 2rem);
+    position: relative;
+    transition: box-shadow .15s ease, transform .15s ease;
+    will-change: box-shadow, transform;
+}
+
+.admin-widget-item-for-listing:active {
+    box-shadow: inset -4px 2px 5px #3f51b51c;
+    transform: translateY(2px);
+}
+
+.admin-widget-item > .widget-title {
+    position: absolute;
+    top: -35px;
+    left: 20px;
+    padding: clamp(1em, 2vw, 2em) clamp(1em, 2.5vw, 3em);
+}
+
+.admin-widget-information {
+    background: #9e9e9e1a;
+    padding: 2em;
+}
+
+.draggable-start {
+    box-shadow: 6px 6px 2px #ffc107, 0px 0px 4px 0px rgb(45 35 66 / 30%), inset 0px -4px 0px #c5c5c5;
+    opacity: .666;
+    cursor: grab;
+}
+
+.draggable-transition {
+    transition: transform ease-in 0.3s;
+}
+
+.draggable-animation {
+    transition: transform 300ms ease 0s;
+}
+
+/* MENU ARRANGER EXPERIENCE */
+.menu-arranger-li ul {
+    list-style: none;
+    margin-left: 4em;
+}
+
+/* SEARCH EXPERIENCE */
+.filter-search-admin {
+    background: #f2f2f5;
+    width: clamp(40%, (800px - 100vw) * 1000, 70%);
+}
+
+.selector {
+    width: 100%;
+    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
+    line-height: 1.25;
+    font-family: inherit;
+    padding: 14px;
+}
+
+
+/*--------------------------------------------------------------
+                MODULE --- MENU LINK
+--------------------------------------------------------------*/
+
+.menu-box {
+    display: flex;
+    flex-direction: row;
+    padding: 10px clamp(20px, 2vw, 25px);
+    align-items: center;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.menu-box > button {
+    cursor: pointer;
+}
+
+.menu-box > button > .icon {
+    display: block;
+    height: 1.2em;
+}
+
+/*--------------------------------------------------------------
+                MODULE --- CART
+--------------------------------------------------------------*/
+.cart > * + * {
+    margin-top: clamp(1rem, 1rem + 1.5vw, 2rem);
+}
+
+.cart-button > .cart {
+    right: 0;
+    overflow: auto;
+    flex-wrap: nowrap;
+    height: 800px;
+}
+
+.cb-counter {
+    vertical-align: top;
+}
+
+.cb-counter-label {
+    background-color: #ff5722;
+    color: white;
+    padding: 5px;
+    vertical-align: middle;
+    white-space: nowrap;
+    border-radius: 50px;
+}
+
+.icon.tonics-cart {
+    stroke-width: 1px;
+    width: 2.5em;
+}
+
+.cart-header {
+    font-size: max(2rem, min(2.5vw, 2.5rem));
+    padding: 10px clamp(20px, 2vw, 25px);
+}
+
+.cart-item > img {
+    width: 80px;
+    height: 100px;
+    flex: 20%;
+}
+
+.cart-detail {
+    /* display: flex; */
+    /* flex-direction: column; */
+    flex: 70%;
+}
+
+.cart-detail > * + * {
+    display: block;
+    margin-top: clamp(1.5rem, 1rem + 1vw, 1rem);
+}
+
+.cart-width {
+    width: clamp(50%, (800px - 100vw) * 1000, 80%);
+}
+
+/*--------------------------------------------------------------
+                        ANIMATIONS
+-        -------------------------------------------------------------*/
+.swing-in-top-fwd {
+    -webkit-animation: swing-in-top-fwd 0.5s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
+    animation: swing-in-top-fwd 0.5s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
+}
+
+.swing-out-top-fwd {
+    -webkit-animation: swing-out-top-fwd 0.55s cubic-bezier(0.600, -0.280, 0.735, 0.045) both;
+    animation: swing-out-top-fwd 0.55s cubic-bezier(0.600, -0.280, 0.735, 0.045) both;
+}
+
+.jello-diagonal-1 {
+    -webkit-animation: jello-diagonal-1 0.8s both;
+    animation: jello-diagonal-1 0.8s both;
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2021-1-23 1:13:16
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation swing-in-top-fwd
+ * ----------------------------------------
+ */
+@-webkit-keyframes swing-in-top-fwd {
+    0% {
+        -webkit-transform: rotateX(-100deg);
+        transform: rotateX(-100deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+}
+
+@keyframes swing-in-top-fwd {
+    0% {
+        -webkit-transform: rotateX(-100deg);
+        transform: rotateX(-100deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2021-1-23 1:14:47
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation swing-out-top-fwd
+ * ----------------------------------------
+ */
+@-webkit-keyframes swing-out-top-fwd {
+    0% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: rotateX(70deg);
+        transform: rotateX(70deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+}
+
+@keyframes swing-out-top-fwd {
+    0% {
+        -webkit-transform: rotateX(0deg);
+        transform: rotateX(0deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: rotateX(70deg);
+        transform: rotateX(70deg);
+        -webkit-transform-origin: top;
+        transform-origin: top;
+        opacity: 0;
+    }
+}
+
+/**
+ * ----------------------------------------
+ * animation slide-in-left
+ * ----------------------------------------
+ */
+
+@media screen and (max-width: 799px) {
+    /* This would only act on mobile version regardless of js or not ;) */
+    .slide-in-left-mobile {
+        -webkit-animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+        animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+    }
+
+}
+
+.slide-in-left {
+    -webkit-animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+    animation: slide-in-left 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+}
+
+@-webkit-keyframes slide-in-left {
+    0% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-left {
+    0% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+    100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+
+/**
+ * ----------------------------------------
+ * animation slide-out-left
+ * ----------------------------------------
+ */
+
+@media screen and (max-width: 799px) {
+    /* This would only act on mobile version regardless of js or not ;) */
+    .slide-out-left-mobile {
+        -webkit-animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+        animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+    }
+
+}
+
+.slide-out-left {
+    -webkit-animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+    animation: slide-out-left 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+}
+
+@-webkit-keyframes slide-out-left {
+    0% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+}
+
+@keyframes slide-out-left {
+    0% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        -webkit-transform: translateX(-1000px);
+        transform: translateX(-1000px);
+        opacity: 0;
+    }
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2021-2-18 16:9:22
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation jello-diagonal-1
+ * ----------------------------------------
+ */
+@-webkit-keyframes jello-diagonal-1 {
+    0% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+    30% {
+        -webkit-transform: skew(25deg 25deg);
+        transform: skew(25deg 25deg);
+    }
+    40% {
+        -webkit-transform: skew(-15deg, -15deg);
+        transform: skew(-15deg, -15deg);
+    }
+    50% {
+        -webkit-transform: skew(15deg, 15deg);
+        transform: skew(15deg, 15deg);
+    }
+    65% {
+        -webkit-transform: skew(-5deg, -5deg);
+        transform: skew(-5deg, -5deg);
+    }
+    75% {
+        -webkit-transform: skew(5deg, 5deg);
+        transform: skew(5deg, 5deg);
+    }
+    100% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+}
+
+@keyframes jello-diagonal-1 {
+    0% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+    30% {
+        -webkit-transform: skew(25deg 25deg);
+        transform: skew(25deg 25deg);
+    }
+    40% {
+        -webkit-transform: skew(-15deg, -15deg);
+        transform: skew(-15deg, -15deg);
+    }
+    50% {
+        -webkit-transform: skew(15deg, 15deg);
+        transform: skew(15deg, 15deg);
+    }
+    65% {
+        -webkit-transform: skew(-5deg, -5deg);
+        transform: skew(-5deg, -5deg);
+    }
+    75% {
+        -webkit-transform: skew(5deg, 5deg);
+        transform: skew(5deg, 5deg);
+    }
+    100% {
+        -webkit-transform: skew(0deg 0deg);
+        transform: skew(0deg 0deg);
+    }
+}
+
+
+/*******************************
+BEAT-PLAYER STICKY BOTTOM STYLES
+*******************************/
+
+.audio-player-queue-list {
+    counter-reset: player-queue-list;
+}
+
+.audio-player-queue-list > li {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    gap: 1em;
+    font-size: 14px;
+}
+
+.audio-player-queue-list > li:before {
+    content: counters(player-queue-list, ".") ".";
+    counter-increment: player-queue-list;
+    left: 0;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+}
+
+.audio-player-global-container {
+    margin-top: auto;
+    box-shadow: 5px 0 15px 0 rgb(37 44 97 / 15%), 0 2px 4px 0 rgb(93 100 148 / 20%);
+    text-align: center;
+}
+
+div#meta-container {
+    display: flex;
+    align-items: center;
+}
+
+[data-audioplayer_play="true"] .audio-play {
+    display: none;
+}
+[data-audioplayer_play="false"] .audio-pause {
+    display: none;
+}
+
+[data-audioplayer_repeat="true"] .repeat-off {
+    display: none;
+}
+[data-audioplayer_repeat="false"] .repeat-on {
+    display: none;
+}
+
+[data-audioplayer_shuffle="true"] .shuffle-off {
+    display: none;
+}
+[data-audioplayer_shuffle="false"] .shuffle-on {
+    display: none;
+}
+
+/* VOLUME RANGE STYLE */
+input.volume-slider {
+    height: 4px;
+    width: 50px;
+    transform: rotate(
+            270deg
+    );
+    outline: none;
+    transition: background 450ms ease-in;
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+input.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: 1px solid #000000;
+    height: 36px;
+    width: 16px;
+    border-radius: 3px;
+    background: #ffffff;
+    cursor: pointer;
+    margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+/* All the same stuff for Firefox */
+input.volume-slider::-moz-range-thumb {
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    border: 1px solid #000000;
+    height: 36px;
+    width: 16px;
+    border-radius: 3px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+input.volume-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background: #ffffff;
+    border-radius: 1.3px;
+    border: 0.2px solid #010101;
+}
+
+input.volume-slider:focus::-webkit-slider-runnable-track {
+    background: #ffffff;
+}
+
+input.volume-slider::-moz-range-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background: #ffffff;
+    border-radius: 1px;
+    border: 0.2px solid #010101;
+}
+
+input.volume-slider::-ms-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    border-width: 16px 0;
+    color: transparent;
+}
+
+/************************
+    THE TIME PROGRESS
+************************/
+
+.time-progress .progress-container:hover input[type=range].song-slider::-webkit-slider-thumb {
+    display: block;
+}
+
+.time-progress .progress-container:hover input[type=range].song-slider::-moz-range-thumb {
+    visibility: visible;
+}
+
+.time-progress .progress-container input[type=range] {
+    width: 100%;
+    position: absolute;
+    right: 0;
+    z-index: 55;
+    height: 5px;
+    cursor: pointer;
+    background-color: inherit;
+    accent-color: #70748b;
+    outline: none;
+}
+
+.time-progress .progress-container input[type=range]:focus {
+    outline: none;
+}
+
+
+.time-progress .progress-container input[type=range]::-webkit-slider-thumb {
+    box-shadow: 0 0 0 #000000, 0 0 0 #0d0d0d;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.time-progress .progress-container input[type=range]::-moz-range-thumb {
+    box-shadow: 0 0 0 #000000, 0 0 0 #0d0d0d;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+
+.time-progress .progress-container input[type=range]::-ms-thumb {
+    box-shadow: 0 0 0 #000000, 0 0 0 #0d0d0d;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+/************************
+    POSTS PAGE
+************************/
+
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+img {
+    display: block;
+    height: auto;
+    max-width: 100%;
+}
+
+.post-thumbnail img {
+    margin: 0 auto;
+}
+
+b, strong {
+    font-weight: bold;
+}
+
+cite,dfn,em,i {
+    font-style: italic
+}
+
+blockquote,q {
+    quotes: "" ""
+}
+
+blockquote {
+    border-left: 4px solid #000;
+    border-left: 4px solid var(--color-quote-border);
+    margin: 0
+}
+
+.entry-content>blockquote {
+    padding-left: 1em;
+    margin-left: 1.5rem;
+}
+
+blockquote cite {
+    color: #6c7781;
+    color: var(--color-quote-citation);
+    font-size: 13px;
+    margin-top: 1em;
+    position: relative;
+    font-style: normal
+}
+
+address {
+    margin: 0 0 1.5em
+}
+
+.entry-title {
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+article.entry-content {
+    width: max(900px, min((800px - 100%) * 1000, 100%));
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.entry-content + aside {
+    width: max(400px, min((800px - 100%) * 1000, 100%));
+    border-left: 0 solid #000000;
+    border-width: clamp(0.2rem, 2vw, 0.1rem);
+    padding-left: 25px;
+}
+
+.entry-content>*, .entry-summary>*, .page-content>* {
+    padding-right: clamp(2rem, 2.5vw, 4rem);
+    padding-left: clamp(2rem, 2.5vw, 4rem);
+}
+
+.entry-content {
+    margin-bottom: 2em;
+}
+
+.entry-content>li>ol,.entry-content>li>ul {
+    margin-bottom: 0;
+    margin-left: 1.5em
+}
+
+.entry-content>ol>li, .entry-content>ul>li {
+    margin-top: clamp(0.3rem, 0.8vw, 1rem);
+}
+
+.entry-content>ol, .entry-content>ul {
+    margin-left: clamp(1rem, 5.5vw, 3rem);
+}
+
+.full-bleed {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+.widget-title {
+    position: absolute;
+    left: 17px;
+    top: -27px;
+    border-top-right-radius: 10px;
+}
+
+.li-title {
+    left: 17px;
+    top: 0px;
+}
+
+.footer-with-social-icon .menu-box {
+    border: unset;
+}

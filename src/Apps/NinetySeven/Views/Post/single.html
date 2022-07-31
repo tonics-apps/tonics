@@ -1,0 +1,28 @@
+[[import("Apps::NinetySeven/Views/Block/base")]]
+
+[[b('NinetySevenPostSingleEntry')
+    [[- Loads MarkUp -]]
+    [[trigger_block('BaseMarkup')]]
+
+    [[hook_into('in_head_title')[[v('Data.seo_title .. Data.post_title')]] ]]
+    [[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.post_title")]] ]]
+
+    [[hook_into('in_head')
+        <meta property="og:type" content="article">
+        <meta property="author" content="[[v('Data.user_name')]]">
+        <meta property="article:published_time" content="[[string_str_replace(' ', 'T', 'v[Data.post_created_at]')]][[v('App_Config.APP_TIME_ZONE_OFFSET')]]">
+        <meta property="article:modified_time" content="[[string_str_replace(' ', 'T', 'v[Data.post_updated_at]')]][[v('App_Config.APP_TIME_ZONE_OFFSET')]]">
+        [[if('v[Data.image_url]')
+            <meta property="og:image" content='[[v("Data.image_url")]]'>
+        ]]
+    ]]
+
+    [[trigger_block('reusable_hooks')]]
+
+    [[hook_into('in_main')
+        <article class="owl" id="slug_id_[[v('Data.slug_id')]]">
+        [[_use("Post::Single::Header")]]
+        [[_use("Post::Article::Section")]]
+    </article>
+    ]]
+]]

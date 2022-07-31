@@ -2,6 +2,7 @@
 
 namespace App\Modules\Core\Routes;
 
+use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Controllers\Auth\CacheController;
 use App\Modules\Core\Controllers\Auth\ForgotPasswordController;
 use App\Modules\Core\Controllers\Auth\LoginController;
@@ -10,7 +11,7 @@ use App\Modules\Core\Controllers\ImportExport\ImportController;
 use App\Modules\Core\Controllers\Installer;
 use App\Modules\Core\Controllers\ModuleController;
 use App\Modules\Core\Controllers\PluginController;
-use App\Modules\Core\Controllers\ThemeController;
+use App\Modules\Core\Controllers\AppsController;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CoreAccess;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
@@ -108,41 +109,23 @@ trait Routes
             }, [CoreAccess::class], alias: 'imports');
 
                     #---------------------------------
-                # THEME Routes...
+                # Apps Routes...
             #---------------------------------
             $route->group('/themes', function (Route $route) {
-                $route->get('', [ThemeController::class, 'index'], alias: 'index');
-                $route->get(':theme/install', [ThemeController::class, 'install'], alias: 'install');
-                $route->get(':theme/uninstall', [ThemeController::class, 'uninstall'], alias: 'uninstall');
-                $route->match(['post', 'delete'], ':theme/delete', [ThemeController::class, 'delete']);
+                $route->get('', [AppsController::class, 'index'], alias: 'index');
+                $route->get(':theme/install', [AppsController::class, 'install'], alias: 'install');
+                $route->get(':theme/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
+                $route->match(['post', 'delete'], ':theme/delete', [AppsController::class, 'delete']);
             }, [ThemeAccess::class], alias: 'themes');
-
-                    #---------------------------------
-                # PLUGIN Routes...
-            #---------------------------------
-            $route->group('/plugins', function (Route $route) {
-                $route->get('', [PluginController::class, 'index'], alias: 'index');
-                $route->get(':plugin/install', [PluginController::class, 'install'], alias: 'install');
-                $route->get(':plugin/uninstall', [PluginController::class, 'uninstall'], alias: 'uninstall');
-                $route->match(['post', 'delete'], ':plugin/delete', [PluginController::class, 'delete']);
-                $route->match(['post', 'delete'], 'delete/multiple', [PluginController::class, 'deleteMultiple'], alias: 'deleteMultiple');
-            }, [PluginAccess::class], alias: 'plugins');
-
-                    #---------------------------------
-                # MODULE Routes...
-            #---------------------------------
-            $route->group('/modules', function (Route $route) {
-                $route->get('', [ModuleController::class, 'index'], alias: 'index');
-            }, [ModuleAccess::class], alias: 'modules');
 
         }, [StartSession::class, CSRFGuard::class, Authenticated::class]);
 
                 #---------------------------------
-            # THEME AND PLUGIN ASSETS...
+            # APPS ASSETS...
         #---------------------------------
-        $route->group('/assets', function (Route $route){
+        $route->group(DriveConfig::serveAppFilePath(), function (Route $route){
             // you pass the path as a query string...
-            $route->get('themes/:theme-name', [ThemeController::class, 'serve']);
+            $route->get(':theme-name', [AppsController::class, 'serve']);
         });
 
         return $route;

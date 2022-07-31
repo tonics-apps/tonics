@@ -18,6 +18,26 @@ class DriveConfig
         return dirname(APP_ROOT) . '/private';
     }
 
+    public static function xAccelDownloadFilePath(): string
+    {
+        return "/download_file_path_987654321/";
+    }
+
+    public static function serveFilePath(): string
+    {
+        return "/serve_file_path_987654321/";
+    }
+
+    public static function xAccelAppFilePath(): string
+    {
+        return "/apps_file_path_987654321/";
+    }
+
+    public static function serveAppFilePath(): string
+    {
+        return "/serve_app_file_path_987654321/";
+    }
+
     /**
      * @return string
      */

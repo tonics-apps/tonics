@@ -42,7 +42,7 @@ class CacheController
     {
         $templateLoader = new TonicsTemplateFileLoader('html');
         $templateLoader->resolveTemplateFiles(AppConfig::getModulesPath());
-        $templateLoader->resolveTemplateFiles(AppConfig::getPluginsPath());
+        $templateLoader->resolveTemplateFiles(AppConfig::getAppsPath());
 
         apcu_clear_cache();
         $view = AppConfig::initLoaderOthers()->getTonicsView();

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Media\Routes;
 
+use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\StartSession;
@@ -18,8 +19,7 @@ trait Routes
     public function routeWeb(Route $route): Route
     {
         // for serving files
-        $route->get('serve/:fileUniqueID', [MediaControllers::class, 'serveFiles'], alias: 'media.serve');
-
+        $route->get(DriveConfig::serveFilePath() .':fileUniqueID', [MediaControllers::class, 'serveFiles'], alias: 'media.serve');
         // admin facing
         $route->group('/admin/media', function (Route $route) {
             $route->get('file-manager', [MediaControllers::class, 'showMediaManager'], alias: 'show');

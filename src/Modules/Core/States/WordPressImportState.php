@@ -104,11 +104,11 @@ class WordPressImportState extends SimpleState
         }
 
         helper()->sendMsg(self::getCurrentState(), 'Checking If Uploads Zip File Needs To Be Downloaded...');
-        if (!str_contains($this->uploadZip, '/serve/')){
+        if (!str_contains($this->uploadZip, DriveConfig::serveFilePath())){
             return $this->switchState(self::PhaseOne_DownloadAndExtractFromURI, self::NEXT);
         }
 
-        $uploadZippedURLPath = str_replace('/serve/', '', parse_url($this->uploadZip, PHP_URL_PATH));
+        $uploadZippedURLPath = str_replace(DriveConfig::serveFilePath(), '', parse_url($this->uploadZip, PHP_URL_PATH));
         $fileInfo = $this->localDriver->getInfoOfUniqueID($uploadZippedURLPath);
         if ($fileInfo === null){
             return $this->switchState(self::PhaseOne_DownloadAndExtractFromURI, self::NEXT);
@@ -160,11 +160,11 @@ class WordPressImportState extends SimpleState
     public function PhaseTwo(): string
     {
         helper()->sendMsg(self::getCurrentState(), 'Checking If XML File Needs To Be Downloaded...');
-        if (!str_contains($this->uploadXML, '/serve/')){
+        if (!str_contains($this->uploadXML, DriveConfig::serveFilePath())){
             return $this->switchState(self::PhaseTwo_DownloadXMLFromURI, self::NEXT);
         }
 
-        $uploadZippedURLPath = str_replace('/serve/', '', parse_url($this->uploadXML, PHP_URL_PATH));
+        $uploadZippedURLPath = str_replace(DriveConfig::serveFilePath(), '', parse_url($this->uploadXML, PHP_URL_PATH));
         $fileInfo = $this->localDriver->getInfoOfUniqueID($uploadZippedURLPath);
         if ($fileInfo === null){
             return $this->switchState(self::PhaseTwo_DownloadXMLFromURI, self::NEXT);

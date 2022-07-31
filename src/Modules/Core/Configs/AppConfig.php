@@ -80,13 +80,7 @@ class AppConfig
                     new Response($onRequestProcess, new RequestInput()));
 
                 $modules = helper()->getModuleActivators([ModuleConfig::class]);
-                $plugins = helper()->getPluginActivators([ModuleConfig::class, PluginConfig::class]);
-                $themes = helper()->getPluginActivators([ModuleConfig::class], helper()->getAllThemesDirectory());
-
-                $theme = $themes;
-                if (!empty($theme)) {
-                    $theme = $theme[array_key_first($theme)];
-                }
+                $apps = helper()->getAppsActivator([ModuleConfig::class], helper()->getAllAppsDirectory());
 
                 $events = [];
                 foreach ($modules as $module) {
@@ -101,25 +95,23 @@ class AppConfig
                     }
                 }
 
-                ## Plugins Would Only Appear if they have .installed (which would be added programmatically on installation)
-                foreach ($plugins as $plugin) {
-                    /** @var $plugin ModuleConfig|PluginConfig */
-                    if ($plugin->enabled()) {
-                        $plugin->route($router->getRoute());
-                        ## The array_intersect_key checks if the plugin event array has something in common with the module event($events),
-                        # so, I just recursively merge only the intersection (using recursive merging because you might have several events in your modules).
-                        $events = array_merge_recursive($events, array_intersect_key($plugin->events(), $events));
+                ## Apps Would Only Appear if they have .installed (which would be added programmatically on installation)
+                $themeFound = false;
+                foreach ($apps as $app) {
+                    /** @var $app ModuleConfig|PluginConfig */
+                    // We Can Only Have One Theme
+                    if (isset($app->info()['Type']) && strtolower($app->info()['Type']) === 'theme'){
+                        if ($themeFound){
+                            continue;
+                        }
+                        $themeFound = true;
                     }
-                }
 
-                ## Unlike Plugins, You Can Only Have One Theme.
-                /** @var $theme ModuleConfig|PluginConfig */
-                if ($theme instanceof ModuleConfig) {
-                    if ($theme->enabled()) {
-                        $theme->route($router->getRoute());
-                        ## The array_intersect_key checks if the plugin event array has something in common with the module event($events),
+                    if ($app->enabled()) {
+                        $app->route($router->getRoute());
+                        ## The array_intersect_key checks if the apps event array has something in common with the module event($events),
                         # so, I just recursively merge only the intersection (using recursive merging because you might have several events in your modules).
-                       $events = array_merge_recursive($events, array_intersect_key($theme->events(), $events));
+                        $events = array_merge_recursive($events, array_intersect_key($app->events(), $events));
                     }
                 }
 
@@ -169,8 +161,7 @@ class AppConfig
             } else {
                 $tonicsHelper = new TonicsHelpers();
                 $tonicsHelper->setModulesPath(AppConfig::getModulesPath());
-                $tonicsHelper->setPluginsPath(AppConfig::getPluginsPath());
-                $tonicsHelper->setThemesPath(AppConfig::getThemesPath());
+                $tonicsHelper->setAppsPath(AppConfig::getAppsPath());
 
                 ## Construct The GrandFather...
                 $initLoader = new InitLoaderMinimal();
@@ -345,24 +336,14 @@ class AppConfig
         return APP_ROOT . '/src/Modules';
     }
 
-    public static function getPluginsPath(): string
+    public static function getAppsPath(): string
     {
-        return APP_ROOT . '/src/Plugins';
+        return APP_ROOT . '/src/Apps';
     }
 
-    public static function getThemesPath(): string
+    public static function getAppAsset(string $themeName, string $themePath): string
     {
-        return APP_ROOT . '/src/Themes';
-    }
-
-    public static function getThemesAsset(string $themeName, string $themePath): string
-    {
-        return "/assets/themes/$themeName/?path=$themePath";
-    }
-
-    public static function getPluginAsset(string $pluginName, string $pluginPath): string
-    {
-        return "/assets/plugins/$pluginName/?path=$pluginPath";
+        return DriveConfig::serveAppFilePath() . "$themeName/?path=$themePath";
     }
 
     public static function getTranslationsPath(): string
