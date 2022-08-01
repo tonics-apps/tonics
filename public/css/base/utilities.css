@@ -729,6 +729,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     padding: 1rem 2em;
 }
 
+.padding\:tiny {
+    padding: 0.5rem 1rem;
+}
+
 .padding\:small {
     padding: 0.5rem 2rem;
 }

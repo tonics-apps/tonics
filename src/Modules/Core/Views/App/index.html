@@ -6,7 +6,7 @@
 [[hook_into('in_main')
 <section style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
     [[each("appListing in AppListingFrag")
-    <input type="radio" id="[[v('_loop.key')]]" name="e8c721a5b6" checked="checked">
+    <input type="radio" id="[[v('_loop.key')]]" name="e8c721a5b6" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
     <label style="cursor: pointer; caret-color: transparent;" for="[[v('_loop.key')]]" data-mce-style="cursor: pointer; caret-color: transparent;">[[v('_loop.key')]]</label>
     <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
         [[_v('appListing')]]

@@ -97,7 +97,7 @@ HTML;
         $updatesObject = AppConfig::getAppUpdatesObject();
 
         $k = 0;
-        foreach ($apps as $app){
+        foreach ($apps as $path => $app){
             $classToString = $app::class;
             $updateInfos = [$classToString];
             if (isset($updatesObject['app']) && isset($updatesObject['app'][$classToString])){
@@ -108,6 +108,28 @@ HTML;
                 ...$updateInfos,
                 ...$app->info()
             ];
+
+            $isInstalled = helper()->fileExists($path . DIRECTORY_SEPARATOR . '.installed');
+            $installedFrag = <<<HTML
+<form method="post" class="d:contents" action="/admin/tools/apps/install">
+    <input type="hidden" name="token" value="$csrfToken">
+    <input type="hidden" name="activator" value="$classToString">
+    <button type="submit" class="listing-button color:black bg:white-one border:none border-width:default border:black padding:tiny
+    margin-top:0 cursor:pointer">Install
+    </button>
+</form>
+HTML;
+            if ($isInstalled){
+                $installedFrag = <<<HTML
+<form method="post" class="d:contents" action="/admin/tools/apps/uninstall">
+    <input type="hidden" name="token" value="$csrfToken">
+    <input type="hidden" name="activator" value="$classToString">
+    <button type="submit" class="listing-button bg:white-one color:black border:none border-width:default border:black padding:tiny
+    margin-top:0 cursor:pointer">UnInstall
+    </button>
+</form>
+HTML;
+            }
 
             $updateFrag = '';
             if (isset($data['can_update']) && $data['can_update']){
@@ -134,17 +156,13 @@ FORM;
             }
 
             $frag[$type] .= <<<HTML
-<li data-list_id="$k" tabindex="0" class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
+<li data-list_id="$k" tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
     <fieldset class="padding:default width:100% height:100% draggable d:flex justify-content:center">
-        <legend class="bg:pure-black color:white padding:default">$type</legend>
-        <div class="admin-widget-information owl width:100%">
+        <div class="owl width:100%">
             <div class="text-on-admin-util text-highlight">{$data['name']}</div>
             <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
-            <a href="/admin/posts/how-to-access-windows-10-drive-folder-in-virtualbox/edit" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
-                        margin-top:0 cursor:pointer">Install</a>
-                        <a href="/admin/posts/how-to-access-windows-10-drive-folder-in-virtualbox/edit" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
-                        margin-top:0 cursor:pointer">Delete</a>
-                $updateFrag
+            $installedFrag
+            $updateFrag
             </div>
 
         </div>
@@ -173,7 +191,7 @@ HTML;
 <form method="post" class="d:contents" action="/admin/tools/apps/update">
                     <input type="hidden" name="token" value="$csrfToken">
                     <input type="hidden" name="activator" value="$classToString">
-                    <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
+                    <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer">Update
                     </button>
                 </form>
@@ -185,10 +203,9 @@ FORM;
             }
 
             $frag['Module'] .= <<<HTML
-<li data-list_id="$k" tabindex="0" class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
+<li data-list_id="$k" tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
     <fieldset class="padding:default width:100% height:100% draggable d:flex justify-content:center">
-        <legend class="bg:pure-black color:white padding:default">Module</legend>
-        <div class="admin-widget-information owl width:100%">
+        <div class="owl width:100%">
             <div class="text-on-admin-util text-highlight">{$data['name']}</div>
             <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
                 $updateFrag
