@@ -100,12 +100,12 @@ class AppConfig
                 foreach ($apps as $app) {
                     /** @var $app ModuleConfig|PluginConfig */
                     // We Can Only Have One Theme
-                    if (isset($app->info()['Type']) && strtolower($app->info()['Type']) === 'theme'){
+                   /* if (isset($app->info()['Type']) && strtolower($app->info()['Type']) === 'theme'){
                         if ($themeFound){
                             continue;
                         }
                         $themeFound = true;
-                    }
+                    }*/
 
                     if ($app->enabled()) {
                         $app->route($router->getRoute());
@@ -295,6 +295,20 @@ class AppConfig
             return $updates;
         }
         return false;
+    }
+
+    /**
+     * @return array|mixed
+     * @throws Exception
+     */
+    public static function getAppUpdatesObject(): mixed
+    {
+        $globalTable = Tables::getTable(Tables::GLOBAL);
+        $updates = db()->row("SELECT * FROM $globalTable WHERE `key` = 'updates'");
+        if (isset($updates->value) && !empty($updates->value)){
+            return json_decode($updates->value, true);
+        }
+        return [];
     }
 
     public static function getAppUrl(): string

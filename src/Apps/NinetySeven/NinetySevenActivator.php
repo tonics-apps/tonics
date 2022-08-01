@@ -84,6 +84,7 @@ class NinetySevenActivator implements ModuleConfig, PluginConfig
             "version" => '1-O-Ola.1656111209',
             "description" => "NinetySeven Theme, The First Tonic Theme",
             "info_url" => '',
+            "settings_page" => null, // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/theme-ninetyseven/releases/latest",
             "authors" => [
                 "name" => "The Devsrealm Guy",

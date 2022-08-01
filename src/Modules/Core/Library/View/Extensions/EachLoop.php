@@ -98,7 +98,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
         $view->setDontCacheVariable(true);
         if (is_iterable($loopVariable)) {
             $iteration = 0;
-            foreach ($loopVariable as $loop) {
+            foreach ($loopVariable as $key => $loop) {
                 $eachOutput .= $content;
                 if (isset($view->getLiveCacheVariableData()[$loopName])) {
                     $view->addToLiveCacheVariableData($loopName, $loop);
@@ -108,6 +108,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                 $view->addToVariableData('_loop', [
                     'iteration' => $iteration + 1,
                     'index' => $iteration,
+                    'key' => $key,
                 ]);
                 foreach ($tag->getChildrenRecursive($tag) as $node) {
                     $mode = $view->getModeRendererHandler($node->getTagName());

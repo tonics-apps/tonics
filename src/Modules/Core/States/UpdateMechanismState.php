@@ -59,7 +59,7 @@ class UpdateMechanismState extends SimpleState
      * Reset data and set state to InitialState
      * @return UpdateMechanismState
      */
-    public function reset()
+    public function reset(): static
     {
         $this->collate = [];
         $this->updates = [];
@@ -88,9 +88,8 @@ class UpdateMechanismState extends SimpleState
             }
         }
 
-        $oldCollate = db()->row("SELECT * FROM $globalTable WHERE `key` = 'updates'");
-        if (isset($oldCollate->value) && !empty($oldCollate->value)){
-            $oldCollate = json_decode($oldCollate->value, true);
+        $oldCollate = AppConfig::getAppUpdatesObject();
+        if (is_array($oldCollate)){
             $this->collate = [...$oldCollate, ...$this->collate];
         }
 
@@ -160,7 +159,7 @@ class UpdateMechanismState extends SimpleState
      */
     public function DownloadAppsState()
     {
-        $this->downloadExtractCopy('app', DriveConfig::getTempPathForPlugins(), AppConfig::getAppsPath());
+        $this->downloadExtractCopy('app', DriveConfig::getTempPathForApps(), AppConfig::getAppsPath());
     }
 
     /**
@@ -168,7 +167,7 @@ class UpdateMechanismState extends SimpleState
      */
     public function DownloadModulesState()
     {
-        $this->downloadExtractCopy('module', DriveConfig::getTempPathForPlugins(), AppConfig::getModulesPath());
+        $this->downloadExtractCopy('module', DriveConfig::getTempPathForModules(), AppConfig::getModulesPath());
     }
 
 

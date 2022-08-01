@@ -24,5 +24,9 @@ interface PluginConfig
      */
     public function onUpdate(): void;
 
+    /**
+     * Info can contain several array key and values.
+     * @return array
+     */
     public function info(): array;
 }

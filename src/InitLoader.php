@@ -8,6 +8,7 @@
 namespace App;
 
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
+use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
@@ -70,17 +71,9 @@ class InitLoader
     /**
      * @throws Exception
      */
-    public static function getAllThemes(): array
+    public static function getAllApps(): array
     {
-        return helper()->getModuleActivators([ModuleConfig::class], helper()->getAllThemesDirectory());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function getAllPlugins(): array
-    {
-        return helper()->getModuleActivators([ModuleConfig::class], helper()->getAllPluginsDirectory());
+        return helper()->getModuleActivators([ModuleConfig::class, PluginConfig::class], helper()->getAllAppsDirectory());
     }
 
     /**

@@ -60,20 +60,11 @@ class DriveConfig
         return self::getTempPath() . '/modules';
     }
 
-    public static function getTempPathForPlugins(): string
+    public static function getTempPathForApps(): string
     {
-        return  self::getTempPath() . '/plugins';
+        return  self::getTempPath() . '/apps';
     }
 
-    public static function getTempPathForThemes(): string
-    {
-        return  self::getTempPath() . '/themes';
-    }
-
-    public static function getTempPathForFull(): string
-    {
-        return  self::getTempPath() . '/full';
-    }
     /**
      * @return string
      */

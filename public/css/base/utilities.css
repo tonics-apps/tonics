@@ -23,44 +23,44 @@ body#tinymce > * + * {
     margin-left: clamp(2rem, 2.5vw, 4rem);
 }
 
-body#tinymce > .tabs {
+body#tinymce > .tabs, .tonicsFieldTabsContainer {
     display: flex;
     flex-flow: row wrap;
 }
 
-body#tinymce > .tabs > [type=radio] {
+body#tinymce > .tabs > [type=radio], .tonicsFieldTabsContainer > [type=radio] {
     display: none;
 }
 
-body#tinymce > .tabs > [type=radio] + label {
+body#tinymce > .tabs > [type=radio] + label, .tonicsFieldTabsContainer > [type=radio] + label {
     order: 1;
     cursor: pointer;
 }
 
-body#tinymce > .tabs > [type=radio] + label + * {
+body#tinymce > .tabs > [type=radio] + label + *, .tonicsFieldTabsContainer > [type=radio] + label + * {
     width: 100%;
     order: 2;
 }
 
-body#tinymce > .tabs > [type=radio]:not(:checked) + label + * {
+body#tinymce > .tabs > [type=radio]:not(:checked) + label + *, .tonicsFieldTabsContainer > [type=radio]:not(:checked) + label + *{
     display: none;
 }
 
-body#tinymce > .tabs {
+body#tinymce > .tabs, .tonicsFieldTabsContainer {
     width: 50%;
     min-width: 30em;
     max-width: 60em;
 }
 
-body#tinymce > .tabs label {
+body#tinymce > .tabs label, .tonicsFieldTabsContainer label {
     padding: 0.5em 1em;
 }
 
-body#tinymce > .tabs label + * {
+body#tinymce > .tabs label + *, .tonicsFieldTabsContainer label + * {
     padding: 1em;
 }
 
-body#tinymce > .tabs [type=radio]:checked + label, body#tinymce > .tabs [type=radio]:checked + label {
+body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [type=radio]:checked + label {
     background: #fff;
     transition: box-shadow .15s ease,transform .15s ease;
 }
