@@ -45,6 +45,7 @@ class LoginController extends Controller
 
     public function logout()
     {
+        session()->regenerate();
         dd(input()->fromPost()->all());
     }
 

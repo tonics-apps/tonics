@@ -113,7 +113,7 @@ HTML;
             $installedFrag = <<<HTML
 <form method="post" class="d:contents" action="/admin/tools/apps/install">
     <input type="hidden" name="token" value="$csrfToken">
-    <input type="hidden" name="activator" value="$classToString">
+    <input type="hidden" name="activator[]" value="$classToString">
     <button type="submit" class="listing-button color:black bg:white-one border:none border-width:default border:black padding:tiny
     margin-top:0 cursor:pointer">Install
     </button>
@@ -123,7 +123,7 @@ HTML;
                 $installedFrag = <<<HTML
 <form method="post" class="d:contents" action="/admin/tools/apps/uninstall">
     <input type="hidden" name="token" value="$csrfToken">
-    <input type="hidden" name="activator" value="$classToString">
+    <input type="hidden" name="activator[]" value="$classToString">
     <button type="submit" class="listing-button bg:white-one color:black border:none border-width:default border:black padding:tiny
     margin-top:0 cursor:pointer">UnInstall
     </button>
@@ -136,7 +136,7 @@ HTML;
                 $updateFrag =<<<FORM
 <form method="post" class="d:contents" action="/admin/tools/apps/update">
                     <input type="hidden" name="token" value="$csrfToken">
-                    <input type="hidden" name="activator" value="$classToString">
+                    <input type="hidden" name="activator[]" value="$classToString">
                     <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
         margin-top:0 cursor:pointer">Update
                     </button>
@@ -190,7 +190,7 @@ HTML;
                 $updateFrag =<<<FORM
 <form method="post" class="d:contents" action="/admin/tools/apps/update">
                     <input type="hidden" name="token" value="$csrfToken">
-                    <input type="hidden" name="activator" value="$classToString">
+                    <input type="hidden" name="activator[]" value="$classToString">
                     <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer">Update
                     </button>

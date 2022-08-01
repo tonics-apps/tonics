@@ -306,7 +306,7 @@ SQL, $jsonPath, $sessionID);
                 return false;
             }
 
-            if (property_exists($res, 'row')) {
+            if (is_object($res) && property_exists($res, 'row')) {
                 ## If result is null, return false, else true
                 return !(($res->row === null));
             }

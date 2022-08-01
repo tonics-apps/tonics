@@ -113,8 +113,8 @@ trait Routes
             #---------------------------------
             $route->group('/apps', function (Route $route) {
                 $route->get('', [AppsController::class, 'index'], alias: 'index');
-                $route->get(':app/install', [AppsController::class, 'install'], alias: 'install');
-                $route->get(':app/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
+                $route->post('/install', [AppsController::class, 'install'], alias: 'install');
+                $route->post('/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
                 $route->match(['post', 'delete'], ':theme/delete', [AppsController::class, 'delete']);
             }, [AppAccess::class], alias: 'apps');
 
