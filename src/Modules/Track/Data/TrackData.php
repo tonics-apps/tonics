@@ -161,7 +161,7 @@ SQL, ...$parameter);
 name="url_download[]" placeholder="Upload $license->name Download Link" value="$downloadLink">
 <input type="hidden" class="form-control input-checkout bg:white-one color:black border-width:default border:black" name="unique_id[]" value="$license->unique_id">
 <button aria-pressed="false" type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2">Upload Link</button>
+                        margin-top:0 cursor:pointer">Upload Link</button>
 </div>
 HTML;
             } else {
@@ -172,7 +172,7 @@ HTML;
 name="url_download[]" placeholder="Upload $license->name Download Link" value="">
 <input type="hidden" class="form-control input-checkout bg:white-one color:black border-width:default border:black" name="unique_id[]" value="$license->unique_id">
 <button aria-pressed="false" type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2">Upload Link</button>
+                        margin-top:0 cursor:pointer">Upload Link</button>
 </div>
 HTML;
             }

@@ -148,6 +148,7 @@ if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEdit
         tinySelectLinkHandler[0].addEventListener('click', featuredLinkHandler);
     }
 }
+
 let  featuredLinkInput, featuredLinkWindowInstance = null;
 function featuredLinkHandler(e){
     let el = e.target,
