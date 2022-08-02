@@ -28,6 +28,9 @@ class AppsSystem extends SimpleState
     const OnAppUpdateState = 'OnAppUpdateState';
     const OnAppProcessUpdateState = 'OnAppProcessUpdateState';
 
+    const OnAppNewInstallState = 'OnAppNewInstallState';
+    const OnAppProcessNewInstallationState = 'OnAppProcessNewInstallationState';
+
     /**
      * @throws \Exception
      */
@@ -266,6 +269,38 @@ class AppsSystem extends SimpleState
         }
         return self::ERROR;
 
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function OnAppNewInstallState(): string
+    {
+        if ($this->appPermissionOk()){
+            return $this->switchState(self::OnAppProcessUpdateState, self::NEXT);
+        }
+        return $this->switchState(self::OnAppPermissionErrorState, self::NEXT);
+    }
+
+    public function OnAppProcessNewInstallationState(): string
+    {
+
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function appPermissionOk(): bool
+    {
+        return helper()->isReadable(AppConfig::getAppsPath()) && helper()->isWritable(AppConfig::getAppsPath());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function modulePermissionOk(): bool
+    {
+        return helper()->isReadable(AppConfig::getModulesPath()) && helper()->isWritable(AppConfig::getModulesPath());
     }
 
     /**
