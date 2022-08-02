@@ -40,10 +40,13 @@ class UpdateMechanismState extends SimpleState
         'app' => self::DownloadAppsState,
     ];
 
+    const DiscoveredFromConsole = 'console';
+    const DiscoveredFromBrowser = 'browser';
+
     private string $discoveredFrom;
     private array $collate = [];
 
-    public function __construct(array $updates = [], array $types = [], string $action = 'discover', string $discoveredFrom = 'console')
+    public function __construct(array $updates = [], array $types = [], string $action = 'discover', string $discoveredFrom = self::DiscoveredFromConsole)
     {
         $this->updates = $updates;
         $this->types = $types;
@@ -53,6 +56,17 @@ class UpdateMechanismState extends SimpleState
         };
         $this->collate = [];
         $this->discoveredFrom = $discoveredFrom;
+        $this->setCurrentState(self::InitialState);
+    }
+
+    public function isDiscover(): bool
+    {
+        return $this->action === 'discover';
+    }
+
+    public function isDiscoveredFromBrowser(): bool
+    {
+        return $this->discoveredFrom === self::DiscoveredFromBrowser;
     }
 
     /**
@@ -90,8 +104,18 @@ class UpdateMechanismState extends SimpleState
 
         $oldCollate = AppConfig::getAppUpdatesObject();
         if (is_array($oldCollate)){
-            $this->collate = [...$oldCollate, ...$this->collate];
+            foreach ($oldCollate as $type => $collate) {
+                if (key_exists($type, self::$TYPES)){
+                    if (isset($this->collate[$type])){
+                        $this->collate[$type] = [...$collate[$type], ...$this->collate[$type]];
+                    } else {
+                        $this->collate[$type] = $collate[$type];
+                    }
+                }
+            }
         }
+
+        // dd($this->collate, $oldCollate);
 
         if (!empty($this->collate)){
             db()->insertOnDuplicate(
@@ -200,15 +224,19 @@ class UpdateMechanismState extends SimpleState
 
     /**
      * @param $type
-     * @param array $modulesOrPluginsOrThemes
+     * @param array $modulesOrApps
      * @return void
      * @throws \Exception
      */
-    private function discover($type, array $modulesOrPluginsOrThemes): void
+    private function discover($type, array $modulesOrApps): void
     {
         $tonicsHelper = helper();
-        $this->updates = array_filter(array_combine($this->updates, $this->updates));
-        foreach ($modulesOrPluginsOrThemes as $module) {
+        $updates = [];
+        foreach ($this->updates as $update){
+            $updates[strtolower($update)] = $update;
+        }
+        $this->updates = $updates;
+        foreach ($modulesOrApps as $module) {
             /** @var $module ModuleConfig|PluginConfig */
             $dir = $tonicsHelper->getClassDirectory($module);
             $dirName = $tonicsHelper->getFileName($dir);
@@ -217,6 +245,7 @@ class UpdateMechanismState extends SimpleState
                     continue;
                 }
             }
+
             if (isset($module->info()['update_discovery_url'])) {
                 $data = $this->getJSONFromURL($module->info()['update_discovery_url']);
                 if (isset($data->tag_name) && isset($data->assets[0])) {
@@ -263,6 +292,7 @@ class UpdateMechanismState extends SimpleState
                     if (!$copyResult) {
                         $error = "An Error Occurred, Moving Some Files In: '$name'";
                         $this->errorMessage($error);
+                        $this->setStateResult(SimpleState::ERROR);
                         $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                     } else {
                         $directory = $dirPath . $sep . "$folderName";
@@ -271,6 +301,7 @@ class UpdateMechanismState extends SimpleState
                 } else {
                     $error = "Failed To Extract: '$name'";
                     $this->errorMessage($error);
+                    $this->setStateResult(SimpleState::ERROR);
                     helper()->sendMsg($this->getCurrentState(), $error, 'issue');
                 }
             }

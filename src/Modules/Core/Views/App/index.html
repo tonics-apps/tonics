@@ -6,18 +6,27 @@
 [[hook_into('in_main')
 <section style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
     [[each("appListing in AppListingFrag")
-    <input tabindex="0" type="radio" id="[[v('_loop.key')]]" name="e8c721a5b6" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
-    <label tabindex="0" style="cursor: pointer; caret-color: transparent;" for="[[v('_loop.key')]]">[[v('_loop.key')]]
-    </label>
+    <input tabindex="0" type="radio" id="[[v('_loop.key')]]" name="app_tabs" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
+    <label tabindex="0" for="[[v('_loop.key')]]">[[v('_loop.key')]]</label>
     <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
         [[_v('appListing')]]
     </ul>
     ]]
+    <input tabindex="0" type="radio" id="app_settings" name="app_tabs">
+    <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="app_settings">Settings</label>
+    <div>
+        <form method="post" class="d:contents" action="/admin/tools/apps/discover_updates">
+            <input type="hidden" name="token" value="[[csrf()]]">
+            <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:tiny
+        margin-top:0 cursor:pointer">Force Check For App Updates
+            </button>
+        </form>
+    </div>
 </section>
 ]]
 
 [[hook_into('before_footer')
     [[_use("script:variables")]]
-    [[_use("script:post")]]
+    [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]
 ]]

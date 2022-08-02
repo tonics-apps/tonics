@@ -3643,43 +3643,41 @@ if (formFilter) {
 
 } catch (e) {
    // console.log(e.toLocaleString());
-}window.onload = function () {
-    const trashButtons = document.querySelectorAll('[data-click-onconfirmtrash="true"]');
-    const deleteButtons = document.querySelectorAll('[data-click-onconfirmdelete="true"]');
+}const trashButtons = document.querySelectorAll('[data-click-onconfirmtrash="true"]');
+const deleteButtons = document.querySelectorAll('[data-click-onconfirmdelete="true"]');
 
-    if (trashButtons) {
-        let trashIsBusy = false;
-        trashButtons.forEach((value, key) => {
-            value.addEventListener('click', (e) => {
-                let button = e.target;
-                if (trashIsBusy === false) {
-                    myModule.promptToast("Do you want to Move Item To Trash?", "Move To Trash", () => {
-                        trashIsBusy = true;
-                        button.type = 'submit'
-                        button.click();
-                        trashIsBusy = false;
-                    })
-                }
-            })
-        });
-    }
+if (trashButtons) {
+    let trashIsBusy = false;
+    trashButtons.forEach((value, key) => {
+        value.addEventListener('click', (e) => {
+            let button = e.target;
+            if (trashIsBusy === false) {
+                myModule.promptToast("Do you want to Move Item To Trash?", "Move To Trash", () => {
+                    trashIsBusy = true;
+                    button.type = 'submit'
+                    button.click();
+                    trashIsBusy = false;
+                })
+            }
+        })
+    });
+}
 
-    if (deleteButtons) {
-        let trashIsBusy = false;
-        deleteButtons.forEach((value, key) => {
-            value.addEventListener('click', (e) => {
-                let button = e.target;
-                if (trashIsBusy === false) {
-                    myModule.promptToast("Do you want to Delete Item?", "Delete Item", () => {
-                        trashIsBusy = true;
-                        button.type = 'submit'
-                        button.click();
-                        trashIsBusy = false;
-                    })
-                }
-            })
-        });
-    }
+if (deleteButtons) {
+    let trashIsBusy = false;
+    deleteButtons.forEach((value, key) => {
+        value.addEventListener('click', (e) => {
+            let button = e.target;
+            if (trashIsBusy === false) {
+                myModule.promptToast("Do you want to Delete Item?", "Delete Item", () => {
+                    trashIsBusy = true;
+                    button.type = 'submit'
+                    button.click();
+                    trashIsBusy = false;
+                })
+            }
+        })
+    });
 }
 let containerForSelection = document.querySelector('[data-container_for_selection="true"]');
     let singleFileStringName = '[data-list_id]';
@@ -3747,8 +3745,8 @@ if (containerForSelection){
     containerForSelection.addEventListener('click', (e) => {
         let el = e.target;
         // e.preventDefault();
-        e.stopPropagation();
         if (el.closest(singleFileStringName)) {
+            e.stopPropagation();
             let file = el.closest(singleFileStringName);
 
             if (document.querySelector('[data-simulate_ctrl_key="true"]')){

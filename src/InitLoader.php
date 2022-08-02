@@ -38,6 +38,25 @@ class InitLoader
     private TonicsTemplateEngines $tonicsTemplateEngines;
     private EventDispatcher $eventDispatcher;
 
+    private static bool $eventStreamAsHTML = false;
+
+    /**
+     * @return bool
+     */
+    public static function isEventStreamAsHTML(): bool
+    {
+        return self::$eventStreamAsHTML;
+    }
+
+    /**
+     * If set to true, a br tag would be appended to every sent event stream message
+     * @param bool $eventStreamAsHTML
+     */
+    public static function setEventStreamAsHTML(bool $eventStreamAsHTML): void
+    {
+        self::$eventStreamAsHTML = $eventStreamAsHTML;
+    }
+
     /**
      * Yh, Boot up the application
      * @throws Exception

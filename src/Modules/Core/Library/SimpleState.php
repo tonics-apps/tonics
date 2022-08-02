@@ -13,6 +13,8 @@ abstract class SimpleState
     private int $errorCode = 0;
     private string $errorMessage = '';
 
+    private string $sucessMessage = '';
+
     private string $stateResult = '';
 
     const DONE = 'DONE';
@@ -251,6 +253,22 @@ abstract class SimpleState
     public function setStateResult(string $stateResult): void
     {
         $this->stateResult = $stateResult;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSucessMessage(): string
+    {
+        return $this->sucessMessage;
+    }
+
+    /**
+     * @param string $sucessMessage
+     */
+    public function setSucessMessage(string $sucessMessage): void
+    {
+        $this->sucessMessage = $sucessMessage;
     }
 
 

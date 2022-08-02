@@ -115,7 +115,10 @@ trait Routes
                 $route->get('', [AppsController::class, 'index'], alias: 'index');
                 $route->post('/install', [AppsController::class, 'install'], alias: 'install');
                 $route->post('/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
-                $route->match(['post', 'delete'], ':theme/delete', [AppsController::class, 'delete']);
+                $route->match(['post', 'delete'], '/delete', [AppsController::class, 'delete']);
+
+                $route->post('/discover_updates', [AppsController::class, 'discover_updates'], alias: 'discover_updates');
+                $route->post('/update', [AppsController::class, 'update'], alias: 'update');
             }, [AppAccess::class], alias: 'apps');
 
         }, [StartSession::class, CSRFGuard::class, Authenticated::class]);

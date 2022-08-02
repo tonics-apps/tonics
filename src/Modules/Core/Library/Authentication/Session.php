@@ -559,4 +559,5 @@ SQL, $jsonPath, $sessionID);
         ## Force the cookie to set on current request
         $_COOKIE[$this->sessionName()] = $sessionID;
     }
+
 }

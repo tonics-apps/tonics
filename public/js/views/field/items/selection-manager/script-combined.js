@@ -3600,8 +3600,8 @@ if (containerForSelection){
     containerForSelection.addEventListener('click', (e) => {
         let el = e.target;
         // e.preventDefault();
-        e.stopPropagation();
         if (el.closest(singleFileStringName)) {
+            e.stopPropagation();
             let file = el.closest(singleFileStringName);
 
             if (document.querySelector('[data-simulate_ctrl_key="true"]')){
