@@ -99,7 +99,7 @@ class AppsController
             $appSystem->setCurrentState(AppsSystem::OnAppDeActivateState);
             $appSystem->runStates(false);
         }
-        session()->flash(['An Error Occurred UnInstalling App'], []);
+        session()->flash(['An Error Occurred UnInstalling App: Go Back'], []);
         redirect(route('apps.index'));
     }
 

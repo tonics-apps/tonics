@@ -174,6 +174,12 @@ class UpdateMechanismState extends SimpleState
             }
         }
         helper()->updateMaintainanceMode();
+
+        # If we had an error from the above dispatch, return it
+        if ($this->getStateResult() === self::ERROR){
+            return self::ERROR;
+        }
+
         return self::DONE;
     }
 
@@ -278,7 +284,16 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         $modules = $this->collate[$type] ?? [];
-        foreach ($modules as $module) {
+        foreach ($modules as $classString => $module) {
+            $ref = new \ReflectionClass($classString);
+            $dir = dirname($ref->getFileName());
+            $dirName = helper()->getFileName($dir);
+            if (count($this->types) === 1) {
+                if (!empty($this->updates) && !key_exists(strtolower($dirName), $this->updates)) {
+                    continue;
+                }
+            }
+
             if ($module['can_update'] && !empty($module['download_url'])) {
                 $localDriver = new LocalDriver();
                 $name = strtolower($module['version']) . '.zip';
