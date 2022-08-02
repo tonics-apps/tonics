@@ -120,9 +120,23 @@ class AppsController
         $this->appsData->handleAppRedirection($url, 'An Error Occurred While Checking For App Updates: Go Back');
     }
 
+    /**
+     * @throws \Exception
+     */
     public function new_install()
     {
-        dd(input()->fromPost()->all());
+        $url = route('apps.index');
+        $message = 'An Error Occurred While Installing App: Go Back';
+        if (input()->fromPost()->has('plugin_url')){
+            $appSystem = new AppsSystem();
+            $appSystem->setPluginURL(input()->fromPost()->retrieve('plugin_url'));
+            $appSystem->setCurrentState(AppsSystem::OnAppNewInstallState);
+            $appSystem->runStates(false);
+            if ($appSystem->getStateResult() === SimpleState::DONE){
+                $message = $appSystem->getSucessMessage();
+            }
+        }
+        $this->appsData->handleAppRedirection($url, $message);
     }
 
     /**

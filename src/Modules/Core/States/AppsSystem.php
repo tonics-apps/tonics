@@ -15,6 +15,8 @@ class AppsSystem extends SimpleState
     private array $activatorsFromPost;
     private array $allActivators;
 
+    private string $pluginURL = '';
+
     const OnAppActivateState = 'OnAppActivateState';
     const OnAppPermissionErrorState = 'OnAppPermissionErrorState';
     const OnAppProcessActivationState = 'OnAppProcessActivationState';
@@ -276,15 +278,16 @@ class AppsSystem extends SimpleState
      */
     public function OnAppNewInstallState(): string
     {
+        # Checking Only App Permission Since You Can Only Install Inside The App Directory
         if ($this->appPermissionOk()){
-            return $this->switchState(self::OnAppProcessUpdateState, self::NEXT);
+            return $this->switchState(self::OnAppProcessNewInstallationState, self::NEXT);
         }
         return $this->switchState(self::OnAppPermissionErrorState, self::NEXT);
     }
 
     public function OnAppProcessNewInstallationState(): string
     {
-
+        dd($this->getPluginURL());
     }
 
     /**
@@ -343,6 +346,22 @@ class AppsSystem extends SimpleState
     public function setAllActivators(array $allActivators): void
     {
         $this->allActivators = $allActivators;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPluginURL(): string
+    {
+        return $this->pluginURL;
+    }
+
+    /**
+     * @param string $pluginURL
+     */
+    public function setPluginURL(string $pluginURL): void
+    {
+        $this->pluginURL = $pluginURL;
     }
 
 }
