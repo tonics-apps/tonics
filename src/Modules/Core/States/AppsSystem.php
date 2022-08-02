@@ -260,7 +260,7 @@ class AppsSystem extends SimpleState
                 ->runStates(false);
             if ($updateMechanismState->getStateResult() === SimpleState::DONE){
                 $appOrModuleToUpdate = implode(',', $appOrModuleToUpdate);
-                $this->setSucessMessage("[$appOrModuleToUpdate][$updateTypes[0]] Updated");
+                $this->setSucessMessage("[$appOrModuleToUpdate][$updateTypes[0]] Updated: Go Back");
                 return self::DONE;
             }
         }

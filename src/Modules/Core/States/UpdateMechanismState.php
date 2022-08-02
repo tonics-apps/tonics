@@ -105,17 +105,16 @@ class UpdateMechanismState extends SimpleState
         $oldCollate = AppConfig::getAppUpdatesObject();
         if (is_array($oldCollate)){
             foreach ($oldCollate as $type => $collate) {
-                if (key_exists($type, self::$TYPES)){
-                    if (isset($this->collate[$type])){
-                        $this->collate[$type] = [...$collate[$type], ...$this->collate[$type]];
+                $type = strtolower($type);
+                if (key_exists($type, self::$TYPES) && is_array($oldCollate[$type])){
+                    if (isset($this->collate[$type]) && is_array($this->collate[$type])){
+                        $this->collate[$type] = [...$oldCollate[$type], ...$this->collate[$type]];
                     } else {
-                        $this->collate[$type] = $collate[$type];
+                        $this->collate[$type] = $oldCollate[$type];
                     }
                 }
             }
         }
-
-        // dd($this->collate, $oldCollate);
 
         if (!empty($this->collate)){
             db()->insertOnDuplicate(
