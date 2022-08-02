@@ -25,12 +25,12 @@
     <input tabindex="0" type="radio" id="app_uploads" name="app_tabs">
     <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="app_uploads">Upload App</label>
     <div>
-        <form method="post" class="d:contents" action="/admin/tools/apps/discover_updates">
+        <form method="post" class="d:contents" action="/admin/tools/apps/new_install">
             <input type="hidden" name="token" value="[[csrf()]]">
             <div data-widget-form="true" class="form-group">
                 <label class="menu-settings-handle-name" for="upload_plugin">Link To Zipped Plugin</label>
                 <div class="position:relative">
-                    <input data-widget-file-url="true" type="url" required class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="upload_plugin" name="upload_plugin"
+                    <input data-widget-file-url="true" type="url" required class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="upload_plugin" name="plugin_url"
                            placeholder="Link To Zipped Plugin" value="">
                     <div class="d:flex flex-gap:small flex-wrap:wrap">
                         <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default

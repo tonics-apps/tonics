@@ -120,6 +120,11 @@ class AppsController
         $this->appsData->handleAppRedirection($url, 'An Error Occurred While Checking For App Updates: Go Back');
     }
 
+    public function new_install()
+    {
+        dd(input()->fromPost()->all());
+    }
+
     /**
      * @throws \Exception
      */

@@ -119,6 +119,7 @@ trait Routes
 
                 $route->post('/discover_updates', [AppsController::class, 'discover_updates'], alias: 'discover_updates');
                 $route->post('/update', [AppsController::class, 'update'], alias: 'update');
+                $route->post('/new_install', [AppsController::class, 'new_install'], alias: 'new_install');
             }, [AppAccess::class], alias: 'apps');
 
         }, [StartSession::class, CSRFGuard::class, Authenticated::class]);
