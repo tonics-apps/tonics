@@ -307,13 +307,17 @@ class AppsSystem extends SimpleState
                     # It should only contain one folder which should be the name of the app
                     if (count($dir) === 1){
                         $appTempPath = $dir[0];
-                        $copyResult = helper()->copyFolder($appTempPath, $dirPath . $sep . "$folderName");
+                        $appName = helper()->getFileName($appTempPath);
+                        $copyResult = helper()->copyFolder($appTempPath, AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . $appName);
+                        if ($copyResult === true) {
+                            return self::DONE;
+                        }
                     }
                 }
-                dd($dir);
             }
-            dd($this->getPluginURL(), $zipName, $extractedFileResult, $extractToTemp);
         }
+
+        return self::ERROR;
     }
 
     /**
