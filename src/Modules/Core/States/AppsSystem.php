@@ -5,8 +5,10 @@ namespace App\Modules\Core\States;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Media\FileManager\LocalDriver;
 use JetBrains\PhpStorm\NoReturn;
 
 class AppsSystem extends SimpleState
@@ -285,9 +287,17 @@ class AppsSystem extends SimpleState
         return $this->switchState(self::OnAppPermissionErrorState, self::NEXT);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function OnAppProcessNewInstallationState(): string
     {
-        dd($this->getPluginURL());
+        $localDriver = new LocalDriver();
+        $name = helper()->randomString(15) . '.zip';
+        if ($localDriver->createFromURL($this->getPluginURL(), DriveConfig::getTempPathForApps(), $name, importToDB: false)){
+            $extractedFileResult = $localDriver->extractFile(DriveConfig::getTempPathForApps() . DIRECTORY_SEPARATOR. "$name", DriveConfig::getTempPathForApps(), importToDB: false);
+        }
+        dd($this->getPluginURL(), $name, $extractedFileResult);
     }
 
     /**

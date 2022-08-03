@@ -128,10 +128,15 @@ class AppsController
         $url = route('apps.index');
         $message = 'An Error Occurred While Installing App: Go Back';
         if (input()->fromPost()->has('plugin_url')){
+            InitLoader::setEventStreamAsHTML(true);
+            helper()->addEventStreamHeader(1000000, 'text/html');
+
             $appSystem = new AppsSystem();
             $appSystem->setPluginURL(input()->fromPost()->retrieve('plugin_url'));
             $appSystem->setCurrentState(AppsSystem::OnAppNewInstallState);
             $appSystem->runStates(false);
+
+            InitLoader::setEventStreamAsHTML(false);
             if ($appSystem->getStateResult() === SimpleState::DONE){
                 $message = $appSystem->getSucessMessage();
             }
