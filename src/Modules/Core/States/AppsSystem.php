@@ -294,13 +294,26 @@ class AppsSystem extends SimpleState
     public function OnAppProcessNewInstallationState(): string
     {
         $localDriver = new LocalDriver();
-        $name = helper()->randomString(15) . '.zip'; $tempPath = DriveConfig::getTempPathForApps();
-        if ($localDriver->createFromURL($this->getPluginURL(), $tempPath, $name, importToDB: false)){
-            $extractedFileResult = $localDriver->extractFile($tempPath . DIRECTORY_SEPARATOR. "$name", $tempPath, importToDB: false, onDone: function (ExtractFileState $lastExtractFileState){
-                dd($lastExtractFileState);
-            });
+        $name = helper()->randomString(15);
+        $zipName = $name . '.zip'; $tempPath = DriveConfig::getTempPathForApps();
+        if ($localDriver->createFromURL($this->getPluginURL(), $tempPath, $zipName, importToDB: false)){
+            $extractToTemp = $tempPath . DIRECTORY_SEPARATOR . $name;
+            $pathToArchive = $tempPath . DIRECTORY_SEPARATOR. $zipName;
+            helper()->createDirectoryRecursive($extractToTemp);
+            $extractedFileResult = $localDriver->extractFile($pathToArchive, $extractToTemp,importToDB: false);
+            if ($extractedFileResult === true){
+                $dir = array_filter(glob($extractToTemp . DIRECTORY_SEPARATOR .'*'), 'is_dir');
+                if (!empty($dir)){
+                    # It should only contain one folder which should be the name of the app
+                    if (count($dir) === 1){
+                        $appTempPath = $dir[0];
+                        $copyResult = helper()->copyFolder($appTempPath, $dirPath . $sep . "$folderName");
+                    }
+                }
+                dd($dir);
+            }
+            dd($this->getPluginURL(), $zipName, $extractedFileResult, $extractToTemp);
         }
-        dd($this->getPluginURL(), $name, $extractedFileResult);
     }
 
     /**
