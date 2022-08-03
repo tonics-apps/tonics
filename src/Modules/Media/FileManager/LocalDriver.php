@@ -82,10 +82,18 @@ SQL, $f);
      * @param string $extractTo
      * @param string $archiveType
      * @param bool $importToDB
+     * @param callable|null $onDone
+     * If Extraction is successful, you can use this callback to get the last $extractFileState in its param
      * @return bool
      * @throws \Exception
      */
-    public function extractFile(string $pathToArchive, string $extractTo, string $archiveType = 'zip', bool $importToDB = true): bool
+    public function extractFile(
+        string $pathToArchive,
+        string $extractTo,
+        string $archiveType = 'zip',
+        bool $importToDB = true,
+        callable $onDone = null
+    ): bool
     {
         if (strtolower($archiveType) === 'zip') {
             $extractFileState = new ExtractFileState($this);
@@ -99,10 +107,17 @@ SQL, $f);
                         ->runStates(false);
                 }
             });
+
+            $isDone = $extractFileState->getStateResult() === SimpleState::DONE;
+            if ($isDone && $onDone !== null){
+                $onDone($extractFileState);
+            }
+
             if ($importToDB === false){
                 return true;
             }
-            return $extractFileState->getStateResult() === SimpleState::DONE;
+
+            return $isDone;
         }
         return false;
     }

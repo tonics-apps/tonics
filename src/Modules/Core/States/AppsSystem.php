@@ -9,6 +9,7 @@ use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Media\FileManager\LocalDriver;
+use App\Modules\Media\States\ExtractFileState;
 use JetBrains\PhpStorm\NoReturn;
 
 class AppsSystem extends SimpleState
@@ -293,9 +294,11 @@ class AppsSystem extends SimpleState
     public function OnAppProcessNewInstallationState(): string
     {
         $localDriver = new LocalDriver();
-        $name = helper()->randomString(15) . '.zip';
-        if ($localDriver->createFromURL($this->getPluginURL(), DriveConfig::getTempPathForApps(), $name, importToDB: false)){
-            $extractedFileResult = $localDriver->extractFile(DriveConfig::getTempPathForApps() . DIRECTORY_SEPARATOR. "$name", DriveConfig::getTempPathForApps(), importToDB: false);
+        $name = helper()->randomString(15) . '.zip'; $tempPath = DriveConfig::getTempPathForApps();
+        if ($localDriver->createFromURL($this->getPluginURL(), $tempPath, $name, importToDB: false)){
+            $extractedFileResult = $localDriver->extractFile($tempPath . DIRECTORY_SEPARATOR. "$name", $tempPath, importToDB: false, onDone: function (ExtractFileState $lastExtractFileState){
+                dd($lastExtractFileState);
+            });
         }
         dd($this->getPluginURL(), $name, $extractedFileResult);
     }
