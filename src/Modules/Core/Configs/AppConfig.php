@@ -99,14 +99,6 @@ class AppConfig
                 $themeFound = false;
                 foreach ($apps as $app) {
                     /** @var $app ModuleConfig|PluginConfig */
-                    // We Can Only Have One Theme
-                   /* if (isset($app->info()['Type']) && strtolower($app->info()['Type']) === 'theme'){
-                        if ($themeFound){
-                            continue;
-                        }
-                        $themeFound = true;
-                    }*/
-
                     if ($app->enabled()) {
                         $app->route($router->getRoute());
                         ## The array_intersect_key checks if the apps event array has something in common with the module event($events),
@@ -389,5 +381,21 @@ class AppConfig
     {
         return APP_ROOT . DIRECTORY_SEPARATOR . '.env';
     }
+
+    public static function isInternalModuleNameSpace(string $class): bool
+    {
+        $moduleNameSpace = 'App\Modules';
+        return str_starts_with($class, $moduleNameSpace);
+    }
+
+    public static function isAppNameSpace(string|object $object_or_class): bool
+    {
+        if (is_object($object_or_class)){
+            $object_or_class = $object_or_class::class;
+        }
+        $moduleNameSpace = 'App\Apps';
+        return str_starts_with($object_or_class, $moduleNameSpace);
+    }
+
 
 }

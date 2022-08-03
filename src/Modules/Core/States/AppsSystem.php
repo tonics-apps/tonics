@@ -33,8 +33,8 @@ class AppsSystem extends SimpleState
     const OnAppUpdateState = 'OnAppUpdateState';
     const OnAppProcessUpdateState = 'OnAppProcessUpdateState';
 
-    const OnAppNewInstallState = 'OnAppNewInstallState';
-    const OnAppProcessNewInstallationState = 'OnAppProcessNewInstallationState';
+    const OnAppUploadState = 'OnAppUploadState';
+    const OnAppProcessUploadState = 'OnAppProcessUploadState';
 
     /**
      * @throws \Exception
@@ -75,20 +75,25 @@ class AppsSystem extends SimpleState
      */
     public function OnAppProcessActivationState(): string
     {
-        $result = false; $errorActivatorName = []; $installedApp = [];
+        $errorActivatorName = []; $installedApp = [];
         foreach ($this->activatorsFromPost as $activatorPost){
             if (isset($this->allActivators[$activatorPost])){
                 /** @var PluginConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
-                $ref = new \ReflectionClass($activator);
-                $toInstallThemeDir = dirname($ref->getFileName());
-                $installedFilePath = $toInstallThemeDir . DIRECTORY_SEPARATOR . '.installed';
-                $result = @file_put_contents($installedFilePath, '');
-                if ($result === false){
-                    $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
-                } else {
-                    $activator->onInstall();
-                    $installedApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
+                    $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
+                    # You can't activate an internal module, this is to avoid cases where an app is using a module namespace
+                    if ($this->isInternalModulePath($appDirPath) === true){
+                        $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                        continue;
+                    }
+                    $result = @file_put_contents($installedFilePath, '');
+                    if ($result === false){
+                        $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                    } else {
+                        $activator->onInstall();
+                        $installedApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                    }
                 }
             }
         }
@@ -130,14 +135,15 @@ class AppsSystem extends SimpleState
             if (isset($this->allActivators[$activatorPost])){
                 /** @var PluginConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
-                $ref = new \ReflectionClass($activator);
-                $toInstallThemeDir = dirname($ref->getFileName());
-                $installedFilePath = $toInstallThemeDir . DIRECTORY_SEPARATOR . '.installed';
-                if (helper()->fileExists($installedFilePath) && helper()->forceDeleteFile($installedFilePath)){
-                    $activator->onUninstall();
-                    $unInstalledApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
-                } else {
-                    $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
+                    $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
+                    # You can't de-activate an internal module, this is to avoid cases where an app is using a module namespace
+                    if ($this->isInternalModulePath($appDirPath) === false && helper()->fileExists($installedFilePath) && helper()->forceDeleteFile($installedFilePath)){
+                        $activator->onUninstall();
+                        $unInstalledApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                    } else {
+                        $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                    }
                 }
             }
         }
@@ -179,27 +185,27 @@ class AppsSystem extends SimpleState
             if (isset($this->allActivators[$activatorPost])){
                 /** @var PluginConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
-                $ref = new \ReflectionClass($activator);
-                $toInstallThemeDir = dirname($ref->getFileName());
-                $installedFilePath = $toInstallThemeDir . DIRECTORY_SEPARATOR . '.installed';
+                if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
+                    $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
 
-                # You can't delete an app that has .installed file
-                if (helper()->fileExists($installedFilePath)){
-                    $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
-                    continue;
-                }
+                    # You can't delete an app that has .installed file
+                    if (helper()->fileExists($installedFilePath)){
+                        $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                        continue;
+                    }
 
-                # You can't delete an internal module even with a trick
-                if (str_starts_with($toInstallThemeDir, AppConfig::getModulesPath())){
-                    $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
-                    continue;
-                }
+                    # You can't delete an internal module (the AppNameSpace check should have prevented it but 2 check ain't bad)
+                    if ($this->isInternalModulePath($appDirPath)){
+                        $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                        continue;
+                    }
 
-                # Okay, Things are fine, remove the app
-                if(helper()->deleteDirectory($toInstallThemeDir)){
-                    $deletedApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
-                } else {
-                    $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                    # Okay, Things are fine, remove the app
+                    if(helper()->deleteDirectory($appDirPath)){
+                        $deletedApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                    } else {
+                        $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                    }
                 }
             }
         }
@@ -235,22 +241,21 @@ class AppsSystem extends SimpleState
      */
     public function OnAppProcessUpdateState(): string
     {
-        $errorActivatorName = []; $updateApp = []; $updateTypes = []; $appOrModuleToUpdate = [];
+        $updateTypes = []; $appOrModuleToUpdate = [];
         foreach ($this->activatorsFromPost as $activatorPost) {
             if (isset($this->allActivators[$activatorPost])) {
                 /** @var PluginConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
-                $ref = new \ReflectionClass($activator);
-                $toInstallThemeDir = dirname($ref->getFileName());
+                if (($appDirPath = helper()->getClassDirectory($activator)) !== false){
+                    if (str_starts_with($appDirPath, AppConfig::getModulesPath())){
+                        $updateTypes[] = 'module';
+                    }
+                    if (str_starts_with($appDirPath, AppConfig::getAppsPath())){
+                        $updateTypes[] = 'app';
+                    }
 
-                if (str_starts_with($toInstallThemeDir, AppConfig::getModulesPath())){
-                    $updateTypes[] = 'module';
+                    $appOrModuleToUpdate[] = helper()->getFileName($appDirPath);
                 }
-                if (str_starts_with($toInstallThemeDir, AppConfig::getAppsPath())){
-                    $updateTypes[] = 'app';
-                }
-
-                $appOrModuleToUpdate[] = helper()->getFileName($toInstallThemeDir);
             }
         }
 
@@ -279,11 +284,11 @@ class AppsSystem extends SimpleState
     /**
      * @throws \Exception
      */
-    public function OnAppNewInstallState(): string
+    public function OnAppUploadState(): string
     {
         # Checking Only App Permission Since You Can Only Install Inside The App Directory
         if ($this->appPermissionOk()){
-            return $this->switchState(self::OnAppProcessNewInstallationState, self::NEXT);
+            return $this->switchState(self::OnAppProcessUploadState, self::NEXT);
         }
         return $this->switchState(self::OnAppPermissionErrorState, self::NEXT);
     }
@@ -291,7 +296,7 @@ class AppsSystem extends SimpleState
     /**
      * @throws \Exception
      */
-    public function OnAppProcessNewInstallationState(): string
+    public function OnAppProcessUploadState(): string
     {
         $localDriver = new LocalDriver();
         $name = helper()->randomString(15);
@@ -304,14 +309,34 @@ class AppsSystem extends SimpleState
             if ($extractedFileResult === true){
                 $dir = array_filter(glob($extractToTemp . DIRECTORY_SEPARATOR .'*'), 'is_dir');
                 if (!empty($dir)){
-                    # It should only contain one folder which should be the name of the app
-                    if (count($dir) === 1){
-                        $appTempPath = $dir[0];
-                        $appName = helper()->getFileName($appTempPath);
-                        $copyResult = helper()->copyFolder($appTempPath, AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . $appName);
-                        if ($copyResult === true) {
-                            return self::DONE;
-                        }
+                    return $this->OnAppFinalizeUpload($dir);
+                }
+            }
+        }
+
+        return self::ERROR;
+    }
+
+    /**
+     * @param $dir
+     * @return string
+     * @throws \Exception
+     */
+    public function OnAppFinalizeUpload($dir): string
+    {
+        # It should only contain one folder which should be the name of the app
+        if (count($dir) === 1){
+            $appTempPath = $dir[0];
+            $activatorFile = helper()->findFilesWithExtension(['php'], $appTempPath) ?? [];
+            # Should only have one PHP File at the Root which should be the activator
+            if (count($activatorFile) === 1 && ($getFileContent = @file_get_contents($activatorFile[0]))){
+               $class = helper()->getFullClassName($getFileContent);
+                if (AppConfig::isAppNameSpace($class)){
+                    $appName = helper()->getFileName($appTempPath);
+                    $copyResult = helper()->copyFolder($appTempPath, AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . $appName);
+                    if ($copyResult === true) {
+                        $this->setSucessMessage("[$appName] Uploaded: Go Back");
+                        return self::DONE;
                     }
                 }
             }
@@ -343,6 +368,11 @@ class AppsSystem extends SimpleState
     {
         return helper()->isReadable(AppConfig::getAppsPath()) && helper()->isWritable(AppConfig::getAppsPath())
             && helper()->isReadable(AppConfig::getModulesPath()) && helper()->isWritable(AppConfig::getModulesPath());
+    }
+    
+    public function isInternalModulePath($appDir): bool
+    {
+        return str_starts_with($appDir, AppConfig::getModulesPath());
     }
 
 

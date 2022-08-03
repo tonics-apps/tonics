@@ -77,7 +77,7 @@ class Installer extends SimpleState
             }
 
             # At this point, we save the requestEntityBody to JSON to be further processed by the install() method of the installer API
-            $result = file_put_contents(AppConfig::getAppRoot() . DIRECTORY_SEPARATOR . 'install.json', request()->getEntityBody());
+            $result = @file_put_contents(AppConfig::getAppRoot() . DIRECTORY_SEPARATOR . 'install.json', request()->getEntityBody());
             if ($result === false){
                 SimpleState::displayErrorMessage(400, "An Issue Occurred Creating The Temp Validation Installation JSON File", true);
             }

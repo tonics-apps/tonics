@@ -123,17 +123,17 @@ class AppsController
     /**
      * @throws \Exception
      */
-    public function new_install()
+    public function upload()
     {
         $url = route('apps.index');
-        $message = 'An Error Occurred While Installing App: Go Back';
+        $message = 'An Error Occurred While Uploading App: Go Back';
         if (input()->fromPost()->has('plugin_url')){
             InitLoader::setEventStreamAsHTML(true);
             helper()->addEventStreamHeader(1000000, 'text/html');
 
             $appSystem = new AppsSystem();
             $appSystem->setPluginURL(input()->fromPost()->retrieve('plugin_url'));
-            $appSystem->setCurrentState(AppsSystem::OnAppNewInstallState);
+            $appSystem->setCurrentState(AppsSystem::OnAppUploadState);
             $appSystem->runStates(false);
 
             InitLoader::setEventStreamAsHTML(false);

@@ -25,7 +25,7 @@
     <input tabindex="0" type="radio" id="app_uploads" name="app_tabs">
     <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="app_uploads">Upload App</label>
     <div>
-        <form method="post" class="d:contents" action="/admin/tools/apps/new_install">
+        <form method="post" class="d:contents" action="/admin/tools/apps/upload">
             <input type="hidden" name="token" value="[[csrf()]]">
             <div data-widget-form="true" class="form-group">
                 <label class="menu-settings-handle-name" for="upload_plugin">Link To Zipped Plugin</label>
@@ -36,7 +36,7 @@
                         <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
                         margin-top:0 cursor:pointer">Upload Link</button>
                         <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:default
-        margin-top:0 cursor:pointer">Install
+        margin-top:0 cursor:pointer">Upload
                         </button>
                     </div>
                 </div>
@@ -48,6 +48,6 @@
 
 [[hook_into('before_footer')
     [[_use("script:variables")]]
-    [[_use("script:post")]]
+    [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]
 ]]
