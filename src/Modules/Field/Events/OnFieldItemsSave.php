@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Field\Controllers;
+namespace App\Modules\Field\Events;
 
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 

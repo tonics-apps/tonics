@@ -2,10 +2,12 @@
 
 namespace App\Apps\NinetySeven;
 
+use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
 use App\Apps\NinetySeven\EventHandler\TemplateEngines\ThemeTemplateHooks;
 use App\Apps\NinetySeven\Route\Routes;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Core\Events\OnSelectTonicsTemplateHooks;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
@@ -37,6 +39,10 @@ class NinetySevenActivator implements ModuleConfig, PluginConfig
         return [
             OnSelectTonicsTemplateHooks::class => [
                 ThemeTemplateHooks::class
+            ],
+
+            EditorsAsset::class => [
+                EditorsAssetsHandler::class
             ]
         ];
     }

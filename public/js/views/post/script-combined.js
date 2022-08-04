@@ -3320,84 +3320,7 @@ export {
 * Released under the MIT License.
 */
 import * as myModule from "./script-combined.js";
-let widgetDateInput = document.querySelector('[data-widget-date="true"]'),
-    widgetDateInputForPost = document.querySelector('[data-widget-date-forpost="true"]'),
-    isWidgetDateInputChangedByHuman = false;
-
-let widgetDateInputForPostInitVal = 'Publish';
-if (widgetDateInputForPost) {
-    widgetDateInputForPostInitVal = widgetDateInputForPost.innerText;
-}
-if (widgetDateInput){
-    widgetDateInput.addEventListener('change', (e) => {
-        let d_now = new Date();
-        let d_inp = new Date(e.target.value);
-        if (widgetDateInputForPost) {
-            if (d_now.getTime() <= d_inp.getTime()) {
-                // The date user selected is in the future
-                widgetDateInputForPost.innerText = 'Schedule'
-                return false;
-            }
-            // The date user selected is in the past
-            widgetDateInputForPost.innerText = widgetDateInputForPostInitVal
-        }
-    });
-}
-
-if (widgetDateInput) {
-    let isWidgetDataInputClicked = false, isWidgetDataInputChanged = false;
-    widgetDateInput.addEventListener('click', () => {
-        isWidgetDataInputClicked = true;
-    });
-
-    widgetDateInput.addEventListener('input', (e) => {
-        isWidgetDataInputChanged = true;
-        if (isWidgetDataInputClicked) {
-            isWidgetDateInputChangedByHuman = true;
-        }
-    });
-
-    // would fire when observerWidgetInputInView 10% area is visible
-    const observerWidgetInputInView = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting === true) {
-            // if human hasn't changed the date initially, we update it
-            if (isWidgetDateInputChangedByHuman === false) {
-                widgetDateInput.value = new Date().toLocaleString('en-CA', {
-                    timeZone: siteTimeZone,
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                    minute: 'numeric',
-                    second: 'numeric',
-                    hour: 'numeric',
-                    hour12: false,
-                }).replace(/, /gi, 'T');
-            }
-        }
-    }, {threshold: [0.10]});
-    observerWidgetInputInView.observe(widgetDateInput);
-}// For SLUG TITLE AND DATE
-let inputTitle = document.querySelector('[data-widget-title-slugtochange="true"]'),
-    widgetSlugToUpdate = document.querySelector('[data-widget-title-slugtoupdate="true"]');
-
-if (inputTitle){
-    inputTitle.addEventListener('input', (e) => {
-        let el = e.target, slugTitle = el.value;
-        if (slugTitle && widgetSlugToUpdate){
-            slugTitle = myModule.slug(slugTitle);
-            widgetSlugToUpdate.value = slugTitle;
-        }
-    });
-}// ************************ Auto-Generate Cat Slug For Category Create/Edit ***************** //
-let categorySelector = document.querySelector('[data-widget-select-category="true"]');
-let mainURLSlug = document.querySelector('input[name=cat_url_slug]');
-if (categorySelector && mainURLSlug) {
-    categorySelector.addEventListener('change', function (e) {
-        let selected = categorySelector.options[categorySelector.selectedIndex];
-        mainURLSlug.value = selected.getAttribute("data-path");
-        e.preventDefault();
-    });
-}let scripts = document.querySelectorAll("[data-script_path]");
+let scripts = document.querySelectorAll("[data-script_path]");
 scripts.forEach((script) => {
     myModule.loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
@@ -3423,7 +3346,8 @@ if (fieldID) {
 let menuArrangerLi = document.querySelector('.menu-arranger-li');
 if (menuArrangerLi) {
     try {
-        new myModule.MenuToggle('form', new myModule.Query())
+        const menuToggleUserFieldItems = new myModule.MenuToggle('.EditorsForm', new myModule.Query());
+        menuToggleUserFieldItems
             .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
             .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
             .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
@@ -3519,6 +3443,83 @@ function insertFieldItems(data, checkedSlug) {
             })
         });
     }
+}let widgetDateInput = document.querySelector('[data-widget-date="true"]'),
+    widgetDateInputForPost = document.querySelector('[data-widget-date-forpost="true"]'),
+    isWidgetDateInputChangedByHuman = false;
+
+let widgetDateInputForPostInitVal = 'Publish';
+if (widgetDateInputForPost) {
+    widgetDateInputForPostInitVal = widgetDateInputForPost.innerText;
+}
+if (widgetDateInput){
+    widgetDateInput.addEventListener('change', (e) => {
+        let d_now = new Date();
+        let d_inp = new Date(e.target.value);
+        if (widgetDateInputForPost) {
+            if (d_now.getTime() <= d_inp.getTime()) {
+                // The date user selected is in the future
+                widgetDateInputForPost.innerText = 'Schedule'
+                return false;
+            }
+            // The date user selected is in the past
+            widgetDateInputForPost.innerText = widgetDateInputForPostInitVal
+        }
+    });
+}
+
+if (widgetDateInput) {
+    let isWidgetDataInputClicked = false, isWidgetDataInputChanged = false;
+    widgetDateInput.addEventListener('click', () => {
+        isWidgetDataInputClicked = true;
+    });
+
+    widgetDateInput.addEventListener('input', (e) => {
+        isWidgetDataInputChanged = true;
+        if (isWidgetDataInputClicked) {
+            isWidgetDateInputChangedByHuman = true;
+        }
+    });
+
+    // would fire when observerWidgetInputInView 10% area is visible
+    const observerWidgetInputInView = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting === true) {
+            // if human hasn't changed the date initially, we update it
+            if (isWidgetDateInputChangedByHuman === false) {
+                widgetDateInput.value = new Date().toLocaleString('en-CA', {
+                    timeZone: siteTimeZone,
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    hour: 'numeric',
+                    hour12: false,
+                }).replace(/, /gi, 'T');
+            }
+        }
+    }, {threshold: [0.10]});
+    observerWidgetInputInView.observe(widgetDateInput);
+}// For SLUG TITLE AND DATE
+let inputTitle = document.querySelector('[data-widget-title-slugtochange="true"]'),
+    widgetSlugToUpdate = document.querySelector('[data-widget-title-slugtoupdate="true"]');
+
+if (inputTitle){
+    inputTitle.addEventListener('input', (e) => {
+        let el = e.target, slugTitle = el.value;
+        if (slugTitle && widgetSlugToUpdate){
+            slugTitle = myModule.slug(slugTitle);
+            widgetSlugToUpdate.value = slugTitle;
+        }
+    });
+}// ************************ Auto-Generate Cat Slug For Category Create/Edit ***************** //
+let categorySelector = document.querySelector('[data-widget-select-category="true"]');
+let mainURLSlug = document.querySelector('input[name=cat_url_slug]');
+if (categorySelector && mainURLSlug) {
+    categorySelector.addEventListener('change', function (e) {
+        let selected = categorySelector.options[categorySelector.selectedIndex];
+        mainURLSlug.value = selected.getAttribute("data-path");
+        e.preventDefault();
+    });
 }try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {

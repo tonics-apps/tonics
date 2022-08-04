@@ -4,7 +4,6 @@ namespace App\Modules\Core\States;
 
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Library\View\CustomTokenizerState\WordPress\WordPressShortCode;

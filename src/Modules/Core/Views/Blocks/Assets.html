@@ -90,9 +90,8 @@
         '/js/MainTools/AudioPlayer.js',
 
         '/js/views/track/main.js',
-        '/js/MainTools/FormFilter.js',
-        '/js/MainTools/ToastMessage.js',
         '/js/views/field/items/user/index.js',
+        '/js/MainTools/ToastMessage.js',
         '/js/MainTools/TinyMCEHooker.js',
         '/js/MainTools/SiteNavToggle.js',
         '/js/MainTools/Widget/FeaturedImage.js',
@@ -105,24 +104,16 @@
 
 
 [[b('script:post')
-<template class="tiny-mce-assets">
-    <input class="css" value="/serve_app_file_path_987654321/NinetySeven/?path=css/styles.min.css">
-    <!-- <input class="css" value="/css/styles.css">-->
-    <input class="js" value="/js/views/field/items/selection-manager/script-combined.js">
-    <input class="js" value="/js/MainTools/Widget/FeaturedImage.js">
-    <input class="js" value="/js/MainTools/Widget/FeaturedLink.js">
-</template>
-
-<script class="script-with-field" type="module" src="[[combine('/js/views/post/script-combined.js',
+<script  type="module" src="[[combine('/js/views/post/script-combined.js',
         '/js/Modules/Element/MenuToggle.js',
         '/js/Modules/Element/Query.js',
         '/js/Modules/Others/Helpers.js',
 
         '/js/views/post/main.js',
+        '/js/views/field/items/user/index.js',
          '/js/MainTools/Widget/WidgetDate.js',
         '/js/MainTools/Widget/WidgetTitleSlug.js',
         '/js/MainTools/Widget/WidgetSelectCategory.js',
-        '/js/views/field/items/user/index.js',
         '/js/MainTools/ToastMessage.js',
         '/js/MainTools/TinyMCEHooker.js',
         '/js/MainTools/SiteNavToggle.js',

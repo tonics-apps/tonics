@@ -10,10 +10,12 @@ namespace App\Modules\Core;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\EventHandlers\CoreMenus;
+use App\Modules\Core\EventHandlers\DefaultEditorsAsset;
 use App\Modules\Core\EventHandlers\TemplateEngines\DeactivateCombiningFilesInProduction;
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeHooks;
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeTemplateEngine;
 use App\Modules\Core\EventHandlers\TemplateEngines\WordPressTemplateEngine;
+use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\OnSelectTonicsTemplateHooks;
 use App\Modules\Core\Events\TonicsTemplateEngines;
@@ -56,6 +58,10 @@ class CoreActivator implements ModuleConfig, PluginConfig
             BeforeCombineModeOperation::class => [
               DeactivateCombiningFilesInProduction::class
             ],
+
+            EditorsAsset::class => [
+                DefaultEditorsAsset::class
+            ]
         ];
 
     }

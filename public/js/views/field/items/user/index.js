@@ -24,7 +24,8 @@ if (fieldID) {
 let menuArrangerLi = document.querySelector('.menu-arranger-li');
 if (menuArrangerLi) {
     try {
-        new myModule.MenuToggle('form', new myModule.Query())
+        const menuToggleUserFieldItems = new myModule.MenuToggle('.EditorsForm', new myModule.Query());
+        menuToggleUserFieldItems
             .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
             .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
             .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
