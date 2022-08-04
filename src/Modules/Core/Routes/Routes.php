@@ -46,8 +46,6 @@ trait Routes
                         # DASHBOARD PANEL...
                     #---------------------------------
                     $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
-//                    $route->get('plugins', [PluginManagerController::class, 'index'], alias: 'plugin');
-//                    $route->post('plugin/status/update', [PluginManagerController::class, 'activateDeactivate'], alias: 'plugin.status.update');
 
                             #---------------------------------
                         # For Profile Controller...
@@ -75,7 +73,7 @@ trait Routes
                     $route->get('login', [LoginController::class, 'showLoginForm'], requestInterceptor: [RedirectAuthenticated::class], alias: 'login');
                     $route->post('login', [LoginController::class, 'login']);
                     $route->post('logout', [LoginController::class, 'logout'], alias: 'logout');
-                }, [RedirectAuthenticated::class]);
+                });
 
                         #---------------------------------
                     # Registration Routes...

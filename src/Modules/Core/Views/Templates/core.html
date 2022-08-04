@@ -34,6 +34,35 @@
             <ul class="site-navigation-ul d:flex flex-gap list:style:none">
                 [[event('\App\Modules\Core\Events\OnAdminMenu', 'generateMenuTree')]]
                 [[add_hook('in_site_navigation_ul')]]
+                <li class="menu-block" data-menu-depth="0">
+                    <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
+                        <svg class="icon:admin tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">Settings</div>
+                        <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false" aria-label="Expand child menu" data-menutoggle_click_outside="true">
+                        <svg class="icon:admin tonics-arrow-down">
+                            <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                        </svg>
+                    </button>
+                    </a>
+                    <!-- The child menu-->
+                    <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+                        <li class="menu-block" data-menu-depth="1">
+                        <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
+                            <svg class="icon:admin tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>
+                            <div class="text:paragraph-fluid-one text:no-wrap">General</div>
+                        </a>
+                        </li>
+                        <li class="menu-block" data-menu-depth="1">
+                            <form method="post" class="d:flex height:100%" action="[[url('admin.logout')]]">
+                                <input type="hidden" name="token" value="[[csrf()]]">
+                                <button class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black cursor:pointer" title="">
+                                    <svg class="icon:admin dashboard"> <use xlink:href="#tonics-dashboard"></use></svg>
+                                    <span class="text:paragraph-fluid-one text:no-wrap">Logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </nav>
     </section>

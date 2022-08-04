@@ -51,8 +51,7 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
     public function RedirectAuthenticatedInitialStateHandler(): string
     {
         if (UserData::isAuthenticated()){
-            $this->setCurrentState(self::RedirectAuthenticatedIdentifyUserType);
-            return self::NEXT;
+            return $this->switchState(self::RedirectAuthenticatedIdentifyUserType, self::NEXT);
         }
 
         return self::DONE;
@@ -75,13 +74,11 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
         $this->userTypeName = $userTypeName;
 
         if($userTypeName === UserData::UserAdmin_STRING){
-            $this->setCurrentState(self::RedirectAuthenticatedUserTypeAdmin);
-            return self::NEXT;
+            return $this->switchState(self::RedirectAuthenticatedUserTypeAdmin, self::NEXT);
         }
 
         if($userTypeName === UserData::UserCustomer_STRING){
-            $this->setCurrentState(self::RedirectAuthenticatedUserTypeCustomer);
-            return self::NEXT;
+            return $this->switchState(self::RedirectAuthenticatedUserTypeCustomer, self::NEXT);
         }
 
         ## Anything Else: return unauthorized access (we can never get here, but we should use this just in case)

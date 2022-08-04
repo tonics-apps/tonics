@@ -12,6 +12,7 @@ use App\Modules\Core\Data\UserData;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\Validation\Traits\Validator;
 use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\NoReturn;
 
 class LoginController extends Controller
 {
@@ -43,10 +44,13 @@ class LoginController extends Controller
         (new RedirectAuthenticated())->handle(request());
     }
 
-    public function logout()
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] public function logout()
     {
-        session()->regenerate();
-        dd(input()->fromPost()->all());
+        session()->logout();
+        redirect(route('admin.login'));
     }
 
     /**

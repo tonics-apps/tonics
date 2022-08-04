@@ -31,12 +31,7 @@ class CoreMenus implements HandlerInterface
         /** @var OnAdminMenu $event */
         $event->if(UserData::canAccess(Roles::CAN_ACCESS_CORE, $event->userRole()), function ($event) {
 
-            return $event->addMenu(OnAdminMenu::SettingsMenuID, 'Settings', helper()->getIcon('cog', 'icon:admin'), route('general.settings'))
-                ->addMenu(OnAdminMenu::SettingsMenuID + 1, 'Profile', helper()->getIcon('cog', 'icon:admin'), route('profile.settings'), parent: OnAdminMenu::SettingsMenuID)
-                ->addMenu(OnAdminMenu::SettingsMenuID + 2, 'General', helper()->getIcon('cog', 'icon:admin'), route('general.settings'), parent: OnAdminMenu::SettingsMenuID)
-                ->addMenu(OnAdminMenu::SettingsMenuID + 3, 'Logout', helper()->getIcon('sign-out', 'icon:admin'), route('admin.logout'), parent: OnAdminMenu::SettingsMenuID)
-
-                ->addMenu(
+            return $event->addMenu(
                     OnAdminMenu::ToolsMenuID,
                     'Tools',
                     helper()->getIcon('tools', 'icon:admin'),

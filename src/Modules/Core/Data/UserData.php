@@ -35,7 +35,7 @@ class UserData extends AbstractDataLayer
     }
 
     /**
-     * Since the user table can ploy-morph sort of, we need to insert data into $userData first,
+     * Since the user table can poly-morph sort of, we need to insert data into $userData first,
      * we then add the correlation to $subTypeData. When we insert the userData, we return the user_id which we would use to
      * finally add data to the subTypeData.
      *
@@ -177,14 +177,15 @@ SQL, ...$parameter);
     {
         $sessionData = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
 
+        $result = '';
         if (empty($sessionData)){
-            return $sessionData;
+            return $result;
         }
 
         if ($key === Session::SessionCategories_AuthInfo){
             return json_decode($sessionData);
         }
-        $result = '';
+
         if (is_string($sessionData)){
             $sessionData = json_decode($sessionData);
             if (property_exists($sessionData, $key)){

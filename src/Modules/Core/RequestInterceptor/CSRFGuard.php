@@ -27,7 +27,12 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
 
         // Initial State
         $this->setCurrentState(self::CSRFGuardInitialStateHandler);
-        $this->runStates();
+        $this->runStates(false);
+        // Token Mis-Match, send to login page
+        if ($this->getStateResult() === self::ERROR){
+            session()->logout();
+            redirect(route('admin.login'));
+        }
     }
 
     /**

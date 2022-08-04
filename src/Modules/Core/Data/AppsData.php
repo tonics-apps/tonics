@@ -22,7 +22,7 @@ class AppsData extends AbstractDataLayer
         $internal_modules = helper()->getModuleActivators([ModuleConfig::class, PluginConfig::class]);
         $updatesObject = AppConfig::getAppUpdatesObject();
 
-        $k = 0;
+        $k = 1;
         foreach ($apps as $path => $app){
             $classToString = $app::class;
             $updateInfos = [$classToString];
@@ -105,7 +105,6 @@ HTML;
             ++$k;
         }
 
-        $k = 0;
         foreach ($internal_modules as $module){
             /** @var $module PluginConfig **/
             $classToString = $module::class;

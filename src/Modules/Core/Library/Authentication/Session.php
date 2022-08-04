@@ -43,13 +43,13 @@ class Session
      */
     #[Pure] public function sessionExist(): bool
     {
-        return !empty($_COOKIE[$this->sessionName()]);
+        return !empty($this->getCookieID());
     }
 
     /**
      * @throws \Exception
      */
-    public function startSession()
+    public function startSession(): void
     {
         if ($this->sessionExist() === false) {
             ## The session would only be created in the db as soon as you start writing to it.
@@ -57,41 +57,69 @@ class Session
         }
     }
 
+    /**
+     * @param string $sessionName
+     * @return mixed
+     */
+    public function getCookieID(string $sessionName = ''): mixed
+    {
+        $sessionName = (empty($sessionName)) ? $this->sessionName() : $sessionName;
+        return  $_COOKIE[$sessionName];
+    }
+
 
     /**
      * Returns all session data
-     * @param bool $returnArray
+     * @param bool $array
      * By default, it would return a stdclass, setting to true would return an array
      * @return mixed
      * @throws \Exception
      */
-    public function read(bool $returnArray = false): mixed
+    public function read(bool $array = false): mixed
     {
         if ($this->sessionExist() === false) {
             return '';
         }
 
-        $stm = db()->row(<<<SQL
-SELECT `session_data`, `updated_at` FROM {$this->getTable()} WHERE session_id = ?
-SQL, $_COOKIE[$this->sessionName()]);
-        if (is_null($stm)) {
+        $data = db()->row(<<<SQL
+SELECT * FROM {$this->getTable()} WHERE session_id = ?
+SQL, $this->getCookieID());
+
+        if (is_null($data)) {
             return '';
         }
 
         ## Not necessary but if the event_scheduler hasn't cleared the old session, then we wouldn't want to return it
         ## Should we clear the old session ourselves here? yes or we get a bug where no data would be written in session
-        $dateTime = helper()->date();
-        $updatedAt = $stm->updated_at;
-        if ($updatedAt < $dateTime) {
-            session()->clear($_COOKIE[$this->sessionName()]);
+        if ($this->isOldSession($data)){
+            $this->logout();
             return '';
         }
 
-        if ($returnArray) {
-            return json_decode($stm->session_data, true);
+        if (helper()->isJSON($data->session_data ?? '')){
+            return ($array) ? json_decode($data->session_data, true) : json_decode($data->session_data);
         }
 
-        return json_decode($stm->session_data);
+        return '';
+    }
+
+
+    /**
+     * @param $data
+     * @return bool
+     * @throws \Exception
+     */
+    public function isOldSession($data): bool
+    {
+        if (is_object($data) && isset($data->updated_at)){
+            $dateTime = helper()->date();
+            $updatedAt = $data->updated_at;
+            if ($updatedAt < $dateTime) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -182,7 +210,6 @@ SQL, $_COOKIE[$this->sessionName()]);
      */
     public function append(string $key, array|stdClass|string $data): void
     {
-        // dd($this->sessionExist(), $_COOKIE[$this->sessionName()], $this->read(true));
         if ($this->sessionExist()) {
             if (is_array($data) || is_object($data)) {
                 $data = json_encode($data);
@@ -218,7 +245,7 @@ SQL, $_COOKIE[$this->sessionName()]);
     public function hasKey(string $key): bool
     {
         if ($this->sessionExist()) {
-            $sessionID = $_COOKIE[$this->sessionName()];
+            $sessionID = $this->getCookieID();
             $jsonPath = '$.' . $key;
 
             $res = db()->row(<<<SQL
@@ -248,6 +275,7 @@ SQL, $jsonPath, $sessionID);
         if (session()->hasKey(Session::SessionCategories_CSRFToken) === false){
             session()->append(Session::SessionCategories_CSRFToken, helper()->randomString());
         }
+
         return session()->retrieve(Session::SessionCategories_CSRFToken, jsonDecode: true);
     }
 
@@ -322,12 +350,12 @@ SQL, $jsonPath, $sessionID);
      */
     private function getValue(string $key): mixed
     {
-        $sessionID = $_COOKIE[$this->sessionName()];
-
+        $sessionID = $this->getCookieID();
         $jsonPath = '$.' . $key;
         return db()->row(<<<SQL
 SELECT JSON_EXTRACT(session_data , ?) AS row FROM {$this->getTable()} WHERE session_id = ?;
 SQL, $jsonPath, $sessionID);
+
     }
 
 
@@ -340,7 +368,7 @@ SQL, $jsonPath, $sessionID);
     {
         $stm = null;
         if ($this->sessionExist()) {
-            $sessionID = $_COOKIE[$this->sessionName()];
+            $sessionID = $this->getCookieID();
             ## Add 1 hours to the current time
             // $dateTime = date('Y-m-d H:i:s', strtotime('+1 hour'));
             $toSave = [
@@ -487,7 +515,7 @@ SQL, $jsonPath, $sessionID);
     {
         if ($this->sessionExist()) {
             db()->beginTransaction();
-            $oldSessionID = $_COOKIE[$this->sessionName()];
+            $oldSessionID = $this->getCookieID();
             $newSessionID = $this->generateSessionID();
             db()->row("UPDATE {$this->getTable()} SET session_id = ? WHERE session_id = ?", $newSessionID, $oldSessionID);
             $this->updateSessionIDInCookie($newSessionID);
@@ -510,7 +538,7 @@ SQL, $jsonPath, $sessionID);
     {
         if ($sessionID === null) {
             if ($this->sessionExist()) {
-                $sessionID = $_COOKIE[$this->sessionName()];
+                $sessionID = $this->getCookieID();
             } else {
                 return false;
             }
@@ -538,7 +566,7 @@ SQL, $jsonPath, $sessionID);
     /**
      * @throws \Exception
      */
-    private function generateSessionID(): string
+    public function generateSessionID(): string
     {
         return helper()->randString();
     }
@@ -546,7 +574,7 @@ SQL, $jsonPath, $sessionID);
     /**
      * @param $sessionID
      */
-    private function updateSessionIDInCookie($sessionID)
+    public function updateSessionIDInCookie($sessionID): void
     {
         $cookieOptions = array(
             'expires' => strtotime('+12 hours'),
@@ -558,6 +586,15 @@ SQL, $jsonPath, $sessionID);
         setcookie($this->sessionName(), $sessionID, $cookieOptions);
         ## Force the cookie to set on current request
         $_COOKIE[$this->sessionName()] = $sessionID;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function logout()
+    {
+        session()->clear();
+        session()->updateSessionIDInCookie(session()->generateSessionID());
     }
 
 }
