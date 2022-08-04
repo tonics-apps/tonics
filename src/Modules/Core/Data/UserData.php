@@ -12,113 +12,49 @@ use JetBrains\PhpStorm\ArrayShape;
 class UserData extends AbstractDataLayer
 {
 
-    const UserAdmin_INT = 1;
-    const UserCustomer_INT = 2;
-
-    const UserAdmin_STRING = 'admin';
-    const UserCustomer_STRING = 'customer';
-
-    static array $USER_TABLES = [
-        self::UserAdmin_INT => self::UserAdmin_STRING,
-        self::UserCustomer_INT => self::UserCustomer_STRING
-    ];
+    const ADMIN_REDIRECTION_NAME = 'admin';
+    const CUSTOMER_REDIRECTION_NAME = 'customer';
 
     /**
      * @throws \Exception
      */
-    #[ArrayShape([self::UserAdmin_STRING => "string", self::UserCustomer_STRING => "string"])] public static function USER_REDIRECTION_ADMIN_PAGE(): array
+    public static function USER_REDIRECTION_ADMIN_PAGE(): array
     {
         return [
-            self::UserAdmin_STRING => route('admin.dashboard'),
-            self::UserCustomer_STRING => route('customer.dashboard')
+            self::ADMIN_REDIRECTION_NAME => route('admin.dashboard'),
+            self::CUSTOMER_REDIRECTION_NAME => route('customer.dashboard')
         ];
     }
 
+    public function getUsersColumn()
+    {
+        return Tables::$TABLES[Tables::USERS];
+    }
+
     /**
-     * Since the user table can poly-morph sort of, we need to insert data into $userData first,
-     * we then add the correlation to $subTypeData. When we insert the userData, we return the user_id which we would use to
-     * finally add data to the subTypeData.
-     *
-     * Note: There is nothing to return as result, it is either void or an exception when an error occurs.
      * @param array $userData
-     * @param array $subTypeData
-     * @param int $userType
+     * @param array $return
+     * @return bool|\stdClass
      * @throws \Exception
      */
-    public function insertForUser(array $userData, array $subTypeData, int $userType = UserData::UserAdmin_INT)
+    public function insertForUser(array $userData, array $return = []): bool|\stdClass
     {
-        if (!key_exists($userType, self::$USER_TABLES)){
-            throw new \Exception("Invalid UserType");
-        }
-        $userData['user_type'] = $userType;
-
         $userTable = Tables::getTable(Tables::USERS);
-        $subTypeTable = Tables::getTable(self::$USER_TABLES[$userType]);
+        if (empty($return)){
+            $return = $this->getUsersColumn();
+        }
 
-        $userDataReturning = db()->insertReturning($userTable, $userData, ['user_id']);
-        $subTypeData['user_id'] = $userDataReturning->user_id;
-        db()->insertBatch($subTypeTable, $subTypeData);
+        try {
+            return db()->insertReturning($userTable, $userData, $return);
+        } catch (\Exception $exception){
+            // Log..
+        }
+        return false;
     }
 
-
-    /**
-     * Usage:
-     * <br>
-     * `$newUserData->selectWithConditionFromUser(['email', 'user_name'], "email = ?", ['pascal@gmail.com']), $userType);`
-     *
-     * Note: Make sure you use a question-mark(?) in place u want a user input and pass the actual input in the $parameter
-     * @param array $colToSelect
-     * @param string $whereCondition
-     * @param array $parameter
-     * @param int $userType
-     * @param bool $returnRow
-     * If true, return a single row regardless if the result is of multiple rows,
-     * if false, return an array of row
-     * @return mixed
-     * @throws \Exception
-     */
-    public function selectWithConditionFromUser(
-        array $colToSelect,
-        string $whereCondition,
-        array $parameter,
-        int $userType = UserData::UserAdmin_INT, bool $returnRow = true): mixed
+    public function getUsersTable(): string
     {
-        if (!key_exists($userType, self::$USER_TABLES)){
-            throw new \Exception("Invalid UserType");
-        }
-        $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
-
-        $userTable = Tables::getTable(Tables::USERS);
-        $subTypeTable = Tables::getTable(self::$USER_TABLES[$userType]);
-
-        if ($returnRow){
-            return db()->row(<<<SQL
-SELECT $select FROM $userTable JOIN $subTypeTable USING(`user_id`) WHERE $whereCondition
-SQL, ...$parameter);
-        }
-
-       return db()->run(<<<SQL
-SELECT $select FROM $userTable JOIN $subTypeTable USING(`user_id`) WHERE $whereCondition
-SQL, ...$parameter);
-    }
-
-    /**
-     * Usage: `$newUserData->deleteWithCondition([], "role = ?", ['16318']);`
-     * @param string $whereCondition
-     * @param array $parameter
-     * @param int $userType
-     * @throws \Exception
-     */
-    public function deleteWithConditionFromUser(string $whereCondition, array $parameter, int $userType = UserData::UserAdmin_INT): void
-    {
-        if (!key_exists($userType, self::$USER_TABLES)){
-            throw new \Exception("Invalid UserType");
-        }
-        $userTable = Tables::getTable(Tables::USERS);
-        $subTypeTable = Tables::getTable(self::$USER_TABLES[$userType]);
-        db()->run(<<<SQL
-DELETE $userTable FROM $userTable JOIN $subTypeTable USING(`user_id`) WHERE $whereCondition
-SQL, ...$parameter);
+        return Tables::getTable(Tables::USERS);
     }
 
 
@@ -127,16 +63,17 @@ SQL, ...$parameter);
      * you get false if the user data is invalid
      * @param string $email
      * @param string $pass
-     * @param int $userType
      * @return bool
      * @throws \Exception
      */
-    public function validateUser(string $email, string $pass, int $userType = UserData::UserAdmin_INT): bool
+    public function validateUser(string $email, string $pass): bool
     {
-        $userInfo = $this->selectWithConditionFromUser(['email', 'user_name', 'user_type', 'user_password', 'role'], "email = ?", [$email], $userType);
+        $table = $this->getUsersTable();
+        $userInfo = $this->selectWithCondition($table, ['email', 'user_name', 'user_password', 'role'], "email = ?", [$email]);
         $verifyPass = false;
         if ($userInfo instanceof \stdClass){
             $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);
+            $userInfo->user_table = Tables::USERS;
             unset($userInfo->user_password);
         }
 
@@ -149,6 +86,22 @@ SQL, ...$parameter);
         session()->append(Session::SessionCategories_AuthInfo, $userInfo);
         session()->regenerate();
         return true;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getCurrentUserID()
+    {
+        $email = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserEmail);
+        $table = Tables::getTable(Tables::USERS);
+        try {
+            $data = db()->row("SELECT user_id, user_name FROM $table WHERE email = ?", $email);
+            return (is_object($data) && property_exists($data, 'user_id')) ? $data->user_id : null;
+        }catch (\Exception){
+            // Log..
+        }
+        return null;
     }
 
     /**
@@ -168,7 +121,7 @@ SQL, ...$parameter);
     /**
      * This gets the user authenticated info property
      * @param string $key
-     * e,g Session::SessionCategories_AuthInfo, Session::SessionCategories_AuthInfo_UserType,
+     * e,g Session::SessionCategories_AuthInfo, Session::SessionCategories_AuthInfo_UserTable,
      * Session::SessionCategories_AuthInfo_Role, etc
      * @return mixed
      * @throws \Exception
@@ -274,11 +227,12 @@ SQL, ...$parameter);
      */
     public function getPostAuthorHTMLSelect(int $currentSelectAuthorID = null): string
     {
-        $adminUsers = $this->selectWithConditionFromUser(['user_id', 'user_name'], "user_type = ?", [UserData::UserAdmin_INT], returnRow: false);
+        $table = $this->getUsersTable();
+        $users = db()->run("SELECT user_id, user_name FROM $table");
         $authorFrag = '';
         $oldInputPostAuthor = \session()->getOldFormInput('post_author');
-        if (count($adminUsers) > 0){
-            foreach ($adminUsers as $user){
+        if (count($users) > 0){
+            foreach ($users as $user){
                 if ((int)$oldInputPostAuthor === $user->user_id){
                     $authorFrag .= "<option value='$user->user_id' selected>$user->user_name</option>";
                 } elseif(!is_null($currentSelectAuthorID) && $currentSelectAuthorID === $user->user_id){
@@ -322,7 +276,7 @@ SQL, ...$parameter);
                 /**
                  * As you can see the expire_lock_time has in fact expired (this is default)
                  * So, each time the verification_code_at is 5 and above, we add the current_time plus 10 more minutes to...
-                 * lock user from generating too many verification code, this is like throttling if you get me ;)
+                 * lock user from generating too much verification code, this is like throttling if you get me ;)
                  * And whenever the time expires, user can send a new one, if they fail again, we give another 10 minutes :p
                  */
                 'expire_lock_time' => '1997-07-05 00:00:00',
@@ -338,11 +292,6 @@ SQL, ...$parameter);
     {
         $apiTokenAndHash = helper()->generateApiTokenAndHash();
         return json_encode([
-            'old_page_slug' => [],
-            'page_slug' => 'p', // default standalone page slug
-            'old_track_slug' => [],
-            'track_slug' => 'beat', // default track_slug
-            'mailer' => 1, // 1 stands for smtp and 0 stands for localhost
             'timezone' => "Africa/Lagos",
             'email_from' => "",     // email for sending notifications, this overrides "users email"
             'api' => [
@@ -363,7 +312,7 @@ SQL, ...$parameter);
                 /**
                  * As you can see the expire_lock_time has in fact expired (this is default)
                  * So, each time the verification_code_at is 5 and above, we add the current_time plus 10 more minutes to...
-                 * lock user from generating too many verification code, this is like throttling if you get me ;)
+                 * lock user from generating too much verification code, this is like throttling if you get me ;)
                  * And whenever the time expires, user can send a new one, if they fail again, we give another 10 minutes :p
                  */
                 'expire_lock_time' => '1997-07-05 00:00:00',
@@ -372,21 +321,6 @@ SQL, ...$parameter);
                 'guest_hash' => null,
             ],
         ]);
-    }
-
-    public function generateSessionJsonSettings(): string
-    {
-        return json_encode(
-            [
-                'tonics_csrf_token' => '',
-                'auth_info' => [
-                    'email' => '',
-                    'role' => '',
-                    'user_name' => '',
-                    
-                ]
-            ]
-        );
     }
 
 }

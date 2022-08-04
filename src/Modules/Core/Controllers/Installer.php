@@ -258,18 +258,19 @@ class Installer extends SimpleState
             $userData = [
                 'user_name' => $requestBody['username'],
                 'email' => $requestBody['email'],
-                'user_password' => helper()->securePass($requestBody['password'])
-            ];
-            $subTypeData = [
+                'user_password' => helper()->securePass($requestBody['password']),
                 'role' => Roles::ADMIN(),
                 'settings'=> UserData::generateAdminJSONSettings()
             ];
             $newUserData = new UserData();
-            $newUserData->insertForUser($userData, $subTypeData);
-
-            helper()->sendMsg(self::getCurrentState(), "> Step 6 of 6: I Lied, We Still Gotta Update LocalDrive in Database ;(");
-            $updateLocalDriveFilesINnDB = new UpdateLocalDriveFilesInDb();
-            $updateLocalDriveFilesINnDB->run([]);
+            $userInserted = $newUserData->insertForUser($userData);
+            if ($userInserted === false){
+                $this->issue(self::getCurrentState(), 'Failed To Finalize Installation');
+            } else {
+                helper()->sendMsg(self::getCurrentState(), "> Step 6 of 6: I Lied, We Still Gotta Update LocalDrive in Database ;(");
+                $updateLocalDriveFilesINnDB = new UpdateLocalDriveFilesInDb();
+                $updateLocalDriveFilesINnDB->run([]);
+            }
         }catch (Exception){
             $this->issue(self::getCurrentState(), 'Failed To Finalize Installation');
         }

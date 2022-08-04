@@ -11,6 +11,7 @@ namespace App\Modules\Core\RequestInterceptor;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 use JetBrains\PhpStorm\NoReturn;
@@ -22,9 +23,6 @@ use JetBrains\PhpStorm\NoReturn;
 class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestInterceptorInterface
 {
     private OnRequestProcess $request;
-
-    private $userType = null;
-    private $userTypeName = null;
 
     # States For RedirectAuthenticated
     const RedirectAuthenticatedInitialStateHandler = 'RedirectAuthenticatedInitialStateHandler';
@@ -62,27 +60,21 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
      */
     public function RedirectAuthenticatedIdentifyUserType(): string
     {
-        $userType = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserType);
-        ## If user type doesn't exist, return unauthorized access
-        if (!key_exists($userType, UserData::$USER_TABLES)){
+        $userTable = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserTable);
+
+        try {
+            $table = Tables::getTable($userTable);
+            if (Tables::getTable(Tables::USERS) === $table){
+                return $this->switchState(self::RedirectAuthenticatedUserTypeAdmin, self::NEXT);
+            }
+            if (Tables::getTable(Tables::CUSTOMERS) === $table){
+                return $this->switchState(self::RedirectAuthenticatedUserTypeCustomer, self::NEXT);
+            }
+            return $this->authError();
+        } catch (\Exception){
+            // Log...
             return $this->authError();
         }
-
-        $userTypeName = UserData::$USER_TABLES[$userType];
-
-        $this->userType = $userType;
-        $this->userTypeName = $userTypeName;
-
-        if($userTypeName === UserData::UserAdmin_STRING){
-            return $this->switchState(self::RedirectAuthenticatedUserTypeAdmin, self::NEXT);
-        }
-
-        if($userTypeName === UserData::UserCustomer_STRING){
-            return $this->switchState(self::RedirectAuthenticatedUserTypeCustomer, self::NEXT);
-        }
-
-        ## Anything Else: return unauthorized access (we can never get here, but we should use this just in case)
-        return $this->authError();
     }
 
     /**
@@ -97,7 +89,7 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
         }
 
         ## Else... Redirect to UserAdminDashboard
-        redirect(UserData::USER_REDIRECTION_ADMIN_PAGE()[$this->userTypeName], 200);
+        redirect(UserData::USER_REDIRECTION_ADMIN_PAGE()[UserData::ADMIN_REDIRECTION_NAME], 200);
     }
 
     /**
@@ -112,7 +104,7 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
         }
 
         ## Else... Redirect to UserCustomerDashboard
-        redirect(UserData::USER_REDIRECTION_ADMIN_PAGE()[$this->userTypeName], 200);
+        redirect(UserData::USER_REDIRECTION_ADMIN_PAGE()[UserData::CUSTOMER_REDIRECTION_NAME], 200);
     }
 
     /**
@@ -128,21 +120,5 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
         $this->setErrorCode(self::ERROR_UNAUTHORIZED_ACCESS__CODE)
             ->setErrorMessage(self::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
         return self::ERROR;
-    }
-
-    /**
-     * @return null
-     */
-    public function getUserType()
-    {
-        return $this->userType;
-    }
-
-    /**
-     * @return null
-     */
-    public function getUserTypeName()
-    {
-        return $this->userTypeName;
     }
 }

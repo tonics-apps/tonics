@@ -271,23 +271,4 @@ SQL, ...$parameter);
             $onError($e);
         }
     }
-
-    /**
-     * @throws \Exception
-     */
-    public function getPageStatus(): ?int
-    {
-        $status = 1;
-        if (url()->getParam('page_action') === 'viewTrash') {
-            $status = -1;
-        }
-        if (url()->getParam('page_action') === 'viewDraft') {
-            $status = 0;
-        }
-        if (url()->getParam('page_action') === 'viewAll') {
-            $status = null;
-        }
-
-        return $status;
-    }
 }

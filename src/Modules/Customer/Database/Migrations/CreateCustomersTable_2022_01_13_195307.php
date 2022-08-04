@@ -21,23 +21,19 @@ class CreateCustomersTable_2022_01_13_195307 extends Migration {
     public function up()
     {
         $settingsJSON = UserData::generateCustomerJSONSettings();
-
-    # Add Customer To UserType Table
-    $this->getDB()->run("INSERT INTO `{$this->tableUsersType()}` (`user_type_name`) VALUES('Customer');");
-
     $this->getDB()->run("
     CREATE TABLE IF NOT EXISTS `{$this->tableCustomer()}` (
-       `user_id`  BIGINT AUTO_INCREMENT PRIMARY KEY ,
-       -- 2 is for customer and a check ensures we do not populate the wrong type
-        `user_type_id` BIGINT UNSIGNED NOT NULL DEFAULT 2 CHECK ( user_type_id = 2 ),
-      -- `slug_id` bigint(20) DEFAULT NULL,
-      `is_guest` tinyint(1) NOT NULL DEFAULT 0,
-      `settings` longtext NOT NULL DEFAULT '$settingsJSON' CHECK (json_valid(`settings`)),
-          CONSTRAINT `fk_customer_user_type_id` 
-            FOREIGN KEY (`user_id`, `user_type_id`) REFERENCES `{$this->tableUser()}` (`user_id`, `user_type`) 
-                ON DELETE CASCADE
-                ON UPDATE CASCADE
-                                
+        `user_id`  BIGINT AUTO_INCREMENT PRIMARY KEY,
+        `user_name` varchar(255) NOT NULL,
+        `email` varchar(255) NOT NULL,
+        `email_verified_at` timestamp NULL DEFAULT NULL,
+        `user_password` varchar(255) NOT NULL,
+        `role` varchar(255) DEFAULT NULL,
+        `is_guest` tinyint(1) NOT NULL DEFAULT 0,
+        `settings` longtext NOT NULL DEFAULT '$settingsJSON' CHECK (json_valid(`settings`)),
+        `created_at` timestamp DEFAULT current_timestamp(),
+        `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+        UNIQUE KEY `users_email_unique` (`email`)     
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
     }
@@ -53,16 +49,6 @@ class CreateCustomersTable_2022_01_13_195307 extends Migration {
     private function tableCustomer(): string
     {
         return Tables::getTable(Tables::CUSTOMERS);
-    }
-
-    private function tableUser(): string
-    {
-        return Tables::getTable(Tables::USERS);
-    }
-
-    private function tableUsersType()
-    {
-        return Tables::getTable(Tables::USER_TYPE);
     }
 
 }

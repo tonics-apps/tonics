@@ -8,8 +8,8 @@ use Devsrealm\TonicsValidation\Rule;
 
 /**
  *
- * USAGE: `input_key' => ['Validateuser' => ['email' => 'youremail@adres.com', 'pass' => 134, 'type' => UserData::UserAdmin_INT]]`,
- * where email is your email address, pass is your password and type is userType
+ * USAGE: `input_key' => ['Validateuser' => ['email' => 'youremail@adres.com', 'pass' => 134]]`,
+ * where email is your email address, pass is your password
  *
  */
 class ValidateUser extends Rule implements RuleInterface
@@ -23,16 +23,16 @@ class ValidateUser extends Rule implements RuleInterface
     public function check(...$param): bool
     {
         $param = (object)$param;
-        if (count($param->rule) !== 3){
+        if (count($param->rule) !== 2){
             return false;
         }
 
-        if (!key_exists('email', $param->rule) || !key_exists('pass', $param->rule) || !key_exists('type', $param->rule)){
+        if (!key_exists('email', $param->rule) || !key_exists('pass', $param->rule)){
             return false;
         }
 
         $userData = new UserData();
-        return $userData->validateUser($param->rule['email'], $param->rule['pass'], $param->rule['type']);
+        return $userData->validateUser($param->rule['email'], $param->rule['pass']);
     }
 
     /**

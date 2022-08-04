@@ -18,7 +18,8 @@ class Session
 {
 
     const SessionCategories_AuthInfo = 'auth_info';
-    const SessionCategories_AuthInfo_UserType = 'user_type';
+    const SessionCategories_AuthInfo_UserTable = 'user_table';
+    const SessionCategories_AuthInfo_UserEmail = 'email';
     const SessionCategories_AuthInfo_Role = 'role';
 
     const SessionCategories_OldFormInput = 'old_form_input';
@@ -41,7 +42,7 @@ class Session
      * Check if session exist
      * @return bool
      */
-    #[Pure] public function sessionExist(): bool
+    public function sessionExist(): bool
     {
         return !empty($this->getCookieID());
     }
@@ -64,7 +65,7 @@ class Session
     public function getCookieID(string $sessionName = ''): mixed
     {
         $sessionName = (empty($sessionName)) ? $this->sessionName() : $sessionName;
-        return  $_COOKIE[$sessionName];
+        return  $_COOKIE[$sessionName] ?? '';
     }
 
 

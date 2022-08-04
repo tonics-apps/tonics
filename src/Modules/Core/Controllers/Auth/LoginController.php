@@ -10,6 +10,7 @@ namespace App\Modules\Core\Controllers\Auth;
 use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
+use App\Modules\Core\Validation\RulePlugins\ValidateUser;
 use App\Modules\Core\Validation\Traits\Validator;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\NoReturn;
@@ -35,7 +36,6 @@ class LoginController extends Controller
     public function login()
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->getLoginRules());
-
         if ($validator->fails()){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('admin.login'));
@@ -65,7 +65,7 @@ class LoginController extends Controller
                 'string',
                 'CharLen' => ['min' => 5, 'max' => 1000],
                 'ValidateUser' =>
-                ['email' => input()->fromPost()->retrieve('email'), 'pass' => input()->fromPost()->retrieve('password'), 'type' => UserData::UserAdmin_INT]
+                ['email' => input()->fromPost()->retrieve('email'), 'pass' => input()->fromPost()->retrieve('password')]
             ]
         ];
     }

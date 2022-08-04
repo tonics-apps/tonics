@@ -275,10 +275,7 @@ class WordPressImportState extends SimpleState
         $postController = new PostsController($postData, $userData);
         $attachment = [];
         $noNameID = 1;
-
-        $userType = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserType);
-        $currentUserID = (new UserData())->selectWithConditionFromUser(['user_id', 'user_name'], "user_type = ?", [$userType], returnRow: true);
-        $currentUserID = (isset($currentUserID->user_id)) ? $currentUserID->user_id: 1;
+        $currentUserID = UserData::getCurrentUserID() ??  1;
         db()->run("SET SQL_MODE='ALLOW_INVALID_DATES';");
         foreach ($this->xmlObject->channel->item as $post){
             if ($post->xpath('wp:post_type')[0]->__toString() === 'attachment'){

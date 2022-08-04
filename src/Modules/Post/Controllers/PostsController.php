@@ -9,6 +9,7 @@ namespace App\Modules\Post\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;

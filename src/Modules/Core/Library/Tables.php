@@ -32,10 +32,8 @@ final class Tables
         self::GLOBAL => ['id', '`key`', 'value', 'created_at', 'updated_at'],
         self::TRACK_LIKES => ['id', 'fk_customer_id', 'fk_track_id', 'is_like', 'created_at', 'updated_at'],
         self::TRACKS => ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'track_title', 'track_plays', 'track_bpm', 'track_status', 'license_attr_id_link', 'field_settings', 'fk_genre_id', 'fk_artist_id', 'fk_license_id', 'field_ids', 'created_at', 'updated_at'],
-        self::USER_TYPE => ['user_type_id', 'user_type_name'],
-        self::USERS => ['user_id', 'user_type', 'user_name', 'email', 'email_verified_at', 'user_password', 'created_at', 'updated_at'],
-        self::ADMINS => ['user_id', 'user_type_id', '`role`', 'settings'],
-        self::CUSTOMERS => ['user_id', 'user_type_id', 'is_guest', 'settings'],
+        self::USERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'role', 'settings', 'created_at', 'updated_at'],
+        self::CUSTOMERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'is_guest', 'role', 'settings', 'created_at', 'updated_at'],
         self::WIDGET_ITEMS => ['id', 'fk_widget_id', 'wgt_id', 'wgt_name', 'wgt_options', 'created_at', 'updated_at'],
         self::WIDGETS => ['widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at'],
         self::WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
@@ -72,9 +70,7 @@ final class Tables
     const TRACKS = 'tracks';
     const PURCHASE_TRACKS = 'purchase_tracks';
 
-    const USER_TYPE = 'usertype';
     const USERS = 'user';
-    const ADMINS = 'admin';
     const CUSTOMERS = 'customer';
 
     const WIDGET_ITEMS = 'widget_items';

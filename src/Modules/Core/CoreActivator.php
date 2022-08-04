@@ -78,10 +78,8 @@ class CoreActivator implements ModuleConfig, PluginConfig
     {
         return
             [
-                Tables::getTable(Tables::ADMINS) => Tables::getTable(Tables::ADMINS),
                 Tables::getTable(Tables::SESSIONS) => Tables::getTable(Tables::SESSIONS),
                 Tables::getTable(Tables::GLOBAL) => Tables::getTable(Tables::GLOBAL),
-                Tables::getTable(Tables::USER_TYPE) => Tables::getTable(Tables::USER_TYPE),
                 Tables::getTable(Tables::USERS) => Tables::getTable(Tables::USERS),
             ];
     }
