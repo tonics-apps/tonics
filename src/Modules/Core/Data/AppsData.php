@@ -1,4 +1,12 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Core\Data;
 
@@ -6,6 +14,7 @@ use App\InitLoader;
 use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\Library\AbstractDataLayer;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -104,6 +113,8 @@ FORM;
 HTML;
             ++$k;
         }
+
+        ksort($frag);
 
         foreach ($internal_modules as $module){
             /** @var $module PluginConfig **/

@@ -1,4 +1,12 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Core\RequestInterceptor;
 
@@ -25,14 +33,14 @@ class Authenticated implements TonicsRouterRequestInterceptorInterface
     public function handle(OnRequestProcess $request): void
     {
        if (UserData::isAuthenticated() === false){
-           self::handleUnaunthenticated();
+           self::handleUnAunthenticated();
        }
     }
 
     /**
      * @throws \Exception
      */
-    #[NoReturn] public static function handleUnaunthenticated()
+    #[NoReturn] public static function handleUnAunthenticated()
     {
         // set the current url to session here, just in case we wanna redirect to intended after log in
         session()->append(Session::SessionCategories_URLReferer, request()->getHeaderByKey('REQUEST_URI'));

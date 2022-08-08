@@ -1,4 +1,13 @@
-/*CHANGE THIS WITH ESBUILD*/
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
+
+/* CHANGE THIS WITH A BUILD TOOL */
 @import "../../../../../public/css/base/utilities.css";
 
 :root {
@@ -197,18 +206,10 @@ h6 {
 
 pre {
     background: #f7f7f7;
-    border-top: 10px solid #000000;
     max-height: 900px;
     overflow: auto;
     margin: 0 auto;
     padding: 1.5em;
-    border-radius: 4px;
-    border-left-style: double;
-    border-left-width: 5px;
-    border-right-style: double;
-    border-right-width: 5px;
-    border-bottom-style: double;
-    border-bottom-width: 5px;
     overscroll-behavior-y: contain;
     scroll-snap-type: y proximity;
     width: 90%;
@@ -1188,4 +1189,22 @@ article.entry-content {
 
 .footer-with-social-icon .menu-box {
     border: unset;
+}
+
+/************************
+    TONICS PLUGIN
+************************/
+
+.tonics-toc ul {
+    counter-reset: tonicsTocCounter;
+    list-style-type: none;
+}
+
+.tonics-toc li::before {
+    counter-increment: tonicsTocCounter;
+    content: counters(tonicsTocCounter, ".") " ";
+}
+
+.tonics-toc ul li {
+    margin-left: 1em;
 }

@@ -1,8 +1,11 @@
 <?php
 /*
- * Copyright (c) 2021. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
  *
- * This program is licensed under the PolyForm Noncommercial License 1.0.0. You should have received a copy of the PolyForm Noncommercial License 1.0.0 along with this program, if not, visit: https://polyformproject.org/licenses/noncommercial/1.0.0/
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
  */
 
 namespace App\Modules\Post\Controllers;
@@ -138,6 +141,7 @@ class PostsController
             helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');
             return false;
         }
+
         $onPostCreate = new OnPostCreate($postReturning, $this->postData);
         event()->dispatch($onPostCreate);
         $_POST = $previousPOSTGlobal;
@@ -159,8 +163,7 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        $mode = (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') ? FieldData::UNWRAP_FIELD_CONTENT_PREVIEW_MODE : FieldData::UNWRAP_FIELD_CONTENT_EDITOR_MODE;
-        $this->fieldData->unwrapFieldContent($fieldSettings, $mode, 'post_content');
+        $fieldSettings = $this->fieldData->handleFieldPreviewOrEditorMode($fieldSettings, 'post_content');
 
         if (empty($fieldSettings)){
             $fieldSettings = (array)$post;

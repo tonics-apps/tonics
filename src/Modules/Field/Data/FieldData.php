@@ -1,8 +1,18 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Field\Data;
 
+use App\InitLoaderMinimal;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
@@ -424,7 +434,7 @@ HTML;
       <input contenteditable="true" type="radio" id="$id-fields" name="$uniqueRadioName" checked>
       <label class="fields-label" contenteditable="true" style="cursor: pointer; caret-color: transparent;" for="$id-fields">Fields</label>
       
-     <div contenteditable="true">
+     <div class="tonicsFieldWrapper" contenteditable="true">
         <ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
             $data
         </ul>
@@ -451,7 +461,7 @@ HTML;
      * @return void
      * @throws \Exception
      */
-    public function importFieldItems(array $fieldItems)
+    public function importFieldItems(array $fieldItems): void
     {
         $fieldNameToID = [];
         foreach ($fieldItems as $k => $item){
@@ -494,6 +504,7 @@ HTML;
     public function unwrapFieldContent(&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
     {
         $onFieldUserForm = new OnFieldUserForm([], $this);
+        addToGlobalVariable(FieldConfig::fieldSettingsID(), $fieldSettings);
 
         $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'] ?? null;
 
@@ -588,6 +599,52 @@ SQL;
     public function handleWithFieldHandler(FieldTemplateFileInterface $fieldHandler, $data): string
     {
         return $fieldHandler->handleFieldLogic(data: $data);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function handleFieldPreviewOrEditorMode($fieldSettings, string $contentKey)
+    {
+        $mode = (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') ? FieldData::UNWRAP_FIELD_CONTENT_PREVIEW_MODE : FieldData::UNWRAP_FIELD_CONTENT_EDITOR_MODE;
+        $this->unwrapFieldContent($fieldSettings, $mode, $contentKey);
+        return $fieldSettings;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function preSavePostEditorFieldItems(&$fieldSettings, $contentKey)
+    {
+        # In case it is being used else where
+        $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
+        $oldFieldSettings = FieldConfig::getFieldSettings();
+        addToGlobalVariable(FieldConfig::fieldSettingsID(), $fieldSettings);
+
+        if (isset($fieldSettings[$contentKey]) && is_array($postEditorsContent = json_decode($fieldSettings[$contentKey], true))) {
+            addToGlobalVariable(FieldConfig::postEditorFieldsContentID(), $postEditorsContent);
+            foreach ($postEditorsContent as &$field) {
+                addToGlobalVariable('Data',  $field['postData'] ?? []);
+                if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null){
+                    if ($fieldHandler instanceof FieldTemplateFileInterface && $fieldHandler->canPreSaveFieldLogic()){
+                        $field['postData'][FieldConfig::fieldPreSavedDataID()] = $this->handleWithFieldHandler($fieldHandler, getPostData());
+                    }
+                }
+            }
+
+            $fieldSettings = FieldConfig::getFieldSettings();
+            $fieldSettings[$contentKey] = json_encode($postEditorsContent);
+        }
+        
+        // restore old postData;
+        addToGlobalVariable('Data', $oldPostData);
+        addToGlobalVariable(FieldConfig::fieldSettingsID(), $oldFieldSettings);
+
+        // clear the following as they are useless at this point
+        InitLoaderMinimal::removeFromGlobalVariable(FieldConfig::fieldSettingsID());
+        InitLoaderMinimal::removeFromGlobalVariable(FieldConfig::postEditorFieldsContentID());
+
+        return $fieldSettings;
     }
 
     /**

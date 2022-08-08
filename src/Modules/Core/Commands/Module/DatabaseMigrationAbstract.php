@@ -1,8 +1,11 @@
 <?php
 /*
- * Copyright (c) 2021. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
  *
- * This program is licensed under the PolyForm Noncommercial License 1.0.0. You should have received a copy of the PolyForm Noncommercial License 1.0.0 along with this program, if not, visit: https://polyformproject.org/licenses/noncommercial/1.0.0/
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
  */
 
 namespace App\Modules\Core\Commands\Module;
@@ -32,7 +35,7 @@ abstract class DatabaseMigrationAbstract
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function handleMigrateUp(string $class, string $migrationName)
+    public function handleMigrateUp(string $class, string $migrationName): void
     {
         ## If migration doesn't already exist
         if (!$this->doesMigrationExist($migrationName) && is_subclass_of($class, Migration::class)) {
@@ -49,7 +52,7 @@ abstract class DatabaseMigrationAbstract
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function handleMigrateDown($class, $migrationName)
+    public function handleMigrateDown($class, $migrationName): void
     {
         if ($this->doesMigrationExist($migrationName) && is_subclass_of($class, Migration::class)) {
             container()->get($class)->down();
@@ -62,7 +65,7 @@ abstract class DatabaseMigrationAbstract
      * @param $migrationName
      * @throws \Exception
      */
-    public function insertMigrationRow($migrationName)
+    public function insertMigrationRow($migrationName): void
     {
         db()->run("INSERT INTO {$this->migrationTableName()} (migration) VALUES(?)", $migrationName);
         # Migration message for the console
@@ -72,7 +75,7 @@ abstract class DatabaseMigrationAbstract
     /**
      * @throws \Exception
      */
-    public function forceDropTable()
+    public function forceDropTable(): void
     {
         db()->run("SET foreign_key_checks = 0");
         if ($tables = db()->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN)){

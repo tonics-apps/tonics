@@ -16,6 +16,15 @@ body#tinymce > * + * {
     padding: 0 1em;
 }
 
+.mce-content-body .tonicsFieldWrapper[contentEditable=false],
+.mce-content-body .tonicsFieldWrapper[contentEditable=true] {
+    outline: 1px solid rgba(86, 95, 104, 0) !important;
+}
+
+.mce-content-body .field-builder-items{
+    outline: 1px solid rgba(75, 82, 90, 0) !important;
+}
+
 /* TABS SECTION, CREDIT TO:  https://kmoerman.github.io/css-tabs/ */
 .tabs.tonicsFieldTabsContainer {
     background: #eeeeee;
@@ -47,9 +56,10 @@ body#tinymce > .tabs > [type=radio]:not(:checked) + label + *, .tonicsFieldTabsC
 }
 
 body#tinymce > .tabs, .tonicsFieldTabsContainer {
-    width: 50%;
+    width: 40%;
     min-width: 30em;
     max-width: 60em;
+    font-size: 80%;
 }
 
 body#tinymce > .tabs label, .tonicsFieldTabsContainer label {

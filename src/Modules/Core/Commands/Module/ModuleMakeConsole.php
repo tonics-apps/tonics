@@ -1,8 +1,11 @@
 <?php
 /*
- * Copyright (c) 2021. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
  *
- * This program is licensed under the PolyForm Noncommercial License 1.0.0. You should have received a copy of the PolyForm Noncommercial License 1.0.0 along with this program, if not, visit: https://polyformproject.org/licenses/noncommercial/1.0.0/
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
  */
 
 namespace App\Modules\Core\Commands\Module;
@@ -37,7 +40,7 @@ use ConsoleColor;
     {
         $s = DIRECTORY_SEPARATOR; $module = ucfirst(strtolower($commandOptions['--module']));
         if ($moduleDir = helper()->findModuleDirectory($commandOptions['--module'])) {
-            $consoleTemplate = APP_ROOT . "{$s}src{$s}Commands{$s}Module{$s}Template{$s}ConsoleExample.txt";
+            $consoleTemplate = APP_ROOT . "{$s}src{$s}Modules{$s}Core{$s}Commands{$s}Module{$s}Template{$s}ConsoleExample.txt";
             if (helper()->copyConsoleTemplate(
                 $consoleTemplate,
                 consoleName: $commandOptions['--make:console'],

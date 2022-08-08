@@ -1,4 +1,6 @@
 [[b('main-css-style')
+
+
 <link rel="stylesheet" href="/css/minified/styles.css">]]
 [[b('fm-css-style')
 <link rel="stylesheet" href="/css/minified/file-manager.css">]]
@@ -102,6 +104,19 @@
 </script>
 ]]
 
+[[b('script:core')
+<script  type="module" src="[[combine('/js/views/core/script-combined.js',
+        '/js/Modules/Element/MenuToggle.js',
+        '/js/Modules/Element/Query.js',
+        '/js/Modules/Others/Helpers.js',
+
+        '/js/views/core/main.js',
+        '/js/MainTools/ToastMessage.js',
+        '/js/MainTools/SiteNavToggle.js',
+        )]]">
+</script>
+]]
+
 
 [[b('script:post')
 <script  type="module" src="[[combine('/js/views/post/script-combined.js',
@@ -129,8 +144,9 @@
 <script type="module" src="[[combine('/js/views/post/front/script-combined.js',
         '/js/Modules/Element/MenuToggle.js',
         '/js/Modules/Element/Query.js',
+        '/js/Modules/Others/TableOfContent.js',
         '/js/views/post/front/main.js',
-        '/js/MainTools/SiteNavToggle.js'
+        '/js/MainTools/SiteNavToggle.js',
         )]]">
 </script>
 ]]

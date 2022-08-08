@@ -1,7 +1,16 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Widget\Routes;
 
+use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\StartSession;
@@ -44,7 +53,7 @@ trait Routes
                 $route->post('store', [WidgetControllerItems::class, 'store']);
             }, alias: 'items');
 
-        }, [StartSession::class, CSRFGuard::class, Authenticated::class, WidgetAccess::class], alias: 'widgets');
+        },AuthConfig::getAuthRequestInterceptor([WidgetAccess::class]), alias: 'widgets');
 
         return $route;
     }

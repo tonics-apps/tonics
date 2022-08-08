@@ -1,7 +1,16 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Media\Routes;
 
+use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
@@ -23,7 +32,7 @@ trait Routes
         // admin facing
         $route->group('/admin/media', function (Route $route) {
             $route->get('file-manager', [MediaControllers::class, 'showMediaManager'], alias: 'show');
-        }, [StartSession::class, CSRFGuard::class, Authenticated::class, MediaAccess::class], alias: 'media');
+        }, AuthConfig::getAuthRequestInterceptor([MediaAccess::class]), alias: 'media');
         return $route;
     }
 
@@ -57,7 +66,7 @@ trait Routes
             $route->put('files/move', [MediaControllers::class, 'moveFiles']);
             // pre-flight check for resumable upload
             $route->get('files/preflight', [MediaControllers::class, 'getPreflightFile']);
-        }, [StartSession::class, CSRFGuard::class, Authenticated::class, MediaAccess::class]);
+        }, AuthConfig::getAuthRequestInterceptor([MediaAccess::class]));
 
         return $route;
     }

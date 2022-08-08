@@ -1,7 +1,16 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Core\Routes;
 
+use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Controllers\Auth\CacheController;
 use App\Modules\Core\Controllers\Auth\ForgotPasswordController;
@@ -9,15 +18,11 @@ use App\Modules\Core\Controllers\Auth\LoginController;
 use App\Modules\Core\Controllers\DashboardController;
 use App\Modules\Core\Controllers\ImportExport\ImportController;
 use App\Modules\Core\Controllers\Installer;
-use App\Modules\Core\Controllers\ModuleController;
-use App\Modules\Core\Controllers\PluginController;
 use App\Modules\Core\Controllers\AppsController;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CoreAccess;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\InstallerChecker;
-use App\Modules\Core\RequestInterceptor\ModuleAccess;
-use App\Modules\Core\RequestInterceptor\PluginAccess;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Core\RequestInterceptor\AppAccess;
@@ -90,7 +95,7 @@ trait Routes
 //                $route->get('password/reset/:token', [ResetPasswordController::class, 'showResetForm'], alias: 'password.reset');
 //                $route->post('password/reset', [ResetPasswordController::class, 'reset'], alias: 'password.update');
 
-            }, [StartSession::class, CSRFGuard::class]);
+            }, AuthConfig::getCSRFRequestInterceptor());
 
         }, alias: 'admin');
 
@@ -120,7 +125,7 @@ trait Routes
                 $route->post('/upload', [AppsController::class, 'upload'], alias: 'upload');
             }, [AppAccess::class], alias: 'apps');
 
-        }, [StartSession::class, CSRFGuard::class, Authenticated::class]);
+        }, AuthConfig::getAuthRequestInterceptor());
 
                 #---------------------------------
             # APPS ASSETS...

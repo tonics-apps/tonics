@@ -1,4 +1,6 @@
 [[hook_into('in_main')
+
+
 <form method="post" class="EditorsForm" id="EditorsForm"  action="[[add_hook('form_action')]]" accept-charset="UTF-8" enctype="multipart/form-data">
   <input type="hidden" name="token" value="[[csrf()]]" >
   [[add_hook('before_form_section')]]

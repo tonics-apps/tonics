@@ -1,0 +1,7 @@
+{
+  "tocDepth": 4,
+  "tocNoHeadingToTrigger": 2,
+  "tocLabel": "Table Of Content",
+  "tocLabelTag": "h2",
+  "tocClass": ".tonics-toc"
+}

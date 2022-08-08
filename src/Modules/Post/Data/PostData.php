@@ -1,10 +1,19 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Post\Data;
 
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Data\FieldData;
 
 class PostData extends AbstractDataLayer
 {
@@ -252,6 +261,9 @@ CAT;
                 $post['field_settings']['post_content'] = $_POST['fieldItemsDataFromEditor'];
                 unset($post['field_settings']['fieldItemsDataFromEditor']);
             }
+
+            $fieldData = new FieldData();
+            $fieldData->preSavePostEditorFieldItems($post['field_settings'], 'post_content');
 
             $post['field_settings'] = json_encode($post['field_settings']);
             if (isset($post['field_ids'])){

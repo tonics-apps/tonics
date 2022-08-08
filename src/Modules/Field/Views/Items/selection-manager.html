@@ -16,23 +16,27 @@
 <main id="main"  class="flex:one no-text-highlight" tabindex="-1" data-container_for_selection="true">
     [[b('body.main.header-text')Field Selection Manager ]]
     [[func('body.main.header', 'body.main.header-text')]]
-    <div class="d:flex justify-content:center flex-wrap:wrap flex-gap padding:default">
-        <ul style="gap: 5em;" class="width:100% max-height:800px overflow:auto field-container border-width:default border:black list:style:none d:flex flex-wrap:wrap flex-d:row justify-content:center flex-gap padding:default align-items:center flex-basis:min-content flex:four">
-            [[each('field in FieldItems')
-                <li data-list_id="[[v('_loop.iteration')]]" data-field_id="[[v('field.slug')]]" tabindex="0"
-                    class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer box-shadow-variant-1" data-selected="false">
-                    <fieldset class="padding:default width:100% d:flex justify-content:center">
-                        [[if('v[field.icon]')
-                            [[_v('field.icon')]]
-                        ]]
-                        <div class="d:flex flex-gap:small align-items:center">
-                            <div class="text-on-admin-util">[[v('field.name')]]</div>
-                        </div>
-                    </fieldset>
-                </li>
+    <section style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
+        [[each('fieldCategory in FieldItems')
+        <input tabindex="0" type="radio" id="[[v('_loop.key')]]" name="field_tabs" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
+        <label tabindex="0" for="[[v('_loop.key')]]">[[v('_loop.key')]]</label>
+        <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+            [[each('field in fieldCategory')
+            <li data-list_id="[[v('field.id')]]" data-field_id="[[v('field.slug')]]" tabindex="0"
+                class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight" data-selected="false">
+                <fieldset class="padding:default width:100% d:flex justify-content:center">
+                    [[if('v[field.icon]')
+                        [[_v('field.icon')]]
+                    ]]
+                    <div class="owl width:100%">
+                        <div class="text-on-admin-util">[[v('field.name')]]</div>
+                    </div>
+                </fieldset>
+            </li>
             ]]
         </ul>
-    </div>
+        ]]
+    </section>
 </main>
 
 <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">

@@ -32,6 +32,8 @@ POSTS FORMS
 ------- -]]
 
 [[b('Post::Category::form::create')
+
+
 <form method="post" action="[[use('Post::Category::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
     <input type="hidden" name="token" value="[[csrf()]]" >
     <section class="post-admin-wrapper owl">

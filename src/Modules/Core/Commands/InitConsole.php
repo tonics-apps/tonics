@@ -1,7 +1,16 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Modules\Core\Commands;
 
+use App\Modules\Core\Commands\App\AppBoilerPlate;
 use App\Modules\Core\Commands\Environmental\SetEnvironmentalPepper;
 use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Commands\Module\MigrateAllFresh;
@@ -28,6 +37,7 @@ class InitConsole
         # REGISTER COMMANDS
         #
         try {
+            // We should prob use an event here, so, user could hook into this and create their own comman
             $commandRegistrar = new CommandRegistrar(
                 $container->resolveMany([
                     PreInstallerManager::class,
@@ -44,11 +54,12 @@ class InitConsole
                     SyncDirectory::class,
                     Updates::class,
                     AutoUpdate::class,
+                    // For Apps
+                    AppBoilerPlate::class,
                 ])
             );
         } catch (ReflectionException $e) {
             exit(1);
-            // dd($e);
         }
 
         $console = new Console($commandRegistrar, $args->getProcessArgs(), $container);
