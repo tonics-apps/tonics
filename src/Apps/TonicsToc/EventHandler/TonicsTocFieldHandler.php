@@ -10,15 +10,23 @@
 
 namespace App\Apps\TonicsToc\EventHandler;
 
+use App\Apps\TonicsToc\Controller\TonicsTocController;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 
 class TonicsTocFieldHandler implements FieldTemplateFileInterface
 {
 
+    /**
+     * @throws \Exception
+     */
     public function handleFieldLogic(OnFieldMetaBox $event = null, $data = null): string
     {
-       return 'This is a table of content preview';
+        if (FieldConfig::hasPreSavedFieldData()){
+            return FieldConfig::getPreSavedFieldData();
+        }
+        return $this->getTocResult();
     }
 
     public function name(): string
@@ -29,5 +37,25 @@ class TonicsTocFieldHandler implements FieldTemplateFileInterface
     public function canPreSaveFieldLogic(): bool
     {
         return true;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getTocResult(): string
+    {
+        $settings = TonicsTocController::getTonicsTocSettingData();
+        $result = '';
+        if (isset(getPostData()['tableOfContentData'])){
+            if (getPostData()['tableOfContentData']['headersFound'] >= $settings['toc_trigger']){
+                $settings['toc_label'] = (empty(getPostData()['toc_label'])) ? $settings['toc_label'] : getPostData()['toc_label'];
+                foreach(getPostData()['tableOfContentData']['tree'] as $item){
+                    $result .= $item['data'];
+                }
+            }
+        }
+
+        $tocClass = trim($settings['toc_class'], '.');
+        return "<div class='{$tocClass}'><ul class='tonics-toc-ul'><{$settings['toc_label_tag']} class='tonics-toc-label-tag-class'> {$settings['toc_label']} </{$settings['toc_label_tag']}> $result </ul></div>";
     }
 }

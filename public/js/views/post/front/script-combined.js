@@ -347,13 +347,14 @@ __name(isValidTagName, "isValidTagName");
 
 // src/Util/Others/TableOfContent.ts
 var TableOfContent = class {
-  constructor($tableOfContentContainer) {
+  constructor($tableOfContentContainer = "") {
     this._$tableOfContentDetails = {};
     this._tocTree = [];
     this._breakLoopBackward = false;
     this._tocResult = "";
     this._$tableOfContentDetails = {
       tocContainer: $tableOfContentContainer,
+      noOfHeadersFound: 0,
       tocDepth: 4,
       tocNoHeadingToTrigger: 2,
       tocLabel: "Table Of Content",
@@ -394,6 +395,10 @@ var TableOfContent = class {
       tocClass: ".tonics-toc"
     };
   }
+  tocContainer(tag) {
+    this._$tableOfContentDetails.tocContainer = tag;
+    return this;
+  }
   tocDepth(int) {
     this._$tableOfContentDetails.tocDepth = int;
     return this;
@@ -429,11 +434,15 @@ var TableOfContent = class {
         }
       }
       let tocHeader = document.querySelector(toc.tocContainer).querySelectorAll(selector);
+      if (tocHeader.length < toc.tocNoHeadingToTrigger) {
+        return;
+      }
       const isTagNameValid = isValidTagName(toc.tocLabelTag);
       if (!isTagNameValid) {
         throw new DOMException(toc.tocLabelTag + " is not a valid tagName ");
       }
       if (tocHeader.length > 0) {
+        toc.noOfHeadersFound = tocHeader.length;
         let currentLevel = 0, lastAddedElementToTree = 0, result = `<ul>`, item = {}, childStack = [];
         tocHeader.forEach((header, index) => {
           if (header.textContent.length > 0) {
@@ -512,6 +521,10 @@ var TableOfContent = class {
   }
 };
 __name(TableOfContent, "TableOfContent");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.TableOfContent = ($tableOfContentContainer) => new TableOfContent($tableOfContentContainer);
 export {
   TableOfContent
 };

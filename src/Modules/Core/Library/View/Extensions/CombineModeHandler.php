@@ -29,16 +29,22 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
     public function validate(OnTagToken $tagToken): bool
     {
         $view = $this->getTonicsView();
-        $view->validateMaxArg($tagToken->getArg(), 'Combined', 10000, 2);
+        $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName(), 10000, 2);
         $args = $tagToken->getArg();
 
+        $rootPath = AppConfig::getPublicPath();
+        if ($tagToken->getTagName() === 'combine_app'){
+            $rootPath = AppConfig::getAppsPath();
+        } elseif ($tagToken->getTagName() === 'combine_module'){
+            $rootPath = AppConfig::getModulesPath();
+        }
+
         $outputFile = array_shift($args);
-        $finalFile = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($outputFile, '/\\');
+        $finalFile = $rootPath . DIRECTORY_SEPARATOR . trim($outputFile, '/\\');
 
         /** @var BeforeCombineModeOperation $beforeCombineOperationEvent */
-        $beforeCombineOperationEvent = event()->dispatch(new BeforeCombineModeOperation($outputFile));
+        $beforeCombineOperationEvent = event()->dispatch(new BeforeCombineModeOperation($outputFile, $rootPath));
         if ($beforeCombineOperationEvent->combineFiles() === false) {
-           // dd($beforeCombineOperationEvent);
             $tagToken->getTag()->setContent($beforeCombineOperationEvent->getOutputFile());
             $tagToken->getTag()->setArgs([]);
             return true;
@@ -49,8 +55,12 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
             throw new FileException("Cant Open File `$finalFile`, Permission Issue?");
         }
 
-        foreach ($args as $fileToAppend) {
-            $fileToAppend = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($fileToAppend, '/\\');
+        foreach ($args as $file) {
+            // Priority would be given to the combine type, if it doesn't exist, we check the PublicPath
+            $fileToAppend = $rootPath . DIRECTORY_SEPARATOR . trim($file, '/\\');
+            if (!helper()->fileExists($fileToAppend)){
+                $fileToAppend = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($file, '/\\');
+            }
             if (helper()->fileExists($fileToAppend)) {
                 $data = file_get_contents($fileToAppend);
                 fwrite($finalFileHandle, $data);

@@ -10,7 +10,9 @@
 
 namespace App\Modules\Post\Controllers;
 
+use App\Apps\TonicsToc\Controller\TonicsTocController;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
@@ -38,6 +40,12 @@ class PostsController
     private ?FieldData $fieldData;
     private ?OnPostDefaultField $onPostDefaultField;
 
+    /**
+     * @param PostData $postData
+     * @param UserData $userData
+     * @param FieldData|null $fieldData
+     * @param OnPostDefaultField|null $onPostDefaultField
+     */
     public function __construct(PostData $postData, UserData $userData, FieldData $fieldData = null, OnPostDefaultField $onPostDefaultField = null)
     {
         $this->postData = $postData;

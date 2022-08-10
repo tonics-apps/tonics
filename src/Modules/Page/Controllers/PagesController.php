@@ -127,6 +127,7 @@ class PagesController
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
         $onPageDefaultField->setPostDefaultFieldSlug($fieldIDS);
         event()->dispatch($onPageDefaultField);
+
         $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getPostDefaultFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),

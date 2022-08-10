@@ -1,14 +1,21 @@
-[[inherit("Modules::Core/Views/Templates/core")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field",)]]
 
 [[hook_into('in_head_title') TonicsToc Settings Page ]]
 [[hook_into('in_main_header_title') TonicsToc Settings Page ]]
 
-[[hook_into('in_main')
-  Hold On a Bit
+[[hook_into('form_action')/admin/tools/apps/tonics_toc/settings]]
+
+[[b('App:script-tonicsToc')
+<script type="module" src="[[combine_app('/TonicsToc/Assets/js/script.js',
+        '/js/Modules/Others/TableOfContent.js',
+        '/TonicsToc/Assets/js/main.js',
+        )]]">
+</script>
 ]]
 
 [[hook_into('before_footer')
   [[_use("script:variables")]]
   [[_use("script:core")]]
+  <script type="module" src="[[_v('Asset.js')]]"></script>
   [[_use("session:delete-artifacts")]]
 ]]

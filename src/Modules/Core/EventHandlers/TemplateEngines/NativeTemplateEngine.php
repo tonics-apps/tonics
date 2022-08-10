@@ -60,7 +60,11 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('url', URLModeHandler::class);
         $view->addModeHandler('csrf', CSRFModeHandler::class);
         $view->addModeHandler('menu', MenuModeHandler::class);
+
         $view->addModeHandler('combine', CombineModeHandler::class);
+        $view->addModeHandler('combine_app', CombineModeHandler::class);
+        $view->addModeHandler('combine_module', CombineModeHandler::class);
+
         $view->addModeHandler('mFunc', ModuleFunctionModeHandler::class);
         $view->addModeHandler('bArg', ModuleFunctionModeHandler::class);
 

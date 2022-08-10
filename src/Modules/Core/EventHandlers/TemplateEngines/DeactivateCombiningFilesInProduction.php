@@ -22,8 +22,8 @@ class DeactivateCombiningFilesInProduction implements HandlerInterface
         if (AppConfig::isProduction()) {
             $event->setCombineFiles(false);
 
-            # REPLACE .js with .min.js
-            $file = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($event->getOutputFile(), '/\\');
+            # REPLACE .js with .min.js if available
+            $file = $event->getRootPath() . DIRECTORY_SEPARATOR . trim($event->getOutputFile(), '/\\');
             $minJs = str_replace('.js', '.min.js', $file);
             if (file_exists($minJs)){
                 $event->setOutputFile(str_replace('.js', '.min.js', $event->getOutputFile()));

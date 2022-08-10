@@ -17,10 +17,12 @@ class BeforeCombineModeOperation implements EventInterface
 
     private string $outputFile;
     private bool $combineFiles = true;
+    private string $rootPath;
 
-    public function __construct(string $outputName)
+    public function __construct(string $outputName, string $rootPath)
     {
         $this->outputFile = $outputName;
+        $this->rootPath = $rootPath;
     }
 
     /**
@@ -61,5 +63,21 @@ class BeforeCombineModeOperation implements EventInterface
     public function setCombineFiles(bool $combineFiles): void
     {
         $this->combineFiles = $combineFiles;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootPath(): string
+    {
+        return $this->rootPath;
+    }
+
+    /**
+     * @param string $rootPath
+     */
+    public function setRootPath(string $rootPath): void
+    {
+        $this->rootPath = $rootPath;
     }
 }

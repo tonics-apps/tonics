@@ -336,9 +336,9 @@ class AppConfig
         return APP_ROOT . '/src/Apps';
     }
 
-    public static function getAppAsset(string $themeName, string $themePath): string
+    public static function getAppAsset(string $appName, string $appPath): string
     {
-        return DriveConfig::serveAppFilePath() . "$themeName/?path=$themePath";
+        return DriveConfig::serveAppFilePath() . "$appName/?path=$appPath";
     }
 
     public static function getTranslationsPath(): string

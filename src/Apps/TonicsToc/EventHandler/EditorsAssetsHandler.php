@@ -10,15 +10,17 @@
 
 namespace App\Apps\TonicsToc\EventHandler;
 
-use App\Modules\Field\Events\OnEditorFieldSelection;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Events\EditorsAsset;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class TonicsTocFieldSelection implements HandlerInterface
+class EditorsAssetsHandler implements HandlerInterface
 {
 
     public function handleEvent(object $event): void
     {
-        /** @var $event OnEditorFieldSelection */
-        $event->addField('Tonics Table Of Content', 'Apps_TonicsToc', category: OnEditorFieldSelection::CATEGORY_TOOL);
+        /** @var $event EditorsAsset */
+        $tocAsset = AppConfig::getAppAsset('TonicsToc', 'js/script.js');
+        $event->addJS($tocAsset);
     }
 }

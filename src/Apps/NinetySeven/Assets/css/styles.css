@@ -1195,16 +1195,24 @@ article.entry-content {
     TONICS PLUGIN
 ************************/
 
-.tonics-toc ul {
+.tonics-toc-ul {
     counter-reset: tonicsTocCounter;
     list-style-type: none;
 }
 
-.tonics-toc li::before {
+.tonics-toc-ul li::before {
     counter-increment: tonicsTocCounter;
     content: counters(tonicsTocCounter, ".") " ";
 }
 
-.tonics-toc ul li {
+.tonics-toc-ul li {
     margin-left: 1em;
+}
+
+.tonics-toc-label-tag-class {
+    font-size: 30px;
+}
+
+.tonics-toc-ul li {
+    list-style-type: none;
 }

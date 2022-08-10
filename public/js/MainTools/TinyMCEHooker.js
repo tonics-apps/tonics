@@ -84,32 +84,51 @@ function addTiny(editorID) {
         body_class: "entry-content",
         remove_trailing_brs: true,
         setup: function (editor) {
+            if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
+            if (!window.TonicsScript.hasOwnProperty('tinymce')){ window.TonicsScript.tinymce = [] }
+            window.TonicsScript.tinymce.push(editor);
             editor.on('init', function (e) {
-
+                if (tinyJSAssets && tinyJSAssets.length > 0) {
+                    tinyJSAssets.forEach((js) => {
+                        let script = document.createElement("script");
+                        script.type = 'module';
+                        script.src = js.value;
+                        script.async = true;
+                        tinymce.activeEditor.dom.select('head')[0].appendChild(script);
+                    });
+                }
                 editor.getBody().addEventListener('click', (e) => {
                     let target = e.target;
-                    if (target.classList.contains('fieldsPreview')){
+                    if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
-                        let dataToSend = {
-                            action: 'fieldPreviewFromEditor',
-                            fieldPostDataInEditor: JSON.stringify(getPostData(tabContainer)),
-                            fieldTableSlugsInEditor: JSON.stringify(getFieldSlugsTable(tabContainer)),
-                        };
-                        let url = window.location.href + "?action=fieldPreviewFromEditor";
-                        new XHRApi({...{}, ...dataToSend}).Get(url, function (err, data) {
-                            if (data) {
-                                data = JSON.parse(data);
-                                if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')){
-                                    target.nextElementSibling.innerHTML = '';
-                                    target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
+                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
+                            let postData = getPostData(tabContainer);
+                            const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(postData, target);
+                            let eventDispatcher = window.TonicsEvent.EventDispatcher;
+                            eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
+                            let dataToSend = {
+                                action: 'fieldPreviewFromEditor',
+                                fieldPostDataInEditor: JSON.stringify(OnBeforeTonicsFieldPreview.getPostData()),
+                                fieldTableSlugsInEditor: JSON.stringify(getFieldSlugsTable(tabContainer)),
+                            };
+                            let url = window.location.href + "?action=fieldPreviewFromEditor";
+
+                            new XHRApi({...{}, ...dataToSend}).Get(url, function (err, data) {
+                                if (data) {
+                                    data = JSON.parse(data);
+                                    if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
+                                        target.nextElementSibling.innerHTML = '';
+                                        target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
+                                    }
                                 }
-                            }
-                        });
+                            });
+
+                        }
                     }
 
-                    if (target.classList.contains('fieldsDelete')){
+                    if (target.classList.contains('fieldsDelete')) {
                         let tabContainer = target.closest('.tabs');
-                        if (tabContainer){
+                        if (tabContainer) {
                             myModule.promptToast("Field deletion might be irreversible", "Delete Field", () => {
                                 tabContainer.remove();
                             })
@@ -147,16 +166,6 @@ function addTiny(editorID) {
                        input.options[input.selectedIndex].setAttribute('selected', 'selected');
                    }
                 });
-
-                if (tinyJSAssets && tinyJSAssets.length > 0) {
-                    tinyJSAssets.forEach((js) => {
-                        let script = document.createElement("script");
-                        script.type = 'module';
-                        script.src = js.value;
-                        script.async = true;
-                        tinymce.activeEditor.dom.select('head')[0].appendChild(script);
-                    });
-                }
 
                 let svgInline = document.querySelector('.tonics-inline-svg');
                 if (svgInline) {
@@ -238,20 +247,23 @@ if (tinyEditorsForm){
         if (tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             e.preventDefault(); let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
-            let postData = getPostData(tinymce.activeEditor.getBody());
             bodyNode.forEach((node) => {
                 if (node.classList.contains('tonicsFieldTabsContainer')) {
-                    if (nodesData.hasOwnProperty(key)) {
+                    if (nodesData.hasOwnProperty(key) &&  window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                         ++key;
                     }
                     let fieldTableSlug = node.querySelector('input[name="main_field_slug"]');
                     if (fieldTableSlug){
                         fieldTableSlug = fieldTableSlug.value;
                     }
+                    let postData = getPostData(node);
+                    const OnBeforeTonicsFieldSubmit = new OnBeforeTonicsFieldSubmitEvent(postData, node);
+                    let eventDispatcher = window.TonicsEvent.EventDispatcher;
+                    eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnBeforeTonicsFieldSubmitEvent);
                     nodesData[key] = {
                         fieldTableSlug: fieldTableSlug,
                         raw: false,
-                        postData: getPostData(node),
+                        postData: OnBeforeTonicsFieldSubmit.getPostData(),
                     };
                 } else {
                     if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false) {
@@ -279,4 +291,68 @@ function getFieldSlugsTable(el = null) {
         fieldTables[table.value] =table.value;
     });
     return fieldTables;
+}
+
+class OnBeforeTonicsFieldPreviewEvent {
+    get elementTarget() {
+        return this._elementTarget;
+    }
+
+    set elementTarget(value) {
+        this._elementTarget = value;
+    }
+    get postData() {
+        return this._postData;
+    }
+
+    set postData(value) {
+        this._postData = value;
+    }
+
+    postData = null; elementTarget = null;
+
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+    }
+
+    getPostData() {
+        return this._postData;
+    }
+
+    getElementTarget() {
+        return this._elementTarget;
+    }
+}
+
+class OnBeforeTonicsFieldSubmitEvent {
+    get elementTarget() {
+        return this._elementTarget;
+    }
+
+    set elementTarget(value) {
+        this._elementTarget = value;
+    }
+    get postData() {
+        return this._postData;
+    }
+
+    set postData(value) {
+        this._postData = value;
+    }
+
+    postData = null; elementTarget = null;
+
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+    }
+
+    getPostData() {
+        return this._postData;
+    }
+
+    getElementTarget() {
+        return this._elementTarget;
+    }
 }

@@ -132,7 +132,7 @@ trait Routes
         #---------------------------------
         $route->group(DriveConfig::serveAppFilePath(), function (Route $route){
             // you pass the path as a query string...
-            $route->get(':theme-name', [AppsController::class, 'serve']);
+            $route->get(':app-name', [AppsController::class, 'serve']);
         });
 
         return $route;

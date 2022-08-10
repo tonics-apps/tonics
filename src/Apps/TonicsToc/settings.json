@@ -1,7 +1,1 @@
-{
-  "tocDepth": 4,
-  "tocNoHeadingToTrigger": 2,
-  "tocLabel": "Table Of Content",
-  "tocLabelTag": "h2",
-  "tocClass": ".tonics-toc"
-}
+{"toc_depth":"6","toc_trigger":"2","toc_label":"Table Of Contents","toc_label_tag":"div","toc_class":".tonics-toc"}

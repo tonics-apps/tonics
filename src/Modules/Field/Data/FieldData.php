@@ -658,4 +658,6 @@ SQL;
         $date = new \DateTime($post['post_created_at']);
         $post['created_at_words'] = strtoupper($date->format('j M, Y'));
     }
+
+
 }

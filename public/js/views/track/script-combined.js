@@ -1,6 +1,167 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
+// src/Event/EventQueue.ts
+var EventQueue = class {
+  constructor() {
+    this.$eventHandlers = new Map();
+  }
+  attachHandlerToEvent($eventType, $callback) {
+    var _a;
+    if (this.getHandlers().has($eventType)) {
+      (_a = this.getHandlers().get($eventType)) == null ? void 0 : _a.push($callback);
+      return this;
+    }
+    this.getHandlers().set($eventType, [$callback]);
+    return this;
+  }
+  getHandlers() {
+    return this.$eventHandlers;
+  }
+  detachHandlerFromEvent($eventType) {
+    if (this.getHandlers().has($eventType)) {
+      this.getHandlers().delete($eventType);
+      return this;
+    }
+  }
+  getEventHandlers($event) {
+    var _a;
+    if (!this.getHandlers().has($event)) {
+      return [];
+    }
+    return (_a = this.getHandlers().get($event)) != null ? _a : [];
+  }
+};
+__name(EventQueue, "EventQueue");
+if (!window.hasOwnProperty("TonicsEvent")) {
+  window.TonicsEvent = {};
+}
+window.TonicsEvent.EventQueue = () => new EventQueue();
+
+// src/Event/EventHelper.ts
+function attachEventAndHandlersToHandlerProvider($eventConfig, $eventName) {
+  let $listenerProvider = new EventQueue();
+  let eventName = $eventName.name;
+  if ($eventConfig.hasOwnProperty(eventName)) {
+    let $listeners = $eventConfig[eventName];
+    if ($listeners.length > 0) {
+      $listeners == null ? void 0 : $listeners.forEach((value, index) => {
+        $listenerProvider.attachHandlerToEvent($eventName, value);
+      });
+    }
+    return $listenerProvider;
+  }
+  throw new DOMException(`Can't attach ${$eventName} to listeners because it doesn't exist`);
+}
+__name(attachEventAndHandlersToHandlerProvider, "attachEventAndHandlersToHandlerProvider");
+if (!window.hasOwnProperty("TonicsEvent")) {
+  window.TonicsEvent = {};
+}
+window.TonicsEvent.attachEventAndHandlersToHandlerProvider = ($eventConfig, $eventName) => attachEventAndHandlersToHandlerProvider($eventConfig, $eventName);
+
+// src/Event/EventDispatcher.ts
+var EventDispatcher = class {
+  constructor($handleProvider) {
+    if ($handleProvider) {
+      this.$handleProvider = $handleProvider;
+      return this;
+    }
+  }
+  dispatch($event) {
+    let $eventName = $event.constructor;
+    const eventHandlers = this.getHandler().getEventHandlers($eventName);
+    for (let i = 0; i < eventHandlers.length; i++) {
+      if (!Object.getOwnPropertyNames(eventHandlers[i]).includes("arguments")) {
+        new eventHandlers[i]($event);
+      } else {
+        eventHandlers[i]($event);
+      }
+    }
+    return $event;
+  }
+  setHandler($handler) {
+    this.$handleProvider = $handler;
+    return this;
+  }
+  getHandler() {
+    return this.$handleProvider;
+  }
+  dispatchEventToHandlers($eventConfig, $eventObject, $eventClass) {
+    let eventHandlers = attachEventAndHandlersToHandlerProvider($eventConfig, $eventClass);
+    this.setHandler(eventHandlers).dispatch($eventObject);
+  }
+};
+__name(EventDispatcher, "EventDispatcher");
+if (!window.hasOwnProperty("TonicsEvent")) {
+  window.TonicsEvent = {};
+}
+window.TonicsEvent.EventDispatcher = new EventDispatcher();
+export {
+  EventDispatcher
+};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// src/Event/EventQueue.ts
+var EventQueue = class {
+  constructor() {
+    this.$eventHandlers = new Map();
+  }
+  attachHandlerToEvent($eventType, $callback) {
+    var _a;
+    if (this.getHandlers().has($eventType)) {
+      (_a = this.getHandlers().get($eventType)) == null ? void 0 : _a.push($callback);
+      return this;
+    }
+    this.getHandlers().set($eventType, [$callback]);
+    return this;
+  }
+  getHandlers() {
+    return this.$eventHandlers;
+  }
+  detachHandlerFromEvent($eventType) {
+    if (this.getHandlers().has($eventType)) {
+      this.getHandlers().delete($eventType);
+      return this;
+    }
+  }
+  getEventHandlers($event) {
+    var _a;
+    if (!this.getHandlers().has($event)) {
+      return [];
+    }
+    return (_a = this.getHandlers().get($event)) != null ? _a : [];
+  }
+};
+__name(EventQueue, "EventQueue");
+if (!window.hasOwnProperty("TonicsEvent")) {
+  window.TonicsEvent = {};
+}
+window.TonicsEvent.EventQueue = () => new EventQueue();
+export {
+  EventQueue
+};
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
+
+const EventsConfig = {
+
+    OnBeforeTonicsFieldPreviewEvent: [],
+    OnBeforeTonicsFieldSubmitEvent: [],
+
+  //  OtherEvent: [],
+
+};
+
+window.TonicsEvent.EventConfig = EventsConfig;var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 // src/Util/Element/Abstract/ElementAbstract.ts
 var ElementAbstract = class {
   constructor($Element) {
@@ -4685,32 +4846,51 @@ function addTiny(editorID) {
         body_class: "entry-content",
         remove_trailing_brs: true,
         setup: function (editor) {
+            if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
+            if (!window.TonicsScript.hasOwnProperty('tinymce')){ window.TonicsScript.tinymce = [] }
+            window.TonicsScript.tinymce.push(editor);
             editor.on('init', function (e) {
-
+                if (tinyJSAssets && tinyJSAssets.length > 0) {
+                    tinyJSAssets.forEach((js) => {
+                        let script = document.createElement("script");
+                        script.type = 'module';
+                        script.src = js.value;
+                        script.async = true;
+                        tinymce.activeEditor.dom.select('head')[0].appendChild(script);
+                    });
+                }
                 editor.getBody().addEventListener('click', (e) => {
                     let target = e.target;
-                    if (target.classList.contains('fieldsPreview')){
+                    if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
-                        let dataToSend = {
-                            action: 'fieldPreviewFromEditor',
-                            fieldPostDataInEditor: JSON.stringify(getPostData(tabContainer)),
-                            fieldTableSlugsInEditor: JSON.stringify(getFieldSlugsTable(tabContainer)),
-                        };
-                        let url = window.location.href + "?action=fieldPreviewFromEditor";
-                        new XHRApi({...{}, ...dataToSend}).Get(url, function (err, data) {
-                            if (data) {
-                                data = JSON.parse(data);
-                                if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')){
-                                    target.nextElementSibling.innerHTML = '';
-                                    target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
+                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
+                            let postData = getPostData(tabContainer);
+                            const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(postData, target);
+                            let eventDispatcher = window.TonicsEvent.EventDispatcher;
+                            eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
+                            let dataToSend = {
+                                action: 'fieldPreviewFromEditor',
+                                fieldPostDataInEditor: JSON.stringify(OnBeforeTonicsFieldPreview.getPostData()),
+                                fieldTableSlugsInEditor: JSON.stringify(getFieldSlugsTable(tabContainer)),
+                            };
+                            let url = window.location.href + "?action=fieldPreviewFromEditor";
+
+                            new XHRApi({...{}, ...dataToSend}).Get(url, function (err, data) {
+                                if (data) {
+                                    data = JSON.parse(data);
+                                    if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
+                                        target.nextElementSibling.innerHTML = '';
+                                        target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
+                                    }
                                 }
-                            }
-                        });
+                            });
+
+                        }
                     }
 
-                    if (target.classList.contains('fieldsDelete')){
+                    if (target.classList.contains('fieldsDelete')) {
                         let tabContainer = target.closest('.tabs');
-                        if (tabContainer){
+                        if (tabContainer) {
                             myModule.promptToast("Field deletion might be irreversible", "Delete Field", () => {
                                 tabContainer.remove();
                             })
@@ -4748,16 +4928,6 @@ function addTiny(editorID) {
                        input.options[input.selectedIndex].setAttribute('selected', 'selected');
                    }
                 });
-
-                if (tinyJSAssets && tinyJSAssets.length > 0) {
-                    tinyJSAssets.forEach((js) => {
-                        let script = document.createElement("script");
-                        script.type = 'module';
-                        script.src = js.value;
-                        script.async = true;
-                        tinymce.activeEditor.dom.select('head')[0].appendChild(script);
-                    });
-                }
 
                 let svgInline = document.querySelector('.tonics-inline-svg');
                 if (svgInline) {
@@ -4839,20 +5009,23 @@ if (tinyEditorsForm){
         if (tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             e.preventDefault(); let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
-            let postData = getPostData(tinymce.activeEditor.getBody());
             bodyNode.forEach((node) => {
                 if (node.classList.contains('tonicsFieldTabsContainer')) {
-                    if (nodesData.hasOwnProperty(key)) {
+                    if (nodesData.hasOwnProperty(key) &&  window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                         ++key;
                     }
                     let fieldTableSlug = node.querySelector('input[name="main_field_slug"]');
                     if (fieldTableSlug){
                         fieldTableSlug = fieldTableSlug.value;
                     }
+                    let postData = getPostData(node);
+                    const OnBeforeTonicsFieldSubmit = new OnBeforeTonicsFieldSubmitEvent(postData, node);
+                    let eventDispatcher = window.TonicsEvent.EventDispatcher;
+                    eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnBeforeTonicsFieldSubmitEvent);
                     nodesData[key] = {
                         fieldTableSlug: fieldTableSlug,
                         raw: false,
-                        postData: getPostData(node),
+                        postData: OnBeforeTonicsFieldSubmit.getPostData(),
                     };
                 } else {
                     if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false) {
@@ -4880,6 +5053,70 @@ function getFieldSlugsTable(el = null) {
         fieldTables[table.value] =table.value;
     });
     return fieldTables;
+}
+
+class OnBeforeTonicsFieldPreviewEvent {
+    get elementTarget() {
+        return this._elementTarget;
+    }
+
+    set elementTarget(value) {
+        this._elementTarget = value;
+    }
+    get postData() {
+        return this._postData;
+    }
+
+    set postData(value) {
+        this._postData = value;
+    }
+
+    postData = null; elementTarget = null;
+
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+    }
+
+    getPostData() {
+        return this._postData;
+    }
+
+    getElementTarget() {
+        return this._elementTarget;
+    }
+}
+
+class OnBeforeTonicsFieldSubmitEvent {
+    get elementTarget() {
+        return this._elementTarget;
+    }
+
+    set elementTarget(value) {
+        this._elementTarget = value;
+    }
+    get postData() {
+        return this._postData;
+    }
+
+    set postData(value) {
+        this._postData = value;
+    }
+
+    postData = null; elementTarget = null;
+
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+    }
+
+    getPostData() {
+        return this._postData;
+    }
+
+    getElementTarget() {
+        return this._elementTarget;
+    }
 }try {
     new myModule.MenuToggle('.site-nav', new myModule.Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')

@@ -86,6 +86,14 @@ HTML;
 FORM;
             }
 
+            $settingsFrag = '';
+            if (isset($data['settings_page']) && !empty($data['settings_page'])){
+                $settingsFrag =<<<FORM
+<a class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
+        margin-top:0 cursor:pointer" href="{$data['settings_page']}">Settings</a>
+FORM;
+            }
+
             $type = 'Uncategorized';
             if (isset($data['type'])){
                 $type = strtolower($data['type']);
@@ -105,8 +113,8 @@ FORM;
             <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
             $installedFrag
             $updateFrag
+            $settingsFrag
             </div>
-
         </div>
     </fieldset>
 </li>
