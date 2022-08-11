@@ -4,11 +4,12 @@ const MESSAGE_LIMIT = 200;
 let messageInserted = 0;
 
 let preElement = document.querySelector('.installation-pre'),
-    form = document.querySelector('form'),
+    form = document.getElementById('ImportForm'),
     importButton = document.querySelector('.import-button'),
     adminPostWidget = document.querySelector('.admin-post-writing-experience'),
     windowInstanceForDownloadURL = null,
     inputLicenseDownloadURL = null;
+
 function submitForm(event) {
     if (document.forms.hasOwnProperty('ImportForm')) {
         event.preventDefault();

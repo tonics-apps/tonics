@@ -62,6 +62,14 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
             if (!isset($storage[$tagToken->getFirstArgChild()])){
                 $storage[$tagToken->getFirstArgChild()] = $this->setUpHook();
                 $view->storeDataInModeStorage('add_hook', $storage);
+                // if add_hook has a children, then we use it as a default for hook_into,
+                // this way, we can make things faster a bit when hooking default data
+                if (!empty($tagToken->getContent()) || $tagToken->hasChildren()){
+                    $new_tag = clone $tagToken->getTag();
+                    $hook_into_default = new OnTagToken($new_tag);
+                    $hook_into_default->getTag()->setTagName('hook_into');
+                    $this->handleHookInto($hook_into_default);
+                }
             }
         }
 
@@ -123,11 +131,7 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
     public function handleHookInto(OnTagToken $tagToken)
     {
         $hook_name = $tagToken->getFirstArgChild();
-        if (!empty($tagToken->getContent())){
-            $tag = new Tag('char');
-            $tag->setContent($tagToken->getContent());
-            $tagToken->getTag()->prependTagToNode($tag);
-        }
+        $this->handleContentInTag($tagToken);
         $storage = $this->getTonicsView()->getModeStorage('add_hook');
         // resolve nested add_hook or add_placeholder
         /** @var Tag $node */
@@ -144,6 +148,16 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
         }
 
         $this->getTonicsView()->storeDataInModeStorage('add_hook', $storage);
+    }
+
+    public function handleContentInTag(OnTagToken $tagToken)
+    {
+        if (!empty($tagToken->getContent())){
+            $tag = new Tag('char');
+            $tag->setContent($tagToken->getContent());
+            $tagToken->getTag()->prependTagToNode($tag);
+            $tagToken->getTag()->setContent('');
+        }
     }
 
     public function setUpHook(): array

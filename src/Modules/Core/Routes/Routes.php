@@ -21,10 +21,8 @@ use App\Modules\Core\Controllers\Installer;
 use App\Modules\Core\Controllers\AppsController;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CoreAccess;
-use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\InstallerChecker;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
-use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Core\RequestInterceptor\AppAccess;
 use Devsrealm\TonicsRouterSystem\Route;
 
