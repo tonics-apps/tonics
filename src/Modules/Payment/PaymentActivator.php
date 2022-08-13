@@ -11,11 +11,10 @@
 namespace App\Modules\Payment;
 
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class PaymentActivator implements ModuleConfig, PluginConfig
+class PaymentActivator implements ExtensionConfig
 {
 
     /**
@@ -92,5 +91,10 @@ class PaymentActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

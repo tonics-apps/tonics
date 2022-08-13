@@ -82,7 +82,6 @@ class MediaAudio implements HandlerInterface
 </div>
 
 {$event->handleViewProcessingFrag($data)}
-{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

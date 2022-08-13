@@ -9,7 +9,6 @@
  */
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\CacheKeys;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\MyPDO;
@@ -156,74 +155,6 @@ function templateEngines(): TonicsTemplateEngines
 function addToGlobalVariable(string $key, $data): void
 {
     AppConfig::initLoaderMinimal()::addToGlobalVariable($key, $data);
-}
-
-/**
- * Load Base Template If Not Already Loaded
- * @throws Exception
- */
-function loadTemplateBase(): void
-{
-    if (AppConfig::initLoaderMinimal()::globalVariableKeyExist('BASE_TEMPLATE') === false){
-        addToGlobalVariable('BASE_TEMPLATE', view('Modules::Core/Views/Templates/theme', condition: TonicsView::RENDER_TOKENIZE_ONLY));
-    }
-}
-
-/**
- * @return TonicsView|null
- * @throws Exception
- */
-function getBaseTemplate(): TonicsView|null
-{
-    if (AppConfig::initLoaderMinimal()::globalVariableKeyExist('BASE_TEMPLATE') === false){
-        loadTemplateBase();
-    }
-    return AppConfig::initLoaderMinimal()::getGlobalVariableData('BASE_TEMPLATE');
-}
-
-/**
- * @throws Exception
- */
-function cacheBaseTemplate(): void
-{
-    getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
-    apcu_store(CacheKeys::getSinglePostTemplateKey(), [
-        'contents' => getBaseTemplate()->getContent(),
-        'modeStorage' => getBaseTemplate()->getModeStorages(),
-        'variable' => getBaseTemplate()->getVariableData()
-    ]);
-}
-
-/**
- * @param string $cacheKey
- * @param callable|null $cacheNotFound
- * Callback to call if cache doesn't exist
- * @param callable|null $cacheFound
- * Callback to call if cache exist
- * @return void
- * @throws Exception
- */
-#[NoReturn] function renderBaseTemplate(string $cacheKey = '', callable $cacheNotFound = null, callable $cacheFound = null): void
-{
-    if (!apcu_exists($cacheKey)){
-        if ($cacheNotFound !== null){
-            $cacheNotFound();
-        }
-    } else {
-        $cacheData = apcu_fetch($cacheKey);
-        getBaseTemplate()->setContent($cacheData['contents']);
-        getBaseTemplate()->setModeStorages($cacheData['modeStorage'] ?? []);
-
-        // reload global variable to evade caching
-        $cacheData['variable'] = [...$cacheData['variable'], ...AppConfig::initLoaderMinimal()::getGlobalVariable()];
-        getBaseTemplate()->setVariableData($cacheData['variable']);
-        if ($cacheFound !== null){
-            $cacheFound();
-        }
-    }
-
-    echo getBaseTemplate()->outputContentData(getBaseTemplate()->getContent()->getContents());
-    exit();
 }
 
 /**

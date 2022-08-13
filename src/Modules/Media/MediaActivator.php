@@ -10,15 +10,14 @@
 
 namespace App\Modules\Media;
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Media\EventHandlers\MediaMenus;
 use App\Modules\Media\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class MediaActivator implements ModuleConfig, PluginConfig
+class MediaActivator implements ExtensionConfig
 {
     use Routes;
 
@@ -96,5 +95,10 @@ class MediaActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

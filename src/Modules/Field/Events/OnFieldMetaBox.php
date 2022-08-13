@@ -10,14 +10,8 @@
 
 namespace App\Modules\Field\Events;
 
-use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Events\OnSelectTonicsTemplateHooks;
 use App\Modules\Field\Data\FieldData;
-use Devsrealm\TonicsDomParser\Node\NodeTypes\Element;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
-use Devsrealm\TonicsTemplateSystem\Content;
-use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateArrayLoader;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 use Devsrealm\TonicsValidation\Validation;
 use stdClass;
 
@@ -30,7 +24,6 @@ class OnFieldMetaBox implements EventInterface
     private ?Validation $validation = null;
     private bool $errorEmitted = false;
     private ?stdClass $currentFieldBox = null;
-    private object $onSelectHooks;
 
     /**
      * @throws \Exception
@@ -38,7 +31,6 @@ class OnFieldMetaBox implements EventInterface
     public function __construct()
     {
         $this->fieldData = new FieldData();
-        $this->onSelectHooks = event()->dispatch(new OnSelectTonicsTemplateHooks());
     }
 
     /**
@@ -226,31 +218,6 @@ HTML;
     }
 
     /**
-     * @param $settings
-     * @param $value
-     * @return string
-     * @throws \Exception
-     */
-    public function getTemplateEngineValue($settings, $value): string
-    {
-        if (isset($settings->templateEngine)) {
-            $name = $settings->templateEngine;
-            $tonicsTemplateEngine = AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
-            if ($tonicsTemplateEngine->exist($name)) {
-                $engine = $tonicsTemplateEngine->getTemplateEngine($name);
-                $postData = (isset($settings->_field->postData)) ? $settings->_field->postData : [];
-                AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
-                $engine->setVariableData(AppConfig::initLoaderMinimal()::getGlobalVariable());
-                $engine->splitStringCharByChar($value);
-                $engine->reset()->tokenize();
-                return $engine->outputContentData($engine->getContent()->getContents());
-            }
-        }
-
-        return $value;
-    }
-
-    /**
      * @param $fieldSlug
      * @return mixed
      */
@@ -287,7 +254,7 @@ HTML;
      */
     public function _topHTMLWrapper(string $name, $data, $root = false): string
     {
-        $slug = isset($data->field_slug) ? $data->field_slug : '';
+        $slug = $data->field_slug ?? '';
         $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $postData = getPostData();
 
@@ -372,70 +339,6 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function getTemplateEngineFrag($data = null): string
-    {
-        $current = (isset($data->templateEngine)) ? $data->templateEngine : '';
-        $hookName = (isset($data->nativeTemplateHook)) ? $data->nativeTemplateHook : '';
-        $tonicsTemplateFrag = (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
-        $engine = AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
-        $engineFrag = '<option value="" selected>None</option>';
-        foreach ($engine->getTemplateEngineNames() as $engineName) {
-            $engineSelected = ($engineName === $current) ? 'selected' : '';
-            $engineFrag .= <<<HTML
-<option value="$engineName" $engineSelected>$engineName</option>
-HTML;
-        }
-
-        $hookFrag = '<option value="" selected>None</option>';
-        foreach ($this->getOnSelectHooks()->getTemplateHooks() as $hook) {
-            $hookSelected = ($hook === $hookName) ? 'selected' : '';
-            $hookFrag .= <<<HTML
-<option value="$hook" $hookSelected>$hook</option>
-HTML;
-        }
-
-        $changeID = helper()->randomString(10);
-        return <<<FORM
-<li tabindex="0" class="menu-arranger-li max-width:350">
-        <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
-                <span class="menu-arranger-text-head">Template Engine</span>
-                <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
-                <svg class="icon:admin tonics-arrow-down color:white">
-                    <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
-                </svg>
-            </button>
-            </legend>
-            <div class="menu-widget-information width:100% flex-d:column owl d:none">
-                <div class="form-group">
-                     <label class="menu-settings-handle-name" for="templateEngine-$changeID">Select Template Engines (Non-Native Needs Hook Placement)
-                         <select name="templateEngine" class="default-selector mg-b-plus-1" id="templateEngine-$changeID">
-                            $engineFrag
-                         </select>
-                    </label>
-                </div>
-                <div class="form-group">
-                     <label class="menu-settings-handle-name" for="nativeTemplateHook-$changeID">Hook Into (Supports All Engine)
-                         <select name="nativeTemplateHook" class="default-selector mg-b-plus-1" id="nativeTemplateHook-$changeID">
-                            $hookFrag
-                         </select>
-                    </label>
-                </div>
-                <div class="form-group">
-                     <label class="menu-settings-handle-name" for="tonicsTemplateFrag-$changeID">Template Text: (`Native` Engine Only Supports Hook)
-                            <textarea rows="10" id="tonicsTemplateFrag-$changeID" name="tonicsTemplateFrag" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-                             placeholder="Start writing the template logic, you have access to the template functions">$tonicsTemplateFrag</textarea>
-                    </label>
-                </div>
-            </div>
-        </fieldset>
-</li>
-FORM;
-    }
-
-    /**
-     * @throws \Exception
-     */
     public function generateMoreSettingsFrag($data = null, string $more = ''): string
     {
         $hideFrag = (isset($data->hideInUserEditForm)) ? $data->hideInUserEditForm : '';
@@ -478,48 +381,6 @@ HTML;
 FORM;
     }
 
-    /**
-     * @param $data
-     * @return void
-     * @throws \Exception
-     */
-    public function handleTemplateEngineView($data): void
-    {
-        $engineName = (isset($data->templateEngine)) ? $data->templateEngine : '';
-        $content = (isset($data->tonicsTemplateFrag)) ? $data->tonicsTemplateFrag : '';
-        $hookName = (isset($data->nativeTemplateHook)) ? $data->nativeTemplateHook : '';
-
-
-        if (templateEngines()->exist($engineName) && !empty($content)) {
-            $tonicsEngine = templateEngines()->getTemplateEngine($engineName);
-            if ($engineName === 'Native') {
-                loadTemplateBase();
-            } else {
-                $tonicsEngine->setTemplateLoader(new TonicsTemplateArrayLoader(['template' => $content]));
-                $content = $tonicsEngine->render('template', TonicsView::RENDER_CONCATENATE);
-            }
-
-            if ($this->getOnSelectHooks()->hookExist($hookName)) {
-                $content = <<<HTML
-[[place_into('$hookName')
-    $content
-]]
-HTML;
-            }
-
-            ## De-Activate Some Extensions
-            // getBaseTemplate()->removeModeHandlers(['combine', 'import', 'event', '__event']);
-
-            getBaseTemplate()->setVariableData(AppConfig::initLoaderMinimal()::getGlobalVariable());
-            # Keep the old content and fork a new one since we don't want to mess with the initialContent
-            $initialContent = getBaseTemplate()->getContent();
-            $newContentInstance = new Content();
-            getBaseTemplate()->setContent($newContentInstance); // this would be used to import blocks too...
-            getBaseTemplate()->splitStringCharByChar($content);
-            getBaseTemplate()->reset();
-            getBaseTemplate()->tokenize()->setContent($initialContent->addBlocks($newContentInstance->getBlocks())); // tokenize and reset the initial content
-        }
-    }
 
     /**
      * @param $varKey
@@ -533,9 +394,8 @@ HTML;
         if (isset($data->inputName)){
             $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
             $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
-            $inputName = (isset($data->inputName)) ? $data->inputName : '';
+            $inputName = $data->inputName;
             addToGlobalVariable("{$varKey}_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Value' => $defaultValue]);
-            $this->handleTemplateEngineView($data);
         }
     }
 
@@ -592,6 +452,7 @@ HTML;
      * @param array $inputNameAndRules
      * @return string
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function validationMake(array|stdClass $data, array $inputNameAndRules): string
     {
@@ -613,24 +474,6 @@ HTML;
         }
 
         return $error;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function flatHTMLTagAttributes(string $attributes): string
-    {
-        $html = <<<HTML
-<html $attributes>
-</html>
-HTML;
-        /**@var $element Element */
-        $element = dom()->parse($html)->getTree()->getDocument()->getNodes()[0];
-        $frag = '';
-        foreach ($element->attributes() as $attribute) {
-            $frag .= ($attribute->value !== '') ? ' ' . $attribute->name . '="' . $attribute->value . '" ' : $attribute->name;
-        }
-        return $frag;
     }
 
     /**
@@ -699,14 +542,6 @@ FORM;
     public function setCurrentFieldBox(?stdClass $currentFieldBox): void
     {
         $this->currentFieldBox = $currentFieldBox;
-    }
-
-    /**
-     * @return OnSelectTonicsTemplateHooks
-     */
-    public function getOnSelectHooks(): object
-    {
-        return $this->onSelectHooks;
     }
 
 }

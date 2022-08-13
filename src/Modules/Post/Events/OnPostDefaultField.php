@@ -11,7 +11,7 @@
 namespace App\Modules\Post\Events;
 
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Field\Events\OnFieldUserForm;
+use App\Modules\Field\Events\OnFieldFormHelper;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
 class OnPostDefaultField implements EventInterface

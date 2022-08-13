@@ -10,18 +10,13 @@
 
 namespace App;
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
-use Devsrealm\TonicsEventSystem\EventDispatcher;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
-use Devsrealm\TonicsRouterSystem\Handler\Router;
-use Devsrealm\TonicsRouterSystem\Route;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 use Exception;
 
 /**
@@ -39,6 +34,14 @@ class InitLoaderMinimal
     private static MyPDO|null $db = null;
 
     private static array $globalVariable = [];
+
+    /**
+     * @param array $globalVariable
+     */
+    public static function setGlobalVariable(array $globalVariable): void
+    {
+        self::$globalVariable = $globalVariable;
+    }
 
     /**
      * @return TonicsHelpers

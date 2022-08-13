@@ -26,6 +26,7 @@ use JetBrains\PhpStorm\NoReturn;
 class Authenticated implements TonicsRouterRequestInterceptorInterface
 {
 
+
     /**
      * @inheritDoc
      * @throws \Exception

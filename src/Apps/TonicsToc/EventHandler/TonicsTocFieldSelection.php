@@ -19,6 +19,6 @@ class TonicsTocFieldSelection implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var $event OnEditorFieldSelection */
-        $event->addField('Tonics Table Of Content', 'Apps_TonicsToc', category: OnEditorFieldSelection::CATEGORY_TOOL);
+        $event->addField('Tonics Table Of Content', 'app-tonicstoc', category: OnEditorFieldSelection::CATEGORY_TOOL);
     }
 }

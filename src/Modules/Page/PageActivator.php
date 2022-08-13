@@ -11,8 +11,7 @@
 namespace App\Modules\Page;
 
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Page\EventHandlers\DefaultPageFieldHandler;
@@ -22,7 +21,7 @@ use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Page\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class PageActivator implements ModuleConfig, PluginConfig
+class PageActivator implements ExtensionConfig
 {
     use Routes;
     /**
@@ -110,5 +109,10 @@ class PageActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

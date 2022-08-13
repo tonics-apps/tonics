@@ -84,7 +84,6 @@ HTML;
      </select>
     </label>
 </div>
-{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

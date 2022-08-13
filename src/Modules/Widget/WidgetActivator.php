@@ -11,8 +11,7 @@
 namespace App\Modules\Widget;
 
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Widget\EventHandlers\MenuWidgets\ImageMenuWidget;
@@ -25,7 +24,7 @@ use App\Modules\Widget\Events\OnWidgetCreate;
 use App\Modules\Widget\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class WidgetActivator implements ModuleConfig, PluginConfig
+class WidgetActivator implements ExtensionConfig
 {
 
     use Routes;
@@ -115,5 +114,10 @@ class WidgetActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

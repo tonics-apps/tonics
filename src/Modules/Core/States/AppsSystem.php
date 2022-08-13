@@ -10,14 +10,12 @@
 
 namespace App\Modules\Core\States;
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Media\FileManager\LocalDriver;
-use App\Modules\Media\States\ExtractFileState;
 use JetBrains\PhpStorm\NoReturn;
 
 class AppsSystem extends SimpleState
@@ -50,8 +48,8 @@ class AppsSystem extends SimpleState
     public function __construct($activatorsFromPost = [])
     {
         $this->allActivators = [
-            ...helper()->getAppsActivator([ModuleConfig::class, PluginConfig::class], installed: false),
-            ...helper()->getAppsActivator([ModuleConfig::class, PluginConfig::class], helper()->getAllModulesDirectory(), false)
+            ...helper()->getAppsActivator([ExtensionConfig::class], installed: false),
+            ...helper()->getAppsActivator([ExtensionConfig::class], helper()->getAllModulesDirectory(), false)
         ];
 
         $this->activatorsFromPost = $activatorsFromPost;
@@ -86,7 +84,7 @@ class AppsSystem extends SimpleState
         $errorActivatorName = []; $installedApp = [];
         foreach ($this->activatorsFromPost as $activatorPost){
             if (isset($this->allActivators[$activatorPost])){
-                /** @var PluginConfig $activator */
+                /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
                 if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
                     $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
@@ -141,7 +139,7 @@ class AppsSystem extends SimpleState
         $errorActivatorName = []; $unInstalledApp = [];
         foreach ($this->activatorsFromPost as $activatorPost){
             if (isset($this->allActivators[$activatorPost])){
-                /** @var PluginConfig $activator */
+                /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
                 if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
                     $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
@@ -191,7 +189,7 @@ class AppsSystem extends SimpleState
         $errorActivatorName = []; $deletedApp = [];
         foreach ($this->activatorsFromPost as $activatorPost){
             if (isset($this->allActivators[$activatorPost])){
-                /** @var PluginConfig $activator */
+                /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
                 if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
                     $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
@@ -209,6 +207,11 @@ class AppsSystem extends SimpleState
                     }
 
                     # Okay, Things are fine, remove the app
+                    try {
+                        $activator->onDelete();
+                    } catch (\Exception){
+                        // Log..
+                    }
                     if(helper()->deleteDirectory($appDirPath)){
                         $deletedApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
                     } else {
@@ -252,7 +255,7 @@ class AppsSystem extends SimpleState
         $updateTypes = []; $appOrModuleToUpdate = [];
         foreach ($this->activatorsFromPost as $activatorPost) {
             if (isset($this->allActivators[$activatorPost])) {
-                /** @var PluginConfig $activator */
+                /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
                 if (($appDirPath = helper()->getClassDirectory($activator)) !== false){
                     if (str_starts_with($appDirPath, AppConfig::getModulesPath())){

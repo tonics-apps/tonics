@@ -11,10 +11,8 @@
 namespace App\Modules\Core\Data;
 
 use App\InitLoader;
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\Library\AbstractDataLayer;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -28,7 +26,7 @@ class AppsData extends AbstractDataLayer
         $frag = []; $csrfToken = session()->getCSRFToken();
 
         $apps = InitLoader::getAllApps();
-        $internal_modules = helper()->getModuleActivators([ModuleConfig::class, PluginConfig::class]);
+        $internal_modules = helper()->getModuleActivators([ExtensionConfig::class]);
         $updatesObject = AppConfig::getAppUpdatesObject();
 
         $k = 1;
@@ -125,7 +123,7 @@ HTML;
         ksort($frag);
 
         foreach ($internal_modules as $module){
-            /** @var $module PluginConfig **/
+            /** @var $module ExtensionConfig **/
             $classToString = $module::class;
             $updateInfos = [];
             if (isset($updatesObject['module']) && isset($updatesObject['module'][$classToString])){
@@ -187,19 +185,5 @@ HTML;
             redirect($url);
         }
         exit(0);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getAppObject(string $themeName)
-    {
-        $themeFullClass = "App\Apps\\$themeName\\{$themeName}Activator";
-        $implements = class_implements($themeFullClass);
-        if (is_array($implements) && key_exists(ModuleConfig::class, $implements)) {
-            return new $themeFullClass;
-        }
-
-        return null;
     }
 }

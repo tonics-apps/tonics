@@ -122,8 +122,6 @@ HTML;
     </label>
 </div>
 
-{$event->getTemplateEngineFrag($data)}
-
 <div class="form-group">
     $validationFrag
 </div>

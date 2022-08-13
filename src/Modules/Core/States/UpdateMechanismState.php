@@ -10,8 +10,7 @@
 
 namespace App\Modules\Core\States;
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig as ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\ConsoleColor;
@@ -149,7 +148,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         # Discover Module Releases...
-        $modules = $tonicsHelper->getModuleActivators([ModuleConfig::class, PluginConfig::class]);
+        $modules = $tonicsHelper->getModuleActivators([ExtensionConfig::class]);
         helper()->sendMsg(self::getCurrentState(), "Discovering Module Update URLS");
         $this->discover('module', $modules);
     }
@@ -161,7 +160,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         # Discover Applications Releases...
-        $appsActivators = $tonicsHelper->getAppsActivator([PluginConfig::class]);
+        $appsActivators = $tonicsHelper->getAppsActivator([ExtensionConfig::class]);
         helper()->sendMsg(self::getCurrentState(), "Discovering Apps Update URLS");
         $this->discover('app', $appsActivators);
     }
@@ -218,12 +217,12 @@ class UpdateMechanismState extends SimpleState
         if (isset($file[0]) && $tonicsHelper->fileExists($file[0])){
             $class = $tonicsHelper->getFullClassName(file_get_contents($file[0]));
             $implements = @class_implements($class);
-            $implementors = [PluginConfig::class];
+            $implementors = [ExtensionConfig::class];
 
             foreach ($implementors as $implement) {
                 if (is_array($implements) && key_exists($implement, $implements)) {
                     $moduleClass = new $class;
-                    /**@var $moduleClass PluginConfig */
+                    /**@var $moduleClass ExtensionConfig */
                     $moduleClass->onUpdate();
                     $this->successMessage("$folderName Updated");
                 }
@@ -250,7 +249,7 @@ class UpdateMechanismState extends SimpleState
         }
         $this->updates = $updates;
         foreach ($modulesOrApps as $module) {
-            /** @var $module ModuleConfig|PluginConfig */
+            /** @var $module ExtensionConfig */
             $dir = $tonicsHelper->getClassDirectory($module);
             $dirName = $tonicsHelper->getFileName($dir);
             if (count($this->types) === 1) {

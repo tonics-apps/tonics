@@ -13,7 +13,7 @@ namespace App\Modules\Field\EventHandlers\Fields\Modular;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Field\Events\OnFieldUserForm;
+use App\Modules\Field\Events\OnFieldFormHelper;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class FieldSelection implements HandlerInterface
@@ -144,7 +144,7 @@ HTML;
         $fieldSlug = explode(':', $fieldSlug);
         $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1] : '';
         if (!empty($fieldID) && $expandField === '1') {
-            $onFieldUserForm = new OnFieldUserForm([$fieldID], new FieldData(), getPostData());
+            $onFieldUserForm = new OnFieldFormHelper([$fieldID], new FieldData(), getPostData());
             $frag .= $onFieldUserForm->getHTMLFrag();
         } else {
             $frag .= <<<HTML
@@ -179,7 +179,7 @@ HTML;
             return $frag;
         }
 
-        $onFieldUserForm = new OnFieldUserForm([], new FieldData());
+        $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
         $onFieldUserForm->handleFrontEnd([$fieldSlug[0]], getPostData());
         return $frag;
     }

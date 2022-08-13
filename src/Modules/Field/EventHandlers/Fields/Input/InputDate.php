@@ -149,7 +149,6 @@ HTML;
             value="$defaultValue" placeholder="a default value">
     </label>
 </div>
-{$event->getTemplateEngineFrag($data)}
 
 <div class="form-group">
     $validationFrag

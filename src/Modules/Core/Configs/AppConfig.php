@@ -13,23 +13,12 @@ namespace App\Modules\Core\Configs;
 
 use App\InitLoader;
 use App\InitLoaderMinimal;
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig as ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Core\Library\View\Extensions\CombineModeHandler;
-use App\Modules\Core\Library\View\Extensions\CSRFModeHandler;
-use App\Modules\Core\Library\View\Extensions\EachLoop;
-use App\Modules\Core\Library\View\Extensions\Events;
-use App\Modules\Core\Library\View\Extensions\IfBlock;
-use App\Modules\Core\Library\View\Extensions\IfCondition;
-use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
-use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
-use App\Modules\Core\Library\View\Extensions\SessionView;
-use App\Modules\Core\Library\View\Extensions\URLModeHandler;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
@@ -43,11 +32,6 @@ use Devsrealm\TonicsRouterSystem\Route;
 use Devsrealm\TonicsRouterSystem\RouteNode;
 use Devsrealm\TonicsRouterSystem\RouteTreeGenerator;
 use Devsrealm\TonicsRouterSystem\State\RouteTreeGeneratorState;
-use Devsrealm\TonicsTemplateSystem\Caching\TonicsTemplateApcuCache;
-use Devsrealm\TonicsTemplateSystem\Content;
-use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateFileLoader;
-use Devsrealm\TonicsTemplateSystem\Tokenizer\State\DefaultTokenizerState;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 use Exception;
 
 class AppConfig
@@ -82,12 +66,12 @@ class AppConfig
                     $onRequestProcess->getRouteObject(),
                     new Response($onRequestProcess, new RequestInput()));
 
-                $modules = helper()->getModuleActivators([ModuleConfig::class]);
-                $apps = helper()->getAppsActivator([ModuleConfig::class], helper()->getAllAppsDirectory());
+                $modules = helper()->getModuleActivators([ExtensionConfig::class]);
+                $apps = helper()->getAppsActivator([ExtensionConfig::class], helper()->getAllAppsDirectory());
 
                 $events = [];
                 foreach ($modules as $module) {
-                    /** @var $module ModuleConfig */
+                    /** @var $module ExtensionConfig */
                     // you can disable each module in its own config
                     // This gives us the module availability
                     if ($module->enabled()) {
@@ -99,9 +83,8 @@ class AppConfig
                 }
 
                 ## Apps Would Only Appear if they have .installed (which would be added programmatically on installation)
-                $themeFound = false;
                 foreach ($apps as $app) {
-                    /** @var $app ModuleConfig|PluginConfig */
+                    /** @var $app ExtensionConfig */
                     if ($app->enabled()) {
                         $app->route($router->getRoute());
                         ## The array_intersect_key checks if the apps event array has something in common with the module event($events),

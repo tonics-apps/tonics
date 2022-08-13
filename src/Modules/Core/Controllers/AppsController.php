@@ -11,14 +11,10 @@
 namespace App\Modules\Core\Controllers;
 
 use App\InitLoader;
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Data\AppsData;
-use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
-use App\Modules\Core\Library\ThemeSystem;
 use App\Modules\Core\States\AppsSystem;
 use App\Modules\Core\States\UpdateMechanismState;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;

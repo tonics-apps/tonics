@@ -18,6 +18,7 @@ class InputColor implements HandlerInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
@@ -43,8 +44,6 @@ class InputColor implements HandlerInterface
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '#000000';
-        $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -66,8 +65,6 @@ class InputColor implements HandlerInterface
      <input name="defaultValue" value="$defaultValue" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="defaultValue-$changeID">
     </label>
 </div>
-
-{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

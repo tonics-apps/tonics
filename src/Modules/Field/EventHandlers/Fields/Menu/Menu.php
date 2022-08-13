@@ -105,7 +105,6 @@ HTML;
     </label>
 </div>
 
-{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -178,7 +177,6 @@ HTML;
         }
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         addToGlobalVariable("Menu_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Data' => $frag, 'Tree' => $tree]);
-        $event->handleTemplateEngineView($data);
         return '';
     }
 

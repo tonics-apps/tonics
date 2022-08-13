@@ -96,8 +96,6 @@ HTML;
             value="$defaultValue" placeholder="Enter the key to use as default, e.g k1">
     </label>
 </div>
-
-{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

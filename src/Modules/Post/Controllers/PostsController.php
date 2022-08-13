@@ -325,6 +325,7 @@ class PostsController
         );
     }
 
+
     /**
      * @throws \Exception
      */

@@ -1,4 +1,4 @@
-[[import("Apps::NinetySeven/Views/Block/base")]]
+[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
 
 [[b('category_query_callback')
 <li tabindex="0"
@@ -19,63 +19,56 @@
 </li>
 ]]
 
-[[b('NinetySevenCategoryEntry')
-    [[- Loads MarkUp -]]
-    [[trigger_block('BaseMarkup')]]
+[[hook_into('in_main')
+<section class="section color:black owl text-align:center padding:default">
+    <div class="owl header-wrapper">
+        <style>
+            .header-wrapper > .header-title {
+                font-size: clamp(2.05rem, 2.04rem + 5.07vw, 4.65rem);
+                max-width: 20ch;
+                margin-inline: auto;
+            }
 
-    [[trigger_block('reusable_hooks')]]
+            .header-wrapper > .header-description {
+                font-size: clamp(1.56rem, 1.39rem + 0.85vw, 1.7rem);
+                font-family: inherit;
+                max-width: 30ch;
+                margin-inline: auto;
+                font-style: italic;
+            }
+        </style>
+        <h1 class="header-title margin-top:0">[[v('Data.page_title')]]</h1>
+        <div></div>
+    </div>
+</section>
+]]
 
-    [[hook_into('in_main')
-        <section class="section color:black owl text-align:center padding:default">
-        <div class="owl header-wrapper">
-            <style>
-                .header-wrapper > .header-title {
-                    font-size: clamp(2.05rem, 2.04rem + 5.07vw, 4.65rem);
-                    max-width: 20ch;
-                    margin-inline: auto;
-                }
+[[hook_into('in_main')
 
-                .header-wrapper > .header-description {
-                    font-size: clamp(1.56rem, 1.39rem + 0.85vw, 1.7rem);
-                    font-family: inherit;
-                    max-width: 30ch;
-                    margin-inline: auto;
-                    font-style: italic;
-                }
-            </style>
-            <h1 class="header-title margin-top:0">[[v('Data.page_title')]]</h1>
-            <div></div>
-        </div>
-    </section>
+    [[SQL('category_query_table_count')
+        [[SQLFUNC('COUNT', "*")]]
+        [[FROM('categories')]]
+        [[WHERE('categories.cat_status')
+            [[OP('=')]] [[PARAM('1')]]
+        ]]
     ]]
 
-    [[hook_into('in_main')
-
-        [[SQL('category_query_table_count')
-            [[SQLFUNC('COUNT', "*")]]
-            [[FROM('categories')]]
-            [[WHERE('categories.cat_status')
-                [[OP('=')]] [[PARAM('1')]]
-            ]]
+    [[SQL('category_query_get_row_with_offset_limit')
+        [[SELECT('categories') [[COLS('ALL')]] ]]
+        [[FROM('categories')]]
+        [[WHERE('categories.cat_status')
+            [[OP('=')]] [[PARAM('1')]]
+            [[ORDER('categories.created_at', 'DESC')]]
+            [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
+            [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
         ]]
-
-        [[SQL('category_query_get_row_with_offset_limit')
-            [[SELECT('categories') [[COLS('ALL')]] ]]
-            [[FROM('categories')]]
-            [[WHERE('categories.cat_status')
-                [[OP('=')]] [[PARAM('1')]]
-                [[ORDER('categories.created_at', 'DESC')]]
-                [[KEYWORD('LIMIT')]] [[PARAM('v[QUERY_MODE.LIMIT]')]]
-                [[KEYWORD('OFFSET')]] [[PARAM('v[QUERY_MODE.OFFSET]')]]
-            ]]
-        ]]
-
-        <ul style="margin: 0 auto; padding: 0 6.5em;" id="sfc"
-            class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
-            [[Query('category_query', 'App\Apps\NinetySeven\Library\CategoryLoop', 'category_query_callback')]]
-        </ul>
-
-        [[_use('pagination')]]
     ]]
+
+    <ul style="margin: 0 auto; padding: 0 6.5em;" id="sfc"
+        class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+        [[Query('category_query', 'App\Apps\NinetySeven\Library\CategoryLoop', 'category_query_callback')]]
+    </ul>
+
+    [[_use('pagination')]]
 
 ]]

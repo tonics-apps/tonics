@@ -10,8 +10,7 @@
 
 namespace App\Modules\Field;
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\EventHandlers\Field\CacheFieldIDItems;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
@@ -33,9 +32,6 @@ use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelection;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumn;
 use App\Modules\Field\EventHandlers\Fields\Modular\TestField;
 use App\Modules\Field\EventHandlers\Fields\Modular\TestFieldTwo;
-use App\Modules\Field\EventHandlers\Fields\Modular\TonicsTemplateSystem;
-use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test;
-use App\Modules\Field\EventHandlers\Fields\OpenGraph\Test2;
 use App\Modules\Field\EventHandlers\Fields\Post\PostAuthorSelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategorySelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtist;
@@ -54,7 +50,7 @@ use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class FieldActivator implements ModuleConfig, PluginConfig
+class FieldActivator implements ExtensionConfig
 {
 
     use Routes;
@@ -109,7 +105,6 @@ class FieldActivator implements ModuleConfig, PluginConfig
                 # Modular
                 RowColumn::class,
                 FieldSelection::class,
-                TonicsTemplateSystem::class,
                 FieldFileHandler::class,
 
                 # Menu
@@ -192,5 +187,10 @@ class FieldActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

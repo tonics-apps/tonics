@@ -10,8 +10,6 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Input;
 
-use App\Modules\Core\Events\EditorsAsset;
-use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -183,7 +181,6 @@ HTML);
 </div>
 
 $moreSettings
-{$event->getTemplateEngineFrag($data)}
 <div class="form-group">
 $validationFrag
 </div>

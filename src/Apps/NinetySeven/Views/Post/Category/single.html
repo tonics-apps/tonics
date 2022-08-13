@@ -1,26 +1,17 @@
-[[import("Apps::NinetySeven/Views/Block/base")]]
+[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
 
-[[b('NinetySevenCategorySingleEntry')
-    [[- Loads MarkUp -]]
-    [[trigger_block('BaseMarkup')]]
+[[hook_into('in_head_title')[[v('Data.seo_title .. Data.cat_name')]] ]]
+[[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.cat_name")]] ]]
 
-    [[hook_into('in_head_title')[[v('Data.seo_title .. Data.cat_name')]] ]]
-    [[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.cat_name")]] ]]
-
-    [[hook_into('in_head')
-<meta property="og:type" content="article">
+[[hook_into('in_head')
+    <meta property="og:type" content="article">
     <meta property="article:published_time" content="[[string_str_replace(' ', 'T', 'v[Data.created_at]')]][[v('App_Config.APP_TIME_ZONE_OFFSET')]]">
     <meta property="article:modified_time" content="[[string_str_replace(' ', 'T', 'v[Data.updated_at]')]][[v('App_Config.APP_TIME_ZONE_OFFSET')]]">
-    ]]
+]]
 
-    [[trigger_block('reusable_hooks')]]
-
-    [[reset_hook('in_main')]]
-
-    [[hook_into('in_main')
+[[hook_into('in_main')
     <article class="owl" id="slug_id_[[v('Data.slug_id')]]">
         [[_use("Post::Single::Header")]]
         [[_use("Post::Article::Section")]]
     </article>
-    ]]
 ]]

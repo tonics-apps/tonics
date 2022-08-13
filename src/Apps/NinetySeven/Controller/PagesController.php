@@ -14,7 +14,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Field\Events\OnFieldUserForm;
+use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Page\Data\PageData;
 
 class PagesController
@@ -46,22 +46,18 @@ class PagesController
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$page];
         }
-        $onFieldUserForm = new OnFieldUserForm([], new FieldData());
+        $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
 
-        renderBaseTemplate($this->getCacheKey(), cacheNotFound: function () use ($onFieldUserForm, $fieldSettings) {
-            $fieldSlugs = $this->getFieldSlug($fieldSettings);
-            $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings);
-            $this->saveTemplateCache();
-        }, cacheFound: function () use ($onFieldUserForm, $fieldSettings) {
-            # quick check if single template parts have not been cached...if not we force parse it...
-            if (!isset(getBaseTemplate()->getModeStorage('add_hook')['site_credits'])){
-                $fieldSlugs = $this->getFieldSlug($fieldSettings);
-                $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings);
-                // re-save cache data
-                $this->saveTemplateCache();
-            }
-            getBaseTemplate()->addToVariableData('Data', $fieldSettings);
-        });
+        $fieldSlugs = $this->getFieldSlug($fieldSettings);
+        $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings);
+
+        $pagePath = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()?->getFullRoutePath();
+
+        switch ($pagePath){
+            case '/'; view('Apps::NinetySeven/Views/Page/single'); break;
+            case '/categories'; view('Apps::NinetySeven/Views/Page/category-page'); break;
+            case '/posts'; view('Apps::NinetySeven/Views/Page/post-page'); break;
+        }
     }
 
     /**
@@ -84,27 +80,6 @@ class PagesController
         }
 
         return $fieldSlugs;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function saveTemplateCache(): void
-    {
-        getBaseTemplate()->removeVariableData('BASE_TEMPLATE');
-        apcu_store($this->getCacheKey(), [
-            'contents' => getBaseTemplate()->getContent(),
-            'modeStorage' => getBaseTemplate()->getModeStorages(),
-            'variable' => getBaseTemplate()->getVariableData()
-        ]);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getCacheKey(): string
-    {
-        return 'Standalone_Page_' . url()->getRequestURL() ?: env('APP_NAME', 'Tonics') . 'Standalone_Page_Home';
     }
 
     /**

@@ -19,7 +19,7 @@ if (window?.parent.TonicsEvent?.EventConfig){
 }
 
 function handleTonicsToc(event, target) {
-    if (target.closest('.tabs').querySelector("input[value='Apps_TonicsToc']")) {
+    if (target.closest('.tabs').querySelector("input[value='app-tonicstoc']")) {
         const TocEditor = window.TonicsScript.TableOfContent('.entry-content');
         TocEditor.tocDepth(6).run();
         const headersFound = TocEditor.$tableOfContentDetails.noOfHeadersFound;

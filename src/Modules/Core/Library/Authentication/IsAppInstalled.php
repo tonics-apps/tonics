@@ -10,8 +10,7 @@
 
 namespace App\Modules\Core\Library\Authentication;
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig as ModuleConfig;
-use App\Modules\Core\Configs\AppConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\SimpleState;
@@ -86,7 +85,7 @@ class IsAppInstalled extends SimpleState
 
         $tablesInDatabase = $stm->fetchAll(\PDO::FETCH_COLUMN, 0);
 
-        $modules = helper()->getModuleActivators([ModuleConfig::class]);
+        $modules = helper()->getModuleActivators([ExtensionConfig::class]);
         $requiredTables = [];
         foreach ($modules as $module) {
             $requiredTables = [...$requiredTables, ...$module->tables()];

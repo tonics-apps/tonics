@@ -11,8 +11,7 @@
 namespace App\Modules\Menu;
 
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\EventHandlers\MenuMenus;
@@ -21,7 +20,7 @@ use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Menu\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class MenuActivator implements ModuleConfig, PluginConfig
+class MenuActivator implements ExtensionConfig
 {
     use Routes;
 
@@ -105,5 +104,10 @@ class MenuActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

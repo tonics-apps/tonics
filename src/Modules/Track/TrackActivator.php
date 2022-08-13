@@ -11,8 +11,7 @@
 namespace App\Modules\Track;
 
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
@@ -28,7 +27,7 @@ use App\Modules\Track\Events\OnTrackDefaultField;
 use App\Modules\Track\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class TrackActivator implements ModuleConfig, PluginConfig
+class TrackActivator implements ExtensionConfig
 {
     use Routes;
 
@@ -134,5 +133,10 @@ class TrackActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

@@ -45,7 +45,6 @@ class MediaImage implements HandlerInterface
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
         $defaultImage = (isset($data->defaultImage)) ? $data->defaultImage : '';
         $imageLink = (isset($data->imageLink)) ? $data->imageLink : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -83,7 +82,6 @@ class MediaImage implements HandlerInterface
         Remove Featured Image
     </button>
 </div>
-{$event->getTemplateEngineFrag($data)}
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -138,7 +136,6 @@ FORM;
         }
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         addToGlobalVariable("Image_$inputName", ['Name' => $fieldName, 'inputName' => $inputName, 'Link' => $defaultImage]);
-        $event->handleTemplateEngineView($data);
         return '';
     }
 

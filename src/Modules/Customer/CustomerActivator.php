@@ -9,13 +9,12 @@
  */
 
 namespace App\Modules\Customer;
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Customer\Routes\RouteWeb;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class CustomerActivator implements ModuleConfig, PluginConfig
+class CustomerActivator implements ExtensionConfig
 {
     use RouteWeb;
 
@@ -89,5 +88,10 @@ class CustomerActivator implements ModuleConfig, PluginConfig
     public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

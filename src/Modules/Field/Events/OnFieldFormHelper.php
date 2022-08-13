@@ -16,7 +16,7 @@ use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use JetBrains\PhpStorm\Pure;
 
-class OnFieldUserForm implements EventInterface
+class OnFieldFormHelper implements EventInterface
 {
     private FieldData $fieldData;
     private OnFieldMetaBox $fieldMetaBox;
@@ -106,45 +106,56 @@ class OnFieldUserForm implements EventInterface
     /**
      * @param array $fieldSlugs
      * @param array $postData
+     * @param bool $cachedData
      * @return void
+     * @throws \Exception
      */
-    public function handleFrontEnd(array $fieldSlugs, array $postData = []): void
+    public function handleFrontEnd(array $fieldSlugs, array $postData = [], bool $cachedData = true): void
     {
         if (empty($fieldSlugs)) {
             return;
         }
 
+        $cachedKey = '';
         foreach ($fieldSlugs as $k => $fieldSlug) {
             $fieldSlugs[$k] = 'sortedField_' . $fieldSlug;
+            $cachedKey .= 'sortedField_' . $fieldSlug;
         }
 
-        $table = Tables::getTable(Tables::GLOBAL);
+        AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
 
-        try {
-            AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
-            $questionMarks = helper()->returnRequiredQuestionMarks($fieldSlugs);
-            $fieldItemsSortedString = db()->run("SELECT `value` FROM $table WHERE `key` IN ($questionMarks)", ...$fieldSlugs);
+        $cachedKey = $cachedKey .'_GlobalVariableData';
+        if (apcu_exists($cachedKey)){
+            $data = [...apcu_fetch($cachedKey), ...getGlobalVariableData()];
+            AppConfig::initLoaderMinimal()::setGlobalVariable($data);
+        } else {
+            $table = Tables::getTable(Tables::GLOBAL);
+            try {
+                $questionMarks = helper()->returnRequiredQuestionMarks($fieldSlugs);
+                $fieldItemsSortedString = db()->run("SELECT `value` FROM $table WHERE `key` IN ($questionMarks)", ...$fieldSlugs);
 
-            if (!is_array($fieldItemsSortedString)) {
-                return;
-            }
+                if (!is_array($fieldItemsSortedString)) {
+                    return;
+                }
 
-            # re-dispatch so we can get the form values
-            $onFieldMetaBox = new OnFieldMetaBox();
-            /**@var $onFieldMetaBox OnFieldMetaBox */
-            $onFieldMetaBox = event()->dispatch($onFieldMetaBox);
-            foreach ($fieldItemsSortedString as $fields) {
-                if (isset($fields->value)) {
-                    $fields = json_decode($fields->value ?: '') ?? [];
-                    foreach ($fields as $field) {
-                        $field->field_options->{"_field"} = $field;
-                        $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);
+                # re-dispatch so we can get the form values
+                $onFieldMetaBox = new OnFieldMetaBox();
+                /**@var $onFieldMetaBox OnFieldMetaBox */
+                $onFieldMetaBox = event()->dispatch($onFieldMetaBox);
+                foreach ($fieldItemsSortedString as $fields) {
+                    if (isset($fields->value)) {
+                        $fields = json_decode($fields->value ?: '') ?? [];
+                        foreach ($fields as $field) {
+                            $field->field_options->{"_field"} = $field;
+                            $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);
+                        }
                     }
                 }
+                apcu_store($cachedKey, getGlobalVariableData());
+            } catch (\Exception $exception) {
+                dd($exception->getMessage());
+                // log...
             }
-        } catch (\Exception $exception) {
-            dd($exception->getMessage());
-            // log...
         }
     }
 

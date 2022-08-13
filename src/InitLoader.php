@@ -10,21 +10,14 @@
 
 namespace App;
 
-use App\Library\ModuleRegistrar\Interfaces\ModuleConfig;
-use App\Library\ModuleRegistrar\Interfaces\PluginConfig;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
-use App\Modules\Core\Library\Tables;
-use App\Modules\Core\States\WordPressImportState;
-use App\Modules\Media\FileManager\LocalDriver;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
-use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 use Devsrealm\TonicsRouterSystem\Route;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
@@ -95,7 +88,7 @@ class InitLoader
      */
     public static function getAllApps(): array
     {
-        return helper()->getModuleActivators([ModuleConfig::class, PluginConfig::class], helper()->getAllAppsDirectory());
+        return helper()->getModuleActivators([ExtensionConfig::class], helper()->getAllAppsDirectory());
     }
 
     /**
@@ -196,10 +189,10 @@ class InitLoader
     /**
      * Register the route for the module
      *
-     * @param ModuleConfig $module
+     * @param Library\ModuleRegistrar\Interfaces\ExtensionConfig $module
      * @return Route
      */
-    protected function registerRoutes(ModuleConfig $module): Route
+    protected function registerRoutes(Library\ModuleRegistrar\Interfaces\ExtensionConfig $module): Route
     {
         return $module->route($this->getRouter()->getRoute());
     }

@@ -19,7 +19,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Field\Events\OnFieldUserForm;
+use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 
 class FieldData extends AbstractDataLayer
@@ -38,7 +38,7 @@ class FieldData extends AbstractDataLayer
 
     public function getFieldColumns(): array
     {
-        return [ 'field_id', 'field_name', 'field_slug', 'created_at', 'updated_at' ];
+        return ['field_id', 'field_name', 'field_slug', 'created_at', 'updated_at'];
     }
 
     public function getFieldItemsColumns(): array
@@ -61,7 +61,8 @@ class FieldData extends AbstractDataLayer
 
     public function getFieldAndFieldItemsCols(): string
     {
-        $fieldTable = $this->getFieldTable(); $fieldItemsTable = $this->getFieldItemsTable();
+        $fieldTable = $this->getFieldTable();
+        $fieldItemsTable = $this->getFieldItemsTable();
         return <<<COLUMNS
 $fieldTable.field_id as main_field_id, $fieldTable.field_name as main_field_name, $fieldTable.field_slug as main_field_slug,
 $fieldItemsTable.field_id as field_id, $fieldItemsTable.field_name as field_name, field_options, `id`, field_parent_id, fk_field_id
@@ -72,24 +73,24 @@ COLUMNS;
     /**
      * @param array $slugs
      * @param array $postData
-     * @return OnFieldUserForm
+     * @return OnFieldFormHelper
      * @throws \Exception
      */
-    public function generateFieldWithFieldSlug(array $slugs, array $postData = []): OnFieldUserForm
+    public function generateFieldWithFieldSlug(array $slugs, array $postData = []): OnFieldFormHelper
     {
-        if (!empty($slugs)){
+        if (!empty($slugs)) {
             $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
             # For Field
-            $fields =  $this->selectWithCondition($this->getFieldTable(), ['field_id', 'field_slug'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
+            $fields = $this->selectWithCondition($this->getFieldTable(), ['field_id', 'field_slug'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
             # For Field Items
             $fieldIDS = [];
-            foreach ($fields as $field){
+            foreach ($fields as $field) {
                 $fieldIDS[] = $field->field_id;
             }
 
-            return new OnFieldUserForm($fieldIDS, $this, $postData);
+            return new OnFieldFormHelper($fieldIDS, $this, $postData);
         }
-        return new OnFieldUserForm([], $this, $postData);
+        return new OnFieldFormHelper([], $this, $postData);
     }
 
     /**
@@ -99,14 +100,14 @@ COLUMNS;
     {
         $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
         # For Field
-        $fields =  $this->selectWithCondition($this->getFieldTable(), ['field_id'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
+        $fields = $this->selectWithCondition($this->getFieldTable(), ['field_id'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
         # For Field Items
         $fieldIDS = [];
-        foreach ($fields as $field){
+        foreach ($fields as $field) {
             $fieldIDS[] = $field->field_id;
         }
 
-        $onFieldUserForm = new OnFieldUserForm([], $this);
+        $onFieldUserForm = new OnFieldFormHelper([], $this);
         return $onFieldUserForm->getFieldSortedItems($fieldIDS);
     }
 
@@ -118,7 +119,7 @@ COLUMNS;
         $table = $this->getFieldItemsTable();
         $result = db()->run("SELECT * FROM $table WHERE `fk_field_id` = ?", $fkFieldID);
         $result = $this->decodeFieldOptions($result);
-        if (!empty($result)){
+        if (!empty($result)) {
             return helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $result);
         }
         return $result;
@@ -130,13 +131,13 @@ COLUMNS;
      */
     private function decodeFieldOptions($fieldData): array
     {
-        if (!empty($fieldData) && is_array($fieldData)){
-            $fieldData = array_map(function ($value){
+        if (!empty($fieldData) && is_array($fieldData)) {
+            $fieldData = array_map(function ($value) {
                 $value->field_options = json_decode($value->field_options);
                 return $value;
             }, $fieldData);
         }
-        if (!is_array($fieldData)){
+        if (!is_array($fieldData)) {
             return [];
         }
         return $fieldData;
@@ -195,15 +196,16 @@ HTML;
         $slug = $this->generateUniqueSlug($this->getFieldTable(),
             'field_slug', helper()->slug(input()->fromPost()->retrieve('field_slug')));
 
-        $field = []; $postColumns = array_flip($this->getFieldColumns());
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
+        $field = [];
+        $postColumns = array_flip($this->getFieldColumns());
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
 
-                if($inputKey === 'created_at'){
+                if ($inputKey === 'created_at') {
                     $field[$inputKey] = helper()->date(timestamp: $inputValue);
                     continue;
                 }
-                if ($inputKey === 'field_slug'){
+                if ($inputKey === 'field_slug') {
                     $field[$inputKey] = $slug;
                     continue;
                 }
@@ -212,8 +214,8 @@ HTML;
         }
 
         $ignores = array_diff_key($ignore, $field);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
                 unset($field[$v]);
             }
         }
@@ -232,13 +234,13 @@ HTML;
         $fieldValidations = $this->getValidatorRuleNames();
         $fieldsFrag = "";
         $hash = helper()->randomString(10);
-        if (empty($uniqueID)){
+        if (empty($uniqueID)) {
             $uniqueID = $hash;
         }
         $fieldValidationSlug = array_combine($fieldValidationSlug, $fieldValidationSlug);
-        foreach ($fieldValidations as $fieldValidation){
+        foreach ($fieldValidations as $fieldValidation) {
             $checked = '';
-            if (key_exists($fieldValidation, $fieldValidationSlug)){
+            if (key_exists($fieldValidation, $fieldValidationSlug)) {
                 $checked = "checked";
             }
 
@@ -283,13 +285,13 @@ HTML;
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
         $fieldsFrag = "";
-        if (is_array($fieldIDS)){
+        if (is_array($fieldIDS)) {
             $fieldIDS = array_flip($fieldIDS);
         }
         $hash = helper()->randomString(10);
-        foreach ($fields as $field){
+        foreach ($fields as $field) {
             $checked = '';
-            if (key_exists($field->field_id, $fieldIDS) || key_exists($field->field_slug, $fieldIDS)){
+            if (key_exists($field->field_id, $fieldIDS) || key_exists($field->field_slug, $fieldIDS)) {
                 $checked = "checked data-cant_retrieve_field_items='true'";
             }
 
@@ -339,7 +341,7 @@ HTML;
         /**@var $onFieldMetaBox OnFieldMetaBox */
         $onFieldMetaBox = event()->dispatch($onFieldMetaBox);
         $htmlFrag = '';
-        foreach ($fieldItems as $field){
+        foreach ($fieldItems as $field) {
             $htmlFrag .= $this->getFieldItemsListingFrag($field, $onFieldMetaBox);
         }
 
@@ -354,7 +356,7 @@ HTML;
     protected function getFieldItemsListingFrag($field, OnFieldMetaBox $onFieldMetaBox): string
     {
         $slug = $field->field_name ?? null;
-        if (isset($field->field_options)){
+        if (isset($field->field_options)) {
             $field->field_options->{"_field"} = $field;
         }
         return $onFieldMetaBox->getSettingsForm($slug, $field->field_options ?? null);
@@ -368,7 +370,7 @@ HTML;
     public function sortAndCacheFieldItemsForFrontEnd(array $fieldSlugs): void
     {
 
-        if (empty($fieldSlugs)){
+        if (empty($fieldSlugs)) {
             return;
         }
 
@@ -376,7 +378,7 @@ HTML;
             $sortedFieldItems = $this->getFieldSortedItems($fieldSlugs);
 
             ## Sort
-            foreach ($sortedFieldItems as $k => $sortFieldItem){
+            foreach ($sortedFieldItems as $k => $sortFieldItem) {
                 $sortedFieldItems[$k] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $sortFieldItem, onData: function ($field) {
                     return $field;
                 });
@@ -389,11 +391,11 @@ HTML;
                 Tables::getTable(Tables::GLOBAL),
                 [
                     'key' => $key,
-                    'value' => json_encode($sortedFieldItems,  JSON_UNESCAPED_SLASHES)
+                    'value' => json_encode($sortedFieldItems, JSON_UNESCAPED_SLASHES)
                 ],
                 ['value']
             );
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // log...
         }
     }
@@ -463,28 +465,31 @@ HTML;
      */
     public function importFieldItems(array $fieldItems): void
     {
+        $fieldTable = Tables::getTable(Tables::FIELD);
         $fieldNameToID = [];
-        foreach ($fieldItems as $k => $item){
-            $json = json_decode($item->field_options, true) ?? [];
-            if (isset($item->fk_field_id) && is_string($item->fk_field_id)){
-                if (!isset($fieldNameToID[$item->fk_field_id])){
-                    $return = db()->insertReturning(Tables::getTable(Tables::FIELD),  ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id']);
-                    if (isset($return->field_id)){
-                        $fieldNameToID[$item->fk_field_id] = $return->field_id;
-                        $item->fk_field_id = $return->field_id;
-                        $item->field_options = json_encode($json);
-                    }
-                } else {
-                    $item->fk_field_id = $fieldNameToID[$item->fk_field_id];
-                    $item->field_options = json_encode($json, flags: JSON_UNESCAPED_SLASHES);
-                }
-            }
-            $fieldItems[$k] = (array)$item;
-        }
-
         try {
+            db()->beginTransaction();
+            foreach ($fieldItems as $k => $item) {
+                $json = json_decode($item->field_options, true) ?? [];
+                if (isset($item->fk_field_id) && is_string($item->fk_field_id)) {
+                    if (!isset($fieldNameToID[$item->fk_field_id])) {
+                        db()->delete($fieldTable, ['field_slug' => helper()->slug($item->fk_field_id, '_')]);
+                        $field = db()->insertReturning($fieldTable, ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id']);
+                        if (isset($field->field_id)) {
+                            $fieldNameToID[$item->fk_field_id] = $field->field_id;
+                            $item->fk_field_id = $field->field_id;
+                            $item->field_options = json_encode($json);
+                        }
+                    } else {
+                        $item->fk_field_id = $fieldNameToID[$item->fk_field_id];
+                        $item->field_options = json_encode($json, flags: JSON_UNESCAPED_SLASHES);
+                    }
+                }
+                $fieldItems[$k] = (array)$item;
+            }
             db()->insertBatch($this->getFieldItemsTable(), $fieldItems);
-        }catch (\Exception $exception){
+            db()->commit();
+        } catch (\Exception $exception) {
             // log...
             var_dump($exception->getMessage(), $exception->getTraceAsString());
         }
@@ -503,27 +508,28 @@ HTML;
      */
     public function unwrapFieldContent(&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
     {
-        $onFieldUserForm = new OnFieldUserForm([], $this);
+        $onFieldUserForm = new OnFieldFormHelper([], $this);
         addToGlobalVariable(FieldConfig::fieldSettingsID(), $fieldSettings);
 
         $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'] ?? null;
 
         # PREVIEW MODE
-        if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
+        if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
             $fieldTableSlugsInEditor = url()->getHeaderByKey('fieldTableSlugsInEditor');
         }
 
-        if (!$fieldTableSlugsInEditor){
+        if (!$fieldTableSlugsInEditor) {
             return;
         }
 
         $fieldTableSlugs = json_decode($fieldTableSlugsInEditor, true);
         $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
         $fieldItemsByMainFieldSlug = [];
-        if (is_array($fieldTableSlugs) && !empty($fieldTableSlugs)){
+        if (is_array($fieldTableSlugs) && !empty($fieldTableSlugs)) {
             $fieldTableSlugs = array_values($fieldTableSlugs);
             $questionMarks = helper()->returnRequiredQuestionMarks($fieldTableSlugs);
-            $fieldTable = $this->getFieldTable(); $fieldItemsTable = $this->getFieldItemsTable();
+            $fieldTable = $this->getFieldTable();
+            $fieldItemsTable = $this->getFieldItemsTable();
             $cols = $this->getFieldAndFieldItemsCols();
 
             $sql = <<<SQL
@@ -541,28 +547,28 @@ SQL;
         }
 
         # PREVIEW MODE
-        if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE){
+        if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
             $previewFrag = '';
             $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
             $postDataInstance = json_decode($fieldPostDataInEditor, true) ?? [];
             addToGlobalVariable('Data', $postDataInstance);
-            foreach ($fieldItemsByMainFieldSlug as $fields){
+            foreach ($fieldItemsByMainFieldSlug as $fields) {
                 $previewFrag .= $onFieldUserForm->getViewFrag($fields);
             }
             helper()->onSuccess($previewFrag);
         }
 
-        if (isset($fieldSettings[$contentKey])){
+        if (isset($fieldSettings[$contentKey])) {
             // fake getFieldItems action header
             url()->addToHeader('HTTP_ACTION', 'getFieldItems');
             $postContent = json_decode($fieldSettings[$contentKey], true);
-            if (is_array($postContent)){
+            if (is_array($postContent)) {
                 $fieldSettings[$contentKey] = '';
-                foreach ($postContent as $field){
-                    if (isset($field['fieldTableSlug']) && isset($fieldItemsByMainFieldSlug[$field['fieldTableSlug']])){
+                foreach ($postContent as $field) {
+                    if (isset($field['fieldTableSlug']) && isset($fieldItemsByMainFieldSlug[$field['fieldTableSlug']])) {
                         # Instance of each postData
-                        addToGlobalVariable('Data',  $field['postData'] ?? []);
-                        if ($mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE){
+                        addToGlobalVariable('Data', $field['postData'] ?? []);
+                        if ($mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE) {
                             $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]));
                         }
 
@@ -573,17 +579,17 @@ SQL;
                         # If there is no FieldHandler in the PostData, then we pass it to getViewFrag (this might be slow if you have multiple fields),
                         # so it is not recommended...
                         #
-                        if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE){
-                            if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null){
-                                $fieldSettings[$contentKey] .=$this->handleWithFieldHandler($fieldHandler, getPostData());
-                            }else {
+                        if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE) {
+                            if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null) {
+                                $fieldSettings[$contentKey] .= $this->handleWithFieldHandler($fieldHandler, getPostData());
+                            } else {
                                 $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]);
                             }
                         }
 
 
                     }
-                    if (isset($field['content'])){
+                    if (isset($field['content'])) {
                         $fieldSettings[$contentKey] .= $field['content'];
                     }
                 }
@@ -624,9 +630,9 @@ SQL;
         if (isset($fieldSettings[$contentKey]) && is_array($postEditorsContent = json_decode($fieldSettings[$contentKey], true))) {
             addToGlobalVariable(FieldConfig::postEditorFieldsContentID(), $postEditorsContent);
             foreach ($postEditorsContent as &$field) {
-                addToGlobalVariable('Data',  $field['postData'] ?? []);
-                if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null){
-                    if ($fieldHandler instanceof FieldTemplateFileInterface && $fieldHandler->canPreSaveFieldLogic()){
+                addToGlobalVariable('Data', $field['postData'] ?? []);
+                if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null) {
+                    if ($fieldHandler instanceof FieldTemplateFileInterface && $fieldHandler->canPreSaveFieldLogic()) {
                         $field['postData'][FieldConfig::fieldPreSavedDataID()] = $this->handleWithFieldHandler($fieldHandler, getPostData());
                     }
                 }
@@ -635,7 +641,7 @@ SQL;
             $fieldSettings = FieldConfig::getFieldSettings();
             $fieldSettings[$contentKey] = json_encode($postEditorsContent);
         }
-        
+
         // restore old postData;
         addToGlobalVariable('Data', $oldPostData);
         addToGlobalVariable(FieldConfig::fieldSettingsID(), $oldFieldSettings);
@@ -646,6 +652,7 @@ SQL;
 
         return $fieldSettings;
     }
+
 
     /**
      * @throws \Exception

@@ -32,7 +32,7 @@ class TonicsTocController
     public function edit(): void
     {
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
-            ['Apps_TonicsToc_Settings'],
+            ['app-tonicstoc-settings'],
             $this->getTonicsTocSettingData()
         )->getHTMLFrag();
 
