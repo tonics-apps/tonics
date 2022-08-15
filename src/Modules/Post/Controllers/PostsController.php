@@ -59,9 +59,9 @@ class PostsController
      */
     public function index()
     {
-       $categories = $this->getPostData()->getCategoriesPaginationData();
-       # For Category Meta Box API
-       $this->getPostData()->categoryMetaBox($categories);
+        $categories = $this->getPostData()->getCategoriesPaginationData();
+        # For Category Meta Box API
+        $this->getPostData()->categoryMetaBox($categories);
 
         view('Modules::Post/Views/index', [
             'SiteURL' => AppConfig::getAppUrl(),
@@ -89,8 +89,7 @@ class PostsController
         view('Modules::Post/Views/create', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
-            'FieldSelection' => $this->fieldData->getFieldsSelection($this->onPostDefaultField->getPostDefaultFieldSlug()),
-            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onPostDefaultField->getPostDefaultFieldSlug(), $oldFormInput)->getHTMLFrag()
+            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onPostDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag()
         ]);
     }
 
@@ -181,16 +180,15 @@ class PostsController
 
         $onPostDefaultField = $this->onPostDefaultField;
         $fieldIDS = ($post->field_ids === null) ? [] : json_decode($post->field_ids, true);
-        $onPostDefaultField->setPostDefaultFieldSlug($fieldIDS);
+        $onPostDefaultField->setFieldSlug($fieldIDS);
         event()->dispatch($onPostDefaultField);
 
-        $fieldForm = $this->fieldData->generateFieldWithFieldSlug($onPostDefaultField->getPostDefaultFieldSlug(), $fieldSettings);
+        $fieldForm = $this->fieldData->generateFieldWithFieldSlug($onPostDefaultField->getFieldSlug(), $fieldSettings);
         $fieldItems = $fieldForm->getHTMLFrag();
         view('Modules::Post/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
             'Data' => $post,
-            'FieldSelection' => $this->fieldData->getFieldsSelection($onPostDefaultField->getPostDefaultFieldSlug()),
             'FieldItems' => $fieldItems,
         ]);
     }
@@ -339,7 +337,7 @@ class PostsController
                     return "/posts/$post->slug_id/$post->post_slug";
                 }
                 return false;
-        }, onSlugState: function ($slug){
+            }, onSlugState: function ($slug){
             $post = $this->getPostData()
                 ->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
             if (isset($post->slug_id) && isset($post->post_slug)){

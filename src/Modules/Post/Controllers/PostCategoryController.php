@@ -41,8 +41,6 @@ class PostCategoryController
     {
         view('Modules::Post/Views/Category/create', [
             'Categories' => $this->getPostData()->getCategoryHTMLSelect(),
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 
@@ -114,10 +112,8 @@ class PostCategoryController
         $categoryCurrent->{'cat_parent_id'} = $postCategoryCreate->getCatParentID();
         view('Modules::Post/Views/Category/edit', [
             'Categories' => $this->getPostData()->getCategoryHTMLSelect($categoryCurrent),
-            'SiteURL' => AppConfig::getAppUrl(),
             'CatStatus' => $this->postData->getPostStatusHTMLFrag($postCategoryCreate->getCatStatus()),
             'Data' => $postCategoryCreate->getAllToArray(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 
@@ -146,9 +142,7 @@ class PostCategoryController
      */
     public function index()
     {
-        view('Modules::Post/Views/Category/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
-        ]);
+        view('Modules::Post/Views/Category/index');
     }
 
     /**

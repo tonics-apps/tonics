@@ -1,34 +1,16 @@
-<!DOCTYPE html>
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
-<html lang="en">
-<head>
-    [[_use("default-meta")]]
-    [[_use("main-css-style")]]
-    <title>Installer Page</title>
-</head>
+[[inherit("Modules::Core/Views/Templates/core")]]
 
-<body class="body-sticky-footer">
-[[_use("default-inline-svg")]]
+[[hook_into('in_head_title')Installer Page]]
+[[hook_into('before_in_main_header_title')[[_use("body.header.section-logo:center")]]]]
+[[hook_into('in_main_header_title')Installer]]
 
-<header>
-    <!--    [[func('body.header.section', 'body.header.section-classes:installer-page', 'body.header.section-logo:center')]]-->
-</header>
+[[reset_hook('header_section')]]
 
-<main id="main"  class="flex:one" tabindex="-1">
-    [[_use("body.header.section-logo:center")]]
-    [[b('body.main.header-text')Installer]]
+[[hook_into('in_main')
 
-    [[func('body.main.header:installer-page', 'body.main.header-text')]]
     [[_use("body.main.form:installer-page")]]
-</main>
+]]
 
-<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
-    <div class="footer-section">
-    </div>
-</footer>
-
-[[_use("script:installer-page")]]
-</body>
-</html>
+[[hook_into('before_footer')
+    [[_use("script:installer-page")]]
+]]

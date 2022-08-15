@@ -49,7 +49,7 @@ class AppConfig
     public static function initLoaderOthers(bool $failSilently = false): InitLoader
     {
         try {
-            $initKey = self::getAppCacheKey();
+            $initKey = AppConfig::getCachePrefix() . self::getAppCacheKey();
             if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
                 $initLoader = apcu_fetch($initKey);
             } else {
@@ -133,7 +133,7 @@ class AppConfig
     public static function initLoaderMinimal(bool $failSilently = false): InitLoaderMinimal
     {
         try {
-            $initKey = self::getAppCacheKey() . '_minimal';
+            $initKey = AppConfig::getCachePrefix() . self::getAppCacheKey() . '_minimal';
             if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
                 $initLoader = apcu_fetch($initKey);
             } else {
@@ -173,22 +173,22 @@ class AppConfig
     public static function autoResolvePageRoutes(string $controller, Route $route)
     {
         $pageTable = Tables::getTable(Tables::PAGES);
-        $pages = db()->run("SELECT * FROM $pageTable");
-        foreach ($pages as $page) {
-            if ($page->page_status === 1) {
-                # If url has not been chosen or is not a reserved path
-                $foundURLNode = $route->getRouteTreeGenerator()->findURL($page->page_slug);
-                if ($foundURLNode->getFoundURLNode() === null || empty($foundURLNode->getFoundURLNode()->getSettings())){
-                    $route->get($page->page_slug, [$controller, 'viewPage'], moreSettings: $page);
+        try {
+            $pages = db()->run("SELECT * FROM $pageTable");
+            foreach ($pages as $page) {
+                if ($page->page_status === 1) {
+                    # If url has not been chosen or is not a reserved path
+                    $foundURLNode = $route->getRouteTreeGenerator()->findURL($page->page_slug);
+                    if ($foundURLNode->getFoundURLNode() === null || empty($foundURLNode->getFoundURLNode()->getSettings())){
+                        $route->get($page->page_slug, [$controller, 'viewPage'], moreSettings: $page);
+                    }
                 }
             }
+        }catch (Exception){
+            // log..
         }
-        return $route;
-    }
 
-    public static function getBaseTemplateRenderName(): string
-    {
-        return 'Modules::Core/Views/Templates/theme';
+        return $route;
     }
 
     public static function isMaintenanceMode(): bool
@@ -211,6 +211,15 @@ class AppConfig
         return env('APP_NAME', 'Tonics');
     }
 
+    /**
+     * Without a cache prefix, multiple sites on the same server might reference each other's cache (which is a bad idea)
+     * @return string
+     */
+    public static function getCachePrefix(): string
+    {
+        return hash('sha256', env('APP_KEY', 'Tonics'));
+    }
+
     public static function getAppCacheKey(): string
     {
         return 'initLoader_' . env('APP_NAME', 'Tonics');
@@ -224,6 +233,11 @@ class AppConfig
     public static function isProduction(): bool
     {
         return AppConfig::getAppEnv() === 'production';
+    }
+
+    public static function getAppInstallKey(): string
+    {
+        return env('INSTALL_KEY');
     }
 
     public static function getAppUpdateKey(): string

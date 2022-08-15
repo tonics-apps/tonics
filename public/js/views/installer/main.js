@@ -1,3 +1,5 @@
+import * as myModule from "./script-installer-page.js";
+
 let preElement = document.querySelector('.installation-pre'),
     form = document.querySelector('form');
 
@@ -23,7 +25,6 @@ function submitForm(event) {
                 data = JSON.parse(data);
                 if (data.hasOwnProperty('status')) {
                     if (data.status === 200) {
-                        let preElement = document.querySelector('.installation-pre');
                         let eventSource = new EventSource('/api/installer');
 
                         // would have used error instead issue but there is already a built-in type named error

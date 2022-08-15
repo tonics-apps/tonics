@@ -16,6 +16,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Page\Data\PageData;
+use App\Modules\Page\Events\OnPageDefaultField;
 
 class PagesController
 {
@@ -46,6 +47,8 @@ class PagesController
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$page];
         }
+        # Load Some Settings Option From Theme
+        $fieldSettings = [...$fieldSettings, ...NinetySevenController::getSettingData()];
         $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
 
         $fieldSlugs = $this->getFieldSlug($fieldSettings);
@@ -79,7 +82,8 @@ class PagesController
             return $default;
         }
 
-        return $fieldSlugs;
+        $hiddenSlug = event()->dispatch(new OnPageDefaultField())->getHiddenFieldSlug();
+        return [...$fieldSlugs, ...$hiddenSlug];
     }
 
     /**

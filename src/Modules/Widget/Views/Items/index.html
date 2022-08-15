@@ -1,30 +1,18 @@
-<!DOCTYPE html>
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
+[[inherit("Modules::Core/Views/Templates/core")]]
 [[import("Modules::Core/Views/Blocks/MenuWidget")]]
-<html lang="en">
-<head>
-    [[_use("default-secure-meta")]]
-    [[_use("main-css-style")]]
-    <title>Widget Builder</title>
-</head>
 
-<body class="body-sticky-footer bg:gray-two">
-[[_use("default-inline-svg")]]
 
-<header>
-    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
-</header>
+[[hook_into('in_head_title') Widget Builder ]]
+[[hook_into('in_main_header_title') Widget Builder ([[v('MenuWidgetBuilderName')]]) ]]
 
-<main id="main"  class="flex:one" tabindex="-1">
-    <input type="hidden" name="widget_slug" value="[[v('MenuWidgetSlug')]]">
-    <input type="hidden" name="widget_id" value="[[v('MenuWidgetID')]]">
-    [[b('body.main.header-text')Widget Builder ([[v('MenuWidgetBuilderName')]]) ]]
-    [[func('body.main.header', 'body.main.header-text')]]
-    [[_use('Widget::Items::view::index')]]
-</main>
 
+[[hook_into('in_main')
+<input type="hidden" name="widget_slug" value="[[v('MenuWidgetSlug')]]">
+<input type="hidden" name="widget_id" value="[[v('MenuWidgetID')]]">
+[[_use('Widget::Items::view::index')]]
+]]
+
+[[hook_into('after_main')
 <form id="saveMenuWidgetBuilderItems" method="post" action="[[use('Widget::Items::route::posts.store')]]" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
     <input type="hidden" name="token" value="[[csrf()]]">
     <div class="form-group">
@@ -34,15 +22,11 @@
         </button>
     </div>
 </form>
+]]
 
-<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
-    <div class="footer-section">
-    </div>
-</footer>
-
+[[hook_into('before_footer')
 [[_use("script:variables")]]
 [[_use("script:tinymce")]]
 [[_use("script:widget-item-index")]]
 [[_use("session:delete-artifacts")]]
-</body>
-</html>
+]]

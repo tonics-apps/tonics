@@ -35,9 +35,7 @@ class ArtistController
      */
     public function index()
     {
-        view('Modules::Track/Views/Artist/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
-        ]);
+        view('Modules::Track/Views/Artist/index');
     }
 
     /**
@@ -45,10 +43,7 @@ class ArtistController
      */
     public function create()
     {
-        view('Modules::Track/Views/Artist/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone()
-        ]);
+        view('Modules::Track/Views/Artist/create');
     }
 
     /**
@@ -93,9 +88,7 @@ class ArtistController
 
         $onArtistCreate = new OnArtistCreate($artist, $this->getTrackData());
         view('Modules::Track/Views/Artist/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $onArtistCreate->getAllToArray(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 

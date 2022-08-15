@@ -55,7 +55,6 @@ class FieldControllerItems extends Controller
         }
 
         view('Modules::Field/Views/Items/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'MetaBox' => $dispatched->generateFieldMetaBox(),
             'FieldItems' => $this->getFieldData()->getFieldItemsListing($this->getFieldData()->getFieldItems($fieldID)),
             'FieldBuilderName' => ucwords(str_replace('-', ' ', $slug)),
@@ -119,7 +118,6 @@ class FieldControllerItems extends Controller
         $dispatched = event()->dispatch($onEditorFieldSelection);
 
         view('Modules::Field/Views/Items/selection-manager', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'FieldItems' => $dispatched->getFields()
         ]);
     }

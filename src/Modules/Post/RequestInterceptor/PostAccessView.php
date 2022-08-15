@@ -17,7 +17,10 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldFormHelper;
+use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Post\Data\PostData;
+use App\Modules\Post\Events\OnPostDefaultField;
+use JetBrains\PhpStorm\NoReturn;
 
 class PostAccessView
 {
@@ -78,14 +81,14 @@ class PostAccessView
     /**
      * @throws \Exception
      */
-    public function showPost(string $postView)
+    #[NoReturn] public function showPost(string $postView, $moreData = []): void
     {
         $post = $this->post;
         if (!empty($post)){
             $this->fieldData->unwrapForPost($post);
             $onFieldUserForm = new OnFieldFormHelper([], $this->fieldData);
             # Cache Post Data
-            $onFieldUserForm->handleFrontEnd($this->getFieldSlug($post), $post);
+            $onFieldUserForm->handleFrontEnd($this->getFieldSlug($post), [...$post, ...$moreData]);
             view($postView);
         }
 
@@ -95,18 +98,17 @@ class PostAccessView
     /**
      * @throws \Exception
      */
-    public function showCategory(string $postView)
+    #[NoReturn] public function showCategory(string $postView, $moreData = []): void
     {
-
         $category = $this->category;
         if (!empty($category)){
             $date = new \DateTime($category['created_at']);
             $category['created_at_words'] = strtoupper($date->format('j M, Y'));
             $onFieldUserForm = new OnFieldFormHelper([], $this->fieldData);
 
-            // category doesn't have the concepts of fields (not yet), but we could still use hard-coded field
-            $fieldSlugs = ['single-category-view'];
-            $onFieldUserForm->handleFrontEnd($fieldSlugs, $category);
+            // category doesn't have the concepts of fields (not yet), but we could still use some default field in the frontend
+            $hiddenSlug = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
+            $onFieldUserForm->handleFrontEnd($hiddenSlug, [...$category, ...$moreData]);
             view($postView);
         }
 
@@ -140,7 +142,8 @@ class PostAccessView
             return $default;
         }
 
-        return $fieldSlugs;
+        $hiddenSlug = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
+        return [...$fieldSlugs, ...$hiddenSlug];
     }
 
     /**

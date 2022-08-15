@@ -52,7 +52,6 @@ class MediaControllers
     {
         view('Modules::Media/Views/file-manager',
             [
-                'SiteURL' => AppConfig::getAppUrl(),
                 'DropboxDiskDriveKey' => DriveConfig::getDropBoxKey()
             ]
         );

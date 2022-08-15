@@ -477,36 +477,6 @@ FORM;
     }
 
     /**
-     * @throws \Exception
-     */
-    public function handleViewProcessingFrag($data = null): string
-    {
-        $handleViewProcessing = (isset($data->handleViewProcessing)) ? $data->handleViewProcessing : '';
-        if ($handleViewProcessing === '1') {
-            $frag = <<<HTML
-<option value="0">False</option>
-<option value="1" selected>True</option>
-HTML;
-        } else {
-            $frag = <<<HTML
-<option value="0" selected>False</option>
-<option value="1">True</option>
-HTML;
-        }
-
-        $changeID = helper()->randomString(10);
-        return <<<FORM
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="handleViewProcessing-$changeID">Automatically Handle View Processing
-     <select name="handleViewProcessing" class="default-selector mg-b-plus-1" id="handleViewProcessing-$changeID">
-        $frag
-     </select>
-    </label>
-</div>
-FORM;
-    }
-
-    /**
      * @return bool
      */
     public function isErrorEmitted(): bool

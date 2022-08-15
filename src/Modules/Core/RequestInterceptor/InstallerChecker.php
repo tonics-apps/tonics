@@ -49,7 +49,7 @@ class InstallerChecker implements TonicsRouterRequestInterceptorInterface
        }
 
         # Anything Else Probably mean the app is installed
-        $msg = "It Seems " . AppConfig::getAppName() . " is Already Installed";
+        $msg = "It Seems Tonic is Already Installed";
        ## For API
        if (str_starts_with($urlPath, '/api') || str_starts_with($urlPath, 'api')){
            SimpleState::displayErrorMessage(SimpleState::ERROR_APP_ALREADY_INSTALLED__CODE, $msg, true);

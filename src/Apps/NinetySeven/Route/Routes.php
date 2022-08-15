@@ -10,9 +10,11 @@
 
 namespace App\Apps\NinetySeven\Route;
 
+use App\Apps\NinetySeven\Controller\NinetySevenController;
 use App\Apps\NinetySeven\Controller\PagesController;
 use App\Apps\NinetySeven\Controller\PostsController;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\AuthConfig;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait Routes
@@ -24,9 +26,13 @@ trait Routes
     public function routeWeb(Route $route): Route
     {
         AppConfig::autoResolvePageRoutes(PagesController::class, $route);
-
         $route->get('/posts/:slug-id/:slug', [PostsController::class, 'singlePost']);
         $route->get('/categories/:slug-id/:slug', [PostsController::class, 'singleCategory']);
+
+        $route->group('/admin/tools/apps', function (Route $route) {
+            $route->get('ninety_seven/settings', [NinetySevenController::class, 'edit'], alias: 'ninetySeven.settings');
+            $route->post('ninety_seven/settings', [NinetySevenController::class, 'update']);
+        }, AuthConfig::getAuthRequestInterceptor());
         return $route;
     }
 }

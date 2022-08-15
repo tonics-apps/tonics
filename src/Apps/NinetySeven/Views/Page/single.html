@@ -56,11 +56,13 @@
                 <div class="d:flex flex-d:column justify-content:center owl flex-wrap:wrap width:100%">
                     <div class="d:flex justify-content:center flex-wrap:wrap">
                         <div class="form-group flex:auto">
+                            [[-
                             <select class="default-selector border-width:default border:black color:black" name="post_cat">
                                 <option value="" selected >All Category</option>
                                 [[add_hook('post_cat_filter_option')]]
                                 <template data-hookname="in_site_header_section"></template>
                             </select>
+                            -]]
                         </div>
                     </div>
                     <div class="d:flex flex-wrap:wrap flex-d:row width:100% margin-top:0">

@@ -50,7 +50,6 @@ class LicenseController
         }
 
         view('Modules::Track/Views/License/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $data,
             'LicenseListing' => $licenseListing
         ]);
@@ -61,10 +60,7 @@ class LicenseController
      */
     public function create()
     {
-        view('Modules::Track/Views/License/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone()
-        ]);
+        view('Modules::Track/Views/License/create');
     }
 
     /**
@@ -108,9 +104,7 @@ class LicenseController
 
         $onLicenseCreate = new OnLicenseCreate($menu, $this->getTrackData());
         view('Modules::Track/Views/License/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $onLicenseCreate->getAllToArray(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 

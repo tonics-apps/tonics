@@ -7,7 +7,6 @@
 
 use Ahc\Env\Loader;
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\CoreActivator;
 
 define('APP_ROOT', dirname(__DIR__));
 
@@ -25,7 +24,6 @@ if (AppConfig::isProduction() === false){
     error_reporting(E_ALL);
     ini_set("display_errors", "On");
 }
-
 
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING

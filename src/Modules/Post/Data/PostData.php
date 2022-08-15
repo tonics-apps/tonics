@@ -14,6 +14,7 @@ use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Post\Events\OnPostCategoryCreate;
 
 class PostData extends AbstractDataLayer
 {
@@ -434,6 +435,8 @@ SQL, ...$parameter);
 
             $returning = $this->insertForPost($defaultCategory, self::Category_INT);
             $_POST['fk_cat_id'] = $returning->cat_id;
+            $onPostCategoryCreate = new OnPostCategoryCreate($returning, $this);
+            event()->dispatch($onPostCategoryCreate);
         }
     }
 

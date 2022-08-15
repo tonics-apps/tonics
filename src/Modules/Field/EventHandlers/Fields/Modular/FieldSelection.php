@@ -118,8 +118,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
-        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $fieldSlug = (isset($data->fieldSlug) && !empty($inputName)) ? $inputName : $data->fieldSlug;
+        $fieldSlug = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 
@@ -140,7 +139,7 @@ HTML;
 HTML;
             }
         }
-
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlug}_$changeID";
         $fieldSlug = explode(':', $fieldSlug);
         $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1] : '';
         if (!empty($fieldID) && $expandField === '1') {
@@ -150,7 +149,7 @@ HTML;
             $frag .= <<<HTML
 <div class="form-group margin-top:0">
      <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
-     <select name="fieldSlug" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
+     <select name="$inputName" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
         $fieldFrag
      </select>
     </label>
@@ -168,8 +167,7 @@ HTML;
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
         $frag = '';
-        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $fieldSlug = (isset($data->fieldSlug) && !empty($inputName)) ? $inputName : $data->fieldSlug;
+        $fieldSlug = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         if (empty($fieldSlug)) {
             return $frag;
         }

@@ -36,7 +36,6 @@ class ImportController
     {
         $importListing = $this->getImportData()->adminImportListing($this->getImportData()->getImportTypes());
         view('Modules::Core/Views/Import/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'ImportListing' => $importListing,
         ]);
     }
@@ -56,9 +55,7 @@ class ImportController
                 helper()->onSuccess([], 'Success');
             }
         } else {
-            view('Modules::Core/Views/Import/WordPress/index', [
-                'SiteURL' => AppConfig::getAppUrl()
-            ]);
+            view('Modules::Core/Views/Import/WordPress/index');
         }
     }
 

@@ -49,7 +49,6 @@ class FieldController
         }
 
         view('Modules::Field/Views/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $data,
             'FieldListing' => $widgetListing
         ]);
@@ -60,10 +59,7 @@ class FieldController
      */
     public function create()
     {
-        view('Modules::Field/Views/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone()
-        ]);
+        view('Modules::Field/Views/create');
     }
 
     /**
@@ -108,9 +104,7 @@ class FieldController
 
         $onWidgetCreate = new OnFieldCreate($menu, $this->getFieldData());
         view('Modules::Field/Views/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $onWidgetCreate->getAllToArray(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 

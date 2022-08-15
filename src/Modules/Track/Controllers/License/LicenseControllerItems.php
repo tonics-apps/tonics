@@ -47,7 +47,6 @@ class LicenseControllerItems
         $onLicenseCreate = new OnLicenseCreate($licenseData, $this->getTrackData());
 
         view('Modules::Track/Views/License/Items/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'LicenseItemsListing' => $this->getTrackData()->getLicenseItemsListing($onLicenseCreate->getLicenseAttr()),
             'LicenseBuilderName' => ucwords(str_replace('-', ' ', $slug)),
             'LicenseSlug' => $slug,

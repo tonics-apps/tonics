@@ -67,7 +67,7 @@ HTML;
 <option value="1">True</option>
 HTML;
         }
-        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
+        $defaultValue =  (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 

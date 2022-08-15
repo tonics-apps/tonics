@@ -35,9 +35,7 @@ class GenreController
      */
     public function index()
     {
-        view('Modules::Track/Views/Genre/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
-        ]);
+        view('Modules::Track/Views/Genre/index');
     }
 
     /**
@@ -45,10 +43,7 @@ class GenreController
      */
     public function create()
     {
-        view('Modules::Track/Views/Genre/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone()
-        ]);
+        view('Modules::Track/Views/Genre/create');
     }
 
     /**
@@ -94,9 +89,7 @@ class GenreController
 
         $onGenreCreate = new OnGenreCreate($genre, $this->getTrackData());
         view('Modules::Track/Views/Genre/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $onGenreCreate->getAllToArray(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 

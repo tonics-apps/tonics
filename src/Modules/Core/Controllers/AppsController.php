@@ -40,7 +40,6 @@ class AppsController
     public function index(): void
     {
         view('Modules::Core/Views/App/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'AppListingFrag' => $this->appsData->prepareAndGetAppListFrag(),
         ]);
 

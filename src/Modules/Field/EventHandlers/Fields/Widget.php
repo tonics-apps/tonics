@@ -96,8 +96,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Menu';
-        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $widgetSlug = (isset($data->widgetSlug) && !empty($inputName)) ? $inputName : $data->widgetSlug;
+        $widgetSlug =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -116,10 +115,11 @@ HTML;
 HTML;
             }
         }
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$widgetSlug}_$changeID";
         $frag .= <<<HTML
 <div class="form-group">
      <label class="menu-settings-handle-name" for="widgetSlug-$changeID">Choose Widget
-     <select name="widgetSlug" class="default-selector mg-b-plus-1" id="widgetSlug-$changeID">
+     <select name="$inputName" class="default-selector mg-b-plus-1" id="widgetSlug-$changeID">
         $menuFrag
      </select>
     </label>
@@ -137,8 +137,7 @@ HTML;
     {
         $frag = '';
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
-        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $widgetSlug = (isset($data->widgetSlug) && !empty($inputName)) ? $inputName : $data->widgetSlug;
+        $widgetSlug =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         if (empty($widgetSlug)){
             return $frag;
         }

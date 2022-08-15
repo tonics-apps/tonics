@@ -126,13 +126,6 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_options": "{\"field_slug\":\"media_media-image\",\"media_media-image_cell\":\"4\",\"field_slug_unique_hash\":\"c37249cd27fa2cf9fb227c48f80a96\",\"fieldName\":\"Featured Image\",\"inputName\":\"image_url\",\"imageLink\":\"\",\"featured_image\":\"\",\"defaultImage\":\"\"}"
   },
   {
-    "fk_field_id": "Post Page",
-    "field_name": "modular_fieldselection",
-    "field_id": 11,
-    "field_parent_id": null,
-    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"field_slug_unique_hash\":\"3wtfw5ix15i0000000000\",\"fieldName\":\"FrontEnd View\",\"inputName\":\"\",\"fieldSlug\":\"app-ninetyseven-single-post-view:49\",\"hideInUserEditForm\":\"1\",\"expandField\":\"0\"}"
-  },
-  {
     "fk_field_id": "Track Page",
     "field_name": "modular_rowcolumn",
     "field_id": 1,
@@ -264,6 +257,27 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_id": 3,
     "field_parent_id": 1,
     "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6n1be5c9ua40000000000\",\"fieldName\":\"Description (Optional)\",\"inputName\":\"seo_description\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"250\",\"placeholder\":\"Enter SEO Description\",\"readOnly\":\"0\",\"required\":\"0\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
+  },
+  {
+    "fk_field_id": "Site Header",
+    "field_name": "menu_menus",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_slug\":\"menu_menus\",\"field_slug_unique_hash\":\"i5ap1q0rukg000000000\",\"fieldName\":\"site_header\",\"inputName\":\"site_header_menu\",\"menuSlug\":\"header-menu:1\",\"displayName\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Site Footer",
+    "field_name": "menu_menus",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_slug\":\"menu_menus\",\"field_slug_unique_hash\":\"1zqxqpbnlkhs000000000\",\"fieldName\":\"site_footer\",\"inputName\":\"site_footer_menu\",\"menuSlug\":\"footer-menu:2\",\"displayName\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Sidebar Widget",
+    "field_name": "widget_widgets",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_slug\":\"widget_widgets\",\"field_slug_unique_hash\":\"tqtc2pjcx4g000000000\",\"fieldName\":\"sidebar_widget\",\"inputName\":\"sidebar_widget\",\"widgetSlug\":\"sidebar-widget:1\"}"
   }
 ]
 JSON;

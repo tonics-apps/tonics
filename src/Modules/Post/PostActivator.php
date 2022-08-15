@@ -102,8 +102,6 @@ class PostActivator implements ExtensionConfig
                 Tables::getTable(Tables::CAT_RELS) => Tables::getTable(Tables::CAT_RELS),
                 Tables::getTable(Tables::POSTS) => Tables::getTable(Tables::POSTS),
                 Tables::getTable(Tables::POST_CATEGORIES) => Tables::getTable(Tables::POST_CATEGORIES),
-                Tables::getTable(Tables::TAGS) => Tables::getTable(Tables::TAGS),
-                Tables::getTable(Tables::TAG_RELS) => Tables::getTable(Tables::TAG_RELS),
             ];
     }
 

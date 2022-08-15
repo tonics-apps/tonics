@@ -124,7 +124,7 @@ class OnFieldFormHelper implements EventInterface
 
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
 
-        $cachedKey = $cachedKey .'_GlobalVariableData';
+        $cachedKey = AppConfig::getCachePrefix() . $cachedKey .'_GlobalVariableData';
         if (apcu_exists($cachedKey)){
             $data = [...apcu_fetch($cachedKey), ...getGlobalVariableData()];
             AppConfig::initLoaderMinimal()::setGlobalVariable($data);

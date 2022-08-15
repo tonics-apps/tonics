@@ -37,6 +37,17 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   UNIQUE KEY `pages_page_slug_unique` (`page_slug`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
+        $defaultPage = [
+            ['field_ids' => '["default-page-field"]', 'page_title' => 'HomePage', 'page_slug' => '/'],
+            ['field_ids' => '["default-page-field","seo-settings","all-posts-page"]', 'page_title' => 'Posts', 'page_slug' => '/posts'],
+            ['field_ids' => '["default-page-field","all-categories-page"]', 'page_title' => 'Categories', 'page_slug' => '/categories'],
+            ['field_ids' => '["default-page-field"]', 'page_title' => 'Track Page', 'page_slug' => '/tracks'],
+            ['field_ids' => '["default-page-field"]', 'page_title' => 'Genre Page', 'page_slug' => '/genres'],
+            ['field_ids' => '["default-page-field"]', 'page_title' => 'Artist Page', 'page_slug' => '/artists'],
+        ];
+
+        db()->insertOnDuplicate($this->tableName(), $defaultPage, ['field_ids']);
+
     }
 
     /**

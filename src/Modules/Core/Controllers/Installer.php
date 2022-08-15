@@ -156,6 +156,12 @@ class Installer extends SimpleState
                 $this->issue(self::getCurrentState(), 'An Issue Occurred in Pre-Install Validation');
                 return self::ERROR;
             }
+
+            if (!hash_equals($requestBody->INSTALL_KEY, AppConfig::getAppInstallKey())){
+                $this->issue(self::getCurrentState(), 'Invalid Installation Key');
+                return self::ERROR;
+            }
+
             helper()->sendMsg(self::getCurrentState(), "> Step 2 of 6: Validated Temp Installation File ✔");
             $this->switchState(self::InstallSetInstallationPropertiesInEnvFile);
             return self::NEXT;
@@ -306,6 +312,7 @@ class Installer extends SimpleState
                 'min' => 1, 'max' => 7
             ]],
 
+            'INSTALL_KEY' => ['required', 'string'],
             'APP_URL' => ['required', 'string'],
             'APP_LANGUAGE' => ['required', 'numeric'],
             'APP_TIME_ZONE' => ['required', 'string'],

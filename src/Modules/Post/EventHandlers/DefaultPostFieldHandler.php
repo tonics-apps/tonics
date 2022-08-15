@@ -22,6 +22,9 @@ class DefaultPostFieldHandler implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var $event OnPostDefaultField */
-        $event->addDefaultField('post-page')->addDefaultField('seo-settings');
+        $event->addDefaultField('post-page')->addDefaultField('seo-settings')
+            ->addDefaultField('site-header', true)
+            ->addDefaultField('site-footer', true)
+            ->addDefaultField('sidebar-widget', true);
     }
 }

@@ -42,7 +42,7 @@ class PostsController
     public function singlePost(): void
     {
         $this->getPostAccessView()->handlePost();
-        $this->getPostAccessView()->showPost('Apps::NinetySeven/Views/Post/single');
+        $this->getPostAccessView()->showPost('Apps::NinetySeven/Views/Post/single', NinetySevenController::getSettingData());
     }
 
     /**
@@ -51,7 +51,7 @@ class PostsController
     #[NoReturn] public function singleCategory(): void
     {
         $this->getPostAccessView()->handleCategory();
-        $this->getPostAccessView()->showCategory('Apps::NinetySeven/Views/Post/Category/single');
+        $this->getPostAccessView()->showCategory('Apps::NinetySeven/Views/Post/Category/single', NinetySevenController::getSettingData());
     }
 
     /**

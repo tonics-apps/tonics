@@ -15,7 +15,7 @@
 ]]
 
 [[b('script:installer-page')
-<script type="module" src="[[combine('/js/views/script-installer-page.js',
+<script type="module" src="[[combine('/js/views/installer/script-installer-page.js',
         '/js/Modules/Http/XHRApi.js',
         '/js/Modules/Others/password-with-show.js',
         '/js/views/installer/main.js',
@@ -49,8 +49,8 @@
 [[b('script:variables')
 
 <script>
-    var siteURL = `[[v('SiteURL')]]`;
-    var siteTimeZone = `[[v('TimeZone')]]`;
+    var siteURL = `[[v('App_Config.SiteURL')]]`;
+    var siteTimeZone = `[[v('App_Config.TimeZone')]]`;
     var tonicsErrorMessages = JSON.parse(`[[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage', 'true')]]`);
     var tonicsSuccesssMessages = JSON.parse(`[[session('renderFlashMessages', 'bt_flash_message_tonicsSuccessMessage', 'true')]]`);
     var tonicsInfoMessages = JSON.parse(`[[session('renderFlashMessages', 'bt_flash_message_tonicsInfoMessage', 'true')]]`);
@@ -119,6 +119,8 @@
         '/js/MainTools/ToastMessage.js',
         '/js/MainTools/SiteNavToggle.js',
         '/js/MainTools/ToastMessage.js',
+        '/js/MainTools/Widget/FeaturedImage.js',
+        '/js/MainTools/Widget/FeaturedLink.js',
         )]]">
 </script>
 ]]

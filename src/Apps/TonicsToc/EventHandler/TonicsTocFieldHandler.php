@@ -44,7 +44,7 @@ class TonicsTocFieldHandler implements FieldTemplateFileInterface
      */
     public function getTocResult(): string
     {
-        $settings = TonicsTocController::getTonicsTocSettingData();
+        $settings = TonicsTocController::getSettingsData();
         $result = '';
         if (isset(getPostData()['tableOfContentData'])){
             if (getPostData()['tableOfContentData']['headersFound'] >= $settings['toc_trigger']){

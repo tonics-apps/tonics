@@ -46,7 +46,6 @@ class MediaImage implements HandlerInterface
         $defaultImage = (isset($data->defaultImage)) ? $data->defaultImage : '';
         $imageLink = (isset($data->imageLink)) ? $data->imageLink : '';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
-
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';

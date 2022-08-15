@@ -49,7 +49,6 @@ class WidgetController
         }
 
         view('Modules::Widget/Views/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $data,
             'WidgetListing' => $widgetListing
         ]);
@@ -60,10 +59,7 @@ class WidgetController
      */
     public function create()
     {
-        view('Modules::Widget/Views/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone()
-        ]);
+        view('Modules::Widget/Views/create');
     }
 
     /**
@@ -108,9 +104,7 @@ class WidgetController
 
         $onWidgetCreate = new OnWidgetCreate($menu, $this->getWidgetData());
         view('Modules::Widget/Views/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $onWidgetCreate->getAllToArray(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 

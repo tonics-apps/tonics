@@ -43,9 +43,7 @@ class PagesController
      */
     public function index()
     {
-        view('Modules::Page/Views/index', [
-            'SiteURL' => AppConfig::getAppUrl()
-        ]);
+        view('Modules::Page/Views/index');
     }
 
     /**
@@ -64,10 +62,8 @@ class PagesController
         }
 
         view('Modules::Page/Views/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
-            'FieldSelection' => $this->fieldData->getFieldsSelection($this->onPageDefaultField->getPostDefaultFieldSlug()),
-            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onPageDefaultField->getPostDefaultFieldSlug(), $oldFormInput)->getHTMLFrag(),
+            'FieldSelection' => $this->fieldData->getFieldsSelection($this->onPageDefaultField->getFieldSlug()),
+            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onPageDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
         ]);
     }
 
@@ -125,15 +121,13 @@ class PagesController
 
         $onPageDefaultField = $this->onPageDefaultField;
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
-        $onPageDefaultField->setPostDefaultFieldSlug($fieldIDS);
+        $onPageDefaultField->setFieldSlug($fieldIDS);
         event()->dispatch($onPageDefaultField);
 
-        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getPostDefaultFieldSlug(), $fieldSettings)->getHTMLFrag();
+        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
             'Data' => $page,
-            'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getPostDefaultFieldSlug()),
+            'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
             'FieldItems' => $fieldItems
         ]);
     }

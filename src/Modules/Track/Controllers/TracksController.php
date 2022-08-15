@@ -81,8 +81,7 @@ class TracksController extends Controller
         view('Modules::Track/Views/create', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
-            'FieldSelection' => $this->fieldData->getFieldsSelection($this->onTrackDefaultField->getTrackDefaultFieldSlug()),
-            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onTrackDefaultField->getTrackDefaultFieldSlug(), $oldFormInput)->getHTMLFrag(),
+            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onTrackDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
         ]);
     }
 
@@ -162,16 +161,15 @@ class TracksController extends Controller
 
         $onTrackDefaultField = $this->onTrackDefaultField;
         $fieldIDS = ($track->field_ids === null) ? [] : json_decode($track->field_ids, true);
-        $onTrackDefaultField->setTrackDefaultFieldSlug($fieldIDS);
+        $onTrackDefaultField->setFieldSlug($fieldIDS);
         event()->dispatch($onTrackDefaultField);
 
-        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onTrackDefaultField->getTrackDefaultFieldSlug(), $fieldSettings)->getHTMLFrag();
+        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onTrackDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
 
         view('Modules::Track/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
             'Data' => $onTrackCreate->getAllToArray(),
-            'FieldSelection' => $this->fieldData->getFieldsSelection($onTrackDefaultField->getTrackDefaultFieldSlug()),
             'FieldItems' => $fieldItems
         ]);
     }

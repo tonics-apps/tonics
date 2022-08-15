@@ -53,7 +53,6 @@ class WidgetControllerItems extends Controller
         }
 
         view('Modules::Widget/Views/Items/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'MetaBox' => $dispatched->generateMenuWidgetMetaBox(),
             'MenuWidgetItems' => $this->getWidgetData()->getWidgetItemsListing($this->getWidgetData()->getWidgetItems($widgetID)),
             'MenuWidgetBuilderName' => ucwords(str_replace('-', ' ', $slug)),

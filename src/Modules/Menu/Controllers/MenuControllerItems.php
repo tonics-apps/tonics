@@ -57,7 +57,6 @@ class MenuControllerItems extends Controller
         }
 
         view('Modules::Menu/Views/Items/index', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'MetaBox' => $dispatched->generateMenuMetaBox(),
             'MenuItems' => $this->getMenuData()->getMenuItemsListing($this->getMenuData()->getMenuItems($menuID)),
             'MenuBuilderName' => ucwords(str_replace('-', ' ', $slug)),

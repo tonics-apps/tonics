@@ -142,10 +142,6 @@ trait Routes
     public function routeApi(Route $routes): Route
     {
         $routes->group('/api', function (Route $route){
-
-//            $route->get('like/:id/:customerID/:islike', [BeatStoreController::class, 'trackLikeDislike']);
-//            $route->get('store/play/:trackslugid/:playhash', [BeatStoreController::class, 'storeTrackPlaying']);
-
             $route->group('', function (Route $route){
                 $route->post('pre-installer', [Installer::class, 'preInstall']);
                 $route->get('installer', [Installer::class, 'install']);

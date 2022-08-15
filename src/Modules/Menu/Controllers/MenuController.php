@@ -36,9 +36,7 @@ class MenuController
      */
     public function index()
     {
-        view('Modules::Menu/Views/index', [
-            'SiteURL' => AppConfig::getAppUrl()
-        ]);
+        view('Modules::Menu/Views/index');
     }
 
     /**
@@ -46,10 +44,7 @@ class MenuController
      */
     public function create()
     {
-        view('Modules::Menu/Views/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone()
-        ]);
+        view('Modules::Menu/Views/create');
     }
 
     /**
@@ -87,9 +82,7 @@ class MenuController
 
         $onMenuCreate = new OnMenuCreate($menu, $this->getMenuData());
         view('Modules::Menu/Views/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
             'Data' => $onMenuCreate->getAllToArray(),
-            'TimeZone' => AppConfig::getTimeZone()
         ]);
     }
 

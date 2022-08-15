@@ -8,18 +8,18 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Apps\TonicsToc\Controller;
+namespace App\Apps\NinetySeven\Controller;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Field\Data\FieldData;
 
-class TonicsTocController
+const TonicsTheme_TonicsNinetySevenSettings = 'TonicsTheme_TonicsNinetySevenSettings';
+
+class NinetySevenController
 {
     private ?FieldData $fieldData;
-
-    const TonicsPlugin_TonicsTocSettings = 'TonicsPlugin_TonicsTocSettings';
 
     public function __construct(FieldData $fieldData = null)
     {
@@ -32,15 +32,12 @@ class TonicsTocController
     public function edit(): void
     {
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
-            ['app-tonicstoc-settings'],
-            $this->getSettingsData()
+            ['app-ninety-seven-settings'],
+            $this->getSettingData()
         )->getHTMLFrag();
 
-        view('Apps::TonicsToc/Views/settings', [
-            'FieldItems' => $fieldItems,
-                'Asset' => [
-                    'js' => AppConfig::getAppAsset('TonicsToc', 'js/script.js')
-                ]
+        view('Apps::NinetySeven/Views/settings', [
+                'FieldItems' => $fieldItems,
             ]
         );
     }
@@ -53,44 +50,35 @@ class TonicsTocController
         $result = FieldConfig::savePluginFieldSettings(self::getSettingsFile(), $_POST);
         if (!$result){
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
-            redirect(route('tonicsToc.settings'));
+            redirect(route('ninetySeven.settings'));
         }
 
         apcu_store(self::getCacheKey(), FieldConfig::loadPluginSettings(self::getSettingsFile()));
         session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tonicsToc.settings'));
+        redirect(route('ninetySeven.settings'));
     }
 
     public static function getSettingsFile(): string
     {
-        return AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . 'TonicsToc' . DIRECTORY_SEPARATOR . 'settings.json';
+        return AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . 'NinetySeven' . DIRECTORY_SEPARATOR . 'settings.json';
     }
 
     /**
      * @throws \Exception
      */
-    public static function getSettingsData()
+    public static function getSettingData()
     {
         $settings = apcu_fetch(self::getCacheKey());
         if ($settings === false){
             $settings = FieldConfig::loadPluginSettings(self::getSettingsFile());
         }
-        if (empty($settings)){
-            // force default:
-            $settings = [
-                'toc_depth' => 4,
-                'toc_trigger' => 2,
-                'toc_label' => 'Table of Contents',
-                'toc_label_tag' => 'div',
-                'toc_class' => 'tonics-tic',
-            ];
-        }
+
         return $settings;
     }
 
     public static function getCacheKey(): string
     {
-        return AppConfig::getAppCacheKey() . self::TonicsPlugin_TonicsTocSettings;
+        return AppConfig::getAppCacheKey() . TonicsTheme_TonicsNinetySevenSettings;
     }
 
     /**

@@ -118,12 +118,10 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Menu';
-        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $menuSlug = (isset($data->menuSlug) && !empty($inputName)) ? $inputName : $data->menuSlug;
+        $menuSlug = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-
         $menuFrag = '';
         $menuData = new MenuData();
         $menus = $menuData->getMenus();
@@ -139,10 +137,11 @@ HTML;
 HTML;
             }
         }
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$menuSlug}_$changeID";
         $frag .= <<<HTML
 <div class="form-group">
      <label class="menu-settings-handle-name" for="menuSlug-$changeID">Choose Menu
-     <select name="menuSlug" class="default-selector mg-b-plus-1" id="menuSlug-$changeID">
+     <select name="$inputName" class="default-selector mg-b-plus-1" id="menuSlug-$changeID">
         $menuFrag
      </select>
     </label>
@@ -160,8 +159,7 @@ HTML;
     {
         $frag = '';
         $displayName = (isset($data->displayName)) ? $data->displayName : '';
-        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $menuSlug = (isset($data->menuSlug) && !empty($inputName)) ? $inputName : $data->menuSlug;
+        $menuSlug = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         if (empty($menuSlug)) {
             return $frag;
         }
