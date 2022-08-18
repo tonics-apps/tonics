@@ -17,6 +17,7 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
+use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
 use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsContainer\Container;

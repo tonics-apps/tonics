@@ -52,6 +52,7 @@ trait Routes
 
                 // for post editors
                 $route->get('/selection-manager', [FieldControllerItems::class, 'fieldSelectionManager']);
+                $route->post('/field-preview', [FieldControllerItems::class, 'fieldPreview']);
             });
 
         },AuthConfig::getAuthRequestInterceptor([FieldAccess::class]), alias: 'fields');

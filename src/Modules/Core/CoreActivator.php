@@ -42,6 +42,7 @@ class CoreActivator implements ExtensionConfig
     public function events(): array
     {
         return [
+
             OnAdminMenu::class => [
                 CoreMenus::class
             ],

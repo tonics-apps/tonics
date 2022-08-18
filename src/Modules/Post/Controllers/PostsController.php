@@ -162,15 +162,13 @@ class PostsController
      */
     public function edit(string $slug)
     {
-        $this->fieldData->getFieldItemsAPI();
-
         $post = $this->postData->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
         if (!is_object($post)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        $fieldSettings = $this->fieldData->handleFieldPreviewOrEditorMode($fieldSettings, 'post_content');
+        $fieldSettings = $this->fieldData->handleEditorMode($fieldSettings, 'post_content');
 
         if (empty($fieldSettings)){
             $fieldSettings = (array)$post;

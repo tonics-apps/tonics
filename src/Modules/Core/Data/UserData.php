@@ -273,23 +273,28 @@ class UserData extends AbstractDataLayer
                 'hash_token' => $apiTokenAndHash->hash,
                 'updated_at' => helper()->date()
             ],
-            'verification' => [
-                'verification_code' => null,    # the unique verification code
-                'verification_code_at' => null, # time the verification code was created
-                'x_verification_code' => 0,     # number of times verification code was generated or requested
-                'is_verified' => 0,             # is verification code verified....1 for true, 0 for false
-                'is_sent' => 0,                 # is email sent...1 for true, 0 for false
-                'verified_at' => null,          # when the code was verified
-                'verified_attempt' => 0,        # number of times user tried verifying
-                /**
-                 * As you can see the expire_lock_time has in fact expired (this is default)
-                 * So, each time the verification_code_at is 5 and above, we add the current_time plus 10 more minutes to...
-                 * lock user from generating too much verification code, this is like throttling if you get me ;)
-                 * And whenever the time expires, user can send a new one, if they fail again, we give another 10 minutes :p
-                 */
-                'expire_lock_time' => '1997-07-05 00:00:00',
-            ],
+            'verification' => self::generateVerificationArrayDataForUser(),
         ]);
+    }
+
+    public static function generateVerificationArrayDataForUser(): array
+    {
+        return [
+            'verification_code' => null,    # the unique verification code
+            'verification_code_at' => null, # time the verification code was created
+            'x_verification_code' => 0,     # number of times verification code was generated or requested
+            'is_verified' => 0,             # is verification code verified....1 for true, 0 for false
+            'is_sent' => 0,                 # is email sent...1 for true, 0 for false
+            'verified_at' => null,          # when the code was verified
+            'verified_attempt' => 0,        # number of times user tried verifying
+            /**
+             * As you can see the expire_lock_time has in fact expired (this is default)
+             * So, each time the verification_code_at is 5 and above, we add the current_time plus 10 more minutes to...
+             * lock user from generating too much verification code, this is like throttling if you get me ;)
+             * And whenever the time expires, user can send a new one, if they fail again, we give another 10 minutes :p
+             */
+            'expire_lock_time' => '1997-07-05 00:00:00',
+        ];
     }
 
     /**

@@ -25,13 +25,10 @@ use App\Modules\Field\EventHandlers\Fields\Input\InputText;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaAudio;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaFileManager;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaImage;
-use App\Modules\Field\EventHandlers\Fields\Media\MediaImageWithLink;
 use App\Modules\Field\EventHandlers\Fields\Menu\Menu;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldFileHandler;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelection;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumn;
-use App\Modules\Field\EventHandlers\Fields\Modular\TestField;
-use App\Modules\Field\EventHandlers\Fields\Modular\TestFieldTwo;
 use App\Modules\Field\EventHandlers\Fields\Post\PostAuthorSelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategorySelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtist;
@@ -99,7 +96,6 @@ class FieldActivator implements ExtensionConfig
                 # Media
                 MediaFileManager::class,
                 MediaImage::class,
-                MediaImageWithLink::class,
                 MediaAudio::class,
 
                 # Modular
@@ -115,12 +111,9 @@ class FieldActivator implements ExtensionConfig
             ],
 
             OnEditorFieldSelection::class => [
-                DefaultFieldSelection::class
             ],
 
             FieldTemplateFile::class => [
-                TestField::class,
-                TestFieldTwo::class,
             ],
 
             OnFieldCreate::class => [

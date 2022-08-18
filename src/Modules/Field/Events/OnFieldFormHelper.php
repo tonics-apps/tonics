@@ -54,6 +54,20 @@ class OnFieldFormHelper implements EventInterface
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
         $htmlFrag = '';
 
+        $sortedFieldItems = $this->generateTreeForSortedFieldItems($sortedFieldItems);
+        foreach ($sortedFieldItems as $fieldBox) {
+            $htmlFrag .= $this->getUsersFormFrag($fieldBox, $postData);
+        }
+        return $htmlFrag;
+    }
+
+    /**
+     * @param $sortedFieldItems
+     * @return mixed
+     * @throws \Exception
+     */
+    public function generateTreeForSortedFieldItems($sortedFieldItems): mixed
+    {
         foreach ($sortedFieldItems as $k => $sortFieldItem) {
             $sortedFieldItems[$k] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $sortFieldItem, onData: function ($field) {
                 $field->field_options->{"_field"} = $field;
@@ -62,10 +76,7 @@ class OnFieldFormHelper implements EventInterface
             });
         }
 
-        foreach ($sortedFieldItems as $fieldBox) {
-            $htmlFrag .= $this->getUsersFormFrag($fieldBox, $postData);
-        }
-        return $htmlFrag;
+        return $sortedFieldItems;
     }
 
     /**
@@ -116,44 +127,26 @@ class OnFieldFormHelper implements EventInterface
             return;
         }
 
+        $fieldItemsSorted = $this->getFieldData()->getFieldSortedItems($fieldSlugs);
+
         $cachedKey = '';
         foreach ($fieldSlugs as $k => $fieldSlug) {
             $fieldSlugs[$k] = 'sortedField_' . $fieldSlug;
             $cachedKey .= 'sortedField_' . $fieldSlug;
         }
-
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
-
         $cachedKey = AppConfig::getCachePrefix() . $cachedKey .'_GlobalVariableData';
         if (apcu_exists($cachedKey)){
             $data = [...apcu_fetch($cachedKey), ...getGlobalVariableData()];
             AppConfig::initLoaderMinimal()::setGlobalVariable($data);
         } else {
-            $table = Tables::getTable(Tables::GLOBAL);
             try {
-                $questionMarks = helper()->returnRequiredQuestionMarks($fieldSlugs);
-                $fieldItemsSortedString = db()->run("SELECT `value` FROM $table WHERE `key` IN ($questionMarks)", ...$fieldSlugs);
-
-                if (!is_array($fieldItemsSortedString)) {
-                    return;
-                }
-
-                # re-dispatch so we can get the form values
-                $onFieldMetaBox = new OnFieldMetaBox();
-                /**@var $onFieldMetaBox OnFieldMetaBox */
-                $onFieldMetaBox = event()->dispatch($onFieldMetaBox);
-                foreach ($fieldItemsSortedString as $fields) {
-                    if (isset($fields->value)) {
-                        $fields = json_decode($fields->value ?: '') ?? [];
-                        foreach ($fields as $field) {
-                            $field->field_options->{"_field"} = $field;
-                            $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);
-                        }
-                    }
+                $fieldItemsSorted = $this->generateTreeForSortedFieldItems($fieldItemsSorted);
+                foreach ($fieldItemsSorted as $fields) {
+                    $this->getViewFrag($fields);
                 }
                 apcu_store($cachedKey, getGlobalVariableData());
             } catch (\Exception $exception) {
-                dd($exception->getMessage());
                 // log...
             }
         }

@@ -34,6 +34,8 @@ class Session
     const SessionCategories_URLReferer = 'tonics_url_referer';
     const SessionCategories_WordPressImport = 'tonics_wordpress_import';
 
+    const SessionCategories_PasswordReset = 'tonics_password_reset_info';
+
     private string $table;
 
     public function __construct()

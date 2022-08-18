@@ -81,17 +81,14 @@ trait Routes
                         #---------------------------------
                     # Registration Routes...
                 #---------------------------------
-                ## (No Registration for Admin, You'll Need To Register Through Customer and the Admin Can Then Change Your Role Later)
-                ## $route->get('register', [RegisterController::class, 'showRegistrationForm'], [MaxAdmin::class], alias: 'register');
-                ## $route->post('register', [RegisterController::class, 'register'], [MaxAdmin::class]);
 
                         #---------------------------------
                     # Password Reset Routes...
                 #---------------------------------
                 $route->get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'password.request');
                 $route->post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'password.email');
-//                $route->get('password/reset/:token', [ResetPasswordController::class, 'showResetForm'], alias: 'password.reset');
-//                $route->post('password/reset', [ResetPasswordController::class, 'reset'], alias: 'password.update');
+                $route->get('password/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'password.verifyEmail');
+                $route->post('password/reset', [ForgotPasswordController::class, 'reset'], alias: 'password.update');
 
             }, AuthConfig::getCSRFRequestInterceptor());
 

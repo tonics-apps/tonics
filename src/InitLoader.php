@@ -14,6 +14,7 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
 use App\Modules\Core\Library\MyPDO;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
@@ -33,6 +34,7 @@ class InitLoader
     private TonicsView $tonicsView;
     private TonicsTemplateEngines $tonicsTemplateEngines;
     private EventDispatcher $eventDispatcher;
+    private static ?JobEventDispatcher $jobEventDispatcher = null;
 
     private static bool $eventStreamAsHTML = false;
 
@@ -110,6 +112,14 @@ class InitLoader
     public function getEventDispatcher(): EventDispatcher
     {
         return $this->eventDispatcher;
+    }
+
+    public static function getJobEventDispatcher(): JobEventDispatcher
+    {
+        if (!self::$jobEventDispatcher) {
+            self::$jobEventDispatcher = new JobEventDispatcher();
+        }
+        return self::$jobEventDispatcher;
     }
 
     /**

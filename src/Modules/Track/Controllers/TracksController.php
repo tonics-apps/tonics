@@ -60,8 +60,6 @@ class TracksController extends Controller
      */
     public function create()
     {
-        $this->fieldData->getFieldItemsAPI();
-
         $genre = $this->getTrackData()->getGenrePaginationData();
 
         ## FOR GENRE API META-BOX
@@ -136,8 +134,6 @@ class TracksController extends Controller
      */
     public function edit(string $slug)
     {
-        $this->fieldData->getFieldItemsAPI();
-
         $track = $this->getTrackData()->selectWithConditionFromTrack($this->getTrackData()->getTrackColumnsForAdminCreate(), 'track_slug = ?', [$slug]);
         if (!is_object($track)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);

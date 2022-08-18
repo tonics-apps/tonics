@@ -515,7 +515,8 @@ HTML;
 
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
-            $fieldTableSlugsInEditor = url()->getHeaderByKey('fieldTableSlugsInEditor');
+            $preview = json_decode(url()->getEntityBody());
+            $fieldTableSlugsInEditor = (isset($preview->fieldTableSlugsInEditor)) ? $preview->fieldTableSlugsInEditor : '';
         }
 
         if (!$fieldTableSlugsInEditor) {
@@ -549,7 +550,7 @@ SQL;
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
             $previewFrag = '';
-            $fieldPostDataInEditor = url()->getHeaderByKey('fieldPostDataInEditor');
+            $fieldPostDataInEditor = (isset($preview->fieldPostDataInEditor)) ? $preview->fieldPostDataInEditor : null;
             $postDataInstance = json_decode($fieldPostDataInEditor, true) ?? [];
             addToGlobalVariable('Data', $postDataInstance);
             foreach ($fieldItemsByMainFieldSlug as $fields) {
@@ -610,10 +611,9 @@ SQL;
     /**
      * @throws \Exception
      */
-    public function handleFieldPreviewOrEditorMode($fieldSettings, string $contentKey)
+    public function handleEditorMode($fieldSettings, string $contentKey)
     {
-        $mode = (url()->getHeaderByKey('action') === 'fieldPreviewFromEditor') ? FieldData::UNWRAP_FIELD_CONTENT_PREVIEW_MODE : FieldData::UNWRAP_FIELD_CONTENT_EDITOR_MODE;
-        $this->unwrapFieldContent($fieldSettings, $mode, $contentKey);
+        $this->unwrapFieldContent($fieldSettings, FieldData::UNWRAP_FIELD_CONTENT_EDITOR_MODE, $contentKey);
         return $fieldSettings;
     }
 

@@ -123,6 +123,15 @@ class FieldControllerItems extends Controller
     }
 
     /**
+     * @throws \Exception
+     */
+    public function fieldPreview()
+    {
+        $null = null;
+        $this->getFieldData()->unwrapFieldContent($null, FieldData::UNWRAP_FIELD_CONTENT_PREVIEW_MODE);
+    }
+
+    /**
      * @return FieldData
      */
     public function getFieldData(): FieldData

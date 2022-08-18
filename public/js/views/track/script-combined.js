@@ -4869,13 +4869,14 @@ function addTiny(editorID) {
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
                             let dataToSend = {
-                                action: 'fieldPreviewFromEditor',
                                 fieldPostDataInEditor: JSON.stringify(OnBeforeTonicsFieldPreview.getPostData()),
                                 fieldTableSlugsInEditor: JSON.stringify(getFieldSlugsTable(tabContainer)),
                             };
-                            let url = window.location.href + "?action=fieldPreviewFromEditor";
-
-                            new XHRApi({...{}, ...dataToSend}).Get(url, function (err, data) {
+                            let url = "/admin/tools/field/field-preview";
+                            let defaultHeader = {
+                                'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+                            };
+                            new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
                                 if (data) {
                                     data = JSON.parse(data);
                                     if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
@@ -4884,7 +4885,6 @@ function addTiny(editorID) {
                                     }
                                 }
                             });
-
                         }
                     }
 

@@ -35,7 +35,8 @@
     "devsrealm/tonics-router-system": "*",
     "devsrealm/tonics-event-system": "*",
     "devsrealm/tonics-container": "*",
-    "devsrealm/tonics-helpers": "*"
+    "devsrealm/tonics-helpers": "*",
+    "genkgo/mail": "dev-master"
   },
   "repositories": [
     {

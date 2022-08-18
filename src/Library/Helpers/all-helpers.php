@@ -11,6 +11,7 @@
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
 use App\Modules\Core\Library\MyPDO;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
@@ -144,6 +145,14 @@ function db(): MyPDO
 function templateEngines(): TonicsTemplateEngines
 {
     return AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
+}
+
+/**
+ * @throws Exception
+ */
+function job(): JobEventDispatcher
+{
+    return AppConfig::initLoaderOthers()::getJobEventDispatcher();
 }
 
 /**
