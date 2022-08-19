@@ -173,6 +173,10 @@ class AppConfig
      */
     public static function autoResolvePageRoutes(string $controller, Route $route)
     {
+        if (helper()->isCLI()){
+            return $route;
+        }
+
         $pageTable = Tables::getTable(Tables::PAGES);
         try {
             $pages = db()->run("SELECT * FROM $pageTable");
