@@ -12,6 +12,7 @@ namespace App\Modules\Core\Controllers\Auth;
 
 use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\Validation\RulePlugins\ValidateUser;
 use App\Modules\Core\Validation\Traits\Validator;

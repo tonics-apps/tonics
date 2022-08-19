@@ -19,15 +19,18 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventDispatcherInterface;
  *
  * <br>
  * The way the `JobEventDispatcher` works is you first enqueue a possible job you are planning to dispatch,
- * then depending on whether the transporter is async or sync, the object is then dispatched to handlers that want to handle the event
+ * then depending on whether the transporter is async or sync, the object is then dispatched to handlers that want to handle the event.
+ *
+ * If async, you call them with a worker or directly if you prefer...
  *
  */
 class JobEventDispatcher implements EventDispatcherInterface
 {
 
-    private array $transporters = [];
     private string $transporterName = '';
     private object|null $transporter = null;
+
+    private OnAddJobTransporter $onAddJobTransporter;
 
     /**
      * @throws \Exception
@@ -35,24 +38,20 @@ class JobEventDispatcher implements EventDispatcherInterface
     public function __construct(string $transporterName = '')
     {
         $this->transporterName = $transporterName;
-        $transporters = $this->setTransport($transporterName);
-        $this->transporters = $transporters->getTransporters();
+        $this->onAddJobTransporter = event()->dispatch(new OnAddJobTransporter())->event();
+        $this->setTransport($transporterName);
     }
 
     /**
      * @param string $transporterName
-     * @return object
      * @throws \Exception
      */
-    public function setTransport(string $transporterName): OnAddJobTransporter
+    public function setTransport(string $transporterName): void
     {
-        $transporters = event()->dispatch(new OnAddJobTransporter());
-        if ($transporters->exist($transporterName)){
+        if ($this->getOnAddJobTransporter()->exist($transporterName)){
             $this->transporterName = $transporterName;
-            $this->transporter = $transporters->getTransporter($transporterName);
+            $this->transporter = $this->getOnAddJobTransporter()->getTransporter($transporterName);
         }
-
-        return $transporters;
     }
 
     public function enqueue(object $event): void
@@ -71,16 +70,18 @@ class JobEventDispatcher implements EventDispatcherInterface
 
     /**
      * @return object
+     * @throws \Exception
      */
-    public function getTransporter(): EventDispatcherInterface&TransporterInterface
+    private function getTransporter(): EventDispatcherInterface&TransporterInterface
     {
+        $this->setTransport($this->transporterName);
         return $this->transporter;
     }
 
     /**
      * @param EventDispatcherInterface&TransporterInterface $transporter
      */
-    public function setTransporter(EventDispatcherInterface&TransporterInterface $transporter): void
+    private function setTransporter(EventDispatcherInterface&TransporterInterface $transporter): void
     {
         $this->transporter = $transporter;
     }
@@ -102,18 +103,20 @@ class JobEventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @return array
+     * @return OnAddJobTransporter
      */
-    public function getTransporters(): array
+    private function getOnAddJobTransporter(): OnAddJobTransporter
     {
-        return $this->transporters;
+        return $this->onAddJobTransporter;
     }
 
     /**
-     * @param array $transporters
+     * @param OnAddJobTransporter $onAddJobTransporter
      */
-    public function setTransporters(array $transporters): void
+    private function setOnAddJobTransporter(OnAddJobTransporter $onAddJobTransporter): void
     {
-        $this->transporters = $transporters;
+        $this->onAddJobTransporter = $onAddJobTransporter;
     }
+
+
 }

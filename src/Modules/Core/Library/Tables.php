@@ -42,6 +42,11 @@ final class Tables
         self::WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
         self::DRIVE_SYSTEM => ['drive_id', 'drive_parent_id', 'drive_unique_id', 'drive_name', 'filename', '`type`', 'status', 'properties', '`security`'],
         self::DRIVE_BLOB_COLLATOR => [ 'id', 'hash_id', 'blob_name', 'blob_chunk_part', 'blob_chunk_size', 'live_blob_chunk_size', 'missing_blob_chunk_byte', 'moreBlobInfo'],
+
+        self::SCHEDULER => [ 'schedule_id', 'schedule_priority', 'schedule_data', 'schedule_ticks', 'schedule_every', 'schedule_next_run', 'created_at', 'updated_at'],
+
+        self::JOBS => [ 'job_id', 'job_group_id', 'job_status', 'job_priority', 'job_data', 'created_at', 'updated_at', 'time_completed'],
+        self::JOBS_PROGRESS => [ 'job_progress_id', 'job_group_id', 'job_progress_chunked'],
     ];
 
     const ARTISTS = 'artists';
@@ -76,6 +81,11 @@ final class Tables
     const WIDGET_ITEMS = 'widget_items';
     const WIDGETS = 'widgets';
     const WISH_LIST = 'wish_list';
+
+    const SCHEDULER = 'scheduler';
+
+    const JOBS = 'jobs';
+    const JOBS_PROGRESS = 'jobs_progress';
 
     const DRIVE_SYSTEM = 'drive_system';
     // Backward Compatibility

@@ -59,6 +59,7 @@ class ScheduleManager implements ConsoleCommand
 
     /**
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function run(array $commandOptions): void
     {

@@ -12,6 +12,7 @@ namespace App;
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
@@ -114,11 +115,17 @@ class InitLoader
         return $this->eventDispatcher;
     }
 
-    public static function getJobEventDispatcher(): JobEventDispatcher
+    /**
+     * @param string $transporterName
+     * @return JobEventDispatcher
+     * @throws Exception
+     */
+    public static function getJobEventDispatcher(string $transporterName): JobEventDispatcher
     {
         if (!self::$jobEventDispatcher) {
-            self::$jobEventDispatcher = new JobEventDispatcher();
+            self::$jobEventDispatcher = new JobEventDispatcher($transporterName);
         }
+        self::$jobEventDispatcher->setTransporterName($transporterName);
         return self::$jobEventDispatcher;
     }
 

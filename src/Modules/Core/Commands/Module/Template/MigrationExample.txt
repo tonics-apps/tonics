@@ -5,7 +5,8 @@
 
 namespace App\Modules\{{ModuleName}}\Database\Migrations;
 
-use App\Library\Migration;
+use App\Modules\Core\Library\Migration;
+use App\Modules\Core\Library\Tables;
 
 class {{MigrationName}} extends Migration {
 

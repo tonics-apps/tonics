@@ -212,6 +212,11 @@ class AppConfig
         return env('APP_NAME', 'Tonics');
     }
 
+    public static function getJobTransporter(): string
+    {
+        return env('JOB_TRANSPORTER', 'DATABASE');
+    }
+
     /**
      * Without a cache prefix, multiple sites on the same server might reference each other's cache (which is a bad idea)
      * @return string

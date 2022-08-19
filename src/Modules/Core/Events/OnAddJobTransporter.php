@@ -27,7 +27,7 @@ class OnAddJobTransporter implements EventInterface
 
     public function addJobTransporter(TransporterInterface&EventDispatcherInterface $transporter): static
     {
-        $this->transporters[$transporter->name()] = $transporter;
+        $this->transporters[strtolower($transporter->name())] = $transporter;
         return $this;
     }
 
@@ -41,14 +41,16 @@ class OnAddJobTransporter implements EventInterface
 
     public function exist(string $name): bool
     {
+        $name = strtolower($name);
         return isset($this->transporters[$name]);
     }
 
     /**
      * @throws \Exception
      */
-    public function getTransporter(string $name): TonicsView
+    public function getTransporter(string $name): mixed
     {
+        $name = strtolower($name);
         if (isset($this->transporters[$name])){
             return $this->transporters[$name];
         }

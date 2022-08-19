@@ -9,6 +9,7 @@
  */
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
@@ -150,9 +151,12 @@ function templateEngines(): TonicsTemplateEngines
 /**
  * @throws Exception
  */
-function job(): JobEventDispatcher
+function job(string $transporterName = ''): JobEventDispatcher
 {
-    return AppConfig::initLoaderOthers()::getJobEventDispatcher();
+    if (!$transporterName){
+        $transporterName = AppConfig::getJobTransporter();
+    }
+    return AppConfig::initLoaderOthers()::getJobEventDispatcher($transporterName);
 }
 
 /**
