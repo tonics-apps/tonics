@@ -58,9 +58,10 @@ class FieldFileHandler implements HandlerInterface
 
         $handlersFrag = '';
         foreach ($handlers as $handler){
-            if ($handler instanceof FieldTemplateFileInterface){
-                $class = $handler::class;
+            if (helper()->classImplements($handler, [FieldTemplateFileInterface::class])){
+                $class = $handler;
                 $handlerSelected = ($templateFile === $class) ? 'selected': '';
+                $handler = new $handler;
                 $handlersFrag .=<<<HTML
 <option value="$class" $handlerSelected>{$handler->name()}</option>
 HTML;

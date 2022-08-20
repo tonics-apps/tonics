@@ -13,6 +13,8 @@ namespace App\Modules\Core\Schedules;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\Database;
+use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
+use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
@@ -41,13 +43,26 @@ class JobManager extends AbstractSchedulerInterface implements ScheduleHandlerIn
     public function handle(): void
     {
         while (true){
-            $jobs = $this->getQueueJobs();
+            $db = (new Database())->createNewDatabaseInstance();
+            $table = Tables::getTable(Tables::JOBS);
+            $jobs = $db->run("SELECT * FROM $table WHERE job_status = 'queue' ORDER BY job_priority DESC LIMIT ? FOR UPDATE", AppConfig::getJobLimit());
             foreach ($jobs as $job){
-                $jobData = json_decode($job->job_data);
-                // $jobClass =
+                $this->handleJob($job);
             }
         }
-        $this->infoMessage($this->getName());
+    }
+
+    public function handleJob($job)
+    {
+        $jobData = json_decode($job->job_data);
+        if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class)){
+            /** @var AbstractJobInterface $jobObject */
+            $jobObject = new $jobData->class;
+            $jobObject->setData($jobData->data ?? []);
+            if ($jobObject instanceof JobHandlerInterface){
+                $jobObject->handle();
+            }
+        }
     }
 
     /**
