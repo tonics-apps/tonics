@@ -19,6 +19,7 @@ use App\Modules\Core\Schedules\DiscoverUpdates;
 use App\Modules\Core\Schedules\JobManager;
 use App\Modules\Core\Schedules\PurgeOldSession;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
+use Devsrealm\TonicsHelpers\TonicsHelpers;
 
 /**
  * The ScheduleManager is nothing more than a class that encapsulate a specific set of commands that should be run on schedule,
@@ -35,7 +36,7 @@ class ScheduleManager implements ConsoleCommand
 {
     use ConsoleColor;
 
-    private $helper = null;
+    private TonicsHelpers|null $helper = null;
 
     public function required(): array
     {
@@ -54,8 +55,7 @@ class ScheduleManager implements ConsoleCommand
         $this->helper = helper();
         $this->coreSchedules();
         if ($commandOptions['--run'] === 'work'){
-            $this->successMessage('Scheduled work mode ON');
-            $this->infoMessage('Listening to new scheduled events');
+            $this->successMessage('Scheduled work mode ON, started with a memory of ' . $this->helper->formatBytes(memory_get_usage()));
             $this->startWorkingSchedule();
         }
     }
@@ -86,17 +86,24 @@ class ScheduleManager implements ConsoleCommand
 
     public function startWorkingSchedule()
     {
-        $this->getNextScheduledEvent();
-        while (true){
-            $this->infoMessage('Schedule...' . $this->helper->formatBytes(memory_get_usage()));
-            sleep(1);
+        try {
+            $categories = $this->getNextScheduledEvent();
+            while (true){
+                foreach ($categories as $category){
+
+                }
+                sleep(1);
+            }
+        } catch (\Exception $exception){
+            $this->errorMessage($exception->getMessage());
+            $this->errorMessage($exception->getTraceAsString());
         }
     }
 
     /**
      * @throws \Exception
      */
-    public function getNextScheduledEvent()
+    public function getNextScheduledEvent(): array
     {
         $table = Tables::getTable(Tables::SCHEDULER);
         $data = db()->run("
@@ -111,6 +118,9 @@ class ScheduleManager implements ConsoleCommand
         ");
 
         $categories = $this->helper->generateTree(['parent_id' => 'schedule_parent_name', 'id' => 'schedule_name'], $data);
-        dd($categories);
+        usort($categories, function ($id1, $id2) {
+            return $id1->schedule_priority < $id2->schedule_priority;
+        });
+        return $categories;
     }
 }

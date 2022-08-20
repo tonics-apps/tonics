@@ -11,6 +11,7 @@
 namespace App\Modules\Core\Commands\Module;
 
 use App\Modules\Core\Library\ConsoleColor;
+use App\Modules\Core\Library\Database;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
 /**
@@ -37,24 +38,21 @@ class ModuleMakeMigration implements ConsoleCommand
      */
     public function run(array $commandOptions): void
     {
-
-
-/*        for ($i = 1; $i <=10; ++$i){
-            $pid = pcntl_fork();
-            if($pid == 0){
-                # Avoids Closing Connection When Child Exist, this way we prevent a connection, e.g. db from closing abruptly
-                # If we did not do this, then it means when one forked process closes the db, it closes the rest, why? because the forked
-                # processes would share the same resources, so what the below does is tell the child process to kill itself before exit
-                register_shutdown_function(function(){
-                    posix_kill(getmypid(), SIGKILL);
-                });
-                exit();
-            }
-
-            print "in child " . $i . ' with db ' . db()->row("SELECT post_id FROM tonics_posts order by post_id asc limit 1 FOR UPDATE SKIP LOCKED;")->post_id . "\n";
-
-        }
-        exit();*/
+        $helper = helper();
+        $helper->fork(10,
+            onChild: function ($pID){
+            $db = (new Database())->createNewDatabaseInstance();
+            print "in child " . $pID . ' with db ' . $db->row("SELECT post_id FROM tonics_posts order by post_id asc limit 1 FOR UPDATE SKIP LOCKED;")->post_id . "\n";
+            exit;
+        }, beforeOnChild: function (){
+                sleep(0.3);
+        },
+            onChildError: null,
+            onForkError: null,
+            onFinished: function (){
+            print "All forked processes completed";
+        });
+        exit();
 
 
         $s = DIRECTORY_SEPARATOR; $module = ucfirst(strtolower($commandOptions['--module']));
