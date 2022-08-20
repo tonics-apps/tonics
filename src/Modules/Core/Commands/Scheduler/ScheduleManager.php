@@ -13,6 +13,8 @@ namespace App\Modules\Core\Commands\Scheduler;
 use App\Modules\Core\Commands\UpdateMechanism\AutoUpdate;
 use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Library\ConsoleColor;
+use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
+use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Schedules\AutoUpdates;
 use App\Modules\Core\Schedules\DiscoverUpdates;
@@ -20,6 +22,7 @@ use App\Modules\Core\Schedules\JobManager;
 use App\Modules\Core\Schedules\PurgeOldSession;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
+use Throwable;
 
 /**
  * The ScheduleManager is nothing more than a class that encapsulate a specific set of commands that should be run on schedule,
@@ -91,10 +94,29 @@ class ScheduleManager implements ConsoleCommand
             while (true){
                 foreach ($categories as $category){
 
+                    if (isset($category->_children)){
+
+                    }
+
+                    $scheduleClass = json_decode($category->schedule_data);
+                    if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])){
+                        dd(new $scheduleClass, $category);
+                    }
+
+                    exit();
+                    $this->helper->fork(
+                        $category->schedule_parallel,
+                        onChild: function () use ($category){
+                            $scheduleClass = json_decode($category->schedule_data);
+                            dd($scheduleClass);
+                            exit();
+                        }
+                    );
                 }
                 sleep(1);
             }
-        } catch (\Exception $exception){
+            // catch most exception or error...
+        } catch (Throwable $exception){
             $this->errorMessage($exception->getMessage());
             $this->errorMessage($exception->getTraceAsString());
         }
@@ -122,5 +144,10 @@ class ScheduleManager implements ConsoleCommand
             return $id1->schedule_priority < $id2->schedule_priority;
         });
         return $categories;
+    }
+
+    public function recursivelyCollateScheduleObject($category, AbstractSchedulerInterface $parent = null)
+    {
+        
     }
 }
