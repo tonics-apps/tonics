@@ -87,74 +87,16 @@ class ScheduleManager implements ConsoleCommand
         }
     }
 
-    public function startWorkingSchedule()
-    {
-        try {
-            $categories = $this->getNextScheduledEvent();
-            while (true){
-                foreach ($categories as $category){
-
-                    if (isset($category->_children)){
-
-                    }
-
-                    $scheduleClass = json_decode($category->schedule_data);
-                    if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])){
-                        dd(new $scheduleClass, $category);
-                    }
-
-                    exit();
-                    $this->helper->fork(
-                        $category->schedule_parallel,
-                        onChild: function () use ($category){
-                            $scheduleClass = json_decode($category->schedule_data);
-                            dd($scheduleClass);
-                            exit();
-                        }
-                    );
-                }
-                sleep(1);
-            }
-            // catch most exception or error...
-        } catch (Throwable $exception){
-            $this->errorMessage($exception->getMessage());
-            $this->errorMessage($exception->getTraceAsString());
-        }
-    }
-
     /**
      * @throws \Exception
      */
-    public function getNextScheduledEvent(): array
+    public function startWorkingSchedule()
     {
-        $table = Tables::getTable(Tables::SCHEDULER);
-        $data = db()->run("
-        WITH RECURSIVE scheduler_recursive AS 
-	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_ticks_max, schedule_next_run
-      FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run
-      UNION ALL
-      SELECT tsf.schedule_id, tsf.schedule_name, tsf.schedule_parent_name, tsf.schedule_priority, tsf.schedule_parallel, tsf.schedule_data, tsf.schedule_ticks, tsf.schedule_ticks_max, tsf.schedule_next_run
-      FROM $table as tsf JOIN scheduler_recursive as ts ON ts.schedule_name = tsf.schedule_parent_name
-      ) 
-     SELECT * FROM scheduler_recursive;
-        ");
-
-        $categories = $this->helper->generateTree(['parent_id' => 'schedule_parent_name', 'id' => 'schedule_name'], $data);
-        usort($categories, function ($id1, $id2) {
-            return $id1->schedule_priority < $id2->schedule_priority;
-        });
-        return $categories;
-    }
-
-    public function recursivelyCollateScheduleObject($categories, AbstractSchedulerInterface $parent = null)
-    {
-        foreach ($categories as $category){
-            $scheduleClass = json_decode($category->schedule_data);
-            if ($this->helper->classImplements($scheduleClass, [AbstractSchedulerInterface::class])){
-                $scheduleObject = new $scheduleClass;
-                /** @var $scheduleObject AbstractSchedulerInterface */
-                $scheduleObject->setParent($parent);
-            }
+        try {
+            schedule()->runSchedule();
+        }catch (Throwable $exception){ // catch most exception or error...
+            $this->errorMessage($exception->getMessage());
+            $this->errorMessage($exception->getTraceAsString());
         }
     }
 }

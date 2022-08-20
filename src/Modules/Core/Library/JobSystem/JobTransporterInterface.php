@@ -30,4 +30,9 @@ interface JobTransporterInterface
      */
     public function isStatic(): bool;
 
+    /**
+     * @return void
+     */
+    public function runJob(): void;
+
 }

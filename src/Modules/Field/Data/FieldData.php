@@ -473,7 +473,7 @@ HTML;
                 $json = json_decode($item->field_options, true) ?? [];
                 if (isset($item->fk_field_id) && is_string($item->fk_field_id)) {
                     if (!isset($fieldNameToID[$item->fk_field_id])) {
-                        db()->delete($fieldTable, ['field_slug' => helper()->slug($item->fk_field_id, '_')]);
+                        db()->delete($fieldTable, ['field_slug' => helper()->slug($item->fk_field_id, '-')]);
                         $field = db()->insertReturning($fieldTable, ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id']);
                         if (isset($field->field_id)) {
                             $fieldNameToID[$item->fk_field_id] = $field->field_id;

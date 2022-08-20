@@ -15,7 +15,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
+use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use Devsrealm\TonicsContainer\Container;
@@ -36,7 +36,7 @@ class InitLoader
     private TonicsView $tonicsView;
     private TonicsTemplateEngines $tonicsTemplateEngines;
     private EventDispatcher $eventDispatcher;
-    private static ?JobEventDispatcher $jobEventDispatcher = null;
+    private static ?Job $jobEventDispatcher = null;
     private static ?Scheduler $scheduler = null;
 
     private static bool $eventStreamAsHTML = false;
@@ -119,13 +119,13 @@ class InitLoader
 
     /**
      * @param string $transporterName
-     * @return JobEventDispatcher
+     * @return Job
      * @throws Exception
      */
-    public static function getJobEventDispatcher(string $transporterName): JobEventDispatcher
+    public static function getJobEventDispatcher(string $transporterName): Job
     {
         if (!self::$jobEventDispatcher) {
-            self::$jobEventDispatcher = new JobEventDispatcher($transporterName);
+            self::$jobEventDispatcher = new Job($transporterName);
         }
         self::$jobEventDispatcher->setTransporterName($transporterName);
         return self::$jobEventDispatcher;

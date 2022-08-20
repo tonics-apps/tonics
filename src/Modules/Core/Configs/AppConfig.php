@@ -17,7 +17,7 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
-use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
+use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsContainer\Container;
@@ -219,6 +219,16 @@ class AppConfig
     public static function getJobTransporter(): string
     {
         return env('JOB_TRANSPORTER', 'DATABASE');
+    }
+
+    public static function getJobSync(): bool
+    {
+        return (bool)env('JOB_SYNC', true);
+    }
+
+    public static function getJobLimit(): int
+    {
+        return (int)env('JOB_LIMIT', 10);
     }
 
     public static function getSchedulerTransporter(): string

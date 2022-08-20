@@ -24,7 +24,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventDispatcherInterface;
  * If async, you call them with a worker or directly if you prefer...
  *
  */
-class JobEventDispatcher implements EventDispatcherInterface
+class Job
 {
 
     private string $transporterName = '';
@@ -58,14 +58,13 @@ class JobEventDispatcher implements EventDispatcherInterface
     {
         $this->transporter->enqueue($event);
         if ($this->transporter->isStatic()){
-            $this->dispatch($event);
+            $this->runJob();
         }
     }
 
-    public function dispatch(object $event): object
+    public function runJob(): void
     {
-        $this->transporter->dispatch($event);
-        return $event;
+        $this->transporter->runJob();
     }
 
     /**

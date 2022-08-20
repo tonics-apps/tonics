@@ -140,11 +140,12 @@ FORM;
         if (isset(event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class])){
             $handlers = event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class];
         }
+
         $handlers = (!is_array($handlers)) ? []: $handlers;
         $valid = false;
         foreach ($handlers as $handler){
-            if (is_string($templateFile) && $templateFile === $handler::class){
-                $templateFile = $handler;
+            if (is_string($templateFile) && $templateFile === $handler){
+                $templateFile = new $handler;
                 $valid = true;
                 break;
             }

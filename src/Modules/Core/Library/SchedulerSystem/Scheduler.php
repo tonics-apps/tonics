@@ -52,6 +52,11 @@ class Scheduler
         $this->transporter->enqueue($event);
     }
 
+    public function runSchedule(): void
+    {
+        $this->transporter->runSchedule();
+    }
+
     /**
      * A second by default, to add 5 seconds, pass 5
      * @param int|null $second

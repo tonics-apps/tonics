@@ -31,10 +31,12 @@ class AbstractSchedulerInterface
 
     /**
      * @param string $name
+     * @return AbstractSchedulerInterface
      */
-    public function setName(string $name): void
+    public function setName(string $name): AbstractSchedulerInterface
     {
         $this->name = $name;
+        return $this;
     }
 
     public function chainsEmpty(): bool
@@ -52,10 +54,12 @@ class AbstractSchedulerInterface
 
     /**
      * @param int $priority
+     * @return AbstractSchedulerInterface
      */
-    public function setPriority(int $priority): void
+    public function setPriority(int $priority): AbstractSchedulerInterface
     {
         $this->priority = $priority;
+        return $this;
     }
 
     /**
@@ -68,10 +72,12 @@ class AbstractSchedulerInterface
 
     /**
      * @param int|null $maxTicks
+     * @return AbstractSchedulerInterface
      */
-    public function setMaxTicks(?int $maxTicks): void
+    public function setMaxTicks(?int $maxTicks): AbstractSchedulerInterface
     {
         $this->maxTicks = $maxTicks;
+        return $this;
     }
 
     /**
@@ -84,10 +90,12 @@ class AbstractSchedulerInterface
 
     /**
      * @param int $parallel
+     * @return AbstractSchedulerInterface
      */
-    public function setParallel(int $parallel): void
+    public function setParallel(int $parallel): AbstractSchedulerInterface
     {
         $this->parallel = $parallel;
+        return $this;
     }
 
     /**
@@ -100,10 +108,12 @@ class AbstractSchedulerInterface
 
     /**
      * @param array $chains
+     * @return AbstractSchedulerInterface
      */
-    public function setChains(array $chains): void
+    public function setChains(array $chains): AbstractSchedulerInterface
     {
         $this->chains = $chains;
+        return $this;
     }
 
     /**
@@ -116,10 +126,12 @@ class AbstractSchedulerInterface
 
     /**
      * @param int $every
+     * @return AbstractSchedulerInterface
      */
-    public function setEvery(int $every): void
+    public function setEvery(int $every): AbstractSchedulerInterface
     {
         $this->every = $every;
+        return $this;
     }
 
     /**
@@ -132,10 +144,12 @@ class AbstractSchedulerInterface
 
     /**
      * @param AbstractSchedulerInterface|null $parent
+     * @return AbstractSchedulerInterface
      */
-    public function setParent(?AbstractSchedulerInterface $parent): void
+    public function setParent(?AbstractSchedulerInterface $parent): AbstractSchedulerInterface
     {
         $this->parent = $parent;
+        return $this;
     }
 
 }

@@ -10,11 +10,7 @@
 
 namespace App\Modules\Core\Library\JobSystem;
 
-interface JobInterface
+interface JobHandlerInterface
 {
-    public function name(): string;
-
-    public function groupName(): string;
-
-    public function priority(): int;
+    public function handle(): void;
 }

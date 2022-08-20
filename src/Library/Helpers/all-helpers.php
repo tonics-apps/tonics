@@ -12,7 +12,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
+use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use Devsrealm\TonicsContainer\Container;
@@ -152,7 +152,7 @@ function templateEngines(): TonicsTemplateEngines
 /**
  * @throws Exception
  */
-function job(string $transporterName = ''): JobEventDispatcher
+function job(string $transporterName = ''): Job
 {
     if (!$transporterName){
         $transporterName = AppConfig::getJobTransporter();
