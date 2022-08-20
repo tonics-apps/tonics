@@ -146,8 +146,15 @@ class ScheduleManager implements ConsoleCommand
         return $categories;
     }
 
-    public function recursivelyCollateScheduleObject($category, AbstractSchedulerInterface $parent = null)
+    public function recursivelyCollateScheduleObject($categories, AbstractSchedulerInterface $parent = null)
     {
-        
+        foreach ($categories as $category){
+            $scheduleClass = json_decode($category->schedule_data);
+            if ($this->helper->classImplements($scheduleClass, [AbstractSchedulerInterface::class])){
+                $scheduleObject = new $scheduleClass;
+                /** @var $scheduleObject AbstractSchedulerInterface */
+                $scheduleObject->setParent($parent);
+            }
+        }
     }
 }
