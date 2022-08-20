@@ -14,11 +14,13 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\EventHandlers\DefaultEditorsAsset;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
+use App\Modules\Core\EventHandlers\SchedulerTransporter\DatabaseSchedulerTransporter;
 use App\Modules\Core\EventHandlers\TemplateEngines\DeactivateCombiningFilesInProduction;
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeTemplateEngine;
 use App\Modules\Core\EventHandlers\TemplateEngines\WordPressTemplateEngine;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Core\Events\OnAddJobTransporter;
+use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\BeforeCombineModeOperation;
@@ -47,6 +49,10 @@ class CoreActivator implements ExtensionConfig
 
             OnAddJobTransporter::class => [
                 DatabaseJobTransporter::class
+            ],
+
+            OnAddSchedulerTransporter::class => [
+                DatabaseSchedulerTransporter::class
             ],
 
             OnAdminMenu::class => [

@@ -45,6 +45,7 @@ class PreInstallerManager implements ConsoleCommand
 
     /**
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function run(array $commandOptions): void
     {
@@ -83,7 +84,6 @@ class PreInstallerManager implements ConsoleCommand
     {
         return \container()->resolveMany([
             SetEnvironmentalKey::class,
-            // SetEnvironmentalPepper::class,  <- No Longer Needed
             MigrateAll::class,
             UpdateLocalDriveFilesInDb::class
         ]);

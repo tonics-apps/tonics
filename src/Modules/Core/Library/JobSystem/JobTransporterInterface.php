@@ -10,7 +10,7 @@
 
 namespace App\Modules\Core\Library\JobSystem;
 
-interface TransporterInterface
+interface JobTransporterInterface
 {
     /**
      * Transporters Name

@@ -11,11 +11,11 @@
 namespace App\Modules\Core\EventHandlers\JobTransporter;
 
 use App\Modules\Core\Events\OnAddJobTransporter;
-use App\Modules\Core\Library\JobSystem\TransporterInterface;
+use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventDispatcherInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class DatabaseJobTransporter implements TransporterInterface, EventDispatcherInterface, HandlerInterface
+class DatabaseJobTransporter implements JobTransporterInterface, EventDispatcherInterface, HandlerInterface
 {
 
     /**

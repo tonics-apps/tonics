@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`cat_id`),
   KEY `cat_parent_id_foreign` (`cat_parent_id`),
-  CONSTRAINT `cat_parent_id_foreign` FOREIGN KEY (`cat_parent_id`) REFERENCES `{$this->tableName()}` (`cat_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `cat_parent_id_foreign` FOREIGN KEY (`cat_parent_id`) REFERENCES `{$this->tableName()}` (`cat_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
     }

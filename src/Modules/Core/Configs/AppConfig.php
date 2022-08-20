@@ -171,7 +171,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function autoResolvePageRoutes(string $controller, Route $route)
+    public static function autoResolvePageRoutes(string $controller, Route $route): Route
     {
         if (helper()->isCLI()){
             return $route;
@@ -219,6 +219,11 @@ class AppConfig
     public static function getJobTransporter(): string
     {
         return env('JOB_TRANSPORTER', 'DATABASE');
+    }
+
+    public static function getSchedulerTransporter(): string
+    {
+        return env('SCHEDULE_TRANSPORTER', 'DATABASE');
     }
 
     /**

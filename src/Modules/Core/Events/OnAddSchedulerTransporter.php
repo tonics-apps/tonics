@@ -10,14 +10,12 @@
 
 namespace App\Modules\Core\Events;
 
-use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
+use App\Modules\Core\Library\SchedulerSystem\SchedulerTransporterInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventDispatcherInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 
-class OnAddJobTransporter implements EventInterface
+class OnAddSchedulerTransporter implements EventInterface
 {
-
     private array $transporters = [];
 
     public function event(): static
@@ -25,7 +23,7 @@ class OnAddJobTransporter implements EventInterface
         return $this;
     }
 
-    public function addJobTransporter(JobTransporterInterface&EventDispatcherInterface $transporter): static
+    public function addSchedulerTransporter(SchedulerTransporterInterface $transporter): static
     {
         $this->transporters[strtolower($transporter->name())] = $transporter;
         return $this;

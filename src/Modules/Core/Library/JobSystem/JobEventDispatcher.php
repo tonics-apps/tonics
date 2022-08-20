@@ -72,16 +72,15 @@ class JobEventDispatcher implements EventDispatcherInterface
      * @return object
      * @throws \Exception
      */
-    private function getTransporter(): EventDispatcherInterface&TransporterInterface
+    private function getTransporter(): EventDispatcherInterface&JobTransporterInterface
     {
-        $this->setTransport($this->transporterName);
         return $this->transporter;
     }
 
     /**
-     * @param EventDispatcherInterface&TransporterInterface $transporter
+     * @param EventDispatcherInterface&JobTransporterInterface $transporter
      */
-    private function setTransporter(EventDispatcherInterface&TransporterInterface $transporter): void
+    private function setTransporter(EventDispatcherInterface&JobTransporterInterface $transporter): void
     {
         $this->transporter = $transporter;
     }

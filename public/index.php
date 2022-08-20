@@ -28,5 +28,9 @@ if (AppConfig::isProduction() === false){
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING
 #-------------------------------------------
-AppConfig::initLoaderMinimal(false)->init();
-AppConfig::initLoaderOthers(false)->BootDaBoot();
+try {
+    AppConfig::initLoaderMinimal()->init();
+    AppConfig::initLoaderOthers()->BootDaBoot();
+} catch (Exception $e) {
+    // log...
+}

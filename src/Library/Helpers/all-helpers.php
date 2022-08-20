@@ -14,6 +14,7 @@ use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\JobSystem\JobEventDispatcher;
 use App\Modules\Core\Library\MyPDO;
+use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
@@ -157,6 +158,17 @@ function job(string $transporterName = ''): JobEventDispatcher
         $transporterName = AppConfig::getJobTransporter();
     }
     return AppConfig::initLoaderOthers()::getJobEventDispatcher($transporterName);
+}
+
+/**
+ * @throws Exception
+ */
+function schedule(string $transporterName = ''): Scheduler
+{
+    if (!$transporterName){
+        $transporterName = AppConfig::getSchedulerTransporter();
+    }
+    return AppConfig::initLoaderOthers()::getScheduler($transporterName);
 }
 
 /**

@@ -13,34 +13,20 @@ namespace App\Modules\Core\Commands\Scheduler;
 use App\Modules\Core\Commands\UpdateMechanism\AutoUpdate;
 use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Library\ConsoleColor;
+use App\Modules\Core\Library\Tables;
+use App\Modules\Core\Schedules\AutoUpdates;
+use App\Modules\Core\Schedules\DiscoverUpdates;
+use App\Modules\Core\Schedules\JobManager;
+use App\Modules\Core\Schedules\PurgeOldSession;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
 /**
  * The ScheduleManager is nothing more than a class that encapsulate a specific set of commands that should be run on schedule,
- * for example, a schedule command that cleans up log, deletes inactive users, etc. Each subset of this command should also...
- * implements the ConsoleCommand Interface.
+ * for example, a schedule command can update, cleans up log, deletes inactive users, etc.
  *
- * <br>
- * Note: It is not like the ScheduleManager is responsible for scheduling the commands, you'll still have to schedule the command in systemD or CronJob.
- * The only thing the ScheduleManager Class does is to register the commands and control how they are executed in order.
- * For example, if you have a scheduleCommand with a signature of "send:email", then you can call it in cron or systemD like so:
+ * RUN: `php bin/console --run --schedule` to enqueue the schedule events
  *
- * <code>
- * php bin/console --run --schedule=send:email
- * </code>
- *
- *  <br>
- * or you can run everything at once using:
- *
- * <br>
- *
- * <code>
- * php bin/console --run --schedule
- * </code>
- *
- * <br>
- * Tip: It is preferable not to run every schedule command at once since they would process synchronously,
- * the best way is to add them one at a time in cron!
+ * RUN:  `php bin/console --run=work --schedule` to enqueue and start working on all scheduled events
  *
  * Class ScheduleManager
  * @package App\Commands\Scheduler
@@ -48,6 +34,8 @@ use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 class ScheduleManager implements ConsoleCommand
 {
     use ConsoleColor;
+
+    private $helper = null;
 
     public function required(): array
     {
@@ -63,39 +51,66 @@ class ScheduleManager implements ConsoleCommand
      */
     public function run(array $commandOptions): void
     {
-        $registrars = $this->registerToBeScheduled();
-        foreach ($registrars as $registrar) {
-            $this->infoMessage("running {$commandOptions['--schedule']} in schedule");
-            /**
-             * @var $registrar ConsoleCommand
-             */
-            if ($registrar instanceof ConsoleCommand) {
-                // want to run all the registrars schedule
-                if (empty($commandOptions['--schedule'])) {
-                    $registrar->run($commandOptions);
-                    $this->successMessage("running {$commandOptions['--schedule']} completed");
-                } else {
-                    // want to run the $registrar one at a time
-                    if ($registrar->required() === (array)$commandOptions['--schedule']) {
-                        $registrar->run($commandOptions);
-                        $this->successMessage("running {$commandOptions['--schedule']} completed");
-                        break;
-                    }
-                }
-            }
+        $this->helper = helper();
+        $this->coreSchedules();
+        if ($commandOptions['--run'] === 'work'){
+            $this->successMessage('Scheduled work mode ON');
+            $this->infoMessage('Listening to new scheduled events');
+            $this->startWorkingSchedule();
         }
     }
 
     /**
-     * @return string[]
      * @throws \ReflectionException
      * @throws \Exception
      */
-    private function registerToBeScheduled(): array
+    public function coreSchedules(): void
     {
-        return container()->resolveMany([
-            Updates::class,
-            AutoUpdate::class
+        $coreScheduleEvents = container()->resolveMany([
+            JobManager::class,
+            PurgeOldSession::class,
+            DiscoverUpdates::class,
+            AutoUpdates::class,
         ]);
+
+        foreach ($coreScheduleEvents as $scheduleEvent){
+            $this->infoMessage("Enqueuing {$scheduleEvent->getName()} in schedule");
+            try {
+                schedule()->enqueue($scheduleEvent);
+            }catch (\Exception $exception){
+                $this->errorMessage("An error occurred while enqueuing schedule event");
+                $this->errorMessage($exception->getMessage());
+            }
+        }
+    }
+
+    public function startWorkingSchedule()
+    {
+        $this->getNextScheduledEvent();
+        while (true){
+            $this->infoMessage('Schedule...' . $this->helper->formatBytes(memory_get_usage()));
+            sleep(1);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getNextScheduledEvent()
+    {
+        $table = Tables::getTable(Tables::SCHEDULER);
+        $data = db()->run("
+        WITH RECURSIVE scheduler_recursive AS 
+	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_ticks_max, schedule_next_run
+      FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run
+      UNION ALL
+      SELECT tsf.schedule_id, tsf.schedule_name, tsf.schedule_parent_name, tsf.schedule_priority, tsf.schedule_parallel, tsf.schedule_data, tsf.schedule_ticks, tsf.schedule_ticks_max, tsf.schedule_next_run
+      FROM $table as tsf JOIN scheduler_recursive as ts ON ts.schedule_name = tsf.schedule_parent_name
+      ) 
+     SELECT * FROM scheduler_recursive;
+        ");
+
+        $categories = $this->helper->generateTree(['parent_id' => 'schedule_parent_name', 'id' => 'schedule_name'], $data);
+        dd($categories);
     }
 }
