@@ -12,6 +12,7 @@ namespace App\Modules\Core\EventHandlers\JobTransporter;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddJobTransporter;
+use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
@@ -24,6 +25,9 @@ use ParagonIE\EasyDB\EasyDB;
 
 class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterface
 {
+    use ConsoleColor;
+
+    private static MyPDO|null $db = null;
 
     /**
      * @inheritDoc
@@ -50,7 +54,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
      */
     public function enqueue(AbstractJobInterface $jobEvent): void
     {
-        $this->getDB()->insert($this->getTable(), $this->getToInsert($jobEvent));
+        db()->insert($this->getTable(), $this->getToInsert($jobEvent));
     }
 
     /**
@@ -64,8 +68,8 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
             'job_status' => Job::JobStatus_Queued,
             'job_priority' => $jobEvent->getPriority(),
             'job_data' => json_encode([
-                'data' => $jobEvent->getData(),
-               'class' => get_class($jobEvent)]
+                    'data' => $jobEvent->getData(),
+                    'class' => get_class($jobEvent)]
             )
         ];
     }
@@ -84,19 +88,33 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
      */
     public function runJob(): void
     {
-        while (true){
-            $db = $this->getDB();
+        $db = db();
+        $limit = AppConfig::getJobLimit();
+        $table = $this->getTable();
+        while (true) {
+            if (AppConfig::isMaintenanceMode()){
+                $this->infoMessage("Site in Maintenance Mode...Sleeping");
+                usleep(5000000); # Sleep for 5 seconds
+                continue;
+            }
             $db->beginTransaction();
-            $table = Tables::getTable(Tables::JOBS);
-            $jobs = $db->run("SELECT * FROM $table WHERE job_status = 'queue' ORDER BY job_priority DESC LIMIT ? FOR UPDATE", AppConfig::getJobLimit());
-            foreach ($jobs as $job){
+            $jobs = $db->run("SELECT * FROM $table WHERE job_status = 'queue' ORDER BY job_priority DESC LIMIT ? FOR UPDATE", $limit);
+            if (empty($jobs)){
+                $db->commit();
+                # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(100000);
+                continue;
+            }
+            foreach ($jobs as $job) {
                 try {
+                    $this->infoMessage("Running job $job->job_group_name with an id of $job->job_id");
                     $this->handleIndividualJob($job);
                     $insert = ['job_status' => Job::JobStatus_Processed];
                     $db->update($this->getTable(), $insert, ['job_id' => $job->job_id]);
-                }catch (\Throwable){
+                } catch (\Throwable) {
                     $insert = ['job_status' => Job::JobStatus_Failed];
-                    $db->update($this->getTable(), $insert, ['job_id' => $job->job_id]);
+                    $this->infoMessage("Job $job->job_group_name failed, with an id of $job->job_id");
+                    $db->update($table, $insert, ['job_id' => $job->job_id]);
                 }
             }
             $db->commit();
@@ -110,22 +128,13 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     public function handleIndividualJob($job): void
     {
         $jobData = json_decode($job->job_data);
-        if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class)){
+        if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class)) {
             /** @var AbstractJobInterface $jobObject */
             $jobObject = new $jobData->class;
             $jobObject->setData($jobData->data ?? []);
-            if ($jobObject instanceof JobHandlerInterface){
+            if ($jobObject instanceof JobHandlerInterface) {
                 $jobObject->handle();
             }
         }
-    }
-
-    /**
-     * @return MyPDO|EasyDB
-     * @throws \Exception
-     */
-    public function getDB(): MyPDO|EasyDB
-    {
-        return (new Database())->createNewDatabaseInstance();
     }
 }

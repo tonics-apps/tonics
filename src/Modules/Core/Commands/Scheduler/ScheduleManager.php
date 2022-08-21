@@ -28,9 +28,8 @@ use Throwable;
  * The ScheduleManager is nothing more than a class that encapsulate a specific set of commands that should be run on schedule,
  * for example, a schedule command can update, cleans up log, deletes inactive users, etc.
  *
- * RUN: `php bin/console --run --schedule` to enqueue the schedule events
+ * RUN: `php bin/console --run --schedule` to enqueue the core schedule events and start working on all schedule events
  *
- * RUN:  `php bin/console --run=work --schedule` to enqueue and start working on all scheduled events
  *
  * Class ScheduleManager
  * @package App\Commands\Scheduler
@@ -57,10 +56,8 @@ class ScheduleManager implements ConsoleCommand
     {
         $this->helper = helper();
         $this->coreSchedules();
-        if ($commandOptions['--run'] === 'work'){
-            $this->successMessage('Scheduled work mode ON, started with a memory of ' . $this->helper->formatBytes(memory_get_usage()));
-            $this->startWorkingSchedule();
-        }
+        $this->successMessage('Scheduled work mode ON, started with a memory of ' . $this->helper->formatBytes(memory_get_usage()));
+        $this->startWorkingSchedule();
     }
 
     /**
@@ -70,7 +67,6 @@ class ScheduleManager implements ConsoleCommand
     public function coreSchedules(): void
     {
         $coreScheduleEvents = container()->resolveMany([
-            JobManager::class,
             PurgeOldSession::class,
             DiscoverUpdates::class,
             AutoUpdates::class,

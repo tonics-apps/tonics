@@ -106,42 +106,45 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
         while (true) {
             if (AppConfig::isMaintenanceMode()){
                 $this->infoMessage("Site in Maintenance Mode...Sleeping");
-                sleep(5);
+                usleep(5000000); # Sleep for 5 seconds
                 continue;
             }
-            $categories = $this->getNextScheduledEvent();
-            foreach ($categories as $category) {
+            $schedules = $this->getNextScheduledEvent();
+            if (empty($schedules)){
+                # While the schedule event is empty, we sleep for a 0.1, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(100000);
+                continue;
+            }
+            foreach ($schedules as $schedule) {
                 # If the number of times to tick has been reached, we won't run the schedule event
-                if ($category->schedule_ticks_max >= $category->schedule_ticks){
+                if ($schedule->schedule_ticks_max >= $schedule->schedule_ticks){
                     continue;
                 }
 
-                $scheduleClass = json_decode($category->schedule_data);
+                $scheduleClass = json_decode($schedule->schedule_data);
                 if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])) {
                     /** @var ScheduleHandlerInterface|AbstractSchedulerInterface $scheduleObject */
                     $scheduleObject = new $scheduleClass;
-                    $scheduleObject->setName($category->schedule_name);
-                    if (isset($category->_children)) {
-                        $this->recursivelyCollateScheduleObject($category->_children, $scheduleObject);
+                    $scheduleObject->setName($schedule->schedule_name);
+                    if (isset($schedule->_children)) {
+                        $this->recursivelyCollateScheduleObject($schedule->_children, $scheduleObject);
                     }
-                    $this->infoMessage("Running $category->schedule_name Scheduled Event");
+                    $this->infoMessage("Running $schedule->schedule_name Scheduled Event");
                     $this->helper->fork(
-                        $category->schedule_parallel,
-                        onChild: function () use ($category, $scheduleObject) {
+                        $schedule->schedule_parallel,
+                        onChild: function () use ($schedule, $scheduleObject) {
+                            cli_set_process_title("$schedule->schedule_name Scheduled Event");
                             try {
                                 $scheduleObject->handle();
-                                $this->inActivateCategory($scheduleObject, $category);
                                 exit(0); # Success if not exception is thrown
                             } catch (Throwable $exception) {
-                                $this->inActivateCategory($scheduleObject, $category);
                                 $this->errorMessage($exception->getMessage());
                                 exit(1); # Failed
                             }
                         },
-                        beforeOnChild: function () use ($category, $scheduleObject) {
+                        beforeOnChild: function () use ($schedule, $scheduleObject) {
                             $update = $this->getToInsert($scheduleObject);
-                            $update['schedule_ticks'] = $category->schedule_ticks + 1;
-                            $update['schedule_status'] = 'active';
+                            $update['schedule_ticks'] = $schedule->schedule_ticks + 1;
                             $this->getDB()->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
                         }
                     );
@@ -151,23 +154,14 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     }
 
     /**
-     * @throws \Exception
-     */
-    public function inActivateCategory($scheduleObject, $category)
-    {
-        $update = $this->getToInsert($scheduleObject);
-        $update['schedule_ticks'] = $category->schedule_ticks;
-        $update['schedule_status'] = 'inactive';
-        $this->getDB()->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
-    }
-
-    /**
      * @return MyPDO|EasyDB
      * @throws \Exception
      */
     public function getDB(): MyPDO|EasyDB
     {
-        return (new Database())->createNewDatabaseInstance();
+        $db =  (new Database())->createNewDatabaseInstance();
+        $db->setDbEngine('mysql');
+        return $db;
     }
 
     /**
@@ -179,7 +173,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
         $data = $this->getDB()->run("
         WITH RECURSIVE scheduler_recursive AS 
 	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_ticks_max, schedule_next_run
-      FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run AND schedule_status = 'inactive'
+      FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run
       UNION ALL
       SELECT tsf.schedule_id, tsf.schedule_name, tsf.schedule_parent_name, tsf.schedule_priority, tsf.schedule_parallel, tsf.schedule_data, tsf.schedule_ticks, tsf.schedule_ticks_max, tsf.schedule_next_run
       FROM $table as tsf JOIN scheduler_recursive as ts ON ts.schedule_name = tsf.schedule_parent_name
@@ -187,29 +181,29 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
      SELECT * FROM scheduler_recursive;
         ");
 
-        $categories = $this->helper->generateTree(['parent_id' => 'schedule_parent_name', 'id' => 'schedule_name'], $data);
-        usort($categories, function ($id1, $id2) {
+        $schedules = $this->helper->generateTree(['parent_id' => 'schedule_parent_name', 'id' => 'schedule_name'], $data);
+        usort($schedules, function ($id1, $id2) {
             return $id1->schedule_priority < $id2->schedule_priority;
         });
-        return $categories;
+        return $schedules;
     }
 
     /**
-     * @param $categories
+     * @param $schedules
      * @param AbstractSchedulerInterface|null $parent
      * @return void
      */
-    public function recursivelyCollateScheduleObject($categories, AbstractSchedulerInterface $parent = null): void
+    public function recursivelyCollateScheduleObject($schedules, AbstractSchedulerInterface $parent = null): void
     {
-        foreach ($categories as $category) {
-            $scheduleClass = json_decode($category->schedule_data);
+        foreach ($schedules as $schedule) {
+            $scheduleClass = json_decode($schedule->schedule_data);
             if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])) {
                 $scheduleObject = new $scheduleClass;
-                $scheduleObject->setName($category->schedule_name);
+                $scheduleObject->setName($schedule->schedule_name);
                 /** @var $scheduleObject AbstractSchedulerInterface */
                 $scheduleObject->setParent($parent);
-                if (isset($category->_children)) {
-                    $this->recursivelyCollateScheduleObject($category->_children, $scheduleObject);
+                if (isset($schedule->_children)) {
+                    $this->recursivelyCollateScheduleObject($schedule->_children, $scheduleObject);
                 }
             }
         }

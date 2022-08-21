@@ -12,6 +12,7 @@ namespace App\Modules\Core\Commands;
 
 use App\Modules\Core\Commands\App\AppBoilerPlate;
 use App\Modules\Core\Commands\Environmental\SetEnvironmentalPepper;
+use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Commands\Module\MigrateAllFresh;
 use App\Modules\Core\Commands\Module\ModuleMakeConsole;
@@ -42,6 +43,7 @@ class InitConsole
                 $container->resolveMany([
                     PreInstallerManager::class,
                     ScheduleManager::class,
+                    JobManager::class,
                     ModuleMakeConsole::class,
                     ModuleMakeMigration::class,
                     ModuleMigrate::class,
