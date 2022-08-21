@@ -25,7 +25,7 @@ class OnAddJobTransporter implements EventInterface
         return $this;
     }
 
-    public function addJobTransporter(JobTransporterInterface&EventDispatcherInterface $transporter): static
+    public function addJobTransporter(JobTransporterInterface $transporter): static
     {
         $this->transporters[strtolower($transporter->name())] = $transporter;
         return $this;

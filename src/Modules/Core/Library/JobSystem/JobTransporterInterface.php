@@ -20,9 +20,9 @@ interface JobTransporterInterface
 
     /**
      * Enqueue an event that is readily dispatch when called
-     * @param object $event
+     * @param AbstractJobInterface $jobEvent
      */
-    public function enqueue(object $event): void;
+    public function enqueue(AbstractJobInterface $jobEvent): void;
 
     /**
      * If true, the transporter would dispatch the event immediately

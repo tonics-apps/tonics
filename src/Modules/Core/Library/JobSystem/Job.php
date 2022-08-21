@@ -30,6 +30,10 @@ class Job
     private string $transporterName = '';
     private object|null $transporter = null;
 
+    const JobStatus_Queued = 'queued';
+    const JobStatus_Processed = 'processed';
+    const JobStatus_Failed = 'failed';
+
     private OnAddJobTransporter $onAddJobTransporter;
 
     /**
@@ -54,9 +58,9 @@ class Job
         }
     }
 
-    public function enqueue(object $event): void
+    public function enqueue(AbstractJobInterface $jobEvent): void
     {
-        $this->transporter->enqueue($event);
+        $this->transporter->enqueue($jobEvent);
         if ($this->transporter->isStatic()){
             $this->runJob();
         }

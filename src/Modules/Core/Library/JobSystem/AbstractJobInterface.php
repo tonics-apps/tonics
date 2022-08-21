@@ -14,14 +14,9 @@ use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 class AbstractJobInterface
 {
     private string $jobGroupName = '';
-    private string $jobStatus = self::JobStatus_Queued;
+    private string $jobStatus = Job::JobStatus_Queued;
     private int $priority = Scheduler::PRIORITY_MEDIUM;
     private mixed $data = null;
-
-    const JobStatus_Queued = 'queued';
-    const JobStatus_Processing = 'processing';
-    const JobStatus_Processed = 'processed';
-    const JobStatus_Failed = 'processed';
 
     /**
      * @return string

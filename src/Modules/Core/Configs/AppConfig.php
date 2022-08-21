@@ -221,11 +221,6 @@ class AppConfig
         return env('JOB_TRANSPORTER', 'DATABASE');
     }
 
-    public static function getJobSync(): bool
-    {
-        return (bool)env('JOB_SYNC', true);
-    }
-
     public static function getJobLimit(): int
     {
         return (int)env('JOB_LIMIT', 10);

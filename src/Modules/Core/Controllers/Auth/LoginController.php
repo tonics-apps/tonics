@@ -30,7 +30,6 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        // dd(schedule(), job());
         view('Modules::Core/Views/Auth/login');
     }
 

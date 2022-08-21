@@ -38,23 +38,6 @@ class ModuleMakeMigration implements ConsoleCommand
      */
     public function run(array $commandOptions): void
     {
-        $helper = helper();
-        $helper->fork(10,
-            onChild: function ($pID){
-            $db = (new Database())->createNewDatabaseInstance();
-            print "in child " . $pID . ' with db ' . $db->row("SELECT post_id FROM tonics_posts order by post_id asc limit 1 FOR UPDATE SKIP LOCKED;")->post_id . "\n";
-            exit;
-        }, beforeOnChild: function (){
-                sleep(0.3);
-        },
-            onChildError: null,
-            onForkError: null,
-            onFinished: function (){
-            print "All forked processes completed";
-        });
-        exit();
-
-
         $s = DIRECTORY_SEPARATOR; $module = ucfirst(strtolower($commandOptions['--module']));
         if ($moduleDir = helper()->findModuleDirectory($module)) {
             $migrationTemplate = APP_ROOT . "{$s}src{$s}Modules{$s}Core{$s}Commands{$s}Module{$s}Template{$s}MigrationExample.txt";
