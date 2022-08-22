@@ -44,7 +44,7 @@ class PageData extends AbstractDataLayer
             if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
 
                 if($inputKey === 'created_at'){
-                    $page[$inputKey] = helper()->date(timestamp: $inputValue);
+                    $page[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
                 if ($inputKey === 'page_slug'){

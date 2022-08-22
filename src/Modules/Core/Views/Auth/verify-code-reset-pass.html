@@ -9,7 +9,7 @@
 [[hook_into('in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center]]
 
 [[hook_into('in_main')
-    [[func("body.main.form-verify-code-reset-password", "url.customer-verification-verify", "body.main.form-get-verification-code-flash-error-message")]]
+    [[func("body.main.form-verify-code-reset-password", "empty", "body.main.form-get-verification-code-flash-error-message")]]
 ]]
 
 [[hook_into('before_footer')

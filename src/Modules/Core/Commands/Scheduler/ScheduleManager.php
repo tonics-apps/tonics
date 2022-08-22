@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Commands\Scheduler;
 
+use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Commands\UpdateMechanism\AutoUpdate;
 use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Library\ConsoleColor;
@@ -21,6 +22,7 @@ use App\Modules\Core\Schedules\DiscoverUpdates;
 use App\Modules\Core\Schedules\JobManager;
 use App\Modules\Core\Schedules\PurgeOldSession;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
+use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Throwable;
 
@@ -34,11 +36,9 @@ use Throwable;
  * Class ScheduleManager
  * @package App\Commands\Scheduler
  */
-class ScheduleManager implements ConsoleCommand
+class ScheduleManager implements ConsoleCommand, HandlerInterface
 {
     use ConsoleColor;
-
-    private TonicsHelpers|null $helper = null;
 
     public function required(): array
     {
@@ -54,9 +54,9 @@ class ScheduleManager implements ConsoleCommand
      */
     public function run(array $commandOptions): void
     {
-        $this->helper = helper();
+        $helper = helper();
         $this->coreSchedules();
-        $this->successMessage('Scheduled work mode ON, started with a memory of ' . $this->helper->formatBytes(memory_get_usage()));
+        $this->successMessage('Scheduled work mode ON, started with a memory of ' . $helper->formatBytes(memory_get_usage()));
         $this->startWorkingSchedule();
     }
 
@@ -94,5 +94,11 @@ class ScheduleManager implements ConsoleCommand
             $this->errorMessage($exception->getMessage());
             $this->errorMessage($exception->getTraceAsString());
         }
+    }
+
+    public function handleEvent(object $event): void
+    {
+        /** @var $event OnStartUpCLI */
+        $event->addClass(get_class($this));
     }
 }

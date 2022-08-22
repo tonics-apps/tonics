@@ -120,11 +120,16 @@ class InitLoaderMinimal
     }
 
     /**
+     * @param bool $newConnection
      * @return MyPDO
      * @throws Exception
      */
-    public static function getDatabase(): MyPDO
+    public static function getDatabase(bool $newConnection = false): MyPDO
     {
+        if ($newConnection){
+            self::$db = (new Database())->createNewDatabaseInstance();
+        }
+
         if (!self::$db) {
             self::$db = (new Database())->createNewDatabaseInstance();
         }

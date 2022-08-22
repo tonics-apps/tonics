@@ -41,6 +41,7 @@ class InitConsole
             // We should prob use an event here, so, user could hook into this and create their own comman
             $commandRegistrar = new CommandRegistrar(
                 $container->resolveMany([
+                    OnStartUpCLI::class,
                     PreInstallerManager::class,
                     ScheduleManager::class,
                     JobManager::class,

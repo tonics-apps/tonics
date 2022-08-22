@@ -136,9 +136,9 @@ function utility(): TonicsHelpers
 /**
  * @throws Exception
  */
-function db(): MyPDO
+function db($newConnection = false): MyPDO
 {
-    return AppConfig::initLoaderMinimal()->getDatabase();
+    return AppConfig::initLoaderMinimal()->getDatabase($newConnection);
 }
 
 /**

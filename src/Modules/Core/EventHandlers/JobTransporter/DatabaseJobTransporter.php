@@ -16,6 +16,7 @@ use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
+use App\Modules\Core\Library\JobSystem\JobException;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
 use App\Modules\Core\Library\MyPDO;
@@ -88,7 +89,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
      */
     public function runJob(): void
     {
-        $db = db();
+        $db = db(true);
         $limit = AppConfig::getJobLimit();
         $table = $this->getTable();
         while (true) {
@@ -98,7 +99,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
                 continue;
             }
             $db->beginTransaction();
-            $jobs = $db->run("SELECT * FROM $table WHERE job_status = 'queue' ORDER BY job_priority DESC LIMIT ? FOR UPDATE", $limit);
+            $jobs = $db->run("SELECT * FROM $table WHERE job_status = ? ORDER BY job_priority DESC LIMIT ? FOR UPDATE", Job::JobStatus_Queued, $limit);
             if (empty($jobs)){
                 $db->commit();
                 # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
@@ -109,12 +110,13 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
                 try {
                     $this->infoMessage("Running job $job->job_group_name with an id of $job->job_id");
                     $this->handleIndividualJob($job);
-                    $insert = ['job_status' => Job::JobStatus_Processed];
-                    $db->update($this->getTable(), $insert, ['job_id' => $job->job_id]);
-                } catch (\Throwable) {
-                    $insert = ['job_status' => Job::JobStatus_Failed];
+                    $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
+                    $db->update($this->getTable(), $update, ['job_id' => $job->job_id]);
+                } catch (\Throwable $exception) {
+                    $update = ['job_status' => Job::JobStatus_Failed];
                     $this->infoMessage("Job $job->job_group_name failed, with an id of $job->job_id");
-                    $db->update($table, $insert, ['job_id' => $job->job_id]);
+                    $db->update($table, $update, ['job_id' => $job->job_id]);
+                    $this->errorMessage($exception->getMessage());
                 }
             }
             $db->commit();
@@ -128,7 +130,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     public function handleIndividualJob($job): void
     {
         $jobData = json_decode($job->job_data);
-        if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class)) {
+        if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class, true)) {
             /** @var AbstractJobInterface $jobObject */
             $jobObject = new $jobData->class;
             $jobObject->setData($jobData->data ?? []);

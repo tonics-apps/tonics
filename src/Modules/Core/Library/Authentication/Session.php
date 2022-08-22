@@ -73,7 +73,6 @@ class Session
         return  $_COOKIE[$sessionName] ?? '';
     }
 
-
     /**
      * Returns all session data
      * @param bool $array
@@ -564,7 +563,7 @@ SQL, $jsonPath, $sessionID);
     }
 
 
-    private function sessionName(): string
+    public function sessionName(): string
     {
         return 'bt_sessionID';
     }

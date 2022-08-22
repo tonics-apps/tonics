@@ -61,6 +61,7 @@ class Scheduler
      * A second by default, to add 5 seconds, pass 5
      * @param int|null $second
      * @return int
+     * Return in seconds
      */
     public static function everySecond(int $second = null): int
     {
@@ -74,6 +75,7 @@ class Scheduler
      * A minute by default, to add 5 minute, pass 5
      * @param int|null $minute
      * @return int
+     * Return in seconds
      */
     public static function everyMinute(int $minute = null): int
     {
@@ -87,6 +89,7 @@ class Scheduler
      * An hour by default, to add 2 hours, pass 2
      * @param int|null $hour
      * @return int
+     * Return in seconds
      */
     public static function everyHour(int $hour = null): int
     {
@@ -99,6 +102,7 @@ class Scheduler
     /**
      * @param int|null $day
      * @return int
+     * Return in seconds
      */
     public static function everyDay(int $day = null): int
     {

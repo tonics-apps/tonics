@@ -13,7 +13,6 @@ namespace App\Modules\Core\EventHandlers\SchedulerTransporter;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Library\ConsoleColor;
-use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
@@ -56,6 +55,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
      */
     public function enqueue(AbstractSchedulerInterface $scheduleObject): void
     {
+        $db = db(true);
         if ($scheduleObject->chainsEmpty()) {
             $insert = $this->getToInsert($scheduleObject);
         } else {
@@ -68,7 +68,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                 $insert[] = $insertChild;
             }
         }
-        db()->insertOnDuplicate($this->getTable(), $insert, $this->updateKeyOnUpdate());
+        $db->insertOnDuplicate($this->getTable(), $insert, $this->updateKeyOnUpdate());
     }
 
     public function getToInsert(AbstractSchedulerInterface $scheduleObject): array
@@ -139,6 +139,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                                 exit(0); # Success if not exception is thrown
                             } catch (Throwable $exception) {
                                 $this->errorMessage($exception->getMessage());
+                                $this->errorMessage($exception->getTraceAsString());
                                 exit(1); # Failed
                             }
                         },
@@ -159,9 +160,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
      */
     public function getDB(): MyPDO|EasyDB
     {
-        $db =  (new Database())->createNewDatabaseInstance();
-        $db->setDbEngine('mysql');
-        return $db;
+        return db(true);
     }
 
     /**

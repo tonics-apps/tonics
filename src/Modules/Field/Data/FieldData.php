@@ -202,7 +202,7 @@ HTML;
             if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
 
                 if ($inputKey === 'created_at') {
-                    $field[$inputKey] = helper()->date(timestamp: $inputValue);
+                    $field[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
                 if ($inputKey === 'field_slug') {

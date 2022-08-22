@@ -14,6 +14,7 @@ use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
+use App\Modules\Core\Library\Tables;
 
 class PurgeOldSession extends AbstractSchedulerInterface implements ScheduleHandlerInterface
 {
@@ -26,8 +27,22 @@ class PurgeOldSession extends AbstractSchedulerInterface implements ScheduleHand
         $this->setEvery(Scheduler::everyHour(3));
     }
 
+    /**
+     * @throws \Exception
+     */
     public function handle(): void
     {
-        $this->infoMessage($this->getName());
+        $table = Tables::getTable(Tables::SESSIONS);
+        $db = db(true);
+        $total = $db->row("SELECT COUNT(*) AS total FROM $table WHERE `updated_at` <= NOW()");
+        $chunksToDeleteAtATime = 1000;
+
+        if (isset($total->total)){
+            $total = $total->total;
+            $noOfTimesToLoop = ceil($total / $chunksToDeleteAtATime);
+            for ($i = 1; $i <= $noOfTimesToLoop; $i++) {
+                db()->run("DELETE FROM $table WHERE `updated_at` <= NOW() LIMIT $chunksToDeleteAtATime");
+            }
+        }
     }
 }

@@ -10,10 +10,13 @@
 
 namespace App\Modules\Core\Schedules;
 
+use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
+use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\States\UpdateMechanismState;
 
 class DiscoverUpdates extends AbstractSchedulerInterface implements ScheduleHandlerInterface
 {
@@ -30,8 +33,15 @@ class DiscoverUpdates extends AbstractSchedulerInterface implements ScheduleHand
         $this->setChains([$autoUpdates]);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function handle(): void
     {
-        $this->infoMessage($this->getName());
+        $updateMechanismState = new UpdateMechanismState(types: ['module', 'app'], discoveredFrom: UpdateMechanismState::DiscoveredFromConsole);
+        $updateMechanismState->runStates(false);
+        if ($updateMechanismState->getStateResult() === SimpleState::DONE){
+            $this->successMessage('Apps and Modules Discovery Update Check Done');
+        }
     }
 }

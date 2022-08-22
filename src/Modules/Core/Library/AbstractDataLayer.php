@@ -239,8 +239,8 @@ SQL, ...$parameter);
      * @param array $columns
      * @param string $colParam
      * Col to use for parameters, e.g menu_id
-     * @param callable $onSuccess
-     * @param callable $onError
+     * @param callable|null $onSuccess
+     * @param callable|null $onError
      * @param string $moreWhereCondition
      * e.g "AND data = 1"
      *
@@ -252,13 +252,22 @@ SQL, ...$parameter);
         string $table,
         array $columns,
         string $colParam,
-        callable $onSuccess,
-        callable $onError,
+        array $itemsToDelete = [],
+        callable $onSuccess = null,
+        callable $onError = null,
         string $moreWhereCondition = '')
     {
         $parameter = [];
         $itemsToDelete = array_map(function ($item) use ($colParam, $columns, &$parameter){
-            $itemCopy = json_decode($item, true);
+            $itemCopy = [];
+            if (helper()->isJSON($item)){
+                $itemCopy = json_decode($item, true);
+            }
+
+            if (is_array($item)){
+                $itemCopy = $item;
+            }
+
             $item = [];
             foreach ($itemCopy as $k => $v){
                 if (key_exists($k, $columns)){
@@ -268,15 +277,20 @@ SQL, ...$parameter);
                     $item[$k] = $v;
                 }
             }
+
             return $item;
-        }, input()->fromPost()->retrieve('itemsToDelete'));
+        }, input()->fromPost()->retrieve('itemsToDelete', $itemsToDelete));
 
         try {
             $questionMarks = helper()->returnRequiredQuestionMarks([$itemsToDelete]);
             db()->run("DELETE FROM $table WHERE $colParam IN ($questionMarks) $moreWhereCondition", ...$parameter);
-            $onSuccess();
+            if ($onSuccess){
+                $onSuccess();
+            }
         }catch (\Exception $e){
-            $onError($e);
+            if ($onError){
+                $onError($e);
+            }
         }
     }
 }

@@ -187,7 +187,7 @@ HTML;
             if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
 
                 if($inputKey === 'created_at'){
-                    $menu[$inputKey] = helper()->date(timestamp: $inputValue);
+                    $menu[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
                 if ($inputKey === 'menu_slug'){

@@ -77,7 +77,7 @@ class UserData extends AbstractDataLayer
     public function validateUser(string $email, string $pass): bool
     {
         $table = $this->getUsersTable();
-        $userInfo = $this->selectWithCondition($table, ['email', 'user_name', 'user_password', 'role'], "email = ?", [$email]);
+        $userInfo = $this->selectWithCondition($table, ['email', 'user_name', 'user_password', 'role', 'settings'], "email = ?", [$email]);
         $verifyPass = false;
         if ($userInfo instanceof \stdClass){
             $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);
@@ -88,11 +88,23 @@ class UserData extends AbstractDataLayer
         if ($verifyPass === false){
             return false;
         }
+        $settings = json_decode($userInfo->settings);
 
         ## Saving User settings in session auth_info might be unnecessary and won't sync, but we would see.
         ## $userInfo->{'settings'} = json_decode( $userInfo->{'settings'});
         session()->append(Session::SessionCategories_AuthInfo, $userInfo);
         session()->regenerate();
+
+        # Store the active session
+        if (is_object($settings)){
+            if (!property_exists($settings, 'active_sessions')){
+                $settings->active_sessions = [session()->getCookieID(session()->sessionName())];
+            } else {
+                $settings->active_sessions[] = session()->getCookieID(session()->sessionName());
+            }
+
+            db()->update($this->getUsersTable(), ['settings' => json_encode($settings)], ['email' => $userInfo->email]);
+        }
         return true;
     }
 
@@ -263,7 +275,6 @@ class UserData extends AbstractDataLayer
     {
         $apiTokenAndHash = helper()->generateApiTokenAndHash();
         return json_encode([
-            'mailer' => 1, // 1 stands for smtp and 0 stands for localhost
             'timezone' => "Africa/Lagos",
             'email_from' => "",     // email for sending notifications, this overrides "users email"
             'api' => [
@@ -274,6 +285,7 @@ class UserData extends AbstractDataLayer
                 'updated_at' => helper()->date()
             ],
             'verification' => self::generateVerificationArrayDataForUser(),
+            'active_sessions' => []
         ]);
     }
 
@@ -333,6 +345,7 @@ class UserData extends AbstractDataLayer
                 # trying to transfer the guest account to an actual user account.
                 'guest_hash' => null,
             ],
+            'active_sessions' => []
         ]);
     }
 

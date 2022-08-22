@@ -11,6 +11,9 @@
 namespace App\Modules\Core;
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Commands\Job\JobManager;
+use App\Modules\Core\Commands\OnStartUpCLI;
+use App\Modules\Core\Commands\Scheduler\ScheduleManager;
 use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\EventHandlers\DefaultEditorsAsset;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
@@ -46,6 +49,10 @@ class CoreActivator implements ExtensionConfig
     public function events(): array
     {
         return [
+            OnStartUpCLI::class => [
+                ScheduleManager::class,
+                JobManager::class,
+            ],
 
             OnAddJobTransporter::class => [
                 DatabaseJobTransporter::class

@@ -189,7 +189,7 @@ CAT;
                 }
 
                 if($inputKey === 'created_at'){
-                    $category[$inputKey] = helper()->date(timestamp: $inputValue);
+                    $category[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
                 if ($inputKey === 'cat_slug'){
@@ -226,7 +226,7 @@ CAT;
             if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
 
                 if($inputKey === 'created_at'){
-                    $post[$inputKey] = helper()->date(timestamp: $inputValue);
+                    $post[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
                 if ($inputKey === 'post_slug'){

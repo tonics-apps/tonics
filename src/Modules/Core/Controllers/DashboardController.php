@@ -18,6 +18,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        view('Modules::Core/Views/Dashboard/home');
+       view('Modules::Core/Views/Dashboard/home');
     }
 }

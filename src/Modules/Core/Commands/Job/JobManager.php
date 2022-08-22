@@ -10,13 +10,15 @@
 
 namespace App\Modules\Core\Commands\Job;
 
+use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Library\ConsoleColor;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
+use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 /**
  * RUN: `php bin/console --run --job` to start working on jobs
  */
-class JobManager implements ConsoleCommand
+class JobManager implements ConsoleCommand, HandlerInterface
 {
     use ConsoleColor;
 
@@ -35,5 +37,11 @@ class JobManager implements ConsoleCommand
     {
         $this->successMessage('Job work mode ON, started with a memory of ' . helper()->formatBytes(memory_get_usage()));
         job()->runJob();
+    }
+
+    public function handleEvent(object $event): void
+    {
+        /** @var $event OnStartUpCLI */
+        $event->addClass(get_class($this));
     }
 }

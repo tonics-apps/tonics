@@ -513,7 +513,7 @@ HTML;
             if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
 
                 if($inputKey === 'created_at'){
-                    $license[$inputKey] = helper()->date(timestamp: $inputValue);
+                    $license[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
                 if ($inputKey === 'license_slug'){
@@ -550,7 +550,7 @@ HTML;
             if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
 
                 if($inputKey === 'created_at'){
-                    $track[$inputKey] = helper()->date(timestamp: $inputValue);
+                    $track[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
                 if ($inputKey === 'track_slug'){

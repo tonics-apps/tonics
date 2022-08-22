@@ -124,7 +124,7 @@ class UpdateMechanismState extends SimpleState
         }
 
         if (!empty($this->collate)){
-            db()->insertOnDuplicate(
+            db(true)->insertOnDuplicate(
                 $globalTable,
                 [
                     'key' => 'updates',

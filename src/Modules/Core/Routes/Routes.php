@@ -88,7 +88,7 @@ trait Routes
                 $route->get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'password.request');
                 $route->post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'password.email');
                 $route->get('password/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'password.verifyEmail');
-                $route->post('password/reset', [ForgotPasswordController::class, 'reset'], alias: 'password.update');
+                $route->post('password/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'password.update');
 
             }, AuthConfig::getCSRFRequestInterceptor());
 

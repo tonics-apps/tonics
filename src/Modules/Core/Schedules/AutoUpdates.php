@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Schedules;
 
+use App\Modules\Core\Commands\UpdateMechanism\AutoUpdate;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
@@ -25,8 +26,12 @@ class AutoUpdates extends AbstractSchedulerInterface implements ScheduleHandlerI
         $this->setEvery(Scheduler::everyHour(1));
     }
 
+    /**
+     * @throws \Exception
+     */
     public function handle(): void
     {
-        $this->infoMessage($this->getName());
+        $autoUpdate  = new AutoUpdate();
+        $autoUpdate->run([]);
     }
 }
