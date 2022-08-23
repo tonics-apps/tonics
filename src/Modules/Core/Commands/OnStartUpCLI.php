@@ -11,7 +11,6 @@
 namespace App\Modules\Core\Commands;
 
 use App\Modules\Core\Library\ConsoleColor;
-use App\Modules\Core\Library\SchedulerSystem\ScheduleHandleErrorHandlerInterface;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;

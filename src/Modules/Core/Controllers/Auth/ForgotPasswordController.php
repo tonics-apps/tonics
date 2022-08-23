@@ -18,9 +18,7 @@ use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
-use App\Modules\Field\Data\FieldData;
 use JetBrains\PhpStorm\NoReturn;
-use Symfony\Component\Console\Helper\Table;
 
 class ForgotPasswordController extends Controller
 {
@@ -181,7 +179,7 @@ class ForgotPasswordController extends Controller
     public function getResetRule(): array
     {
         return [
-            'verification-code' => ['required', 'string'],
+            'verification-code' => ['required', 'number'],
             'password' => ['required', 'string', 'CharLen' => [
                 'min' => 5, 'max' => 1000
             ]],

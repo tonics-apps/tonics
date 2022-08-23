@@ -36,6 +36,8 @@ class Session
 
     const SessionCategories_PasswordReset = 'tonics_password_reset_info';
 
+    const SessionCategories_NewVerification = 'tonics_user_new_verification';
+
     private string $table;
 
     public function __construct()

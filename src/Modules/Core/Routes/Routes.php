@@ -49,16 +49,6 @@ trait Routes
                         # DASHBOARD PANEL...
                     #---------------------------------
                     $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
-
-                            #---------------------------------
-                        # For Profile Controller...
-                    #---------------------------------
-//                    $route->get('profile/settings', [ProfileController::class, 'index'], alias: 'profile.settings');
-//                    $route->match(['put', 'patch'], 'profile/settings', [ProfileController::class, 'update'], alias: 'profile.settings.update');
-//
-//                    $route->get('general/settings', [ProfileController::class,  'generalSettingIndex'], alias: 'general.settings');
-//                    $route->match(['put', 'patch'], 'general/settings', [ProfileController::class, 'generalSettingUpdate'], alias: 'general.update');
-
                 }, [Authenticated::class, CoreAccess::class]);
 
                         #---------------------------------
@@ -85,11 +75,12 @@ trait Routes
                         #---------------------------------
                     # Password Reset Routes...
                 #---------------------------------
-                $route->get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'password.request');
-                $route->post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'password.email');
-                $route->get('password/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'password.verifyEmail');
-                $route->post('password/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'password.update');
-
+                $route->group('/password', callback: function (Route $route){
+                    $route->get('/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'request');
+                    $route->post('/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'email');
+                    $route->get('/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'verifyEmail');
+                    $route->post('/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'update');
+                }, alias: 'password');
             }, AuthConfig::getCSRFRequestInterceptor());
 
         }, alias: 'admin');

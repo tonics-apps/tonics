@@ -39,6 +39,21 @@ class UserData extends AbstractDataLayer
         return Tables::$TABLES[Tables::USERS];
     }
 
+    public function getUsersTable(): string
+    {
+        return Tables::getTable(Tables::USERS);
+    }
+
+    public function getCustomersColumn()
+    {
+        return Tables::$TABLES[Tables::CUSTOMERS];
+    }
+
+    public function getCustomersTable(): string
+    {
+        return Tables::getTable(Tables::CUSTOMERS);
+    }
+
     /**
      * @param array $userData
      * @param array $return
@@ -47,22 +62,36 @@ class UserData extends AbstractDataLayer
      */
     public function insertForUser(array $userData, array $return = []): bool|\stdClass
     {
-        $userTable = Tables::getTable(Tables::USERS);
-        if (empty($return)){
+        if (empty($return)) {
             $return = $this->getUsersColumn();
         }
 
         try {
-            return db()->insertReturning($userTable, $userData, $return);
-        } catch (\Exception $exception){
+            return db()->insertReturning($this->getUsersTable(), $userData, $return);
+        } catch (\Exception $exception) {
             // Log..
         }
         return false;
     }
 
-    public function getUsersTable(): string
+    /**
+     * @param array $userData
+     * @param array $return
+     * @return bool|\stdClass
+     * @throws \Exception
+     */
+    public function insertForCustomer(array $userData, array $return = []): bool|\stdClass
     {
-        return Tables::getTable(Tables::USERS);
+        if (empty($return)) {
+            $return = $this->getCustomersColumn();
+        }
+
+        try {
+            return db()->insertReturning($this->getCustomersTable(), $userData, $return);
+        } catch (\Exception $exception) {
+            // Log..
+        }
+        return false;
     }
 
 
@@ -79,13 +108,13 @@ class UserData extends AbstractDataLayer
         $table = $this->getUsersTable();
         $userInfo = $this->selectWithCondition($table, ['email', 'user_name', 'user_password', 'role', 'settings'], "email = ?", [$email]);
         $verifyPass = false;
-        if ($userInfo instanceof \stdClass){
+        if ($userInfo instanceof \stdClass) {
             $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);
             $userInfo->user_table = Tables::USERS;
             unset($userInfo->user_password);
         }
 
-        if ($verifyPass === false){
+        if ($verifyPass === false) {
             return false;
         }
         $settings = json_decode($userInfo->settings);
@@ -96,8 +125,8 @@ class UserData extends AbstractDataLayer
         session()->regenerate();
 
         # Store the active session
-        if (is_object($settings)){
-            if (!property_exists($settings, 'active_sessions')){
+        if (is_object($settings)) {
+            if (!property_exists($settings, 'active_sessions')) {
                 $settings->active_sessions = [session()->getCookieID(session()->sessionName())];
             } else {
                 $settings->active_sessions[] = session()->getCookieID(session()->sessionName());
@@ -118,7 +147,7 @@ class UserData extends AbstractDataLayer
         try {
             $data = db()->row("SELECT user_id, user_name FROM $table WHERE email = ?", $email);
             return (is_object($data) && property_exists($data, 'user_id')) ? $data->user_id : null;
-        }catch (\Exception){
+        } catch (\Exception) {
             // Log..
         }
         return null;
@@ -135,7 +164,7 @@ class UserData extends AbstractDataLayer
      */
     public static function isAuthenticated(): bool
     {
-       return session()->hasValue(Session::SessionCategories_AuthInfo);
+        return session()->hasValue(Session::SessionCategories_AuthInfo);
     }
 
     /**
@@ -146,22 +175,22 @@ class UserData extends AbstractDataLayer
      * @return mixed
      * @throws \Exception
      */
-    public static function getAuthenticationInfo( string $key = Session::SessionCategories_AuthInfo): mixed
+    public static function getAuthenticationInfo(string $key = Session::SessionCategories_AuthInfo): mixed
     {
         $sessionData = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
 
         $result = '';
-        if (empty($sessionData)){
+        if (empty($sessionData)) {
             return $result;
         }
 
-        if ($key === Session::SessionCategories_AuthInfo){
+        if ($key === Session::SessionCategories_AuthInfo) {
             return json_decode($sessionData);
         }
 
-        if (is_string($sessionData)){
+        if (is_string($sessionData)) {
             $sessionData = json_decode($sessionData);
-            if (property_exists($sessionData, $key)){
+            if (property_exists($sessionData, $key)) {
                 $result = $sessionData->{$key};
             }
         }
@@ -178,7 +207,7 @@ class UserData extends AbstractDataLayer
      */
     public static function canAccess(int $permission, $roleAuthenticationInfo = null): bool
     {
-        if ($roleAuthenticationInfo !== null){
+        if ($roleAuthenticationInfo !== null) {
             return Roles::RoleHasPermission($roleAuthenticationInfo, $permission);
         }
 
@@ -251,11 +280,11 @@ class UserData extends AbstractDataLayer
         $users = db()->run("SELECT user_id, user_name FROM $table");
         $authorFrag = '';
         $oldInputPostAuthor = \session()->getOldFormInput('post_author');
-        if (count($users) > 0){
-            foreach ($users as $user){
-                if ((int)$oldInputPostAuthor === $user->user_id){
+        if (count($users) > 0) {
+            foreach ($users as $user) {
+                if ((int)$oldInputPostAuthor === $user->user_id) {
                     $authorFrag .= "<option value='$user->user_id' selected>$user->user_name</option>";
-                } elseif(!is_null($currentSelectAuthorID) && $currentSelectAuthorID === $user->user_id){
+                } elseif (!is_null($currentSelectAuthorID) && $currentSelectAuthorID === $user->user_id) {
                     $authorFrag .= "<option value='$user->user_id' selected>$user->user_name</option>";
                 } else {
                     $authorFrag .= "<option value='$user->user_id'>$user->user_name</option>";
@@ -301,12 +330,21 @@ class UserData extends AbstractDataLayer
             'verified_attempt' => 0,        # number of times user tried verifying
             /**
              * As you can see the expire_lock_time has in fact expired (this is default)
-             * So, each time the verification_code_at is 5 and above, we add the current_time plus 10 more minutes to...
+             * So, each time the x_verification_code is 5 and above, we add the current_time plus 5 more minutes to...
              * lock user from generating too much verification code, this is like throttling if you get me ;)
-             * And whenever the time expires, user can send a new one, if they fail again, we give another 10 minutes :p
+             * And whenever the time expires, user can send a new one, if they fail again, we give another 5 minutes :p
              */
             'expire_lock_time' => '1997-07-05 00:00:00',
         ];
+    }
+
+    public static function generateVerificationArrayDataForCustomer(): array
+    {
+        $verification = self::generateVerificationArrayDataForUser();
+        # When a user is guest, this is the hash that would be used to identify the user when the user is
+        # trying to transfer the guest account to an actual user account.
+        $verification['guest_hash'] = null;
+        return $verification;
     }
 
     /**
@@ -326,25 +364,7 @@ class UserData extends AbstractDataLayer
                 'hash_token' => $apiTokenAndHash->hash,
                 'updated_at' => helper()->date()
             ],
-            'verification' => [
-                'verification_code' => null,    # the unique verification code
-                'verification_code_at' => null, # time the verification code was created
-                'x_verification_code' => 0,     # number of times verification code was generated or requested
-                'is_verified' => 0,             # is verification code verified....1 for true, 0 for false
-                'is_sent' => 0,                 # is email sent...1 for true, 0 for false
-                'verified_at' => null,          # when the code was verified
-                'verified_attempt' => 0,        # number of times user tried verifying
-                /**
-                 * As you can see the expire_lock_time has in fact expired (this is default)
-                 * So, each time the verification_code_at is 5 and above, we add the current_time plus 10 more minutes to...
-                 * lock user from generating too much verification code, this is like throttling if you get me ;)
-                 * And whenever the time expires, user can send a new one, if they fail again, we give another 10 minutes :p
-                 */
-                'expire_lock_time' => '1997-07-05 00:00:00',
-                # When a user is guest, this is the hash that would be used to identify the user when the user is
-                # trying to transfer the guest account to an actual user account.
-                'guest_hash' => null,
-            ],
+            'verification' => self::generateVerificationArrayDataForCustomer(),
             'active_sessions' => []
         ]);
     }

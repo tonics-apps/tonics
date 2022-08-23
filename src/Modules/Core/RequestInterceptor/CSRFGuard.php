@@ -39,7 +39,7 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
         // Token Mis-Match, send to login page
         if ($this->getStateResult() === self::ERROR){
             session()->logout();
-            redirect(route('admin.login'));
+            Authenticated::handleUnAunthenticated();
         }
     }
 

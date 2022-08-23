@@ -16,10 +16,10 @@ final class Roles
 {
 
     #
-    # DON'T FALL FOR A TRAP: If you wanna add extra permission, add it below the last CAN_,
+    # DON'T FALL FOR A TRAP: If you want to add extra permission, add it below the last CAN_,
     # e.g. if you add CAN_NEW = 2 between CAN_READ = 1 and CAN_WRITE = 2, and you gave CAN_NEW number 2,
     # while updating the rest of the number incrementally (meaning CAN_WRITE would now start from 3, and you bump the rest by one),
-    # the problem you'll face is the permission of CAN_WRITE would be transfer to CAN_NEW (you don't wanna mess up permissions).
+    # the problem you'll face is the permission of CAN_WRITE would be transfer to CAN_NEW (you don't want to mess up permissions).
     #
     # To be on a safer side, add it below the last can, e.g. if the las CAN_ is given number 20, give the new CAN_ number 21 and so on.
     #
@@ -40,20 +40,18 @@ final class Roles
     const CAN_ACCESS_TRACK = 12;
     const CAN_ACCESS_WIDGET = 13;
 
+    # MODULE
+    const CAN_ACCESS_MODULE = 14;
+
     # THEMES and PLUGIN...
-    const CAN_ACCESS_THEME = 14;
-    const CAN_ACCESS_PLUGIN = 15;
+    const CAN_ACCESS_APPS = 15;
 
     # FIELD
     const CAN_ACCESS_FIELD = 16;
 
-    # MODULE
-    const CAN_ACCESS_MODULE = 16;
-
     # Update Mechanism
     const CAN_UPDATE_MODULES = 17;
-    const CAN_UPDATE_PLUGINS = 18;
-    const CAN_UPDATE_THEMES = 19;
+    const CAN_UPDATE_APPS = 18;
 
     #[Pure] public static function ADMIN(): string
     {
@@ -71,13 +69,11 @@ final class Roles
             self::shiftLeft(self::CAN_ACCESS_TRACK),
             self::shiftLeft(self::CAN_ACCESS_WIDGET),
             self::shiftLeft(self::CAN_ACCESS_FIELD),
-            self::shiftLeft(self::CAN_ACCESS_THEME),
-            self::shiftLeft(self::CAN_ACCESS_PLUGIN),
+            self::shiftLeft(self::CAN_ACCESS_APPS),
             self::shiftLeft(self::CAN_ACCESS_MODULE),
 
             self::shiftLeft(self::CAN_UPDATE_MODULES),
-            self::shiftLeft(self::CAN_UPDATE_PLUGINS),
-            self::shiftLeft(self::CAN_UPDATE_THEMES),
+            self::shiftLeft(self::CAN_UPDATE_APPS),
         ];
         return self::gmpOr($adminPermissions);
     }
@@ -86,8 +82,7 @@ final class Roles
     {
         $permissions = [
             self::shiftLeft(self::CAN_UPDATE_MODULES),
-            self::shiftLeft(self::CAN_UPDATE_PLUGINS),
-            self::shiftLeft(self::CAN_UPDATE_THEMES),
+            self::shiftLeft(self::CAN_UPDATE_APPS),
         ];
         return self::gmpOr($permissions);
     }
@@ -122,7 +117,6 @@ final class Roles
     {
         $permissions = [
             self::shiftLeft(self::CAN_READ),
-            self::shiftLeft(self::CAN_UPDATE),
             self::shiftLeft(self::CAN_ACCESS_CUSTOMER),
         ];
         return self::gmpOr($permissions);

@@ -46,4 +46,22 @@ class MailConfig
     {
         return env('MAIL_FROM_ADDRESS');
     }
+
+    public static function getMailDataSource(
+        string|null $smtp = null,
+        string|null $userName = null,
+        string|null $password = null,
+        string|null $host = null,
+        int|null $port = null,
+    ): string
+    {
+        if (!$smtp){ $smtp = 'smtp-starttls'; }
+        if (!$port){ $port = self::getMailPort(); }
+        if (!$host){ $host = self::getMailHost(); }
+        if (!$userName){ $userName = self::getMailUsername(); }
+        if (!$password){ $password = self::getMailPassword(); }
+
+        return "$smtp://" . str_replace('@', '%40', $userName) . ':' .
+            $password . '@' . $host . ':' . $port;
+    }
 }

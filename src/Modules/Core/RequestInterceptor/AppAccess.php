@@ -25,7 +25,7 @@ class AppAccess implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::CAN_ACCESS_THEME) === false){
+        if (UserData::canAccess(Roles::CAN_ACCESS_APPS) === false){
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

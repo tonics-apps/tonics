@@ -8,7 +8,7 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Core\Jobs;
+namespace App\Modules\Customer\Jobs;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\MailConfig;
@@ -23,7 +23,7 @@ use Genkgo\Mail\Protocol\Smtp\ClientFactory;
 use Genkgo\Mail\Transport\EnvelopeFactory;
 use Genkgo\Mail\Transport\SmtpTransport;
 
-class UserAdminForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInterface
+class CustomerRegistrationVerificationCodeEmail extends AbstractJobInterface implements JobHandlerInterface
 {
 
     /**
@@ -31,7 +31,7 @@ class UserAdminForgotPasswordEmail extends AbstractJobInterface implements JobHa
      */
     public function handle(): void
     {
-        $messageToSend = view('Modules::Core/Views/Emails/forgot-password', [
+        $messageToSend = view('Modules::Customer/Views/Emails/email-verification', [
             'Username' => $this->getData()->user_name,
             'Email' => $this->getData()->email,
             'Verification_Code' => $this->getData()->verification->verification_code,

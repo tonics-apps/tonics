@@ -11,10 +11,12 @@
 namespace App\Modules\Customer\Routes;
 
 
+use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Customer\Controllers\CustomerAuth\ForgotPasswordController;
 use App\Modules\Customer\Controllers\CustomerAuth\LoginController;
 use App\Modules\Customer\Controllers\CustomerAuth\RegisterController;
+use App\Modules\Customer\Controllers\DashboardController;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait RouteWeb
@@ -32,16 +34,16 @@ trait RouteWeb
                         #---------------------------------
                     # LOGIN ROUTES...
                 #---------------------------------
-                $route->get('login', [LoginController::class, 'showLoginForm'], alias: 'login');
+                $route->get('login', [LoginController::class, 'showLoginForm'], requestInterceptor: [RedirectAuthenticated::class], alias: 'login');
                 $route->post('login', [LoginController::class, 'login']);
                 $route->post('logout', [LoginController::class, 'logout'], alias: 'logout');
+
                         #---------------------------------
                     # REGISTRATION ROUTES...
                 #---------------------------------
                 $route->get('register', [RegisterController::class, 'showRegistrationForm'], alias: 'register');
                 $route->post('register', [RegisterController::class, 'register']);
-
-            }, [RedirectAuthenticated::class]);
+            });
 
                     #---------------------------------
                 # PASSWORD RESET ROUTES...
@@ -49,15 +51,16 @@ trait RouteWeb
             $route->group('/password', callback: function (Route $route){
                 $route->get('/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'request');
                 $route->post('/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'email');
-//                $route->get('/reset/:token', [ResetPasswordController::class, 'showResetForm'], alias: 'reset');
-//                $route->post('/reset', [ResetPasswordController::class, 'CustomerAuth\ResetPasswordController@reset'], alias: 'update');
+                $route->get('/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'verifyEmail');
+                $route->post('/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'update');
             }, alias: 'password');
 
                     #---------------------------------
                 # EMAIL VERIFICATION...
             #---------------------------------
-//            $route->get('email/verify', [VerificationController::class, 'verificationNotice'], alias: 'verification.notice');
-//            $route->post('email/verify', [VerificationController::class, 'verify'], alias: 'verification.verify');
+            $route->get('send_verification_code', [RegisterController::class, 'sendRegisterVerificationCode'], alias: 'sendRegisterVerificationCode');
+            $route->get('verifyEmail', [RegisterController::class, 'showVerifyEmailForm'], alias: 'verifyEmailForm');
+            $route->post('verifyEmail', [RegisterController::class, 'verifyEmail'], alias: 'verifyEmail');
 
                     #---------------------------------
                 # TRANSFER GUEST CUSTOMER ACCOUNT...
@@ -73,7 +76,11 @@ trait RouteWeb
                 $route->match(['put', 'patch'], 'settings', [CustomerDashboardController::class, 'update'], alias: 'settings.update');
                 $route->get('dashboard', [CustomerDashboardController::class, 'dashboard'], alias: 'dashboard');
             }, [Customer::class, VerifyCustomer::class]);*/
-        }, alias: 'customer');
+
+            $route->group('', callback: function (Route $route){
+                $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
+            });
+        }, AuthConfig::getCSRFRequestInterceptor(),  'customer');
 
         return $route;
     }
