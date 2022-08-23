@@ -55,7 +55,6 @@ class RegisterController extends Controller
             'user_name' => input()->fromPost()->retrieve('username'),
             'email' => input()->fromPost()->retrieve('email'),
             'user_password' => helper()->securePass(input()->fromPost()->retrieve('password')),
-            'role' => Roles::CUSTOMER(),
             'settings'=> UserData::generateCustomerJSONSettings()
         ];
 
@@ -77,10 +76,8 @@ class RegisterController extends Controller
      */
     #[NoReturn] public function sendRegisterVerificationCode()
     {
-
         if (\session()->hasKey(Session::SessionCategories_NewVerification)){
             $data = session()->retrieve(Session::SessionCategories_NewVerification, jsonDecode: true);
-            $data = json_decode($data);
             $data->verification = $this->handleVerificationCodeGeneration($data->verification);
             session()->append(Session::SessionCategories_NewVerification, $data);
             $this->sendNewRegistrationJob($data);
@@ -112,13 +109,14 @@ class RegisterController extends Controller
 
         if (\session()->hasKey(Session::SessionCategories_NewVerification)){
             $data = session()->retrieve(Session::SessionCategories_NewVerification, jsonDecode: true);
-            $data = json_decode($data);
             if (!hash_equals(input()->fromPost()->retrieve('verification-code', helper()->randomString()), (string)$data->verification->verification_code)){
                 session()->flash(['Invalid Verification Code']);
                 redirect(route('customer.verifyEmailForm'));
             }
 
-            db()->update($this->getUsersData()->getCustomersTable(), ['email_verified_at' => helper()->date()], ['email' => $data->email]);
+            db()->update($this->getUsersData()->getCustomersTable(), ['email_verified_at' => helper()->date(), 'role' => Roles::CUSTOMER()], ['email' => $data->email]);
+
+           // $this->getUsersData()->validateCustomer();
 
             // login user and redirect to customer dashboard
             // dd($_POST, $data);

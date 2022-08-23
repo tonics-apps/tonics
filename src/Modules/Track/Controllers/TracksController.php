@@ -70,8 +70,7 @@ class TracksController extends Controller
 
         event()->dispatch($this->onTrackDefaultField);
 
-        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true);
-        $oldFormInput = json_decode($oldFormInput, true);
+        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
             $oldFormInput = [];
         }

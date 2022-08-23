@@ -1,18 +1,14 @@
-[[inherit("Modules::Core/Views/Templates/core")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
 [[import("Modules::Core/Views/Blocks/Post")]]
 
 [[hook_into('in_head_title')Add New Category]]
 [[hook_into('in_main_header_title')Add New Category]]
 
-[[hook_into('in_main')
-    [[_use('Post::Category::form::create')]]
-]]
+[[hook_into('form_action')[[use('Post::Category::route::posts.store')]]]]
 
 [[hook_into('before_footer')
     [[_use("script:variables")]]
     [[_use("script:tinymce")]]
     [[_use("script:post-category")]]
     [[_use("session:delete-artifacts")]]
-
-
 ]]

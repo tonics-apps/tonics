@@ -54,12 +54,6 @@ class PostAuthorSelect implements HandlerInterface
             value="$inputName" placeholder="(Optional) Input Name">
     </label>
 </div>
-    <div class="form-group">
-      <label class="menu-settings-handle-name" for="element-attributes-$changeID">Element Attributes
-            <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
-    </label>
-</div>
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -74,7 +68,7 @@ FORM;
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostCategorySelect';
         $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $userData = new UserData();
-        $categories = $userData->getPostAuthorHTMLSelect($inputName ?: null);
+        $authors = $userData->getPostAuthorHTMLSelect($inputName ?: null);
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
@@ -82,9 +76,8 @@ FORM;
 
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
-    <select id="categories" name="$inputName" class="default-selector">
-                    <option value="" selected style="color: #004085">-Parent Category-</option>
-                    $categories
+    <select id="authors" name="$inputName" class="default-selector">
+                    $authors
     </select>
 </div>
 FORM;

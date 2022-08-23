@@ -19,7 +19,7 @@ final class Tables
         self::ARTISTS => ['artist_id', 'artist_name', 'artist_slug', 'artist_bio', 'image_url', 'created_at', 'updated_at'],
         self::PAGES => ['page_id', 'field_ids', 'page_title', 'page_slug', 'page_status', 'field_settings', 'created_at', 'updated_at'],
         self::CAT_RELS => ['catrel_id', 'post_id', 'cat_parent_id'],
-        self::CATEGORIES => ['cat_id', 'cat_parent_id', 'slug_id', 'cat_name', 'cat_slug', 'cat_content', 'cat_status', 'created_at', 'updated_at'],
+        self::CATEGORIES => ['cat_id', 'cat_parent_id', 'slug_id', 'cat_name', 'cat_slug', 'cat_content', 'cat_status', 'field_ids', 'field_settings', 'created_at', 'updated_at'],
         self::GENRES => ['genre_id', 'genre_name', 'genre_slug', 'genre_description', 'can_delete', 'genre_status', 'created_at', 'updated_at'],
         self::LICENSES => ['license_id', 'license_name', 'license_slug', 'license_status', 'license_attr', 'created_at', 'updated_at'],
         self::MENU_ITEMS => ['id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at'],

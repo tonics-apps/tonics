@@ -60,12 +60,6 @@ class TrackLicenseSelect implements HandlerInterface
             value="$inputName" placeholder="(Optional) Input Name">
     </label>
 </div>
-    <div class="form-group">
-      <label class="menu-settings-handle-name" for="element-attributes-$changeID">Element Attributes
-            <input id="element-attributes-$changeID" name="attributes" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$attributes" placeholder="e.g class='class-name' id='id-name' or any attributes">
-    </label>
-</div>
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();

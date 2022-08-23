@@ -16,6 +16,7 @@ use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Post\EventHandlers\CategoryMenuMetaBox;
+use App\Modules\Post\EventHandlers\DefaultPostCategoryFieldHandler;
 use App\Modules\Post\EventHandlers\DefaultPostFieldHandler;
 use App\Modules\Post\EventHandlers\HandleNewCategorySlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostSlugIDGeneration;
@@ -25,6 +26,7 @@ use App\Modules\Post\EventHandlers\PostMenuMetaBox;
 use App\Modules\Post\EventHandlers\PostMenus;
 use App\Modules\Post\Events\OnBeforePostSave;
 use App\Modules\Post\Events\OnPostCategoryCreate;
+use App\Modules\Post\Events\OnPostCategoryDefaultField;
 use App\Modules\Post\Events\OnPostCreate;
 use App\Modules\Post\Events\OnPostDefaultField;
 use App\Modules\Post\Events\OnPostUpdate;
@@ -77,6 +79,10 @@ class PostActivator implements ExtensionConfig
             OnPostDefaultField::class => [
               DefaultPostFieldHandler::class
             ],
+
+            OnPostCategoryDefaultField::class => [
+                DefaultPostCategoryFieldHandler::class
+            ]
 
         ];
     }

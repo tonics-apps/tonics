@@ -139,7 +139,7 @@ SQL, $this->getCookieID());
      * @return mixed
      * @throws \Exception
      */
-    public function retrieve(string $key, ?string $default = '', bool $jsonDecode = false): mixed
+    public function retrieve(string $key, ?string $default = '', bool $jsonDecode = false, bool $jsonEncodeAsArray = false): mixed
     {
         if ($this->sessionExist()) {
 
@@ -150,7 +150,8 @@ SQL, $this->getCookieID());
 
             if (property_exists($res, 'row')) {
                 if ($jsonDecode) {
-                    return ($res->row === null) ? '' : json_decode($res->row, true);
+                    $asArray = $jsonEncodeAsArray === true;
+                    return ($res->row === null) ? '' : json_decode($res->row, $asArray);
                 }
                 return ($res->row === null) ? '' : $res->row;
             }
@@ -218,9 +219,6 @@ SQL, $this->getCookieID());
     public function append(string $key, array|stdClass|string $data): void
     {
         if ($this->sessionExist()) {
-            if (is_array($data) || is_object($data)) {
-                $data = json_encode($data);
-            }
 
             $sessionData = $this->read(true);
             if (empty($sessionData)) {
@@ -284,46 +282,6 @@ SQL, $jsonPath, $sessionID);
         }
 
         return session()->retrieve(Session::SessionCategories_CSRFToken, jsonDecode: true);
-    }
-
-
-    /**
-     * If oldFormInput exist and is equals $equals, return $return
-     * @param $key
-     * @param $equals
-     * @param string $return
-     * @return mixed
-     * @throws \Exception
-     */
-    public function isOldFormInputEquals($key, $equals, string $return = ''): mixed
-    {
-        if (!str_starts_with($key, self::SessionCategories_OldFormInput .'.')){
-            $key = self::SessionCategories_OldFormInput .'.' . $key;
-        }
-        $keys = explode('.', $key);
-        $root = array_shift($keys);
-        $formData = $this->getValue($root);
-        if ($formData !== false && isset($formData->row)){
-            $data = $formData->row;
-            if (is_string($data)){
-                $data = json_decode($data);
-                if (!is_object($data)){
-                    return '';
-                }
-            }
-            foreach ($keys as $k) {
-                if (property_exists($data, $k)) {
-                    $data = $data->{$k};
-                } else {
-                    break;
-                }
-            }
-
-            if ($data === $equals){
-                return $return;
-            }
-        }
-        return  '';
     }
 
     /**
@@ -440,16 +398,9 @@ SQL, $jsonPath, $sessionID);
         $keys = explode('.', $key);
         $root = array_shift($keys);
         $sessionData = $this->retrieve($root, default: true, jsonDecode: true);
-        if (is_string($sessionData) && !empty($sessionData)) {
-            $sessionData = json_decode($sessionData);
-            if (!empty($sessionData)){
-                foreach ($keys as $k) {
-                    if (property_exists($sessionData, $k)) {
-                        $sessionData = $sessionData->{$k};
-                    } else {
-                        $sessionData = '';
-                    }
-                }
+        if (!empty($sessionData)){
+            foreach ($keys as $k) {
+                $sessionData = $sessionData->{$k} ?? '';
             }
         }
         if (empty($sessionData)) {
@@ -470,18 +421,17 @@ SQL, $jsonPath, $sessionID);
         $root = array_shift($keyExploded);
         $messages = $this->retrieve($root, default: true, jsonDecode: true);
 
-        if (is_string($messages) && !empty($messages)) {
-            $messages = json_decode($messages);
+        if (!empty($messages)) {
             if (is_object($messages)) {
                 $messages = json_decode(json_encode($messages), true) ?? [];
-            }
-            foreach ($keyExploded as $k) {
-                if (key_exists($k, $messages)) {
-                    $messages = $messages[$k];
-
-                    // nested key, doesn't exist, return empty string
-                } elseif ($keyExplodedCount > 1){
-                    return '';
+            }elseif (is_array($messages)){
+                foreach ($keyExploded as $k) {
+                    if (key_exists($k, $messages)) {
+                        $messages = $messages[$k];
+                        // nested key, doesn't exist, return empty string
+                    } elseif ($keyExplodedCount > 1){
+                        return '';
+                    }
                 }
             }
         }

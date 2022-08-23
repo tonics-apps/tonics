@@ -54,7 +54,6 @@ class ForgotPasswordController extends Controller
             if (hash_equals(AppConfig::getKey(), $app_key) && isset($forgotPasswordData->email) && hash_equals($forgotPasswordData->email, $email)){
                 if (session()->hasKey(Session::SessionCategories_PasswordReset)){
                     $verification = session()->retrieve(Session::SessionCategories_PasswordReset, jsonDecode: true);
-                    $verification = json_decode($verification);
                     $verification = $verification->verification;
                 } else {
                     $verification = (object)UserData::generateVerificationArrayDataForUser();
@@ -118,7 +117,6 @@ class ForgotPasswordController extends Controller
 
         try {
             $verificationData = session()->retrieve(Session::SessionCategories_PasswordReset, jsonDecode: true);
-            $verificationData = json_decode($verificationData);
             $verification = $verificationData->verification;
 
             $timeDifference = time() - $verification->verification_code_at;

@@ -105,8 +105,7 @@ class UserData extends AbstractDataLayer
      */
     public function validateUser(string $email, string $pass): bool
     {
-        $table = $this->getUsersTable();
-        $userInfo = $this->selectWithCondition($table, ['email', 'user_name', 'user_password', 'role', 'settings'], "email = ?", [$email]);
+       $userInfo = $this->selectWithCondition($this->getUsersTable(), ['email', 'user_name', 'user_password', 'role', 'settings'], "email = ?", [$email]);
         $verifyPass = false;
         if ($userInfo instanceof \stdClass) {
             $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);
@@ -133,6 +132,43 @@ class UserData extends AbstractDataLayer
             }
 
             db()->update($this->getUsersTable(), ['settings' => json_encode($settings)], ['email' => $userInfo->email]);
+        }
+        return true;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function validateCustomer(string $email, string $pass): bool
+    {
+        $userInfo = $this->selectWithCondition($this->getCustomersTable(), ['email', 'user_name', 'user_password', 'role', 'settings'], "email = ?", [$email]);
+        $verifyPass = false;
+        if ($userInfo instanceof \stdClass) {
+            $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);
+            $userInfo->user_table = Tables::CUSTOMERS;
+            unset($userInfo->user_password);
+        }
+
+        if ($verifyPass === false) {
+            return false;
+        }
+
+        ## Saving User settings in session auth_info might be unnecessary and won't sync, but we would see.
+        ## $userInfo->{'settings'} = json_decode( $userInfo->{'settings'});
+        session()->append(Session::SessionCategories_AuthInfo, $userInfo);
+        session()->regenerate();
+
+        $settings = json_decode($userInfo->settings);
+
+        # Store the active session
+        if (is_object($settings)) {
+            if (!property_exists($settings, 'active_sessions')) {
+                $settings->active_sessions = [session()->getCookieID(session()->sessionName())];
+            } else {
+                $settings->active_sessions[] = session()->getCookieID(session()->sessionName());
+            }
+
+            db()->update($this->getCustomersTable(), ['settings' => json_encode($settings)], ['email' => $userInfo->email]);
         }
         return true;
     }
@@ -178,21 +214,15 @@ class UserData extends AbstractDataLayer
     public static function getAuthenticationInfo(string $key = Session::SessionCategories_AuthInfo): mixed
     {
         $sessionData = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
-
         $result = '';
         if (empty($sessionData)) {
             return $result;
         }
-
         if ($key === Session::SessionCategories_AuthInfo) {
-            return json_decode($sessionData);
+            return $sessionData;
         }
-
-        if (is_string($sessionData)) {
-            $sessionData = json_decode($sessionData);
-            if (property_exists($sessionData, $key)) {
-                $result = $sessionData->{$key};
-            }
+        if (isset($sessionData->{$key})){
+            $result = $sessionData->{$key};
         }
         return $result;
     }

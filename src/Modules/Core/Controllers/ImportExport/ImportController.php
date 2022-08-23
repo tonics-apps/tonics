@@ -69,7 +69,6 @@ class ImportController
         $startImportError = true;
         try {
             $importInfo = session()->retrieve(Session::SessionCategories_WordPressImport, jsonDecode: true);
-            $importInfo = json_decode($importInfo);
             $validator = $this->getValidator()->make($importInfo, $this->getWordPressImportRules());
             if ($validator->fails()) {
                 $startImportError = false;

@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `cat_slug` varchar(100) NOT NULL,
   `cat_content` text DEFAULT NULL,
   `cat_status` tinyint(4) DEFAULT 1,
+  `field_ids` longtext DEFAULT '{}' CHECK (json_valid(`field_ids`)),
+  `field_settings` longtext DEFAULT '{}' CHECK (json_valid(`field_settings`)),
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`cat_id`),

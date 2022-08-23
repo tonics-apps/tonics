@@ -154,9 +154,12 @@ HTML;
 
         $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
+        // Having grid-template-columns: repeat(autofit, var(--column-width)); cancels out any row or col number
+        // This is intended to make things responsive for user
+
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
-    <div style="--row:$row; --column:$column;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+    <div style="--row:$row; --column:$column; grid-template-columns: repeat(autofit, var(--column-width));" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
         $cell = $row * $column;
         for ($i = 1; $i <= $cell; $i++) {

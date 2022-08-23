@@ -76,12 +76,9 @@ class PostsController
      */
     public function create()
     {
-        $this->fieldData->getFieldItemsAPI();
-
         event()->dispatch($this->onPostDefaultField);
 
-        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true);
-        $oldFormInput = json_decode($oldFormInput, true);
+        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
             $oldFormInput = [];
         }
@@ -361,6 +358,14 @@ class PostsController
     public function getFieldData(): FieldData
     {
         return $this->fieldData;
+    }
+
+    /**
+     * @param FieldData|null $fieldData
+     */
+    public function setFieldData(?FieldData $fieldData): void
+    {
+        $this->fieldData = $fieldData;
     }
 
 }
