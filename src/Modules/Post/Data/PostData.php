@@ -170,9 +170,7 @@ CAT;
 
     public function getPostToCategoriesColumns(): array
     {
-        return [
-            'id', 'fk_cat_id', 'fk_post_id', 'created_at', 'updated_at'
-        ];
+        return Tables::$TABLES[Tables::POST_CATEGORIES];
     }
 
     /**
@@ -183,9 +181,6 @@ CAT;
         $slug = $this->generateUniqueSlug($this->getCategoryTable(),
             'cat_slug',
             helper()->slug(input()->fromPost()->retrieve('cat_slug')));
-
-        $_POST['field_settings'] = input()->fromPost()->all();
-        unset($_POST['field_settings']['token']);
 
         $category = [];
         $categoryCols = array_flip($this->getCategoryColumns());
@@ -229,9 +224,6 @@ CAT;
     {
         $slug = $this->generateUniqueSlug($this->getPostTable(),
             'post_slug', helper()->slug(input()->fromPost()->retrieve('post_slug')));
-
-        $_POST['field_settings'] = input()->fromPost()->all();
-        unset($_POST['field_settings']['token']);
 
         $post = [];
         $postColumns = array_flip($this->getPostColumns());
@@ -419,7 +411,6 @@ SQL, ...$parameter);
             $defaultCategory = [
                 'cat_name' => 'Default Category',
                 'cat_slug' => 'default-category',
-                'cat_content' => '',
                 'cat_status' => 1,
             ];
 

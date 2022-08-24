@@ -231,6 +231,7 @@ HTML;
      * @param bool $showSearch
      * @param OnTrackCreate|null $onTrackCreate
      * @param string $inputName
+     * @param string $type
      * @return string
      */
     public function genreCheckBoxListing($genres, bool $showSearch = true, OnTrackCreate $onTrackCreate = null, string $inputName = 'fk_genre_id', string $type = 'radio'): string
@@ -552,9 +553,6 @@ HTML;
     {
         $slug = $this->generateUniqueSlug($this->getTrackTable(),
             'track_slug', helper()->slug(input()->fromPost()->retrieve('track_slug')));
-
-        $_POST['field_settings'] = input()->fromPost()->all();
-        unset($_POST['field_settings']['token']);
 
         $track = []; $postColumns = array_flip($this->getTrackColumns());
         foreach (input()->fromPost()->all() as $inputKey => $inputValue){

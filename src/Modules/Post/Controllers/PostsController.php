@@ -108,8 +108,9 @@ class PostsController
 
         $post = $this->postData->createPost(['token']);
 
-        event()->dispatch(new OnBeforePostSave($post));
-        $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
+        $onBeforePostSave = new OnBeforePostSave($post);
+        event()->dispatch($onBeforePostSave);
+        $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
 
         $onPostCreate = new OnPostCreate($postReturning, $this->postData);
         event()->dispatch($onPostCreate);
@@ -135,7 +136,7 @@ class PostsController
                 helper()->sendMsg('PostsController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
                 return false;
             }
-            $post = $this->postData->createPost();
+            $post = $this->postData->createPost(['token']);
             $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
         } catch (\Exception $e) {
             helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');

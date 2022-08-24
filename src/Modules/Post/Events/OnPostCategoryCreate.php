@@ -74,11 +74,6 @@ class OnPostCategoryCreate implements EventInterface
         return (property_exists($this->category, 'cat_slug')) ? $this->category->cat_slug : '';
     }
 
-    public function getCatContent(): string
-    {
-        return (property_exists($this->category, 'cat_content')) ? $this->category->cat_content : '';
-    }
-
     public function getCatCreatedAt(): mixed
     {
         return (property_exists($this->category, 'created_at')) ? str_replace(' ', 'T', $this->category->created_at) : '';
