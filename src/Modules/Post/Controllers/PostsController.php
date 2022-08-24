@@ -37,21 +37,15 @@ class PostsController
 
     private PostData $postData;
     private UserData $userData;
-    private ?FieldData $fieldData;
-    private ?OnPostDefaultField $onPostDefaultField;
 
     /**
      * @param PostData $postData
      * @param UserData $userData
-     * @param FieldData|null $fieldData
-     * @param OnPostDefaultField|null $onPostDefaultField
      */
-    public function __construct(PostData $postData, UserData $userData, FieldData $fieldData = null, OnPostDefaultField $onPostDefaultField = null)
+    public function __construct(PostData $postData, UserData $userData)
     {
         $this->postData = $postData;
         $this->userData = $userData;
-        $this->fieldData = $fieldData;
-        $this->onPostDefaultField = $onPostDefaultField;
     }
 
     /**
@@ -76,7 +70,7 @@ class PostsController
      */
     public function create()
     {
-        event()->dispatch($this->onPostDefaultField);
+        event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
@@ -86,7 +80,8 @@ class PostsController
         view('Modules::Post/Views/create', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onPostDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+            'FieldItems' => $this->getFieldData()
+                ->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
         ]);
     }
 
@@ -99,6 +94,7 @@ class PostsController
         if (input()->fromPost()->hasValue('created_at') === false){
             $_POST['created_at'] = helper()->date();
         }
+
         if (input()->fromPost()->hasValue('post_slug') === false){
             $_POST['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_title'));
         }
@@ -165,7 +161,7 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        $fieldSettings = $this->fieldData->handleEditorMode($fieldSettings, 'post_content');
+        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
 
         if (empty($fieldSettings)){
             $fieldSettings = (array)$post;
@@ -173,12 +169,9 @@ class PostsController
             $fieldSettings = [...$fieldSettings, ...(array)$post];
         }
 
-        $onPostDefaultField = $this->onPostDefaultField;
-        $fieldIDS = ($post->field_ids === null) ? [] : json_decode($post->field_ids, true);
-        $onPostDefaultField->setFieldSlug($fieldIDS);
-        event()->dispatch($onPostDefaultField);
+        event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
-        $fieldForm = $this->fieldData->generateFieldWithFieldSlug($onPostDefaultField->getFieldSlug(), $fieldSettings);
+        $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $fieldSettings);
         $fieldItems = $fieldForm->getHTMLFrag();
         view('Modules::Post/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
@@ -357,15 +350,7 @@ class PostsController
      */
     public function getFieldData(): FieldData
     {
-        return $this->fieldData;
-    }
-
-    /**
-     * @param FieldData|null $fieldData
-     */
-    public function setFieldData(?FieldData $fieldData): void
-    {
-        $this->fieldData = $fieldData;
+        return $this->getPostData()->getFieldData();
     }
 
 }

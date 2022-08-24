@@ -126,6 +126,62 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_options": "{\"field_slug\":\"media_media-image\",\"media_media-image_cell\":\"4\",\"field_slug_unique_hash\":\"c37249cd27fa2cf9fb227c48f80a96\",\"fieldName\":\"Featured Image\",\"inputName\":\"image_url\",\"imageLink\":\"\",\"featured_image\":\"\",\"defaultImage\":\"\"}"
   },
   {
+    "fk_field_id": "Post Category Page",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"5dk0d0jv6uk0000000000\",\"fieldName\":\"Category Experience\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Post Category Page",
+    "field_name": "input_text",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"lkrrixgthjk000000000\",\"fieldName\":\"Category Title\",\"inputName\":\"cat_name\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Post Category Page",
+    "field_name": "input_rich-text",
+    "field_id": 3,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"1pv65aei9cjk000000000\",\"fieldName\":\"Category Content\",\"inputName\":\"cat_content\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Post Category Page",
+    "field_name": "modular_rowcolumn",
+    "field_id": 4,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"5xxzokq5lo40000000000\",\"fieldName\":\"Category Settings\",\"inputName\":\"\",\"row\":\"2\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Post Category Page",
+    "field_name": "post_postcategoryselect",
+    "field_id": 5,
+    "field_parent_id": 4,
+    "field_options": "{\"field_slug\":\"post_postcategoryselect\",\"post_postcategoryselect_cell\":\"1\",\"field_slug_unique_hash\":\"30hrng80bsq0000000000\",\"fieldName\":\"Parent Category\",\"inputName\":\"cat_parent_id\"}"
+  },
+  {
+    "fk_field_id": "Post Category Page",
+    "field_name": "input_text",
+    "field_id": 6,
+    "field_parent_id": 4,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"emtsom2l840000000000\",\"fieldName\":\"Category Slug\",\"inputName\":\"cat_slug\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Post Category Page",
+    "field_name": "input_select",
+    "field_id": 7,
+    "field_parent_id": 4,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"2\",\"field_slug_unique_hash\":\"4k2tcrdkm900000000000\",\"fieldName\":\"Category Status\",\"inputName\":\"cat_status\",\"selectData\":\"0:Draft,1:Publish,-1:Trash\",\"defaultValue\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Post Category Page",
+    "field_name": "input_date",
+    "field_id": 8,
+    "field_parent_id": 4,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"2\",\"field_slug_unique_hash\":\"3e0oy7otbm20000000000\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+  },
+  {
     "fk_field_id": "Track Page",
     "field_name": "modular_rowcolumn",
     "field_id": 1,

@@ -13,10 +13,22 @@ namespace App\Modules\Track\Data;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Data\FieldData;
 use App\Modules\Track\Events\OnTrackCreate;
+use App\Modules\Track\Events\OnTrackDefaultField;
 
 class TrackData extends AbstractDataLayer
 {
+
+    private ?OnTrackDefaultField $onTrackDefaultField;
+    private ?FieldData $fieldData;
+
+    public function __construct(OnTrackDefaultField $onTrackDefaultField = null, FieldData $fieldData = null)
+    {
+        $this->onTrackDefaultField = $onTrackDefaultField;
+        $this->fieldData = $fieldData;
+    }
+
     use UniqueSlug;
 
     public function getArtistTable(): string
@@ -56,8 +68,7 @@ class TrackData extends AbstractDataLayer
 
     public function getTrackColumns(): array
     {
-        return ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'license_attr_id_link', 'track_title', 'track_plays', 'track_bpm',
-            'field_ids', 'field_settings', 'track_status', 'fk_genre_id', 'fk_artist_id', 'fk_license_id', 'created_at', 'updated_at'];
+        return Tables::$TABLES[Tables::TRACKS];
     }
 
     public function getAllTrackPageColumns(): string
@@ -568,19 +579,7 @@ HTML;
             }
         }
 
-        if (isset($track['field_ids'])){
-            $track['field_ids'] = array_values(array_flip(array_flip($track['field_ids'])));
-            $track['field_ids'] = json_encode($track['field_ids']);
-        }
-
-        if (isset($track['field_settings'])){
-            $track['field_settings'] = json_encode($track['field_settings']);
-            if (isset($track['field_ids'])){
-                $_POST['field_settings']['field_ids'] = $track['field_ids'];
-            }
-        }
-
-        return $track;
+        return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($track, 'track_title', 'track_content');
     }
 
     /**
@@ -702,6 +701,38 @@ HTML;
                 helper()->onSuccess($this->getLicenseURLDownloadListing($licenseAttr, $licenseAttrIDLink));
             }
         }
+    }
+
+    /**
+     * @return OnTrackDefaultField|null
+     */
+    public function getOnTrackDefaultField(): ?OnTrackDefaultField
+    {
+        return $this->onTrackDefaultField;
+    }
+
+    /**
+     * @param OnTrackDefaultField|null $onTrackDefaultField
+     */
+    public function setOnTrackDefaultField(?OnTrackDefaultField $onTrackDefaultField): void
+    {
+        $this->onTrackDefaultField = $onTrackDefaultField;
+    }
+
+    /**
+     * @return FieldData|null
+     */
+    public function getFieldData(): ?FieldData
+    {
+        return $this->fieldData;
+    }
+
+    /**
+     * @param FieldData|null $fieldData
+     */
+    public function setFieldData(?FieldData $fieldData): void
+    {
+        $this->fieldData = $fieldData;
     }
 
 }

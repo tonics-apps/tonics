@@ -39,7 +39,7 @@ class PostsController
     /**
      * @throws \Exception
      */
-    public function singlePost(): void
+    #[NoReturn] public function singlePost(): void
     {
         $this->getPostAccessView()->handlePost();
         $this->getPostAccessView()->showPost('Apps::NinetySeven/Views/Post/single', NinetySevenController::getSettingData());

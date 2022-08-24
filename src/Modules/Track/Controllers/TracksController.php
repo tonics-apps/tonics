@@ -30,14 +30,10 @@ class TracksController extends Controller
     use Validator, TrackValidationRules;
 
     private TrackData $trackData;
-    private ?FieldData $fieldData;
-    private ?OnTrackDefaultField $onTrackDefaultField;
 
-    public function __construct(TrackData $trackData, FieldData $fieldData = null, OnTrackDefaultField $onTrackDefaultField = null)
+    public function __construct(TrackData $trackData)
     {
         $this->trackData = $trackData;
-        $this->fieldData = $fieldData;
-        $this->onTrackDefaultField = $onTrackDefaultField;
     }
 
     /**
@@ -68,7 +64,7 @@ class TracksController extends Controller
         ## FOR LICENSE API META-BOX
         $this->getTrackData()->licenseMetaBox();
 
-        event()->dispatch($this->onTrackDefaultField);
+        event()->dispatch($this->getTrackData()->getOnTrackDefaultField());
 
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
@@ -78,7 +74,7 @@ class TracksController extends Controller
         view('Modules::Track/Views/create', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onTrackDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
+            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getOnTrackDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
         ]);
     }
 
@@ -148,18 +144,16 @@ class TracksController extends Controller
         $this->getTrackData()->licenseMetaBox($onTrackCreate);
 
         $fieldSettings = json_decode($track->field_settings, true);
+        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'track_content');
         if (empty($fieldSettings)){
             $fieldSettings = (array)$track;
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$track];
         }
 
-        $onTrackDefaultField = $this->onTrackDefaultField;
-        $fieldIDS = ($track->field_ids === null) ? [] : json_decode($track->field_ids, true);
-        $onTrackDefaultField->setFieldSlug($fieldIDS);
-        event()->dispatch($onTrackDefaultField);
+        event()->dispatch($this->getOnTrackDefaultField());
 
-        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onTrackDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
+        $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug($this->getOnTrackDefaultField()->getFieldSlug(), $fieldSettings)->getHTMLFrag();
 
         view('Modules::Track/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
@@ -332,7 +326,7 @@ class TracksController extends Controller
      */
     public function getFieldData(): ?FieldData
     {
-        return $this->fieldData;
+        return $this->getTrackData()->getFieldData();
     }
 
     /**
@@ -340,7 +334,7 @@ class TracksController extends Controller
      */
     public function getOnTrackDefaultField(): ?OnTrackDefaultField
     {
-        return $this->onTrackDefaultField;
+        return  $this->getTrackData()->getOnTrackDefaultField();
     }
 
 }

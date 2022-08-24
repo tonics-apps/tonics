@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `post_title` varchar(255) NOT NULL,
   `post_slug` varchar(255) NOT NULL,
   `post_status` tinyint(4) DEFAULT 0,
-  `field_ids` longtext DEFAULT '{}' CHECK (json_valid(`field_ids`)),
   `field_settings` longtext DEFAULT '{}' CHECK (json_valid(`field_settings`)),
   `created_at` timestamp DEFAULT current_timestamp() ,
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),

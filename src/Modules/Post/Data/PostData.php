@@ -15,9 +15,23 @@ use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Post\Events\OnPostCategoryCreate;
+use App\Modules\Post\Events\OnPostCategoryDefaultField;
+use App\Modules\Post\Events\OnPostDefaultField;
 
 class PostData extends AbstractDataLayer
 {
+
+    private ?FieldData $fieldData;
+    private ?OnPostDefaultField $onPostDefaultField;
+    private ?OnPostCategoryDefaultField $onPostCategoryDefaultField;
+
+    public function __construct(FieldData $fieldData = null, OnPostDefaultField $onPostDefaultField = null, OnPostCategoryDefaultField $onPostCategoryDefaultField = null)
+    {
+        $this->fieldData = $fieldData;
+        $this->onPostDefaultField = $onPostDefaultField;
+        $this->onPostCategoryDefaultField = $onPostCategoryDefaultField;
+    }
+
     use UniqueSlug;
 
     const Post_INT = 1;
@@ -44,11 +58,11 @@ class PostData extends AbstractDataLayer
         // tcs stands for tonics category system ;)
         return db()->run("
         WITH RECURSIVE cat_recursive AS 
-	( SELECT cat_id, cat_parent_id, cat_slug,  cat_content, cat_name, CAST(cat_slug AS VARCHAR (255))
+	( SELECT cat_id, cat_parent_id, cat_slug, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
       FROM {$categoryTable} WHERE cat_parent_id IS NULL
       UNION ALL
-      SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs .cat_content, tcs.cat_name, CONCAT(path, '/' , tcs.cat_slug)
+      SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs.cat_name, CONCAT(path, '/' , tcs.cat_slug)
       FROM cat_recursive as fr JOIN {$categoryTable} as tcs ON fr.cat_id = tcs.cat_parent_id
       ) 
      SELECT * FROM cat_recursive;
@@ -57,8 +71,8 @@ class PostData extends AbstractDataLayer
 
     public function getPostStatusHTMLFrag($currentStatus = null): string
     {
-        $frag = "<option value='0'".  ($currentStatus === 0 ? 'selected' : '') . ">Draft</option>";
-        $frag .= "<option value='1'".  ($currentStatus === 1 ? 'selected' : '') . ">Publish</option>";
+        $frag = "<option value='0'" . ($currentStatus === 0 ? 'selected' : '') . ">Draft</option>";
+        $frag .= "<option value='1'" . ($currentStatus === 1 ? 'selected' : '') . ">Publish</option>";
 
         return $frag;
     }
@@ -72,8 +86,8 @@ class PostData extends AbstractDataLayer
     {
         $categories = helper()->generateTree(['parent_id' => 'cat_parent_id', 'id' => 'cat_id'], $this->getCategory());
         $catSelectFrag = '';
-        if (count($categories) > 0){
-            foreach ($categories as $category){
+        if (count($categories) > 0) {
+            foreach ($categories as $category) {
                 $catSelectFrag .= $this->getCategoryHTMLSelectFragments($category, $currentCatData);
             }
         }
@@ -90,24 +104,24 @@ class PostData extends AbstractDataLayer
      */
     private function getCategoryHTMLSelectFragments($category, $currentCatData = null): string
     {
-        $currentCatData = (is_object($currentCatData) && property_exists($currentCatData, 'cat_parent_id')) ? $currentCatData->cat_parent_id: $currentCatData;
+        $currentCatData = (is_object($currentCatData) && property_exists($currentCatData, 'cat_parent_id')) ? $currentCatData->cat_parent_id : $currentCatData;
         $catSelectFrag = '';
-        $catID =  $category->cat_id;
-        if ($category->depth === 0){
+        $catID = $category->cat_id;
+        if ($category->depth === 0) {
             $catSelectFrag .= <<<CAT
     <option data-is-parent="yes" data-depth="$category->depth"
             data-slug="$category->cat_slug" data-path="/$category->path/" value="$catID"
 CAT;
-            if(!empty($currentCatData) && $currentCatData == $category->cat_id){
+            if (!empty($currentCatData) && $currentCatData == $category->cat_id) {
                 $catSelectFrag .= 'selected';
             }
-            $catSelectFrag .=">" . $category->cat_name;
+            $catSelectFrag .= ">" . $category->cat_name;
         } else {
             $catSelectFrag .= <<<CAT
     <option data-slug="$category->cat_slug" data-depth="$category->depth" data-path="/$category->path/"
             value="$catID"
 CAT;
-            if(!empty($currentCatData) && $currentCatData == $category->cat_id){
+            if (!empty($currentCatData) && $currentCatData == $category->cat_id) {
                 $catSelectFrag .= 'selected';
             }
 
@@ -116,8 +130,8 @@ CAT;
         }
         $catSelectFrag .= "</option>";
 
-        if (isset($category->_children)){
-            foreach ($category->_children as $catChildren){
+        if (isset($category->_children)) {
+            foreach ($category->_children as $catChildren) {
                 $catSelectFrag .= $this->getCategoryHTMLSelectFragments($catChildren, $currentCatData);
             }
         }
@@ -146,18 +160,12 @@ CAT;
 
     public function getCategoryColumns(): array
     {
-        return [
-                'cat_id', 'cat_parent_id', 'cat_name', 'cat_slug', 'cat_status', 'cat_content', 'created_at', 'updated_at'
-            ];
+        return Tables::$TABLES[Tables::CATEGORIES];
     }
 
     public function getPostColumns(): array
     {
-        return [
-            'post_id', 'slug_id', 'user_id', 'post_title', 'field_ids',
-            'post_slug', 'image_url', 'post_status', 'field_settings',
-            'created_at', 'updated_at'
-        ];
+        return Tables::$TABLES[Tables::POSTS];
     }
 
     public function getPostToCategoriesColumns(): array
@@ -176,23 +184,27 @@ CAT;
             'cat_slug',
             helper()->slug(input()->fromPost()->retrieve('cat_slug')));
 
-        $category = []; $categoryCols = array_flip($this->getCategoryColumns());
-        if (input()->fromPost()->hasValue('cat_parent_id')){
+        $_POST['field_settings'] = input()->fromPost()->all();
+        unset($_POST['field_settings']['token']);
+
+        $category = [];
+        $categoryCols = array_flip($this->getCategoryColumns());
+        if (input()->fromPost()->hasValue('cat_parent_id')) {
             $category['cat_parent_id'] = input()->fromPost()->retrieve('cat_parent_id');
         }
 
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $categoryCols) && input()->fromPost()->has($inputKey)){
-                if ($inputKey === 'cat_parent_id' && empty($inputValue)){
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $categoryCols) && input()->fromPost()->has($inputKey)) {
+                if ($inputKey === 'cat_parent_id' && empty($inputValue)) {
                     $category[$inputKey] = null;
                     continue;
                 }
 
-                if($inputKey === 'created_at'){
+                if ($inputKey === 'created_at') {
                     $category[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
-                if ($inputKey === 'cat_slug'){
+                if ($inputKey === 'cat_slug') {
                     $category[$inputKey] = $slug;
                     continue;
                 }
@@ -201,13 +213,13 @@ CAT;
         }
 
         $ignores = array_diff_key($ignore, $category);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
                 unset($category[$v]);
             }
         }
 
-        return $category;
+        return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($category, 'cat_name', 'cat_content');
     }
 
     /**
@@ -221,15 +233,16 @@ CAT;
         $_POST['field_settings'] = input()->fromPost()->all();
         unset($_POST['field_settings']['token']);
 
-        $post = []; $postColumns = array_flip($this->getPostColumns());
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
+        $post = [];
+        $postColumns = array_flip($this->getPostColumns());
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
 
-                if($inputKey === 'created_at'){
+                if ($inputKey === 'created_at') {
                     $post[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
-                if ($inputKey === 'post_slug'){
+                if ($inputKey === 'post_slug') {
                     $post[$inputKey] = $slug;
                     continue;
                 }
@@ -238,41 +251,13 @@ CAT;
         }
 
         $ignores = array_diff_key($ignore, $post);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
                 unset($post[$v]);
             }
         }
 
-        if (isset($post['field_ids'])){
-            $post['field_ids'] = array_values(array_flip(array_flip($post['field_ids'])));
-            $post['field_ids'] = json_encode($post['field_ids']);
-        }
-
-        if (isset($post['field_settings'])){
-
-            if (isset($post['field_settings']['seo_title']) && empty($post['field_settings']['seo_title'])){
-                $post['field_settings']['seo_title'] = $post['post_title'];
-            }
-            if (isset($post['field_settings']['seo_description']) && empty($post['field_settings']['seo_description'])){
-                $post['field_settings']['seo_description'] = substr(strip_tags($post['field_settings']['post_content']), 0, 200);
-            }
-
-            if (isset($_POST['fieldItemsDataFromEditor'])){
-                $post['field_settings']['post_content'] = $_POST['fieldItemsDataFromEditor'];
-                unset($post['field_settings']['fieldItemsDataFromEditor']);
-            }
-
-            $fieldData = new FieldData();
-            $fieldData->preSavePostEditorFieldItems($post['field_settings'], 'post_content');
-
-            $post['field_settings'] = json_encode($post['field_settings']);
-            if (isset($post['field_ids'])){
-                $_POST['field_settings']['field_ids'] = $post['field_ids'];
-            }
-        }
-
-        return $post;
+        return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($post);
     }
 
     /**
@@ -280,11 +265,11 @@ CAT;
      */
     public function insertForPost(array $data, int $type = PostData::Post_INT, array $return = []): bool|\stdClass
     {
-        if (!key_exists($type, self::$POST_TABLES)){
+        if (!key_exists($type, self::$POST_TABLES)) {
             throw new \Exception("Invalid Post Table Type");
         }
 
-        if (empty($return)){
+        if (empty($return)) {
             $return = $this->getCategoryColumns();
         }
 
@@ -301,16 +286,16 @@ CAT;
         $categoryTable = $this->getCategoryTable();
 
         $where = "cat_slug = ?";
-        if (is_numeric($idSlug)){
+        if (is_numeric($idSlug)) {
             $where = "cat_id = ?";
         }
         return db()->run("
         WITH RECURSIVE child_to_parent AS 
-	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_content, cat_name, CAST(cat_slug AS VARCHAR (255))
+	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
       FROM $categoryTable WHERE $where
       UNION ALL
-      SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_content, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
+      SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
       FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.cat_id = cp.cat_parent_id
       ) 
      SELECT * FROM child_to_parent;
@@ -331,7 +316,12 @@ CAT;
         $userTable = Tables::getTable(Tables::USERS);
 
         $sql = <<<SQL
-SELECT *, $postTable.created_at as 'post_created_at', $postTable.updated_at as 'post_updated_at', $postTable.slug_id as post_slug_id, $categoryTable.slug_id as cat_slug_id
+SELECT *, 
+       $postTable.created_at as 'post_created_at', 
+       $postTable.updated_at as 'post_updated_at', 
+       $postTable.field_settings as 'field_settings', 
+       $postTable.slug_id as post_slug_id, 
+       $categoryTable.slug_id as cat_slug_id
     FROM $postToCatTable 
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $userTable ON $userTable.user_id = $postTable.user_id
@@ -345,7 +335,7 @@ SQL;
 
         unset($data['user_password']);
 
-        if (isset($data['cat_id'])){
+        if (isset($data['cat_id'])) {
             $data['categories'] = $this->getPostCategoryParents($data['cat_id']);
         }
 
@@ -370,7 +360,7 @@ SQL;
         $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
         $table = Tables::getTable(Tables::CATEGORIES);
 
-        if ($colToSelect === ['*']){
+        if ($colToSelect === ['*']) {
             return db()->row(<<<SQL
 SELECT * FROM $table WHERE $whereCondition
 SQL, ...$parameter);
@@ -403,7 +393,7 @@ SQL, ...$parameter);
         // Instead of selecting from $postTable, I started the selection from $postToCatTable,
         // this way, it would replace the column that is same from $postToCatTable in $postTable.
         // we do not wanna use the created_at or updated_at of the $postToCatTable
-        if ($colToSelect === ['*']){
+        if ($colToSelect === ['*']) {
             return db()->row(<<<SQL
 SELECT * FROM $postToCatTable JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id WHERE $whereCondition
 SQL, ...$parameter);
@@ -419,9 +409,9 @@ SQL, ...$parameter);
      */
     public function setDefaultPostCategoryIfNotSet()
     {
-        if (input()->fromPost()->hasValue('fk_cat_id') === false){
+        if (input()->fromPost()->hasValue('fk_cat_id') === false) {
             $findDefault = $this->selectWithConditionFromCategory(['cat_slug', 'cat_id'], "cat_slug = ?", ['default-category']);
-            if (is_object($findDefault) && isset($findDefault->cat_id)){
+            if (is_object($findDefault) && isset($findDefault->cat_id)) {
                 $_POST['fk_cat_id'] = $findDefault->cat_id;
                 return;
             }
@@ -488,15 +478,16 @@ SQL, ...$parameter);
 
     public function categoryCheckBoxListing(?object $categories, $selected = [], string $inputName = 'cat[]', string $type = 'radio'): string
     {
-        $htmlFrag = ''; $htmlMoreFrag = '';
+        $htmlFrag = '';
+        $htmlMoreFrag = '';
         $type = ($type !== 'radio') ? 'checkbox' : 'radio';
         $selected = array_combine($selected, $selected);
 
-        if(isset($categories->data) && is_array($categories->data) && !empty($categories->data)){
+        if (isset($categories->data) && is_array($categories->data) && !empty($categories->data)) {
 
-            foreach ($categories->data as $category){
-                $id = 'category'. $category->cat_id . '_' . $category->cat_slug;
-                if (key_exists($category->cat_id, $selected)){
+            foreach ($categories->data as $category) {
+                $id = 'category' . $category->cat_id . '_' . $category->cat_slug;
+                if (key_exists($category->cat_id, $selected)) {
                     $htmlFrag .= <<<HTML
 <li class="menu-item">
     <input type="$type"
@@ -516,7 +507,7 @@ HTML;
             }
 
             # MORE BUTTON
-            if(isset($categories->has_more) && $categories->has_more){
+            if (isset($categories->has_more) && $categories->has_more) {
                 $htmlMoreFrag = <<<HTML
  <button 
  data-morepageUrl="$categories->next_page_url" 
@@ -528,6 +519,54 @@ HTML;
             }
         }
         return $htmlFrag . $htmlMoreFrag;
+    }
+
+    /**
+     * @return FieldData
+     */
+    public function getFieldData(): FieldData
+    {
+        return $this->fieldData;
+    }
+
+    /**
+     * @param FieldData $fieldData
+     */
+    public function setFieldData(FieldData $fieldData): void
+    {
+        $this->fieldData = $fieldData;
+    }
+
+    /**
+     * @return OnPostDefaultField|null
+     */
+    public function getOnPostDefaultField(): ?OnPostDefaultField
+    {
+        return $this->onPostDefaultField;
+    }
+
+    /**
+     * @param OnPostDefaultField|null $onPostDefaultField
+     */
+    public function setOnPostDefaultField(?OnPostDefaultField $onPostDefaultField): void
+    {
+        $this->onPostDefaultField = $onPostDefaultField;
+    }
+
+    /**
+     * @return OnPostCategoryDefaultField|null
+     */
+    public function getOnPostCategoryDefaultField(): ?OnPostCategoryDefaultField
+    {
+        return $this->onPostCategoryDefaultField;
+    }
+
+    /**
+     * @param OnPostCategoryDefaultField|null $onPostCategoryDefaultField
+     */
+    public function setOnPostCategoryDefaultField(?OnPostCategoryDefaultField $onPostCategoryDefaultField): void
+    {
+        $this->onPostCategoryDefaultField = $onPostCategoryDefaultField;
     }
 
 }

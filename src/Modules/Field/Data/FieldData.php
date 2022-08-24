@@ -655,11 +655,51 @@ SQL;
 
 
     /**
+     * @param array $data
+     * @param string $titleKey
+     * @param string $contentKey
+     * @return array
      * @throws \Exception
      */
-    public function unwrapForPost(&$post)
+    public function prepareFieldSettingsDataForCreateOrUpdate(array $data, string $titleKey = 'post_title', string $contentKey = 'post_content'): array
     {
-        $fieldSettings = json_decode($post['field_settings'], true);
+        if (isset($data['field_ids'])){
+            $data['field_ids'] = array_values(array_flip(array_flip($data['field_ids'])));
+            $data['field_ids'] = json_encode($data['field_ids']);
+        }
+
+        if (isset($data['field_settings'])){
+            if (!isset($data['field_settings']['seo_title'])){
+                $data['field_settings']['seo_title'] = $data[$titleKey];
+            }
+
+            if (!isset($data['field_settings']['seo_description'])){
+                $data['field_settings']['seo_description'] = substr(strip_tags($data['field_settings'][$contentKey]), 0, 200);
+            }
+
+            if (isset($_POST['fieldItemsDataFromEditor'])){
+                $data['field_settings'][$contentKey] = $_POST['fieldItemsDataFromEditor'];
+                unset($data['field_settings']['fieldItemsDataFromEditor']);
+            }
+
+            $this->preSavePostEditorFieldItems($data['field_settings'], $contentKey);
+
+            $data['field_settings'] = json_encode($data['field_settings']);
+            if (isset($data['field_ids'])){
+                $_POST['field_settings']['field_ids'] = $data['field_ids'];
+            }
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function unwrapForPost(&$post, string $fieldSettingsKey = 'field_settings')
+    {
+        $fieldSettings = json_decode($post[$fieldSettingsKey], true);
         $this->unwrapFieldContent($fieldSettings);
         $post = [...$fieldSettings, ...$post];
         $date = new \DateTime($post['post_created_at']);

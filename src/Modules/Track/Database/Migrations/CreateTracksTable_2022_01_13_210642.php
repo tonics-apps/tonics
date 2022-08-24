@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS {$this->tableName()} (
   `fk_genre_id` int(10) unsigned NOT NULL,
   `fk_artist_id` int(10) unsigned NOT NULL,
   `fk_license_id` int(10) unsigned NOT NULL,
-  `field_ids` longtext DEFAULT '{}' CHECK (json_valid(`field_ids`)),
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`track_id`),

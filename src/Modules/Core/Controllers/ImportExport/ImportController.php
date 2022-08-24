@@ -16,6 +16,7 @@ use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\States\WordPressImportState;
 use App\Modules\Core\Validation\Traits\Validator;
+use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsRouterSystem\RequestMethods;
 
 class ImportController

@@ -25,13 +25,11 @@ use JetBrains\PhpStorm\NoReturn;
 class PostAccessView
 {
     private PostData $postData;
-    private FieldData $fieldData;
     private array $post = [];
     private array $category = [];
 
-    public function __construct(PostData $postData,  FieldData $fieldData){
+    public function __construct(PostData $postData){
         $this->postData = $postData;
-        $this->fieldData = $fieldData;
     }
 
     /**
@@ -85,10 +83,15 @@ class PostAccessView
     {
         $post = $this->post;
         if (!empty($post)){
-            $this->fieldData->unwrapForPost($post);
-            $onFieldUserForm = new OnFieldFormHelper([], $this->fieldData);
+            $this->getFieldData()->unwrapForPost($post);
+            $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
+
+            event()->dispatch($this->getPostData()->getOnPostDefaultField());
+
+            # We are only interested in the hidden slug
+            $slugs = $this->getPostData()->getOnPostDefaultField()->getHiddenFieldSlug();
             # Cache Post Data
-            $onFieldUserForm->handleFrontEnd($this->getFieldSlug($post), [...$post, ...$moreData]);
+            $onFieldUserForm->handleFrontEnd($slugs, [...$post, ...$moreData]);
             view($postView);
         }
 
@@ -102,48 +105,21 @@ class PostAccessView
     {
         $category = $this->category;
         if (!empty($category)){
+            $fieldSettings = json_decode($category['field_settings'], true);
+            $this->getFieldData()->unwrapFieldContent($fieldSettings, contentKey: 'cat_content');
+            $category = [...$fieldSettings, ...$category];
+
             $date = new \DateTime($category['created_at']);
             $category['created_at_words'] = strtoupper($date->format('j M, Y'));
-            $onFieldUserForm = new OnFieldFormHelper([], $this->fieldData);
+            $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
 
-            // category doesn't have the concepts of fields (not yet), but we could still use some default field in the frontend
-            $hiddenSlug = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
-            $onFieldUserForm->handleFrontEnd($hiddenSlug, [...$category, ...$moreData]);
+            event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
+            $slugs = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
+            $onFieldUserForm->handleFrontEnd($slugs, [...$category, ...$moreData]);
             view($postView);
         }
 
         exit();
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getFieldSlug($post): array
-    {
-        $slug = $post['field_ids'];
-        $fieldSlugs = json_decode($slug) ?? [];
-        if (is_object($fieldSlugs)) {
-            $fieldSlugs = (array)$fieldSlugs;
-        }
-
-        if (empty($fieldSlugs) || !is_array($fieldSlugs)) {
-            // re-save default fields
-            $default = ["post-page", "seo-settings"];
-            $updatePost = ['field_ids' => json_encode($default)];
-            $post['field_settings'] = (array)json_decode($post['field_settings']);
-            if (empty($post['field_settings']['seo_title'])) {
-                $post['field_settings']['seo_title'] = $post['post_title'];
-            }
-            if (empty($post['field_settings']['seo_description'])) {
-                $post['field_settings']['seo_description'] = substr(strip_tags($post['post_content']), 0, 200);
-            }
-            $updatePost['field_settings'] = json_encode($post['field_settings']);
-            $this->postData->updateWithCondition($updatePost, ['post_id' => (int)$post['post_id']], Tables::getTable(Tables::POSTS));
-            return $default;
-        }
-
-        $hiddenSlug = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
-        return [...$fieldSlugs, ...$hiddenSlug];
     }
 
     /**
@@ -167,14 +143,6 @@ class PostAccessView
      */
     public function getFieldData(): FieldData
     {
-        return $this->fieldData;
-    }
-
-    /**
-     * @param FieldData $fieldData
-     */
-    public function setFieldData(FieldData $fieldData): void
-    {
-        $this->fieldData = $fieldData;
+        return $this->getPostData()->getFieldData();
     }
 }

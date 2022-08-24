@@ -105,8 +105,8 @@
     ]]
 
     [[SQL('post_query_get_row_with_offset_limit')
+        [[SELECT('posts') [[COLS('ALL')]] [[COL_AS('slug_id', 'post_slug_id')]] [[COL_AS('field_settings', 'post_field_settings')]] ]]
         [[SELECT('post_categories') [[COLS('ALL')]] ]]
-        [[SELECT('posts') [[COLS('ALL')]] [[COL_AS('slug_id', 'post_slug_id')]] ]]
         [[SELECT('categories') [[COLS('ALL')]] ]]
         [[REUSE_SQL('reusable_sql')]]
         [[WHERE('posts.post_status')

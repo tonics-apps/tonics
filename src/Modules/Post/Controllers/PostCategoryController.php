@@ -28,16 +28,12 @@ use JetBrains\PhpStorm\NoReturn;
 class PostCategoryController
 {
     private PostData $postData;
-    private ?FieldData $fieldData;
-    private ?OnPostCategoryDefaultField $onPostCategoryDefaultField;
 
     use Validator, PostValidationRules, UniqueSlug;
 
-    public function __construct(PostData $postData, FieldData $fieldData = null, OnPostCategoryDefaultField $onPostCategoryDefaultField = null)
+    public function __construct(PostData $postData)
     {
         $this->postData = $postData;
-        $this->fieldData = $fieldData;
-        $this->onPostCategoryDefaultField = $onPostCategoryDefaultField;
     }
 
     /**
@@ -45,7 +41,7 @@ class PostCategoryController
      */
     public function create()
     {
-        event()->dispatch($this->onPostCategoryDefaultField);
+        event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
 
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
@@ -54,7 +50,7 @@ class PostCategoryController
 
         view('Modules::Post/Views/Category/create', [
             'Categories' => $this->getPostData()->getCategoryHTMLSelect(),
-            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onPostCategoryDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
         ]);
     }
 
@@ -63,6 +59,14 @@ class PostCategoryController
      */
     #[NoReturn] public function store()
     {
+        if (input()->fromPost()->hasValue('created_at') === false){
+            $_POST['created_at'] = helper()->date();
+        }
+
+        if (input()->fromPost()->hasValue('cat_slug') === false){
+            $_POST['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_name'));
+        }
+
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryStoreRule());
         if ($validator->fails()){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
@@ -122,7 +126,7 @@ class PostCategoryController
         }
 
         $fieldSettings = json_decode($category->field_settings, true);
-        $fieldSettings = $this->fieldData->handleEditorMode($fieldSettings, 'cat_content');
+        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'cat_content');
 
         if (empty($fieldSettings)){
             $fieldSettings = (array)$category;
@@ -130,12 +134,8 @@ class PostCategoryController
             $fieldSettings = [...$fieldSettings, ...(array)$category];
         }
 
-        $onPostCategoryDefaultField = $this->onPostCategoryDefaultField;
-        $fieldIDS = ($category->field_ids === null) ? [] : json_decode($category->field_ids, true);
-        $onPostCategoryDefaultField->setFieldSlug($fieldIDS);
-        event()->dispatch($onPostCategoryDefaultField);
-
-        $fieldForm = $this->fieldData->generateFieldWithFieldSlug($onPostCategoryDefaultField->getFieldSlug(), $fieldSettings);
+        event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
+        $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
         $fieldItems = $fieldForm->getHTMLFrag();
 
         view('Modules::Post/Views/Category/edit', [
@@ -276,32 +276,7 @@ class PostCategoryController
      */
     public function getFieldData(): ?FieldData
     {
-        return $this->fieldData;
+        return $this->getPostData()->getFieldData();
     }
-
-    /**
-     * @param FieldData|null $fieldData
-     */
-    public function setFieldData(?FieldData $fieldData): void
-    {
-        $this->fieldData = $fieldData;
-    }
-
-    /**
-     * @return OnPostCategoryDefaultField|null
-     */
-    public function getOnPostCategoryDefaultField(): ?OnPostCategoryDefaultField
-    {
-        return $this->onPostCategoryDefaultField;
-    }
-
-    /**
-     * @param OnPostCategoryDefaultField|null $onPostCategoryDefaultField
-     */
-    public function setOnPostCategoryDefaultField(?OnPostCategoryDefaultField $onPostCategoryDefaultField): void
-    {
-        $this->onPostCategoryDefaultField = $onPostCategoryDefaultField;
-    }
-
 
 }

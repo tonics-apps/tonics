@@ -227,8 +227,8 @@ class WordPressImportState extends SimpleState
         $lastHighestID = db()->row("SELECT cat_id FROM $table ORDER BY cat_id DESC LIMIT 1;");
         $lastHighestID = (isset($lastHighestID->cat_id)) ? $lastHighestID->cat_id + 1: 1;
         $cat = [];
-        $postData = new PostData();
-        $postCategory = new PostCategoryController($postData);
+        $postData = container()->get(PostData::class);
+        $postCategory = container()->get(PostCategoryController::class);
 
         foreach ($this->xmlObject->channel->xpath('wp:category') as $category){
             $id = $lastHighestID;
@@ -277,8 +277,8 @@ class WordPressImportState extends SimpleState
         helper()->sendMsg(self::getCurrentState(), 'Getting Set To Import Posts');
         $shortCode = new WordPressShortCode();
         $urls = new WordPressWPContentURL();
-        $postData = new PostData();
-        $userData = new UserData();
+        $postData = container()->get(PostData::class);
+        $userData = container()->get(UserData::class);
         $postController = new PostsController($postData, $userData);
         $attachment = [];
         $noNameID = 1;

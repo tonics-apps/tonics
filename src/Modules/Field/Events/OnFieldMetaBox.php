@@ -275,7 +275,9 @@ HTML;
             'use' => '#tonics-arrow-up',
             'div' => 'swing-in-top-fwd d:flex',
         ];
-        if (!empty($hideField)) {
+
+        // Comment out for now as it is a bit buggy
+/*        if (!empty($hideField)) {
             $toggle = [
                 'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer',
                 'aria-expanded' => 'false',
@@ -284,7 +286,7 @@ HTML;
                 'use' => '#tonics-arrow-down',
                 'div' => 'swing-out-top-fwd d:none',
             ];
-        }
+        }*/
 
         $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
         $isEditorWidgetSettings = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="true"' : '';

@@ -58,11 +58,11 @@ class CommonResourceRedirection extends SimpleState
     {
         $slugID = $this->getRequest()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0];
         $this->setSlugID($slugID);
+
         ## Assume SlugUniqueID since it's a hash with 16 chars
         if (strlen($slugID) === 16){
             return $this->switchState(self::OnSlugUniqueIDState, self::NEXT);
         }
-
         return $this->switchState(self::OnStringIDState, self::NEXT);
     }
 
@@ -78,7 +78,8 @@ class CommonResourceRedirection extends SimpleState
                 $this->intendedPostURL = $resource;
                 return $this->switchState(self::OnRedirectToIntendedState, self::NEXT);
             }
-            return $this->switchState(self::OnResourceErrorState, self::NEXT);
+            # If the above fails, then it could be that the actual slug has a len of 16, so, let's go check it
+            return $this->switchState(self::OnStringIDState, self::NEXT);
 
         } catch (\Exception){
             ## Okay, if postID contains a dash, then we guess wrong, it is probably a post_slug
@@ -117,11 +118,11 @@ class CommonResourceRedirection extends SimpleState
      */
     public function OnResourceErrorState()
     {
-        if ($this->onResourceErrorState !== null){
-            SimpleState::displayUnauthorizedErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
-        } else{
+        if ($this->onResourceErrorState){
             $callable = $this->onResourceErrorState;
             $callable();
+        } else{
+            SimpleState::displayUnauthorizedErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
     }
     /**

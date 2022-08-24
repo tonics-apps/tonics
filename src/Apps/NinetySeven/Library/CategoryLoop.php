@@ -23,11 +23,9 @@ class CategoryLoop implements QueryModeHandlerInterface
         $categories = (isset($queryData->data)) ? $queryData->data : [];
         foreach ($categories as $cat) {
             $cat->cat_name = strip_tags($cat->cat_name);
-            $cat->_full_link = "/categories/$cat->slug_id/$cat->cat_slug"; $stripTagsContent = strip_tags($cat->cat_content);
-            $cat->_og_description = substr($stripTagsContent, 0, 200);
-            if (strlen($stripTagsContent) > 200){
-                $cat->_og_description .="...";
-            }
+            $cat->field_settings = json_decode($cat->field_settings);
+            $cat->_full_link = "/categories/$cat->slug_id/$cat->cat_slug";
+            $cat->_og_description =  $cat->field_settings->seo_description;
             if ($callback !== null){
                 $queryMode = $tonicsView->getVariableData()['QUERY_MODE'];
                 $queryMode[$query_name] = $cat;
