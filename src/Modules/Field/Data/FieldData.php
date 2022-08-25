@@ -338,8 +338,7 @@ HTML;
     {
         # re-dispatch so we can get the form values
         $onFieldMetaBox = new OnFieldMetaBox();
-        /**@var $onFieldMetaBox OnFieldMetaBox */
-        $onFieldMetaBox = event()->dispatch($onFieldMetaBox);
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnBackEndSettingsType)->dispatchEvent();
         $htmlFrag = '';
         foreach ($fieldItems as $field) {
             $htmlFrag .= $this->getFieldItemsListingFrag($field, $onFieldMetaBox);

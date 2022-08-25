@@ -134,7 +134,7 @@ $error
 </div>
 FORM;
 
-        $frag .= $event->_bottomHTMLWrapper(true);
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
 

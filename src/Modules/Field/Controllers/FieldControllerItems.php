@@ -44,7 +44,7 @@ class FieldControllerItems extends Controller
         }
 
         $onFieldMetaBox = new OnFieldMetaBox();
-        $dispatched = event()->dispatch($onFieldMetaBox);
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnBackEndSettingsType)->dispatchEvent();
 
         if (url()->getParam('action')){
             $action = url()->getParam('action');
@@ -55,7 +55,7 @@ class FieldControllerItems extends Controller
         }
 
         view('Modules::Field/Views/Items/index', [
-            'MetaBox' => $dispatched->generateFieldMetaBox(),
+            'MetaBox' => $onFieldMetaBox->generateFieldMetaBox(),
             'FieldItems' => $this->getFieldData()->getFieldItemsListing($this->getFieldData()->getFieldItems($fieldID)),
             'FieldBuilderName' => ucwords(str_replace('-', ' ', $slug)),
             'FieldSlug' => $slug,

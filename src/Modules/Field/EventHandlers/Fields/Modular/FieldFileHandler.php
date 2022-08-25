@@ -126,7 +126,7 @@ FORM;
 
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'FieldFileHandler';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $frag .= $event->_bottomHTMLWrapper(true);
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
 

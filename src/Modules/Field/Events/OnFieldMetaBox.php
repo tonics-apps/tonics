@@ -18,12 +18,18 @@ use stdClass;
 class OnFieldMetaBox implements EventInterface
 {
 
+    const OnBackEndSettingsType = 'OnSettingsType';
+    const OnUserSettingsType = 'OnUserSettingsType';
+    const OnViewSettingsType = 'OnViewType';
+
     private array $FieldBoxSettings = [];
     private $fieldSettings = null;
     private FieldData $fieldData;
     private ?Validation $validation = null;
     private bool $errorEmitted = false;
     private ?stdClass $currentFieldBox = null;
+
+    private string $settingsType = OnFieldMetaBox::OnBackEndSettingsType;
 
     /**
      * @throws \Exception
@@ -249,10 +255,11 @@ HTML;
      * @param string $name
      * @param $data
      * @param bool $root
+     * @param callable|null $handleTop
      * @return string
      * @throws \Exception
      */
-    public function _topHTMLWrapper(string $name, $data, $root = false): string
+    public function _topHTMLWrapper(string $name, $data, bool $root = false, callable $handleTop = null): string
     {
         $slug = $data->field_slug ?? '';
         $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -262,12 +269,7 @@ HTML;
         $scriptPath = isset($settings->scriptPath) && !empty($settings->scriptPath) ? "data-script_path={$settings->scriptPath}" : '';
         $hideField = (isset($postData['hide_field'][$hash])) ? "<input type='hidden' name='hide_field[$hash]' value='$hash'>" : '';
 
-        // meaning settingsForm
-        if (empty($hideField) && empty($postData)) {
-            $hideField = ' ';
-        }
-
-        $toggle = [
+        $openToggle = [
             'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer toggle-on',
             'aria-expanded' => 'true',
             'aria-label' => 'Collapse child menu',
@@ -276,17 +278,23 @@ HTML;
             'div' => 'swing-in-top-fwd d:flex',
         ];
 
-        // Comment out for now as it is a bit buggy
-/*        if (!empty($hideField)) {
-            $toggle = [
-                'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer',
-                'aria-expanded' => 'false',
-                'aria-label' => 'Expand child menu',
-                'svg' => 'icon:admin tonics-arrow-down color:white',
-                'use' => '#tonics-arrow-down',
-                'div' => 'swing-out-top-fwd d:none',
-            ];
-        }*/
+        $closeToggle = [
+            'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer',
+            'aria-expanded' => 'false',
+            'aria-label' => 'Expand child menu',
+            'svg' => 'icon:admin tonics-arrow-down color:white',
+            'use' => '#tonics-arrow-down',
+            'div' => 'swing-out-top-fwd d:none',
+        ];
+
+        $toggle = $openToggle;
+        if ($this->getSettingsType() === $this::OnBackEndSettingsType){
+            $toggle = $closeToggle;
+        }
+
+        if ($handleTop){
+            return $handleTop();
+        }
 
         $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
         $isEditorWidgetSettings = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="true"' : '';
@@ -315,9 +323,12 @@ $scriptPath>
 HTML;
     }
 
-    public function _bottomHTMLWrapper(bool $isUserForm = false): string
+    public function _bottomHTMLWrapper(callable $handleBottom = null): string
     {
-        if ($isUserForm) {
+        if ($this->getSettingsType() === $this::OnUserSettingsType){
+            if ($handleBottom){
+                return $handleBottom();
+            }
             return <<<HTML
             </div>
         </fieldset>
@@ -325,7 +336,8 @@ HTML;
 HTML;
         }
 
-        return <<<HTML
+        if ($this->getSettingsType() === $this::OnBackEndSettingsType){
+            return <<<HTML
                 <div class="form-group">
                     <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
                         margin-top:0 cursor:pointer act-like-button">
@@ -336,6 +348,10 @@ HTML;
         </fieldset>
     </li>
 HTML;
+        }
+
+        return '';
+
     }
 
     /**
@@ -408,7 +424,7 @@ FORM;
 <option value="0">False</option>
 <option value="1" selected>True</option>
 HTML;
-        } 
+        }
 
             return <<<HTML
 <option value="0" selected>False</option>
@@ -529,6 +545,32 @@ HTML;
     public function setCurrentFieldBox(?stdClass $currentFieldBox): void
     {
         $this->currentFieldBox = $currentFieldBox;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSettingsType(): string
+    {
+        return $this->settingsType;
+    }
+
+    /**
+     * @param string $settingsType
+     * @return OnFieldMetaBox
+     */
+    public function setSettingsType(string $settingsType): OnFieldMetaBox
+    {
+        $this->settingsType = $settingsType;
+        return $this;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dispatchEvent(): OnFieldMetaBox
+    {
+        return event()->dispatch($this);
     }
 
 }

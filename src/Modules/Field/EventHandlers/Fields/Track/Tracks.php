@@ -100,7 +100,7 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Tracks';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $frag .= $event->_bottomHTMLWrapper(true);
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
 

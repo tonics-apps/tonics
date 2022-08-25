@@ -75,7 +75,7 @@ function getCellForm() {
     let slugID = (Math.random() * 1e32).toString(36);
     return `
 <ul style="margin-left: 0;" class="row-col-item">
-   <div class="form-group">
+     <div class="form-group d:flex flex-d:column flex-gap:small">
       <label class="menu-settings-handle-name" for="cell-select-${slugID}">Select & Choose Field
         <input id="cell-select-${slugID}" type="checkbox" name="cell">
       </label>

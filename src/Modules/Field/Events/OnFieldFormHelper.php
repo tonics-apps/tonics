@@ -85,9 +85,10 @@ class OnFieldFormHelper implements EventInterface
     public function getUsersFormFrag($fields, array $postData = []): string
     {
         $htmlFrag = '';
-        # re-dispatch so we can get the form values=
-        /**@var $onFieldMetaBox OnFieldMetaBox */
-        $onFieldMetaBox = event()->dispatch(new OnFieldMetaBox());
+
+        # re-dispatch so we can get the form values
+        $onFieldMetaBox = new OnFieldMetaBox();
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
         foreach ($fields as $field) {
             $field->field_options->{"_field"} = $field;
             $field->field_options->{"_field"}->canValidate = !empty($postData);
@@ -103,9 +104,9 @@ class OnFieldFormHelper implements EventInterface
     public function getViewFrag($fields): string
     {
         $htmlFrag = '';
-        # re-dispatch so we can get the form values=
-        /**@var $onFieldMetaBox OnFieldMetaBox */
-        $onFieldMetaBox = event()->dispatch(new OnFieldMetaBox());
+        # re-dispatch so we can get the form values
+        $onFieldMetaBox = new OnFieldMetaBox();
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnViewSettingsType)->dispatchEvent();
         foreach ($fields as $field) {
             $field->field_options->{"_field"} = $field;
             $htmlFrag .= $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);

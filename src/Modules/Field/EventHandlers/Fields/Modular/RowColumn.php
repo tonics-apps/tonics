@@ -102,18 +102,14 @@ HTML;
         $cell = $row * $column;
         if (isset($data->_field)) {
             for ($i = 1; $i <= $cell; $i++) {
-                $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
+                $changeID = helper()->randString(10);
+
                 $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item">
-     <div class="form-group d:flex flex-d:column flex-gap:small">
+     <div class="form-group">
       <label class="menu-settings-handle-name" for="cell-select-$changeID">Select & Choose Field
         <input id="cell-select-$changeID" type="checkbox" name="cell">
       </label>
-      
-       <label class="menu-settings-handle-name screen-reader-text" for="groupName-$changeID">Group Name
-        </label>
-        <input id="groupName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-        value="$inputName" placeholder="Group Input Name">
      </div>
 HTML;
                 if (isset($data->_field->_children)) {
@@ -138,7 +134,7 @@ HTML;
         } else {
             $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item">
-     <div class="form-group">
+     <div class="form-group d:flex flex-d:column flex-gap:small">
       <label class="menu-settings-handle-name" for="cell-select-$changeID">Select & Choose Field
         <input id="cell-select-$changeID" type="checkbox" name="cell">
       </label>
@@ -261,7 +257,7 @@ HTML;
 </div>
 HTML;
         }
-        $frag .= $event->_bottomHTMLWrapper(true);
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
 
