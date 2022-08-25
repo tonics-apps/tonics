@@ -48,7 +48,7 @@ class AppsController
     /**
      * @throws \Exception
      */
-    public function update()
+    #[NoReturn] public function update(): void
     {
         $url = route('apps.index');
         if (input()->fromPost()->has('activator')){
@@ -67,7 +67,7 @@ class AppsController
     /**
      * @throws \Exception
      */
-    public function delete()
+    #[NoReturn] public function delete(): void
     {
         if (input()->fromPost()->has('activator')){
             $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
@@ -126,7 +126,7 @@ class AppsController
     /**
      * @throws \Exception
      */
-    public function upload()
+    #[NoReturn] public function upload(): void
     {
         $url = route('apps.index');
         $message = 'An Error Occurred While Uploading App: Go Back';

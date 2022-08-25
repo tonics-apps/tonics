@@ -117,7 +117,7 @@ class TrackData extends AbstractDataLayer
         $licenseTable = Tables::getTable(Tables::LICENSES);
 
         return [
-            "track_id", "slug_id", "track_slug", 'audio_url', 'track_title', 'track_status', 'field_ids', 'field_settings',
+            "track_id", "slug_id", "track_slug", 'audio_url', 'track_title', 'track_status', 'field_settings',
             "$trackTable.image_url",'license_attr_id_link','fk_genre_id', 'fk_artist_id', 'fk_license_id',
             "$trackTable.created_at", "$trackTable.updated_at", "$licenseTable.license_attr",
             "genre_name", "genre_slug",
