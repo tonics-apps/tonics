@@ -387,7 +387,7 @@ FORM;
     /**
      * @param $varKey
      * @param $data
-     * @return string
+     * @return void
      * @throws \Exception
      */
     public function defaultInputViewHandler($varKey, $data): void
@@ -399,6 +399,21 @@ FORM;
             $inputName = $data->inputName;
             addToGlobalVariable("{$varKey}_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Value' => $defaultValue]);
         }
+    }
+
+    public function booleanOptionSelect($value = '1'): string
+    {
+        if ($value === '1'){
+            return <<<HTML
+<option value="0">False</option>
+<option value="1" selected>True</option>
+HTML;
+        } 
+
+            return <<<HTML
+<option value="0" selected>False</option>
+<option value="1">True</option>
+HTML;
     }
 
     /**

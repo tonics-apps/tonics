@@ -62,8 +62,6 @@ class InputText implements HandlerInterface
         $maxChar =  (isset($data->maxChar)) ? $data->maxChar : '';
         $placeholder =  (isset($data->placeholder)) ? $data->placeholder : '';
         $textType =  (isset($data->textType)) ? $data->textType : 'text';
-        $elementWrapper =  (isset($data->elementWrapper)) ? $data->elementWrapper : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $textTypes = $this->getTestTypes();
         $textFrag = '';
         foreach ($textTypes as $textK => $textV){
@@ -78,29 +76,11 @@ HTML;
             }
         }
 
-        if (isset($data->readOnly) && $data->readOnly === '1'){
-            $readOnly = <<<HTML
-<option value="0">False</option>
-<option value="1" selected>True</option>
-HTML;
-        } else {
-            $readOnly = <<<HTML
-<option value="0" selected>False</option>
-<option value="1">True</option>
-HTML;
-        }
+        $readOnly = (isset($data->readOnly)) ? $data->readOnly : '1';
+        $readOnly = $event->booleanOptionSelect($readOnly);
+
         $required = (isset($data->required)) ? $data->required : '1';
-        if ($required === '1'){
-            $required = <<<HTML
-<option value="0">False</option>
-<option value="1" selected>True</option>
-HTML;
-        } else {
-            $required = <<<HTML
-<option value="0" selected>False</option>
-<option value="1">True</option>
-HTML;
-        }
+        $required = $event->booleanOptionSelect($required);
 
         $defaultValue =  (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
