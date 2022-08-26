@@ -1,5 +1,5 @@
-.owl > * + * {
-    margin-top: clamp(1.3rem, 2.5vw, 2rem);
+.owl>*+* {
+    margin-top: 1rem;
 }
 
 /* FOR TINYMCE */
@@ -7,8 +7,9 @@
 body#tinymce {
     padding-top: 1em;
 }
+
 body#tinymce > * + * {
-    margin-top: clamp(1.3rem, 2.5vw, 2rem);
+    margin-top: 1rem;
 }
 
 .mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {

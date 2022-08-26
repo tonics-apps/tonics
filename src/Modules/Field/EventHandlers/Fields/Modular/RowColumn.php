@@ -63,11 +63,21 @@ class RowColumn implements HandlerInterface
         $useTab = (isset($data->useTab)) ? $data->useTab : '0';
         $useTab = $event->booleanOptionSelect($useTab);
 
+        $group = (isset($data->group)) ? $data->group : '0';
+        $group = $event->booleanOptionSelect($group);
+
         $more = <<<HTML
 <div class="form-group">
      <label class="menu-settings-handle-name" for="useTab-$changeID">Use Tabs
      <select name="useTab" class="default-selector mg-b-plus-1" id="useTab-$changeID">
            $useTab
+      </select>
+    </label>
+</div>
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="group-$changeID">Group
+     <select name="group" class="default-selector mg-b-plus-1" id="group-$changeID">
+           $group
       </select>
     </label>
 </div>
@@ -157,6 +167,7 @@ HTML;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $useTabs = isset($data->useTab) && $data->useTab === '1';
+        $isGroup = isset($data->group) && $data->group === '1';
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'RowColumn';
         $row = 1;
         $column = 1;
@@ -168,7 +179,17 @@ HTML;
             $column = $data->column;
         }
 
-        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
+        if ($isGroup){
+            $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle){
+                return <<<HTML
+<li tabIndex="0" class="width:100% draggable menu-arranger-li cursor:move field-builder-items">
+            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+HTML;
+            });
+        } else {
+            $frag = $event->_topHTMLWrapper($fieldName, $data, true);
+        }
+
         $cell = $row * $column;
         $fieldNameTabUnique = $fieldName . '_' . helper()->randString(10);
         // Having grid-template-columns: repeat(autofit, var(--column-width)); cancels out any row or col number
@@ -223,17 +244,30 @@ HTML;
 </ul>
 HTML;
         } else {
-            $frag .= <<<HTML
-<div class="row-col-parent owl" data-depth="0">
+
+            if ($isGroup){
+                $frag .= <<<HTML
+<div class="row-col-parent" data-depth="0">
+    <ul style="margin-left: unset;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer">
+HTML;
+            } else {
+                $frag .= <<<HTML
+<div class="row-col-parent" data-depth="0">
     <div style="--row:$row; --column:$column; grid-template-columns: repeat(autofit, var(--column-width));" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
+            }
+
             for ($i = 1; $i <= $cell; $i++) {
                 if (!isset($data->_field->_children)) {
                     continue;
                 }
-                $frag .= <<<HTML
-<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item">
+
+                if (!$isGroup){
+                    $frag .= <<<HTML
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item owl">
 HTML;
+                }
+
                 if (isset($data->_field->_children)) {
                     foreach ($data->_field->_children as $child) {
                         $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
@@ -248,16 +282,33 @@ HTML;
                         }
                     }
                 }
-                $frag .= <<<HTML
+                if (!$isGroup){
+                    $frag .= <<<HTML
 </ul>
 HTML;
+                }
             }
-            $frag .= <<<HTML
+
+            if ($isGroup){
+                $frag .= <<<HTML
+    </ul>
+</div>
+HTML;
+            } else {
+                $frag .= <<<HTML
     </div>
 </div>
 HTML;
+            }
         }
-        $frag .= $event->_bottomHTMLWrapper();
+
+        if ($isGroup){
+            $frag .= $event->_bottomHTMLWrapper(function (){
+                return "</div></li>";
+            });
+        } else {
+            $frag .= $event->_bottomHTMLWrapper();
+        }
         return $frag;
     }
 

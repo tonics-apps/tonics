@@ -356,7 +356,7 @@ pre code {
 }
 
 main > * + * {
-    margin-top: clamp(1.5rem, 1.5rem + 1.5vw, 2.5rem);
+    margin-top: 1rem;
 }
 
 /**
@@ -558,7 +558,7 @@ fieldset {
                 MODULE --- CART
 --------------------------------------------------------------*/
 .cart > * + * {
-    margin-top: clamp(1rem, 1rem + 1.5vw, 2rem);
+    margin-top: 1rem;
 }
 
 .cart-button > .cart {
@@ -605,7 +605,7 @@ fieldset {
 
 .cart-detail > * + * {
     display: block;
-    margin-top: clamp(1.5rem, 1rem + 1vw, 1rem);
+    margin-top: 1rem;
 }
 
 .cart-width {

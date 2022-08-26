@@ -174,7 +174,7 @@ FORM;
         $textType =  (isset($data->textType)) ? $data->textType : 'text';
         $readOnly =  ($data->readOnly == 1) ? 'readonly' : '';
         $required =  ($data->required == 1) ? 'required' : '';
-        $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+        $changeID = helper()->randString(10);
 
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);

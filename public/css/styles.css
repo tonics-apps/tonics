@@ -540,7 +540,7 @@ fieldset {
                 MODULE --- CART
 --------------------------------------------------------------*/
 .cart > * + * {
-    margin-top: clamp(1rem, 1rem + 1.5vw, 2rem);
+    margin-top: 1rem;
 }
 
 .cart-button > .cart {

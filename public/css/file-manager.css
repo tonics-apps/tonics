@@ -70,7 +70,7 @@ input.placeholder-color\:gray::placeholder {
 }
 
 .owl > * + * {
-    margin-top: clamp(1.3rem, 2.5vw, 2rem);
+    margin-top: 1rem;
 }
 
 a:focus {

@@ -269,6 +269,11 @@ HTML;
         $scriptPath = isset($settings->scriptPath) && !empty($settings->scriptPath) ? "data-script_path={$settings->scriptPath}" : '';
         $hideField = (isset($postData['hide_field'][$hash])) ? "<input type='hidden' name='hide_field[$hash]' value='$hash'>" : '';
 
+        $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
+        $isEditorWidgetSettings = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="true"' : '';
+        $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
+        $rootOwl = ($root) ? 'owl' : '';
+
         $openToggle = [
             'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer toggle-on',
             'aria-expanded' => 'true',
@@ -288,19 +293,15 @@ HTML;
         ];
 
         $toggle = $openToggle;
-        if ($this->getSettingsType() === $this::OnBackEndSettingsType){
-            $toggle = $closeToggle;
-        }
 
         if ($handleTop){
-            return $handleTop();
+            return $handleTop($isEditorWidgetSettings, $toggle);
         }
 
-        $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
-        $isEditorWidgetSettings = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="true"' : '';
-        $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
-        $rootOwl = ($root) ? 'owl' : '';
-        return <<<HTML
+        $result = '';
+        if ($this->getSettingsType() === $this::OnBackEndSettingsType){
+            $toggle = $closeToggle;
+            $result .=<<<HTML
 <li $isEditorLi tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
 $scriptPath>
@@ -315,7 +316,25 @@ $scriptPath>
                     </svg>
                 </button>
             </legend>
-            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% margin-top:0 {$toggle['div']}">
+            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+HTML;
+        }
+
+        if ($this->getSettingsType() === $this::OnUserSettingsType){
+            $result .=<<<HTML
+<li $isEditorLi tabIndex="0"
+class="width:100% draggable menu-arranger-li cursor:move field-builder-items"
+$scriptPath>
+        <fieldset
+            class="width:100% padding:default d:flex justify-content:center flex-d:column $rootOwl">
+            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+                <span class="menu-arranger-text-head">$name</span>
+            </legend>
+            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+HTML;
+        }
+
+        return $result . <<<HTML
                 $hideField
                 <input type="hidden" name="field_slug" value="$slug">
                 $field_table_slug
