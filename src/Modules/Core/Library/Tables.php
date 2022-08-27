@@ -87,6 +87,9 @@ final class Tables
     const JOBS = 'jobs';
     const JOBS_PROGRESS = 'jobs_progress';
 
+    const COMMENTS = 'comments';
+    const COMMENT_USER_TYPE = 'comments_user_type';
+
     const DRIVE_SYSTEM = 'drive_system';
     // Backward Compatibility
     static array $DRIVE_SYSTEM_COLUMN = [

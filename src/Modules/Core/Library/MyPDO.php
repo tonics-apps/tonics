@@ -31,9 +31,7 @@ class MyPDO extends EasyDB
      * FOR BATCH INSERTING.... PLEASE USE THIS WHEN ONLY INSERTING IN BATCH
      * USE THE SIMPLE INSERT FOR ONE OFF INSERT INSTEAD
      * <br>
-     * @param $table
-     * name of the table
-     * @param $data
+     *
      * should be in this format:
      * <code>
      * [
@@ -41,7 +39,11 @@ class MyPDO extends EasyDB
      *  ["genre_name" => "Afrobeat", "genre_slug" => "afrobeat", "genre_description" => "Afrobeat"]
      * ]
      *  array_key is the table_column, and array_value is the value of the column
-     *
+     * </code>
+     * @param string $table
+     * name of the table
+     * @param array $data
+     * @return bool
      * @throws \Exception
      */
     public function insertBatch(string $table, array $data): bool
@@ -57,7 +59,7 @@ class MyPDO extends EasyDB
         # e.g, "`column1`,`column1`,`column1`",
         $delimitedColumns = helper()->returnDelimitedColumnsInBackTick($getColumns);
         $numberOfQ = helper()->returnRequiredQuestionMarksSurroundedWithParenthesis($data);
-        # we would throw away the keys in the multi-dimensional array and flatten it into 1d array
+        # we would throw away the keys in the multidimensional array and flatten it into 1d array
         $flattened = iterator_to_array(new RecursiveIteratorIterator(new RecursiveArrayIterator($data)), 0);
         # SQL
         $sql = <<<SQL
