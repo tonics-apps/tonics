@@ -73,18 +73,8 @@ HTML;
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
-        $frag .= <<<FORM
-<div class="form-group d:flex flex-gap align-items:flex-end">
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
-            <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$fieldName" placeholder="Field Name">
-    </label>
-    <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
-            <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$inputName" placeholder="(Optional) Input Name">
-    </label>
-</div>
 
+        $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
 <div class="form-group">
      <label class="menu-settings-handle-name" for="max-char-$changeID">Max Character (Blank for no limit)
             <input id="max-char-$changeID" name="maxChar" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -114,6 +104,19 @@ HTML;
       </select>
     </label>
 </div>
+HTML);
+
+        $frag .= <<<FORM
+<div class="form-group d:flex flex-gap align-items:flex-end">
+     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
+            <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$fieldName" placeholder="Field Name">
+    </label>
+    <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
+            <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$inputName" placeholder="(Optional) Input Name">
+    </label>
+</div>
 
 <div class="form-group">
      <label class="menu-settings-handle-name" for="default-value-$changeID">Default Value
@@ -122,6 +125,7 @@ HTML;
     </label>
 </div>
 
+$moreSettings
 <div class="form-group">
     $validationFrag
 </div>
