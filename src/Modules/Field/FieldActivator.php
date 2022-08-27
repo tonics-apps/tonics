@@ -38,7 +38,6 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackGenreRadio;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\Tracks;
 use App\Modules\Field\EventHandlers\Fields\Widget;
-use App\Modules\Field\EventHandlers\FieldSelection\DefaultFieldSelection;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnEditorFieldSelection;
 use App\Modules\Field\Events\OnFieldCreate;

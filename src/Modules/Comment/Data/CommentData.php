@@ -16,4 +16,12 @@ class CommentData extends AbstractDataLayer
 {
     const ADMIN_NAME = 'admin';
     const CUSTOMER_NAME = 'customer';
+
+    public static function generateCommentJSONSettings(): string
+    {
+        return json_encode([
+            'user_agent' => "",
+            'user_ip' => "",
+        ]);
+    }
 }

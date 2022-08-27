@@ -10,6 +10,7 @@
 
 namespace App\Modules\Comment;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class CommentActivator implements ExtensionConfig
@@ -32,27 +33,30 @@ class CommentActivator implements ExtensionConfig
 
     public function tables(): array
     {
-        // TODO: Implement tables() method.
+        return [
+            Tables::getTable(Tables::COMMENT_USER_TYPE) => Tables::getTable(Tables::COMMENT_USER_TYPE),
+            Tables::getTable(Tables::COMMENTS) => Tables::getTable(Tables::COMMENTS),
+        ];
     }
 
     public function onInstall(): void
     {
-        // TODO: Implement onInstall() method.
+        return;
     }
 
     public function onUninstall(): void
     {
-        // TODO: Implement onUninstall() method.
+        return;
     }
 
     public function onUpdate(): void
     {
-        // TODO: Implement onUpdate() method.
+        return;
     }
 
     public function onDelete(): void
     {
-        // TODO: Implement onDelete() method.
+        return;
     }
 
     public function info(): array

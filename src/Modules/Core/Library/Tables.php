@@ -47,6 +47,9 @@ final class Tables
 
         self::JOBS => [ 'job_id', 'job_group_name', 'job_status', 'job_priority', 'job_data', 'created_at', 'updated_at', 'time_completed'],
         self::JOBS_PROGRESS => [ 'job_progress_id', 'job_group_name', 'job_progress_chunked'],
+
+        self::COMMENT_USER_TYPE => [ 'comment_usertype_id', 'comment_usertype_name'],
+        self::COMMENTS => [ 'id', 'fk_comment_usertype_id', 'comment_id', 'comment_parent_id', 'comment_body', 'comment_status', 'comment_others', 'ip_bin', 'ip_to_text', 'agent', 'created_at', 'updated_at'],
     ];
 
     const ARTISTS = 'artists';
