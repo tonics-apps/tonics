@@ -151,7 +151,8 @@ FORM;
                 $frag['Module'] = '';
             }
 
-            $frag['Module'] .= <<<HTML
+            if (isset($data['name'])){
+                $frag['Module'] .= <<<HTML
 <li data-list_id="$k" tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
     <fieldset class="padding:default width:100% height:100% draggable d:flex justify-content:center">
         <div class="owl width:100%">
@@ -164,6 +165,7 @@ FORM;
     </fieldset>
 </li>
 HTML;
+            }
             ++$k;
         }
 
