@@ -38,12 +38,6 @@ class PageActivator implements ExtensionConfig
     public function events(): array
     {
         return [
-           /* \App\Modules\Page\Events\TemplateTypeEvent::class => [
-                \App\Modules\Page\EventHandlers\DefaultTemplate::class,
-                \App\Modules\Page\EventHandlers\BeatStoreTemplate::class,
-                \App\Modules\Page\EventHandlers\BeatStoreEnhanceTemplate::class,
-                \App\Modules\Page\EventHandlers\RolaStoreTemplate::class
-            ],*/
             OnPageCreated::class => [
 
             ],
