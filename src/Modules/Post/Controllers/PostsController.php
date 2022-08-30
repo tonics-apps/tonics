@@ -188,6 +188,7 @@ class PostsController
      */
     #[NoReturn] public function update(string $slug)
     {
+
         $this->postData->setDefaultPostCategoryIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
         if ($validator->fails()) {

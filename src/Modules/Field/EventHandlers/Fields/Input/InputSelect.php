@@ -90,9 +90,13 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Choice';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
         $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
+        $defaultValue = $inputName;
+        if (mb_strlen($inputName, 'UTF-8') === 0 && isset($data->defaultValue)){
+            $defaultValue = $data->defaultValue;
+        }
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $selectData =  (isset($data->selectData)) ? $data->selectData : '';
 

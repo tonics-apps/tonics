@@ -281,6 +281,7 @@ SQL, ...$parameter);
             return $item;
         }, input()->fromPost()->retrieve('itemsToDelete', $itemsToDelete));
 
+
         try {
             $questionMarks = helper()->returnRequiredQuestionMarks([$itemsToDelete]);
             db()->run("DELETE FROM $table WHERE $colParam IN ($questionMarks) $moreWhereCondition", ...$parameter);

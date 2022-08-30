@@ -190,6 +190,7 @@ HTML;
         if (!is_callable($formCallback)) {
             return '';
         }
+
         if ($settings === null) {
             $settings = new stdClass();
             $settings->field_slug = $fieldSlug;

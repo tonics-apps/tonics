@@ -18,6 +18,8 @@ use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
+use App\Modules\Post\Controllers\PostsController;
+use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
@@ -64,7 +66,7 @@ class InitLoader
      */
     public function BootDaBoot()
     {
-        // dd(event()->dispatch(new OnAdminMenu())->generateMenuTree(), event());
+
         if (AppConfig::isMaintenanceMode()){
             die("Temporarily down for schedule maintenance, check back in few minutes");
         }
