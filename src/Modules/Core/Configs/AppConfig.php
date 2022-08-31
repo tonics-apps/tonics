@@ -216,6 +216,15 @@ class AppConfig
         return env('APP_NAME', 'Tonics');
     }
 
+    /**
+     * For throttling pagination on the frontend
+     * @return string
+     */
+    public static function getAppPaginationMax(): string
+    {
+        return env('APP_PAGINATION_MAX_LIMIT', 100);
+    }
+
     public static function getJobTransporter(): string
     {
         return env('JOB_TRANSPORTER', 'DATABASE');

@@ -82,10 +82,12 @@ class AbstractJobInterface
 
     /**
      * @param mixed $data
+     * @return AbstractJobInterface
      */
-    public function setData(mixed $data): void
+    public function setData(mixed $data): AbstractJobInterface
     {
         $this->data = $data;
+        return $this;
     }
 
 }

@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Library\View\Extensions;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\View\Extensions\Interfaces\QueryModeHandlerInterface;
 use App\Modules\Core\Library\View\Extensions\Traits\TonicsTemplateSystemHelper;
 use App\Modules\Post\Helper\PostLoop;
@@ -102,7 +103,7 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
                     $sql = $sqlStorage[$get_row_with_offset_limit]['sql'];
                     $params = $this->expandArgs($sqlStorage[$get_row_with_offset_limit]['params']);
                     return db()->run($sql, ...$params);
-                }, perPage: url()->getParam('per_page', 20));
+                }, perPage: AppConfig::getAppPaginationMax());
 
             $variable = $this->getTonicsView()->getVariableData();
             $variable['QUERY_MODE']['Result'] = $data;

@@ -19,6 +19,7 @@ class Widget implements HandlerInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {

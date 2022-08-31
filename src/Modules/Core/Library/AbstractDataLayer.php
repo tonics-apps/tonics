@@ -14,12 +14,6 @@ use Exception;
 
 class AbstractDataLayer
 {
-    /**
-     * The connection name for the model.
-     *
-     * @var string|null
-     */
-    protected ?string $connection;
 
     /**
      * Database you wanna Interact With...
@@ -178,14 +172,6 @@ SQL, ...$parameter);
     }
 
     /**
-     * @return string|null
-     */
-    public function getConnection(): ?string
-    {
-        return $this->connection;
-    }
-
-    /**
      * The settings can have:
      *
      *  - query_name: Name of query in URL PARAM, use for search term
@@ -238,7 +224,8 @@ SQL, ...$parameter);
      * @param string $table
      * @param array $columns
      * @param string $colParam
-     * Col to use for parameters, e.g menu_id
+     * Col to use for parameters, e.g. menu_id
+     * @param array $itemsToDelete
      * @param callable|null $onSuccess
      * @param callable|null $onError
      * @param string $moreWhereCondition
@@ -255,7 +242,7 @@ SQL, ...$parameter);
         array $itemsToDelete = [],
         callable $onSuccess = null,
         callable $onError = null,
-        string $moreWhereCondition = '')
+        string $moreWhereCondition = ''): void
     {
         $parameter = [];
         $itemsToDelete = array_map(function ($item) use ($colParam, $columns, &$parameter){
