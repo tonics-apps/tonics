@@ -405,6 +405,7 @@ HTML;
     public function getFieldItemsAPI()
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
+            url()->removeFromHeader('HTTP_ACTION'); # This fixes the contentEditable appearing in page fields
             $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);
             $fieldItems = $this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag();
             helper()->onSuccess($fieldItems);

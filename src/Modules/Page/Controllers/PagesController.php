@@ -16,7 +16,9 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Page\Data\PageData;
+use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Page\Rules\PageValidationRules;
@@ -261,6 +263,56 @@ class PagesController
                 redirect(route('pages.index'));
             },
         );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function viewPage()
+    {
+        $foundURL = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode();
+        $page = $foundURL->getMoreSettings('GET');
+        if (!is_object($page)) {
+            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+        }
+
+        $fieldSettings = json_decode($page->field_settings, true);
+        if (empty($fieldSettings)) {
+            $fieldSettings = (array)$page;
+        } else {
+            $fieldSettings = [...$fieldSettings, ...(array)$page];
+        }
+
+        $pagePath = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()?->getFullRoutePath();
+        /** @var $beforePageViewEvent BeforePageView */
+        $beforePageViewEvent = event()->dispatch(new BeforePageView($fieldSettings, $pagePath));
+
+        $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
+        $fieldSettings = $beforePageViewEvent->getFieldSettings();
+        $fieldSlugs = $this->getFieldSlug($beforePageViewEvent->getFieldSettings());
+        $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings, $beforePageViewEvent->isCacheData());
+
+        view($beforePageViewEvent->getViewName());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getFieldSlug($page): array
+    {
+        $slug = $page['field_ids'];
+        $fieldSlugs = json_decode($slug) ?? [];
+        if (is_object($fieldSlugs)){
+            $fieldSlugs = (array)$fieldSlugs;
+        }
+
+        if (empty($fieldSlugs) || !is_array($fieldSlugs)){
+            // return default fields
+            return ["default-page-field","post-home-page"];
+        }
+
+        $hiddenSlug = event()->dispatch(new OnPageDefaultField())->getHiddenFieldSlug();
+        return [...$fieldSlugs, ...$hiddenSlug];
     }
 
     /**

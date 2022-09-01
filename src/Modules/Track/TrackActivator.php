@@ -13,6 +13,7 @@ namespace App\Modules\Track;
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
@@ -20,6 +21,7 @@ use App\Modules\Track\EventHandlers\GenreMenuMetaBox;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
 use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
 use App\Modules\Track\EventHandlers\TrackMenus;
+use App\Modules\Track\EventHandlers\TrackSitemap;
 use App\Modules\Track\Events\OnArtistCreate;
 use App\Modules\Track\Events\OnLicenseCreate;
 use App\Modules\Track\Events\OnTrackCreate;
@@ -70,6 +72,10 @@ class TrackActivator implements ExtensionConfig
             OnTrackDefaultField::class => [
                 DefaultTrackFieldHandler::class
             ],
+
+            OnAddSitemap::class => [
+                TrackSitemap::class
+            ]
         ];
     }
 

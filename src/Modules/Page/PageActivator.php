@@ -12,10 +12,15 @@ namespace App\Modules\Page;
 
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Page\Controllers\PagesController;
 use App\Modules\Page\EventHandlers\DefaultPageFieldHandler;
 use App\Modules\Page\EventHandlers\PageMenu;
+use App\Modules\Page\EventHandlers\PageSitemap;
+use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Page\Routes\Routes;
@@ -46,6 +51,13 @@ class PageActivator implements ExtensionConfig
             ],
             OnPageDefaultField::class => [
                 DefaultPageFieldHandler::class
+            ],
+            OnAddSitemap::class => [
+                PageSitemap::class
+            ],
+
+            BeforePageView::class => [
+
             ]
         ];
     }
@@ -54,9 +66,11 @@ class PageActivator implements ExtensionConfig
      * @param Route $routes
      * @return Route
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function route(Route $routes): Route
     {
+        AppConfig::autoResolvePageRoutes(PagesController::class, $routes);
         return $this->routeWeb($routes);
     }
 

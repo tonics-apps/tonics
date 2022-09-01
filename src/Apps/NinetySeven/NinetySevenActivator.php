@@ -11,10 +11,12 @@
 namespace App\Apps\NinetySeven;
 
 use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
+use App\Apps\NinetySeven\EventHandler\HandlePages;
 use App\Apps\NinetySeven\Route\Routes;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Page\Events\BeforePageView;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class NinetySevenActivator implements ExtensionConfig
@@ -43,6 +45,10 @@ class NinetySevenActivator implements ExtensionConfig
         return [
             EditorsAsset::class => [
                 EditorsAssetsHandler::class
+            ],
+
+            BeforePageView::class => [
+                HandlePages::class
             ]
         ];
     }

@@ -39,7 +39,6 @@ class TrackArtistSelect implements HandlerInterface
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Track Artist Select';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';

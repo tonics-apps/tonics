@@ -16,6 +16,7 @@ use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Commands\Scheduler\ScheduleManager;
 use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\EventHandlers\DefaultEditorsAsset;
+use App\Modules\Core\EventHandlers\Fields\Tools\Sitemap;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\EventHandlers\SchedulerTransporter\DatabaseSchedulerTransporter;
 use App\Modules\Core\EventHandlers\TemplateEngines\DeactivateCombiningFilesInProduction;
@@ -27,8 +28,10 @@ use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\BeforeCombineModeOperation;
+use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Routes\Routes;
+use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class CoreActivator implements ExtensionConfig
@@ -77,7 +80,15 @@ class CoreActivator implements ExtensionConfig
 
             EditorsAsset::class => [
                 DefaultEditorsAsset::class
-            ]
+            ],
+
+            OnAddSitemap::class => [
+
+            ],
+
+            OnFieldMetaBox::class => [
+              Sitemap::class
+            ],
         ];
 
     }
