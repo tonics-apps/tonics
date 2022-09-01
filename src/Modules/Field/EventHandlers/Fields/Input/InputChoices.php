@@ -135,9 +135,8 @@ FORM;
             }
             $choiceFrag .=<<<HTML
 <li>
-    <label for="{$key}_$changeID">$key
-        <input $selected type="$textType" title="$value" id="{$key}_$changeID" name="{$inputName}[]" value="$value">
-    </label>
+    <input $selected type="$textType" title="$value" id="{$key}_$changeID" name="{$inputName}[]" value="$key">
+    <label for="{$key}_$changeID">$value</label>
 </li>
 HTML;
 
