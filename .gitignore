@@ -5,3 +5,6 @@ vendor/
 composer.phar
 src/Modules/*.zip
 /build/
+/src/Apps/TonicsSeo/.installed
+/src/Apps/TonicsToc/.installed
+/src/Apps/NinetySeven/.installed

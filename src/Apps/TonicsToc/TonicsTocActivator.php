@@ -154,6 +154,9 @@ JSON;
         return json_decode($json);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function info(): array
     {
         return [
