@@ -45,6 +45,11 @@
 
 [[hook_into('in_main')
 
+    [[SQL_BLOCK('reusable_sql')
+        [[OP('=')]] [[PARAM('1')]]
+        [[OP('AND')]] [[KEYWORD(""NOW()"")]] [[OP('>=')]] [[SELECT('categories') [[COLS('PICK', 'created_at')]] ]]
+    ]]
+
     [[SQL('category_query_table_count')
         [[SQLFUNC('COUNT', "*")]]
         [[FROM('categories')]]

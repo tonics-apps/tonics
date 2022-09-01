@@ -87,6 +87,7 @@
 
     [[SQL_BLOCK('reusable_search_sql')
         [[OP('=')]] [[PARAM('1')]]
+        [[OP('AND')]] [[KEYWORD(""NOW()"")]] [[OP('>=')]] [[SELECT('posts') [[COLS('PICK', 'created_at')]] ]]
         [[if('v[URL.PARAMS.post_cat] !== block[empty]')
             [[OP('AND')]] [[SELECT('categories') [[COLS('PICK', 'cat_name')]] ]] [[OP('=')]] [[PARAM('v[URL.PARAMS.post_cat]')]]
         ]]

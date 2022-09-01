@@ -330,7 +330,7 @@ class SQLSelectModeHandler extends TonicsTemplateViewAbstract implements TonicsM
 
     private function handleKeyword(Tag $tag)
     {
-        $keywords = ['LIMIT', 'OFFSET', 'LIKE', 'BETWEEN'];
+        $keywords = ['LIMIT', 'OFFSET', 'LIKE', 'BETWEEN', 'NOW()'];
         $keywords = array_combine($keywords, $keywords);
 
         $key = strtoupper($tag->getFirstArgChild());

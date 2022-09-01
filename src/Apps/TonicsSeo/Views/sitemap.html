@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+[[b('empty')]]
+[[if('v[sitemapIndexes] !== block[empty]')
+    <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        [[each("sitemapIndex in sitemapIndexes")
+        <sitemap>
+            <loc>[[v('sitemapIndex')]]</loc>
+        </sitemap>
+        ]]
+    </sitemapindex>
+]]
+
+[[if('v[sitemapData] !== block[empty]')
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    [[each("sitemap in sitemapData")
+        <url>
+            <loc>[[v('App_Config.SiteURL')]][[v('sitemap._link')]]</loc>
+            [[if('v[sitemap._image]')
+            <image:image>
+                <image:loc>[[v('App_Config.SiteURL')]][[v('sitemap._image')]]</image:loc>
+            </image:image>
+            ]]
+        </url>
+    ]]
+</urlset>
+]]

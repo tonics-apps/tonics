@@ -13,7 +13,7 @@ namespace App\Modules\Core\Events\Tools\Sitemap;
 abstract class AbstractSitemapInterface
 {
     private int $limit = 1000;
-    private ?int $dataCount = null;
+    protected ?int $dataCount = null;
     private array $data = [];
 
     /**

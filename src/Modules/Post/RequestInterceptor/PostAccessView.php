@@ -39,13 +39,15 @@ class PostAccessView
     public function handlePost(): void
     {
         $uniqueID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $post = $this->getPostData()->getPostByUniqueID($uniqueID);
-        if (is_array($post) && key_exists('post_status', $post)) {
-            if ($post['post_status'] === 1 && $post['cat_status'] === 1) {
+        $post = (array)$this->getPostData()->getPostByUniqueID($uniqueID);
+
+        if (key_exists('post_status', $post)) {
+            $postCreatedAtTimeStamp = strtotime($post['post_created_at']);
+            if ($post['post_status'] === 1 && $post['cat_status'] === 1 && time() >= $postCreatedAtTimeStamp) {
                 $this->post = $post; return;
             }
 
-            ## Else, post is in draft or trash, check if user is logged in and has a read access
+            ## Else, post is in draft or trash or in the future, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
             if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {
                 $this->post = $post; return;
@@ -61,15 +63,16 @@ class PostAccessView
     public function handleCategory()
     {
         $uniqueID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $category = $this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$uniqueID]);
-        if (is_object($category) && property_exists($category, 'cat_status')) {
-            if ($category->cat_status === 1) {
-                $this->category = (array)$category; return;
+        $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$uniqueID]);
+        if (key_exists('cat_status', $category)) {
+            $catCreatedAtTimeStamp = strtotime($category['created_at']);
+            if ($category['cat_status'] === 1 && time() >= $catCreatedAtTimeStamp) {
+                $this->category = $category; return;
             }
             ## Else, category is in draft, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
             if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {
-                $this->category = (array)$category; return;
+                $this->category = $category; return;
             }
         }
 
