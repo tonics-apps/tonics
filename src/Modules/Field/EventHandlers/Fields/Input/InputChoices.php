@@ -108,6 +108,11 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Choice';
+        $selectedChoices = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : [];
+        if (!is_array($selectedChoices)){
+            $selectedChoices = [];
+        }
+        $selectedChoices = array_combine($selectedChoices, $selectedChoices);
         $textType =  (isset($data->choiceType)) ? $data->choiceType : 'checkbox';
         $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -131,6 +136,9 @@ FORM;
         foreach ($choiceKeyValue as $key => $value){
             $selected = '';
             if ($key === $defaultValue){
+                $selected = 'checked';
+            }
+            if (isset($selectedChoices[$key])){
                 $selected = 'checked';
             }
             $choiceFrag .=<<<HTML
