@@ -213,7 +213,7 @@ JSON;
      */
     public function onDelete(): void
     {
-        $toDelete = "'app-ninetyseven-site-header', 'app-ninetyseven-site-footer', 'app-ninetyseven-post-home-page', 'app-ninetyseven-post-category', 'app-ninetyseven-single-post-view'";
+        $toDelete = "'app-tonicstoc', 'app-tonicstoc-settings'";
         db()->run("DELETE FROM {$this->fieldData->getFieldTable()} WHERE `field_slug` IN ($toDelete)");
     }
 }

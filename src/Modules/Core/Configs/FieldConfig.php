@@ -11,6 +11,7 @@
 namespace App\Modules\Core\Configs;
 
 use App\InitLoaderMinimal;
+use App\Modules\Core\Library\Tables;
 
 class FieldConfig
 {
@@ -78,46 +79,43 @@ class FieldConfig
     }
 
     /**
-     * @param $settingFile
+     * @param $key
      * Only File That Contains JSON data
-     * @param $data
-     * @return false
+     * @param array $data
+     * @return array
      * @throws \Exception
      */
-    public static function savePluginFieldSettings($settingFile, array $data): bool
+    public static function savePluginFieldSettings($key, array $data): array
     {
-        if (str_starts_with($settingFile, AppConfig::getAppsPath()) && helper()->isReadable($settingFile) && helper()->isWritable($settingFile)){
-            $settings = @file_get_contents($settingFile);
-            if (!$settings){
-                return false;
-            }
-            if (!helper()->isJSON($settings)){
-                return false;
-            }
-            $settings = json_decode($settings, true);
-            $settings = helper()->mergeKeyIntersection($settings, $data);
-            return @file_put_contents($settingFile, json_encode($settings));
-        }
+        $key = 'App_Settings_' . $key;
+        unset($data['token']);
 
-        return false;
+        $globalTable = Tables::getTable(Tables::GLOBAL);
+        db(true)->insertOnDuplicate(
+            $globalTable,
+            [
+                'key' => $key,
+                'value' => json_encode($data)
+            ],
+            ['value']
+        );
+
+        return $data;
     }
 
     /**
      * @throws \Exception
      */
-    public static function loadPluginSettings($settingFile): array
+    public static function loadPluginSettings($key): array
     {
-        if (str_starts_with($settingFile, AppConfig::getAppsPath()) && helper()->isReadable($settingFile)){
-            $settings = @file_get_contents($settingFile);
-            if (!$settings){
-                return [];
-            }
-            if (!helper()->isJSON($settings)){
-                return [];
-            }
-            return json_decode($settings, true) ?? [];
+        if (!str_starts_with($key, 'App_Settings_')){
+            $key = 'App_Settings_' . $key;
         }
-
+        $globalTable = Tables::getTable(Tables::GLOBAL);
+        $updates = db(true)->row("SELECT * FROM $globalTable WHERE `key` = ?", $key);
+        if (isset($updates->value) && !empty($updates->value)){
+            return json_decode($updates->value, true);
+        }
         return [];
     }
 

@@ -50,20 +50,15 @@ class TonicsTocController
      */
     public function update()
     {
-        $result = FieldConfig::savePluginFieldSettings(self::getSettingsFile(), $_POST);
-        if (!$result){
+        try {
+            $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
+            apcu_store(self::getCacheKey(), $settings);
+            session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('tonicsToc.settings'));
+        }catch (\Exception){
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
             redirect(route('tonicsToc.settings'));
         }
-
-        apcu_store(self::getCacheKey(), FieldConfig::loadPluginSettings(self::getSettingsFile()));
-        session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tonicsToc.settings'));
-    }
-
-    public static function getSettingsFile(): string
-    {
-        return AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . 'TonicsToc' . DIRECTORY_SEPARATOR . 'settings.json';
     }
 
     /**
@@ -73,7 +68,7 @@ class TonicsTocController
     {
         $settings = apcu_fetch(self::getCacheKey());
         if ($settings === false){
-            $settings = FieldConfig::loadPluginSettings(self::getSettingsFile());
+            $settings = FieldConfig::loadPluginSettings(self::getCacheKey());
         }
         if (empty($settings)){
             // force default:

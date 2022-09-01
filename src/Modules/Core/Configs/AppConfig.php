@@ -362,6 +362,11 @@ class AppConfig
         return APP_ROOT . '/src/Apps';
     }
 
+    public static function getETCPath(): string
+    {
+        return APP_ROOT . '/etc';
+    }
+
     public static function getAppAsset(string $appName, string $appPath): string
     {
         return DriveConfig::serveAppFilePath() . "$appName/?path=$appPath";

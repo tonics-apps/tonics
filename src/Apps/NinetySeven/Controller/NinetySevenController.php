@@ -47,20 +47,16 @@ class NinetySevenController
      */
     public function update()
     {
-        $result = FieldConfig::savePluginFieldSettings(self::getSettingsFile(), $_POST);
-        if (!$result){
+        try {
+            $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
+            apcu_store(self::getCacheKey(), $settings);
+            session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('ninetySeven.settings'));
+        }catch (\Exception){
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
             redirect(route('ninetySeven.settings'));
         }
 
-        apcu_store(self::getCacheKey(), FieldConfig::loadPluginSettings(self::getSettingsFile()));
-        session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('ninetySeven.settings'));
-    }
-
-    public static function getSettingsFile(): string
-    {
-        return AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . 'NinetySeven' . DIRECTORY_SEPARATOR . 'settings.json';
     }
 
     /**
@@ -70,7 +66,7 @@ class NinetySevenController
     {
         $settings = apcu_fetch(self::getCacheKey());
         if ($settings === false){
-            $settings = FieldConfig::loadPluginSettings(self::getSettingsFile());
+            $settings = FieldConfig::loadPluginSettings(self::getCacheKey());
         }
 
         return $settings;
