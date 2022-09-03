@@ -16,6 +16,7 @@ use App\Modules\Core\Events\Tools\Sitemap\AbstractSitemapInterface;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Field\Data\FieldData;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class TonicsSeoController
 {
@@ -69,7 +70,7 @@ class TonicsSeoController
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
 
-        response()->header("content-type: text/xml; charset=UTF-8");
+        // response()->header("content-type: text/xml; charset=UTF-8");
 
         $sitemapIndexes = [];
         $typeNameFromParam = strtolower(url()->getParam('type', ''));
@@ -81,10 +82,9 @@ class TonicsSeoController
 
             # If it includes a page param, then get the sitemap data
             if (url()->hasParam('page')){
-                //dd($sitemapHandlerObject, $sitemapHandlerObject->getData());
-                view('Apps::TonicsSeo/Views/sitemap', [
+                $data = view('Apps::TonicsSeo/Views/sitemap_entries', [
                     'sitemapData' => $sitemapHandlerObject->getData(),
-                ]);
+                ], TonicsView::RENDER_CONCATENATE);
                 exit();
             }
 

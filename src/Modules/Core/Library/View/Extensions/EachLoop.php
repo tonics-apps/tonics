@@ -45,6 +45,7 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
 class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
 
+    protected array $debug = [];
 
     public function validate(OnTagToken $tagToken): bool
     {
@@ -118,16 +119,20 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                     'index' => $iteration,
                     'key' => $key,
                 ]);
+                $n = 0;
                 foreach ($tag->getChildrenRecursive($tag) as $node) {
+                    $this->debug[] = $node;
                     $mode = $view->getModeRendererHandler($node->getTagName());
                     if ($mode instanceof TonicsModeRendererInterface) {
                         $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
                         $eachOutput .= $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
                     }
+                    ++$n;
                 }
                 ++$iteration;
             }
         }
+
         return $eachOutput;
     }
 

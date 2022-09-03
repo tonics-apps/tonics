@@ -40,7 +40,7 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
             callback: function ($perPage, $offset){
                 $table = Tables::getTable(Tables::POSTS);
                 return db()->run(<<<SQL
-SELECT CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image'
+SELECT CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'
 FROM $table WHERE post_status = 1 AND NOW() >= created_at ORDER BY created_at LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());
