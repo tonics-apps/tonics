@@ -37,9 +37,15 @@ class TonicsSeoController
      */
     public function edit(): void
     {
+        $settings = $this->getSettingsData();
+        if (!isset($settings['app_tonicsseo_robots_txt'])){ $settings['app_tonicsseo_robots_txt'] = '';}
+        if (isset($settings['app_tonicsseo_robots_txt']) && empty($settings['app_tonicsseo_robots_txt'])){
+            $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
+        }
+
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
             ['app-tonicsseo-settings'],
-            $this->getSettingsData()
+            $settings
         )->getHTMLFrag();
 
         view('Apps::TonicsSeo/Views/settings', [
@@ -67,6 +73,16 @@ class TonicsSeoController
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
             redirect(route('tonicsSeo.settings'));
         }
+    }
+
+    private function getDefaultRobots()
+    {
+        $sitemapURL = AppConfig::getAppUrl() . '/sitemap.xml';
+        return <<<ROBOT
+User-Agent: *
+Disallow:
+Sitemap: $sitemapURL
+ROBOT;
     }
 
     /**
@@ -142,9 +158,15 @@ class TonicsSeoController
         exit();
     }
 
-    public function robots()
+    /**
+     * @throws \Exception
+     */
+    public function robots(): void
     {
-
+        $settings = self::getSettingsData();
+        if (!isset($settings['app_tonicsseo_robots_txt'])){ $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();}
+        response()->header("content-type: text/plain; charset=UTF-8");
+        echo $settings['app_tonicsseo_robots_txt'];
     }
 
     /**
