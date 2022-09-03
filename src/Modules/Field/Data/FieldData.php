@@ -705,7 +705,7 @@ SQL;
         $fieldSettings = json_decode($post[$fieldSettingsKey], true);
         $this->unwrapFieldContent($fieldSettings);
         $post = [...$fieldSettings, ...$post];
-        $date = new \DateTime($post['post_created_at']);
+        $date = new \DateTime($post['published_time']);
         $post['created_at_words'] = strtoupper($date->format('j M, Y'));
     }
 

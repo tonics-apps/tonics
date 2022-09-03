@@ -19,7 +19,6 @@ class PostLoop implements QueryModeHandlerInterface
 
     public function handleQueryData(TonicsView $tonicsView, string $query_name, \stdClass $queryData, callable $callback = null): string
     {
-        $fieldData = new FieldData();
         $frag = '';
         $posts = (isset($queryData->data)) ? $queryData->data : [];
         foreach ($posts as $post) {

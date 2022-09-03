@@ -21,6 +21,7 @@ use App\Modules\Core\Library\View\Extensions\IfBlock;
 use App\Modules\Core\Library\View\Extensions\IfCondition;
 use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
 use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
+use App\Modules\Core\Library\View\Extensions\OnHookIntoEvent;
 use App\Modules\Core\Library\View\Extensions\QueryModeHandler;
 use App\Modules\Core\Library\View\Extensions\SessionView;
 use App\Modules\Core\Library\View\Extensions\SQLSelectModeHandler;
@@ -130,6 +131,7 @@ class NativeTemplateEngine implements HandlerInterface
 
         $view->addModeHandler('hook_into', Hook::class);
         $view->addModeHandler('place_into', Hook::class); // alias of hook_into
+        $view->addModeHandler('on_hook_into_event', OnHookIntoEvent::class);
 
         // SQL_SELECT
         $view->addModeHandler('sql', SQLSelectModeHandler::class);

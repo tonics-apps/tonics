@@ -28,6 +28,7 @@ use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\BeforeCombineModeOperation;
+use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Routes\Routes;
@@ -88,6 +89,10 @@ class CoreActivator implements ExtensionConfig
 
             OnFieldMetaBox::class => [
               Sitemap::class
+            ],
+
+            OnHookIntoTemplate::class => [
+
             ],
         ];
 

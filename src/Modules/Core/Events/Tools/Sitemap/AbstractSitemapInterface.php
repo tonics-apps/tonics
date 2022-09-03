@@ -79,6 +79,7 @@ abstract class AbstractSitemapInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {

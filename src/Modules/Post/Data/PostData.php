@@ -309,8 +309,8 @@ CAT;
 
         $sql = <<<SQL
 SELECT *, 
-       $postTable.created_at as 'post_created_at', 
-       $postTable.updated_at as 'post_updated_at', 
+       $postTable.created_at as 'published_time', 
+       $postTable.updated_at as 'modified_time', 
        $postTable.field_settings as 'field_settings', 
        $postTable.slug_id as post_slug_id, 
        $categoryTable.slug_id as cat_slug_id

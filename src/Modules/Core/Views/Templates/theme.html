@@ -3,6 +3,8 @@
 [[import("Modules::Core/Views/Blocks/Authentication")]]
 [[import("Modules::Core/Views/Blocks/Default")]]
 
+[[on_hook_into_event('theme')]]
+
 [[add_hook('before_html')]]
 <html lang="en" [[add_hook('in_html_attribute')]]>
 
@@ -11,6 +13,7 @@
 <head [[add_hook('in_head_attribute')]]>
     [[_use("default-meta")]]
     [[add_hook('in_head')]]
+    <title>[[add_hook('in_head_title')]]</title>
 </head>
 
 [[add_hook('before_body')]]

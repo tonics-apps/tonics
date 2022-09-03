@@ -23,6 +23,7 @@ use App\Modules\Post\EventHandlers\HandleNewCategorySlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostSlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostToCategoryMapping;
 use App\Modules\Post\EventHandlers\HandleUpdatePostToCategoryMapping;
+use App\Modules\Post\EventHandlers\PostCategorySitemap;
 use App\Modules\Post\EventHandlers\PostMenuMetaBox;
 use App\Modules\Post\EventHandlers\PostMenus;
 use App\Modules\Post\EventHandlers\PostSitemap;
@@ -87,7 +88,8 @@ class PostActivator implements ExtensionConfig
             ],
 
             OnAddSitemap::class => [
-                PostSitemap::class
+                PostSitemap::class,
+                PostCategorySitemap::class,
             ]
 
         ];

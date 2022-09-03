@@ -1,10 +1,5 @@
 [[hook_into('in_head')
 <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
-  <title>[[add_hook('in_head_title')]]</title>
-  <meta name="description" content='[[v("Data.seo_description .. Data.og_description")]]'>
-  <meta property="og:title" content='[[add_hook("in_head_og_title")]]'>
-  <meta property="og:description" content='[[v("Data.seo_description .. Data.og_description")]]'>
-  <meta property="og:url" content='[[v("URL.FULL_URL")]]'>
 ]]
 
 [[hook_into('in_body_attribute')class="body-sticky-footer"]]

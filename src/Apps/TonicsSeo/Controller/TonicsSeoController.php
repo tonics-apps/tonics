@@ -66,12 +66,10 @@ class TonicsSeoController
     /**
      * @throws \Exception
      */
-    public function sitemap()
+    #[NoReturn] public function sitemap(): void
     {
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
-
-        $isEntry = true;
 
         response()->header("content-type: text/xml; charset=UTF-8");
 
