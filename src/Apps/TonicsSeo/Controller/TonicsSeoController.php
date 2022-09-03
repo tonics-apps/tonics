@@ -79,6 +79,7 @@ class TonicsSeoController
     {
         $sitemapURL = AppConfig::getAppUrl() . '/sitemap.xml';
         return <<<ROBOT
+# EACH DAY IS A NEW BEGINNING - IrinAjobere
 User-Agent: *
 Disallow:
 Sitemap: $sitemapURL
@@ -90,7 +91,6 @@ ROBOT;
      */
     #[NoReturn] public function sitemap(): void
     {
-        // dd(file_get_contents());
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
 
@@ -126,6 +126,7 @@ ROBOT;
                 }
                 $this->sitemapIndex($sitemapIndexes);
             }
+
             $this->sitemapEntry($sitemapHandlerObject);
         } else {
             foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue){
@@ -164,7 +165,11 @@ ROBOT;
     public function robots(): void
     {
         $settings = self::getSettingsData();
-        if (!isset($settings['app_tonicsseo_robots_txt'])){ $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();}
+        if (!isset($settings['app_tonicsseo_robots_txt'])){
+            $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
+        }elseif (empty($settings['app_tonicsseo_robots_txt'])){
+            $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
+        }
         response()->header("content-type: text/plain; charset=UTF-8");
         echo $settings['app_tonicsseo_robots_txt'];
     }
