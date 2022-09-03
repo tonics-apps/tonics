@@ -84,7 +84,7 @@ class TonicsSeoController
             if (url()->hasParam('page')){
                 $data = view('Apps::TonicsSeo/Views/sitemap_entries', [
                     'sitemapData' => $sitemapHandlerObject->getData(),
-                ], TonicsView::RENDER_CONCATENATE);
+                ]);
                 exit();
             }
 
