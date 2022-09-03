@@ -70,7 +70,7 @@ class TonicsSeoController
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
 
-        // response()->header("content-type: text/xml; charset=UTF-8");
+        response()->header("content-type: text/xml; charset=UTF-8");
 
         $sitemapIndexes = [];
         $typeNameFromParam = strtolower(url()->getParam('type', ''));
