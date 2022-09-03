@@ -76,7 +76,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    private function searchEngineOptimization(TonicsView $tonicsView)
+    private function searchEngineOptimization(TonicsView $tonicsView): string
     {
         $meta = '';
         $seoSettings = TonicsSeoController::getSettingsData();

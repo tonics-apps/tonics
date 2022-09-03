@@ -10,11 +10,13 @@
 
 namespace App\Apps\TonicsSeo\Controller;
 
+use App\Apps\TonicsSeo\Schedules\PingSearchEngineForSitemap;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Events\Tools\Sitemap\AbstractSitemapInterface;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use JetBrains\PhpStorm\NoReturn;
@@ -55,9 +57,13 @@ class TonicsSeoController
         try {
             $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
             apcu_store(self::getCacheKey(), $settings);
+
+            $sitemapPingSchedule = new PingSearchEngineForSitemap();
+            schedule()->enqueue($sitemapPingSchedule);
+
             session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tonicsSeo.settings'));
-        }catch (\Exception){
+        }catch (\Exception $exception){
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
             redirect(route('tonicsSeo.settings'));
         }
@@ -68,14 +74,21 @@ class TonicsSeoController
      */
     #[NoReturn] public function sitemap(): void
     {
+        // dd(file_get_contents());
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
+
+        $includeSitemaps = self::getSettingsData()['app_tonicsseo_sitemap_handlers'] ?? [];
+        $includeSitemaps = array_combine($includeSitemaps, $includeSitemaps);
+        $includeSitemaps = array_change_key_case($includeSitemaps);
+
+        $sitemapTypeEvent->setSitemap(helper()->mergeKeyIntersection($includeSitemaps, $sitemapTypeEvent->getSitemap()));
 
         response()->header("content-type: text/xml; charset=UTF-8");
 
         $sitemapIndexes = [];
         $typeNameFromParam = strtolower(url()->getParam('type', ''));
-        if (url()->hasParam('type') && key_exists($typeNameFromParam, $sitemapTypeEvent->getSitemap())){
+        if (url()->hasParam('type') && key_exists($typeNameFromParam, $includeSitemaps)){
             /** @var AbstractSitemapInterface $sitemapHandlerObject */
             $sitemapHandlerObject = $sitemapTypeEvent->getSitemap()[$typeNameFromParam];
             $sitemapPerPage = (isset(self::getSettingsData()['app_tonicsseo_sitemap_per_page'])) ? (int)self::getSettingsData()['app_tonicsseo_sitemap_per_page'] : 1000;

@@ -47,7 +47,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
 
     public function updateKeyOnUpdate(): array
     {
-        return ['schedule_priority', 'schedule_parallel', 'schedule_data', 'schedule_status', 'schedule_ticks_max', 'schedule_every', 'schedule_ticks'];
+        return ['schedule_priority', 'schedule_parallel', 'schedule_data', 'schedule_ticks_max', 'schedule_every', 'schedule_ticks'];
     }
 
     /**

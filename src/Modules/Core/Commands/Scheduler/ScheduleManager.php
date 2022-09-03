@@ -11,15 +11,9 @@
 namespace App\Modules\Core\Commands\Scheduler;
 
 use App\Modules\Core\Commands\OnStartUpCLI;
-use App\Modules\Core\Commands\UpdateMechanism\AutoUpdate;
-use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Library\ConsoleColor;
-use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
-use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Schedules\AutoUpdates;
 use App\Modules\Core\Schedules\DiscoverUpdates;
-use App\Modules\Core\Schedules\JobManager;
 use App\Modules\Core\Schedules\PurgeOldSession;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
