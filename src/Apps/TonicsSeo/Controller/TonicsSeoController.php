@@ -17,6 +17,7 @@ use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
+use JetBrains\PhpStorm\NoReturn;
 
 class TonicsSeoController
 {
@@ -70,6 +71,8 @@ class TonicsSeoController
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
 
+        $isEntry = true;
+
         response()->header("content-type: text/xml; charset=UTF-8");
 
         $sitemapIndexes = [];
@@ -82,10 +85,7 @@ class TonicsSeoController
 
             # If it includes a page param, then get the sitemap data
             if (url()->hasParam('page')){
-                $data = view('Apps::TonicsSeo/Views/sitemap_entries', [
-                    'sitemapData' => $sitemapHandlerObject->getData(),
-                ]);
-                exit();
+                $this->sitemapEntry($sitemapHandlerObject);
             }
 
             # Sitemap Index for page type
@@ -97,18 +97,38 @@ class TonicsSeoController
                     $indexURL = AppConfig::getAppUrl(). url()->appendQueryString("page=" . $i)->getRequestURLWithQueryString();
                     $sitemapIndexes[] = $indexURL;
                 }
+                $this->sitemapIndex($sitemapIndexes);
             }
-
+            $this->sitemapEntry($sitemapHandlerObject);
         } else {
             foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue){
                 $indexURL = url()->getFullURL() . '?type=' .$sitemapName;
                 $sitemapIndexes[] = $indexURL;
             }
+            $this->sitemapIndex($sitemapIndexes);
         }
+    }
 
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] private function sitemapIndex($sitemapIndexes): void
+    {
         view('Apps::TonicsSeo/Views/sitemap', [
             'sitemapIndexes' => $sitemapIndexes,
         ]);
+        exit();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] private function sitemapEntry($sitemapHandlerObject): void
+    {
+        view('Apps::TonicsSeo/Views/sitemap_entries', [
+            'sitemapData' => $sitemapHandlerObject->getData(),
+        ]);
+        exit();
     }
 
     public function robots()
