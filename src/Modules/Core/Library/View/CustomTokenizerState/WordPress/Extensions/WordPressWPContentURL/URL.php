@@ -30,7 +30,7 @@ class URL  extends TonicsTemplateViewAbstract implements TonicsModeRendererInter
         $fileObject = $localDriver->convertFilePathToFileObject($path);
         if ($fileObject !== false){
             $url = parse_url(AppConfig::getAppUrl(), PHP_URL_HOST);
-            return $content . rtrim($url, '/').$fileObject->urlDownload;
+            return $content . rtrim($url, '/').$fileObject->urlDownload . '?render';
         }
 
         return $content . $args['url'].$args['path'];
