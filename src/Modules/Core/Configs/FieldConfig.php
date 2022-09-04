@@ -88,7 +88,9 @@ class FieldConfig
     public static function savePluginFieldSettings($key, array $data): array
     {
         $key = 'App_Settings_' . $key;
-        unset($data['token']);
+        if (isset($data['token'])){
+            unset($data['token']);
+        }
 
         $globalTable = Tables::getTable(Tables::GLOBAL);
         db(true)->insertOnDuplicate(

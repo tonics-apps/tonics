@@ -325,7 +325,9 @@ SQL;
         $stmt->execute([$uniqueID]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        unset($data['user_password']);
+        if(isset($data['user_password'])){
+            unset($data['user_password']);
+        }
 
         if (isset($data['cat_id'])) {
             $data['categories'] = $this->getPostCategoryParents($data['cat_id']);
