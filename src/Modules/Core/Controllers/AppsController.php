@@ -13,6 +13,7 @@ namespace App\Modules\Core\Controllers;
 use App\InitLoader;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\CoreActivator;
 use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\States\AppsSystem;
@@ -52,8 +53,28 @@ class AppsController
     {
         $url = route('apps.index');
         if (input()->fromPost()->has('activator')){
+
             InitLoader::setEventStreamAsHTML(true);
-            $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
+            $updateActivator = input()->fromPost()->retrieve('activator', []);
+
+            #
+            # On every update request, we include the CoreActivator since it is mandatory for every
+            # dependency, and besides, it should always be the latest version, this should be
+            # replaced by a dependency graph which is not currently supported.
+            #
+            if (!empty($updateActivator)){
+                $coreFound = false;
+                foreach ($updateActivator as $activator){
+                    if (CoreActivator::class === $activator){
+                        $coreFound = true;
+                    }
+                }
+                if (!$coreFound){
+                    $updateActivator = [CoreActivator::class, ...$updateActivator];
+                }
+            }
+
+            $appSystem = new AppsSystem($updateActivator);
             $appSystem->setCurrentState(AppsSystem::OnAppUpdateState);
             $appSystem->runStates(false);
             InitLoader::setEventStreamAsHTML(false);
