@@ -316,7 +316,7 @@ class AppsSystem extends SimpleState
             $extractToTemp = $tempPath . DIRECTORY_SEPARATOR . $name;
             $pathToArchive = $tempPath . DIRECTORY_SEPARATOR. $zipName;
             helper()->createDirectoryRecursive($extractToTemp);
-            $extractedFileResult = $localDriver->extractFile($pathToArchive, $extractToTemp,importToDB: false);
+            $extractedFileResult = $localDriver->extractFile($pathToArchive, $extractToTemp, importToDB: false);
             if ($extractedFileResult === true){
                 $dir = array_filter(glob($extractToTemp . DIRECTORY_SEPARATOR .'*'), 'is_dir');
                 if (!empty($dir)){
