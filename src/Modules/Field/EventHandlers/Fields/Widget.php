@@ -68,7 +68,7 @@ HTML;
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name ((via [[_v('Widget_$inputName.Name')]])
+     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name ((via [[v('Widget_$inputName.Name')]])
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$fieldName" placeholder="Field Name">
     </label>

@@ -137,7 +137,7 @@
   [[if("v[Widget_sidebar_widget.Data] !== block[empty]")
   <aside>
     <div class="owl sidebar-widget position:sticky top:0">
-      <h4 style="text-transform: capitalize;">[[_v('Widget_sidebar_widget.Name')]]</h4>
+      <h4 style="text-transform: capitalize;">[[v('Widget_sidebar_widget.Name')]]</h4>
       <ul class="owl list:style:none">
         [[each("widgetData in Widget_sidebar_widget.Data")
         <li style="margin-top: clamp(3rem, 2.5vw, 2rem);" tabindex="0" class="owl width:100% padding:default menu-arranger-li color:black bg:white-one border-width:default border:black position:relative">

@@ -80,7 +80,7 @@ HTML;
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name ((via [[_v('Menu_$inputName.Name')]])
+     <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name ((via [[v('Menu_$inputName.Name')]])
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$fieldName" placeholder="Field Name">
     </label>
@@ -188,10 +188,11 @@ HTML;
             $svgIcon = helper()->htmlSpecChar($menu->mt_icon);
             $svgIcon = "<svg class='icon:admin $svgIcon'><use xlink:href='#$svgIcon'></use></svg>";
         }
+        $menuName = helper()->htmlSpecChar($menu->mt_name);
         $name = '';
         if ($displayName == '1') {
             $name = <<<HTML
-<div class="text:paragraph-fluid-one text:no-wrap">$menu->mt_name</div>
+<div class="text:paragraph-fluid-one text:no-wrap">$menuName</div>
 HTML;
 
         }
@@ -200,9 +201,10 @@ HTML;
         if ($menu->mt_target == 0) {
             $target = 'target="_self"';
         }
+
         $htmlFrag = <<<MENU
 <li class="menu-block d:flex" data-menu-depth="$depth">
-    <a href="$url" $target class="menu-box flex-gap:small color:black border-width:default border:black" title="$menu->mt_name">
+    <a href="$url" $target class="menu-box flex-gap:small color:black border-width:default border:black" title="$menuName">
         $svgIcon
        $name
 MENU;
