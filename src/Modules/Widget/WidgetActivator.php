@@ -51,11 +51,10 @@ class WidgetActivator implements ExtensionConfig
                 WidgetMenus::class
             ],
             OnMenuWidgetMetaBox::class => [
-                RecentPostMenuWidget::class,
+                // RecentPostMenuWidget::class,
                 ImageMenuWidget::class,
                 PlainTextMenuWidget::class,
                 RichTextMenuWidget::class
-
             ],
         ];
     }
