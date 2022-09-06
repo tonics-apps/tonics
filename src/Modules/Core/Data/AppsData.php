@@ -33,6 +33,7 @@ class AppsData extends AbstractDataLayer
         foreach ($apps as $path => $app){
             $classToString = $app::class;
             $updateInfos = [$classToString];
+
             if (isset($updatesObject['app']) && isset($updatesObject['app'][$classToString])){
                 $updateInfos = $updatesObject['app'][$classToString];
             }

@@ -187,6 +187,18 @@ class UpdateMechanismState extends SimpleState
             return self::ERROR;
         }
 
+        $globalTable = Tables::getTable(Tables::GLOBAL);
+        if (!empty($this->collate)){
+            db(true)->insertOnDuplicate(
+                $globalTable,
+                [
+                    'key' => 'updates',
+                    'value' => json_encode($this->collate)
+                ],
+                ['value']
+            );
+        }
+
         return self::DONE;
     }
 
@@ -261,8 +273,8 @@ class UpdateMechanismState extends SimpleState
             if (isset($module->info()['update_discovery_url'])) {
                 $data = $this->getJSONFromURL($module->info()['update_discovery_url']);
                 if (isset($data->tag_name) && isset($data->assets[0])) {
-                    $releaseTimestamp = $this->getTimeStampFromVersion($data->tag_name);
-                    $moduleTimestamp = $this->getTimeStampFromVersion($module->info()['version'] ?? '');
+                    $releaseTimestamp = $tonicsHelper->getTimeStampFromVersion($data->tag_name);
+                    $moduleTimestamp = $tonicsHelper->getTimeStampFromVersion($module->info()['version'] ?? '');
                     $canUpdate = $releaseTimestamp > $moduleTimestamp;
                     $discovered = (isset($data->name)) ? $data->name : $dirName;
                     $this->collate[$type][$module::class] = [
@@ -317,6 +329,7 @@ class UpdateMechanismState extends SimpleState
                         $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                     } else {
                         $directory = $dirPath . $sep . "$folderName";
+                        $this->collate[$type][$classString]['can_update'] = false;
                         $this->reActivate($directory, $folderName);
                     }
                 } else {
@@ -327,21 +340,6 @@ class UpdateMechanismState extends SimpleState
                 }
             }
         }
-    }
-
-    /**
-     * @param string $version
-     * @return int|string
-     */
-    private function getTimeStampFromVersion(string $version): int|string
-    {
-        $versionTimeStamp = '';
-        $versionExploded = explode('.', $version);
-        if (isset($versionExploded[1]) && is_numeric($versionExploded[1])) {
-            $versionTimeStamp = (int)$versionExploded[1];
-        }
-
-        return $versionTimeStamp;
     }
 
     private function getJSONFromURL(string $url)
