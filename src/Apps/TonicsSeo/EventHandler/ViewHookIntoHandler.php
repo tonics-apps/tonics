@@ -81,9 +81,9 @@ HTML;
         $meta = '';
         $seoSettings = TonicsSeoController::getSettingsData();
 
-        $siteTitle = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title']);
-        $separator = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_separator']);
-        $titlePositionIsLeft = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_location']) === 'left';
+        $siteTitle = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title'] ?? "");
+        $separator = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_separator'] ?? "");
+        $titlePositionIsLeft = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_location'] ?? "") === 'left';
 
         $seoTitle = $tonicsView->accessArrayWithSeparator('Data.seo_title') ?: $tonicsView->accessArrayWithSeparator('Data.og_title');
         $seoTitle = helper()->htmlSpecChar($seoTitle);

@@ -10,7 +10,6 @@
 
 namespace App\Modules\Core\Library;
 
-
 use ParagonIE\EasyDB\EasyDB;
 use PDO;
 
@@ -40,12 +39,17 @@ class Database
             ';dbname=' . ($databaseName ?: $this->DatabaseName()) .
             ';charset=' . ($this->Charset() ?: $Char);
 
-
         try {
-            return new MyPDO(new PDO(
+            $db = new MyPDO(new PDO(
                 dsn: $dsn,
                 username: ($this->User() ?: $User),
                 password: ($this->Password() ?: $Pass)), dbEngine: $this->Engine(), options: $this->options);
+
+            # Sync Users TimeZone with Database
+            $offset = date('P');
+            $db->run("SET time_zone='$offset'");
+            return $db;
+
         } catch (\PDOException $e){
             view('Modules::Core/Views/error-page', ['error-code' => $e->getCode(), 'error-message' => "Error Connecting To The Database ❕"]);
             exit();
