@@ -10,7 +10,7 @@
 
 namespace App\Modules\Core\Controllers;
 
-use App\InitLoader;
+use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\CoreActivator;

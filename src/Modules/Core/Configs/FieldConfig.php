@@ -10,7 +10,7 @@
 
 namespace App\Modules\Core\Configs;
 
-use App\InitLoaderMinimal;
+use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Library\Tables;
 
 class FieldConfig
@@ -102,6 +102,7 @@ class FieldConfig
             ['value']
         );
 
+        apcu_clear_cache();
         return $data;
     }
 

@@ -11,6 +11,7 @@
 namespace App\Modules\Core\Controllers;
 
 use Ahc\Env\Loader;
+use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Commands\Environmental\SetEnvironmentalKey;
 use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Commands\UpdateLocalDriveFilesInDb;

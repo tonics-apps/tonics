@@ -10,7 +10,6 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Track;
 
-use App\InitLoader;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Track\Data\TrackData;

@@ -10,7 +10,7 @@
 
 namespace App\Modules\Field\Data;
 
-use App\InitLoaderMinimal;
+use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
@@ -18,8 +18,8 @@ use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Events\FieldTemplateFile;
-use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Events\OnFieldFormHelper;
+use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 
 class FieldData extends AbstractDataLayer

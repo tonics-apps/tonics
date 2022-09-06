@@ -11,13 +11,11 @@
 namespace App\Modules\Core\Configs;
 
 
-use App\InitLoader;
-use App\InitLoaderMinimal;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\InitLoader;
+use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\Database;
-use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsContainer\Container;
@@ -44,7 +42,7 @@ class AppConfig
      * The second entry point into our app after initialization of minimal dependencies, this uses injection sort of to construct all the
      * necessary objects, and caches it, so, it constructs it just once, and the subsequent request might be a bit faster.
      * @param bool $failSilently
-     * @return InitLoader
+     * @return \App\Modules\Core\Boot\InitLoader
      * @throws Exception
      */
     public static function initLoaderOthers(bool $failSilently = false): InitLoader
@@ -128,7 +126,7 @@ class AppConfig
      * Sets the minimal essential dependencies to keep the app running,
      * this should be resolve first and should be light
      * @param bool $failSilently
-     * @return InitLoaderMinimal
+     * @return \App\Modules\Core\Boot\InitLoaderMinimal
      * @throws Exception
      */
     public static function initLoaderMinimal(bool $failSilently = false): InitLoaderMinimal

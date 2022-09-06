@@ -8,18 +8,16 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App;
+namespace App\Modules\Core\Boot;
 
+use App\Library;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
-use App\Modules\Post\Controllers\PostsController;
-use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;

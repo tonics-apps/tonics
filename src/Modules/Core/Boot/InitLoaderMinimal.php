@@ -8,7 +8,7 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App;
+namespace App\Modules\Core\Boot;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\Authentication\Session;

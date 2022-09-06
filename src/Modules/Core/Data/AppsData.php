@@ -10,8 +10,8 @@
 
 namespace App\Modules\Core\Data;
 
-use App\InitLoader;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use JetBrains\PhpStorm\NoReturn;
