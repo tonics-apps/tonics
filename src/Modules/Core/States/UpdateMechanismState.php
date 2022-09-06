@@ -29,7 +29,7 @@ class UpdateMechanismState extends SimpleState
     const AppUpdateState = 'AppUpdateState';
 
     const DownloadModulesState = 'DownloadModulesState';
-    const DownloadAppsState = 'DownloadPluginsState';
+    const DownloadAppsState = 'DownloadAppsState';
 
     const ExamineCollation = 'ExamineCollation';
 

@@ -89,7 +89,11 @@ class WordPressImportState extends SimpleState
     public function PhaseOne(): string
     {
         if (helper()->fileExists(DriveConfig::getWordPressImportPath()) === false){
-            helper()->createDirectoryRecursive(DriveConfig::getWordPressImportPath());
+            $result = helper()->createDirectoryRecursive(DriveConfig::getWordPressImportPath());
+            if ($result === false){
+                helper()->sendMsg(self::getCurrentState(), "Failed To Create WordPress Import Directory", 'issue');
+                return self::ERROR;
+            }
             $table =  $this->getLocalDriver()->getDriveTable();
             $rootID = db()->row("Select `drive_id` FROM $table WHERE `drive_parent_id` IS NULL");
             if (!isset($rootID->drive_id)){

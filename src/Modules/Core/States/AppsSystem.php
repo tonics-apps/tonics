@@ -253,16 +253,31 @@ class AppsSystem extends SimpleState
     public function OnAppProcessUpdateState(): string
     {
         $updateTypes = []; $appOrModuleToUpdate = [];
+        helper()->addEventStreamHeader(1000000, 'text/html');
         foreach ($this->activatorsFromPost as $activatorPost) {
             if (isset($this->allActivators[$activatorPost])) {
                 /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
                 if (($appDirPath = helper()->getClassDirectory($activator)) !== false){
+
+                    # is module
                     if (str_starts_with($appDirPath, AppConfig::getModulesPath())){
-                        $updateTypes[] = 'module';
+                        $moduleUpdate = new UpdateMechanismState();
+                        $moduleUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['module'])->setAction('update')
+                            ->runStates(false);
+                        if ($moduleUpdate->getStateResult() === SimpleState::ERROR){
+                            return self::ERROR;
+                        }
                     }
+
+                    # is app
                     if (str_starts_with($appDirPath, AppConfig::getAppsPath())){
-                        $updateTypes[] = 'app';
+                        $appUpdate = new UpdateMechanismState();
+                        $appUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['app'])->setAction('update')
+                            ->runStates(false);
+                        if ($appUpdate->getStateResult() === SimpleState::ERROR){
+                            return self::ERROR;
+                        }
                     }
 
                     $appOrModuleToUpdate[] = helper()->getFileName($appDirPath);
@@ -270,26 +285,9 @@ class AppsSystem extends SimpleState
             }
         }
 
-        # This is to prevent updating App into Modules Directory, and Vice Versa,
-        # So, only One Type is Allowed
-        if (count($updateTypes) > 1){
-            session()->flash(["Update Type Mismatch"], []);
-            redirect(route('apps.index'));
-        }
-
-        if (count($updateTypes) === 1){
-            helper()->addEventStreamHeader(1000000, 'text/html');
-            $updateMechanismState = new UpdateMechanismState();
-            $updateMechanismState->reset()->setUpdates($appOrModuleToUpdate)->setTypes($updateTypes)->setAction('update')
-                ->runStates(false);
-            if ($updateMechanismState->getStateResult() === SimpleState::DONE){
-                $appOrModuleToUpdate = implode(',', $appOrModuleToUpdate);
-                $this->setSucessMessage("[$appOrModuleToUpdate][$updateTypes[0]] Updated: Go Back");
-                return self::DONE;
-            }
-        }
-        return self::ERROR;
-
+        $appOrModuleToUpdate = implode(',', $appOrModuleToUpdate);
+        $this->setSucessMessage("[$appOrModuleToUpdate]] Updated: Go Back");
+        return self::DONE;
     }
 
     /**
@@ -315,7 +313,10 @@ class AppsSystem extends SimpleState
         if ($localDriver->createFromURL($this->getPluginURL(), $tempPath, $zipName, importToDB: false)){
             $extractToTemp = $tempPath . DIRECTORY_SEPARATOR . $name;
             $pathToArchive = $tempPath . DIRECTORY_SEPARATOR. $zipName;
-            helper()->createDirectoryRecursive($extractToTemp);
+            $result = helper()->createDirectoryRecursive($extractToTemp);
+            if (!$result){
+                return self::ERROR;
+            }
             $extractedFileResult = $localDriver->extractFile($pathToArchive, $extractToTemp, importToDB: false);
             if ($extractedFileResult === true){
                 $dir = array_filter(glob($extractToTemp . DIRECTORY_SEPARATOR .'*'), 'is_dir');
