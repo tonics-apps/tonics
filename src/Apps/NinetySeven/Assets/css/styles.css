@@ -129,6 +129,8 @@ h1, h2, h3, h4, h5, h6, p, .main-header, .entry-content>ul>li, .entry-content>ol
     font-size: max(var(--font-min), min(var(--font-pref-val), var(--font-max)));
     margin: auto;
     font-weight: 400;
+    overflow-wrap: break-word;
+    hyphens: manual;
 }
 
 a, abbr, acronym, address, applet, article, aside, big, blockquote, body, caption, cite, code, dd, del, details,
@@ -468,16 +470,18 @@ fieldset {
 
 .admin-widget-item {
     min-height: 400px;
-    flex: 1 1 clamp(clamp(clamp((100% / 4 - 2rem), (800px - 100vw) * 1000, 100% - 2rem), (1200px - 100vw) * 1000, 100% / 2 - 2rem), (1800px - 100vw) * 1000, 100% / 3 - 2rem);
+    width: 410px;
     position: relative;
+    min-width: 0;
 }
 
 .admin-widget-item-for-listing {
     min-height: 300px;
-    flex: 1 1 clamp(clamp(clamp((100% / 4 - 2rem), (800px - 100vw) * 1000, 100% - 2rem), (1200px - 100vw) * 1000, 100% / 2 - 2rem), (1800px - 100vw) * 1000, 100% / 3 - 2rem);
+    width: 410px;
     position: relative;
     transition: box-shadow .15s ease, transform .15s ease;
     will-change: box-shadow, transform;
+    min-width: 0;
 }
 
 .admin-widget-item-for-listing:active {
@@ -495,6 +499,16 @@ fieldset {
 .admin-widget-information {
     background: #9e9e9e1a;
     padding: 2em;
+}
+
+.flex-card {
+    /*IF VIEWPORT IS GREATER THAN 1200PX, USE 6EM, IF IT IS LOWER THAN 1200 USE 2EM*/
+    padding: 0 clamp( (2em), (100vw - 1200px )*1000, 6em);
+}
+
+.search-card {
+    /*IF VIEWPORT IS GREATER THAN 1200PX, USE 6EM, IF IT IS LOWER THAN 1200 USE 2EM*/
+    padding: 0 clamp( (.5em), (100vw - 1200px )*1000, 6em);
 }
 
 .draggable-start {
