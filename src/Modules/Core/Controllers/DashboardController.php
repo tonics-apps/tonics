@@ -20,4 +20,9 @@ class DashboardController extends Controller
     {
        view('Modules::Core/Views/Dashboard/home');
     }
+
+    public function table()
+    {
+        view('Modules::Core/Views/Dashboard/table');
+    }
 }

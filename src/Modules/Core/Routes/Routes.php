@@ -34,6 +34,10 @@ trait Routes
      */
     public function routeWeb(Route $route): Route
     {
+
+        # experiment with table layout
+        $route->get("/table", [DashboardController::class, 'table']);
+
         ## For WEB
         $route->group('/admin', function (Route $route){
 
