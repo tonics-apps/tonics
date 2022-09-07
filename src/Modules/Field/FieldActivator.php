@@ -39,6 +39,7 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\Tracks;
 use App\Modules\Field\EventHandlers\Fields\Widget;
 use App\Modules\Field\Events\FieldTemplateFile;
+use App\Modules\Field\Events\OnAfterPreSavePostEditorFieldItems;
 use App\Modules\Field\Events\OnEditorFieldSelection;
 use App\Modules\Field\Events\OnFieldCreate;
 use App\Modules\Field\Events\OnFieldItemsSave;
@@ -120,6 +121,10 @@ class FieldActivator implements ExtensionConfig
 
             OnAdminMenu::class => [
                 FieldMenus::class
+            ],
+
+            OnAfterPreSavePostEditorFieldItems::class => [
+
             ],
         ];
     }

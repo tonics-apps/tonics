@@ -18,6 +18,7 @@ use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Events\FieldTemplateFile;
+use App\Modules\Field\Events\OnAfterPreSavePostEditorFieldItems;
 use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
@@ -691,7 +692,9 @@ SQL;
         }
 
         $this->preSavePostEditorFieldItems($data['field_settings'], $contentKey);
-        $data['field_settings'] = json_encode($data['field_settings']);
+        $onAfterPreSave = new OnAfterPreSavePostEditorFieldItems($data['field_settings']);
+        event()->dispatch($onAfterPreSave);
+        $data['field_settings'] = json_encode($onAfterPreSave->getFieldSettings());
 
         return $data;
     }

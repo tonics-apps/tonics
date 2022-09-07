@@ -89,7 +89,7 @@ class PostsController
      * Store a newly created resource in storage.
      * @throws \Exception
      */
-    #[NoReturn] public function store()
+    #[NoReturn] public function store(): void
     {
         if (input()->fromPost()->hasValue('created_at') === false){
             $_POST['created_at'] = helper()->date();
