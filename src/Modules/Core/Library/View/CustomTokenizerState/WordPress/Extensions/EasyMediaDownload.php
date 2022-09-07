@@ -34,8 +34,9 @@ class EasyMediaDownload extends TonicsTemplateViewAbstract implements TonicsMode
         $contentForMax =<<<HTML
 <a href="{$args['url']}" 
 target="{$args['target']}" $noFollow
-class="easy_media_download text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">{$args['text']}</a>
+style="margin: 0 auto"
+class="easy_media_download d:flex justify-content:center text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
+                        margin-top:0 cart-width cursor:pointer">{$args['text']}</a>
 HTML;
 
         return $contentForMax.$content;

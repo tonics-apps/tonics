@@ -119,6 +119,18 @@ final class Tables
         return isset(self::$TABLES[$tablename]);
     }
 
+    /**
+     * @param string $table
+     * @param $col
+     * @return bool
+     */
+    public static function hasColumn(string $table, $col): bool
+    {
+        $column = self::$TABLES[$table];
+        $column = array_flip($column);
+        return key_exists($col, $column);
+    }
+
     private static function DbTablePrefix(): string
     {
         return DatabaseConfig::getPrefix();

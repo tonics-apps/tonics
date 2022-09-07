@@ -296,16 +296,22 @@ CAT;
 
     /**
      * You should get an array
-     * @param $uniqueID
+     * @param $ID
+     * @param string $column
      * @return array|mixed
      * @throws \Exception
      */
-    public function getPostByUniqueID($uniqueID): mixed
+    public function getPostByUniqueID($ID, string $column = 'slug_id'): mixed
     {
         $postTable = Tables::getTable(Tables::POSTS);
         $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
         $categoryTable = Tables::getTable(Tables::CATEGORIES);
         $userTable = Tables::getTable(Tables::USERS);
+
+        # verify post column
+        if (!Tables::hasColumn(Tables::POSTS, $column)){
+            return [];
+        }
 
         $sql = <<<SQL
 SELECT *, 
@@ -318,12 +324,16 @@ SELECT *,
     JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
     JOIN $userTable ON $userTable.user_id = $postTable.user_id
     JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-WHERE $postTable.slug_id = ?
+WHERE $postTable.$column = ?
 SQL;
 
         $stmt = db()->prepare($sql);
-        $stmt->execute([$uniqueID]);
+        $stmt->execute([$ID]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (empty($data)){
+            return [];
+        }
 
         if(isset($data['user_password'])){
             unset($data['user_password']);

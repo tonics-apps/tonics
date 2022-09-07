@@ -38,8 +38,14 @@ class PostAccessView
      */
     public function handlePost(): void
     {
-        $uniqueID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $post = (array)$this->getPostData()->getPostByUniqueID($uniqueID);
+        $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
+        $post = (array)$this->getPostData()->getPostByUniqueID($ID);
+
+        # if empty we can check with the post_slug
+        if (empty($post)){
+            $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
+            $post = (array)$this->getPostData()->getPostByUniqueID($ID, 'post_slug');
+        }
 
         if (key_exists('post_status', $post)) {
             $postCreatedAtTimeStamp = strtotime($post['published_time']);
@@ -62,8 +68,16 @@ class PostAccessView
      */
     public function handleCategory()
     {
-        $uniqueID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$uniqueID]);
+        $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
+        $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$ID]);
+
+        # if empty we can check with the cat_slug
+        if (empty($category)){
+            $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
+            $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$ID]);
+        }
+
+
         if (key_exists('cat_status', $category)) {
             $catCreatedAtTimeStamp = strtotime($category['created_at']);
             if ($category['cat_status'] === 1 && time() >= $catCreatedAtTimeStamp) {

@@ -70,7 +70,7 @@ class DownloadFromURLState extends SimpleState
         }
 
         $headers = helper()->getHeadersFromURL($url);
-        if (helper()->remoteFileExists($url, $headers)) {
+        if (is_array($headers) && helper()->remoteFileExists($url, $headers)) {
             $this->headers = $headers;
             $this->urlIsValid = true;
         } else {
