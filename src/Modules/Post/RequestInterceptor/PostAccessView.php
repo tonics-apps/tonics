@@ -41,10 +41,14 @@ class PostAccessView
         $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $post = (array)$this->getPostData()->getPostByUniqueID($ID);
 
-        # if empty we can check with the post_slug
+        # if empty we can check with the post_slug and do a redirection
         if (empty($post)){
             $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
             $post = (array)$this->getPostData()->getPostByUniqueID($ID, 'post_slug');
+            if (isset($post['post_slug_id'])){
+                $redirectTo = "/posts/{$post['post_slug_id']}/$ID";
+                redirect($redirectTo, 302);
+            }
         }
 
         if (key_exists('post_status', $post)) {
@@ -71,12 +75,15 @@ class PostAccessView
         $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$ID]);
 
-        # if empty we can check with the cat_slug
+        # if empty we can check with the cat_slug and do a redirection
         if (empty($category)){
             $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
             $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$ID]);
+            if (isset($category['slug_id'])){
+                $redirectTo = "/categories/{$category['slug_id']}/$ID";
+                redirect($redirectTo, 302);
+            }
         }
-
 
         if (key_exists('cat_status', $category)) {
             $catCreatedAtTimeStamp = strtotime($category['created_at']);
