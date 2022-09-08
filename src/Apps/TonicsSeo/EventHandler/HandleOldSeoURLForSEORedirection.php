@@ -42,6 +42,7 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
 
             foreach ($oldURLS as $oldURL){
                 $oldURL = filter_var($oldURL, FILTER_SANITIZE_URL);
+                $oldURL = rtrim($oldURL, '/');
                 $urlRedirection[$oldURL] = $canonical;
             }
 
