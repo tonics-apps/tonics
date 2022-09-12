@@ -24,6 +24,8 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
     private string $error = '';
 
     /**
+     * @param OnTagToken $tagToken
+     * @return bool
      * @throws \Exception
      */
     public function validate(OnTagToken $tagToken): bool
@@ -32,14 +34,15 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
         $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName(), 10000, 2);
         $args = $tagToken->getArg();
 
+        $outputFile = array_shift($args);
         $rootPath = AppConfig::getPublicPath();
-        if ($tagToken->getTagName() === 'combine_app'){
+        if (str_starts_with($outputFile, 'APP::')){
             $rootPath = AppConfig::getAppsPath();
-        } elseif ($tagToken->getTagName() === 'combine_module'){
+        } elseif (str_starts_with($outputFile, 'MODULE::')){
             $rootPath = AppConfig::getModulesPath();
         }
 
-        $outputFile = array_shift($args);
+        $outputFile = str_replace(['MODULE::', 'APP::'], '', $outputFile);
         $finalFile = $rootPath . DIRECTORY_SEPARATOR . trim($outputFile, '/\\');
 
         /** @var BeforeCombineModeOperation $beforeCombineOperationEvent */
@@ -56,11 +59,18 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
         }
 
         foreach ($args as $file) {
-            // Priority would be given to the combine type, if it doesn't exist, we check the PublicPath
-            $fileToAppend = $rootPath . DIRECTORY_SEPARATOR . trim($file, '/\\');
-            if (!helper()->fileExists($fileToAppend)){
-                $fileToAppend = AppConfig::getPublicPath() . DIRECTORY_SEPARATOR . trim($file, '/\\');
+
+            $fileRootPath = AppConfig::getPublicPath();
+            if (str_starts_with($file, 'APP::')){
+                $fileRootPath = AppConfig::getAppsPath();
+            } elseif (str_starts_with($file, 'MODULE::')){
+                $fileRootPath = AppConfig::getModulesPath();
             }
+
+            $file = str_replace(['MODULE::', 'APP::'], '', $file);
+
+            // Priority would be given to the combine type, if it doesn't exist, we check the PublicPath
+            $fileToAppend = $fileRootPath . DIRECTORY_SEPARATOR . trim($file, '/\\');
             if (helper()->fileExists($fileToAppend)) {
                 $data = file_get_contents($fileToAppend);
                 fwrite($finalFileHandle, $data);
@@ -95,6 +105,6 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
      */
     public function render(string $content, array $args, array $nodes = []): string
     {
-        return $content;
+        return '';
     }
 }

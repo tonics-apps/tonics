@@ -182,7 +182,7 @@ HTML;
         if ($isGroup){
             $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle){
                 return <<<HTML
-<li tabIndex="0" class="width:100% draggable menu-arranger-li cursor:move field-builder-items">
+<li tabIndex="0" class="width:100% draggable menu-arranger-li cursor:move field-builder-items overflow:auto">
             <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
 HTML;
             });

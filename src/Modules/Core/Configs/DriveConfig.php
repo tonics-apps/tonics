@@ -41,6 +41,16 @@ class DriveConfig
         return "/serve_app_file_path_987654321/";
     }
 
+    public static function xAccelModuleFilePath(): string
+    {
+        return "/modules_file_path_987654321/";
+    }
+
+    public static function serveModuleFilePath(): string
+    {
+        return "/serve_module_file_path_987654321/";
+    }
+
     /**
      * @return string
      */

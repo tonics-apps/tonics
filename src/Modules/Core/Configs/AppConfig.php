@@ -365,9 +365,19 @@ class AppConfig
         return APP_ROOT . '/etc';
     }
 
-    public static function getAppAsset(string $appName, string $appPath): string
+    public static function getAppAsset(string $appName, string $path): string
     {
-        return DriveConfig::serveAppFilePath() . "$appName/?path=$appPath";
+        return DriveConfig::serveAppFilePath() . "$appName/?path=$path";
+    }
+
+    /**
+     * @param string $moduleName
+     * @param string $path
+     * @return string
+     */
+    public static function getModuleAsset(string $moduleName, string $path): string
+    {
+        return DriveConfig::serveModuleFilePath() . "$moduleName/?path=$path";
     }
 
     public static function getTranslationsPath(): string

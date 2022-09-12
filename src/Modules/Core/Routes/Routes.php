@@ -122,7 +122,15 @@ trait Routes
         #---------------------------------
         $route->group(DriveConfig::serveAppFilePath(), function (Route $route){
             // you pass the path as a query string...
-            $route->get(':app-name', [AppsController::class, 'serve']);
+            $route->get(':app-name', [AppsController::class, 'serveAppAsset']);
+        });
+
+                #---------------------------------
+            # MODULES ASSETS...
+        #---------------------------------
+        $route->group(DriveConfig::serveModuleFilePath(), function (Route $route){
+            // you pass the path as a query string...
+            $route->get(':module-name', [AppsController::class, 'serveModuleAsset']);
         });
 
         return $route;

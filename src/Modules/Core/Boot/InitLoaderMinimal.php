@@ -11,6 +11,7 @@
 namespace App\Modules\Core\Boot;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
@@ -80,7 +81,9 @@ class InitLoaderMinimal
             'APP_TIME_ZONE' => AppConfig::getTimeZone(),
             'APP_TIME_ZONE_OFFSET' => date('P'),
             'APP_ENV' => AppConfig::getAppEnv(),
-            'isProduction' => AppConfig::isProduction()
+            'isProduction' => AppConfig::isProduction(),
+            'SERVE_APP_PATH' => DriveConfig::serveAppFilePath(),
+            'SERVE_MODULE_PATH' => DriveConfig::serveModuleFilePath()
         ]);
 
         url()->reset();

@@ -18,6 +18,7 @@ use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\States\AppsSystem;
 use App\Modules\Core\States\UpdateMechanismState;
+use App\Modules\Media\FileManager\LocalDriver;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -171,21 +172,63 @@ class AppsController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function serve(string $appName): void
+    #[NoReturn] public function serveAppAsset(string $appName): void
     {
-        $path = AppConfig::getAppsPath() . "/$appName/Assets/" . request()->getParam('path');
+        $this->serve(DriveConfig::xAccelAppFilePath(), AppConfig::getAppsPath(), $appName);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] public function serveModuleAsset(string $moduleName): void
+    {
+        $this->serve(DriveConfig::xAccelModuleFilePath(), AppConfig::getModulesPath(), $moduleName);
+    }
+
+    /**
+     * @param string $xAccelPath
+     * @param string $appModulesPath
+     * @param string $moduleAppName
+     * @return void
+     * @throws \Exception
+     */
+    #[NoReturn] protected function serve(string $xAccelPath, string $appModulesPath, string $moduleAppName): void
+    {
+        $requestPath = @trim(request()->getParam('path'), '/');
+        if (empty($requestPath)){
+            die("Resource Doesn't Exist");
+        }
+
+        # Normalize FileName
+        # remove the ext since it would have been mangled by normalize
+        # and re-add it
+        $requestPath = $this->normalizePathname($requestPath);
+        $path = $appModulesPath . "/$moduleAppName/Assets/" . $requestPath;
         $ext = helper()->extension($path);
         if (helper()->fileExists($path)){
-            $aliasPath = DriveConfig::xAccelAppFilePath() . "$appName/Assets/" . request()->getParam('path');
+            $aliasPath = $xAccelPath . "$moduleAppName/Assets/" . $requestPath;
             $mime = match ($ext) {
                 'css' => 'text/css',
-                'js' => 'application/javascript',
+                'js' => 'text/javascript',
                 default => mime_content_type($path),
             };
             $this->serveDownloadableFile($aliasPath, helper()->fileSize($path), false, $mime);
         }
-        die("Theme Resource Doesn't Exist");
+
+        die("Resource Doesn't Exist");
     }
+
+
+    /**
+     * @throws \Exception
+     */
+    private function normalizePathname(string $string): string
+    {
+        // the preg_replace change multiple slashes to one
+        return preg_replace("#//+#", "\\1/", $string);
+    }
+
+
     /**
      * @return AppsData
      */
