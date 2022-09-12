@@ -1,3 +1,4 @@
+
 const trashButtons = document.querySelectorAll('[data-click-onconfirmtrash="true"]');
 const deleteButtons = document.querySelectorAll('[data-click-onconfirmdelete="true"]');
 

@@ -10,7 +10,7 @@ if (adminWidgetItemEl){
     }));
 
     try {
-        new myModule.Draggables('.admin-widget')
+        new Draggables('.admin-widget')
             .settings(adminWidgetName, ['.admin-widget-information'], false) // draggable element
             .onDragDrop(function (element, self) {
                 let elementDropped = element.closest(adminWidgetName);

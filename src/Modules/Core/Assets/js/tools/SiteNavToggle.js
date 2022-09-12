@@ -1,5 +1,6 @@
+
 try {
-    new myModule.MenuToggle('.site-nav', new myModule.Query())
+    new MenuToggle('.site-nav', new Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')
         .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])

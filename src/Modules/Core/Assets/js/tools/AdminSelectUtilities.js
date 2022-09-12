@@ -1,3 +1,4 @@
+
 let adminSelectUtilities = document.querySelector('[data-admin-select-utilities="true"]'),
     selectUtilitiesForm = document.getElementById('selectUtilitiesForm');
 

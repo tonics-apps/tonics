@@ -1,5 +1,6 @@
+
 try {
-    new myModule.MenuToggle('.form-and-filter', new myModule.Query())
+    new MenuToggle('.form-and-filter', new Query())
         .settings('.form-and-filter', '.filter-button-toggle', '.filter-container')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
         .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
