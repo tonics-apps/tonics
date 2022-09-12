@@ -32,7 +32,7 @@ final class Tables
         self::PURCHASES => ['purchase_id', 'slug_id', 'fk_customer_id', 'total_price', 'payment_status', '`others`', 'created_at', 'updated_at'],
         self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
         self::SESSIONS => ['id', 'session_id', 'session_data', 'updated_at'],
-        self::GLOBAL => ['id', '`key`', 'value', 'created_at', 'updated_at'],
+        self::GLOBAL => ['id', 'key', 'value', 'created_at', 'updated_at'],
         self::TRACK_LIKES => ['id', 'fk_customer_id', 'fk_track_id', 'is_like', 'created_at', 'updated_at'],
         self::TRACKS => ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'track_title', 'track_plays', 'track_bpm', 'track_status', 'license_attr_id_link', 'field_settings', 'fk_genre_id', 'fk_artist_id', 'fk_license_id', 'created_at', 'updated_at'],
         self::USERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'role', 'settings', 'created_at', 'updated_at'],

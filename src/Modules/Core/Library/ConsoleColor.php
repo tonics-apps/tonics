@@ -107,7 +107,7 @@ trait ConsoleColor
      * @param $message
      * @throws \Exception
      */
-    public function infoMessage($message)
+    public function infoMessage($message): void
     {
         $this->otherMessage = $message;
         $this->passes = true;

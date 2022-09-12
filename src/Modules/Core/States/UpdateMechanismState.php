@@ -320,9 +320,18 @@ class UpdateMechanismState extends SimpleState
                 $sep = DIRECTORY_SEPARATOR;
                 $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
                 $result = $localDriver->extractFile($tempPath . $sep. "$name", $tempPath, importToDB: false);
-                if ($result && $tonicsHelper->fileExists($tempPath . $sep . "$folderName") && $tonicsHelper->fileExists($dirPath . $sep . "$folderName")) {
-                    $copyResult = $tonicsHelper->copyFolder($tempPath . $sep . "$folderName", $dirPath . $sep . "$folderName");
-                    if (!$copyResult) {
+                $tempPathFolder = $tempPath . $sep . "$folderName";
+                $appModulePathFolder = $dirPath . $sep . "$folderName";
+                if ($result && $tonicsHelper->fileExists($tempPathFolder) && $tonicsHelper->fileExists($appModulePathFolder)) {
+
+                    # If there is .installed in the app path, drop it in the tempPath, if it fails, then user might
+                    # want to re-install the app
+                    if ($tonicsHelper->fileExists($appModulePathFolder . DIRECTORY_SEPARATOR . '.installed')){
+                        @file_put_contents($tempPathFolder . DIRECTORY_SEPARATOR . '.installed', '');
+                    }
+
+                   $renamedResult = @rename($tempPathFolder, $appModulePathFolder);
+                    if (!$renamedResult) {
                         $error = "An Error Occurred, Moving Some Files In: '$name'";
                         $this->errorMessage($error);
                         $this->setStateResult(SimpleState::ERROR);
@@ -342,7 +351,11 @@ class UpdateMechanismState extends SimpleState
         }
     }
 
-    private function getJSONFromURL(string $url)
+    /**
+     * @param string $url
+     * @return mixed
+     */
+    private function getJSONFromURL(string $url): mixed
     {
         $update_key = AppConfig::getAppUpdateKey();
         // update_key could be used to identify a site in case of premium plugins and or themes

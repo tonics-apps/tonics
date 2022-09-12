@@ -68,7 +68,6 @@ SQL;
         # Prepare Statement and execute it ;P
         $stmt = $this->getPdo()->prepare($sql);
         $stmt->execute($flattened);
-
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 

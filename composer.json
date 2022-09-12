@@ -36,6 +36,7 @@
     "devsrealm/tonics-event-system": "*",
     "devsrealm/tonics-container": "*",
     "devsrealm/tonics-helpers": "*",
+    "devsrealm/tonics-query-builder": "*",
     "genkgo/mail": "dev-master"
   },
   "repositories": [
@@ -98,6 +99,13 @@
     {
       "type": "path",
       "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-helpers",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "/home/devsrealmguy/webProjects/cringe/projects/tonics-query-builder",
       "options": {
         "symlink": true
       }
