@@ -3616,41 +3616,30 @@ class DataTable {
     boot() {
         let parentEl = document.querySelector(this.parentElement);
         // For Click Event
-        if (parentEl && !parentEl.hasAttribute("data-event-click")){
+        if (parentEl && !parentEl.hasAttribute("data-event-click")) {
             parentEl.setAttribute('data-event-click', 'true');
             parentEl.addEventListener('click', (e) => {
                 let el = e.target;
                 let Click = new OnClickEvent(el, this);
+                Click.trElement = el.closest('tr');
                 this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
             });
         }
 
         // For Double-Click Event
-        if (parentEl && !parentEl.hasAttribute("data-event-dblclick")){
+        if (parentEl && !parentEl.hasAttribute("data-event-dblclick")) {
             parentEl.setAttribute('data-event-dblclick', 'true');
             parentEl.addEventListener('dblclick', (e) => {
                 let el = e.target;
-                function get_TH_by_TD( tdNode ){
-                    var idx = [...tdNode.parentNode.children].indexOf(tdNode), // get td index
-                        thCells = tdNode.closest('table').tHead.rows[0].cells, // get all th cells
-                        th_colSpan_acc = 0 // accumulator
-
-                    // iterate all th cells and add-up their colSpan value
-                    for( var i=0; i < thCells.length; i++ ){
-                        th_colSpan_acc += thCells[i].colSpan
-                        if( th_colSpan_acc >= (idx + tdNode.colSpan) ) break
-                    }
-
-                    return thCells[i]
-                }
-                console.log(get_TH_by_TD(el));
                 let OnDoubleClick = new OnDoubleClickEvent(el, this);
+                OnDoubleClick.trElement = el.closest('tr');
+                OnDoubleClick.thElement = this.findCorrespondingTableHeader(el);
                 this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
             });
         }
 
         // For Scroll Bottom
-        if (parentEl && !parentEl.hasAttribute("data-event-scroll-bottom")){
+        if (parentEl && !parentEl.hasAttribute("data-event-scroll-bottom")) {
             parentEl.setAttribute('data-event-scroll-bottom', 'true');
             parentEl.addEventListener('scroll', (e) => {
                 let el = e.target;
@@ -3659,16 +3648,17 @@ class DataTable {
                 let clientHeight = el.clientHeight + 500;
 
                 // almost at the bottom
-                if (scrollDownwards < clientHeight){
+                if (scrollDownwards < clientHeight) {
                     ++this.scrollToBottomLockPing;
-                    if (this.scrollToBottomLockPing === 1){
+                    if (this.scrollToBottomLockPing === 1) {
                         let OnBeforeScrollBottom = new OnBeforeScrollBottomEvent(el, this);
+                        OnBeforeScrollBottom.trElement = el.closest('tr');
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeScrollBottom, OnBeforeScrollBottomEvent);
                     }
                 }
 
                 // at the bottom
-                if (scrollDownwards === el.clientHeight){
+                if (scrollDownwards === el.clientHeight) {
                     this.scrollToBottomLockPing = 0; // reset ping
                     let OnBeforeTonicsFieldSubmit = new OnScrollBottomEvent(el, this);
                     this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnScrollBottomEvent);
@@ -3680,9 +3670,32 @@ class DataTable {
     getEventDispatcher() {
         return window.TonicsEvent.EventDispatcher;
     }
+
+    /**
+     * Credit: https://stackoverflow.com/a/46139306 @ https://stackoverflow.com/users/104380/vsync
+     * @param tdNode
+     * @returns {HTMLTableCellElement}
+     */
+    findCorrespondingTableHeader(tdNode) {
+        let i;
+        let idx = [...tdNode.parentNode.children].indexOf(tdNode), // get td index
+            thCells = tdNode.closest('table').tHead.rows[0].cells, // get all th cells
+            th_colSpan_acc = 0; // accumulator
+
+        // iterate all th cells and add-up their colSpan value
+        for (i = 0; i < thCells.length; i++) {
+            th_colSpan_acc += thCells[i].colSpan
+            if (th_colSpan_acc >= (idx + tdNode.colSpan)) break
+        }
+
+        return thCells[i]
+    }
 }
 
 class DataTableAbstractAndTarget {
+
+    hasTrElement = false;
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -3699,6 +3712,15 @@ class DataTableAbstractAndTarget {
         this._dataTable = value;
     }
 
+    get trElement() {
+        return this._trElement;
+    }
+
+    set trElement(value) {
+        this.hasTrElement = !!value; // True if value is not empty, otherwise, false
+        this._trElement = value;
+    }
+
     constructor(target, dataTableClass) {
         this._elementTarget = target;
         this._dataTable = dataTableClass;
@@ -3711,10 +3733,16 @@ class DataTableAbstractAndTarget {
     getDataTable() {
         return this._dataTable;
     }
+
+    getTrElement() {
+        return this._trElement;
+    }
 }
 
+//----------------
 //--- EVENTS
-class OnBeforeScrollBottomEvent extends DataTableAbstractAndTarget{
+//----------------
+class OnBeforeScrollBottomEvent extends DataTableAbstractAndTarget {
 
 }
 
@@ -3722,18 +3750,44 @@ class OnScrollBottomEvent extends DataTableAbstractAndTarget {
 
 }
 
-class OnClickEvent extends DataTableAbstractAndTarget{
+class OnClickEvent extends DataTableAbstractAndTarget {
 
 }
 
-class OnDoubleClickEvent extends DataTableAbstractAndTarget{
+class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 
+    hasThElement = false;
+
+    get thElement() {
+        return this._thElement;
+    }
+
+    set thElement(value) {
+        this.hasThElement = !!value; // True if value is not empty, otherwise, false
+        this._thElement = value;
+    }
+
+    getThElement() {
+        return this._thElement;
+    }
 }
 
+//----------------
+//--- HANDLERS
+//----------------
 
-// On Double-Click, Handle Editors Mode
-class HandleEditorsMode {
+class HandleRowHighlight {
+    constructor(event) {
+        if (event.hasTrElement && event.getElementTarget().dataset.hasOwnProperty('checkbox_select')) {
+            let trElement = event.getTrElement();
+            trElement.classList.toggle('highlight');
+        }
+    }
+}
 
+// HANDLER AND EVENT SETUP
+if (window?.TonicsEvent?.EventConfig) {
+    window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
 }
 const dataTable = new DataTable('.dataTable');
 dataTable.boot();

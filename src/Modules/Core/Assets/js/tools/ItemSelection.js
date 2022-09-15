@@ -44,7 +44,7 @@ function setShiftClick(file) {
 
     shiftClick.set(id, file);
     if (shiftClick.size >= 2) {
-        // this is getting the first and last shift clicked item, and we sorting the integer
+        // this is getting the first and last shift clicked item, and we're sorting the integer
         let firstItem = [...shiftClick][0][0],
             lastItem = [...shiftClick][shiftClick.size - 1][0],
             listIDToLoop = [firstItem, lastItem];

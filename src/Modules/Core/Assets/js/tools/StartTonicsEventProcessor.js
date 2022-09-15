@@ -23,3 +23,11 @@ const EventsConfig = {
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
+
+/*
+function HookHandleIntoEvent(event, handler) {
+    EventsConfig.event.push(handler);
+    if (EventsConfig.hasOwnProperty(event)){
+        EventsConfig[event].push(handler);
+    }
+}*/

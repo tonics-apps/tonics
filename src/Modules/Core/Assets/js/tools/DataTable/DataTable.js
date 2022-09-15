@@ -13,52 +13,58 @@ class DataTable {
     scrollToBottomLockPing = 0;
 
     constructor($parentElement) {
-        this.parentElement = $parentElement
+        this.parentElement = document.querySelector($parentElement)
+    }
+
+    getParentElement() {
+        return this.parentElement;
     }
 
     boot() {
-        let parentEl = document.querySelector(this.parentElement);
         // For Click Event
-        if (parentEl && !parentEl.hasAttribute("data-event-click")){
-            parentEl.setAttribute('data-event-click', 'true');
-            parentEl.addEventListener('click', (e) => {
+        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-click")) {
+            this.getParentElement().setAttribute('data-event-click', 'true');
+            this.getParentElement().addEventListener('click', (e) => {
                 let el = e.target;
                 let Click = new OnClickEvent(el, this);
+                Click.trElement = el.closest('tr');
                 this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
             });
         }
 
         // For Double-Click Event
-        if (parentEl && !parentEl.hasAttribute("data-event-dblclick")){
-            parentEl.setAttribute('data-event-dblclick', 'true');
-            parentEl.addEventListener('dblclick', (e) => {
+        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-dblclick")) {
+            this.getParentElement().setAttribute('data-event-dblclick', 'true');
+            this.getParentElement().addEventListener('dblclick', (e) => {
                 let el = e.target;
                 let OnDoubleClick = new OnDoubleClickEvent(el, this);
-                console.log(this.findCorrespondingTableHeader(el))
+                OnDoubleClick.trElement = el.closest('tr');
+                OnDoubleClick.thElement = this.findCorrespondingTableHeader(el);
                 this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
             });
         }
 
         // For Scroll Bottom
-        if (parentEl && !parentEl.hasAttribute("data-event-scroll-bottom")){
-            parentEl.setAttribute('data-event-scroll-bottom', 'true');
-            parentEl.addEventListener('scroll', (e) => {
+        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-scroll-bottom")) {
+            this.getParentElement().setAttribute('data-event-scroll-bottom', 'true');
+            this.getParentElement().addEventListener('scroll', (e) => {
                 let el = e.target;
                 let scrollDownwards = el.scrollHeight - el.scrollTop;
                 // the 400 gives us time to react quickly that the scroll is almost/at the bottom
                 let clientHeight = el.clientHeight + 500;
 
                 // almost at the bottom
-                if (scrollDownwards < clientHeight){
+                if (scrollDownwards < clientHeight) {
                     ++this.scrollToBottomLockPing;
-                    if (this.scrollToBottomLockPing === 1){
+                    if (this.scrollToBottomLockPing === 1) {
                         let OnBeforeScrollBottom = new OnBeforeScrollBottomEvent(el, this);
+                        OnBeforeScrollBottom.trElement = el.closest('tr');
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeScrollBottom, OnBeforeScrollBottomEvent);
                     }
                 }
 
                 // at the bottom
-                if (scrollDownwards === el.clientHeight){
+                if (scrollDownwards === el.clientHeight) {
                     this.scrollToBottomLockPing = 0; // reset ping
                     let OnBeforeTonicsFieldSubmit = new OnScrollBottomEvent(el, this);
                     this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnScrollBottomEvent);
@@ -83,16 +89,24 @@ class DataTable {
             th_colSpan_acc = 0; // accumulator
 
         // iterate all th cells and add-up their colSpan value
-        for(i = 0; i < thCells.length; i++ ){
+        for (i = 0; i < thCells.length; i++) {
             th_colSpan_acc += thCells[i].colSpan
-            if( th_colSpan_acc >= (idx + tdNode.colSpan) ) break
+            if (th_colSpan_acc >= (idx + tdNode.colSpan)) break
         }
 
         return thCells[i]
     }
+
+    resetListID() {
+        let tableRows = document.querySelector(this.parentElement).querySelectorAll('tr');
+
+    }
 }
 
 class DataTableAbstractAndTarget {
+
+    hasTrElement = false;
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -109,6 +123,15 @@ class DataTableAbstractAndTarget {
         this._dataTable = value;
     }
 
+    get trElement() {
+        return this._trElement;
+    }
+
+    set trElement(value) {
+        this.hasTrElement = !!value; // True if value is not empty, otherwise, false
+        this._trElement = value;
+    }
+
     constructor(target, dataTableClass) {
         this._elementTarget = target;
         this._dataTable = dataTableClass;
@@ -121,10 +144,16 @@ class DataTableAbstractAndTarget {
     getDataTable() {
         return this._dataTable;
     }
+
+    getTrElement() {
+        return this._trElement;
+    }
 }
 
+//----------------
 //--- EVENTS
-class OnBeforeScrollBottomEvent extends DataTableAbstractAndTarget{
+//----------------
+class OnBeforeScrollBottomEvent extends DataTableAbstractAndTarget {
 
 }
 
@@ -132,16 +161,42 @@ class OnScrollBottomEvent extends DataTableAbstractAndTarget {
 
 }
 
-class OnClickEvent extends DataTableAbstractAndTarget{
+class OnClickEvent extends DataTableAbstractAndTarget {
 
 }
 
-class OnDoubleClickEvent extends DataTableAbstractAndTarget{
+class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 
+    hasThElement = false;
+
+    get thElement() {
+        return this._thElement;
+    }
+
+    set thElement(value) {
+        this.hasThElement = !!value; // True if value is not empty, otherwise, false
+        this._thElement = value;
+    }
+
+    getThElement() {
+        return this._thElement;
+    }
 }
 
+//----------------
+//--- HANDLERS
+//----------------
 
-// On Double-Click, Handle Editors Mode
-class HandleEditorsMode {
+class HandleRowHighlight {
+    constructor(event) {
+        if (event.hasTrElement && event.getElementTarget().dataset.hasOwnProperty('checkbox_select')) {
+            let trElement = event.getTrElement();
+            trElement.classList.toggle('highlight');
+        }
+    }
+}
 
+// HANDLER AND EVENT SETUP
+if (window?.TonicsEvent?.EventConfig) {
+    window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
 }
