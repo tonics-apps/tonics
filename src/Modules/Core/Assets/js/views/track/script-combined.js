@@ -3794,6 +3794,7 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
     }, { once: true });
 }
 export class AudioPlayer {
+
     audioPlayerSettings = new Map();
     playlist = null;
     currentGroupID = '';

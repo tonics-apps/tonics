@@ -15,6 +15,9 @@ const EventsConfig = {
 
   //  OtherEvent: [],
 
+    // DataTables Event
+
+
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;

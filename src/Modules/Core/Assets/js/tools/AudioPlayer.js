@@ -1,5 +1,6 @@
 
 export class AudioPlayer {
+
     audioPlayerSettings = new Map();
     playlist = null;
     currentGroupID = '';
