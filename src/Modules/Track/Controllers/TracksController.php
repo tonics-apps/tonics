@@ -110,7 +110,7 @@ class TracksController extends Controller
 
         try {
             $track = $this->getTrackData()->createTrack(['token']);
-            $trackReturning = db()->insertReturning($this->getTrackData()->getTrackTable(), $track, $this->getTrackData()->getTrackColumns());
+            $trackReturning = db()->insertReturning($this->getTrackData()->getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
             $onTrackCreate = new OnTrackCreate($trackReturning, $this->getTrackData());
         } catch (Exception $exception){
             session()->flash($validator->getErrors(), input()->fromPost()->all());

@@ -370,7 +370,7 @@ SQL, $f);
     {
         $file = $this->composeFile($path, $uploadToID, $fileType);
         return db()->insertReturning(
-            table: $this->getDriveTable(), data: $file, return: $return
+            $this->getDriveTable(), $file, $return, 'drive_id'
         );
     }
 

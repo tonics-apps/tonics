@@ -62,7 +62,7 @@ class GenreController
         try {
             $genre = $this->getTrackData()->createGenre();
             $genre['can_delete'] = 1;
-            $genreReturning = db()->insertReturning($this->getTrackData()->getGenreTable(), $genre, $this->getTrackData()->getGenreColumns());
+            $genreReturning = db()->insertReturning($this->getTrackData()->getGenreTable(), $genre, $this->getTrackData()->getGenreColumns(), 'genre_id');
 
             $onGenreCreate = new OnGenreCreate($genreReturning, $this->getTrackData());
             event()->dispatch($onGenreCreate);

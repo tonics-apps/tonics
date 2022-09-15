@@ -136,9 +136,13 @@ function utility(): TonicsHelpers
 }
 
 /**
+ * This gets a new instance of TonicsQuery,
+ * if newConnection is set to true it creates a new PDO connection
+ * @param bool $newConnection
+ * @return TonicsQuery
  * @throws Exception
  */
-function db($newConnection = false): TonicsQuery
+function db(bool $newConnection = false): TonicsQuery
 {
     return AppConfig::initLoaderMinimal()->getDatabase($newConnection)->Q();
 }

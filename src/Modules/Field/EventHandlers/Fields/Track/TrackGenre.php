@@ -11,8 +11,9 @@
 namespace App\Modules\Field\EventHandlers\Fields\Track;
 
 use App\Modules\Field\Events\OnFieldMetaBox;
+use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class TrackGenre implements \Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface
+class TrackGenre implements HandlerInterface
 {
 
     /**
@@ -42,7 +43,6 @@ class TrackGenre implements \Devsrealm\TonicsEventSystem\Interfaces\HandlerInter
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Tracks Genre Settings';
         $genrePagination =  (isset($data->genrePagination)) ? $data->genrePagination : '1';
         $noOfGenrePerPage =  (isset($data->noOfGenrePerPage)) ? $data->noOfGenrePerPage : '6';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         if ($genrePagination=== '1'){
             $genrePagination = <<<HTML
 <option value="1" selected>True</option>

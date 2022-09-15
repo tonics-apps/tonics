@@ -61,7 +61,7 @@ class ArtistController
 
         try {
             $artist = $this->getTrackData()->createArtist();
-            $artistReturning = db()->insertReturning($this->getTrackData()->getArtistTable(), $artist, $this->getTrackData()->getArtistColumns());
+            $artistReturning = db()->insertReturning($this->getTrackData()->getArtistTable(), $artist, $this->getTrackData()->getArtistColumns(), 'artist_id');
 
             $onArtistCreate = new OnArtistCreate($artistReturning, $this->getTrackData());
             event()->dispatch($onArtistCreate);

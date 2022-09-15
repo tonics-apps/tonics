@@ -76,7 +76,7 @@ class FieldController
 
         try {
             $widget = $this->getFieldData()->createField();
-            $widgetReturning = db()->insertReturning($this->getFieldData()->getFieldTable(), $widget, $this->getFieldData()->getFieldColumns());
+            $widgetReturning = db()->insertReturning($this->getFieldData()->getFieldTable(), $widget, $this->getFieldData()->getFieldColumns(), 'field_id');
 
             $onFieldCreate = new OnFieldCreate($widgetReturning, $this->getFieldData());
             event()->dispatch($onFieldCreate);

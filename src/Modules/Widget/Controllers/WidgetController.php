@@ -76,7 +76,7 @@ class WidgetController
 
         try {
             $widget = $this->getWidgetData()->createWidget();
-            $widgetReturning = db()->insertReturning($this->getWidgetData()->getWidgetTable(), $widget, $this->getWidgetData()->getWidgetColumns());
+            $widgetReturning = db()->insertReturning($this->getWidgetData()->getWidgetTable(), $widget, $this->getWidgetData()->getWidgetColumns(), 'widget_id');
 
             $onWidgetCreate = new OnWidgetCreate($widgetReturning, $this->getWidgetData());
             event()->dispatch($onWidgetCreate);

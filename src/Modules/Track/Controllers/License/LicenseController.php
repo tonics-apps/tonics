@@ -77,7 +77,7 @@ class LicenseController
 
         try {
             $widget = $this->getTrackData()->createLicense();
-            $insertReturning = db()->insertReturning($this->getTrackData()->getLicenseTable(), $widget, $this->getTrackData()->getLicenseColumns());
+            $insertReturning = db()->insertReturning($this->getTrackData()->getLicenseTable(), $widget, $this->getTrackData()->getLicenseColumns(), 'license_id');
 
             $onLicenseCreate = new OnLicenseCreate($insertReturning, $this->getTrackData());
             event()->dispatch($onLicenseCreate);

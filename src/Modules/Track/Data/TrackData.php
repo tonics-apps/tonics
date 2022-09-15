@@ -209,7 +209,7 @@ HTML;
     public function artistSelectListing(int $currentArtistSelectorID = null): string
     {
         $table = $this->getArtistTable();
-        $artists = db()->run("SELECT * FROM $table");
+        $artists = db()->Select('*')->From($table)->FetchResult();
         $htmlFrag = '';
         foreach ($artists as $artist){
             if ($currentArtistSelectorID === $artist->artist_id){

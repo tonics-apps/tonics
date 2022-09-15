@@ -41,7 +41,6 @@ class TrackArtist implements HandlerInterface
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Tracks Artist Settings';
         $artistPagination =  (isset($data->artistPagination)) ? $data->artistPagination : '1';
         $noOfArtistPerPage =  (isset($data->noOfArtistPerPage)) ? $data->noOfArtistPerPage : '6';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         if ($artistPagination=== '1'){
             $artistPagination = <<<HTML
 <option value="1" selected>True</option>
