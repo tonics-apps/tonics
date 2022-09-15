@@ -156,7 +156,12 @@ const EventsConfig = {
     OnBeforeTonicsFieldPreviewEvent: [],
     OnBeforeTonicsFieldSubmitEvent: [],
 
-  //  OtherEvent: [],
+    //  OtherEvent: [],
+    // DataTables Event
+    OnBeforeScrollBottomEvent: [],
+    OnScrollBottomEvent: [],
+    OnDoubleClickEvent: [],
+    OnClickEvent: [],
 
 };
 
