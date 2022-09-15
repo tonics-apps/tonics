@@ -14,6 +14,7 @@ class DataTable {
 
     constructor($parentElement) {
         this.parentElement = document.querySelector($parentElement)
+        this.resetListID();
     }
 
     getParentElement() {
@@ -98,7 +99,14 @@ class DataTable {
     }
 
     resetListID() {
-        let tableRows = document.querySelector(this.parentElement).querySelectorAll('tr');
+        let tableRows = this.getParentElement().querySelectorAll('tbody > tr');
+        if (tableRows && tableRows.length > 0){
+            let list_id = 1;
+            tableRows.forEach(tr => {
+                tr.dataset.list_id = `${list_id}`;
+                ++list_id;
+            });
+        }
 
     }
 }

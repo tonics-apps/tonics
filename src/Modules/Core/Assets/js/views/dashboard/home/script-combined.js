@@ -3610,15 +3610,19 @@ class DataTable {
     scrollToBottomLockPing = 0;
 
     constructor($parentElement) {
-        this.parentElement = $parentElement
+        this.parentElement = document.querySelector($parentElement)
+        this.resetListID();
+    }
+
+    getParentElement() {
+        return this.parentElement;
     }
 
     boot() {
-        let parentEl = document.querySelector(this.parentElement);
         // For Click Event
-        if (parentEl && !parentEl.hasAttribute("data-event-click")) {
-            parentEl.setAttribute('data-event-click', 'true');
-            parentEl.addEventListener('click', (e) => {
+        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-click")) {
+            this.getParentElement().setAttribute('data-event-click', 'true');
+            this.getParentElement().addEventListener('click', (e) => {
                 let el = e.target;
                 let Click = new OnClickEvent(el, this);
                 Click.trElement = el.closest('tr');
@@ -3627,9 +3631,9 @@ class DataTable {
         }
 
         // For Double-Click Event
-        if (parentEl && !parentEl.hasAttribute("data-event-dblclick")) {
-            parentEl.setAttribute('data-event-dblclick', 'true');
-            parentEl.addEventListener('dblclick', (e) => {
+        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-dblclick")) {
+            this.getParentElement().setAttribute('data-event-dblclick', 'true');
+            this.getParentElement().addEventListener('dblclick', (e) => {
                 let el = e.target;
                 let OnDoubleClick = new OnDoubleClickEvent(el, this);
                 OnDoubleClick.trElement = el.closest('tr');
@@ -3639,9 +3643,9 @@ class DataTable {
         }
 
         // For Scroll Bottom
-        if (parentEl && !parentEl.hasAttribute("data-event-scroll-bottom")) {
-            parentEl.setAttribute('data-event-scroll-bottom', 'true');
-            parentEl.addEventListener('scroll', (e) => {
+        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-scroll-bottom")) {
+            this.getParentElement().setAttribute('data-event-scroll-bottom', 'true');
+            this.getParentElement().addEventListener('scroll', (e) => {
                 let el = e.target;
                 let scrollDownwards = el.scrollHeight - el.scrollTop;
                 // the 400 gives us time to react quickly that the scroll is almost/at the bottom
@@ -3689,6 +3693,18 @@ class DataTable {
         }
 
         return thCells[i]
+    }
+
+    resetListID() {
+        let tableRows = this.getParentElement().querySelectorAll('tbody > tr');
+        if (tableRows && tableRows.length > 0){
+            let list_id = 1;
+            tableRows.forEach(tr => {
+                tr.dataset.list_id = `${list_id}`;
+                ++list_id;
+            });
+        }
+
     }
 }
 
