@@ -67,8 +67,8 @@ class MenuActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::MENU_ITEMS) => Tables::getTable(Tables::MENU_ITEMS),
-                Tables::getTable(Tables::MENUS) => Tables::getTable(Tables::MENUS),
+                Tables::getTable(Tables::MENU_ITEMS) => Tables::$TABLES[Tables::MENU_ITEMS],
+                Tables::getTable(Tables::MENUS) => Tables::$TABLES[Tables::MENUS],
             ];
     }
 

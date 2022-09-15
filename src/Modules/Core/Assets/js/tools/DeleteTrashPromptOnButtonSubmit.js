@@ -8,7 +8,7 @@ if (trashButtons) {
         value.addEventListener('click', (e) => {
             let button = e.target;
             if (trashIsBusy === false) {
-                myModule.promptToast("Do you want to Move Item To Trash?", "Move To Trash", () => {
+                promptToast("Do you want to Move Item To Trash?", "Move To Trash", () => {
                     trashIsBusy = true;
                     button.type = 'submit'
                     button.click();
@@ -25,7 +25,7 @@ if (deleteButtons) {
         value.addEventListener('click', (e) => {
             let button = e.target;
             if (trashIsBusy === false) {
-                myModule.promptToast("Do you want to Delete Item?", "Delete Item", () => {
+                promptToast("Do you want to Delete Item?", "Delete Item", () => {
                     trashIsBusy = true;
                     button.type = 'submit'
                     button.click();

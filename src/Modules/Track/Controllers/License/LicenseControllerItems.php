@@ -80,7 +80,7 @@ class LicenseControllerItems
             $data = [
                 'license_attr' => json_encode($licenseDetails)
             ];
-            $this->getTrackData()->updateWithCondition($data, ['license_slug' => $licenseSlug], $this->getTrackData()->getLicenseTable());
+            db()->FastUpdate($this->getTrackData()->getLicenseTable(), $data, db()->Where('license_slug', '=', $licenseSlug));
             session()->flash(['License Successfully Saved'], $menuDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('licenses.items.index', ['license' => $licenseSlug]));
         }catch (\Exception){

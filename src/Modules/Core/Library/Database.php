@@ -10,7 +10,12 @@
 
 namespace App\Modules\Core\Library;
 
-use ParagonIE\EasyDB\EasyDB;
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Configs\DatabaseConfig;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
+use Devsrealm\TonicsQueryBuilder\TonicsQueryBuilder;
+use Devsrealm\TonicsQueryBuilder\Transformers\MariaDB\MariaDBTables;
+use Devsrealm\TonicsQueryBuilder\Transformers\MariaDB\MariaDBTonicsQueryTransformer;
 use PDO;
 
 class Database
@@ -30,26 +35,39 @@ class Database
      * @param null $User
      * @param null $Pass
      * @param null $Char
-     * @return MyPDO
+     * @return TonicsQuery
      * @throws \Exception
      */
-    public function createNewDatabaseInstance($databaseName = null, $Host = null, $User = null, $Pass =null, $Char = null): EasyDB
+    public function createNewDatabaseInstance($databaseName = null, $Host = null, $User = null, $Pass =null, $Char = null): TonicsQuery
     {
         $dsn = 'mysql:host=' . ($this->Host() ?: $Host) .
             ';dbname=' . ($databaseName ?: $this->DatabaseName()) .
             ';charset=' . ($this->Charset() ?: $Char);
 
         try {
-            $db = new MyPDO(new PDO(
-                dsn: $dsn,
-                username: ($this->User() ?: $User),
-                password: ($this->Password() ?: $Pass)), dbEngine: $this->Engine(), options: $this->options);
+
+            $tonicsQueryBuilder = new TonicsQueryBuilder(new PDO($dsn, ($this->User() ?: $User), ($this->Password() ?: $Pass), options: $this->options),
+                new MariaDBTonicsQueryTransformer(),
+                new MariaDBTables(DatabaseConfig::getPrefix()));
+
+            $q = $tonicsQueryBuilder->getTonicsQuery();
+            $t = $tonicsQueryBuilder->getTables();
 
             # Sync Users TimeZone with Database
             $offset = date('P');
-            $db->run("SET time_zone='$offset'");
-            return $db;
+            $q->Q()->Set('time_zone', $offset);
 
+            # Set Up Tables
+            $modules = helper()->getModuleActivators([ExtensionConfig::class]);
+            $apps = helper()->getModuleActivators([ExtensionConfig::class], helper()->getAllAppsDirectory());
+            $modules = [...$modules, ...$apps];
+            foreach ($modules as $module) {
+                foreach ($module->tables() as $tableName => $tableValues){
+                    $t->addTable($tableName, $tableValues);
+                }
+            }
+
+            return $q;
         } catch (\PDOException $e){
             view('Modules::Core/Views/error-page', ['error-code' => $e->getCode(), 'error-message' => "Error Connecting To The Database ❕"]);
             exit();

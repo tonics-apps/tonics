@@ -49,7 +49,9 @@ class ForgotPasswordController extends Controller
 
         try {
             $table = Tables::getTable(Tables::USERS);
-            $forgotPasswordData = db()->row("SELECT user_name, email, settings FROM $table WHERE email = ?", $email);
+
+            $forgotPasswordData = db()->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))
+                ->Where('email', '=', $email)->FetchFirst();
 
             if (hash_equals(AppConfig::getKey(), $app_key) && isset($forgotPasswordData->email) && hash_equals($forgotPasswordData->email, $email)){
                 if (session()->hasKey(Session::SessionCategories_PasswordReset)){
@@ -145,7 +147,8 @@ class ForgotPasswordController extends Controller
                 onSuccess: function () use ($settings, $verificationData, $password, $userData) {
                 $settings->active_sessions = [];
                 # Update Password
-                db()->update($userData->getUsersTable(), ['user_password' => $password, 'settings' => json_encode($settings)], ['email' => $verificationData->email]);
+                db()->FastUpdate($userData->getUsersTable(), ['user_password' => $password, 'settings' => json_encode($settings)],
+                    db()->Where('email', '=', $verificationData->email));
             }, onError: function (){
                 $this->verificationInvalid();
                 });

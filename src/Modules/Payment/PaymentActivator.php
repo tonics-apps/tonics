@@ -12,6 +12,7 @@ namespace App\Modules\Payment;
 
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class PaymentActivator implements ExtensionConfig
@@ -31,15 +32,15 @@ class PaymentActivator implements ExtensionConfig
     public function events(): array
     {
         return [];
-      /*  return [
-            \App\Modules\Payment\Events\PaymentMethodsEvent::class => [
-             //   \App\Modules\Payment\EventHandlers\FlutterwavePaymentSettings::class,
-             //   \App\Modules\Payment\EventHandlers\PayPalPaymentSettings::class
-            ],
-            \App\Modules\Payment\Events\PurchaseCreatedEvent::class => [
-             //   \App\Modules\Payment\EventHandlers\CreatePurchaseSlugID::class
-            ]
-        ];*/
+        /*  return [
+              \App\Modules\Payment\Events\PaymentMethodsEvent::class => [
+               //   \App\Modules\Payment\EventHandlers\FlutterwavePaymentSettings::class,
+               //   \App\Modules\Payment\EventHandlers\PayPalPaymentSettings::class
+              ],
+              \App\Modules\Payment\Events\PurchaseCreatedEvent::class => [
+               //   \App\Modules\Payment\EventHandlers\CreatePurchaseSlugID::class
+              ]
+          ];*/
     }
 
     /**
@@ -48,7 +49,7 @@ class PaymentActivator implements ExtensionConfig
      */
     public function route(Route $routes): Route
     {
-       return $routes;
+        return $routes;
     }
 
     /**
@@ -56,7 +57,9 @@ class PaymentActivator implements ExtensionConfig
      */
     public function tables(): array
     {
-        return [];
+        return [
+            Tables::getTable(Tables::PURCHASES) => Tables::$TABLES[Tables::PURCHASES]
+        ];
     }
 
     public function onInstall(): void

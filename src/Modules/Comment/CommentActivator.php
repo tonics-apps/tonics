@@ -34,8 +34,8 @@ class CommentActivator implements ExtensionConfig
     public function tables(): array
     {
         return [
-            Tables::getTable(Tables::COMMENT_USER_TYPE) => Tables::getTable(Tables::COMMENT_USER_TYPE),
-            Tables::getTable(Tables::COMMENTS) => Tables::getTable(Tables::COMMENTS),
+            Tables::getTable(Tables::COMMENT_USER_TYPE) => Tables::$TABLES[Tables::COMMENT_USER_TYPE],
+            Tables::getTable(Tables::COMMENTS) => Tables::$TABLES[Tables::COMMENTS],
         ];
     }
 

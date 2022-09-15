@@ -3726,7 +3726,6 @@ export {
 * sweetalert2 v11.1.10
 * Released under the MIT License.
 */
-import * as myModule from "./script-combined.js";
 
 const MESSAGE_LIMIT = 200;
 let messageInserted = 0;
@@ -3799,7 +3798,7 @@ function submitForm(event) {
                         }
                     }, false);
                 } else {
-                    myModule.errorToast(data.message);
+                    errorToast(data.message);
                 }
             }
         });
@@ -3823,7 +3822,7 @@ function preCodeMessage(message = '') {
 
 function defaultXHR(requestHeaders = {}) {
     let defaultHeader = {
-        'Tonics-CSRF-Token': `${myModule.getCSRFFromInput(['tonics_csrf_token', 'csrf_token'])}`
+        'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token'])}`
     };
     return new XHRApi({...defaultHeader, ...requestHeaders});
 }
@@ -3859,19 +3858,19 @@ if (adminPostWidget) {
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
-            myModule.errorToast(value, 6000);
+            errorToast(value, 6000);
         });
     }
 
     if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
         tonicsInfoMessages.forEach((value) => {
-            myModule.infoToast(value, 6000);
+            infoToast(value, 6000);
         });
     }
 
     if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
         tonicsSuccesssMessages.forEach((value) => {
-            myModule.successToast(value, 6000);
+            successToast(value, 6000);
         });
     }
 

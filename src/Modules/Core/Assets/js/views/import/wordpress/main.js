@@ -1,4 +1,3 @@
-import * as myModule from "./script-combined.js";
 
 const MESSAGE_LIMIT = 200;
 let messageInserted = 0;
@@ -71,7 +70,7 @@ function submitForm(event) {
                         }
                     }, false);
                 } else {
-                    myModule.errorToast(data.message);
+                    errorToast(data.message);
                 }
             }
         });
@@ -95,7 +94,7 @@ function preCodeMessage(message = '') {
 
 function defaultXHR(requestHeaders = {}) {
     let defaultHeader = {
-        'Tonics-CSRF-Token': `${myModule.getCSRFFromInput(['tonics_csrf_token', 'csrf_token'])}`
+        'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token'])}`
     };
     return new XHRApi({...defaultHeader, ...requestHeaders});
 }

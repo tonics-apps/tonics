@@ -266,7 +266,14 @@ CAT;
         }
 
         $table = Tables::getTable(self::$POST_TABLES[$type]);
-        return db()->insertReturning($table, $data, $return);
+        $primaryKey = 'post_id';
+        if ($type === PostData::Category_INT){
+            $primaryKey = 'cat_id';
+        } elseif ($type === PostData::PostCategory_INT){
+            $primaryKey = 'id';
+        }
+
+        return db()->insertReturning($table, $data, $return, $primaryKey);
     }
 
 
@@ -327,7 +334,7 @@ SELECT *,
 WHERE $postTable.$column = ?
 SQL;
 
-        $stmt = db()->prepare($sql);
+        $stmt = db()->getPdo()->prepare($sql);
         $stmt->execute([$ID]);
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
 

@@ -144,19 +144,6 @@ SELECT $select FROM $table WHERE $whereCondition
 SQL, ...$parameter);
     }
 
-
-    /**
-     * @param array $data
-     * @param array $whereCondition
-     * @param string $table
-     * @return int
-     * @throws \Exception
-     */
-    public function updateWithCondition(array $data, array $whereCondition, string $table): int
-    {
-        return db()->update($table, $data, $whereCondition);
-    }
-
     /**
      * Usage: `$newUserData->deleteWithCondition([], "slug_id = ?", ['php-dev'], 'posts_table');`
      * @param string $whereCondition

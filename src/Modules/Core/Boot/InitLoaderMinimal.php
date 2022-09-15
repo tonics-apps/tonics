@@ -18,6 +18,7 @@ use App\Modules\Core\Library\MyPDO;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 
 /**
@@ -32,7 +33,7 @@ class InitLoaderMinimal
     # Incomplete, but 95% usable for my use case.
     private DomParser $domParser;
 
-    private static MyPDO|null $db = null;
+    private static TonicsQuery|null $db = null;
 
     private static array $globalVariable = [];
 
@@ -124,12 +125,13 @@ class InitLoaderMinimal
 
     /**
      * @param bool $newConnection
-     * @return MyPDO
+     * @return TonicsQuery
      * @throws Exception
      */
-    public static function getDatabase(bool $newConnection = false): MyPDO
+    public static function getDatabase(bool $newConnection = false): TonicsQuery
     {
         if ($newConnection){
+
             self::$db = (new Database())->createNewDatabaseInstance();
         }
 
@@ -137,7 +139,6 @@ class InitLoaderMinimal
             self::$db = (new Database())->createNewDatabaseInstance();
         }
 
-        self::$db->setDbEngine('mysql');
         return self::$db;
     }
 

@@ -107,7 +107,8 @@ class ArtistController
         try {
             $artistToUpdate = $this->getTrackData()->createArtist();
             $artistToUpdate['artist_slug'] = helper()->slug(input()->fromPost()->retrieve('artist_slug'));
-            $this->getTrackData()->updateWithCondition($artistToUpdate, ['artist_slug' => $slug], $this->getTrackData()->getArtistTable());
+
+            db()->FastUpdate($this->getTrackData()->getArtistTable(), $artistToUpdate, db()->Where('artist_slug', '=', $slug));
 
             $slug = $artistToUpdate['artist_slug'];
             session()->flash(['Artist Updated'], type: Session::SessionCategories_FlashMessageSuccess);

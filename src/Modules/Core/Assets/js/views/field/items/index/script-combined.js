@@ -160,7 +160,8 @@ const EventsConfig = {
 
 };
 
-window.TonicsEvent.EventConfig = EventsConfig;// FOR FEATURED IMAGE
+window.TonicsEvent.EventConfig = EventsConfig;
+// FOR FEATURED IMAGE
 let featuredMain = document.querySelector('main');
 if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
     let tinySelect = tinymce.activeEditor.dom.select(".entry-content");
@@ -245,6 +246,7 @@ if (ImageFeaturedImage.length > 0) {
         }
     })
 }
+
 // audio featured selection
 if (document.querySelector('main')){
     document.querySelector('main').addEventListener('click', audioFeaturedHandler);
@@ -299,6 +301,7 @@ window.addEventListener('message', (e) => {
         }
     }
 });
+
 // FOR FEATURED IMAGE
 if (document.querySelector('main')){
     document.querySelector('main').addEventListener('click', featuredLinkHandler);
@@ -4236,7 +4239,7 @@ function addTiny(editorID) {
                     if (target.classList.contains('fieldsDelete')) {
                         let tabContainer = target.closest('.tabs');
                         if (tabContainer) {
-                            myModule.promptToast("Field deletion might be irreversible", "Delete Field", () => {
+                            promptToast("Field deletion might be irreversible", "Delete Field", () => {
                                 tabContainer.remove();
                             })
                         }
@@ -4462,13 +4465,11 @@ class OnBeforeTonicsFieldSubmitEvent {
     getElementTarget() {
         return this._elementTarget;
     }
-}import * as myModule from "./script-combined.js";
-window.myModule = myModule;
-
+}
 // Load Fields Scripts:
 let scripts = document.querySelectorAll("[data-script_path]");
 scripts.forEach((script) => {
-    myModule.loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
+    loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
 
 let draggable = document.getElementsByClassName('draggable'),
@@ -4661,7 +4662,7 @@ if(fieldPickerContainer){
             if (checkedItems.length > 0){
                 checkedItems.forEach(((checkbox, key) => {
                     if (checkbox.dataset.hasOwnProperty('script_path')) {
-                        myModule.loadScriptDynamically(checkbox.dataset.script_path, checkbox.dataset.script_path).then((e) => {
+                        loadScriptDynamically(checkbox.dataset.script_path, checkbox.dataset.script_path).then((e) => {
                             fieldSelectedHandler(checkbox);
                         });
                     } else {
@@ -4764,19 +4765,19 @@ if(saveAllMenu && saveMenuChangesForm){
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
-            myModule.errorToast(value, 6000);
+            errorToast(value, 6000);
         });
     }
 
     if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
         tonicsInfoMessages.forEach((value) => {
-            myModule.infoToast(value, 6000);
+            infoToast(value, 6000);
         });
     }
 
     if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
         tonicsSuccesssMessages.forEach((value) => {
-            myModule.successToast(value, 6000);
+            successToast(value, 6000);
         });
     }
 

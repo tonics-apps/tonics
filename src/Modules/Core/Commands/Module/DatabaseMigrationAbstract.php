@@ -55,8 +55,8 @@ abstract class DatabaseMigrationAbstract
     public function handleMigrateDown($class, $migrationName): void
     {
         if ($this->doesMigrationExist($migrationName) && is_subclass_of($class, Migration::class)) {
-            container()->get($class)->down();
-            db()->run("DELETE FROM {$this->migrationTableName()} WHERE migration = ?", $migrationName);
+            container()->get($class)->down(); $tbl = $this->migrationTableName();
+            db()->FastDelete($tbl, db()->WhereIn(table()->getColumn($tbl, 'migration'), $migrationName));
             $this->successMessage("$migrationName Migration Reversed");
         }
     }
@@ -67,7 +67,7 @@ abstract class DatabaseMigrationAbstract
      */
     public function insertMigrationRow($migrationName): void
     {
-        db()->run("INSERT INTO {$this->migrationTableName()} (migration) VALUES(?)", $migrationName);
+        db()->Insert($this->migrationTableName(), ['migration' => $migrationName]);
         # Migration message for the console
         $this->successMessage("$migrationName Migrated");
     }
@@ -77,13 +77,17 @@ abstract class DatabaseMigrationAbstract
      */
     public function forceDropTable(): void
     {
-        db()->run("SET foreign_key_checks = 0");
-        if ($tables = db()->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN)){
+        $db = db();
+        $db->query("SET foreign_key_checks = 0");
+
+        $stm = db()->getPdo()->prepare("SHOW TABLES");
+        $stm->execute();
+        if ($tables = $stm->fetchAll(\PDO::FETCH_COLUMN, 0)){
             foreach ($tables as $table){
-                db()->query("DROP TABLE IF EXISTS `$table`");
+                $db->query("DROP TABLE IF EXISTS `$table`");
             }
         }
-        db()->query("SET foreign_key_checks = 1");
+        $db->query("SET foreign_key_checks = 1");
     }
 
     /**

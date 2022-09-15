@@ -157,8 +157,8 @@ class PostCategoryController
 
         $categoryToUpdate = $this->postData->createCategory();
         $categoryToUpdate['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_slug'));
-        $this->postData->updateWithCondition($categoryToUpdate, ['cat_slug' => $slug], $this->postData->getCategoryTable());
 
+        db()->FastUpdate($this->postData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
         $slug = $categoryToUpdate['cat_slug'];
         session()->flash(['Post Category Updated'], type: Session::SessionCategories_FlashMessageSuccess);
         redirect(route('posts.category.edit', ['category' => $slug]));
@@ -180,7 +180,7 @@ class PostCategoryController
         $toUpdate = [
             'cat_status' => -1
         ];
-        $this->postData->updateWithCondition($toUpdate, ['cat_slug' => $slug], $this->postData->getCategoryTable());
+        db()->FastUpdate($this->postData->getCategoryTable(), $toUpdate, db()->Where('cat_slug', '=', $slug));
         session()->flash(['Category Moved To Trash'], type: Session::SessionCategories_FlashMessageSuccess);
         redirect(route('posts.category.index'));
     }

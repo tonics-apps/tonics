@@ -86,7 +86,7 @@ class WidgetControllerItems extends Controller
                 $this->getWidgetData()->deleteWithCondition(
                     whereCondition: "fk_widget_id = ?", parameter: [$menuDetails['menuWidgetID']], table: $this->getWidgetData()->getWidgetItemsTable());
                 # Reinsert it
-                db()->insertBatch($this->getWidgetData()->getWidgetItemsTable(), $menuDetails['menuWidgetItems']);
+                db()->Insert($this->getWidgetData()->getWidgetItemsTable(), $menuDetails['menuWidgetItems']);
                 db()->commit();
                 $error = true;
             }catch (\Exception){

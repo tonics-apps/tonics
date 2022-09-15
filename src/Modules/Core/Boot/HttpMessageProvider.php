@@ -60,10 +60,8 @@ class HttpMessageProvider implements ServiceProvider
     public function tryURLRedirection():string|bool
     {
         $table = Tables::getTable(Tables::GLOBAL);
-        $requestURL = url()->getRequestURL();
-       $result = db()->row(<<<SQL
-SELECT JSON_EXTRACT(value, ?) AS redirect_to FROM $table WHERE `key` = 'url_redirections';
-SQL, '$.' .$requestURL);
+        $result = db()->Select()->JsonExtract('value', url()->getRequestURL())->As('redirect_to')
+            ->From($table)->Where('`key`', '=', 'url_redirections')->FetchFirst();
        if (isset($result->redirect_to) && !empty($result->redirect_to)){
            return json_decode($result->redirect_to);
        }

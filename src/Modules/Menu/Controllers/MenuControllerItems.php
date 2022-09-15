@@ -90,7 +90,7 @@ class MenuControllerItems extends Controller
                 $this->getMenuData()->deleteWithCondition(
                     whereCondition: "fk_menu_id = ?", parameter: [$menuDetails['menuID']], table: $this->getMenuData()->getMenuItemsTable());
                 # Reinsert it
-                db()->insertBatch($this->getMenuData()->getMenuItemsTable(), $menuDetails['menuItems']);
+                db()->Insert($this->getMenuData()->getMenuItemsTable(), $menuDetails['menuItems']);
                 db()->commit();
                 $error = true;
             } catch (Exception $exception) {

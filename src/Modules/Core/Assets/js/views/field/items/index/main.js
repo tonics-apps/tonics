@@ -1,10 +1,8 @@
-import * as myModule from "./script-combined.js";
-window.myModule = myModule;
 
 // Load Fields Scripts:
 let scripts = document.querySelectorAll("[data-script_path]");
 scripts.forEach((script) => {
-    myModule.loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
+    loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
 
 let draggable = document.getElementsByClassName('draggable'),
@@ -197,7 +195,7 @@ if(fieldPickerContainer){
             if (checkedItems.length > 0){
                 checkedItems.forEach(((checkbox, key) => {
                     if (checkbox.dataset.hasOwnProperty('script_path')) {
-                        myModule.loadScriptDynamically(checkbox.dataset.script_path, checkbox.dataset.script_path).then((e) => {
+                        loadScriptDynamically(checkbox.dataset.script_path, checkbox.dataset.script_path).then((e) => {
                             fieldSelectedHandler(checkbox);
                         });
                     } else {

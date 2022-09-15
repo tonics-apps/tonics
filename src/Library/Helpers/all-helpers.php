@@ -18,6 +18,8 @@ use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
+use Devsrealm\TonicsQueryBuilder\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInputInterface;
 use Devsrealm\TonicsRouterSystem\Response;
@@ -136,9 +138,17 @@ function utility(): TonicsHelpers
 /**
  * @throws Exception
  */
-function db($newConnection = false): MyPDO
+function db($newConnection = false): TonicsQuery
 {
-    return AppConfig::initLoaderMinimal()->getDatabase($newConnection);
+    return AppConfig::initLoaderMinimal()->getDatabase($newConnection)->Q();
+}
+
+/**
+ * @throws Exception
+ */
+function table(): Tables
+{
+    return db()->getTonicsQueryBuilder()->getTables();
 }
 
 /**

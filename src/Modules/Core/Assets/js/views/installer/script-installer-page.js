@@ -151,8 +151,7 @@ if (showPassContainer){
             }
         });
     }
-}import * as myModule from "./script-installer-page.js";
-
+}
 let preElement = document.querySelector('.installation-pre'),
     form = document.querySelector('form');
 

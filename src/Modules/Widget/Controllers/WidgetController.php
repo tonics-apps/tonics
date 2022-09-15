@@ -123,7 +123,7 @@ class WidgetController
         try {
             $widgetToUpdate = $this->getWidgetData()->createWidget();
             $widgetToUpdate['widget_slug'] = helper()->slug(input()->fromPost()->retrieve('widget_slug'));
-            $this->getWidgetData()->updateWithCondition($widgetToUpdate, ['widget_slug' => $slug], $this->getWidgetData()->getWidgetTable());
+            db()->FastUpdate($this->getWidgetData()->getWidgetTable(), $widgetToUpdate, db()->Where('widget_slug', '=', $slug));
 
             $slug = $widgetToUpdate['widget_slug'];
             session()->flash(['Widget Updated'], type: Session::SessionCategories_FlashMessageSuccess);

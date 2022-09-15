@@ -187,7 +187,7 @@ class TracksController extends Controller
         try {
             $track = $this->getTrackData()->createTrack(['token']);
             $track['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_slug'));
-            $this->getTrackData()->updateWithCondition($track, ['track_slug' => $slug], $this->getTrackData()->getTrackTable());
+            db()->FastUpdate($this->getTrackData()->getTrackTable(), $track, db()->Where('track_slug', '=', $slug));
         } catch (Exception){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.edit', [$slug]));
@@ -207,7 +207,7 @@ class TracksController extends Controller
         $toUpdate = [
             'track_status' => -1
         ];
-        $this->getTrackData()->updateWithCondition($toUpdate, ['track_slug' => $slug], $this->getTrackData()->getTrackTable());
+        db()->FastUpdate($this->getTrackData()->getTrackTable(), $toUpdate, db()->Where('track_slug', '=', $slug));
         session()->flash(['Track Moved To Trash'], type: Session::SessionCategories_FlashMessageSuccess);
         redirect(route('tracks.index'));
     }

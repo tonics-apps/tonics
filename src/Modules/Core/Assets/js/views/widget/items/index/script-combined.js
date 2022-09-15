@@ -1,3 +1,4 @@
+
 // FOR FEATURED IMAGE
 let featuredMain = document.querySelector('main');
 if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
@@ -3978,7 +3979,7 @@ function addTiny(editorID) {
                     if (target.classList.contains('fieldsDelete')) {
                         let tabContainer = target.closest('.tabs');
                         if (tabContainer) {
-                            myModule.promptToast("Field deletion might be irreversible", "Delete Field", () => {
+                            promptToast("Field deletion might be irreversible", "Delete Field", () => {
                                 tabContainer.remove();
                             })
                         }
@@ -4421,19 +4422,19 @@ if(saveAllMenu && saveMenuChangesForm){
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
-            myModule.errorToast(value, 6000);
+            errorToast(value, 6000);
         });
     }
 
     if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
         tonicsInfoMessages.forEach((value) => {
-            myModule.infoToast(value, 6000);
+            infoToast(value, 6000);
         });
     }
 
     if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
         tonicsSuccesssMessages.forEach((value) => {
-            myModule.successToast(value, 6000);
+            successToast(value, 6000);
         });
     }
 

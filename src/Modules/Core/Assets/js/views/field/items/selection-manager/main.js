@@ -1,4 +1,3 @@
-import * as myModule from "./script-combined.js";
 
 if (typeof tonicsFileManagerURL === "undefined") {
     window.tonicsFileManagerURL = window.parent.tonicsFileManagerURL;

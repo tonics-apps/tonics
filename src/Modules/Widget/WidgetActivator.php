@@ -76,8 +76,8 @@ class WidgetActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::WIDGETS) => Tables::getTable(Tables::WIDGETS),
-                Tables::getTable(Tables::WIDGET_ITEMS) => Tables::getTable(Tables::WIDGET_ITEMS),
+                Tables::getTable(Tables::WIDGETS) => Tables::$TABLES[Tables::WIDGETS],
+                Tables::getTable(Tables::WIDGET_ITEMS) => Tables::$TABLES[Tables::WIDGET_ITEMS],
             ];
     }
 

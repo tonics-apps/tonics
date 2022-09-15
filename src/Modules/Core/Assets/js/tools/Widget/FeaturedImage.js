@@ -1,3 +1,4 @@
+
 // FOR FEATURED IMAGE
 let featuredMain = document.querySelector('main');
 if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){

@@ -3758,9 +3758,10 @@ export {
 * Released under the MIT License.
 */
 
+
 let scripts = document.querySelectorAll("[data-script_path]");
 scripts.forEach((script) => {
-    myModule.loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
+    loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
 
 let draggable = document.getElementsByClassName('draggable'),
@@ -3885,19 +3886,19 @@ function insertFieldItems(data, checkedSlug) {
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
-            myModule.errorToast(value, 6000);
+            errorToast(value, 6000);
         });
     }
 
     if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
         tonicsInfoMessages.forEach((value) => {
-            myModule.infoToast(value, 6000);
+            infoToast(value, 6000);
         });
     }
 
     if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
         tonicsSuccesssMessages.forEach((value) => {
-            myModule.successToast(value, 6000);
+            successToast(value, 6000);
         });
     }
 
@@ -4035,7 +4036,7 @@ function addTiny(editorID) {
                     if (target.classList.contains('fieldsDelete')) {
                         let tabContainer = target.closest('.tabs');
                         if (tabContainer) {
-                            myModule.promptToast("Field deletion might be irreversible", "Delete Field", () => {
+                            promptToast("Field deletion might be irreversible", "Delete Field", () => {
                                 tabContainer.remove();
                             })
                         }
@@ -4262,7 +4263,6 @@ class OnBeforeTonicsFieldSubmitEvent {
         return this._elementTarget;
     }
 }
-console.log(new MenuToggle());
 try {
     new MenuToggle('.site-nav', new Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')
@@ -4308,7 +4308,8 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
             onSwapDone();
         }
     }, { once: true });
-}let adminWidgetItemEl = document.querySelector('[class ^=admin-widget-item]');
+}
+let adminWidgetItemEl = document.querySelector('[class ^=admin-widget-item]');
 if (adminWidgetItemEl){
     let adminWidgetItemClassList = adminWidgetItemEl.classList;
     let adminWidgetName = '';
@@ -4344,7 +4345,9 @@ if (adminWidgetItemEl){
     } catch (e) {
         console.error("An Error Occur Setting Up Draggable: admin-widget")
     }
-}let widgetDateInput = document.querySelector('[data-widget-date="true"]'),
+
+}
+let widgetDateInput = document.querySelector('[data-widget-date="true"]'),
     widgetDateInputForPost = document.querySelector('[data-widget-date-forpost="true"]'),
     isWidgetDateInputChangedByHuman = false;
 
@@ -4400,7 +4403,8 @@ if (widgetDateInput) {
         }
     }, {threshold: [0.10]});
     observerWidgetInputInView.observe(widgetDateInput);
-}// For SLUG TITLE AND DATE
+}
+// For SLUG TITLE AND DATE
 let inputTitle = document.querySelector('[data-widget-title-slugtochange="true"]'),
     widgetSlugToUpdate = document.querySelector('[data-widget-title-slugtoupdate="true"]');
 
@@ -4408,11 +4412,12 @@ if (inputTitle){
     inputTitle.addEventListener('input', (e) => {
         let el = e.target, slugTitle = el.value;
         if (slugTitle && widgetSlugToUpdate){
-            slugTitle = myModule.slug(slugTitle);
+            slugTitle = slug(slugTitle);
             widgetSlugToUpdate.value = slugTitle;
         }
     });
-}// ************************ Auto-Generate Cat Slug For Category Create/Edit ***************** //
+}
+// ************************ Auto-Generate Cat Slug For Category Create/Edit ***************** //
 let categorySelector = document.querySelector('[data-widget-select-category="true"]');
 let mainURLSlug = document.querySelector('input[name=cat_url_slug]');
 if (categorySelector && mainURLSlug) {

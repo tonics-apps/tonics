@@ -108,7 +108,8 @@ class GenreController
         try {
             $genreToUpdate = $this->getTrackData()->createArtist();
             $genreToUpdate['genre_slug'] = helper()->slug(input()->fromPost()->retrieve('genre_slug'));
-            $this->getTrackData()->updateWithCondition($genreToUpdate, ['genre_slug' => $slug], $this->getTrackData()->getGenreTable());
+
+            db()->FastUpdate($this->getTrackData()->getGenreTable(), $genreToUpdate, db()->Where('genre_slug', '=', $slug));
 
             $slug = $genreToUpdate['genre_slug'];
             session()->flash(['Genre Updated'], type: Session::SessionCategories_FlashMessageSuccess);

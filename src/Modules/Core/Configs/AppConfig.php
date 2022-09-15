@@ -177,7 +177,7 @@ class AppConfig
 
         $pageTable = Tables::getTable(Tables::PAGES);
         try {
-            $pages = db()->run("SELECT * FROM $pageTable");
+            $pages = db()->Select('*')->From($pageTable)->FetchResult();
             foreach ($pages as $page) {
                 if ($page->page_status === 1) {
                     # If url has not been chosen or is not a reserved path

@@ -199,13 +199,13 @@ class PostsController
         $postToUpdate = $this->postData->createPost(['token']);
         $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
         event()->dispatch(new OnBeforePostSave($postToUpdate));
-        $this->postData->updateWithCondition($postToUpdate, ['post_slug' => $slug], $this->postData->getPostTable());
+
+        db()->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
         $postToCategoryUpdate = [
             'fk_cat_id' => input()->fromPost()->retrieve('fk_cat_id', ''),
             'fk_post_id' => input()->fromPost()->retrieve('post_id', ''),
         ];
-
-        $this->postData->updateWithCondition($postToCategoryUpdate, ['fk_post_id' => input()->fromPost()->retrieve('post_id')], $this->postData->getPostToCategoryTable());
+        db()->FastUpdate($this->postData->getPostToCategoryTable(), $postToCategoryUpdate, db()->Where('fk_post_id', '=', input()->fromPost()->retrieve('post_id')));
 
         $slug = $postToUpdate['post_slug'];
         $post = $this->postData->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
@@ -224,7 +224,8 @@ class PostsController
         $toUpdate = [
             'post_status' => -1
         ];
-        $this->postData->updateWithCondition($toUpdate, ['post_slug' => $slug], $this->postData->getPostTable());
+
+        db()->FastUpdate($this->postData->getPostTable(), $toUpdate, db()->Where('post_slug', '=', $slug));
         session()->flash(['Post Moved To Trash'], type: Session::SessionCategories_FlashMessageSuccess);
         redirect(route('posts.index'));
     }

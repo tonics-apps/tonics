@@ -19,9 +19,9 @@ function selectedReloadPage(e, selectedOption){
 }
 
 function selectedTrash(e, selectedOption) {
-    let toTrash = myModule.getAllSelectedFiles();
+    let toTrash = getAllSelectedFiles();
     if (selectUtilitiesForm && toTrash.length > 0){
-        myModule.promptToast("Do you want to Trash Item(s)?", "Trash Item(s)", () => {
+        promptToast("Do you want to Trash Item(s)?", "Trash Item(s)", () => {
             if (selectedOption.dataset.hasOwnProperty('form_action') && selectedOption.dataset.hasOwnProperty('form_method')){
                 toTrash.forEach(((value, key) => {
                     addHiddenInputToForm(selectUtilitiesForm, 'itemsToTrash[]', JSON.stringify(value.dataset))
@@ -36,7 +36,7 @@ function selectedTrash(e, selectedOption) {
 
 function selectedEdit(e, selectedOption)
 {
-    let editLinksToOpenInNewTab = myModule.getAllSelectedFiles();
+    let editLinksToOpenInNewTab = getAllSelectedFiles();
     if (editLinksToOpenInNewTab){
         editLinksToOpenInNewTab.forEach(((value, key) => {
             if (value.dataset.hasOwnProperty('db_click_link') && value.dataset.db_click_link.length > 1 ){
@@ -69,9 +69,9 @@ function selectSHIFTKey(e, selectedOption)
 }
 
 function selectDelete(e, selectedOption) {
-    let toTrash = myModule.getAllSelectedFiles();
+    let toTrash = getAllSelectedFiles();
     if (selectUtilitiesForm && toTrash.length > 0){
-        myModule.promptToast("Do you want to Delete Item(s)?", "Delete Item(s)", () => {
+        promptToast("Do you want to Delete Item(s)?", "Delete Item(s)", () => {
             if (selectedOption.dataset.hasOwnProperty('form_action') && selectedOption.dataset.hasOwnProperty('form_method')){
                 toTrash.forEach(((value, key) => {
                     addHiddenInputToForm(selectUtilitiesForm, 'itemsToDelete[]', JSON.stringify(value.dataset))

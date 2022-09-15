@@ -1,3 +1,4 @@
+
 let widgetDateInput = document.querySelector('[data-widget-date="true"]'),
     widgetDateInputForPost = document.querySelector('[data-widget-date-forpost="true"]'),
     isWidgetDateInputChangedByHuman = false;

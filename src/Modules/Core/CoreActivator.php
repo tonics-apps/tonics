@@ -116,9 +116,9 @@ class CoreActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::SESSIONS) => Tables::getTable(Tables::SESSIONS),
-                Tables::getTable(Tables::GLOBAL) => Tables::getTable(Tables::GLOBAL),
-                Tables::getTable(Tables::USERS) => Tables::getTable(Tables::USERS),
+                Tables::getTable(Tables::SESSIONS) => Tables::$TABLES[Tables::SESSIONS],
+                Tables::getTable(Tables::GLOBAL) => Tables::$TABLES[Tables::GLOBAL],
+                Tables::getTable(Tables::USERS) => Tables::$TABLES[Tables::USERS],
             ];
     }
 

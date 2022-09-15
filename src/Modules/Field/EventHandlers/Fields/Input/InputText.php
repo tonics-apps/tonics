@@ -10,6 +10,7 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Input;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -22,9 +23,10 @@ class InputText implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
+        $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Text', 'A basic single-line text fields.',
-            'input', '/js/views/field/native/script.js',
+            'input', $script,
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },

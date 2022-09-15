@@ -488,7 +488,7 @@ HTML;
                 }
                 $fieldItems[$k] = (array)$item;
             }
-            db()->insertBatch($this->getFieldItemsTable(), $fieldItems);
+            db()->Insert($this->getFieldItemsTable(), $fieldItems);
             db()->commit();
         } catch (\Exception $exception) {
             // log...

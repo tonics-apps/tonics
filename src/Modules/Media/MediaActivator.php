@@ -57,8 +57,8 @@ class MediaActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::DRIVE_BLOB_COLLATOR) => Tables::getTable(Tables::DRIVE_BLOB_COLLATOR),
-                Tables::getTable(Tables::DRIVE_SYSTEM) => Tables::getTable(Tables::DRIVE_SYSTEM),
+                Tables::getTable(Tables::DRIVE_BLOB_COLLATOR) => Tables::$TABLES[Tables::DRIVE_BLOB_COLLATOR],
+                Tables::getTable(Tables::DRIVE_SYSTEM) => Tables::$TABLES[Tables::DRIVE_SYSTEM],
             ];
     }
 

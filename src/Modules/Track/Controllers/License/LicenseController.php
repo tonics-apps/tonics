@@ -123,7 +123,7 @@ class LicenseController
         try {
             $licenseToUpdate = $this->getTrackData()->createLicense();
             $licenseToUpdate['license_slug'] = helper()->slug(input()->fromPost()->retrieve('license_slug'));
-            $this->getTrackData()->updateWithCondition($licenseToUpdate, ['license_slug' => $slug], $this->getTrackData()->getLicenseTable());
+            db()->FastUpdate($this->getTrackData()->getLicenseTable(), $licenseToUpdate, db()->Where('license_slug', '=', $slug));
 
             $slug = $licenseToUpdate['license_slug'];
             session()->flash(['License Updated'], type: Session::SessionCategories_FlashMessageSuccess);

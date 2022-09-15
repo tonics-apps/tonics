@@ -10,6 +10,7 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -22,12 +23,13 @@ class RowColumn implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
+        $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox(
             'RowColumn',
             'Add an Unlimited Number of Row or Column',
             'Modular',
-            '/js/views/field/native/script.js',
+            $script,
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             }, userForm: function ($data) use ($event) {

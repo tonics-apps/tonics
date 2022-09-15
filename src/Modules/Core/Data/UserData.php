@@ -67,7 +67,7 @@ class UserData extends AbstractDataLayer
         }
 
         try {
-            return db()->insertReturning($this->getUsersTable(), $userData, $return);
+            return db()->insertReturning($this->getUsersTable(), $userData, $return, 'user_id');
         } catch (\Exception $exception) {
             // Log..
         }
@@ -87,7 +87,7 @@ class UserData extends AbstractDataLayer
         }
 
         try {
-            return db()->insertReturning($this->getCustomersTable(), $userData, $return);
+            return db()->insertReturning($this->getCustomersTable(), $userData, $return, 'customer_id');
         } catch (\Exception $exception) {
             // Log..
         }
@@ -131,7 +131,7 @@ class UserData extends AbstractDataLayer
                 $settings->active_sessions[] = session()->getCookieID(session()->sessionName());
             }
 
-            db()->update($this->getUsersTable(), ['settings' => json_encode($settings)], ['email' => $userInfo->email]);
+            db()->FastUpdate($this->getUsersTable(), ['settings' => json_encode($settings)], db()->Where('email', '=', $userInfo->email));
         }
         return true;
     }
@@ -168,7 +168,7 @@ class UserData extends AbstractDataLayer
                 $settings->active_sessions[] = session()->getCookieID(session()->sessionName());
             }
 
-            db()->update($this->getCustomersTable(), ['settings' => json_encode($settings)], ['email' => $userInfo->email]);
+            db()->FastUpdate($this->getCustomersTable(), ['settings' => json_encode($settings)], db()->Where('email', '=', $userInfo->email));
         }
         return true;
     }
@@ -182,7 +182,10 @@ class UserData extends AbstractDataLayer
         $table = Tables::getTable(Tables::USERS);
         try {
             $data = db()->row("SELECT user_id, user_name FROM $table WHERE email = ?", $email);
-            return (is_object($data) && property_exists($data, 'user_id')) ? $data->user_id : null;
+            if (is_bool($data)){
+                return null;
+            }
+            return $data->user_id;
         } catch (\Exception) {
             // Log..
         }

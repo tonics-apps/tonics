@@ -123,7 +123,7 @@ class FieldController
         try {
             $widgetToUpdate = $this->getFieldData()->createField();
             $widgetToUpdate['field_slug'] = helper()->slug(input()->fromPost()->retrieve('field_slug'));
-            $this->getFieldData()->updateWithCondition($widgetToUpdate, ['field_slug' => $slug], $this->getFieldData()->getFieldTable());
+            db()->FastUpdate($this->getFieldData()->getFieldTable(), $widgetToUpdate, db()->Where('field_slug', '=', $slug));
 
             $slug = $widgetToUpdate['field_slug'];
             session()->flash(['Field Updated'], type: Session::SessionCategories_FlashMessageSuccess);

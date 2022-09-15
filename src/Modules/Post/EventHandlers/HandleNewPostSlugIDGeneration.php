@@ -47,7 +47,7 @@ class HandleNewPostSlugIDGeneration implements HandlerInterface
         $slugGen = hash('xxh3', $slugGen);
         $postToUpdate = $event->getPostData()->createPost(['post_slug']);
         $postToUpdate['slug_id'] = $slugGen;
-        $event->getPostData()->updateWithCondition($postToUpdate, ['post_id' => $event->getPostID()], $event->getPostData()->getPostTable());
+        db()->FastUpdate($event->getPostData()->getPostTable(), $postToUpdate, db()->Where('post_id', '=', $event->getPostID()));
         $event->getPost()->slug_id = $slugGen;
     }
 }

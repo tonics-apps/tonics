@@ -146,8 +146,8 @@ class FieldActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::FIELD) => Tables::getTable(Tables::FIELD),
-                Tables::getTable(Tables::FIELD_ITEMS) => Tables::getTable(Tables::FIELD_ITEMS),
+                Tables::getTable(Tables::FIELD) => Tables::$TABLES[Tables::FIELD],
+                Tables::getTable(Tables::FIELD_ITEMS) => Tables::$TABLES[Tables::FIELD_ITEMS],
             ];
     }
 

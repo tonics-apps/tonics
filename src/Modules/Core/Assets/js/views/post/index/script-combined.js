@@ -3658,7 +3658,8 @@ if (formFilter) {
             })
         }
     })
-}// FOR FEATURED IMAGE
+}
+// FOR FEATURED IMAGE
 if (document.querySelector('main')){
     document.querySelector('main').addEventListener('click', featuredLinkHandler);
 }
@@ -3704,19 +3705,19 @@ window.addEventListener('message', (e) => {
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
-            myModule.errorToast(value, 6000);
+            errorToast(value, 6000);
         });
     }
 
     if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
         tonicsInfoMessages.forEach((value) => {
-            myModule.infoToast(value, 6000);
+            infoToast(value, 6000);
         });
     }
 
     if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
         tonicsSuccesssMessages.forEach((value) => {
-            myModule.successToast(value, 6000);
+            successToast(value, 6000);
         });
     }
 
@@ -3732,7 +3733,7 @@ if (trashButtons) {
         value.addEventListener('click', (e) => {
             let button = e.target;
             if (trashIsBusy === false) {
-                myModule.promptToast("Do you want to Move Item To Trash?", "Move To Trash", () => {
+                promptToast("Do you want to Move Item To Trash?", "Move To Trash", () => {
                     trashIsBusy = true;
                     button.type = 'submit'
                     button.click();
@@ -3749,7 +3750,7 @@ if (deleteButtons) {
         value.addEventListener('click', (e) => {
             let button = e.target;
             if (trashIsBusy === false) {
-                myModule.promptToast("Do you want to Delete Item?", "Delete Item", () => {
+                promptToast("Do you want to Delete Item?", "Delete Item", () => {
                     trashIsBusy = true;
                     button.type = 'submit'
                     button.click();
@@ -3931,9 +3932,9 @@ function selectedReloadPage(e, selectedOption){
 }
 
 function selectedTrash(e, selectedOption) {
-    let toTrash = myModule.getAllSelectedFiles();
+    let toTrash = getAllSelectedFiles();
     if (selectUtilitiesForm && toTrash.length > 0){
-        myModule.promptToast("Do you want to Trash Item(s)?", "Trash Item(s)", () => {
+        promptToast("Do you want to Trash Item(s)?", "Trash Item(s)", () => {
             if (selectedOption.dataset.hasOwnProperty('form_action') && selectedOption.dataset.hasOwnProperty('form_method')){
                 toTrash.forEach(((value, key) => {
                     addHiddenInputToForm(selectUtilitiesForm, 'itemsToTrash[]', JSON.stringify(value.dataset))
@@ -3948,7 +3949,7 @@ function selectedTrash(e, selectedOption) {
 
 function selectedEdit(e, selectedOption)
 {
-    let editLinksToOpenInNewTab = myModule.getAllSelectedFiles();
+    let editLinksToOpenInNewTab = getAllSelectedFiles();
     if (editLinksToOpenInNewTab){
         editLinksToOpenInNewTab.forEach(((value, key) => {
             if (value.dataset.hasOwnProperty('db_click_link') && value.dataset.db_click_link.length > 1 ){
@@ -3981,9 +3982,9 @@ function selectSHIFTKey(e, selectedOption)
 }
 
 function selectDelete(e, selectedOption) {
-    let toTrash = myModule.getAllSelectedFiles();
+    let toTrash = getAllSelectedFiles();
     if (selectUtilitiesForm && toTrash.length > 0){
-        myModule.promptToast("Do you want to Delete Item(s)?", "Delete Item(s)", () => {
+        promptToast("Do you want to Delete Item(s)?", "Delete Item(s)", () => {
             if (selectedOption.dataset.hasOwnProperty('form_action') && selectedOption.dataset.hasOwnProperty('form_method')){
                 toTrash.forEach(((value, key) => {
                     addHiddenInputToForm(selectUtilitiesForm, 'itemsToDelete[]', JSON.stringify(value.dataset))

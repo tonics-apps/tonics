@@ -81,7 +81,7 @@ class PageActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::PAGES) => Tables::getTable(Tables::PAGES),
+                Tables::getTable(Tables::PAGES) => Tables::$TABLES[Tables::PAGES],
             ];
     }
 

@@ -51,7 +51,7 @@ class CustomerActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::CUSTOMERS) => Tables::getTable(Tables::CUSTOMERS),
+                Tables::getTable(Tables::CUSTOMERS) => Tables::$TABLES[Tables::CUSTOMERS],
             ];
     }
 

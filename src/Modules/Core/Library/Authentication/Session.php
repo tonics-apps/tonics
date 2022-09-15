@@ -136,6 +136,7 @@ SQL, $this->getCookieID());
      * @param ?string $default
      * Returns default if $key value is empty
      * @param bool $jsonDecode
+     * @param bool $jsonEncodeAsArray
      * @return mixed
      * @throws \Exception
      */
@@ -144,16 +145,16 @@ SQL, $this->getCookieID());
         if ($this->sessionExist()) {
 
             $res = $this->getValue($key);
-            if ($res === null) {
+            if (!$res) {
                 return '';
             }
 
-            if (property_exists($res, 'row')) {
+            if (isset($res->row)){
                 if ($jsonDecode) {
                     $asArray = $jsonEncodeAsArray === true;
-                    return ($res->row === null) ? '' : json_decode($res->row, $asArray);
+                    return json_decode($res->row, $asArray);
                 }
-                return ($res->row === null) ? '' : $res->row;
+                return $res->row;
             }
             return $default ?? '';
         }
@@ -316,11 +317,10 @@ SQL, $jsonPath, $sessionID);
     private function getValue(string $key): mixed
     {
         $sessionID = $this->getCookieID();
-        $jsonPath = '$.' . $key;
-        return db()->row(<<<SQL
-SELECT JSON_EXTRACT(session_data , ?) AS row FROM {$this->getTable()} WHERE session_id = ?;
-SQL, $jsonPath, $sessionID);
-
+        $db = db();
+        return $db->Select()->JsonExtract('session_data', $key)
+            ->As('row')->From($this->getTable())
+            ->Where('session_id', '=', $sessionID)->FetchFirst();
     }
 
 

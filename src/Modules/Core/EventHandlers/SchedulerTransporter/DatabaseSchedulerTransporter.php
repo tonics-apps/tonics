@@ -20,6 +20,7 @@ use App\Modules\Core\Library\SchedulerSystem\SchedulerTransporterInterface;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use ParagonIE\EasyDB\EasyDB;
 use Throwable;
 
@@ -155,10 +156,10 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     }
 
     /**
-     * @return MyPDO|EasyDB
+     * @return TonicsQuery
      * @throws \Exception
      */
-    public function getDB(): MyPDO|EasyDB
+    public function getDB(): TonicsQuery
     {
         return db(true);
     }

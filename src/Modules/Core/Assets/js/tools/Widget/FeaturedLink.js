@@ -1,3 +1,4 @@
+
 // FOR FEATURED IMAGE
 if (document.querySelector('main')){
     document.querySelector('main').addEventListener('click', featuredLinkHandler);

@@ -1,10 +1,6 @@
-[[b('main-css-style')
+[[b('main-css-style')<link rel="stylesheet" href="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/css/minified/styles.css">]]
 
-
-<link rel="stylesheet" href="/css/minified/styles.css">]]
-[[b('fm-css-style')
-<link rel="stylesheet" href="/css/minified/file-manager.css">
-]]
+[[b('fm-css-style')<link rel="stylesheet" href="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/css/minified/file-manager.css">]]
 
 [[b('script:login-page')
     [[combine('MODULE::/Core/Assets/js/views/login/script-combined.js',
@@ -13,7 +9,7 @@
         'MODULE::/Core/Assets/js/views/login/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]/Core?path=/js/views/login/script-combined.js"></script>
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/login/script-combined.js"></script>
 ]]
 
 [[b('script:installer-page')
@@ -22,8 +18,7 @@
         'MODULE::/Core/Assets/js/modules/Others/password-with-show.js',
         'MODULE::/Core/Assets/js/views/installer/main.js',
     )]]
-<script type="module" src="">
-</script>
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/installer/script-installer-page.js"></script>
 ]]
 
 [[b('script:dashboard-home')
@@ -39,15 +34,11 @@
         'MODULE::/Core/Assets/js/tools/SwapNodes.js',
         'MODULE::/Core/Assets/js/tools/Widget/AdminWidgetDraggable.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]/Core?path=/js/views/dashboard/home/script-combined.js"></script>
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/dashboard/home/script-combined.js"></script>
 ]]
 
 [[b('script:tinymce')
-<script src='/serve_module_file_path_987654321/Core/?path=js/editor/tinymce/tinymce.min.js'></script>
-]]
-
-[[b('script:license-contract-upload')
-<script src='MODULE::/Core/Assets/js/tools/LicenseContractUpload.js'></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=js/editor/tinymce/tinymce.min.js"></script>
 ]]
 
 [[b('script:variables')
@@ -78,11 +69,11 @@
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
         'MODULE::/Core/Assets/js/tools/AdminSelectUtilities.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]/Core?path=/js/views/track/index/script-combined.js"></script>
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/track/index/script-combined.js"></script>
 ]]
 
 [[b('script:track')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/track/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/track/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
@@ -104,12 +95,12 @@
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedAudio.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetDate.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetTitleSlug.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/track/script-combined.js"></script>
 ]]
 
 [[b('script:core')
-<script  type="module" src="[[combine('MODULE::/Core/Assets/js/views/core/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/core/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
@@ -125,13 +116,13 @@
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedImage.js',
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedLink.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/core/script-combined.js"></script>
 ]]
 
 
 [[b('script:post')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/post/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/post/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
@@ -142,7 +133,7 @@
 
         'MODULE::/Core/Assets/js/views/post/main.js',
         'MODULE::/Core/Assets/js/views/field/items/user/index.js',
-         'MODULE::/Core/Assets/js/tools/Widget/WidgetDate.js',
+        'MODULE::/Core/Assets/js/tools/Widget/WidgetDate.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetTitleSlug.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetSelectCategory.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
@@ -152,23 +143,23 @@
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedLink.js',
         'MODULE::/Core/Assets/js/tools/SwapNodes.js',
         'MODULE::/Core/Assets/js/tools/Widget/AdminWidgetDraggable.js'
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/script-combined.js"></script>
 ]]
 
 [[b('script:post-front')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/post/front/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/post/front/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/TableOfContent.js',
         'MODULE::/Core/Assets/js/views/post/front/main.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/front/script-combined.js"></script>
 ]]
 
 [[b('script:post-category')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/post/category/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/post/category/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
@@ -179,7 +170,7 @@
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
 
         'MODULE::/Core/Assets/js/views/post/category/main.js',
-         'MODULE::/Core/Assets/js/views/field/items/user/index.js',
+        'MODULE::/Core/Assets/js/views/field/items/user/index.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/TinyMCEHooker.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
@@ -188,12 +179,12 @@
         'MODULE::/Core/Assets/js/tools/Widget/WidgetDate.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetTitleSlug.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetSelectCategory.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/category/script-combined.js"></script>
 ]]
 
 [[b('script:post-index')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/post/index/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/post/index/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
@@ -207,12 +198,12 @@
         'MODULE::/Core/Assets/js/tools/ItemSelection.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
         'MODULE::/Core/Assets/js/tools/AdminSelectUtilities.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/index/script-combined.js"></script>
 ]]
 
 [[b('script:post-category-index')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/post/category/index/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/post/category/index/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
@@ -225,12 +216,12 @@
         'MODULE::/Core/Assets/js/tools/ItemSelection.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
         'MODULE::/Core/Assets/js/tools/AdminSelectUtilities.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/category/index/script-combined.js"></script>
 ]]
 
 [[b('script:menu-item-index')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/menu/items/index/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/menu/items/index/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
@@ -241,12 +232,12 @@
         'MODULE::/Core/Assets/js/views/menu/items/index/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/menu/items/index/script-combined.js"></script>
 ]]
 
 [[b('script:widget-item-index')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/widget/items/index/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/widget/items/index/script-combined.js',
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedImage.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
@@ -259,12 +250,12 @@
         'MODULE::/Core/Assets/js/views/widget/items/index/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/widget/items/index/script-combined.js"></script>
 ]]
 
 [[b('script:field-item-index')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/field/items/index/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/field/items/index/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
@@ -283,12 +274,13 @@
         'MODULE::/Core/Assets/js/views/field/items/index/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
-        )]]">
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/field/items/index/script-combined.js">
 </script>
 ]]
 
 [[b('script:field-item-selectionManager')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/field/items/selection-manager/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/field/items/selection-manager/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Http/XHRApi.js'
@@ -297,12 +289,12 @@
         'MODULE::/Core/Assets/js/views/field/items/selection-manager/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/ItemSelection.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/field/items/selection-manager/script-combined.js"></script>
 ]]
 
 [[b('script:license-item-index')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/license/items/index/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/license/items/index/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
@@ -319,37 +311,37 @@
         'MODULE::/Core/Assets/js/views/license/items/index/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/license/items/index/script-combined.js"></script>
 ]]
 
 [[b('script:fm-modules')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/media/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/media/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Core/TonicsFileManager.js',
         'MODULE::/Core/Assets/js/tools/SwapNodes.js',
-        '/js/audio/howler/howler.core.min.js',
+        'MODULE::/Core/Assets/js/audio/howler/howler.core.min.js',
         'MODULE::/Core/Assets/js/tools/AudioPlayer.js',
         'MODULE::/Core/Assets/js/views/track/main.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/media/script-combined.js"></script>
 ]]
 
 [[b('script:wp-import')
-<script type="module" src="[[combine('MODULE::/Core/Assets/js/views/import/wordpress/script-combined.js',
+    [[combine('MODULE::/Core/Assets/js/views/import/wordpress/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Http/XHRApi.js',
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
 
-         'MODULE::/Core/Assets/js/views/import/wordpress/main.js',
+        'MODULE::/Core/Assets/js/views/import/wordpress/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
-        )]]">
-</script>
+    )]]
+<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/import/wordpress/script-combined.js"></script>
 ]]
 
 [[b('default-inline-svg')
@@ -831,19 +823,4 @@
 
 [[b('csrf-meta')
 <meta name="csrf_token" content="[[csrf()]]">
-]]
-
-[[[b('DefaultStyle')
-<link rel="stylesheet" href="/css/base/global.css">
-<link rel="stylesheet" href="/css/base/notification.css">
-<link rel="stylesheet" href="/css/dependencies/font-awesome-animation_0.3.0.css">
-]]]
-
-[[b('DefaultScript')
-<script src="/js/sweetalert2@11.js"></script>
-<script src="/js/toggle.js"></script>
-<script src="/js/tonics-cart-class.js"></script>
-<script src="/js/notification.js"></script>
-<script src="/js/amplitude@5.3.2.min.js"></script>
-<script src="/js/beat-player.js"></script>
 ]]

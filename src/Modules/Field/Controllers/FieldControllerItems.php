@@ -88,7 +88,7 @@ class FieldControllerItems extends Controller
                 $this->getFieldData()->deleteWithCondition(
                     whereCondition: "fk_field_id = ?", parameter: [$fieldDetails['fieldID']], table: $this->getFieldData()->getFieldItemsTable());
                 # Reinsert it
-                db()->insertBatch($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
+                db()->Insert($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
                 db()->commit();
                 event()->dispatch(new OnFieldItemsSave($fieldDetails));
                 $error = true;

@@ -21,6 +21,7 @@ use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 use Devsrealm\TonicsRouterSystem\Route;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
@@ -146,10 +147,10 @@ class InitLoader
     }
 
     /**
-     * @return MyPDO
+     * @return TonicsQuery
      * @throws Exception
      */
-    public static function getDatabase(): MyPDO
+    public static function getDatabase(): TonicsQuery
     {
         return db();
     }

@@ -59,7 +59,7 @@ class MenuController
             redirect(route('menus.create'));
         }
         $menu = $this->getMenuData()->createMenu();
-        $menuReturning = db()->insertReturning($this->getMenuData()->getMenuTable(), $menu, $this->getMenuData()->getMenuColumns());
+        $menuReturning = db()->insertReturning($this->getMenuData()->getMenuTable(), $menu, $this->getMenuData()->getMenuColumns(), 'menu_id');
 
         $onMenuCreate = new OnMenuCreate($menuReturning, $this->getMenuData());
         event()->dispatch($onMenuCreate);
@@ -100,7 +100,7 @@ class MenuController
 
         $menuToUpdate = $this->getMenuData()->createMenu();
         $menuToUpdate['menu_slug'] = helper()->slug(input()->fromPost()->retrieve('menu_slug'));
-        $this->getMenuData()->updateWithCondition($menuToUpdate, ['menu_slug' => $slug], $this->getMenuData()->getMenuTable());
+        db()->FastUpdate($this->getMenuData()->getMenuTable(), $menuToUpdate, db()->Where('menu_slug', '=', $slug));
 
         $slug = $menuToUpdate['menu_slug'];
         session()->flash(['Menu Updated'], type: Session::SessionCategories_FlashMessageSuccess);

@@ -1,4 +1,4 @@
-// You can access all script module using window.myModule
+
 let menuArranger = document.querySelector('.menu-arranger');
 window.onload = () => nativeFieldModules();
 

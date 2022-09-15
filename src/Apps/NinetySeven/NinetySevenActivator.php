@@ -213,7 +213,8 @@ JSON;
      */
     public function onDelete(): void
     {
-        $toDelete = "'app-tonicstoc', 'app-tonicstoc-settings'";
-        db()->run("DELETE FROM {$this->fieldData->getFieldTable()} WHERE `field_slug` IN ($toDelete)");
+        $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
+        $tb = $this->fieldData->getFieldTable();
+        db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
     }
 }

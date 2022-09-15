@@ -89,7 +89,7 @@ class PagesController
         }
 
         $page = $this->pageData->createPage(['token']);
-        $pageReturning = db()->insertReturning($this->getPageData()->getPageTable(), $page, $this->getPageData()->getPageColumns());
+        $pageReturning = db()->insertReturning($this->getPageData()->getPageTable(), $page, $this->getPageData()->getPageColumns(), 'page_id');
 
         $onPageCreated = new OnPageCreated($pageReturning, $this->pageData);
         event()->dispatch($onPageCreated);
@@ -154,7 +154,7 @@ class PagesController
         try {
             $pageToUpdate = $this->pageData->createPage(['token']);
             $pageToUpdate['page_slug'] = helper()->slugForPage(input()->fromPost()->retrieve('page_slug'));
-            $this->pageData->updateWithCondition($pageToUpdate, ['page_id' => $id], $this->pageData->getPageTable());
+            db()->FastUpdate($this->pageData->getPageTable(), $pageToUpdate, db()->Where('page_id', '=', $id));
         } catch (Exception) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('pages.edit', [$id]));
@@ -173,7 +173,7 @@ class PagesController
         $toUpdate = [
             'page_status' => -1
         ];
-        $this->pageData->updateWithCondition($toUpdate, ['page_id' => $id], $this->pageData->getPageTable());
+        db()->FastUpdate($this->pageData->getPageTable(), $toUpdate, db()->Where('page_id', '=', $id));
         session()->flash(['Page Moved To Trash'], type: Session::SessionCategories_FlashMessageSuccess);
         apcu_clear_cache();
         redirect(route('pages.index'));

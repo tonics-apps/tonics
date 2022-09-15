@@ -130,7 +130,7 @@ function addTiny(editorID) {
                     if (target.classList.contains('fieldsDelete')) {
                         let tabContainer = target.closest('.tabs');
                         if (tabContainer) {
-                            myModule.promptToast("Field deletion might be irreversible", "Delete Field", () => {
+                            promptToast("Field deletion might be irreversible", "Delete Field", () => {
                                 tabContainer.remove();
                             })
                         }

@@ -3450,7 +3450,6 @@ export {
 * sweetalert2 v11.1.10
 * Released under the MIT License.
 */
-import * as myModule from "./script-combined.js";
 
 if (typeof tonicsFileManagerURL === "undefined") {
     window.tonicsFileManagerURL = window.parent.tonicsFileManagerURL;
@@ -3516,19 +3515,19 @@ if (parent.tinymce && parent.tinymce.activeEditor) {
 try {
     if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
         tonicsErrorMessages.forEach((value) => {
-            myModule.errorToast(value, 6000);
+            errorToast(value, 6000);
         });
     }
 
     if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
         tonicsInfoMessages.forEach((value) => {
-            myModule.infoToast(value, 6000);
+            infoToast(value, 6000);
         });
     }
 
     if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
         tonicsSuccesssMessages.forEach((value) => {
-            myModule.successToast(value, 6000);
+            successToast(value, 6000);
         });
     }
 

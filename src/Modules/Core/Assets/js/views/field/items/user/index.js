@@ -1,6 +1,7 @@
+
 let scripts = document.querySelectorAll("[data-script_path]");
 scripts.forEach((script) => {
-    myModule.loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
+    loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
 
 let draggable = document.getElementsByClassName('draggable'),

@@ -96,14 +96,13 @@ class TrackActivator implements ExtensionConfig
     {
         return
             [
-                Tables::getTable(Tables::ARTISTS) => Tables::getTable(Tables::ARTISTS),
-                Tables::getTable(Tables::GENRES) => Tables::getTable(Tables::GENRES),
-                Tables::getTable(Tables::LICENSES) => Tables::getTable(Tables::LICENSES),
-                Tables::getTable(Tables::PURCHASES) => Tables::getTable(Tables::PURCHASES),
-                Tables::getTable(Tables::PURCHASE_TRACKS) => Tables::getTable(Tables::PURCHASE_TRACKS),
-                Tables::getTable(Tables::TRACKS) => Tables::getTable(Tables::TRACKS),
-                Tables::getTable(Tables::TRACK_LIKES) => Tables::getTable(Tables::TRACK_LIKES),
-                Tables::getTable(Tables::WISH_LIST) => Tables::getTable(Tables::WISH_LIST),
+                Tables::getTable(Tables::ARTISTS) => Tables::$TABLES[Tables::ARTISTS],
+                Tables::getTable(Tables::GENRES) => Tables::$TABLES[Tables::GENRES],
+                Tables::getTable(Tables::LICENSES) => Tables::$TABLES[Tables::LICENSES],
+                Tables::getTable(Tables::PURCHASE_TRACKS) => Tables::$TABLES[Tables::PURCHASE_TRACKS],
+                Tables::getTable(Tables::TRACKS) => Tables::$TABLES[Tables::TRACKS],
+                Tables::getTable(Tables::TRACK_LIKES) => Tables::$TABLES[Tables::TRACK_LIKES],
+                Tables::getTable(Tables::WISH_LIST) => Tables::$TABLES[Tables::WISH_LIST],
             ];
     }
 

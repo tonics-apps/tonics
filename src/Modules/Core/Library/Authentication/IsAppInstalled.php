@@ -88,7 +88,7 @@ class IsAppInstalled extends SimpleState
         $modules = helper()->getModuleActivators([ExtensionConfig::class]);
         $requiredTables = [];
         foreach ($modules as $module) {
-            $requiredTables = [...$requiredTables, ...$module->tables()];
+            $requiredTables = [...$requiredTables, ...array_keys($module->tables())];
         }
         $intersectionCount = count(array_intersect($tablesInDatabase, $requiredTables));
 

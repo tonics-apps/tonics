@@ -11,6 +11,7 @@
 namespace App\Modules\Core\Library;
 
 use App\Modules\Core\Commands\Module\Traits\InitMigrationTable;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 abstract class Migration
 {
@@ -25,10 +26,10 @@ abstract class Migration
     }
 
     /**
-     * @return MyPDO
+     * @return TonicsQuery
      * @throws \Exception
      */
-    public function getDB(): MyPDO
+    public function getDB(): TonicsQuery
     {
         return db();
     }
