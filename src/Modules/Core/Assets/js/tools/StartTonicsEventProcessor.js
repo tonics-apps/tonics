@@ -20,6 +20,7 @@ const EventsConfig = {
     OnDoubleClickEvent: [],
     OnClickEvent: [],
     OnShiftClickEvent: [],
+    OnRowMarkForDeletionEvent: [],
 
 };
 

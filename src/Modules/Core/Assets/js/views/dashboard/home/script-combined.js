@@ -4160,6 +4160,10 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 
 }
 
+class OnRowMarkForDeletionEvent extends DataTableAbstractAndTarget {
+
+}
+
 //----------------
 //--- HANDLERS
 //----------------
@@ -4205,7 +4209,7 @@ class CloseEditorHandler {
 class CanActivateCancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0){
+        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0){
             dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
         } else  {
             dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
@@ -4237,13 +4241,17 @@ class DeleteEventHandler {
                 dataTable.deletingElements.set(toDelete.dataset.list_id, toDelete);
                 toDelete.classList.add('deleting');
             });
+
+            let OnRowMarkForDeletion = new OnRowMarkForDeletionEvent(event.getElementTarget(), dataTable);
+            dataTable.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnRowMarkForDeletion, OnRowMarkForDeletionEvent);
         }
     }
 }
 
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(...[CloseEditorHandler, CanActivateCancelEventHandler, CancelEventHandler, DeleteEventHandler]);
+    window.TonicsEvent.EventConfig.OnClickEvent.push(...[CloseEditorHandler, CanActivateCancelEventHandler, DeleteEventHandler, CancelEventHandler]);
+    window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(CanActivateCancelEventHandler);
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 
