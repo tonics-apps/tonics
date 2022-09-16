@@ -3795,39 +3795,44 @@ class DataTable {
     }
 
     highlightTr(trEl) {
-        let checkBox = trEl.querySelector('[data-checkbox_select]');
-        if (checkBox){
-            checkBox.setAttribute('checked', 'true');
+        if (this.hasTrElement) {
+            let checkBox = trEl.querySelector('[data-checkbox_select]');
+            if (checkBox){
+                checkBox.setAttribute('checked', 'true');
+            }
+            trEl.classList.add('highlight');
         }
-        trEl.classList.add('highlight');
     }
 
     resetShiftClick() {
         this.shiftClick = new Map();
     }
 
-    setShiftClick(trEl) {
-        this.highlightTr(trEl);
-        let id = trEl.dataset.list_id;
+    setShiftClick(trEl)
+    {
+        if (this.hasTrElement){
+            this.highlightTr(trEl);
+            let id = trEl.dataset.list_id;
 
-        // remove file that have previously been set, so, they can be pushed below
-        if (this.shiftClick.get(id)) {
-            this.shiftClick.delete(id);
-        }
-        this.shiftClick.set(id, trEl);
-        if (this.shiftClick.size >= 2) {
-            // this is getting the first and last shift clicked item, and we're sorting the integer
-            let firstItem = [...this.shiftClick][0][0],
-                lastItem = [...this.shiftClick][this.shiftClick.size - 1][0],
-                listIDToLoop = [firstItem, lastItem];
-            listIDToLoop.sort();
+            // remove file that have previously been set, so, they can be pushed below
+            if (this.shiftClick.get(id)) {
+                this.shiftClick.delete(id);
+            }
+            this.shiftClick.set(id, trEl);
+            if (this.shiftClick.size >= 2) {
+                // this is getting the first and last shift clicked item, and we're sorting the integer
+                let firstItem = [...this.shiftClick][0][0],
+                    lastItem = [...this.shiftClick][this.shiftClick.size - 1][0],
+                    listIDToLoop = [firstItem, lastItem];
+                listIDToLoop.sort();
 
-            // loop over the sorted ranges. and highlight 'em
-            for (let i = listIDToLoop[0]; i <= listIDToLoop[1]; i++) {
-                // highlight file
-                let trEl = this.parentElement.querySelector(`[data-list_id="${i}"]`);
-                if (trEl) {
-                    this.highlightTr(trEl);
+                // loop over the sorted ranges. and highlight 'em
+                for (let i = listIDToLoop[0]; i <= listIDToLoop[1]; i++) {
+                    // highlight file
+                    let trEl = this.parentElement.querySelector(`[data-list_id="${i}"]`);
+                    if (trEl) {
+                        this.highlightTr(trEl);
+                    }
                 }
             }
         }

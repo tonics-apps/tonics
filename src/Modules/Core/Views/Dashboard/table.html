@@ -88,6 +88,11 @@
         list-style: none;
     }
 
+    .deactivate-menu {
+        opacity: 50%;
+        pointer-events: none;
+    }
+
 </style>
 <div style=" max-height: 600px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="dataTable disable-select overflow-x:auto">
     <table style="grid-template-columns: minmax(150px, 1fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) 280px minmax(150px, 1.67fr) minmax(150px, 3.33fr) minmax(150px, 1.67fr);">
@@ -1111,7 +1116,7 @@
         <nav id="dataTable-site-footer-nav" class="single-nav menu mobile-display-none" role="navigation">
             <ul class="site-navigation-ul" data-event-menu="true">
 
-                <li class="menu-item deactivate-menu-pointer">
+                <li class="menu-item deactivate-menu">
                     <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="SaveEvent" aria-label="Save">
                         ✓
@@ -1119,12 +1124,29 @@
                     </button>
                 </li>
 
-                <li class="menu-item deactivate-menu-pointer">
+                <li class="menu-item deactivate-menu">
                     <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="CancelEvent" aria-label="Cancel">
                         ✘
                         <span>Cancel</span>
                     </button>
+                </li>
+
+                <li class="menu-item">
+                    <label for="page_size">Page Size
+                        <select class="bg:transparent border:none color:black bg:white-one border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" name="per_page" id="page_size">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                        <option value="2000">2000</option>
+                        <option value="5000">5000</option>
+                    </select>
+                    </label>
                 </li>
             </ul>
         </nav>
