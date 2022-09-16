@@ -3614,6 +3614,11 @@ class DataTable {
     hasTdElement = false;
     hasTrElement = false;
 
+    tdElementCloneBeforeOpen = null;
+
+    editingElements = new Map();
+    deletingElements = [];
+
     constructor($parentElement) {
         this.parentElement = document.querySelector($parentElement)
         this.resetListID();
@@ -3651,8 +3656,7 @@ class DataTable {
     }
 
     boot() {
-
-        if (this.getParentElement()){
+        if (this.getParentElement()) {
             // For Click Event
             if (!this.getParentElement().hasAttribute("data-event-click")) {
                 this.getParentElement().setAttribute('data-event-click', 'true');
@@ -3663,7 +3667,7 @@ class DataTable {
                     this.tdElement = el.closest('td');
 
                     let isInput = el.closest('input, textarea, select');
-                    if (isInput){
+                    if (isInput) {
                         return false;
                     }
 
@@ -3733,10 +3737,26 @@ class DataTable {
                 });
             }
         }
-
     }
 
-    getSelectedTrElement () {
+    menuActions() {
+        return {
+            SAVE_EVENT: "SaveEvent",
+            CANCEL_EVENT: "CancelEvent",
+        }
+    }
+
+    activateMenus($listOfMenuToActivate) {
+        let dataTableMenu = document.querySelector('.dataTable-site-footer-nav');
+        $listOfMenuToActivate.forEach(function (value) {
+            let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
+            if (eventMenu) {
+                eventMenu.closest('.menu-item').classList.remove('deactivate-menu');
+            }
+        });
+    }
+
+    getSelectedTrElement() {
         return this.getParentElement().querySelector('.highlight');
     }
 
@@ -3755,22 +3775,27 @@ class DataTable {
      */
     findCorrespondingTableHeader(tdNode) {
         let i;
-        let idx = [...tdNode.parentNode.children].indexOf(tdNode), // get td index
-            thCells = tdNode.closest('table').tHead.rows[0].cells, // get all th cells
-            th_colSpan_acc = 0; // accumulator
+        let idx = [...tdNode.parentNode.children].indexOf(tdNode); // get td index
 
-        // iterate all th cells and add-up their colSpan value
-        for (i = 0; i < thCells.length; i++) {
-            th_colSpan_acc += thCells[i].colSpan
-            if (th_colSpan_acc >= (idx + tdNode.colSpan)) break
+        if (tdNode.closest('table')?.tHead){
+            let thCells = tdNode.closest('table').tHead.rows[0].cells, // get all th cells
+                th_colSpan_acc = 0; // accumulator
+
+            // iterate all th cells and add-up their colSpan value
+            for (i = 0; i < thCells.length; i++) {
+                th_colSpan_acc += thCells[i].colSpan
+                if (th_colSpan_acc >= (idx + tdNode.colSpan)) break
+            }
+
+            return thCells[i]
         }
 
-        return thCells[i]
+        return null;
     }
 
     resetListID() {
         let tableRows = this.getParentElement().querySelectorAll('tbody > tr');
-        if (tableRows && tableRows.length > 0){
+        if (tableRows && tableRows.length > 0) {
             let list_id = 0;
             tableRows.forEach(tr => {
                 tr.dataset.list_id = `${list_id}`;
@@ -3788,7 +3813,7 @@ class DataTable {
 
     unHighlightTr(trEl) {
         let checkBox = trEl.querySelector('[data-checkbox_select]');
-        if (checkBox){
+        if (checkBox) {
             checkBox.setAttribute('checked', 'false');
         }
         trEl.classList.remove('highlight');
@@ -3797,7 +3822,7 @@ class DataTable {
     highlightTr(trEl) {
         if (this.hasTrElement) {
             let checkBox = trEl.querySelector('[data-checkbox_select]');
-            if (checkBox){
+            if (checkBox) {
                 checkBox.setAttribute('checked', 'true');
             }
             trEl.classList.add('highlight');
@@ -3808,9 +3833,8 @@ class DataTable {
         this.shiftClick = new Map();
     }
 
-    setShiftClick(trEl)
-    {
-        if (this.hasTrElement){
+    setShiftClick(trEl) {
+        if (this.hasTrElement) {
             this.highlightTr(trEl);
             let id = trEl.dataset.list_id;
 
@@ -3914,7 +3938,7 @@ class DataTableEditorAbstract {
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             this.editorElement = this.createInput('text', tdValue);
             this.tdElement.innerHTML = this.editorElement.outerHTML;
@@ -3922,7 +3946,7 @@ class DataTableEditorAbstract {
     }
 
     closeEditor() {
-        if (this.hasTdElement && this.tdElement.querySelector('input')){
+        if (this.hasTdElement && this.tdElement.querySelector('input')) {
             let inputValue = this.tdElement.querySelector('input').value;
             this.tdElement.querySelector('input').remove();
             this.tdElement.innerHTML = inputValue;
@@ -3941,13 +3965,13 @@ class DataTableEditorAbstract {
 window.TonicsDataTable = {};
 window.TonicsDataTable.Editors = new Map();
 
-class DataTabledEditorNumber extends DataTableEditorAbstract{
+class DataTabledEditorNumber extends DataTableEditorAbstract {
     editorName() {
         return 'number';
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             this.tdElement.innerHTML = this.createInput('number', tdValue).outerHTML;
         }
@@ -3962,14 +3986,14 @@ class DataTabledEditorNumber extends DataTableEditorAbstract{
     }
 }
 
-class DataTabledEditorDate extends DataTableEditorAbstract{
+class DataTabledEditorDate extends DataTableEditorAbstract {
 
     editorName() {
         return 'number';
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             this.tdElement.innerHTML = this.createInput('date', tdValue).outerHTML;
         }
@@ -3980,14 +4004,14 @@ class DataTabledEditorDate extends DataTableEditorAbstract{
     }
 }
 
-class DataTabledEditorDateLocal extends DataTableEditorAbstract{
+class DataTabledEditorDateLocal extends DataTableEditorAbstract {
 
     editorName() {
         return 'number';
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             this.tdElement.innerHTML = this.createInput('datetime-local', tdValue).outerHTML;
         }
@@ -3998,14 +4022,14 @@ class DataTabledEditorDateLocal extends DataTableEditorAbstract{
     }
 }
 
-class DataTabledEditorDateMonth extends DataTableEditorAbstract{
+class DataTabledEditorDateMonth extends DataTableEditorAbstract {
 
     editorName() {
         return 'number';
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             this.tdElement.innerHTML = this.createInput('month', tdValue).outerHTML;
         }
@@ -4016,14 +4040,14 @@ class DataTabledEditorDateMonth extends DataTableEditorAbstract{
     }
 }
 
-class DataTabledEditorDateWeek extends DataTableEditorAbstract{
+class DataTabledEditorDateWeek extends DataTableEditorAbstract {
 
     editorName() {
         return 'number';
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             this.tdElement.innerHTML = this.createInput('week', tdValue).outerHTML;
         }
@@ -4034,14 +4058,14 @@ class DataTabledEditorDateWeek extends DataTableEditorAbstract{
     }
 }
 
-class DataTabledEditorDateTime extends DataTableEditorAbstract{
+class DataTabledEditorDateTime extends DataTableEditorAbstract {
 
     editorName() {
         return 'number';
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             this.tdElement.innerHTML = this.createInput('time', tdValue).outerHTML;
         }
@@ -4052,21 +4076,21 @@ class DataTabledEditorDateTime extends DataTableEditorAbstract{
     }
 }
 
-class DataTabledEditorSelect extends DataTableEditorAbstract{
+class DataTabledEditorSelect extends DataTableEditorAbstract {
 
     editorName() {
         return 'select';
     }
 
     openEditor() {
-        if (this.hasTdElement){
+        if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             let selectData = this.dataTable.thElement.dataset.select_data.split(',');
             let selectOption = '';
             selectData.forEach(option => {
                 option.trim().toLowerCase();
                 tdValue.toLowerCase();
-                if (tdValue === option){
+                if (tdValue === option) {
                     selectOption += `<option selected title="${option}" value="${option}">${option}</option>`
                 } else {
                     selectOption += `<option title="${option}" value="${option}">${option}</option>`
@@ -4079,7 +4103,7 @@ class DataTabledEditorSelect extends DataTableEditorAbstract{
 
     closeEditor() {
         let inputValue = this.tdElement.querySelector('select')?.value;
-        if (this.tdElement.querySelector('select')?.value){
+        if (this.tdElement.querySelector('select')?.value) {
             this.tdElement.querySelector('select')?.remove();
             this.tdElement.innerHTML = inputValue;
             this.editorElement = null;
@@ -4130,13 +4154,14 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 class OpenEditorHandler {
 
     constructor(event) {
-        if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.dataTable.hasThElement){
+        if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.dataTable.hasThElement) {
             event.getElementTarget().focus();
             let EditorsConfig = window?.TonicsDataTable?.Editors;
             let editorType = event.dataTable.thElement.dataset?.type.toUpperCase();
-            if (EditorsConfig.has(editorType)){
+            if (EditorsConfig.has(editorType)) {
                 let editorsClass = EditorsConfig.get(editorType);
                 let editorsObject = new editorsClass;
+                event.dataTable.tdElementChildBeforeOpen = event.getElementTarget().innerHTML
                 editorsObject.tdElement = event.getElementTarget();
                 editorsObject.dataTable = event.dataTable;
                 editorsObject.openEditor();
@@ -4151,8 +4176,16 @@ class CloseEditorHandler {
 
     constructor(event) {
         let currentEditor = event.dataTable.currentEditor;
-        if (currentEditor instanceof DataTableEditorAbstract){
-           currentEditor.closeEditor();
+        if (currentEditor instanceof DataTableEditorAbstract) {
+            currentEditor.closeEditor();
+            if (currentEditor.hasTdElement && event.dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
+                currentEditor.tdElement.classList.add('editing');
+                let trEl = event.dataTable.trElement;
+                if (trEl?.dataset?.list_id){
+                    event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
+                    console.log(event.dataTable);
+                }
+            }
         }
     }
 
