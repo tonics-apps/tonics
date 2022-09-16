@@ -249,6 +249,20 @@ class DataTableEditorAbstract {
 
     hasTdElement = false;
 
+    /**
+     * Create an input element
+     * @param type
+     * @param value
+     * @returns {HTMLInputElement}
+     */
+    createInput(type = 'text', value = '') {
+        let input = document.createElement('input');
+        input.type = type;
+        input.defaultValue = value;
+        input.value = value;
+        return input;
+    }
+
     get tdElement() {
         return this._tdElement;
     }
@@ -263,7 +277,10 @@ class DataTableEditorAbstract {
     }
 
     openEditor() {
-        return;
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = this.createInput('text', tdValue).outerHTML;
+        }
     }
 
     closeEditor() {
@@ -272,7 +289,7 @@ class DataTableEditorAbstract {
 }
 
 window.TonicsDataTable = {};
-window.TonicsDataTable.Editors = [];
+window.TonicsDataTable.Editors = new Map();
 
 class DataTabledEditorNumber extends DataTableEditorAbstract{
     editorName() {
@@ -280,7 +297,10 @@ class DataTabledEditorNumber extends DataTableEditorAbstract{
     }
 
     openEditor() {
-        return super.openEditor();
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = this.createInput('number', tdValue).outerHTML;
+        }
     }
 
     closeEditor() {
@@ -288,7 +308,8 @@ class DataTabledEditorNumber extends DataTableEditorAbstract{
     }
 }
 
-window.TonicsDataTable.Editors.push(...[DataTableEditorAbstract, DataTabledEditorNumber]);
+window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
+window.TonicsDataTable.Editors.set('NUMBER', DataTabledEditorNumber);
 
 //----------------
 //--- EVENTS
@@ -334,10 +355,20 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 class BuiltInEditorHandler {
 
     constructor(event) {
-        if (event.getElementTarget().tagName.toLowerCase() === 'td'){
-            event.getElementTarget().setAttribute('contenteditable', 'true');
-            event.getElementTarget().focus();
-            console.log(event, event.getElementTarget())
+        if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.hasThElement){
+            //event.getElementTarget().setAttribute('contenteditable', 'true');
+            // event.getElementTarget().focus();
+            let EditorsConfig = window?.TonicsDataTable?.Editors;
+            let editorType = event.thElement.dataset?.type.toUpperCase();
+            if (EditorsConfig.has(editorType)){
+                let editorsClass = EditorsConfig.get(editorType);
+                let editorsObject = new editorsClass;
+                editorsObject.tdElement = event.getElementTarget();
+                editorsObject.openEditor();
+                console.log(editorsObject)
+            }
+
+           // console.log(event, event.getElementTarget(), event.thElement)
         }
     }
 
