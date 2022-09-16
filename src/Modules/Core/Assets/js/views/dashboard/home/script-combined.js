@@ -3930,6 +3930,9 @@ class DataTableEditorAbstract {
     }
 }
 
+//----------------------
+//--- BUILT-IN EDITORS
+//----------------------
 window.TonicsDataTable = {};
 window.TonicsDataTable.Editors = new Map();
 
@@ -3947,6 +3950,96 @@ class DataTabledEditorNumber extends DataTableEditorAbstract{
 
     closeEditor() {
         return super.closeEditor();
+    }
+
+    editorValidation() {
+
+    }
+}
+
+class DataTabledEditorDate extends DataTableEditorAbstract{
+
+    editorName() {
+        return 'number';
+    }
+
+    openEditor() {
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = this.createInput('date', tdValue).outerHTML;
+        }
+    }
+
+    editorValidation() {
+
+    }
+}
+
+class DataTabledEditorDateLocal extends DataTableEditorAbstract{
+
+    editorName() {
+        return 'number';
+    }
+
+    openEditor() {
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = this.createInput('datetime-local', tdValue).outerHTML;
+        }
+    }
+
+    editorValidation() {
+
+    }
+}
+
+class DataTabledEditorDateMonth extends DataTableEditorAbstract{
+
+    editorName() {
+        return 'number';
+    }
+
+    openEditor() {
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = this.createInput('month', tdValue).outerHTML;
+        }
+    }
+
+    editorValidation() {
+
+    }
+}
+
+class DataTabledEditorDateWeek extends DataTableEditorAbstract{
+
+    editorName() {
+        return 'number';
+    }
+
+    openEditor() {
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = this.createInput('week', tdValue).outerHTML;
+        }
+    }
+
+    editorValidation() {
+
+    }
+}
+
+class DataTabledEditorDateTime extends DataTableEditorAbstract{
+
+    editorName() {
+        return 'number';
+    }
+
+    openEditor() {
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = this.createInput('time', tdValue).outerHTML;
+        }
     }
 
     editorValidation() {
@@ -3996,6 +4089,11 @@ class DataTabledEditorSelect extends DataTableEditorAbstract{
 window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
 window.TonicsDataTable.Editors.set('NUMBER', DataTabledEditorNumber);
 window.TonicsDataTable.Editors.set('SELECT', DataTabledEditorSelect);
+window.TonicsDataTable.Editors.set('DATE', DataTabledEditorDate);
+window.TonicsDataTable.Editors.set('DATE_TIME_LOCAL', DataTabledEditorDateLocal);
+window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
+window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
+window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 
 //----------------
 //--- EVENTS
