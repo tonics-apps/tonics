@@ -3765,17 +3765,13 @@ class DataTable {
         if (this.shiftClick.get(id)) {
             this.shiftClick.delete(id);
         }
-
         this.shiftClick.set(id, trEl);
-        console.log(this.shiftClick)
         if (this.shiftClick.size >= 2) {
             // this is getting the first and last shift clicked item, and we're sorting the integer
             let firstItem = [...this.shiftClick][0][0],
                 lastItem = [...this.shiftClick][this.shiftClick.size - 1][0],
                 listIDToLoop = [firstItem, lastItem];
             listIDToLoop.sort();
-
-            console.log(listIDToLoop)
 
             // loop over the sorted ranges. and highlight 'em
             for (let i = listIDToLoop[0]; i <= listIDToLoop[1]; i++) {
@@ -3877,18 +3873,26 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 //--- HANDLERS
 //----------------
 
-class HandleRowHighlight {
-
-    shiftClick = new Map();
+class BuiltInEditorHandler {
 
     constructor(event) {
+        if (event.getElementTarget().tagName.toLowerCase() === 'td'){
+            event.getElementTarget().setAttribute('contenteditable', 'true');
+            event.getElementTarget().focus();
+            console.log(event, event.getElementTarget())
+        }
     }
+
+}
+
+class HandleRowHighlight {
+
 }
 
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
-    window.TonicsEvent.EventConfig.OnShiftClickEvent.push(HandleRowHighlight);
+    window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(BuiltInEditorHandler);
 }
 const dataTable = new DataTable('.dataTable');
 dataTable.boot();
