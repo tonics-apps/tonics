@@ -3608,6 +3608,7 @@ class DataTable {
 
     parentElement = '';
     scrollToBottomLockPing = 0;
+    shiftClick = new Map();
 
     constructor($parentElement) {
         this.parentElement = document.querySelector($parentElement)
@@ -3624,9 +3625,31 @@ class DataTable {
             this.getParentElement().setAttribute('data-event-click', 'true');
             this.getParentElement().addEventListener('click', (e) => {
                 let el = e.target;
-                let Click = new OnClickEvent(el, this);
-                Click.trElement = el.closest('tr');
-                this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
+                let trEl = el.closest('tr');
+                if (e.shiftKey) {
+                    this.resetPreviousTrState()
+                    this.setShiftClick(trEl);
+                    let Click = new OnShiftClickEvent(el, this);
+                    Click.trElement = el.closest('tr');
+                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnShiftClickEvent);
+                    return false;
+                } else if (e.ctrlKey) {
+                    (trEl.classList.contains('highlight')) ? this.unHighlightTr(trEl) : this.highlightTr(trEl);
+                    return false;
+                } else {
+                    // this is a norm mouse click
+                    this.resetPreviousTrState();
+                    this.highlightTr(trEl);
+
+                    // for shift key
+                    this.resetShiftClick();
+                    this.setShiftClick(trEl);
+
+                    let Click = new OnClickEvent(el, this);
+                    Click.trElement = el.closest('tr');
+                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
+
+                }
             });
         }
 
@@ -3698,13 +3721,71 @@ class DataTable {
     resetListID() {
         let tableRows = this.getParentElement().querySelectorAll('tbody > tr');
         if (tableRows && tableRows.length > 0){
-            let list_id = 1;
+            let list_id = 0;
             tableRows.forEach(tr => {
                 tr.dataset.list_id = `${list_id}`;
                 ++list_id;
             });
         }
 
+    }
+
+    resetPreviousTrState() {
+        this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
+            this.unHighlightTr(trEl);
+        });
+    }
+
+    unHighlightTr(trEl) {
+        let checkBox = trEl.querySelector('[data-checkbox_select]');
+        if (checkBox){
+            checkBox.setAttribute('checked', 'false');
+        }
+        trEl.classList.remove('highlight');
+    }
+
+    highlightTr(trEl) {
+        let checkBox = trEl.querySelector('[data-checkbox_select]');
+        if (checkBox){
+            checkBox.setAttribute('checked', 'true');
+        }
+        trEl.classList.add('highlight');
+    }
+
+
+    resetShiftClick() {
+        this.shiftClick = new Map();
+    }
+
+    setShiftClick(trEl) {
+        this.highlightTr(trEl);
+        let id = trEl.dataset.list_id;
+
+        // remove file that have previously been set, so, they can be pushed below
+        if (this.shiftClick.get(id)) {
+            this.shiftClick.delete(id);
+        }
+
+        this.shiftClick.set(id, trEl);
+        console.log(this.shiftClick)
+        if (this.shiftClick.size >= 2) {
+            // this is getting the first and last shift clicked item, and we're sorting the integer
+            let firstItem = [...this.shiftClick][0][0],
+                lastItem = [...this.shiftClick][this.shiftClick.size - 1][0],
+                listIDToLoop = [firstItem, lastItem];
+            listIDToLoop.sort();
+
+            console.log(listIDToLoop)
+
+            // loop over the sorted ranges. and highlight 'em
+            for (let i = listIDToLoop[0]; i <= listIDToLoop[1]; i++) {
+                // highlight file
+                let trEl = this.parentElement.querySelector(`[data-list_id="${i}"]`);
+                if (trEl) {
+                    this.highlightTr(trEl);
+                }
+            }
+        }
     }
 }
 
@@ -3770,6 +3851,10 @@ class OnClickEvent extends DataTableAbstractAndTarget {
 
 }
 
+class OnShiftClickEvent extends DataTableAbstractAndTarget {
+
+}
+
 class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 
     hasThElement = false;
@@ -3793,17 +3878,17 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 //----------------
 
 class HandleRowHighlight {
+
+    shiftClick = new Map();
+
     constructor(event) {
-        if (event.hasTrElement && event.getElementTarget().dataset.hasOwnProperty('checkbox_select')) {
-            let trElement = event.getTrElement();
-            trElement.classList.toggle('highlight');
-        }
     }
 }
 
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
+    window.TonicsEvent.EventConfig.OnShiftClickEvent.push(HandleRowHighlight);
 }
 const dataTable = new DataTable('.dataTable');
 dataTable.boot();

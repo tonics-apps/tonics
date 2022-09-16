@@ -162,6 +162,7 @@ const EventsConfig = {
     OnScrollBottomEvent: [],
     OnDoubleClickEvent: [],
     OnClickEvent: [],
+    OnShiftClickEvent: [],
 
 };
 
