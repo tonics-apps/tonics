@@ -20,7 +20,7 @@ class DataTable {
     tdElementCloneBeforeOpen = null;
 
     editingElements = new Map();
-    deletingElements = [];
+    deletingElements = new Map();
 
     constructor($parentElement) {
         this.parentElement = document.querySelector($parentElement)
@@ -623,6 +623,7 @@ class DeleteEventHandler {
         if (isDeleteEvent){
             let allHighlight = dataTable.parentElement.querySelectorAll('.highlight');
             allHighlight.forEach(toDelete => {
+                dataTable.deletingElements.set(toDelete.dataset.list_id, toDelete);
                 toDelete.classList.add('deleting');
             });
         }
