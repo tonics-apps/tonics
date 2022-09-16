@@ -608,10 +608,24 @@ class CloseEditorHandler {
 class CanActivateCancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0){
+        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0){
             dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
         } else  {
             dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
+        }
+    }
+}
+
+class CancelEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let isCancelEvent = event.getElementTarget().closest(`[data-menu-action="CancelEvent"]`);
+        if (isCancelEvent){
+            let allHighlight = dataTable.parentElement.querySelectorAll('.deleting');
+            dataTable.deletingElements.clear();
+            allHighlight.forEach(toDelete => {
+                toDelete.classList.remove('deleting');
+            });
         }
     }
 }
@@ -632,7 +646,7 @@ class DeleteEventHandler {
 
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(...[CloseEditorHandler, CanActivateCancelEventHandler, DeleteEventHandler]);
+    window.TonicsEvent.EventConfig.OnClickEvent.push(...[CloseEditorHandler, CanActivateCancelEventHandler, CancelEventHandler, DeleteEventHandler]);
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 
