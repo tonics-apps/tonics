@@ -383,7 +383,12 @@ class DataTabledEditorSelect extends DataTableEditorAbstract{
     }
 
     closeEditor() {
-        // return super.closeEditor();
+        let inputValue = this.tdElement.querySelector('select')?.value;
+        if (this.tdElement.querySelector('select')?.value){
+            this.tdElement.querySelector('select')?.remove();
+            this.tdElement.innerHTML = inputValue;
+            this.editorElement = null;
+        }
     }
 
     editorValidation() {

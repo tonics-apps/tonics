@@ -3968,9 +3968,7 @@ class DataTabledEditorSelect extends DataTableEditorAbstract{
             selectData.forEach(option => {
                 option.trim().toLowerCase();
                 tdValue.toLowerCase();
-                console.log(option, tdValue);
                 if (tdValue === option){
-                    console.log(tdValue);
                     selectOption += `<option selected title="${option}" value="${option}">${option}</option>`
                 } else {
                     selectOption += `<option title="${option}" value="${option}">${option}</option>`
@@ -3982,7 +3980,12 @@ class DataTabledEditorSelect extends DataTableEditorAbstract{
     }
 
     closeEditor() {
-        // return super.closeEditor();
+        let inputValue = this.tdElement.querySelector('select')?.value;
+        if (this.tdElement.querySelector('select')?.value){
+            this.tdElement.querySelector('select')?.remove();
+            this.tdElement.innerHTML = inputValue;
+            this.editorElement = null;
+        }
     }
 
     editorValidation() {
