@@ -206,6 +206,7 @@ class DataTable {
 class DataTableAbstractAndTarget {
 
     hasTrElement = false;
+    hasTdElement = false;
 
     get elementTarget() {
         return this._elementTarget;
@@ -232,6 +233,15 @@ class DataTableAbstractAndTarget {
         this._trElement = value;
     }
 
+    get tdElement() {
+        return this._trElement;
+    }
+
+    set tdElement(value) {
+        this.hasTdElement = !!value; // True if value is not empty, otherwise, false
+        this._tdElement = value;
+    }
+
     constructor(target, dataTableClass) {
         this._elementTarget = target;
         this._dataTable = dataTableClass;
@@ -253,6 +263,7 @@ class DataTableAbstractAndTarget {
 class DataTableEditorAbstract {
 
     hasTdElement = false;
+    editorElement = null;
 
     /**
      * Create an input element
@@ -284,7 +295,8 @@ class DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement){
             let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = this.createInput('text', tdValue).outerHTML;
+            this.editorElement = this.createInput('text', tdValue);
+            this.tdElement.innerHTML = this.editorElement.outerHTML;
         }
     }
 
@@ -293,6 +305,7 @@ class DataTableEditorAbstract {
             let inputValue = this.tdElement.querySelector('input').value;
             this.tdElement.querySelector('input').remove();
             this.tdElement.innerHTML = inputValue;
+            this.editorElement = null;
         }
     }
 
@@ -392,10 +405,10 @@ class OpenEditorHandler {
 class CloseEditorHandler {
 
     constructor(event) {
-        console.log(event.dataTable, event.getElementTarget())
-        if (event.dataTable.currentEditor instanceof DataTableEditorAbstract){
-            let editorsObject = event.dataTable.currentEditor;
-            editorsObject.closeEditor();
+        let currentEditor = event.dataTable.currentEditor;
+        console.log(event)
+        if (currentEditor instanceof DataTableEditorAbstract && currentEditor?.editorElement !== event.getElementTarget()){
+            currentEditor.closeEditor();
         }
     }
 
