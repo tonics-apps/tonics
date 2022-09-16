@@ -365,9 +365,20 @@ class DataTabledEditorSelect extends DataTableEditorAbstract{
 
     openEditor() {
         if (this.hasTdElement){
-            let tdValue = this.tdElement.dataset.select_data;
-            console.log(tdValue, this);
-           // this.tdElement.innerHTML = this.createInput('number', tdValue).outerHTML;
+            let tdValue = this.tdElement.innerText;
+            let selectData = this.dataTable.thElement.dataset.select_data.split(',');
+            let selectOption = '';
+            selectData.forEach(option => {
+                option.trim().toLowerCase();
+                tdValue.toLowerCase();
+                if (tdValue === option){
+                    selectOption += `<option selected title="${option}" value="${option}">${option}</option>`
+                } else {
+                    selectOption += `<option title="${option}" value="${option}">${option}</option>`
+                }
+            });
+            selectOption = "<select class=\"default-selector mg-b-plus-1\">" + selectOption + "</select>";
+            this.tdElement.innerHTML = selectOption;
         }
     }
 
