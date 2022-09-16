@@ -84,13 +84,15 @@ class DataTable {
                         (trEl.classList.contains('highlight')) ? this.unHighlightTr(trEl) : this.highlightTr(trEl);
                         return false;
                     } else {
-                        // this is a norm mouse click
-                        this.resetPreviousTrState();
-                        this.highlightTr(trEl);
+                        if (!el.closest('.dataTable-menus')){
+                            // this is a norm mouse click
+                            this.resetPreviousTrState();
+                            this.highlightTr(trEl);
 
-                        // for shift key
-                        this.resetShiftClick();
-                        this.setShiftClick(trEl);
+                            // for shift key
+                            this.resetShiftClick();
+                            this.setShiftClick(trEl);
+                        }
 
                         let Click = new OnClickEvent(el, this);
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
@@ -618,8 +620,11 @@ class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
         let isDeleteEvent = event.getElementTarget().closest(`[data-menu-action="DeleteEvent"]`);
-        if (isDeleteEvent && dataTable.hasTrElement){
-            dataTable.trElement.classList.add('deleting');
+        if (isDeleteEvent){
+            let allHighlight = dataTable.parentElement.querySelectorAll('.highlight');
+            allHighlight.forEach(toDelete => {
+                toDelete.classList.add('deleting');
+            });
         }
     }
 }
