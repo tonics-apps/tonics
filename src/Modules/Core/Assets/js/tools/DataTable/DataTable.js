@@ -284,7 +284,15 @@ class DataTableEditorAbstract {
     }
 
     closeEditor() {
-        return;
+        if (this.hasTdElement && this.tdElement.querySelector('input')){
+            let inputValue = this.tdElement.querySelector('input').value;
+            this.tdElement.querySelector('input').remove();
+            this.tdElement.innerHTML = inputValue;
+        }
+    }
+
+    editorValidation() {
+
     }
 }
 
@@ -305,6 +313,10 @@ class DataTabledEditorNumber extends DataTableEditorAbstract{
 
     closeEditor() {
         return super.closeEditor();
+    }
+
+    editorValidation() {
+
     }
 }
 
@@ -365,10 +377,7 @@ class BuiltInEditorHandler {
                 let editorsObject = new editorsClass;
                 editorsObject.tdElement = event.getElementTarget();
                 editorsObject.openEditor();
-                console.log(editorsObject)
             }
-
-           // console.log(event, event.getElementTarget(), event.thElement)
         }
     }
 
