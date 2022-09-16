@@ -3629,11 +3629,18 @@ class DataTable {
                 this.getParentElement().addEventListener('click', (e) => {
                     let el = e.target;
                     let trEl = el.closest('tr');
+
+                    let isInput = el.closest('input, textarea, select');
+                    if (isInput){
+                        return false;
+                    }
+
                     if (e.shiftKey) {
                         this.resetPreviousTrState()
                         this.setShiftClick(trEl);
                         let Click = new OnShiftClickEvent(el, this);
                         Click.trElement = el.closest('tr');
+                        Click.tdElement = el.closest('td');
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnShiftClickEvent);
                         return false;
                     } else if (e.ctrlKey) {
@@ -3650,6 +3657,7 @@ class DataTable {
 
                         let Click = new OnClickEvent(el, this);
                         Click.trElement = el.closest('tr');
+                        Click.tdElement = el.closest('td');
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
 
                     }
@@ -3663,6 +3671,7 @@ class DataTable {
                     let el = e.target;
                     let OnDoubleClick = new OnDoubleClickEvent(el, this);
                     OnDoubleClick.trElement = el.closest('tr');
+                    OnDoubleClick.tdElement = el.closest('td');
                     OnDoubleClick.thElement = this.findCorrespondingTableHeader(el);
                     this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
                 });
@@ -3989,10 +3998,10 @@ class OpenEditorHandler {
             if (EditorsConfig.has(editorType)){
                 let editorsClass = EditorsConfig.get(editorType);
                 let editorsObject = new editorsClass;
+                event.getElementTarget().dataset.hash = (Math.random() * 1e32).toString(36);
                 editorsObject.tdElement = event.getElementTarget();
                 editorsObject.openEditor();
                 event.dataTable.currentEditor = editorsObject;
-                console.log(event)
             }
         }
     }
@@ -4003,9 +4012,8 @@ class CloseEditorHandler {
 
     constructor(event) {
         let currentEditor = event.dataTable.currentEditor;
-        console.log(event)
-        if (currentEditor instanceof DataTableEditorAbstract && currentEditor?.editorElement !== event.getElementTarget()){
-            currentEditor.closeEditor();
+        if (currentEditor instanceof DataTableEditorAbstract){
+           currentEditor.closeEditor();
         }
     }
 
