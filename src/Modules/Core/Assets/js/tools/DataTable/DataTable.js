@@ -12,6 +12,7 @@ class DataTable {
     parentElement = '';
     scrollToBottomLockPing = 0;
     shiftClick = new Map();
+    currentEditor = null;
 
     constructor($parentElement) {
         this.parentElement = document.querySelector($parentElement)
@@ -107,6 +108,10 @@ class DataTable {
 
     getEventDispatcher() {
         return window.TonicsEvent.EventDispatcher;
+    }
+
+    getCurrentEditor() {
+        return this.currentEditor;
     }
 
     /**
@@ -364,12 +369,11 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 //--- HANDLERS
 //----------------
 
-class BuiltInEditorHandler {
+class OpenEditorHandler {
 
     constructor(event) {
         if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.hasThElement){
-            //event.getElementTarget().setAttribute('contenteditable', 'true');
-            // event.getElementTarget().focus();
+            event.getElementTarget().focus();
             let EditorsConfig = window?.TonicsDataTable?.Editors;
             let editorType = event.thElement.dataset?.type.toUpperCase();
             if (EditorsConfig.has(editorType)){
@@ -377,20 +381,30 @@ class BuiltInEditorHandler {
                 let editorsObject = new editorsClass;
                 editorsObject.tdElement = event.getElementTarget();
                 editorsObject.openEditor();
+                event.dataTable.currentEditor = editorsObject;
+                console.log(event)
             }
         }
     }
 
 }
 
-class HandleRowHighlight {
+class CloseEditorHandler {
+
+    constructor(event) {
+        console.log(event.dataTable, event.getElementTarget())
+        if (event.dataTable.currentEditor instanceof DataTableEditorAbstract){
+            let editorsObject = event.dataTable.currentEditor;
+            editorsObject.closeEditor();
+        }
+    }
 
 }
 
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
-    window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(BuiltInEditorHandler);
+    window.TonicsEvent.EventConfig.OnClickEvent.push(CloseEditorHandler);
+    window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 
 // Remove This

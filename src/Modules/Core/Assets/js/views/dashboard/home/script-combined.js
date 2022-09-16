@@ -3609,6 +3609,7 @@ class DataTable {
     parentElement = '';
     scrollToBottomLockPing = 0;
     shiftClick = new Map();
+    currentEditor = null;
 
     constructor($parentElement) {
         this.parentElement = document.querySelector($parentElement)
@@ -3704,6 +3705,10 @@ class DataTable {
 
     getEventDispatcher() {
         return window.TonicsEvent.EventDispatcher;
+    }
+
+    getCurrentEditor() {
+        return this.currentEditor;
     }
 
     /**
@@ -3881,7 +3886,15 @@ class DataTableEditorAbstract {
     }
 
     closeEditor() {
-        return;
+        if (this.hasTdElement && this.tdElement.querySelector('input')){
+            let inputValue = this.tdElement.querySelector('input').value;
+            this.tdElement.querySelector('input').remove();
+            this.tdElement.innerHTML = inputValue;
+        }
+    }
+
+    editorValidation() {
+
     }
 }
 
@@ -3902,6 +3915,10 @@ class DataTabledEditorNumber extends DataTableEditorAbstract{
 
     closeEditor() {
         return super.closeEditor();
+    }
+
+    editorValidation() {
+
     }
 }
 
@@ -3949,12 +3966,11 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 //--- HANDLERS
 //----------------
 
-class BuiltInEditorHandler {
+class OpenEditorHandler {
 
     constructor(event) {
         if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.hasThElement){
-            //event.getElementTarget().setAttribute('contenteditable', 'true');
-            // event.getElementTarget().focus();
+            event.getElementTarget().focus();
             let EditorsConfig = window?.TonicsDataTable?.Editors;
             let editorType = event.thElement.dataset?.type.toUpperCase();
             if (EditorsConfig.has(editorType)){
@@ -3962,23 +3978,30 @@ class BuiltInEditorHandler {
                 let editorsObject = new editorsClass;
                 editorsObject.tdElement = event.getElementTarget();
                 editorsObject.openEditor();
-                console.log(editorsObject)
+                event.dataTable.currentEditor = editorsObject;
+                console.log(event)
             }
-
-           // console.log(event, event.getElementTarget(), event.thElement)
         }
     }
 
 }
 
-class HandleRowHighlight {
+class CloseEditorHandler {
+
+    constructor(event) {
+        console.log(event.dataTable)
+        if (event.dataTable.currentEditor instanceof DataTableEditorAbstract){
+            let editorsObject = event.dataTable.currentEditor;
+            editorsObject.closeEditor();
+        }
+    }
 
 }
 
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
-    window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(BuiltInEditorHandler);
+    window.TonicsEvent.EventConfig.OnClickEvent.push(CloseEditorHandler);
+    window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 
 // Remove This
