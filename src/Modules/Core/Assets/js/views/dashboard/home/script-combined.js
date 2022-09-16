@@ -3692,6 +3692,7 @@ class DataTable {
                 }
             });
         }
+
     }
 
     getEventDispatcher() {
@@ -3751,7 +3752,6 @@ class DataTable {
         }
         trEl.classList.add('highlight');
     }
-
 
     resetShiftClick() {
         this.shiftClick = new Map();
@@ -3894,6 +3894,10 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(BuiltInEditorHandler);
 }
+
+// Remove This
+const dataTable = new DataTable('.dataTable');
+dataTable.boot();
 const dataTable = new DataTable('.dataTable');
 dataTable.boot();
 

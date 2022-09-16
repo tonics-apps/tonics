@@ -23,78 +23,88 @@ class DataTable {
     }
 
     boot() {
-        // For Click Event
-        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-click")) {
-            this.getParentElement().setAttribute('data-event-click', 'true');
-            this.getParentElement().addEventListener('click', (e) => {
-                let el = e.target;
-                let trEl = el.closest('tr');
-                if (e.shiftKey) {
-                    this.resetPreviousTrState()
-                    this.setShiftClick(trEl);
-                    let Click = new OnShiftClickEvent(el, this);
-                    Click.trElement = el.closest('tr');
-                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnShiftClickEvent);
-                    return false;
-                } else if (e.ctrlKey) {
-                    (trEl.classList.contains('highlight')) ? this.unHighlightTr(trEl) : this.highlightTr(trEl);
-                    return false;
-                } else {
-                    // this is a norm mouse click
-                    this.resetPreviousTrState();
-                    this.highlightTr(trEl);
 
-                    // for shift key
-                    this.resetShiftClick();
-                    this.setShiftClick(trEl);
+        if (this.getParentElement()){
+            // For Click Event
+            if (!this.getParentElement().hasAttribute("data-event-click")) {
+                this.getParentElement().setAttribute('data-event-click', 'true');
+                this.getParentElement().addEventListener('click', (e) => {
+                    let el = e.target;
+                    let trEl = el.closest('tr');
+                    if (e.shiftKey) {
+                        this.resetPreviousTrState()
+                        this.setShiftClick(trEl);
+                        let Click = new OnShiftClickEvent(el, this);
+                        Click.trElement = el.closest('tr');
+                        this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnShiftClickEvent);
+                        return false;
+                    } else if (e.ctrlKey) {
+                        (trEl.classList.contains('highlight')) ? this.unHighlightTr(trEl) : this.highlightTr(trEl);
+                        return false;
+                    } else {
+                        // this is a norm mouse click
+                        this.resetPreviousTrState();
+                        this.highlightTr(trEl);
 
-                    let Click = new OnClickEvent(el, this);
-                    Click.trElement = el.closest('tr');
-                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
+                        // for shift key
+                        this.resetShiftClick();
+                        this.setShiftClick(trEl);
 
-                }
-            });
-        }
+                        let Click = new OnClickEvent(el, this);
+                        Click.trElement = el.closest('tr');
+                        this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
 
-        // For Double-Click Event
-        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-dblclick")) {
-            this.getParentElement().setAttribute('data-event-dblclick', 'true');
-            this.getParentElement().addEventListener('dblclick', (e) => {
-                let el = e.target;
-                let OnDoubleClick = new OnDoubleClickEvent(el, this);
-                OnDoubleClick.trElement = el.closest('tr');
-                OnDoubleClick.thElement = this.findCorrespondingTableHeader(el);
-                this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
-            });
-        }
-
-        // For Scroll Bottom
-        if (this.getParentElement() && !this.getParentElement().hasAttribute("data-event-scroll-bottom")) {
-            this.getParentElement().setAttribute('data-event-scroll-bottom', 'true');
-            this.getParentElement().addEventListener('scroll', (e) => {
-                let el = e.target;
-                let scrollDownwards = el.scrollHeight - el.scrollTop;
-                // the 400 gives us time to react quickly that the scroll is almost/at the bottom
-                let clientHeight = el.clientHeight + 500;
-
-                // almost at the bottom
-                if (scrollDownwards < clientHeight) {
-                    ++this.scrollToBottomLockPing;
-                    if (this.scrollToBottomLockPing === 1) {
-                        let OnBeforeScrollBottom = new OnBeforeScrollBottomEvent(el, this);
-                        OnBeforeScrollBottom.trElement = el.closest('tr');
-                        this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeScrollBottom, OnBeforeScrollBottomEvent);
                     }
-                }
+                });
+            }
 
-                // at the bottom
-                if (scrollDownwards === el.clientHeight) {
-                    this.scrollToBottomLockPing = 0; // reset ping
-                    let OnBeforeTonicsFieldSubmit = new OnScrollBottomEvent(el, this);
-                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnScrollBottomEvent);
-                }
-            });
+            // For Double-Click Event
+            if (!this.getParentElement().hasAttribute("data-event-dblclick")) {
+                this.getParentElement().setAttribute('data-event-dblclick', 'true');
+                this.getParentElement().addEventListener('dblclick', (e) => {
+                    let el = e.target;
+                    let OnDoubleClick = new OnDoubleClickEvent(el, this);
+                    OnDoubleClick.trElement = el.closest('tr');
+                    OnDoubleClick.thElement = this.findCorrespondingTableHeader(el);
+                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
+                });
+            }
+
+            // For Scroll Bottom
+            if (!this.getParentElement().hasAttribute("data-event-scroll-bottom")) {
+                this.getParentElement().setAttribute('data-event-scroll-bottom', 'true');
+                this.getParentElement().addEventListener('scroll', (e) => {
+                    let el = e.target;
+                    let scrollDownwards = el.scrollHeight - el.scrollTop;
+                    // the 400 gives us time to react quickly that the scroll is almost/at the bottom
+                    let clientHeight = el.clientHeight + 500;
+
+                    // almost at the bottom
+                    if (scrollDownwards < clientHeight) {
+                        ++this.scrollToBottomLockPing;
+                        if (this.scrollToBottomLockPing === 1) {
+                            let OnBeforeScrollBottom = new OnBeforeScrollBottomEvent(el, this);
+                            OnBeforeScrollBottom.trElement = el.closest('tr');
+                            this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeScrollBottom, OnBeforeScrollBottomEvent);
+                        }
+                    }
+
+                    // at the bottom
+                    if (scrollDownwards === el.clientHeight) {
+                        this.scrollToBottomLockPing = 0; // reset ping
+                        let OnBeforeTonicsFieldSubmit = new OnScrollBottomEvent(el, this);
+                        this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnScrollBottomEvent);
+                    }
+                });
+            }
+
+            // For Keyboard Event When tr is highlighted
+            if (!this.getParentElement().hasAttribute("data-event-keydown")) {
+                this.getParentElement().setAttribute('data-event-keydown', 'true');
+
+            }
         }
+
     }
 
     getEventDispatcher() {
@@ -296,3 +306,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(HandleRowHighlight);
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(BuiltInEditorHandler);
 }
+
+// Remove This
+const dataTable = new DataTable('.dataTable');
+dataTable.boot();
