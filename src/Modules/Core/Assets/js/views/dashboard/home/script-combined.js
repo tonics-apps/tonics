@@ -4231,6 +4231,17 @@ class CancelEventHandler {
     }
 }
 
+class CanActivateSaveEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0){
+            dataTable.activateMenus([dataTable.menuActions().SAVE_EVENT]);
+        } else  {
+            dataTable.deActivateMenus([dataTable.menuActions().SAVE_EVENT]);
+        }
+    }
+}
+
 class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -4250,8 +4261,18 @@ class DeleteEventHandler {
 
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(...[CloseEditorHandler, CanActivateCancelEventHandler, DeleteEventHandler, CancelEventHandler]);
-    window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(CanActivateCancelEventHandler);
+    window.TonicsEvent.EventConfig.OnClickEvent.push(
+        ...[
+            CloseEditorHandler, CanActivateCancelEventHandler,
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler
+        ]
+    );
+    window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
+        ...[
+            CanActivateCancelEventHandler,
+            CanActivateSaveEventHandler
+        ]
+    );
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 
