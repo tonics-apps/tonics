@@ -97,14 +97,12 @@ class DataTable {
                     }
                 });
             }
-
-            // For Keyboard Event When tr is highlighted
-            if (!this.getParentElement().hasAttribute("data-event-keydown")) {
-                this.getParentElement().setAttribute('data-event-keydown', 'true');
-
-            }
         }
 
+    }
+
+    getSelectedTrElement () {
+        return this.getParentElement().querySelector('.highlight');
     }
 
     getEventDispatcher() {
@@ -197,6 +195,9 @@ class DataTable {
     }
 }
 
+//----------------
+//--- ABSTRACT CLASSES
+//----------------
 class DataTableAbstractAndTarget {
 
     hasTrElement = false;
@@ -243,6 +244,51 @@ class DataTableAbstractAndTarget {
         return this._trElement;
     }
 }
+
+class DataTableEditorAbstract {
+
+    hasTdElement = false;
+
+    get tdElement() {
+        return this._tdElement;
+    }
+
+    set tdElement(value) {
+        this.hasTdElement = !!value; // True if value is not empty, otherwise, false
+        this._tdElement = value;
+    }
+
+    editorName() {
+        return 'text';
+    }
+
+    openEditor() {
+        return;
+    }
+
+    closeEditor() {
+        return;
+    }
+}
+
+window.TonicsDataTable = {};
+window.TonicsDataTable.Editors = [];
+
+class DataTabledEditorNumber extends DataTableEditorAbstract{
+    editorName() {
+        return 'number';
+    }
+
+    openEditor() {
+        return super.openEditor();
+    }
+
+    closeEditor() {
+        return super.closeEditor();
+    }
+}
+
+window.TonicsDataTable.Editors.push(...[DataTableEditorAbstract, DataTabledEditorNumber]);
 
 //----------------
 //--- EVENTS
