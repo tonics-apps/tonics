@@ -150,11 +150,21 @@ class DataTable {
     }
 
     activateMenus($listOfMenuToActivate) {
-        let dataTableMenu = document.querySelector('.dataTable-site-footer-nav');
+        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus ');
         $listOfMenuToActivate.forEach(function (value) {
             let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
             if (eventMenu) {
                 eventMenu.closest('.menu-item').classList.remove('deactivate-menu');
+            }
+        });
+    }
+
+    deActivateMenus($listOfMenuToActivate) {
+        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus ');
+        $listOfMenuToActivate.forEach(function (value) {
+            let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
+            if (eventMenu) {
+                eventMenu.closest('.menu-item').classList.add('deactivate-menu');
             }
         });
     }
@@ -573,7 +583,6 @@ class OpenEditorHandler {
             }
         }
     }
-
 }
 
 class CloseEditorHandler {
@@ -587,7 +596,6 @@ class CloseEditorHandler {
                 let trEl = event.dataTable.trElement;
                 if (trEl?.dataset?.list_id){
                     event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
-                    console.log(event.dataTable);
                 }
             }
         }
@@ -595,9 +603,30 @@ class CloseEditorHandler {
 
 }
 
+class CanActivateCancelEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        if (dataTable.editingElements.size > 0){
+            dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
+        } else  {
+            dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
+        }
+    }
+}
+
+class DeleteEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let isDeleteEvent = event.getElementTarget().closest(`[data-menu-action="DeleteEvent"]`);
+        if (isDeleteEvent && dataTable.hasTrElement){
+            dataTable.trElement.classList.add('deleting');
+        }
+    }
+}
+
 // HANDLER AND EVENT SETUP
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(CloseEditorHandler);
+    window.TonicsEvent.EventConfig.OnClickEvent.push(...[CloseEditorHandler, CanActivateCancelEventHandler, DeleteEventHandler]);
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 
