@@ -3610,6 +3610,9 @@ class DataTable {
     scrollToBottomLockPing = 0;
     shiftClick = new Map();
     currentEditor = null;
+    hasThElement = false;
+    hasTdElement = false;
+    hasTrElement = false;
 
     constructor($parentElement) {
         this.parentElement = document.querySelector($parentElement)
@@ -3618,6 +3621,33 @@ class DataTable {
 
     getParentElement() {
         return this.parentElement;
+    }
+
+    get thElement() {
+        return this._thElement;
+    }
+
+    set thElement(value) {
+        this.hasThElement = !!value; // True if value is not empty, otherwise, false
+        this._thElement = value;
+    }
+
+    get tdElement() {
+        return this._trElement;
+    }
+
+    set tdElement(value) {
+        this.hasTdElement = !!value; // True if value is not empty, otherwise, false
+        this._tdElement = value;
+    }
+
+    get trElement() {
+        return this._trElement;
+    }
+
+    set trElement(value) {
+        this.hasTrElement = !!value; // True if value is not empty, otherwise, false
+        this._trElement = value;
     }
 
     boot() {
@@ -3629,6 +3659,8 @@ class DataTable {
                 this.getParentElement().addEventListener('click', (e) => {
                     let el = e.target;
                     let trEl = el.closest('tr');
+                    this.trElement = trEl;
+                    this.tdElement = el.closest('td');
 
                     let isInput = el.closest('input, textarea, select');
                     if (isInput){
@@ -3639,8 +3671,6 @@ class DataTable {
                         this.resetPreviousTrState()
                         this.setShiftClick(trEl);
                         let Click = new OnShiftClickEvent(el, this);
-                        Click.trElement = el.closest('tr');
-                        Click.tdElement = el.closest('td');
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnShiftClickEvent);
                         return false;
                     } else if (e.ctrlKey) {
@@ -3656,8 +3686,6 @@ class DataTable {
                         this.setShiftClick(trEl);
 
                         let Click = new OnClickEvent(el, this);
-                        Click.trElement = el.closest('tr');
-                        Click.tdElement = el.closest('td');
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
 
                     }
@@ -3670,9 +3698,9 @@ class DataTable {
                 this.getParentElement().addEventListener('dblclick', (e) => {
                     let el = e.target;
                     let OnDoubleClick = new OnDoubleClickEvent(el, this);
-                    OnDoubleClick.trElement = el.closest('tr');
-                    OnDoubleClick.tdElement = el.closest('td');
-                    OnDoubleClick.thElement = this.findCorrespondingTableHeader(el);
+                    this.trElement = el.closest('tr');
+                    this.tdElement = el.closest('td');
+                    this.thElement = this.findCorrespondingTableHeader(el);
                     this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
                 });
             }
@@ -3830,24 +3858,6 @@ class DataTableAbstractAndTarget {
         this._dataTable = value;
     }
 
-    get trElement() {
-        return this._trElement;
-    }
-
-    set trElement(value) {
-        this.hasTrElement = !!value; // True if value is not empty, otherwise, false
-        this._trElement = value;
-    }
-
-    get tdElement() {
-        return this._trElement;
-    }
-
-    set tdElement(value) {
-        this.hasTdElement = !!value; // True if value is not empty, otherwise, false
-        this._tdElement = value;
-    }
-
     constructor(target, dataTableClass) {
         this._elementTarget = target;
         this._dataTable = dataTableClass;
@@ -3855,14 +3865,6 @@ class DataTableAbstractAndTarget {
 
     getElementTarget() {
         return this._elementTarget;
-    }
-
-    getDataTable() {
-        return this._dataTable;
-    }
-
-    getTrElement() {
-        return this._trElement;
     }
 }
 
@@ -3892,6 +3894,14 @@ class DataTableEditorAbstract {
     set tdElement(value) {
         this.hasTdElement = !!value; // True if value is not empty, otherwise, false
         this._tdElement = value;
+    }
+
+    get dataTable() {
+        return this._dataTable;
+    }
+
+    set dataTable(value) {
+        this._dataTable = value;
     }
 
     editorName() {
@@ -3944,8 +3954,32 @@ class DataTabledEditorNumber extends DataTableEditorAbstract{
     }
 }
 
+class DataTabledEditorSelect extends DataTableEditorAbstract{
+
+    editorName() {
+        return 'select';
+    }
+
+    openEditor() {
+        if (this.hasTdElement){
+            let tdValue = this.tdElement.dataset.select_data;
+            console.log(tdValue, this);
+           // this.tdElement.innerHTML = this.createInput('number', tdValue).outerHTML;
+        }
+    }
+
+    closeEditor() {
+        // return super.closeEditor();
+    }
+
+    editorValidation() {
+
+    }
+}
+
 window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
 window.TonicsDataTable.Editors.set('NUMBER', DataTabledEditorNumber);
+window.TonicsDataTable.Editors.set('SELECT', DataTabledEditorSelect);
 
 //----------------
 //--- EVENTS
@@ -3968,20 +4002,6 @@ class OnShiftClickEvent extends DataTableAbstractAndTarget {
 
 class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 
-    hasThElement = false;
-
-    get thElement() {
-        return this._thElement;
-    }
-
-    set thElement(value) {
-        this.hasThElement = !!value; // True if value is not empty, otherwise, false
-        this._thElement = value;
-    }
-
-    getThElement() {
-        return this._thElement;
-    }
 }
 
 //----------------
@@ -3991,15 +4011,15 @@ class OnDoubleClickEvent extends DataTableAbstractAndTarget {
 class OpenEditorHandler {
 
     constructor(event) {
-        if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.hasThElement){
+        if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.dataTable.hasThElement){
             event.getElementTarget().focus();
             let EditorsConfig = window?.TonicsDataTable?.Editors;
-            let editorType = event.thElement.dataset?.type.toUpperCase();
+            let editorType = event.dataTable.thElement.dataset?.type.toUpperCase();
             if (EditorsConfig.has(editorType)){
                 let editorsClass = EditorsConfig.get(editorType);
                 let editorsObject = new editorsClass;
-                event.getElementTarget().dataset.hash = (Math.random() * 1e32).toString(36);
                 editorsObject.tdElement = event.getElementTarget();
+                editorsObject.dataTable = event.dataTable;
                 editorsObject.openEditor();
                 event.dataTable.currentEditor = editorsObject;
             }
