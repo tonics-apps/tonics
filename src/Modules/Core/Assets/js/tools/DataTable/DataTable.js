@@ -147,6 +147,44 @@ class DataTable {
         }
     }
 
+    /**
+     * This gets all the column of the current table header
+     * @returns {*[]}
+     */
+    getThElementColumns(thElement = null, trsElements = null, thsElements = null) {
+
+        let ths = thsElements;
+        if (!ths){
+            ths = this.parentElement.getElementsByTagName('th');
+        }
+
+        let trs = trsElements;
+        if (!trs){
+            trs = this.parentElement.getElementsByTagName('tr');
+        }
+
+        let thEl = thElement;
+        if (!thEl){
+            thEl = this.thElement;
+        }
+
+        let thID = null;
+        let columns = [];
+        if (thEl){
+            for (let i=0; i<ths.length; i++){
+                if (ths[i] === thEl){
+                    thID = i; break;
+                }
+            }
+
+            for (let i=0; i<trs.length; i++){
+                columns.push(trs[i].children[thID]);
+            }
+        }
+
+        return columns;
+    }
+
     resetEditingState() {
         this.editingElementsCloneBeforeChanges.clear();
         this.editingElements.clear();
