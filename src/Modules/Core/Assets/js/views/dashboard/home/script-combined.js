@@ -4370,6 +4370,7 @@ class SaveEventHandler {
             headers: [],
             deleteElements: [],
             updateElements: [],
+            lastElement: [],
 
         };
 
@@ -4382,16 +4383,23 @@ class SaveEventHandler {
             });
             saveData.headers = headers;
 
-            if (dataTable.editingElements.size > 0) {
-                dataTable.editingElements.forEach(edit => {
-                    let tdData = [];
-                    for (let i = 0; i < edit.cells.length; i++) {
-                        tdData.push(edit.cells[i]);
-                    }
-                    saveData.updateElements.push(tdData);
-                });
-            }
-            console.log('SaveEvent Triggered', dataTable, saveData);
+            this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements);
+            this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements);
+            this.collateTdFromTrAndSave(dataTable.parentElement.querySelectorAll('tr:last-child'), saveData.lastElement);
+
+            console.log('SaveEvent Triggered', saveData);
+        }
+    }
+
+    collateTdFromTrAndSave(trElements, saveTo) {
+        if (trElements.size > 0) {
+            trElements.forEach(edit => {
+                let tdData = [];
+                for (let i = 0; i < edit.cells.length; i++) {
+                    tdData.push(edit.cells[i].innerHTML);
+                }
+                saveTo.push(tdData);
+            });
         }
     }
 }

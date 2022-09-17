@@ -87,7 +87,7 @@ class DataTable {
                         (trEl.classList.contains('highlight')) ? this.unHighlightTr(trEl) : this.highlightTr(trEl);
                         return false;
                     } else {
-                        if (!el.closest('.dataTable-menus')){
+                        if (!el.closest('.dataTable-menus')) {
                             // this is a norm mouse click
                             this.resetPreviousTrState();
                             this.highlightTr(trEl);
@@ -161,30 +161,31 @@ class DataTable {
     getThElementColumns(thElement = null, trsElements = null, thsElements = null) {
 
         let ths = thsElements;
-        if (!ths){
+        if (!ths) {
             ths = this.parentElement.getElementsByTagName('th');
         }
 
         let trs = trsElements;
-        if (!trs){
+        if (!trs) {
             trs = this.parentElement.getElementsByTagName('tr');
         }
 
         let thEl = thElement;
-        if (!thEl){
+        if (!thEl) {
             thEl = this.thElement;
         }
 
         let thID = null;
         let columns = [];
-        if (thEl){
-            for (let i=0; i<ths.length; i++){
-                if (ths[i] === thEl){
-                    thID = i; break;
+        if (thEl) {
+            for (let i = 0; i < ths.length; i++) {
+                if (ths[i] === thEl) {
+                    thID = i;
+                    break;
                 }
             }
 
-            for (let i=0; i<trs.length; i++){
+            for (let i = 0; i < trs.length; i++) {
                 columns.push(trs[i].children[thID]);
             }
         }
@@ -256,7 +257,7 @@ class DataTable {
         let i;
         let idx = [...tdNode.parentNode.children].indexOf(tdNode); // get td index
 
-        if (tdNode.closest('table')?.tHead){
+        if (tdNode.closest('table')?.tHead) {
             let thCells = tdNode.closest('table').tHead.rows[0].cells, // get all th cells
                 th_colSpan_acc = 0; // accumulator
 
@@ -285,13 +286,13 @@ class DataTable {
     }
 
     resetPreviousTrState() {
-            this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
-                this.unHighlightTr(trEl);
-            });
+        this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
+            this.unHighlightTr(trEl);
+        });
     }
 
     unHighlightTr(trEl) {
-        if (!this.lockedSelection){
+        if (!this.lockedSelection) {
             trEl.classList.remove('highlight');
         }
     }
@@ -672,15 +673,15 @@ class CloseEditorHandler {
                 // For Single Edit
                 currentEditor.tdElement.classList.add('editing');
                 let trEl = event.dataTable.trElement;
-                if (trEl?.dataset?.list_id){
+                if (trEl?.dataset?.list_id) {
                     event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
                 }
 
                 // For Batch Editing
-                if (dataTable.lockedSelection){
-                    let thEl =  dataTable.findCorrespondingTableHeader(currentEditor.tdElement);
+                if (dataTable.lockedSelection) {
+                    let thEl = dataTable.findCorrespondingTableHeader(currentEditor.tdElement);
                     let allTdsElement = dataTable.getThElementColumns(thEl, dataTable.getAllSelectTableRow());
-                    if (allTdsElement.length > 1){
+                    if (allTdsElement.length > 1) {
                         allTdsElement.forEach(td => {
                             let trEl = td.closest('tr');
                             if (dataTable.editingElementsCloneBeforeChanges.has(trEl.dataset.list_id) === false) {
@@ -689,7 +690,7 @@ class CloseEditorHandler {
 
                             td.innerHTML = currentEditor.tdElement.innerHTML;
                             td.classList.add('editing');
-                            if (trEl?.dataset?.list_id){
+                            if (trEl?.dataset?.list_id) {
                                 event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
                             }
                         });
@@ -704,9 +705,9 @@ class CloseEditorHandler {
 class CanActivateCancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0){
+        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0) {
             dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
-        } else  {
+        } else {
             dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
         }
     }
@@ -716,14 +717,14 @@ class CancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
         let isCancelEvent = event.getElementTarget().closest(`[data-menu-action="CancelEvent"]`);
-        if (isCancelEvent){
+        if (isCancelEvent) {
             let allHighlight = dataTable.parentElement.querySelectorAll('.deleting');
             dataTable.deletingElements.clear();
             allHighlight.forEach(toDelete => {
                 toDelete.classList.remove('deleting');
             });
 
-            if (dataTable.editingElementsCloneBeforeChanges.size > 0){
+            if (dataTable.editingElementsCloneBeforeChanges.size > 0) {
                 dataTable.editingElementsCloneBeforeChanges.forEach(editing => {
                     let listID = editing.dataset.list_id;
                     let currentEdit = dataTable.parentElement.querySelector(`[data-list_id="${listID}"]`);
@@ -739,9 +740,9 @@ class CancelEventHandler {
 class CanActivateSaveEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0){
+        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0) {
             dataTable.activateMenus([dataTable.menuActions().SAVE_EVENT]);
-        } else  {
+        } else {
             dataTable.deActivateMenus([dataTable.menuActions().SAVE_EVENT]);
         }
     }
@@ -751,9 +752,9 @@ class MultiEditEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
         let multiEditEvent = event.getElementTarget().closest(`[data-menu-action="MultiEditEvent"]`);
-        if (multiEditEvent){
+        if (multiEditEvent) {
             let lockedSpan = multiEditEvent.querySelector('.multi-edit-locked-mode');
-            if (multiEditEvent.dataset.locked === 'false'){
+            if (multiEditEvent.dataset.locked === 'false') {
                 lockedSpan.innerText = '(Locked)';
                 multiEditEvent.dataset.locked = 'true';
                 dataTable.lockedSelection = true;
@@ -769,21 +770,40 @@ class MultiEditEventHandler {
 class SaveEventHandler {
     constructor(event) {
         let saveData = {
-            headers: null,
-            deleteElements: null,
-            updateElements: null,
+            headers: [],
+            deleteElements: [],
+            updateElements: [],
+            lastElement: [],
 
         };
 
         let dataTable = event.dataTable;
         let saveEvent = event.getElementTarget().closest(`[data-menu-action="SaveEvent"]`);
         let headers = [];
-        if (saveEvent){
+        if (saveEvent) {
             dataTable.getAllThElements().forEach(header => {
                 headers.push(header.dataset?.header_slug)
             });
             saveData.headers = headers;
-            console.log('SaveEvent Triggered', dataTable, saveData);
+
+            this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements);
+            this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements);
+            let lastTr = dataTable.parentElement.querySelectorAll('tbody > tr:last-child');
+            this.collateTdFromTrAndSave(lastTr, saveData.lastElement);
+
+            console.log('SaveEvent Triggered', saveData);
+        }
+    }
+
+    collateTdFromTrAndSave(trElements, saveTo) {
+        if (trElements.size > 0) {
+            trElements.forEach(edit => {
+                let tdData = [];
+                for (let i = 0; i < edit.cells.length; i++) {
+                    tdData.push(edit.cells[i].innerHTML);
+                }
+                saveTo.push(tdData);
+            });
         }
     }
 }
@@ -792,7 +812,7 @@ class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
         let isDeleteEvent = event.getElementTarget().closest(`[data-menu-action="DeleteEvent"]`);
-        if (isDeleteEvent){
+        if (isDeleteEvent) {
             let allHighlight = dataTable.parentElement.querySelectorAll('.highlight');
             allHighlight.forEach(toDelete => {
                 dataTable.deletingElements.set(toDelete.dataset.list_id, toDelete);
