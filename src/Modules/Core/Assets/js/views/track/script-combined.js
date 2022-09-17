@@ -168,14 +168,6 @@ const EventsConfig = {
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
-
-/*
-function HookHandleIntoEvent(event, handler) {
-    EventsConfig.event.push(handler);
-    if (EventsConfig.hasOwnProperty(event)){
-        EventsConfig[event].push(handler);
-    }
-}*/
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 

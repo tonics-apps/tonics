@@ -3614,8 +3614,9 @@ class DataTable {
     hasTdElement = false;
     hasTrElement = false;
 
-    tdElementCloneBeforeOpen = null;
+    tdElementChildBeforeOpen = null;
 
+    editingElementsCloneBeforeChanges = new Map();
     editingElements = new Map();
     deletingElements = new Map();
 
@@ -4171,18 +4172,24 @@ class OnRowMarkForDeletionEvent extends DataTableAbstractAndTarget {
 class OpenEditorHandler {
 
     constructor(event) {
-        if (event.getElementTarget().tagName.toLowerCase() === 'td' && event.dataTable.hasThElement) {
+        let dataTable = event.dataTable;
+        if (event.getElementTarget().tagName.toLowerCase() === 'td' && dataTable.hasThElement) {
             event.getElementTarget().focus();
             let EditorsConfig = window?.TonicsDataTable?.Editors;
-            let editorType = event.dataTable.thElement.dataset?.type.toUpperCase();
+            let editorType = dataTable.thElement.dataset?.type.toUpperCase();
             if (EditorsConfig.has(editorType)) {
                 let editorsClass = EditorsConfig.get(editorType);
                 let editorsObject = new editorsClass;
-                event.dataTable.tdElementChildBeforeOpen = event.getElementTarget().innerHTML
+
+                if (dataTable.hasTrElement && !dataTable.editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id)){
+                    dataTable.editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(true));
+                }
+
+                dataTable.tdElementChildBeforeOpen = event.getElementTarget().innerHTML
                 editorsObject.tdElement = event.getElementTarget();
-                editorsObject.dataTable = event.dataTable;
+                editorsObject.dataTable = dataTable;
                 editorsObject.openEditor();
-                event.dataTable.currentEditor = editorsObject;
+                dataTable.currentEditor = editorsObject;
             }
         }
     }
@@ -4220,6 +4227,7 @@ class CanActivateCancelEventHandler {
 class CancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
+        // console.log(dataTable.editingElementsCloneBeforeChanges);
         let isCancelEvent = event.getElementTarget().closest(`[data-menu-action="CancelEvent"]`);
         if (isCancelEvent){
             let allHighlight = dataTable.parentElement.querySelectorAll('.deleting');
@@ -4227,6 +4235,20 @@ class CancelEventHandler {
             allHighlight.forEach(toDelete => {
                 toDelete.classList.remove('deleting');
             });
+
+            if (dataTable.editingElements.size > 0){
+                dataTable.editingElements.forEach(editing => {
+                    let listID = editing.dataset.list_id;
+                    if (dataTable.editingElementsCloneBeforeChanges.has(listID)){
+                        let cloneEl = dataTable.editingElementsCloneBeforeChanges.get(listID);
+                        editing.replaceWith(cloneEl);
+                    }
+                });
+                dataTable.editingElementsCloneBeforeChanges.clear();
+                dataTable.editingElements.clear();
+                dataTable.deletingElements.clear();
+                console.log(dataTable)
+            }
         }
     }
 }

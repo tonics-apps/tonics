@@ -169,14 +169,6 @@ const EventsConfig = {
 
 window.TonicsEvent.EventConfig = EventsConfig;
 
-/*
-function HookHandleIntoEvent(event, handler) {
-    EventsConfig.event.push(handler);
-    if (EventsConfig.hasOwnProperty(event)){
-        EventsConfig[event].push(handler);
-    }
-}*/
-
 // FOR FEATURED IMAGE
 let featuredMain = document.querySelector('main');
 if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
