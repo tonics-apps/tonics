@@ -192,6 +192,10 @@ class DataTable {
         return columns;
     }
 
+    getAllThElements() {
+        return this.parentElement.querySelector('table > thead > tr').querySelectorAll('th');
+    }
+
     getAllSelectTableRow() {
         return this.parentElement.querySelectorAll('.highlight');
     }
@@ -692,7 +696,6 @@ class CloseEditorHandler {
                     }
                 }
             }
-
         }
     }
 
@@ -763,6 +766,28 @@ class MultiEditEventHandler {
     }
 }
 
+class SaveEventHandler {
+    constructor(event) {
+        let saveData = {
+            headers: null,
+            deleteElements: null,
+            updateElements: null,
+
+        };
+
+        let dataTable = event.dataTable;
+        let saveEvent = event.getElementTarget().closest(`[data-menu-action="SaveEvent"]`);
+        let headers = [];
+        if (saveEvent){
+            dataTable.getAllThElements().forEach(header => {
+                headers.push(header.dataset?.header_slug)
+            });
+            saveData.headers = headers;
+            console.log('SaveEvent Triggered', dataTable, saveData);
+        }
+    }
+}
+
 class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -785,7 +810,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, SaveEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(

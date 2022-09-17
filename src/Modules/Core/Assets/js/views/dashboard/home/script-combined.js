@@ -3789,6 +3789,10 @@ class DataTable {
         return columns;
     }
 
+    getAllThElements() {
+        return this.parentElement.querySelector('table > thead > tr').querySelectorAll('th');
+    }
+
     getAllSelectTableRow() {
         return this.parentElement.querySelectorAll('.highlight');
     }
@@ -4273,7 +4277,6 @@ class CloseEditorHandler {
                 if (dataTable.lockedSelection){
                     let thEl =  dataTable.findCorrespondingTableHeader(currentEditor.tdElement);
                     let allTdsElement = dataTable.getThElementColumns(thEl, dataTable.getAllSelectTableRow());
-                    console.log(allTdsElement, thEl, dataTable.getAllSelectTableRow());
                     if (allTdsElement.length > 1){
                         allTdsElement.forEach(td => {
                             let trEl = td.closest('tr');
@@ -4290,7 +4293,6 @@ class CloseEditorHandler {
                     }
                 }
             }
-
         }
     }
 
@@ -4361,6 +4363,20 @@ class MultiEditEventHandler {
     }
 }
 
+class SaveEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let saveEvent = event.getElementTarget().closest(`[data-menu-action="SaveEvent"]`);
+        let headers = [];
+        if (saveEvent){
+            dataTable.getAllThElements().forEach(header => {
+                headers.push(header.dataset?.header_slug)
+            });
+            console.log('SaveEvent Triggered', dataTable, headers);
+        }
+    }
+}
+
 class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -4383,7 +4399,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, SaveEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
