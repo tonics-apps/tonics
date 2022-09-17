@@ -608,9 +608,27 @@ class OpenEditorHandler {
 class CloseEditorHandler {
 
     constructor(event) {
-        let currentEditor = event.dataTable.currentEditor;
+        let dataTable = event.dataTable;
+        let currentEditor = dataTable.currentEditor;
         if (currentEditor instanceof DataTableEditorAbstract) {
             currentEditor.closeEditor();
+
+            let ths = dataTable.parentElement.getElementsByTagName('th');
+            let trs = dataTable.parentElement.getElementsByTagName('tr');
+            let thID = null;
+            let columns = [];
+            for (let i=0; i<ths.length; i++){
+                if (ths[i] === dataTable.thElement){
+                    thID = i; break;
+                }
+            }
+
+            for (let i=0; i<trs.length; i++){
+                columns.push(trs[i].children[thID]);
+            }
+
+            console.log(dataTable.thElement, thID, columns);
+
             if (currentEditor.hasTdElement && event.dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
                 currentEditor.tdElement.classList.add('editing');
                 let trEl = event.dataTable.trElement;
