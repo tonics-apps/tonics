@@ -148,7 +148,14 @@ class DataTable {
     }
 
     /**
-     * This gets all the column of the current table header
+     * This gets all the column of the current table header,
+     * optionally you can pass the thElement, the trElement and thsElement
+     * @param thElement
+     * The main table header element we are looking for its columns
+     * @param trsElements
+     * The table rows Elements
+     * @param thsElements
+     * The table headers element
      * @returns {*[]}
      */
     getThElementColumns(thElement = null, trsElements = null, thsElements = null) {
