@@ -3744,6 +3744,55 @@ class DataTable {
         }
     }
 
+    /**
+     * This gets all the column of the current table header,
+     * optionally you can pass the thElement, the trElement and thsElement
+     * @param thElement
+     * (optional) The main table header element we are looking for its columns
+     * @param trsElements
+     * (optional) The table rows Elements
+     * @param thsElements
+     * (optional) The table headers element
+     * @returns {*[]}
+     */
+    getThElementColumns(thElement = null, trsElements = null, thsElements = null) {
+
+        let ths = thsElements;
+        if (!ths){
+            ths = this.parentElement.getElementsByTagName('th');
+        }
+
+        let trs = trsElements;
+        if (!trs){
+            trs = this.parentElement.getElementsByTagName('tr');
+        }
+
+        let thEl = thElement;
+        if (!thEl){
+            thEl = this.thElement;
+        }
+
+        let thID = null;
+        let columns = [];
+        if (thEl){
+            for (let i=0; i<ths.length; i++){
+                if (ths[i] === thEl){
+                    thID = i; break;
+                }
+            }
+
+            for (let i=0; i<trs.length; i++){
+                columns.push(trs[i].children[thID]);
+            }
+        }
+
+        return columns;
+    }
+
+    getAllSelectTableRow() {
+        return this.parentElement.querySelectorAll('.highlight');
+    }
+
     resetEditingState() {
         this.editingElementsCloneBeforeChanges.clear();
         this.editingElements.clear();
@@ -4210,29 +4259,33 @@ class CloseEditorHandler {
         if (currentEditor instanceof DataTableEditorAbstract) {
             currentEditor.closeEditor();
 
-            let ths = dataTable.parentElement.getElementsByTagName('th');
-            let trs = dataTable.parentElement.getElementsByTagName('tr');
-            let thID = null;
-            let columns = [];
-            for (let i=0; i<ths.length; i++){
-                if (ths[i] === dataTable.thElement){
-                    thID = i; break;
-                }
-            }
-
-            for (let i=0; i<trs.length; i++){
-                columns.push(trs[i].children[thID]);
-            }
-
-            console.log(dataTable.thElement, thID, columns);
-
             if (currentEditor.hasTdElement && event.dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
+
+                // For Single Edit
                 currentEditor.tdElement.classList.add('editing');
                 let trEl = event.dataTable.trElement;
                 if (trEl?.dataset?.list_id){
                     event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
                 }
+
+                // For Batch Editing
+                if (dataTable.lockedSelection){
+                    let allTdsElement = dataTable.getThElementColumns(dataTable.thElement, dataTable.getAllSelectTableRow());
+                    allTdsElement.forEach(td => {
+                        let trEl = td.closest('tr');
+                        if (dataTable.editingElementsCloneBeforeChanges.has(trEl.dataset.list_id) === false) {
+                            dataTable.editingElementsCloneBeforeChanges.set(trEl.dataset.list_id, trEl.cloneNode(true));
+                        }
+
+                        td.innerHTML = currentEditor.tdElement.innerHTML;
+                        td.classList.add('editing');
+                        if (trEl?.dataset?.list_id){
+                            event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
+                        }
+                    });
+                }
             }
+
         }
     }
 
