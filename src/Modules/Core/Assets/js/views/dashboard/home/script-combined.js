@@ -3797,6 +3797,7 @@ class DataTable {
         this.editingElementsCloneBeforeChanges.clear();
         this.editingElements.clear();
         this.deletingElements.clear();
+        this.tdElementChildBeforeOpen = null;
     }
 
     menuActions() {
@@ -4259,7 +4260,7 @@ class CloseEditorHandler {
         if (currentEditor instanceof DataTableEditorAbstract) {
             currentEditor.closeEditor();
 
-            if (currentEditor.hasTdElement && event.dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
+            if (currentEditor.hasTdElement && dataTable.tdElementChildBeforeOpen && dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
 
                 // For Single Edit
                 currentEditor.tdElement.classList.add('editing');
@@ -4270,7 +4271,9 @@ class CloseEditorHandler {
 
                 // For Batch Editing
                 if (dataTable.lockedSelection){
-                    let allTdsElement = dataTable.getThElementColumns(dataTable.thElement, dataTable.getAllSelectTableRow());
+                    let thEl =  dataTable.findCorrespondingTableHeader(currentEditor.tdElement);
+                    let allTdsElement = dataTable.getThElementColumns(thEl, dataTable.getAllSelectTableRow());
+                    console.log(allTdsElement, thEl, dataTable.getAllSelectTableRow());
                     if (allTdsElement.length > 1){
                         allTdsElement.forEach(td => {
                             let trEl = td.closest('tr');
