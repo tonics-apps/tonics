@@ -676,7 +676,6 @@ class CloseEditorHandler {
                 if (dataTable.lockedSelection){
                     let thEl =  dataTable.findCorrespondingTableHeader(currentEditor.tdElement);
                     let allTdsElement = dataTable.getThElementColumns(thEl, dataTable.getAllSelectTableRow());
-                    console.log(allTdsElement, thEl, dataTable.getAllSelectTableRow());
                     if (allTdsElement.length > 1){
                         allTdsElement.forEach(td => {
                             let trEl = td.closest('tr');
