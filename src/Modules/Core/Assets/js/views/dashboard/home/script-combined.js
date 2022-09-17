@@ -3750,7 +3750,7 @@ class DataTable {
     }
 
     activateMenus($listOfMenuToActivate) {
-        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus ');
+        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
         $listOfMenuToActivate.forEach(function (value) {
             let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
             if (eventMenu) {
@@ -3760,7 +3760,7 @@ class DataTable {
     }
 
     deActivateMenus($listOfMenuToActivate) {
-        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus ');
+        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
         $listOfMenuToActivate.forEach(function (value) {
             let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
             if (eventMenu) {
@@ -4217,7 +4217,7 @@ class CloseEditorHandler {
 class CanActivateCancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0){
+        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0){
             dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
         } else  {
             dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
@@ -4228,7 +4228,6 @@ class CanActivateCancelEventHandler {
 class CancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        // console.log(dataTable.editingElementsCloneBeforeChanges);
         let isCancelEvent = event.getElementTarget().closest(`[data-menu-action="CancelEvent"]`);
         if (isCancelEvent){
             let allHighlight = dataTable.parentElement.querySelectorAll('.deleting');
@@ -4243,12 +4242,11 @@ class CancelEventHandler {
                     let currentEdit = dataTable.parentElement.querySelector(`[data-list_id="${listID}"]`);
                     currentEdit.replaceWith(dataTable.editingElementsCloneBeforeChanges.get(listID));
                 });
-
-                dataTable.editingElementsCloneBeforeChanges.clear();
-                dataTable.editingElements.clear();
-                dataTable.deletingElements.clear();
-                console.log(dataTable)
             }
+
+            dataTable.editingElementsCloneBeforeChanges.clear();
+            dataTable.editingElements.clear();
+            dataTable.deletingElements.clear();
         }
     }
 }
@@ -4256,7 +4254,7 @@ class CancelEventHandler {
 class CanActivateSaveEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0){
+        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0){
             dataTable.activateMenus([dataTable.menuActions().SAVE_EVENT]);
         } else  {
             dataTable.deActivateMenus([dataTable.menuActions().SAVE_EVENT]);
