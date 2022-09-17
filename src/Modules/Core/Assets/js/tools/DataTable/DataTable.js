@@ -674,18 +674,20 @@ class CloseEditorHandler {
                 // For Batch Editing
                 if (dataTable.lockedSelection){
                     let allTdsElement = dataTable.getThElementColumns(dataTable.thElement, dataTable.getAllSelectTableRow());
-                    allTdsElement.forEach(td => {
-                        let trEl = td.closest('tr');
-                        if (dataTable.editingElementsCloneBeforeChanges.has(trEl.dataset.list_id) === false) {
-                            dataTable.editingElementsCloneBeforeChanges.set(trEl.dataset.list_id, trEl.cloneNode(true));
-                        }
+                    if (allTdsElement.length > 1){
+                        allTdsElement.forEach(td => {
+                            let trEl = td.closest('tr');
+                            if (dataTable.editingElementsCloneBeforeChanges.has(trEl.dataset.list_id) === false) {
+                                dataTable.editingElementsCloneBeforeChanges.set(trEl.dataset.list_id, trEl.cloneNode(true));
+                            }
 
-                        td.innerHTML = currentEditor.tdElement.innerHTML;
-                        td.classList.add('editing');
-                        if (trEl?.dataset?.list_id){
-                            event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
-                        }
-                    });
+                            td.innerHTML = currentEditor.tdElement.innerHTML;
+                            td.classList.add('editing');
+                            if (trEl?.dataset?.list_id){
+                                event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
+                            }
+                        });
+                    }
                 }
             }
 
