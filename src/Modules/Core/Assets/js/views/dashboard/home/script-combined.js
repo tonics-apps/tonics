@@ -3692,6 +3692,11 @@ class DataTable {
                             this.setShiftClick(trEl);
                         }
 
+                        // Before Changes
+                        if (this.hasTrElement && !this.editingElementsCloneBeforeChanges.has(this.trElement.dataset.list_id)) {
+                            this.editingElementsCloneBeforeChanges.set(this.trElement.dataset.list_id, this.trElement.cloneNode(true));
+                        }
+
                         let Click = new OnClickEvent(el, this);
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
 
@@ -4173,6 +4178,7 @@ class OpenEditorHandler {
 
     constructor(event) {
         let dataTable = event.dataTable;
+
         if (event.getElementTarget().tagName.toLowerCase() === 'td' && dataTable.hasThElement) {
             event.getElementTarget().focus();
             let EditorsConfig = window?.TonicsDataTable?.Editors;
@@ -4180,11 +4186,6 @@ class OpenEditorHandler {
             if (EditorsConfig.has(editorType)) {
                 let editorsClass = EditorsConfig.get(editorType);
                 let editorsObject = new editorsClass;
-
-                if (dataTable.hasTrElement && !dataTable.editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id)){
-                    dataTable.editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(true));
-                }
-
                 dataTable.tdElementChildBeforeOpen = event.getElementTarget().innerHTML
                 editorsObject.tdElement = event.getElementTarget();
                 editorsObject.dataTable = dataTable;

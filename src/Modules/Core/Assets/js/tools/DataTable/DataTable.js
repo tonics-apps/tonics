@@ -574,8 +574,16 @@ class OnRowMarkForDeletionEvent extends DataTableAbstractAndTarget {
 
 class OpenEditorHandler {
 
+    dataTable = null;
+
     constructor(event) {
-        let dataTable = event.dataTable;
+        let dataTable = event.dataTable,
+            editingElementsCloneBeforeChanges = dataTable.editingElementsCloneBeforeChanges;
+
+        if (dataTable.hasTrElement && !editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id)) {
+            editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(true));
+        }
+
         if (event.getElementTarget().tagName.toLowerCase() === 'td' && dataTable.hasThElement) {
             event.getElementTarget().focus();
             let EditorsConfig = window?.TonicsDataTable?.Editors;
@@ -583,11 +591,6 @@ class OpenEditorHandler {
             if (EditorsConfig.has(editorType)) {
                 let editorsClass = EditorsConfig.get(editorType);
                 let editorsObject = new editorsClass;
-
-                if (dataTable.hasTrElement && !dataTable.editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id)){
-                    dataTable.editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(true));
-                }
-
                 dataTable.tdElementChildBeforeOpen = event.getElementTarget().innerHTML
                 editorsObject.tdElement = event.getElementTarget();
                 editorsObject.dataTable = dataTable;
