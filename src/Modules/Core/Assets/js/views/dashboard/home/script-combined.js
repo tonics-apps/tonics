@@ -3614,7 +3614,7 @@ class DataTable {
     hasTdElement = false;
     hasTrElement = false;
 
-    lockedSelection = true;
+    lockedSelection = false;
 
     tdElementChildBeforeOpen = null;
 
@@ -4266,6 +4266,25 @@ class CanActivateSaveEventHandler {
     }
 }
 
+class MultiEditEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let multiEditEvent = event.getElementTarget().closest(`[data-menu-action="MultiEditEvent"]`);
+        if (multiEditEvent){
+            let lockedSpan = multiEditEvent.querySelector('.multi-edit-locked-mode');
+            if (multiEditEvent.dataset.locked === 'false'){
+                lockedSpan.innerText = '(Locked)';
+                multiEditEvent.dataset.locked = 'true';
+                dataTable.lockedSelection = true;
+            } else {
+                lockedSpan.innerText = '(UnLocked)';
+                multiEditEvent.dataset.locked = 'false';
+                dataTable.lockedSelection = false;
+            }
+        }
+    }
+}
+
 class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -4288,7 +4307,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(

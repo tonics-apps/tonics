@@ -17,6 +17,8 @@ class DataTable {
     hasTdElement = false;
     hasTrElement = false;
 
+    lockedSelection = false;
+
     tdElementChildBeforeOpen = null;
 
     editingElementsCloneBeforeChanges = new Map();
@@ -145,6 +147,12 @@ class DataTable {
         }
     }
 
+    resetEditingState() {
+        this.editingElementsCloneBeforeChanges.clear();
+        this.editingElements.clear();
+        this.deletingElements.clear();
+    }
+
     menuActions() {
         return {
             SAVE_EVENT: "SaveEvent",
@@ -223,17 +231,15 @@ class DataTable {
     }
 
     resetPreviousTrState() {
-        this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
-            this.unHighlightTr(trEl);
-        });
+            this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
+                this.unHighlightTr(trEl);
+            });
     }
 
     unHighlightTr(trEl) {
-        let checkBox = trEl.querySelector('[data-checkbox_select]');
-        if (checkBox) {
-            checkBox.setAttribute('checked', 'false');
+        if (!this.lockedSelection){
+            trEl.classList.remove('highlight');
         }
-        trEl.classList.remove('highlight');
     }
 
     highlightTr(trEl) {
@@ -620,7 +626,7 @@ class CloseEditorHandler {
 class CanActivateCancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0){
+        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0){
             dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
         } else  {
             dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
@@ -631,7 +637,6 @@ class CanActivateCancelEventHandler {
 class CancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        // console.log(dataTable.editingElementsCloneBeforeChanges);
         let isCancelEvent = event.getElementTarget().closest(`[data-menu-action="CancelEvent"]`);
         if (isCancelEvent){
             let allHighlight = dataTable.parentElement.querySelectorAll('.deleting');
@@ -648,9 +653,7 @@ class CancelEventHandler {
                 });
             }
 
-            dataTable.editingElementsCloneBeforeChanges.clear();
-            dataTable.editingElements.clear();
-            dataTable.deletingElements.clear();
+            dataTable.resetEditingState();
         }
     }
 }
@@ -658,10 +661,29 @@ class CancelEventHandler {
 class CanActivateSaveEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0){
+        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0){
             dataTable.activateMenus([dataTable.menuActions().SAVE_EVENT]);
         } else  {
             dataTable.deActivateMenus([dataTable.menuActions().SAVE_EVENT]);
+        }
+    }
+}
+
+class MultiEditEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let multiEditEvent = event.getElementTarget().closest(`[data-menu-action="MultiEditEvent"]`);
+        if (multiEditEvent){
+            let lockedSpan = multiEditEvent.querySelector('.multi-edit-locked-mode');
+            if (multiEditEvent.dataset.locked === 'false'){
+                lockedSpan.innerText = '(Locked)';
+                multiEditEvent.dataset.locked = 'true';
+                dataTable.lockedSelection = true;
+            } else {
+                lockedSpan.innerText = '(UnLocked)';
+                multiEditEvent.dataset.locked = 'false';
+                dataTable.lockedSelection = false;
+            }
         }
     }
 }
@@ -688,7 +710,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
