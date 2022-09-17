@@ -3614,6 +3614,8 @@ class DataTable {
     hasTdElement = false;
     hasTrElement = false;
 
+    lockedSelection = true;
+
     tdElementChildBeforeOpen = null;
 
     editingElementsCloneBeforeChanges = new Map();
@@ -3742,6 +3744,12 @@ class DataTable {
         }
     }
 
+    resetEditingState() {
+        this.editingElementsCloneBeforeChanges.clear();
+        this.editingElements.clear();
+        this.deletingElements.clear();
+    }
+
     menuActions() {
         return {
             SAVE_EVENT: "SaveEvent",
@@ -3820,17 +3828,15 @@ class DataTable {
     }
 
     resetPreviousTrState() {
-        this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
-            this.unHighlightTr(trEl);
-        });
+            this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
+                this.unHighlightTr(trEl);
+            });
     }
 
     unHighlightTr(trEl) {
-        let checkBox = trEl.querySelector('[data-checkbox_select]');
-        if (checkBox) {
-            checkBox.setAttribute('checked', 'false');
+        if (!this.lockedSelection){
+            trEl.classList.remove('highlight');
         }
-        trEl.classList.remove('highlight');
     }
 
     highlightTr(trEl) {
@@ -4244,9 +4250,7 @@ class CancelEventHandler {
                 });
             }
 
-            dataTable.editingElementsCloneBeforeChanges.clear();
-            dataTable.editingElements.clear();
-            dataTable.deletingElements.clear();
+            dataTable.resetEditingState();
         }
     }
 }
