@@ -3692,11 +3692,6 @@ class DataTable {
                             this.setShiftClick(trEl);
                         }
 
-                        // Before Changes
-                        if (this.hasTrElement && !this.editingElementsCloneBeforeChanges.has(this.trElement.dataset.list_id)) {
-                            this.editingElementsCloneBeforeChanges.set(this.trElement.dataset.list_id, this.trElement.cloneNode(true));
-                        }
-
                         let Click = new OnClickEvent(el, this);
                         this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
 
@@ -4176,8 +4171,15 @@ class OnRowMarkForDeletionEvent extends DataTableAbstractAndTarget {
 
 class OpenEditorHandler {
 
+    dataTable = null;
+
     constructor(event) {
-        let dataTable = event.dataTable;
+        let dataTable = event.dataTable,
+            editingElementsCloneBeforeChanges = dataTable.editingElementsCloneBeforeChanges;
+
+        if (dataTable.hasTrElement && !editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id)) {
+            editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(false));
+        }
 
         if (event.getElementTarget().tagName.toLowerCase() === 'td' && dataTable.hasThElement) {
             event.getElementTarget().focus();

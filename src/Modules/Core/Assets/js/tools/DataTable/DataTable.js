@@ -574,13 +574,11 @@ class OnRowMarkForDeletionEvent extends DataTableAbstractAndTarget {
 
 class OpenEditorHandler {
 
-    dataTable = null;
-
     constructor(event) {
         let dataTable = event.dataTable,
             editingElementsCloneBeforeChanges = dataTable.editingElementsCloneBeforeChanges;
 
-        if (dataTable.hasTrElement && !editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id)) {
+        if (dataTable.hasTrElement && editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id) === false) {
             editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(true));
         }
 
