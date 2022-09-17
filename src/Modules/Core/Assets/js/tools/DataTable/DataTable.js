@@ -153,7 +153,7 @@ class DataTable {
     }
 
     activateMenus($listOfMenuToActivate) {
-        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus ');
+        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
         $listOfMenuToActivate.forEach(function (value) {
             let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
             if (eventMenu) {
@@ -163,7 +163,7 @@ class DataTable {
     }
 
     deActivateMenus($listOfMenuToActivate) {
-        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus ');
+        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
         $listOfMenuToActivate.forEach(function (value) {
             let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
             if (eventMenu) {
@@ -640,19 +640,17 @@ class CancelEventHandler {
                 toDelete.classList.remove('deleting');
             });
 
-            if (dataTable.editingElements.size > 0){
-                dataTable.editingElements.forEach(editing => {
+            if (dataTable.editingElementsCloneBeforeChanges.size > 0){
+                dataTable.editingElementsCloneBeforeChanges.forEach(editing => {
                     let listID = editing.dataset.list_id;
-                    if (dataTable.editingElementsCloneBeforeChanges.has(listID)){
-                        let cloneEl = dataTable.editingElementsCloneBeforeChanges.get(listID);
-                        editing.replaceWith(cloneEl);
-                    }
+                    let currentEdit = dataTable.parentElement.querySelector(`[data-list_id="${listID}"]`);
+                    currentEdit.replaceWith(dataTable.editingElementsCloneBeforeChanges.get(listID));
                 });
-                dataTable.editingElementsCloneBeforeChanges.clear();
-                dataTable.editingElements.clear();
-                dataTable.deletingElements.clear();
-                console.log(dataTable)
             }
+
+            dataTable.editingElementsCloneBeforeChanges.clear();
+            dataTable.editingElements.clear();
+            dataTable.deletingElements.clear();
         }
     }
 }

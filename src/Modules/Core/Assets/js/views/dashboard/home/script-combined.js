@@ -4237,14 +4237,13 @@ class CancelEventHandler {
                 toDelete.classList.remove('deleting');
             });
 
-            if (dataTable.editingElements.size > 0){
-                dataTable.editingElements.forEach(editing => {
+            if (dataTable.editingElementsCloneBeforeChanges.size > 0){
+                dataTable.editingElementsCloneBeforeChanges.forEach(editing => {
                     let listID = editing.dataset.list_id;
-                    if (dataTable.editingElementsCloneBeforeChanges.has(listID)){
-                        let cloneEl = dataTable.editingElementsCloneBeforeChanges.get(listID);
-                        editing.replaceWith(cloneEl);
-                    }
+                    let currentEdit = dataTable.parentElement.querySelector(`[data-list_id="${listID}"]`);
+                    currentEdit.replaceWith(dataTable.editingElementsCloneBeforeChanges.get(listID));
                 });
+
                 dataTable.editingElementsCloneBeforeChanges.clear();
                 dataTable.editingElements.clear();
                 dataTable.deletingElements.clear();
