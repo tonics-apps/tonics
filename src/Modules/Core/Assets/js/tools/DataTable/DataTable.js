@@ -354,6 +354,27 @@ class DataTable {
             }
         }
     }
+
+    sendPostRequest(dataToSend = null, onSuccess = null, onError = null) {
+        let defaultHeader = {
+            'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+        };
+
+       new XHRApi({...defaultHeader}).Post(this.getApiEntry(), JSON.stringify(dataToSend), function (err, data) {
+           if (data) {
+               data = JSON.parse(data);
+               if (data.status === 200) {
+                   onSuccess(data);
+               } else {
+                   onError(data);
+               }
+           }
+
+           if (err){
+               onError(err);
+           }
+       });
+    }
 }
 
 //----------------
@@ -824,7 +845,11 @@ class LoadMoreEventHandler {
             }
 
             loadMoreData.type.push(dataTable.apiEvents().LOAD_MORE_EVENT);
-            console.log('Load More Event Triggered', loadMoreData);
+            dataTable.sendPostRequest(JSON.stringify(loadMoreData), (data) => {
+                console.log('an error occured', err)
+            }, (err) => {
+                console.log('an error occured', err)
+            });
         }
     }
 }

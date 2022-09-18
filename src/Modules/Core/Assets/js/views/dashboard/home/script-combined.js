@@ -3951,6 +3951,13 @@ class DataTable {
             }
         }
     }
+
+    sendPostRequest(dataToSend = null) {
+        let defaultHeader = {
+            'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+        };
+       return  new XHRApi({...defaultHeader})
+    }
 }
 
 //----------------
@@ -4421,7 +4428,7 @@ class LoadMoreEventHandler {
             }
 
             loadMoreData.type.push(dataTable.apiEvents().LOAD_MORE_EVENT);
-            console.log('Load More Event Triggered', loadMoreData);
+            console.log('Load More Event Triggered', loadMoreData, dataTable.sendPostRequest());
         }
     }
 }
