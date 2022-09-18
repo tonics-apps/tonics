@@ -668,8 +668,6 @@ class CloseEditorHandler {
         if (currentEditor instanceof DataTableEditorAbstract) {
             currentEditor.closeEditor();
 
-            console.log(dataTable.tdElementChildBeforeOpen, currentEditor.tdElement.innerHTML);
-
             if (currentEditor.hasTdElement && dataTable.tdElementChildBeforeOpen !== null && dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
 
                 // For Single Edit
