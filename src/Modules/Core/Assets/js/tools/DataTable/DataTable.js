@@ -77,7 +77,7 @@ class DataTable {
                     let trEl = el.closest('tr');
                     this.trElement = trEl;
                     this.tdElement = el.closest('td');
-
+                    e.preventDefault();
                     let isInput = el.closest('input, textarea, select');
                     if (isInput) {
                         return false;
@@ -886,6 +886,16 @@ class MultiEditEventHandler {
     }
 }
 
+class FilterEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let FilterEvent = event.getElementTarget().closest(`[data-menu-action="FilterEvent"]`);
+        if (FilterEvent) {
+            console.log('Filter That Shit Brah');
+        }
+    }
+}
+
 class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -911,7 +921,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, LoadMoreEventHandler, SaveEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, FilterEventHandler, MultiEditEventHandler, LoadMoreEventHandler, SaveEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(

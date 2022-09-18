@@ -4486,6 +4486,16 @@ class MultiEditEventHandler {
     }
 }
 
+class FilterEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let FilterEvent = event.getElementTarget().closest(`[data-menu-action="FilterEvent"]`);
+        if (FilterEvent) {
+            console.log('Filter That Shit Brah');
+        }
+    }
+}
+
 class DeleteEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -4511,7 +4521,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, LoadMoreEventHandler, SaveEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, FilterEventHandler, MultiEditEventHandler, LoadMoreEventHandler, SaveEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
