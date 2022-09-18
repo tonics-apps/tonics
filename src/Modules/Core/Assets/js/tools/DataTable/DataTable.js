@@ -77,7 +77,12 @@ class DataTable {
                     let trEl = el.closest('tr');
                     this.trElement = trEl;
                     this.tdElement = el.closest('td');
-                    e.preventDefault();
+
+                    // Form Filter Button
+                    if (el.dataset.menuAction === 'FilterEvent'){
+                        e.preventDefault();
+                    }
+
                     let isInput = el.closest('input, textarea, select');
                     if (isInput) {
                         return false;
@@ -227,6 +232,7 @@ class DataTable {
             SAVE_EVENT: "SaveEvent",
             DELETE_EVENT: "DeleteEvent",
             UPSERT_EVENT: "UpsertEvent",
+            FILTER_EVENT: "FilterEvent",
         }
     }
 
@@ -379,6 +385,33 @@ class DataTable {
                onError(err);
            }
        });
+    }
+
+    getDataTableFormFilterEl() {
+        return this.parentElement.querySelector('.dataTable-Form');
+    }
+
+    getPostData(el) {
+        let elSettings = {};
+        let elements = el.querySelectorAll('input, textarea, select');
+        elements.forEach((inputs) => {
+
+            // collect checkbox
+            if (inputs.type === 'checkbox'){
+                let checkboxName = inputs.name;
+                if (!elSettings.hasOwnProperty(checkboxName)){
+                    elSettings[checkboxName] = [];
+                }
+                if (inputs.checked){
+                    elSettings[checkboxName].push(inputs.value);
+                }
+            }
+
+            if (!elSettings.hasOwnProperty(inputs.name)) {
+                elSettings[inputs.name] = inputs.value;
+            }
+        });
+        return elSettings;
     }
 }
 
@@ -829,6 +862,7 @@ class LoadMoreEventHandler {
             headers: [],
             lastElement: null,
             lastElementDataSet: null,
+            filterOption: null,
             pageSize: 5,
         };
 
@@ -858,6 +892,7 @@ class LoadMoreEventHandler {
             }
 
             loadMoreData.type.push(dataTable.apiEvents().LOAD_MORE_EVENT);
+            loadMoreData.filterOption = dataTable.getPostData(dataTable.getDataTableFormFilterEl());
             dataTable.sendPostRequest(loadMoreData, (data) => {
                 console.log('an error occured', err)
             }, (err) => {
@@ -888,10 +923,29 @@ class MultiEditEventHandler {
 
 class FilterEventHandler {
     constructor(event) {
+
+        let filterData = {
+            type: [],
+            headers: [],
+            filterOption: null,
+            pageSize: 5,
+        };
         let dataTable = event.dataTable;
+
         let FilterEvent = event.getElementTarget().closest(`[data-menu-action="FilterEvent"]`);
         if (FilterEvent) {
-            console.log('Filter That Shit Brah');
+            let dtPageSize = dataTable.parentElement.querySelector('.dataTable-PageSize select');
+            if (dtPageSize){
+                filterData.pageSize = dtPageSize.value;
+            }
+            let headers = [];
+            dataTable.getAllThElements().forEach(header => {
+                headers.push(header.dataset?.header_slug)
+            });
+            filterData.headers = headers;
+            filterData.type.push(dataTable.apiEvents().FILTER_EVENT);
+            filterData.filterOption = dataTable.getPostData(dataTable.getDataTableFormFilterEl());
+            console.log('Filter That Shit Brah', filterData);
         }
     }
 }

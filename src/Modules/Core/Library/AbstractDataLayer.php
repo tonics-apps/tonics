@@ -19,6 +19,7 @@ class AbstractDataLayer
     const DataTableEventTypeSave = 'SaveEvent';
     const DataTableEventTypeDelete = 'DeleteEvent';
     const DataTableEventTypeUpsert = 'UpsertEvent';
+    const DataTableEventTypeFilter = 'FilterEvent';
 
     const DataTableRetrieveLastElement = 'lastElement';
     const DataTableRetrieveLastElementRowDataset = 'lastElementDataSet';
@@ -26,6 +27,7 @@ class AbstractDataLayer
     const DataTableRetrievePageSize = 'pageSize';
     const DataTableRetrieveDeleteElements = 'deleteElements';
     const DataTableRetrieveUpdateElements = 'updateElements';
+    const DataTableRetrieveFilterOption = 'filterOption';
 
     /**
      * Database you wanna Interact With...

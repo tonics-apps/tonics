@@ -104,7 +104,7 @@
 </style>
 <section class="dataTable disable-select owl">
     <div class="search-admin width:100% margin-top:0">
-        <form class="form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
+        <form class="form-and-filter dataTable-Form width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
             <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
                 <input type="search" value="" class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
                 <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-3 toggle-on" aria-label="Collapse child menu" aria-expanded="true">
@@ -125,7 +125,7 @@
                     </label>
 
                     <label for="order_by">Order By
-                        <select class="default-selector border-width:default border:black color:black" name="per_page" id="order_by">
+                        <select class="default-selector border-width:default border:black color:black" name="order_by" id="order_by">
                             <option value="ASC">Ascending</option>
                             <option value="DESC">Descending</option>
                         </select>
@@ -209,7 +209,7 @@
         </form>
     </div>
 
-    <div style="max-height: 600px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
+    <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
         <table style="grid-template-columns: minmax(150px, 1fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) 280px minmax(150px, 1.67fr) minmax(150px, 3.33fr) minmax(150px, 1.67fr);">
             <thead>
             <tr>

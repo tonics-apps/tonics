@@ -29,6 +29,7 @@ use App\Modules\Post\Events\OnPostCreate;
 use App\Modules\Post\Events\OnPostDefaultField;
 use App\Modules\Post\Events\OnPostUpdate;
 use App\Modules\Post\Rules\PostValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 use stdClass;
 
@@ -74,12 +75,24 @@ class PostsController
             getEntityDecodedBagCallable: function ($decodedBag) use(&$entityBag){
             $entityBag = $decodedBag;
         })){
+
+            $filterOption = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveFilterOption, $entityBag);
+            // dd($filterOption);
             // SELECT post_id, post_title
             //  FROM beatonics.tonics_posts
             //WHERE post_id > 4444 ORDER BY post_id FETCH FIRST 10 ROWS ONLY;
             $tbl = Tables::getTable(Tables::POSTS);
             $tblCol = table()->pickTableExcept($tbl, ['field_settings']);
-           // db()->Select($tblCol)->From($tbl)->Where('post_id', '>', 100);
+
+            dd($filterOption, db()->Select($tblCol)->From($tbl)
+                ->when(isset($filterOption['query']) && !empty($filterOption['query']), function (TonicsQuery $db) use ($filterOption) {
+                    $db->WhereLike('post_title', $filterOption['query']);
+                })->when(isset($filterOption['status']), function (TonicsQuery $db) use ($filterOption) {
+                    $db->WhereEquals('post_status', $filterOption['status']);
+                })->when(isset($filterOption['cat[]']) && is_array($filterOption['cat[]']), function (TonicsQuery $db) use ($filterOption) {
+                    $db->WhereIn('cat_id', $filterOption['cat[]']);
+                })
+                ->Where('post_id', '>', 100));
 
             dd(url()->getParams(), $entityBag, $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveLastElementRowDataset, $entityBag));
         }

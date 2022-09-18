@@ -3832,6 +3832,7 @@ class DataTable {
             SAVE_EVENT: "SaveEvent",
             DELETE_EVENT: "DeleteEvent",
             UPSERT_EVENT: "UpsertEvent",
+            FILTER_EVENT: "FilterEvent",
         }
     }
 
@@ -4461,6 +4462,7 @@ class LoadMoreEventHandler {
             headers: [],
             lastElement: null,
             lastElementDataSet: null,
+            filterOption: null,
             pageSize: 5,
         };
 
@@ -4490,6 +4492,7 @@ class LoadMoreEventHandler {
             }
 
             loadMoreData.type.push(dataTable.apiEvents().LOAD_MORE_EVENT);
+            loadMoreData.filterOption = dataTable.getPostData(dataTable.getDataTableFormFilterEl());
             dataTable.sendPostRequest(loadMoreData, (data) => {
                 console.log('an error occured', err)
             }, (err) => {
@@ -4520,10 +4523,29 @@ class MultiEditEventHandler {
 
 class FilterEventHandler {
     constructor(event) {
+
+        let filterData = {
+            type: [],
+            headers: [],
+            filterOption: null,
+            pageSize: 5,
+        };
         let dataTable = event.dataTable;
+
         let FilterEvent = event.getElementTarget().closest(`[data-menu-action="FilterEvent"]`);
         if (FilterEvent) {
-            console.log('Filter That Shit Brah', dataTable.getPostData(dataTable.getDataTableFormFilterEl()));
+            let dtPageSize = dataTable.parentElement.querySelector('.dataTable-PageSize select');
+            if (dtPageSize){
+                filterData.pageSize = dtPageSize.value;
+            }
+            let headers = [];
+            dataTable.getAllThElements().forEach(header => {
+                headers.push(header.dataset?.header_slug)
+            });
+            filterData.headers = headers;
+            filterData.type.push(dataTable.apiEvents().FILTER_EVENT);
+            filterData.filterOption = dataTable.getPostData(dataTable.getDataTableFormFilterEl());
+            console.log('Filter That Shit Brah', filterData);
         }
     }
 }
