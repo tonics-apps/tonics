@@ -784,6 +784,38 @@ class SaveEventHandler {
     }
 }
 
+class LoadMoreEventHandler {
+    constructor(event) {
+
+        let loadMoreData = {
+            headers: [],
+            lastElement: [],
+        };
+
+        let dataTable = event.dataTable;
+        let loadMoreEvent = event.getElementTarget().closest(`[data-menu-action="LoadMoreEvent"]`);
+        if (loadMoreEvent) {
+
+            let headers = [];
+            dataTable.getAllThElements().forEach(header => {
+                headers.push(header.dataset?.header_slug)
+            });
+            loadMoreData.headers = headers;
+
+            let lastTr = dataTable.parentElement.querySelector('tbody > tr:last-child');
+            if (lastTr){
+                let tdData = [];
+                for (let i = 0; i < lastTr.cells.length; i++) {
+                    tdData.push(lastTr.cells[i].innerHTML);
+                }
+                loadMoreData.lastElement.push(tdData);
+            }
+
+            console.log('Load More Event Triggered', loadMoreData);
+        }
+    }
+}
+
 class MultiEditEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -828,7 +860,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, SaveEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, LoadMoreEventHandler, SaveEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
