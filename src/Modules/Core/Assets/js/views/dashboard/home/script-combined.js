@@ -3678,6 +3678,11 @@ class DataTable {
                     this.trElement = trEl;
                     this.tdElement = el.closest('td');
 
+                    // Form Filter Button
+                    if (el.dataset.menuAction === 'FilterEvent'){
+                        e.preventDefault();
+                    }
+
                     let isInput = el.closest('input, textarea, select');
                     if (isInput) {
                         return false;
@@ -3979,6 +3984,33 @@ class DataTable {
                onError(err);
            }
        });
+    }
+
+    getDataTableFormFilterEl() {
+        return this.parentElement.querySelector('.dataTable-Form');
+    }
+
+    getPostData(el) {
+        let elSettings = {};
+        let elements = el.querySelectorAll('input, textarea, select');
+        elements.forEach((inputs) => {
+
+            // collect checkbox
+            if (inputs.type === 'checkbox'){
+                let checkboxName = inputs.name;
+                if (!elSettings.hasOwnProperty(checkboxName)){
+                    elSettings[checkboxName] = [];
+                }
+                if (inputs.checked){
+                    elSettings[checkboxName].push(inputs.value);
+                }
+            }
+
+            if (!elSettings.hasOwnProperty(inputs.name)) {
+                elSettings[inputs.name] = inputs.value;
+            }
+        });
+        return elSettings;
     }
 }
 
@@ -4491,7 +4523,7 @@ class FilterEventHandler {
         let dataTable = event.dataTable;
         let FilterEvent = event.getElementTarget().closest(`[data-menu-action="FilterEvent"]`);
         if (FilterEvent) {
-            console.log('Filter That Shit Brah');
+            console.log('Filter That Shit Brah', dataTable.getPostData(dataTable.getDataTableFormFilterEl()));
         }
     }
 }
