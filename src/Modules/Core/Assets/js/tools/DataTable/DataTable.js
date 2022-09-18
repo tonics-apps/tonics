@@ -10,6 +10,7 @@
 class DataTable {
 
     parentElement = '';
+    apiEntry = '';
     scrollToBottomLockPing = 0;
     shiftClick = new Map();
     currentEditor = null;
@@ -25,13 +26,18 @@ class DataTable {
     editingElements = new Map();
     deletingElements = new Map();
 
-    constructor($parentElement) {
+    constructor($parentElement, apiEntry) {
         this.parentElement = document.querySelector($parentElement)
+        this.apiEntry = apiEntry;
         this.resetListID();
     }
 
     getParentElement() {
         return this.parentElement;
+    }
+
+    getApiEntry() {
+        return this.apiEntry;
     }
 
     get thElement() {
@@ -212,6 +218,15 @@ class DataTable {
         return {
             SAVE_EVENT: "SaveEvent",
             CANCEL_EVENT: "CancelEvent",
+        }
+    }
+
+    apiEvents() {
+        return {
+            LOAD_MORE_EVENT: "LoadMoreEvent",
+            SAVE_EVENT: "SaveEvent",
+            DELETE_EVENT: "DeleteEvent",
+            UPSERT_EVENT: "UpsertEvent",
         }
     }
 
@@ -740,10 +755,10 @@ class CanActivateSaveEventHandler {
 class SaveEventHandler {
     constructor(event) {
         let saveData = {
+            type: [],
             headers: [],
             deleteElements: [],
             updateElements: [],
-            lastElement: [],
 
         };
 
@@ -756,18 +771,14 @@ class SaveEventHandler {
             });
             saveData.headers = headers;
 
-            this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements);
-            this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements);
-            let lastTr = dataTable.parentElement.querySelector('tbody > tr:last-child');
-            if (lastTr){
-                let tdData = [];
-                for (let i = 0; i < lastTr.cells.length; i++) {
-                    tdData.push(lastTr.cells[i].innerHTML);
-                }
-                saveData.lastElement.push(tdData);
+            if (dataTable.deletingElements.size > 0){
+                this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements);
+                saveData.type.push(dataTable.apiEvents().DELETE_EVENT);
+            } else {
+                // in the feature, this can also have the UpsertEvents, etc
+                this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements);
+                saveData.type.push(dataTable.apiEvents().SAVE_EVENT);
             }
-
-            console.log('SaveEvent Triggered', saveData);
         }
     }
 
@@ -788,6 +799,7 @@ class LoadMoreEventHandler {
     constructor(event) {
 
         let loadMoreData = {
+            type: [],
             headers: [],
             lastElement: [],
         };
@@ -811,6 +823,7 @@ class LoadMoreEventHandler {
                 loadMoreData.lastElement.push(tdData);
             }
 
+            loadMoreData.type.push(dataTable.apiEvents().LOAD_MORE_EVENT);
             console.log('Load More Event Triggered', loadMoreData);
         }
     }
