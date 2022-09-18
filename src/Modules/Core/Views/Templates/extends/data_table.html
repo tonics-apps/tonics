@@ -101,15 +101,15 @@
     <table style="grid-template-columns: minmax(150px, 1fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) 280px minmax(150px, 1.67fr) minmax(150px, 3.33fr) minmax(150px, 1.67fr);">
         <thead>
         <tr>
-            [[each("dtHeader in DataTable.Headers")
-                <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.moreDataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
+            [[each("dtHeader in DataTable.headers")
+                <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
             ]]
         </tr>
         </thead>
         <tbody class="max-height:300px overflow-x:auto">
-            [[each("dtRow in DataTable.Headers")
-            <tr>
-                [[each("dtData in dtRow")
+            [[each("dtRow in DataTable.data")
+            <tr [[v('dtRow.dataAttribute')]]>
+                [[each("dtData in dtRow.data")
                 <td tabindex="-1">[[v('dtData')]]</td>
                 ]]
             </tr>
@@ -152,7 +152,7 @@
                     </button>
                 </li>
 
-                <li class="menu-item">
+                <li class="menu-item dataTable-PageSize">
                     <label for="page_size">Page Size
                         <select class="bg:transparent border:none color:black bg:white-one border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" name="per_page" id="page_size">

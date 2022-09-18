@@ -14,6 +14,7 @@ use App\Apps\TonicsToc\Controller\TonicsTocController;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
@@ -61,6 +62,23 @@ class PostsController
             'SiteURL' => AppConfig::getAppUrl(),
             'DefaultCategoriesMetaBox' => $this->getPostData()->categoryCheckBoxListing($categories, url()->getParam('cat') ?? [], type: 'checkbox'),
         ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable()
+    {
+        $entityBag = null;
+        if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeLoadMore,
+            getEntityDecodedBagCallable: function ($decodedBag) use(&$entityBag){
+            $entityBag = $decodedBag;
+        })){
+            dd($entityBag, $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveLastElementRowDataset, $entityBag));
+        }
+
+        $post = db()->Select('*')->From('tonics_posts')->SimplePaginate();
+        dd($post);
     }
 
 

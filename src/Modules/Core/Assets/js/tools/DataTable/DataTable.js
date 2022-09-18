@@ -827,7 +827,9 @@ class LoadMoreEventHandler {
         let loadMoreData = {
             type: [],
             headers: [],
-            lastElement: [],
+            lastElement: null,
+            lastElementDataSet: null,
+            pageSize: 5,
         };
 
         let dataTable = event.dataTable;
@@ -846,11 +848,17 @@ class LoadMoreEventHandler {
                 for (let i = 0; i < lastTr.cells.length; i++) {
                     tdData.push(lastTr.cells[i].innerHTML);
                 }
-                loadMoreData.lastElement.push(tdData);
+                loadMoreData.lastElement = tdData;
+                loadMoreData.lastElementDataSet = lastTr.dataset;
+            }
+
+            let dtPageSize = dataTable.parentElement.querySelector('.dataTable-PageSize select');
+            if (dtPageSize){
+                loadMoreData.pageSize = dtPageSize.value;
             }
 
             loadMoreData.type.push(dataTable.apiEvents().LOAD_MORE_EVENT);
-            dataTable.sendPostRequest(JSON.stringify(loadMoreData), (data) => {
+            dataTable.sendPostRequest(loadMoreData, (data) => {
                 console.log('an error occured', err)
             }, (err) => {
                 console.log('an error occured', err)
@@ -931,5 +939,5 @@ window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
 window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 
 // Remove This
-const dataTable = new DataTable('.dataTable');
+const dataTable = new DataTable('.dataTable', '/admin/posts/data-table');
 dataTable.boot();

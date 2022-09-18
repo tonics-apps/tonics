@@ -15,6 +15,18 @@ use Exception;
 class AbstractDataLayer
 {
 
+    const DataTableEventTypeLoadMore = 'LoadMoreEvent';
+    const DataTableEventTypeSave = 'SaveEvent';
+    const DataTableEventTypeDelete = 'DeleteEvent';
+    const DataTableEventTypeUpsert = 'UpsertEvent';
+
+    const DataTableRetrieveLastElement = 'lastElement';
+    const DataTableRetrieveLastElementRowDataset = 'lastElementDataSet';
+    const DataTableRetrieveHeaders = 'headers';
+    const DataTableRetrievePageSize = 'pageSize';
+    const DataTableRetrieveDeleteElements = 'deleteElements';
+    const DataTableRetrieveUpdateElements = 'updateElements';
+
     /**
      * Database you wanna Interact With...
      * This would by default connect with the db in the config
@@ -253,5 +265,60 @@ SQL, ...$parameter);
                 $onError($e);
             }
         }
+    }
+
+    /**
+     * @param string $type
+     * @param $entityBag
+     * @param $getEntityDecodedBagCallable
+     * @return bool
+     */
+    public function isDataTableType(string $type, $entityBag = null, $getEntityDecodedBagCallable = null): bool
+    {
+        try {
+            if ($entityBag === null){
+                $entityBag = json_decode(request()->getEntityBody());
+            }
+            if (isset($entityBag->type) && is_array($entityBag->type)){
+                if (in_array($type, $entityBag->type, true)) {
+                    if ($getEntityDecodedBagCallable){
+                        $getEntityDecodedBagCallable($entityBag);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception $exception){
+            // log..
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @param string $toRetrieve
+     * @param null $entityBag
+     * @param null $getEntityDecodedBagCallable
+     * @return array
+     */
+    public function retrieveDataFromDataTable(string $toRetrieve, $entityBag = null, $getEntityDecodedBagCallable = null): array
+    {
+        try {
+            if ($entityBag === null){
+                $entityBag = json_decode(request()->getEntityBody());
+            }
+            if ($getEntityDecodedBagCallable){
+                $getEntityDecodedBagCallable($entityBag);
+            }
+            if (isset($entityBag->{$toRetrieve})){
+                return $entityBag->{$toRetrieve};
+            }
+            return [];
+        } catch (Exception $exception){
+            // log..
+        }
+
+        return [];
     }
 }
