@@ -59,13 +59,15 @@ var XHRApi = class {
         onProgress(e);
       });
     }
-    try {
-      this.http.onload = function() {
-        callBack(null, self.http.responseText);
-      };
-    } catch (e) {
-      callBack("Something Went Wrong: " + e.description);
-    }
+    this.getHttp().onreadystatechange = function() {
+      try {
+        self.http.onload = function() {
+          callBack(null, self.http.responseText);
+        };
+      } catch (e) {
+        callBack("Something Went Wrong: " + e.description);
+      }
+    };
   }
   Put(url, data, callBack) {
     this.getHttp().open("PUT", url, true);

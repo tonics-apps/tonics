@@ -1,0 +1,183 @@
+[[hook_into('in_main')
+<style>
+    .disable-select {
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    table {
+        display: grid;
+        border-collapse: collapse;
+        min-width: 100%;
+    }
+
+    thead,
+    tbody,
+    tr {
+        display: contents;
+    }
+
+    th,
+    td {
+        padding: 15px;
+        hyphens: manual;
+        overflow-wrap: break-word;
+        overflow: hidden;
+    }
+
+    th {
+        border-style: solid;
+        outline: 0;
+        font-weight: inherit;
+        text-align: inherit;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 8px 12px;
+        border-width: 0 0 2px 2px;
+        white-space: nowrap;
+        border-color: #dedede;
+        background-color: #f2f2f5;
+        color: black;
+        font-size: 1.15rem;
+    }
+
+    td {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        background: white;
+        color: #3a3636;
+        display: flex;
+        justify-content: flex-start;
+        align-content: center;
+        gap: 1em;
+        align-items: center;
+    }
+
+    tr:nth-child(even) td {
+        background: #fcfcfd;
+    }
+
+    tr.highlight > td {
+        background: #c2dbffa3;
+    }
+
+    tr.deleting > td {
+        background: rgba(210, 18, 18, 0.64) !important;
+    }
+
+    .editing {
+        background: rgba(255, 245, 194, 0.64) !important;
+    }
+
+    .dataTable-menus {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        padding: 10px 5px;
+        background-color: #f2f2f5;
+    }
+
+    nav#dataTable-site-footer-nav > ul {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        gap: 20px;
+        width: 100%;
+        list-style: none;
+    }
+
+    .deactivate-menu {
+        opacity: 50%;
+        pointer-events: none;
+    }
+
+</style>
+<div style=" max-height: 600px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="dataTable disable-select overflow-x:auto">
+    <table style="grid-template-columns: minmax(150px, 1fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) 280px minmax(150px, 1.67fr) minmax(150px, 3.33fr) minmax(150px, 1.67fr);">
+        <thead>
+        <tr>
+            [[each("dtHeader in DataTable.Headers")
+                <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.moreDataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
+            ]]
+        </tr>
+        </thead>
+        <tbody class="max-height:300px overflow-x:auto">
+            [[each("dtRow in DataTable.Headers")
+            <tr>
+                [[each("dtData in dtRow")
+                <td tabindex="-1">[[v('dtData')]]</td>
+                ]]
+            </tr>
+            ]]
+        </tbody>
+    </table>
+    <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
+        <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="LoadMoreEvent" aria-label="Load More">
+            <span>Load More...</span>
+        </button>
+    </div>
+
+    <div class="dataTable-menus position:sticky bottom:0">
+        <nav id="dataTable-site-footer-nav" class="single-nav menu mobile-display-none" role="navigation">
+            <ul data-event-menu="true">
+                <li class="menu-item deactivate-menu">
+                    <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="SaveEvent" aria-label="Save">
+                        <span style="color:#85c12a">✓</span>
+                        <span>Save</span>
+                    </button>
+                </li>
+
+                <li class="menu-item deactivate-menu">
+                    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="CancelEvent" aria-label="Cancel">
+                        ✘
+                        <span>Cancel</span>
+                    </button>
+                </li>
+
+                <li class="menu-item">
+                    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-locked="false" data-menu-action="MultiEditEvent" aria-label="Multi-Edit">
+                        ✏
+                        <span>Multi-Edit
+                            <span class="multi-edit-locked-mode">(UnLocked)</span>
+                        </span>
+                    </button>
+                </li>
+
+                <li class="menu-item">
+                    <label for="page_size">Page Size
+                        <select class="bg:transparent border:none color:black bg:white-one border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" name="per_page" id="page_size">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="200">200</option>
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                            <option value="2000">2000</option>
+                            <option value="5000">5000</option>
+                        </select>
+                    </label>
+                </li>
+
+                <li class="menu-item">
+                    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="DeleteEvent" aria-label="Delete">
+                        <span class="color:red">❌</span>
+                        <span>Delete</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+]]

@@ -3325,13 +3325,15 @@ var XHRApi = class {
         onProgress(e);
       });
     }
-    try {
-      this.http.onload = function() {
-        callBack(null, self2.http.responseText);
-      };
-    } catch (e) {
-      callBack("Something Went Wrong: " + e.description);
-    }
+    this.getHttp().onreadystatechange = function() {
+      try {
+        self2.http.onload = function() {
+          callBack(null, self2.http.responseText);
+        };
+      } catch (e) {
+        callBack("Something Went Wrong: " + e.description);
+      }
+    };
   }
   Put(url, data, callBack) {
     this.getHttp().open("PUT", url, true);
@@ -3413,14 +3415,10 @@ function titleCase(str) {
 __name(titleCase, "titleCase");
 function copyToClipBoard(clip) {
   return new Promise((resolve, reject) => {
-    navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
-      if (result.state == "granted" || result.state == "prompt") {
-        navigator.clipboard.writeText(clip).then(() => {
-          resolve(clip);
-        });
-      }
-    }).catch(() => {
-      reject();
+    navigator.clipboard.writeText(clip).then(() => {
+      resolve(clip);
+    }).catch((e) => {
+      reject(e);
     });
   });
 }
@@ -3471,7 +3469,7 @@ function inputToast(inputTitle, defaultValue = "", type = "text") {
     },
     showCancelButton: true,
     confirmButtonText: "Save",
-    showLoaderOnConfirm: true,
+    backdrop: true,
     allowOutsideClick: () => !import_sweetalert2.default.isLoading(),
     confirmButtonColor: "#0c132c",
     focusConfirm: true,
@@ -3737,6 +3735,10 @@ function storageAvailable(type = "localStorage") {
   }
 }
 __name(storageAvailable, "storageAvailable");
+function isValidTagName(tagName) {
+  return document.createElement(tagName).toString() !== "[object HTMLUnknownElement]";
+}
+__name(isValidTagName, "isValidTagName");
 export {
   activateMenus,
   addHiddenInputToForm,
@@ -3753,6 +3755,7 @@ export {
   getFileExtension,
   infoToast,
   inputToast,
+  isValidTagName,
   loadScriptDynamically,
   promptToast,
   slug,

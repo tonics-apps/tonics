@@ -355,6 +355,11 @@ class DataTable {
         }
     }
 
+    /**
+     * @param dataToSend
+     * @param onSuccess
+     * @param onError
+     */
     sendPostRequest(dataToSend = null, onSuccess = null, onError = null) {
         let defaultHeader = {
             'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
