@@ -4265,7 +4265,9 @@ class CloseEditorHandler {
         if (currentEditor instanceof DataTableEditorAbstract) {
             currentEditor.closeEditor();
 
-            if (currentEditor.hasTdElement && dataTable.tdElementChildBeforeOpen && dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
+            console.log(dataTable.tdElementChildBeforeOpen, currentEditor.tdElement.innerHTML);
+
+            if (currentEditor.hasTdElement && dataTable.tdElementChildBeforeOpen !== null && dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
 
                 // For Single Edit
                 currentEditor.tdElement.classList.add('editing');
@@ -4302,7 +4304,7 @@ class CloseEditorHandler {
 class CanActivateCancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0) {
+        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0) {
             dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
         } else {
             dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
@@ -4337,29 +4339,10 @@ class CancelEventHandler {
 class CanActivateSaveEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if (dataTable.editingElementsCloneBeforeChanges.size > 0 || dataTable.deletingElements.size > 0) {
+        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0) {
             dataTable.activateMenus([dataTable.menuActions().SAVE_EVENT]);
         } else {
             dataTable.deActivateMenus([dataTable.menuActions().SAVE_EVENT]);
-        }
-    }
-}
-
-class MultiEditEventHandler {
-    constructor(event) {
-        let dataTable = event.dataTable;
-        let multiEditEvent = event.getElementTarget().closest(`[data-menu-action="MultiEditEvent"]`);
-        if (multiEditEvent) {
-            let lockedSpan = multiEditEvent.querySelector('.multi-edit-locked-mode');
-            if (multiEditEvent.dataset.locked === 'false') {
-                lockedSpan.innerText = '(Locked)';
-                multiEditEvent.dataset.locked = 'true';
-                dataTable.lockedSelection = true;
-            } else {
-                lockedSpan.innerText = '(UnLocked)';
-                multiEditEvent.dataset.locked = 'false';
-                dataTable.lockedSelection = false;
-            }
         }
     }
 }
@@ -4385,7 +4368,14 @@ class SaveEventHandler {
 
             this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements);
             this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements);
-            this.collateTdFromTrAndSave(dataTable.parentElement.querySelectorAll('tr:last-child'), saveData.lastElement);
+            let lastTr = dataTable.parentElement.querySelector('tbody > tr:last-child');
+            if (lastTr){
+                let tdData = [];
+                for (let i = 0; i < lastTr.cells.length; i++) {
+                    tdData.push(lastTr.cells[i].innerHTML);
+                }
+                saveData.lastElement.push(tdData);
+            }
 
             console.log('SaveEvent Triggered', saveData);
         }
@@ -4400,6 +4390,25 @@ class SaveEventHandler {
                 }
                 saveTo.push(tdData);
             });
+        }
+    }
+}
+
+class MultiEditEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        let multiEditEvent = event.getElementTarget().closest(`[data-menu-action="MultiEditEvent"]`);
+        if (multiEditEvent) {
+            let lockedSpan = multiEditEvent.querySelector('.multi-edit-locked-mode');
+            if (multiEditEvent.dataset.locked === 'false') {
+                lockedSpan.innerText = '(Locked)';
+                multiEditEvent.dataset.locked = 'true';
+                dataTable.lockedSelection = true;
+            } else {
+                lockedSpan.innerText = '(UnLocked)';
+                multiEditEvent.dataset.locked = 'false';
+                dataTable.lockedSelection = false;
+            }
         }
     }
 }
