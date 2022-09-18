@@ -312,7 +312,7 @@ SQL, ...$parameter);
                 $getEntityDecodedBagCallable($entityBag);
             }
             if (isset($entityBag->{$toRetrieve})){
-                return $entityBag->{$toRetrieve};
+                return (array)$entityBag->{$toRetrieve};
             }
             return [];
         } catch (Exception $exception){

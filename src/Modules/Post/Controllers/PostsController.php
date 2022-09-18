@@ -74,7 +74,14 @@ class PostsController
             getEntityDecodedBagCallable: function ($decodedBag) use(&$entityBag){
             $entityBag = $decodedBag;
         })){
-            dd($entityBag, $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveLastElementRowDataset, $entityBag));
+            // SELECT post_id, post_title
+            //  FROM beatonics.tonics_posts
+            //WHERE post_id > 4444 ORDER BY post_id FETCH FIRST 10 ROWS ONLY;
+            $tbl = Tables::getTable(Tables::POSTS);
+            $tblCol = table()->pickTableExcept($tbl, ['field_settings']);
+           // db()->Select($tblCol)->From($tbl)->Where('post_id', '>', 100);
+
+            dd(url()->getParams(), $entityBag, $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveLastElementRowDataset, $entityBag));
         }
 
         $post = db()->Select('*')->From('tonics_posts')->SimplePaginate();
