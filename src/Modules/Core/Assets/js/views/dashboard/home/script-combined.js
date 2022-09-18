@@ -4037,8 +4037,6 @@ class DataTableEditorAbstract {
 //----------------------
 //--- BUILT-IN EDITORS
 //----------------------
-window.TonicsDataTable = {};
-window.TonicsDataTable.Editors = new Map();
 
 class DataTabledEditorNumber extends DataTableEditorAbstract {
     editorName() {
@@ -4189,15 +4187,6 @@ class DataTabledEditorSelect extends DataTableEditorAbstract {
 
     }
 }
-
-window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
-window.TonicsDataTable.Editors.set('NUMBER', DataTabledEditorNumber);
-window.TonicsDataTable.Editors.set('SELECT', DataTabledEditorSelect);
-window.TonicsDataTable.Editors.set('DATE', DataTabledEditorDate);
-window.TonicsDataTable.Editors.set('DATE_TIME_LOCAL', DataTabledEditorDateLocal);
-window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
-window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
-window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 
 //----------------
 //--- EVENTS
@@ -4428,7 +4417,10 @@ class DeleteEventHandler {
     }
 }
 
-// HANDLER AND EVENT SETUP
+//---------------------------
+//--- HANDLER AND EVENT SETUP
+//---------------------------
+
 if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
@@ -4444,6 +4436,21 @@ if (window?.TonicsEvent?.EventConfig) {
     );
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
+
+//---------------------------
+//--- Built-In Editor Setup
+//---------------------------
+window.TonicsDataTable = {};
+window.TonicsDataTable.Editors = new Map();
+
+window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
+window.TonicsDataTable.Editors.set('NUMBER', DataTabledEditorNumber);
+window.TonicsDataTable.Editors.set('SELECT', DataTabledEditorSelect);
+window.TonicsDataTable.Editors.set('DATE', DataTabledEditorDate);
+window.TonicsDataTable.Editors.set('DATE_TIME_LOCAL', DataTabledEditorDateLocal);
+window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
+window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
+window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 
 // Remove This
 const dataTable = new DataTable('.dataTable');
