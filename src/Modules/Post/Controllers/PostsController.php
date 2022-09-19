@@ -62,7 +62,7 @@ class PostsController
 
         $categoriesSelectDataAttribute = '';
         foreach ($categories as $category) {
-            $categoriesSelectDataAttribute .= $category->cat_slug . ',';
+            $categoriesSelectDataAttribute .= $category->cat_id . '::' . $category->cat_slug . ',';
         }
 
         $categoriesSelectDataAttribute = rtrim($categoriesSelectDataAttribute, ',');
@@ -77,8 +77,9 @@ class PostsController
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title'], $CatTbl => ['cat_slug']]) . ', ' .
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title']]) . ', CONCAT( cat_id, "::", cat_slug ) as cat_slug , ' .
             table()->pickTable($postTbl, ['updated_at']);
+
 
         $postData = db()->Select($tblCol)
             ->From($postCatTbl)

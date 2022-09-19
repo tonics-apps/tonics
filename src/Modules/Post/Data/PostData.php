@@ -69,14 +69,6 @@ class PostData extends AbstractDataLayer
         ");
     }
 
-    public function getPostStatusHTMLFrag($currentStatus = null): string
-    {
-        $frag = "<option value='0'" . ($currentStatus === 0 ? 'selected' : '') . ">Draft</option>";
-        $frag .= "<option value='1'" . ($currentStatus === 1 ? 'selected' : '') . ">Publish</option>";
-
-        return $frag;
-    }
-
     /**
      * @param null $currentCatData
      * @return string
