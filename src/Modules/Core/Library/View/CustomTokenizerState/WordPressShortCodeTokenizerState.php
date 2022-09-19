@@ -371,7 +371,6 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
                 $tv->addElementInStackOfOpenPosition($children, $key + 1);
             }
         }
-        dd($tv);
     }
 
     private static function closeLastCurrentTokenTagState(TonicsView $tv): void

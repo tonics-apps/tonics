@@ -4545,7 +4545,11 @@ class FilterEventHandler {
             filterData.headers = headers;
             filterData.type.push(dataTable.apiEvents().FILTER_EVENT);
             filterData.filterOption = dataTable.getPostData(dataTable.getDataTableFormFilterEl());
-            console.log('Filter That Shit Brah', filterData);
+            dataTable.sendPostRequest(filterData, (data) => {
+                console.log(data)
+            }, (err) => {
+                console.log('an error occured', err)
+            });
         }
     }
 }

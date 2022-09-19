@@ -122,7 +122,6 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
                 }
             }
         }catch (\Exception $exception){
-            dd($exception);
             // log...
         }
         return '';

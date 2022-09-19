@@ -48,7 +48,7 @@ class Database
 
             $tonicsQueryBuilder = new TonicsQueryBuilder(new PDO($dsn, ($this->User() ?: $User), ($this->Password() ?: $Pass), options: $this->options),
                 new MariaDBTonicsQueryTransformer(),
-                new MariaDBTables(DatabaseConfig::getPrefix()));
+                new MariaDBTables(''));
 
             $q = $tonicsQueryBuilder->getTonicsQuery();
             $t = $tonicsQueryBuilder->getTables();

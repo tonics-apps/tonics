@@ -171,7 +171,7 @@ SQL, ...$params);
                 'track_title',
                 $trackData->getTrackTable(), $noOfTrackPerPage, $customCallable);
         }catch (\Exception $exception){
-            dd($exception->getMessage());
+            // log..
         }
         $trackArray = (isset($tracks->data)) ? $tracks->data : [];
         foreach ($trackArray as $track){

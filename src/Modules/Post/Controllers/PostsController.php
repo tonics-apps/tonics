@@ -72,33 +72,59 @@ class PostsController
     {
         $entityBag = null;
         if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeLoadMore,
-            getEntityDecodedBagCallable: function ($decodedBag) use(&$entityBag){
-            $entityBag = $decodedBag;
-        })){
-
-            $filterOption = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveFilterOption, $entityBag);
-            // dd($filterOption);
-            // SELECT post_id, post_title
-            //  FROM beatonics.tonics_posts
-            //WHERE post_id > 4444 ORDER BY post_id FETCH FIRST 10 ROWS ONLY;
-            $tbl = Tables::getTable(Tables::POSTS);
-            $tblCol = table()->pickTableExcept($tbl, ['field_settings']);
-
-            dd($filterOption, db()->Select($tblCol)->From($tbl)
-                ->when(isset($filterOption['query']) && !empty($filterOption['query']), function (TonicsQuery $db) use ($filterOption) {
-                    $db->WhereLike('post_title', $filterOption['query']);
-                })->when(isset($filterOption['status']), function (TonicsQuery $db) use ($filterOption) {
-                    $db->WhereEquals('post_status', $filterOption['status']);
-                })->when(isset($filterOption['cat[]']) && is_array($filterOption['cat[]']), function (TonicsQuery $db) use ($filterOption) {
-                    $db->WhereIn('cat_id', $filterOption['cat[]']);
-                })
-                ->Where('post_id', '>', 100));
-
-            dd(url()->getParams(), $entityBag, $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveLastElementRowDataset, $entityBag));
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            $loadMoreData = $this->dataTableLoadMoreOrFilterQuery($entityBag);
+            response()->onSuccess($loadMoreData ?? []);
+        } elseif ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeFilter,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            $filterData = $this->dataTableLoadMoreOrFilterQuery($entityBag);
+            response()->onSuccess($filterData ?? []);
         }
+    }
 
-        $post = db()->Select('*')->From('tonics_posts')->SimplePaginate();
-        dd($post);
+    /**
+     * @param $entityBag
+     * @return array|bool
+     * @throws \Exception
+     */
+    private function dataTableLoadMoreOrFilterQuery($entityBag): bool|array
+    {
+        $filterOption = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveFilterOption, $entityBag);
+        $lastRowDataSet = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveLastElementRowDataset, $entityBag);
+        $pageSize = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrievePageSize, $entityBag);
+
+        $postTbl = Tables::getTable(Tables::POSTS);
+        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+        $CatTbl = Tables::getTable(Tables::CATEGORIES);
+        $tblCol = table()->except([$postTbl => ['field_settings'], $CatTbl => ['field_settings', 'slug_id', 'created_at', 'updated_at']]);
+        return db()->Select($tblCol)->From($postCatTbl)
+            ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+            ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+            ->when(isset($filterOption['query']) && !empty($filterOption['query']), function (TonicsQuery $db) use ($filterOption) {
+                $db->WhereLike('post_title', $filterOption['query']);
+
+            })->when(isset($filterOption['status']), function (TonicsQuery $db) use ($filterOption) {
+                $db->WhereEquals('post_status', $filterOption['status']);
+
+            })->when((isset($filterOption['cat[]']) && !empty($filterOption['cat[]'])) && is_array($filterOption['cat[]']), function (TonicsQuery $db) use ($filterOption) {
+                $db->WhereIn('cat_id', $filterOption['cat[]']);
+
+            })->when((isset($filterOption['start_date']) && !empty($filterOption['start_date']))
+                && (isset($filterOption['end_date']) && !empty($filterOption['end_date'])),
+
+                function (TonicsQuery $db) use ($postTbl, $filterOption) {
+                    $db->WhereBetween(table()->pickTable($postTbl, ['created_at']), db()->DateFormat($filterOption['start_date']), db()->DateFormat($filterOption['end_date']));
+                })->when(isset($lastRowDataSet['post_id']) && !empty($lastRowDataSet['post_id']), function (TonicsQuery $db) use ($lastRowDataSet, $pageSize, $filterOption) {
+
+                $db->Where('post_id', '>', (int)$lastRowDataSet['post_id'])->OrderBy('post_id')->Take($pageSize[0] ?? AppConfig::getAppPaginationMax());
+            }, function (TonicsQuery $db) use ($postTbl) {
+                $db->OrderByDesc(table()->pickTable($postTbl, ['created_at']))->Take($pageSize[0] ?? AppConfig::getAppPaginationMax());
+
+            })->FetchResult();
     }
 
 
@@ -129,11 +155,11 @@ class PostsController
      */
     #[NoReturn] public function store(): void
     {
-        if (input()->fromPost()->hasValue('created_at') === false){
+        if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
         }
 
-        if (input()->fromPost()->hasValue('post_slug') === false){
+        if (input()->fromPost()->hasValue('post_slug') === false) {
             $_POST['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_title'));
         }
 
@@ -202,7 +228,7 @@ class PostsController
         $fieldSettings = json_decode($post->field_settings, true);
         $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
 
-        if (empty($fieldSettings)){
+        if (empty($fieldSettings)) {
             $fieldSettings = (array)$post;
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$post];
@@ -230,7 +256,7 @@ class PostsController
         $this->postData->setDefaultPostCategoryIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(),  input()->fromPost()->all());
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('posts.edit', [$slug]));
         }
 
@@ -311,9 +337,9 @@ class PostsController
             $this->getPostData()->deleteWithCondition(whereCondition: "post_slug = ?", parameter: [$slug], table: $this->getPostData()->getPostTable());
             session()->flash(['Post Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.index'));
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $errorCode = $e->getCode();
-            switch ($errorCode){
+            switch ($errorCode) {
                 default:
                     session()->flash(['Failed To Delete Post']);
                     break;
@@ -327,7 +353,7 @@ class PostsController
      */
     public function deleteMultiple()
     {
-        if (!input()->fromPost()->hasValue('itemsToDelete')){
+        if (!input()->fromPost()->hasValue('itemsToDelete')) {
             session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
             redirect(route('posts.index'));
         }
@@ -336,13 +362,13 @@ class PostsController
             $this->getPostData()->getPostTable(),
             array_flip($this->getPostData()->getPostColumns()),
             'post_id',
-            onSuccess: function (){
+            onSuccess: function () {
                 session()->flash(['Post Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
                 redirect(route('posts.index'));
             },
-            onError: function ($e){
+            onError: function ($e) {
                 $errorCode = $e->getCode();
-                switch ($errorCode){
+                switch ($errorCode) {
                     default:
                         session()->flash(['Failed To Delete Post']);
                         break;
@@ -359,17 +385,17 @@ class PostsController
     #[NoReturn] public function redirect($id): void
     {
         $redirection = new CommonResourceRedirection(
-            onSlugIDState: function ($slugID){
+            onSlugIDState: function ($slugID) {
                 $post = $this->getPostData()
                     ->selectWithConditionFromPost(['*'], "slug_id = ?", [$slugID]);
-                if (isset($post->slug_id) && isset($post->post_slug)){
+                if (isset($post->slug_id) && isset($post->post_slug)) {
                     return "/posts/$post->slug_id/$post->post_slug";
                 }
                 return false;
-            }, onSlugState: function ($slug){
+            }, onSlugState: function ($slug) {
             $post = $this->getPostData()
                 ->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
-            if (isset($post->slug_id) && isset($post->post_slug)){
+            if (isset($post->slug_id) && isset($post->post_slug)) {
                 return "/posts/$post->slug_id/$post->post_slug";
             }
             return false;

@@ -89,7 +89,6 @@ class ExpressionTokenizerState extends TonicsTemplateTokenizerStateAbstract
                             $dig2 = $c;
                             if ($tv->charIsAsciiDigit($tv->nextCharHypothetical())){
                                 $dig2 .= self::consumeUntilDigit($tv, false);
-                                dd($dig2);
                                 return false;
                             }
                         }
@@ -115,7 +114,7 @@ class ExpressionTokenizerState extends TonicsTemplateTokenizerStateAbstract
         }
 
         if ($tv->charIsEOF()){
-            dd($tv, self::$stack);
+
         }
     }
 

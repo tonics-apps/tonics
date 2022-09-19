@@ -32,6 +32,6 @@ try {
     AppConfig::initLoaderMinimal()->init();
     AppConfig::initLoaderOthers()->BootDaBoot();
 } catch (Exception $e) {
-    dd($e);
+    // dd($e);
     // log...
 }
