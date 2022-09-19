@@ -3950,12 +3950,15 @@ class DataTable {
                 let firstItem = [...this.shiftClick][0][0],
                     lastItem = [...this.shiftClick][this.shiftClick.size - 1][0],
                     listIDToLoop = [firstItem, lastItem];
-                listIDToLoop.sort();
+                let sortedData = listIDToLoop.sort((a, b) => {
+                    return a.localeCompare(b, undefined, {numeric: true})
+                });
 
                 // loop over the sorted ranges. and highlight 'em
-                for (let i = listIDToLoop[0]; i <= listIDToLoop[1]; i++) {
+                let tBody = this.parentElement.querySelector('tbody');
+                for (let i = parseInt(sortedData[0]); i <= parseInt(sortedData[1]); i++) {
                     // highlight file
-                    let trEl = this.parentElement.querySelector(`[data-list_id="${i}"]`);
+                    let trEl = tBody.querySelector(`[data-list_id="${i}"]`);
                     if (trEl) {
                         this.highlightTr(trEl);
                     }
@@ -4435,11 +4438,11 @@ class SaveEventHandler {
             saveData.headers = headers;
 
             if (dataTable.deletingElements.size > 0){
-                this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements);
+                this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().DELETE_EVENT);
             } else {
                 // in the feature, this can also have the UpsertEvents, etc
-                this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements);
+                this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().SAVE_EVENT);
             }
 
@@ -4454,15 +4457,18 @@ class SaveEventHandler {
         }
     }
 
-    collateTdFromTrAndSave(trElements, saveTo) {
+    collateTdFromTrAndSave(trElements, saveTo, headers) {
         if (trElements.size > 0) {
             trElements.forEach(edit => {
-                let tdData = [];
+                let tdData = {};
                 for (let i = 0; i < edit.cells.length; i++) {
-                    tdData.push(edit.cells[i].innerHTML);
+                    if (headers[i]){
+                        tdData[headers[i]] = edit.cells[i].innerHTML;
+                    }
                 }
                 saveTo.push(tdData);
             });
+            console.log(saveTo);
         }
     }
 }
@@ -4508,7 +4514,7 @@ class DeleteEventHandler {
 //---------------------------
 
 if (window?.TonicsEvent?.EventConfig) {
- /*   window.TonicsEvent.EventConfig.OnClickEvent.push(
+    window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
             CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, SaveEventHandler
@@ -4519,7 +4525,7 @@ if (window?.TonicsEvent?.EventConfig) {
             CanActivateCancelEventHandler,
             CanActivateSaveEventHandler
         ]
-    );*/
+    );
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 

@@ -118,16 +118,18 @@ class PostsController
     /**
      * @throws \Exception
      */
-    public function dataTable()
+    public function dataTable(): void
     {
         $entityBag = null;
         if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
-                dd($entityBag);
             })) {
-            $filterData = $this->dataTableRetrievePostData($entityBag);
-            response()->onSuccess($filterData ?? []);
+            if ($this->deleteMultiple($entityBag)){
+                response()->onSuccess([]);
+            } else {
+                response()->onError(500);
+            }
         }
     }
 
@@ -286,99 +288,22 @@ class PostsController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function trash(string $slug)
+    public function deleteMultiple($entityBag): bool|int
     {
-        $toUpdate = [
-            'post_status' => -1
-        ];
-
-        db()->FastUpdate($this->postData->getPostTable(), $toUpdate, db()->Where('post_slug', '=', $slug));
-        session()->flash(['Post Moved To Trash'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('posts.index'));
-    }
-
-    /**
-     * @throws \Exception
-     */
-    #[NoReturn] public function trashMultiple()
-    {
-        if (!input()->fromPost()->hasValue('itemsToTrash')) {
-            session()->flash(['Nothing To Trash'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('posts.index'));
-        }
-        $itemsToTrash = array_map(function ($item) {
-            $itemCopy = json_decode($item, true);
-            $item = [];
-            foreach ($itemCopy as $k => $v) {
-                if (key_exists($k, array_flip($this->postData->getPostColumns()))) {
-                    $item[$k] = $v;
+        $toDelete = [];
+        try {
+            $deleteItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
+            foreach ($deleteItems as $deleteItem){
+                if (is_object($deleteItem) && property_exists($deleteItem, 'post_id')){
+                    $toDelete[] = $deleteItem->post_id;
                 }
             }
-            $item['post_status'] = '-1';
-            return $item;
-        }, input()->fromPost()->retrieve('itemsToTrash'));
 
-        try {
-            db()->insertOnDuplicate(Tables::getTable(Tables::POSTS), $itemsToTrash, ['post_status']);
-        } catch (\Exception $e) {
-            session()->flash(['Fail To Trash Post Items']);
-            redirect(route('posts.index'));
+            return db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('id', $toDelete));
+        }catch (\Exception $exception){
+            // log..
         }
-        session()->flash(['Posts Trashed'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('posts.index'));
-    }
-
-
-    /**
-     * @param string $slug
-     * @return void
-     * @throws \Exception
-     */
-    public function delete(string $slug)
-    {
-        try {
-            $this->getPostData()->deleteWithCondition(whereCondition: "post_slug = ?", parameter: [$slug], table: $this->getPostData()->getPostTable());
-            session()->flash(['Post Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('posts.index'));
-        } catch (\Exception $e) {
-            $errorCode = $e->getCode();
-            switch ($errorCode) {
-                default:
-                    session()->flash(['Failed To Delete Post']);
-                    break;
-            }
-            redirect(route('posts.index'));
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function deleteMultiple()
-    {
-        if (!input()->fromPost()->hasValue('itemsToDelete')) {
-            session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('posts.index'));
-        }
-
-        $this->getPostData()->deleteMultiple(
-            $this->getPostData()->getPostTable(),
-            array_flip($this->getPostData()->getPostColumns()),
-            'post_id',
-            onSuccess: function () {
-                session()->flash(['Post Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-                redirect(route('posts.index'));
-            },
-            onError: function ($e) {
-                $errorCode = $e->getCode();
-                switch ($errorCode) {
-                    default:
-                        session()->flash(['Failed To Delete Post']);
-                        break;
-                }
-                redirect(route('posts.index'));
-            },
-        );
+        return false;
     }
 
 
