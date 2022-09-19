@@ -184,19 +184,30 @@ class PostsController
 
         $post = $this->postData->createPost(['token']);
 
-        $onBeforePostSave = new OnBeforePostSave($post);
-        event()->dispatch($onBeforePostSave);
-        $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
+        try {
+            db()->beginTransaction();
+            $onBeforePostSave = new OnBeforePostSave($post);
+            event()->dispatch($onBeforePostSave);
+            $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
 
-        if (is_object($postReturning)){
-            $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
+            if (is_object($postReturning)){
+                $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
+            }
+
+            $onPostCreate = new OnPostCreate($postReturning, $this->postData);
+            event()->dispatch($onPostCreate);
+
+            db()->commit();
+
+            session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
+        }catch (\Exception $exception){
+            // log..
+            db()->rollBack();
+            session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
+            redirect(route('posts.create'));
         }
 
-        $onPostCreate = new OnPostCreate($postReturning, $this->postData);
-        event()->dispatch($onPostCreate);
-
-        session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
     }
 
     /**
@@ -296,16 +307,17 @@ class PostsController
             event()->dispatch($onPostUpdate);
 
             db()->commit();
+
+            $slug = $postToUpdate['post_slug'];
+            session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('posts.edit', ['post' => $slug]));
+
         } catch (\Exception $exception){
             db()->rollBack();
             // log..
             session()->flash(['Error Occur Updating Post'], $postToUpdate);
             redirect(route('posts.edit', ['post' => $slug]));
         }
-
-        $slug = $postToUpdate['post_slug'];
-        session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('posts.edit', ['post' => $slug]));
     }
 
     /**
