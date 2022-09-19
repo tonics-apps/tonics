@@ -121,60 +121,15 @@ class PostsController
     public function dataTable()
     {
         $entityBag = null;
-        if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeFilter,
+        if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
+                dd($entityBag);
             })) {
             $filterData = $this->dataTableRetrievePostData($entityBag);
             response()->onSuccess($filterData ?? []);
         }
     }
-
-    /**
-     * @param $entityBag
-     * @return array|bool
-     * @throws \Exception
-     */
-    private function dataTableRetrievePostData($entityBag): bool|array
-    {
-        $filterOption = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveFilterOption, $entityBag);
-        $lastElement = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveLastElement, $entityBag);
-        $pageSize = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrievePageSize, $entityBag);
-
-        $postTbl = Tables::getTable(Tables::POSTS);
-        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-        $CatTbl = Tables::getTable(Tables::CATEGORIES);
-        $tblCol = table()->except([$postTbl => ['field_settings'], $CatTbl => ['field_settings', 'slug_id', 'created_at', 'updated_at']]);
-
-        return db()->Select($tblCol)->From($postCatTbl)
-            ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-            ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-            ->when(isset($filterOption['query']) && !empty($filterOption['query']), function (TonicsQuery $db) use ($filterOption) {
-                $db->WhereLike('post_title', $filterOption['query']);
-
-            })->when(isset($filterOption['status']),
-                function (TonicsQuery $db) use ($filterOption) {
-                    $db->WhereEquals('post_status', $filterOption['status']);
-                }, function (TonicsQuery $db) {
-                    $db->WhereEquals('post_status', 1);
-
-                })->when((isset($filterOption['cat[]']) && !empty($filterOption['cat[]'])) && is_array($filterOption['cat[]']), function (TonicsQuery $db) use ($filterOption) {
-                $db->WhereIn('cat_id', $filterOption['cat[]']);
-
-            })->when((isset($filterOption['start_date']) && !empty($filterOption['start_date']))
-                && (isset($filterOption['end_date']) && !empty($filterOption['end_date'])),
-                function (TonicsQuery $db) use ($postTbl, $filterOption) {
-                    $db->WhereBetween(table()->pickTable($postTbl, ['created_at']), db()->DateFormat($filterOption['start_date']), db()->DateFormat($filterOption['end_date']));
-
-            })->when(isset($lastRowDataSet['post_id']) && !empty($lastRowDataSet['post_id']),
-                function (TonicsQuery $db) use ($lastRowDataSet, $pageSize, $filterOption) {
-                $db->Where('post_id', '>', (int)$lastRowDataSet['post_id'])->OrderBy('post_id')->Take($pageSize[0] ?? AppConfig::getAppPaginationMax());
-            }, function (TonicsQuery $db) use ($postTbl) {
-                $db->OrderByDesc(table()->pickTable($postTbl, ['created_at']))->Take($pageSize[0] ?? AppConfig::getAppPaginationMax());
-
-            })->FetchResult();
-    }
-
 
     /**
      * @throws \ReflectionException

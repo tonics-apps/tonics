@@ -4443,11 +4443,14 @@ class SaveEventHandler {
                 saveData.type.push(dataTable.apiEvents().SAVE_EVENT);
             }
 
-            dataTable.sendPostRequest(saveData, (data) => {
-                console.log('an error occured', data)
-            }, (err) => {
-                console.log('an error occured', err)
+            promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
+                dataTable.sendPostRequest(saveData, (data) => {
+                    console.log('an error occured', data)
+                }, (err) => {
+                    console.log('an error occured', err)
+                });
             });
+
         }
     }
 
@@ -4505,7 +4508,7 @@ class DeleteEventHandler {
 //---------------------------
 
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(
+ /*   window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
             CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, SaveEventHandler
@@ -4516,7 +4519,7 @@ if (window?.TonicsEvent?.EventConfig) {
             CanActivateCancelEventHandler,
             CanActivateSaveEventHandler
         ]
-    );
+    );*/
     window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 

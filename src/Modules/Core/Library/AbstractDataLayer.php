@@ -18,11 +18,7 @@ class AbstractDataLayer
     const DataTableEventTypeSave = 'SaveEvent';
     const DataTableEventTypeDelete = 'DeleteEvent';
     const DataTableEventTypeUpsert = 'UpsertEvent';
-    const DataTableEventTypeFilter = 'FilterEvent';
 
-    const DataTableRetrieveLastElement = 'lastElement';
-    const DataTableRetrieveFirstElement = 'firstElement';
-    const DataTableRetrieveLastElementRowDataset = 'lastElementDataSet';
     const DataTableRetrieveHeaders = 'headers';
     const DataTableRetrievePageSize = 'pageSize';
     const DataTableRetrieveDeleteElements = 'deleteElements';
