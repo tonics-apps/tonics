@@ -65,19 +65,19 @@ class PostsController
             $categoriesSelectDataAttribute .= $category->cat_id . '::' . $category->cat_slug . ',';
         }
 
-        $categoriesSelectDataAttribute = rtrim($categoriesSelectDataAttribute, ',');
-        $dataTableHeaders = [
-            ['type' => '', 'slug' => 'post_id', 'title' => 'Post ID', 'minmax' => '50px, .5fr'],
-            ['type' => 'text', 'slug' => 'post_title', 'title' => 'Title', 'minmax' => '150px, 2fr'],
-            ['type' => 'select', 'slug' => 'cat_slug', 'title' => 'Category', 'dataAttribute' => "data-select_data=$categoriesSelectDataAttribute", 'minmax' => '150px, 1fr'],
-            ['type' => 'date_time_local', 'slug' => 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr'],
-        ];
-
         $postTbl = Tables::getTable(Tables::POSTS);
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title']]) . ', CONCAT( cat_id, "::", cat_slug ) as cat_slug , ' .
+        $categoriesSelectDataAttribute = rtrim($categoriesSelectDataAttribute, ',');
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_id', 'title' => 'Post ID', 'minmax' => '50px, .5fr'],
+            ['type' => 'text', 'slug' => Tables::POSTS . '::' . 'post_title', 'title' => 'Title', 'minmax' => '150px, 2fr'],
+            ['type' => 'select', 'slug' => Tables::POST_CATEGORIES . '::' . 'fk_cat_id', 'title' => 'Category', 'dataAttribute' => "data-select_data=$categoriesSelectDataAttribute", 'minmax' => '150px, 1fr'],
+            ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr'],
+        ];
+
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title']]) . ', CONCAT( cat_id, "::", cat_slug ) as fk_cat_id , ' .
             table()->pickTable($postTbl, ['updated_at']);
 
 
@@ -341,22 +341,57 @@ class PostsController
         return false;
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function updateMultiple($entityBag)
     {
-        $toUpdate = [];
+        $postTable = Tables::getTable(Tables::POSTS);
+        $postCatTable = Tables::getTable(Tables::POST_CATEGORIES);
+        $updateTables = $postTable . ', ' . $postCatTable;
+
+        $toUpdate = []; $affected = 0;
         try {
             $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
             foreach ($updateItems as $updateItem) {
-                if (is_object($updateItem) && property_exists($updateItem, 'post_id')) {
-                    $toUpdate[] = $updateItem->post_id;
+                $db = db()->Update($updateTables);
+                $postUpdate = []; $catUpdate = [];
+                dd($updateItems);
+                foreach ($updateItem as $col => $value){
+                    $tblCol = explode('::', $col) ?? [];
+
+                    # Table and column is invalid, should be in the format table::col
+                    if (count($tblCol) !== 2){
+                        throw new \Exception("Invalid table and column, should be in the format table::col");
+                    }
+
+                    $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
+
+                    if ($tblCol[1] === 'fk_cat_id'){
+                        $value = explode('::', $value);
+                        if (key_exists(0, $value)){
+                            $catUpdate[$setCol] = $value[0];
+                            $db->Set($setCol, $value[0]);
+                        } else {
+                            return false;
+                        }
+                    }else {
+                        $postUpdate[$setCol] = $value;
+                    }
                 }
+                $postID = $postUpdate[table()->getColumn($postTable, 'post_id')];
+                db()->FastUpdate($this->postData->getPostTable(), $postUpdate, db()->Where('post_id', '=', $postID));
+                dd($postUpdate, $catUpdate);
+                $whereJOIN = "WHERE " . table()->getColumn($postTable, 'post_id') . ' = ' . table()->getColumn($postCatTable, 'fk_post_id');
+                $db->addRawString($whereJOIN)->FetchResult();
+                $affected += $db->getRowCount();
             }
 
-            // db()->FastUpdate(Tables::getTable(Tables::POSTS))
-            dd($toUpdate, $updateItems);
 
-            return db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('id', $toUpdate));
+            dd($affected, $db);
+
         } catch (\Exception $exception) {
+            dd($exception, $db);
             // log..
         }
         return false;

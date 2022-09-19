@@ -572,6 +572,15 @@ class DataTabledEditorDateLocal extends DataTableEditorAbstract {
         }
     }
 
+    closeEditor() {
+        if (this.hasTdElement && this.tdElement.querySelector('input')) {
+            let inputValue = this.tdElement.querySelector('input').value;
+            this.tdElement.querySelector('input').remove();
+            this.tdElement.innerHTML = inputValue.replace('T', ' ', inputValue);
+            this.editorElement = null;
+        }
+    }
+
     editorValidation() {
 
     }
@@ -733,12 +742,15 @@ class CloseEditorHandler {
         let currentEditor = dataTable.currentEditor;
         if (currentEditor instanceof DataTableEditorAbstract) {
             currentEditor.closeEditor();
+            let tdElementChildBeforeOpen = null;
+            if (dataTable.hasTdElement){
+                tdElementChildBeforeOpen = dataTable.tdElementChildBeforeOpen;
+            }
 
-            if (currentEditor.hasTdElement && dataTable.tdElementChildBeforeOpen !== null && dataTable.tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
-
+            if (tdElementChildBeforeOpen !== null && tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
                 // For Single Edit
                 currentEditor.tdElement.classList.add('editing');
-                let trEl = event.dataTable.trElement;
+                let trEl = currentEditor.tdElement.closest('tr');
                 if (trEl?.dataset?.list_id) {
                     event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
                 }
@@ -840,6 +852,9 @@ class SaveEventHandler {
                 this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
             }
+
+            console.log(saveData);
+            return;
 
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
                 dataTable.sendPostRequest(saveData, (data) => {
