@@ -108,7 +108,7 @@ class PostsController
         view('Modules::Post/Views/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
-                'postData' => $postData,
+                'postData' => $postData ?? []
             ],
             'SiteURL' => AppConfig::getAppUrl(),
             'DefaultCategoriesMetaBox' => $this->getPostData()->categoryCheckBoxListing($categories_meta, url()->getParam('cat') ?? [], type: 'checkbox'),
