@@ -26,7 +26,7 @@ class DataTable {
     editingElements = new Map();
     deletingElements = new Map();
 
-    constructor($parentElement, apiEntry) {
+    constructor($parentElement, apiEntry = '') {
         this.parentElement = document.querySelector($parentElement)
         this.apiEntry = apiEntry;
         this.resetListID();
@@ -839,6 +839,12 @@ class SaveEventHandler {
                 this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements);
                 saveData.type.push(dataTable.apiEvents().SAVE_EVENT);
             }
+
+            dataTable.sendPostRequest(saveData, (data) => {
+                console.log('an error occured', data)
+            }, (err) => {
+                console.log('an error occured', err)
+            });
         }
     }
 
@@ -850,54 +856,6 @@ class SaveEventHandler {
                     tdData.push(edit.cells[i].innerHTML);
                 }
                 saveTo.push(tdData);
-            });
-        }
-    }
-}
-
-class LoadMoreEventHandler {
-    constructor(event) {
-
-        let loadMoreData = {
-            type: [],
-            headers: [],
-            lastElement: null,
-            lastElementDataSet: null,
-            filterOption: null,
-            pageSize: 5,
-        };
-
-        let dataTable = event.dataTable;
-        let loadMoreEvent = event.getElementTarget().closest(`[data-menu-action="LoadMoreEvent"]`);
-        if (loadMoreEvent) {
-
-            let headers = [];
-            dataTable.getAllThElements().forEach(header => {
-                headers.push(header.dataset?.header_slug)
-            });
-            loadMoreData.headers = headers;
-
-            let lastTr = dataTable.parentElement.querySelector('tbody > tr:last-child');
-            if (lastTr){
-                let tdData = [];
-                for (let i = 0; i < lastTr.cells.length; i++) {
-                    tdData.push(lastTr.cells[i].innerHTML);
-                }
-                loadMoreData.lastElement = tdData;
-                loadMoreData.lastElementDataSet = lastTr.dataset;
-            }
-
-            let dtPageSize = dataTable.parentElement.querySelector('.dataTable-PageSize select');
-            if (dtPageSize){
-                loadMoreData.pageSize = dtPageSize.value;
-            }
-
-            loadMoreData.type.push(dataTable.apiEvents().LOAD_MORE_EVENT);
-            loadMoreData.filterOption = dataTable.getPostData(dataTable.getDataTableFormFilterEl());
-            dataTable.sendPostRequest(loadMoreData, (data) => {
-                console.log('an error occured', err)
-            }, (err) => {
-                console.log('an error occured', err)
             });
         }
     }
@@ -918,39 +876,6 @@ class MultiEditEventHandler {
                 multiEditEvent.dataset.locked = 'false';
                 dataTable.lockedSelection = false;
             }
-        }
-    }
-}
-
-class FilterEventHandler {
-    constructor(event) {
-
-        let filterData = {
-            type: [],
-            headers: [],
-            filterOption: null,
-            pageSize: 5,
-        };
-        let dataTable = event.dataTable;
-
-        let FilterEvent = event.getElementTarget().closest(`[data-menu-action="FilterEvent"]`);
-        if (FilterEvent) {
-            let dtPageSize = dataTable.parentElement.querySelector('.dataTable-PageSize select');
-            if (dtPageSize){
-                filterData.pageSize = dtPageSize.value;
-            }
-            let headers = [];
-            dataTable.getAllThElements().forEach(header => {
-                headers.push(header.dataset?.header_slug)
-            });
-            filterData.headers = headers;
-            filterData.type.push(dataTable.apiEvents().FILTER_EVENT);
-            filterData.filterOption = dataTable.getPostData(dataTable.getDataTableFormFilterEl());
-            dataTable.sendPostRequest(filterData, (data) => {
-                console.log(data)
-            }, (err) => {
-                console.log('an error occured', err)
-            });
         }
     }
 }
@@ -980,7 +905,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, FilterEventHandler, MultiEditEventHandler, LoadMoreEventHandler, SaveEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, SaveEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
@@ -1008,5 +933,5 @@ window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
 window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 
 // Remove This
-const dataTable = new DataTable('.dataTable', '/admin/posts/data-table');
+const dataTable = new DataTable('.dataTable');
 dataTable.boot();
