@@ -3242,6 +3242,9 @@ function getCSRFFromInput(csrfNames) {
   let csrf = "";
   csrfNames.forEach((value, index) => {
     let inputCSRF = document.querySelector(`input[name=${value}]`);
+    if (!inputCSRF) {
+      inputCSRF = document.querySelector(`meta[name=${value}]`);
+    }
     if (inputCSRF) {
       csrf = inputCSRF.value;
     }
@@ -4163,6 +4166,7 @@ class DataTabledEditorDateLocal extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
+            tdValue.replace(' ', 'T');
             this.tdElement.innerHTML = this.createInput('datetime-local', tdValue).outerHTML;
         }
     }

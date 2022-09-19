@@ -563,6 +563,7 @@ class DataTabledEditorDateLocal extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
+            tdValue.replace(' ', 'T');
             this.tdElement.innerHTML = this.createInput('datetime-local', tdValue).outerHTML;
         }
     }
