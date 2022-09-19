@@ -28,7 +28,7 @@ class HandleNewPostToCategoryMapping implements HandlerInterface
          * @var OnPostCreate $event
          */
         $postToCategory = [
-            'fk_cat_id' => input()->fromPost()->retrieve('fk_cat_id', ''),
+            'fk_cat_id' => $event->getPostCatID(),
             'fk_post_id' => $event->getPostID(),
         ];
 

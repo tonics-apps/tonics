@@ -75,6 +75,7 @@ class PostActivator implements ExtensionConfig
                 HandleNewPostSlugIDGeneration::class,
                 HandleNewPostToCategoryMapping::class,
             ],
+
             OnPostUpdate::class => [
                 HandleUpdatePostToCategoryMapping::class,
             ],

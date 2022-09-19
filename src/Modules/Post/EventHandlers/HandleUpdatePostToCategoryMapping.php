@@ -11,6 +11,7 @@
 namespace App\Modules\Post\EventHandlers;
 
 use App\Modules\Post\Events\OnPostCreate;
+use App\Modules\Post\Events\OnPostUpdate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class HandleUpdatePostToCategoryMapping implements HandlerInterface
@@ -18,11 +19,18 @@ class HandleUpdatePostToCategoryMapping implements HandlerInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
         /**
-         * @var OnPostCreate $event
+         * @var OnPostUpdate $event
          */
+        $postToCategoryUpdate = [
+            'fk_cat_id' => $event->getPostCatID(),
+            'fk_post_id' => $event->getPostID(),
+        ];
+
+        db()->FastUpdate($event->getPostData()->getPostToCategoryTable(), $postToCategoryUpdate, db()->Where('fk_post_id', '=', $event->getPostID()));
     }
 }

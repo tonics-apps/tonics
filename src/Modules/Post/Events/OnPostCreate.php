@@ -79,11 +79,6 @@ class OnPostCreate implements EventInterface
         return (property_exists($this->post, 'image_url')) ? $this->post->image_url : '';
     }
 
-    public function getPostContent(): string
-    {
-        return (property_exists($this->post, 'post_content')) ? $this->post->post_content : '';
-    }
-
     public function getPostStatus(): string|int
     {
         return (property_exists($this->post, 'post_status')) ? $this->post->post_status : '';

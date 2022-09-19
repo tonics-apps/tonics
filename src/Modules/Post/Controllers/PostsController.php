@@ -188,6 +188,10 @@ class PostsController
         event()->dispatch($onBeforePostSave);
         $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
 
+        if (is_object($postReturning)){
+            $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
+        }
+
         $onPostCreate = new OnPostCreate($postReturning, $this->postData);
         event()->dispatch($onPostCreate);
 
@@ -238,6 +242,12 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
+        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
+        if (is_array($oldFormInput)) {
+            $oldFormInputFieldSettings = json_decode($oldFormInput['field_settings'], true) ?? [];
+            $fieldSettings = [...$fieldSettings, ...$oldFormInputFieldSettings];
+        }
+
         $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
 
         if (empty($fieldSettings)) {
@@ -276,18 +286,24 @@ class PostsController
         $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
         event()->dispatch(new OnBeforePostSave($postToUpdate));
 
-        db()->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
-        $postToCategoryUpdate = [
-            'fk_cat_id' => input()->fromPost()->retrieve('fk_cat_id', ''),
-            'fk_post_id' => input()->fromPost()->retrieve('post_id', ''),
-        ];
-        db()->FastUpdate($this->postData->getPostToCategoryTable(), $postToCategoryUpdate, db()->Where('fk_post_id', '=', input()->fromPost()->retrieve('post_id')));
+        try {
+            db()->beginTransaction();
+            db()->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
+
+            $postToUpdate['fk_cat_id'] = input()->fromPost()->retrieve('fk_cat_id', '');
+            $postToUpdate['post_id'] = input()->fromPost()->retrieve('post_id', '');
+            $onPostUpdate = new OnPostUpdate((object)$postToUpdate, $this->postData);
+            event()->dispatch($onPostUpdate);
+
+            db()->commit();
+        } catch (\Exception $exception){
+            db()->rollBack();
+            // log..
+            session()->flash(['Error Occur Updating Post'], $postToUpdate);
+            redirect(route('posts.edit', ['post' => $slug]));
+        }
 
         $slug = $postToUpdate['post_slug'];
-        $post = $this->postData->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
-        $onPostUpdate = new OnPostUpdate($post, $this->postData);
-        event()->dispatch($onPostUpdate);
-
         session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
         redirect(route('posts.edit', ['post' => $slug]));
     }
