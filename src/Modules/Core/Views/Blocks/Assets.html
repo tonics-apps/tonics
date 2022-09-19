@@ -187,19 +187,20 @@
 
 [[b('script:post-index')
     [[combine('MODULE::/Core/Assets/js/views/post/index/script-combined.js',
+        'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
+        'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
+        'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
+
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
+        'MODULE::/Core/Assets/js/tools/DataTable/DataTable.js',
 
         'MODULE::/Core/Assets/js/views/post/index/main.js',
         'MODULE::/Core/Assets/js/tools/FormFilter.js',
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedLink.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
-        'MODULE::/Core/Assets/js/tools/DeleteTrashPromptOnButtonSubmit.js',
-        'MODULE::/Core/Assets/js/tools/ItemSelection.js',
-        'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
-        'MODULE::/Core/Assets/js/tools/AdminSelectUtilities.js',
     )]]
 <script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/index/script-combined.js"></script>
 ]]

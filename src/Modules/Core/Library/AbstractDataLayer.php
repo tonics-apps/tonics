@@ -15,13 +15,13 @@ use Exception;
 class AbstractDataLayer
 {
 
-    const DataTableEventTypeLoadMore = 'LoadMoreEvent';
     const DataTableEventTypeSave = 'SaveEvent';
     const DataTableEventTypeDelete = 'DeleteEvent';
     const DataTableEventTypeUpsert = 'UpsertEvent';
     const DataTableEventTypeFilter = 'FilterEvent';
 
     const DataTableRetrieveLastElement = 'lastElement';
+    const DataTableRetrieveFirstElement = 'firstElement';
     const DataTableRetrieveLastElementRowDataset = 'lastElementDataSet';
     const DataTableRetrieveHeaders = 'headers';
     const DataTableRetrievePageSize = 'pageSize';
@@ -281,6 +281,7 @@ SQL, ...$parameter);
             if ($entityBag === null){
                 $entityBag = json_decode(request()->getEntityBody());
             }
+
             if (isset($entityBag->type) && is_array($entityBag->type)){
                 if (in_array($type, $entityBag->type, true)) {
                     if ($getEntityDecodedBagCallable){

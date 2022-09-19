@@ -97,87 +97,112 @@
     }
 
 </style>
-<div style=" max-height: 600px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="dataTable disable-select overflow-x:auto">
-    <table style="grid-template-columns: minmax(150px, 1fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) minmax(150px, 1.67fr) 280px minmax(150px, 1.67fr) minmax(150px, 3.33fr) minmax(150px, 1.67fr);">
+<section class="dataTable disable-select owl">
+    <div class="search-admin width:100% margin-top:0">
+        <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
+            <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
+                <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+                <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-3">
+                    <svg class="icon:admin tonics-filter"><use xlink:href="#tonics-filter"></use></svg>
+                    Filter Options
+                </button>
+            </div>
+            <div class="d:none overflow:auto filter-container border-width:default border:black color:black padding:small flex-d:column flex-wrap:wrap d:flex flex-gap">
+
+                <div class="form-group d:flex flex-gap align-items:flex-end flex-wrap:wrap">
+                    [[add_hook('in_main_form_and_filter_status')]]
+                </div>
+
+                <div class="filter-option-date-between">
+                    <label>Start Date
+                        <input value="[[string_str_replace(' ', 'T', 'v[URL.PARAMS.start_date]')]]" class="border-width:default border:black color:black" type="datetime-local" name="start_date">
+                    </label>
+                    <label>End Date
+                        <input value="[[string_str_replace(' ', 'T', 'v[URL.PARAMS.end_date]')]]"  class="border-width:default border:black color:black" type="datetime-local" name="end_date">
+                    </label>
+                </div>
+                [[add_hook('after_in_main_form_and_filter_date')]]
+
+                <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);"
+                        class="text-align:center bg:pure-white border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-2">
+                    Filter
+                </button>
+            </div>
+        </form>
+    </div>
+    [[add_hook('after_in_main_form_and_filter')]]
+    <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
+        <table id="dt" style="grid-template-columns: [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]])]];">
         <thead>
         <tr>
             [[each("dtHeader in DataTable.headers")
-                <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
+            <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
             ]]
         </tr>
-        </thead>
-        <tbody class="max-height:300px overflow-x:auto">
-            [[each("dtRow in DataTable.data")
-            <tr [[v('dtRow.dataAttribute')]]>
-                [[each("dtData in dtRow.data")
-                <td tabindex="-1">[[v('dtData')]]</td>
+            </thead>
+            <tbody class="max-height:300px overflow-x:auto">
+                [[each("dtRow in DataTable.postData.data")
+                <tr>
+                    [[each("dtData in dtRow")
+                    <td tabindex="-1">[[v('dtData')]]</td>
+                    ]]
+                </tr>
                 ]]
-            </tr>
-            ]]
-        </tbody>
-    </table>
-    <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
-        <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:default
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="LoadMoreEvent" aria-label="Load More">
-            <span>Load More...</span>
-        </button>
-    </div>
+            </tbody>
+        </table>
+        <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
+            <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
+                [[each("numberLinks in DataTable.postData.number_links")
+                <li class="d:flex">
+                    <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
+                                    [[if('v[numberLinks.current] === bool[false]') color:black ]]
+                                    [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
+                                    flex-gap:small text-align:center bg:transparent border:none border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('numberLinks.link')]]#dt">[[v('numberLinks.number')]]</a>
+                </li>
+                ]]
+            </ul>
+        </div>
 
-    <div class="dataTable-menus position:sticky bottom:0">
-        <nav id="dataTable-site-footer-nav" class="single-nav menu mobile-display-none" role="navigation">
-            <ul data-event-menu="true">
-                <li class="menu-item deactivate-menu">
-                    <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+        <div class="dataTable-menus position:sticky bottom:0">
+            <nav id="dataTable-site-footer-nav" class="single-nav menu mobile-display-none" role="navigation">
+                <ul data-event-menu="true">
+                    <li class="menu-item deactivate-menu">
+                        <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="SaveEvent" aria-label="Save">
-                        <span style="color:#85c12a">✓</span>
-                        <span>Save</span>
-                    </button>
-                </li>
+                            <span style="color:#85c12a">✓</span>
+                            <span>Save</span>
+                        </button>
+                    </li>
 
-                <li class="menu-item deactivate-menu">
-                    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                    <li class="menu-item deactivate-menu">
+                        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="CancelEvent" aria-label="Cancel">
-                        ✘
-                        <span>Cancel</span>
-                    </button>
-                </li>
+                            ✘
+                            <span>Cancel</span>
+                        </button>
+                    </li>
 
-                <li class="menu-item">
-                    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                    <li class="menu-item">
+                        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" data-locked="false" data-menu-action="MultiEditEvent" aria-label="Multi-Edit">
-                        ✏
-                        <span>Multi-Edit
+                            ✏
+                            <span>Multi-Edit
                             <span class="multi-edit-locked-mode">(UnLocked)</span>
                         </span>
-                    </button>
-                </li>
+                        </button>
+                    </li>
 
-                <li class="menu-item dataTable-PageSize">
-                    <label for="page_size">Page Size
-                        <select class="bg:transparent border:none color:black bg:white-one border:black padding:small
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" name="per_page" id="page_size">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                            <option value="200">200</option>
-                            <option value="500">500</option>
-                            <option value="1000">1000</option>
-                            <option value="2000">2000</option>
-                            <option value="5000">5000</option>
-                        </select>
-                    </label>
-                </li>
-
-                <li class="menu-item">
-                    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                    <li class="menu-item">
+                        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="DeleteEvent" aria-label="Delete">
-                        <span class="color:red">❌</span>
-                        <span>Delete</span>
-                    </button>
-                </li>
-            </ul>
-        </nav>
+                            <span class="color:red">❌</span>
+                            <span>Delete</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
-</div>
+</section>
 ]]

@@ -3412,6 +3412,9 @@ function getCSRFFromInput(csrfNames) {
   let csrf = "";
   csrfNames.forEach((value, index) => {
     let inputCSRF = document.querySelector(`input[name=${value}]`);
+    if (!inputCSRF) {
+      inputCSRF = document.querySelector(`meta[name=${value}]`);
+    }
     if (inputCSRF) {
       csrf = inputCSRF.value;
     }

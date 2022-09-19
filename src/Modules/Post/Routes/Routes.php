@@ -39,7 +39,7 @@ trait Routes
                 # POST RESOURCES...
             #---------------------------------
             $route->get('', [PostsController::class, 'index'],  alias: 'index');
-            $route->post('/data-table', [PostsController::class, 'dataTable'],  alias: 'dataTables');
+            $route->post('', [PostsController::class, 'dataTable'],  alias: 'dataTables');
 
             $route->post('store', [PostsController::class, 'store']);
             $route->get('create', [PostsController::class, 'create'], alias: 'create');

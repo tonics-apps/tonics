@@ -26,19 +26,18 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  *
  * ```
  * [[each("number in numbers")
-    <ul>
-        <li>[[v("_loop.index")]]
-        [[if("v[number.license]")
-            [[each("license in number.license")
-            <ul>
-                <li>[[v("license")]]</li>
-            </ul>
-            ]]
-        ]]
-        </li>
-    </ul>
-    ]]
-
+ * <ul>
+ * <li>[[v("_loop.index")]]
+ * [[if("v[number.license]")
+ * [[each("license in number.license")
+ * <ul>
+ * <li>[[v("license")]]</li>
+ * </ul>
+ * ]]
+ * ]]
+ * </li>
+ * </ul>
+ * ]]
  * ```
  *
  */
@@ -89,8 +88,8 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
         /** @var $tag Tag */
         $view = $this->getTonicsView();
         $tag = (isset($args['loop'])) ? $args['loop']->getTag() : (new Tag())->setArgs($args)->setNodes($nodes);
-        if (!isset($tag->getArgs()['_variable'])){
-            if (empty($nodes)){
+        if (!isset($tag->getArgs()['_variable'])) {
+            if (empty($nodes)) {
                 # This could either be `continue` or `break` call, since they can't render, we return empty
                 return '';
             }
@@ -105,32 +104,33 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
 
         $eachOutput = '';
         $view->setDontCacheVariable(true);
-        if (is_iterable($loopVariable)) {
-            $iteration = 0;
-            foreach ($loopVariable as $key => $loop) {
-                $eachOutput .= $content;
-                if (isset($view->getLiveCacheVariableData()[$loopName])) {
-                    $view->addToLiveCacheVariableData($loopName, $loop);
-                }
 
-                $view->addToVariableData($loopName, $loop);
-                $view->addToVariableData('_loop', [
-                    'iteration' => $iteration + 1,
-                    'index' => $iteration,
-                    'key' => $key,
-                ]);
-                $n = 0;
-                foreach ($tag->getChildrenRecursive($tag) as $node) {
-                    $this->debug[] = $node;
-                    $mode = $view->getModeRendererHandler($node->getTagName());
-                    if ($mode instanceof TonicsModeRendererInterface) {
-                        $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
-                        $eachOutput .= $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
-                    }
-                    ++$n;
-                }
-                ++$iteration;
+        $iteration = 0;
+        if (is_string($loopVariable)){
+            $loopVariable = [];
+        }
+        foreach ($loopVariable ?? [] as $key => $loop) {
+            $eachOutput .= $content;
+            if (isset($view->getLiveCacheVariableData()[$loopName])) {
+                $view->addToLiveCacheVariableData($loopName, $loop);
             }
+
+            $view->addToVariableData($loopName, $loop);
+            $view->addToVariableData('_loop', [
+                'iteration' => $iteration + 1,
+                'index' => $iteration,
+                'key' => $key,
+            ]);
+            $n = 0;
+            foreach ($tag->getChildrenRecursive($tag) as $node) {
+                $mode = $view->getModeRendererHandler($node->getTagName());
+                if ($mode instanceof TonicsModeRendererInterface) {
+                    $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
+                    $eachOutput .= $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
+                }
+                ++$n;
+            }
+            ++$iteration;
         }
 
         return $eachOutput;
