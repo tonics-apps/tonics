@@ -55,9 +55,6 @@ class PostsController
      */
     public function index()
     {
-       $categories_meta = $this->getPostData()->getCategoriesPaginationData();
-        # For Category Meta Box API
-       $this->getPostData()->categoryMetaBox($categories_meta);
 
         $categoryTable = Tables::getTable(Tables::CATEGORIES);
         $categories = db()->Select(table()->pickTableExcept($categoryTable, ['field_settings', 'created_at', 'updated_at']))
@@ -70,11 +67,9 @@ class PostsController
 
         $categoriesSelectDataAttribute = rtrim($categoriesSelectDataAttribute, ',');
         $dataTableHeaders = [
-            ['type' => '', 'slug' => 'post_id', 'title' => 'Post ID', 'minmax' => '50px, 1fr'],
-            ['type' => '', 'slug' => 'slug_id', 'title' => 'Slug ID', 'minmax' => '150px, 1fr'],
+            ['type' => '', 'slug' => 'post_id', 'title' => 'Post ID', 'minmax' => '50px, .5fr'],
             ['type' => 'text', 'slug' => 'post_title', 'title' => 'Title', 'minmax' => '150px, 2fr'],
             ['type' => 'select', 'slug' => 'cat_slug', 'title' => 'Category', 'dataAttribute' => "data-select_data=$categoriesSelectDataAttribute", 'minmax' => '150px, 1fr'],
-            ['type' => 'date_time_local', 'slug' => 'created_at', 'title' => 'Date Created', 'minmax' => '150px, 1fr'],
             ['type' => 'date_time_local', 'slug' => 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr'],
         ];
 
@@ -82,19 +77,21 @@ class PostsController
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-        $tblCol = table()->pick([$postTbl => ['post_id', 'slug_id', 'post_title'], $CatTbl => ['cat_slug']]) . ', ' .
-            table()->pickTable($postTbl, ['created_at', 'updated_at']);
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title'], $CatTbl => ['cat_slug']]) . ', ' .
+            table()->pickTable($postTbl, ['updated_at']);
 
         $postData = db()->Select($tblCol)
             ->From($postCatTbl)
             ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
             ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
             ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) { $db->WhereEquals('post_status', url()->getParam('status'));
+                function (TonicsQuery $db) {
+                    $db->WhereEquals('post_status', url()->getParam('status'));
                 },
-                function (TonicsQuery $db) { $db->WhereEquals('post_status', 1);
+                function (TonicsQuery $db) {
+                    $db->WhereEquals('post_status', 1);
 
-            })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                 $db->WhereLike('post_title', url()->getParam('query'));
 
             })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
@@ -111,7 +108,7 @@ class PostsController
                 'postData' => $postData ?? []
             ],
             'SiteURL' => AppConfig::getAppUrl(),
-            'DefaultCategoriesMetaBox' => $this->getPostData()->categoryCheckBoxListing($categories_meta, url()->getParam('cat') ?? [], type: 'checkbox'),
+            'DefaultCategoriesMetaBox' => $this->getPostData()->categoryCheckBoxListing($categories, url()->getParam('cat') ?? [], type: 'checkbox'),
         ]);
     }
 
@@ -125,7 +122,16 @@ class PostsController
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
-            if ($this->deleteMultiple($entityBag)){
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([]);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
                 response()->onSuccess([]);
             } else {
                 response()->onError(500);
@@ -288,19 +294,40 @@ class PostsController
     /**
      * @throws \Exception
      */
-    public function deleteMultiple($entityBag): bool|int
+    protected function deleteMultiple($entityBag): bool|int
     {
         $toDelete = [];
         try {
             $deleteItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
-            foreach ($deleteItems as $deleteItem){
-                if (is_object($deleteItem) && property_exists($deleteItem, 'post_id')){
+            foreach ($deleteItems as $deleteItem) {
+                if (is_object($deleteItem) && property_exists($deleteItem, 'post_id')) {
                     $toDelete[] = $deleteItem->post_id;
                 }
             }
 
             return db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('id', $toDelete));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
+            // log..
+        }
+        return false;
+    }
+
+    protected function updateMultiple($entityBag)
+    {
+        $toUpdate = [];
+        try {
+            $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
+            foreach ($updateItems as $updateItem) {
+                if (is_object($updateItem) && property_exists($updateItem, 'post_id')) {
+                    $toUpdate[] = $updateItem->post_id;
+                }
+            }
+
+            // db()->FastUpdate(Tables::getTable(Tables::POSTS))
+            dd($toUpdate, $updateItems);
+
+            return db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('id', $toUpdate));
+        } catch (\Exception $exception) {
             // log..
         }
         return false;

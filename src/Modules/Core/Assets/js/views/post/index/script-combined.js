@@ -4004,6 +4004,7 @@ class DataTable {
             LOAD_MORE_EVENT: "LoadMoreEvent",
             SAVE_EVENT: "SaveEvent",
             DELETE_EVENT: "DeleteEvent",
+            UPDATE_EVENT: "UpdateEvent",
             UPSERT_EVENT: "UpsertEvent",
             FILTER_EVENT: "FilterEvent",
         }
@@ -4415,8 +4416,6 @@ class DataTabledEditorSelect extends DataTableEditorAbstract {
             let selectData = this.dataTable.thElement.dataset.select_data.split(',');
             let selectOption = '';
             selectData.forEach(option => {
-                option.trim().toLowerCase();
-                tdValue.toLowerCase();
                 if (tdValue === option) {
                     selectOption += `<option selected title="${option}" value="${option}">${option}</option>`
                 } else {
@@ -4610,10 +4609,9 @@ class SaveEventHandler {
             if (dataTable.deletingElements.size > 0){
                 this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().DELETE_EVENT);
-            } else {
-                // in the feature, this can also have the UpsertEvents, etc
+            }else if (dataTable.editingElements.size > 0){
                 this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements, saveData.headers);
-                saveData.type.push(dataTable.apiEvents().SAVE_EVENT);
+                saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
             }
 
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
@@ -4638,7 +4636,6 @@ class SaveEventHandler {
                 }
                 saveTo.push(tdData);
             });
-            console.log(saveTo);
         }
     }
 }

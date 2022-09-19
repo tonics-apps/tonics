@@ -471,64 +471,33 @@ SQL, ...$parameter);
         return $this->generatePaginationData($this->getCategoryPaginationColumns(), 'cat_name', $this->getCategoryTable(), 200, $settings);
     }
 
-    /**
-     * @param object|null $categories
-     * @return void
-     * @throws \Exception
-     */
-    public function categoryMetaBox(?object $categories)
-    {
-        if (url()->getHeaderByKey('menuboxname') === 'category') {
-            if (url()->getHeaderByKey('action') === 'more') {
-                $frag = $this->categoryCheckBoxListing($categories);
-                helper()->onSuccess($frag);
-            }
-        }
-    }
-
-    public function categoryCheckBoxListing(?object $categories, $selected = [], string $inputName = 'cat[]', string $type = 'radio'): string
+    public function categoryCheckBoxListing(array $categories, $selected = [], string $inputName = 'cat[]', string $type = 'radio'): string
     {
         $htmlFrag = '';
-        $htmlMoreFrag = '';
         $type = ($type !== 'radio') ? 'checkbox' : 'radio';
         $selected = array_combine($selected, $selected);
 
-        if (isset($categories->data) && is_array($categories->data) && !empty($categories->data)) {
-
-            foreach ($categories->data as $category) {
-                $id = 'category' . $category->cat_id . '_' . $category->cat_slug;
-                if (key_exists($category->cat_id, $selected)) {
-                    $htmlFrag .= <<<HTML
+        foreach ($categories as $category) {
+            $id = 'category' . $category->cat_id . '_' . $category->cat_slug;
+            if (key_exists($category->cat_id, $selected)) {
+                $htmlFrag .= <<<HTML
 <li class="menu-item">
     <input type="$type"
     id="$id" checked="checked" name="$inputName" value="{$category->cat_id}">
     <label for="$id">{$category->cat_name}</label>
 </li>
 HTML;
-                    continue;
-                }
-                $htmlFrag .= <<<HTML
+                continue;
+            }
+            $htmlFrag .= <<<HTML
 <li class="menu-item">
     <input type="$type"
     id="$id" name="$inputName" value="{$category->cat_id}">
     <label for="$id">{$category->cat_name}</label>
 </li>
 HTML;
-            }
-
-            # MORE BUTTON
-            if (isset($categories->has_more) && $categories->has_more) {
-                $htmlMoreFrag = <<<HTML
- <button 
- data-morepageUrl="$categories->next_page_url" 
- data-menuboxname = "category"
- data-nextpageid="$categories->next_page"
- data-action = "more"
- class="border:none bg:white-one border-width:default border:black padding:gentle margin-top:0 cursor:pointer act-like-button more-button">More →</button>
-HTML;
-            }
         }
-        return $htmlFrag . $htmlMoreFrag;
+        return $htmlFrag;
     }
 
     /**
