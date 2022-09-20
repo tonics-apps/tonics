@@ -855,9 +855,11 @@ class SaveEventHandler {
 
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
                 dataTable.sendPostRequest(saveData, (data) => {
-                    console.log('an error occured', data)
+                    if (data.status === 200){
+                        successToast(data.message);
+                    }
                 }, (err) => {
-                    console.log('an error occured', err)
+                    errorToast('An error occured saving changes');
                 });
             });
 

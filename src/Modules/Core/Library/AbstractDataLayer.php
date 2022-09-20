@@ -338,7 +338,7 @@ SQL, ...$parameter);
 
         # Col doesn't exist, we throw an exception
         if(!table()->hasColumn(DatabaseConfig::getPrefix().$tblCol[0], $tblCol[1])){
-            throw new \Exception("DataTable::Invalid col name {$tblCol[1]}");
+            throw new \Exception("DataTable::Invalid col name $tblCol[1]");
         }
 
         return $tblCol;
