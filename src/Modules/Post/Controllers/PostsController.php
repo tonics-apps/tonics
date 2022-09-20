@@ -123,7 +123,7 @@ class PostsController
                 $entityBag = $decodedBag;
             })) {
             if ($this->deleteMultiple($entityBag)) {
-                response()->onSuccess([], "Records Deleted");
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
                 response()->onError(500);
             }
@@ -132,7 +132,7 @@ class PostsController
                 $entityBag = $decodedBag;
             })) {
             if ($this->updateMultiple($entityBag)) {
-                response()->onSuccess([], "Records Updated");
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
             } else {
                 response()->onError(500);
             }

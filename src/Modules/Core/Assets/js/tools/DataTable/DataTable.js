@@ -231,6 +231,16 @@ class DataTable {
         }
     }
 
+    resetDeletingElements() {
+        this.deletingElements.clear();
+        let deleting = this.parentElement.querySelectorAll('.deleting');
+        if (deleting){
+            deleting.forEach(deleteEl => {
+                deleteEl.classList.remove('deleting');
+            });
+        }
+    }
+
     menuActions() {
         return {
             SAVE_EVENT: "SaveEvent",
@@ -868,6 +878,14 @@ class SaveEventHandler {
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
                 dataTable.sendPostRequest(saveData, (data) => {
                     if (data.status === 200){
+                        if (data.more === dataTable.apiEvents().UPDATE_EVENT){
+                            dataTable.resetEditingElements();
+                        }
+
+                        if (data.more === dataTable.apiEvents().DELETE_EVENT){
+                            dataTable.resetDeletingElements();
+                        }
+
                         successToast(data.message);
                     }
                 }, (err) => {
