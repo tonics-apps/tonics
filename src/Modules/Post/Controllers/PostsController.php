@@ -122,8 +122,8 @@ class PostsController
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
-            if ($this->deleteMultiple($entityBag)) {
-                response()->onSuccess([]);
+            if (($deleted = $this->deleteMultiple($entityBag))) {
+                response()->onSuccess([], "$deleted Deleted", more: $deleted);
             } else {
                 response()->onError(500);
             }
@@ -132,7 +132,7 @@ class PostsController
                 $entityBag = $decodedBag;
             })) {
             if (($updated = $this->updateMultiple($entityBag))) {
-                response()->onSuccess([], "$updated Updated");
+                response()->onSuccess([], "$updated Updated", more: $updated);
             } else {
                 response()->onError(500);
             }
@@ -327,13 +327,15 @@ class PostsController
         $toDelete = [];
         try {
             $deleteItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
+            $db = db();
             foreach ($deleteItems as $deleteItem) {
                 if (is_object($deleteItem) && property_exists($deleteItem, 'post_id')) {
                     $toDelete[] = $deleteItem->post_id;
                 }
             }
 
-            return db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('id', $toDelete));
+            $db->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('id', $toDelete));
+            return $db->getRowCount();
         } catch (\Exception $exception) {
             // log..
         }
