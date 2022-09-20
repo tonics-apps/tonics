@@ -321,4 +321,25 @@ SQL, ...$parameter);
 
         return [];
     }
+
+    /**
+     * This validates table and column from datatable, if the validation doesn't throw
+     * an exception, you get the table name in the 0 index and the column name in the 1 index
+     * @throws Exception
+     */
+    public function validateTableColumnForDataTable($tableCol): array
+    {
+        $tblCol = explode('::', $tableCol) ?? [];
+        # Table and column is invalid, should be in the format table::col
+        if (count($tblCol) !== 2){
+            throw new \Exception("DataTable::Invalid table and column, should be in the format table::col");
+        }
+
+        # Col doesn't exist, we throw an exception
+        if (!Tables::hasColumn($tblCol[0], ($tblCol[1]))){
+            throw new \Exception("DataTable::Invalid col name {$tblCol[1]}");
+        }
+
+        return $tblCol;
+    }
 }

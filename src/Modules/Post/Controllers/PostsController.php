@@ -122,8 +122,8 @@ class PostsController
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
-            if (($deleted = $this->deleteMultiple($entityBag))) {
-                response()->onSuccess([], "$deleted Deleted", more: $deleted);
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted");
             } else {
                 response()->onError(500);
             }
@@ -131,8 +131,8 @@ class PostsController
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
-            if (($updated = $this->updateMultiple($entityBag))) {
-                response()->onSuccess([], "$updated Updated", more: $updated);
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated");
             } else {
                 response()->onError(500);
             }
@@ -327,19 +327,21 @@ class PostsController
         $toDelete = [];
         try {
             $deleteItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
-            $db = db();
             foreach ($deleteItems as $deleteItem) {
-                if (is_object($deleteItem) && property_exists($deleteItem, 'post_id')) {
-                    $toDelete[] = $deleteItem->post_id;
+                foreach ($deleteItem as $col => $value){
+                    $tblCol = $this->getPostData()->validateTableColumnForDataTable($col);
+                    if ($tblCol[1] === 'post_id'){
+                        $toDelete[] = $value;
+                    }
                 }
             }
 
-            $db->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('id', $toDelete));
-            return $db->getRowCount();
+            db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('post_id', $toDelete));
+            return true;
         } catch (\Exception $exception) {
             // log..
+            return false;
         }
-        return false;
     }
 
     /**
@@ -348,7 +350,6 @@ class PostsController
     protected function updateMultiple($entityBag)
     {
         $postTable = Tables::getTable(Tables::POSTS);
-        $affected = 0;
         try {
             $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
             db()->beginTransaction();
@@ -356,17 +357,7 @@ class PostsController
                 $db = db();
                 $postUpdate = []; $colForEvent = [];
                 foreach ($updateItem as $col => $value){
-                    $tblCol = explode('::', $col) ?? [];
-
-                    # Table and column is invalid, should be in the format table::col
-                    if (count($tblCol) !== 2){
-                        throw new \Exception("DataTable::Invalid table and column, should be in the format table::col");
-                    }
-
-                    # Col doesn't exist, we throw an exception
-                    if (!Tables::hasColumn($tblCol[0], ($tblCol[1]))){
-                        throw new \Exception("DataTable::Invalid col name {$tblCol[1]}");
-                    }
+                    $tblCol = $this->getPostData()->validateTableColumnForDataTable($col);
 
                     # We get the column (this also validates the table)
                     $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
@@ -393,18 +384,16 @@ class PostsController
                 $postID = $postUpdate[table()->getColumn($postTable, 'post_id')];
                 $db->FastUpdate($this->postData->getPostTable(), $postUpdate, db()->Where('post_id', '=', $postID));
 
-                $affected += $db->getRowCount();
                 $onPostUpdate = new OnPostUpdate((object)$colForEvent, $this->postData);
                 event()->dispatch($onPostUpdate);
             }
             db()->commit();
+            return true;
         } catch (\Exception $exception) {
-            $affected = 0;
             db()->rollBack();
+            return false;
             // log..
         }
-
-        return $affected;
     }
 
 
