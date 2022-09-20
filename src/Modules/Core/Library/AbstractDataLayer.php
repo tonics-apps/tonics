@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Library;
 
+use App\Modules\Core\Configs\DatabaseConfig;
 use Exception;
 
 class AbstractDataLayer
@@ -336,7 +337,7 @@ SQL, ...$parameter);
         }
 
         # Col doesn't exist, we throw an exception
-        if (!Tables::hasColumn($tblCol[0], ($tblCol[1]))){
+        if(!table()->hasColumn(DatabaseConfig::getPrefix().$tblCol[0], $tblCol[1])){
             throw new \Exception("DataTable::Invalid col name {$tblCol[1]}");
         }
 
