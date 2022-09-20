@@ -4350,7 +4350,6 @@ class CloseEditorHandler {
                 tdElementChildBeforeOpen = dataTable.tdElementChildBeforeOpen;
             }
 
-            console.log(tdElementChildBeforeOpen);
             if (tdElementChildBeforeOpen !== null && tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
                 // For Single Edit
                 currentEditor.tdElement.classList.add('editing');
@@ -4456,9 +4455,6 @@ class SaveEventHandler {
                 this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
             }
-
-            console.log(saveData);
-            return;
 
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
                 dataTable.sendPostRequest(saveData, (data) => {

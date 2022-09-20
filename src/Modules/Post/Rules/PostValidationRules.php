@@ -88,4 +88,19 @@ trait PostValidationRules
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function postUpdateMultipleRule(): array
+    {
+        return [
+            'post_id' => ['numeric'],
+            'post_title' => ['required', 'string'],
+           // 'post_content' => ['string'],
+            'updated_at' => ['required', 'string'],
+            'fk_cat_id' => ['numeric'],
+            //'image_url' => ['string'],
+        ];
+    }
+
 }

@@ -26,7 +26,6 @@ use App\Modules\Field\Data\FieldData;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnBeforePostSave;
 use App\Modules\Post\Events\OnPostCreate;
-use App\Modules\Post\Events\OnPostDefaultField;
 use App\Modules\Post\Events\OnPostUpdate;
 use App\Modules\Post\Rules\PostValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -132,8 +131,8 @@ class PostsController
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
-            if ($this->updateMultiple($entityBag)) {
-                response()->onSuccess([]);
+            if (($updated = $this->updateMultiple($entityBag))) {
+                response()->onSuccess([], "$updated Updated");
             } else {
                 response()->onError(500);
             }
@@ -350,51 +349,63 @@ class PostsController
         $postCatTable = Tables::getTable(Tables::POST_CATEGORIES);
         $updateTables = $postTable . ', ' . $postCatTable;
 
-        $toUpdate = []; $affected = 0;
+        $affected = 0;
         try {
             $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
+            db()->beginTransaction();
             foreach ($updateItems as $updateItem) {
-                $db = db()->Update($updateTables);
-                $postUpdate = []; $catUpdate = [];
-                dd($updateItems);
+                $db = db();
+                $postUpdate = []; $colForEvent = [];
                 foreach ($updateItem as $col => $value){
                     $tblCol = explode('::', $col) ?? [];
 
                     # Table and column is invalid, should be in the format table::col
                     if (count($tblCol) !== 2){
-                        throw new \Exception("Invalid table and column, should be in the format table::col");
+                        throw new \Exception("DataTable::Invalid table and column, should be in the format table::col");
                     }
 
+                    # Col doesn't exist, we throw an exception
+                    if (!Tables::hasColumn($tblCol[0], ($tblCol[1]))){
+                        throw new \Exception("DataTable::Invalid col name {$tblCol[1]}");
+                    }
+
+                    # We get the column (this also validates the table)
                     $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
 
                     if ($tblCol[1] === 'fk_cat_id'){
                         $value = explode('::', $value);
                         if (key_exists(0, $value)){
-                            $catUpdate[$setCol] = $value[0];
-                            $db->Set($setCol, $value[0]);
+                            $colForEvent[$tblCol[1]] = $value[0];
                         } else {
                             return false;
                         }
                     }else {
+                        $colForEvent[$tblCol[1]] = $value;
                         $postUpdate[$setCol] = $value;
                     }
                 }
+
+                # Validate The col and type
+                $validator = $this->getValidator()->make($colForEvent, $this->postUpdateMultipleRule());
+                if ($validator->fails()) {
+                    throw new \Exception("DataTable::Validation Error {$validator->errorsAsString()}");
+                }
+
                 $postID = $postUpdate[table()->getColumn($postTable, 'post_id')];
-                db()->FastUpdate($this->postData->getPostTable(), $postUpdate, db()->Where('post_id', '=', $postID));
-                dd($postUpdate, $catUpdate);
-                $whereJOIN = "WHERE " . table()->getColumn($postTable, 'post_id') . ' = ' . table()->getColumn($postCatTable, 'fk_post_id');
-                $db->addRawString($whereJOIN)->FetchResult();
+                $db->FastUpdate($this->postData->getPostTable(), $postUpdate, db()->Where('post_id', '=', $postID));
+
                 $affected += $db->getRowCount();
+                $onPostUpdate = new OnPostUpdate((object)$colForEvent, $this->postData);
+                event()->dispatch($onPostUpdate);
             }
-
-
-            dd($affected, $db);
-
+            db()->commit();
         } catch (\Exception $exception) {
-            dd($exception, $db);
+            $affected = 0;
+            db()->rollBack();
             // log..
         }
-        return false;
+
+        return $affected;
     }
 
 

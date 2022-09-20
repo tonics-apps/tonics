@@ -853,9 +853,6 @@ class SaveEventHandler {
                 saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
             }
 
-            console.log(saveData);
-            return;
-
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
                 dataTable.sendPostRequest(saveData, (data) => {
                     console.log('an error occured', data)

@@ -117,9 +117,9 @@ class OnPostUpdate implements EventInterface
 
     /**
      * @param PostData $postData
-     * @return OnPostCreate
+     * @return OnPostUpdate
      */
-    public function setPostData(PostData $postData): OnPostCreate
+    public function setPostData(PostData $postData): OnPostUpdate
     {
         $this->postData = $postData;
         return $this;
