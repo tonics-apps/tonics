@@ -219,6 +219,18 @@ class DataTable {
         this.tdElementChildBeforeOpen = null;
     }
 
+    resetEditingElements() {
+        this.editingElementsCloneBeforeChanges.clear();
+        this.editingElements.clear();
+        this.tdElementChildBeforeOpen = null;
+        let editing = this.parentElement.querySelectorAll('.editing');
+        if (editing){
+            editing.forEach(edit => {
+                edit.classList.remove('editing');
+            });
+        }
+    }
+
     menuActions() {
         return {
             SAVE_EVENT: "SaveEvent",
