@@ -889,7 +889,7 @@ class SaveEventHandler {
                         successToast(data.message);
                     }
                 }, (err) => {
-                    errorToast('An error occured saving changes');
+                    errorToast('An error occurred saving changes');
                 });
             });
 
