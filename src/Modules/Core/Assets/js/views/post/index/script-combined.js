@@ -3992,6 +3992,33 @@ class DataTable {
         this.tdElementChildBeforeOpen = null;
     }
 
+    resetEditingElements() {
+        this.editingElementsCloneBeforeChanges.clear();
+        this.editingElements.clear();
+        this.tdElementChildBeforeOpen = null;
+        let editing = this.parentElement.querySelectorAll('.editing');
+        if (editing){
+            editing.forEach(edit => {
+                edit.classList.remove('editing');
+            });
+        }
+    }
+
+    removeDeletingElements() {
+        this.deletingElements.clear();
+        let deleting = this.parentElement.querySelectorAll('.deleting');
+        if (deleting){
+            deleting.forEach(deleteEl => {
+                deleteEl.remove();
+            });
+            this.resetListID();
+        }
+    }
+
+    getDeletingElements() {
+        return this.parentElement.querySelectorAll('.deleting');
+    }
+
     menuActions() {
         return {
             SAVE_EVENT: "SaveEvent",
@@ -4629,10 +4656,18 @@ class SaveEventHandler {
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
                 dataTable.sendPostRequest(saveData, (data) => {
                     if (data.status === 200){
-                        successToast(data.message)
+                        if (data.more === dataTable.apiEvents().UPDATE_EVENT){
+                            dataTable.resetEditingElements();
+                        }
+
+                        if (data.more === dataTable.apiEvents().DELETE_EVENT){
+                            dataTable.removeDeletingElements();
+                        }
+
+                        successToast(data.message);
                     }
                 }, (err) => {
-                    errorToast('An error occured saving changes');
+                    errorToast('An error occurred saving changes');
                 });
             });
 

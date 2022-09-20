@@ -231,14 +231,19 @@ class DataTable {
         }
     }
 
-    resetDeletingElements() {
+    removeDeletingElements() {
         this.deletingElements.clear();
         let deleting = this.parentElement.querySelectorAll('.deleting');
         if (deleting){
             deleting.forEach(deleteEl => {
-                deleteEl.classList.remove('deleting');
+                deleteEl.remove();
             });
+            this.resetListID();
         }
+    }
+
+    getDeletingElements() {
+        return this.parentElement.querySelectorAll('.deleting');
     }
 
     menuActions() {
@@ -883,7 +888,7 @@ class SaveEventHandler {
                         }
 
                         if (data.more === dataTable.apiEvents().DELETE_EVENT){
-                            dataTable.resetDeletingElements();
+                            dataTable.removeDeletingElements();
                         }
 
                         successToast(data.message);
