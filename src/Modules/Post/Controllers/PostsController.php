@@ -348,9 +348,6 @@ class PostsController
     protected function updateMultiple($entityBag)
     {
         $postTable = Tables::getTable(Tables::POSTS);
-        $postCatTable = Tables::getTable(Tables::POST_CATEGORIES);
-        $updateTables = $postTable . ', ' . $postCatTable;
-
         $affected = 0;
         try {
             $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
