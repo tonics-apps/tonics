@@ -138,6 +138,7 @@
             [[each("dtHeader in DataTable.headers")
             <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
             ]]
+            [[add_hook('after_data_table_header')]]
         </tr>
             </thead>
             <tbody class="max-height:300px overflow-x:auto">
@@ -146,7 +147,9 @@
                     [[each("dtData in dtRow")
                     <td tabindex="-1">[[v('dtData')]]</td>
                     ]]
+                    [[add_hook('after_data_table_data')]]
                 </tr>
+                [[add_hook('after_data_table_row')]]
                 ]]
             </tbody>
         </table>
@@ -198,6 +201,14 @@
                         margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="DeleteEvent" aria-label="Delete">
                             <span class="color:red">❌</span>
                             <span>Delete</span>
+                        </button>
+                    </li>
+
+                    <li class="menu-item">
+                        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="ReloadEvent" aria-label="Reload">
+                            ↻
+                            <span>Reload</span>
                         </button>
                     </li>
                 </ul>

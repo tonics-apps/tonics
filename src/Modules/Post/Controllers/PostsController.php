@@ -72,11 +72,12 @@ class PostsController
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_id', 'title' => 'Post ID', 'minmax' => '50px, .5fr'],
             ['type' => 'text', 'slug' => Tables::POSTS . '::' . 'post_title', 'title' => 'Title', 'minmax' => '150px, 2fr'],
+            ['type' => 'text', 'slug' => Tables::POSTS . '::' . 'post_slug', 'title' => 'Slug', 'minmax' => '150px, 1fr'],
             ['type' => 'select', 'slug' => Tables::POST_CATEGORIES . '::' . 'fk_cat_id', 'title' => 'Category', 'dataAttribute' => "data-select_data=$categoriesSelectDataAttribute", 'minmax' => '150px, 1fr'],
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr'],
         ];
 
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title']]) . ', CONCAT( cat_id, "::", cat_slug ) as fk_cat_id , ' .
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug']]) . ', CONCAT( cat_id, "::", cat_slug ) as fk_cat_id , ' .
             table()->pickTable($postTbl, ['updated_at']);
 
 
@@ -101,7 +102,7 @@ class PostsController
                 $db->WhereBetween(table()->pickTable($postTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
             })->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
-
+        
         view('Modules::Post/Views/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,

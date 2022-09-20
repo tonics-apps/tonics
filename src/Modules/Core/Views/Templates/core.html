@@ -3,6 +3,8 @@
 [[import("Modules::Core/Views/Blocks/Authentication")]]
 [[import("Modules::Core/Views/Blocks/Default")]]
 
+[[on_hook_into_event('core')]]
+
 [[add_hook('before_html')]]
 <html lang="en" [[add_hook('in_html_attribute')]]>
 

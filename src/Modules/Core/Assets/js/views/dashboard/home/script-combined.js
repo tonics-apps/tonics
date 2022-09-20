@@ -4519,6 +4519,15 @@ class SaveEventHandler {
     }
 }
 
+class ReloadEventHandler {
+    constructor(event) {
+        let reloadEvent = event.getElementTarget().closest(`[data-menu-action="ReloadEvent"]`);
+        if (reloadEvent) {
+            window.location.reload();
+        }
+    }
+}
+
 class MultiEditEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -4563,7 +4572,7 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, MultiEditEventHandler, SaveEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, ReloadEventHandler, MultiEditEventHandler, SaveEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
