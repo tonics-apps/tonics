@@ -1,15 +1,15 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 
-[[hook_into('in_head_title')Import Index]]
-[[hook_into('in_main_header_title')Import]]
+[[hook_into('Core::in_head_title')Import Index]]
+[[hook_into('Core::in_main_header_title')Import]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
         [[_v('ImportListing')]]
     </ul>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]

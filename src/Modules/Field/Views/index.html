@@ -1,17 +1,17 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 [[import("Modules::Core/Views/Blocks/Field")]]
 
-[[hook_into('in_head_title')Field Index]]
-[[hook_into('in_main_header_title')Field Index]]
+[[hook_into('Core::in_head_title')Field Index]]
+[[hook_into('Core::in_main_header_title')Field Index]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
     <div class="search-admin width:100% margin-top:0">
         [[func('Field::form::search', 'empty', 'method-get')]]
     </div>
     [[_use('Field::view::index')]]
 ]]
 
-[[hook_into('after_main')
+[[hook_into('Core::after_main')
     [[_use('Admin-Next-Prev-Link')]]
     <form id="selectUtilitiesForm" method="get" action="" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
         <input type="hidden" name="token" value="[[csrf()]]" >
@@ -24,7 +24,7 @@
     </form>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]

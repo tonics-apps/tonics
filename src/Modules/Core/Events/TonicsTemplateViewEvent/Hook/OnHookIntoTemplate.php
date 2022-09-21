@@ -16,13 +16,8 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class OnHookIntoTemplate implements EventInterface
 {
-    private array $hookInto = [
-        self::Type_Theme => [],
-        self::Type_Core => [],
-    ];
+    private array $hookInto = [];
 
-    const Type_Theme = 'theme';
-    const Type_Core = 'core';
     private TonicsView $tonicsView;
 
     public function __construct(TonicsView $tonicsView)
@@ -38,9 +33,9 @@ class OnHookIntoTemplate implements EventInterface
         return $this;
     }
 
-    public function hookInto(string $name, callable $handler, string $contextType = self::Type_Theme): static
+    public function hookInto(string $name, callable $handler): static
     {
-        $this->hookInto[$contextType][] = [
+        $this->hookInto[] = [
           'hook_into' => $name,
           'handler' => function() use ($handler) {
             return $handler($this->getTonicsView());

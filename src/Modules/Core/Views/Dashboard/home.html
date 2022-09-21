@@ -1,9 +1,9 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 
-[[hook_into('in_head_title')Dashboard]]
-[[hook_into('in_main_header_title')Dashboard ]]
+[[hook_into('Core::in_head_title')Dashboard]]
+[[hook_into('Core::in_main_header_title')Dashboard ]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 <section style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
     <input tabindex="0" type="radio" id="about_tonics" name="app_tabs" checked="checked">
     <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="about_tonics">About Tonics</label>
@@ -39,7 +39,7 @@
 </section>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:dashboard-home")]]
     [[_use("session:delete-artifacts")]]

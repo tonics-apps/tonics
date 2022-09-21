@@ -26,17 +26,17 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  *
  * ```
  * [[each("number in numbers")
- * <ul>
- * <li>[[v("_loop.index")]]
- * [[if("v[number.license]")
- * [[each("license in number.license")
- * <ul>
- * <li>[[v("license")]]</li>
- * </ul>
- * ]]
- * ]]
- * </li>
- * </ul>
+ *      <ul>
+ *          <li>[[v("_loop.index")]]
+ *              [[if("v[number.license]")
+ *                  [[each("license in number.license")
+ *                      <ul>
+ *                          <li>[[v("license")]]</li>
+ *                      </ul>
+ *                  ]]
+ *              ]]
+ *          </li>
+ *      </ul>
  * ]]
  * ```
  *
@@ -59,6 +59,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
         $explodedArgs = explode(" ", $tagToken->getArg()[0]);
         $this->validateEach($explodedArgs);
         $tagToken->getTag()->setArgs(['_name' => $explodedArgs[0], '_variable' => $explodedArgs[array_key_last($explodedArgs)]]);
+
         if ($tagToken->hasChildren()) {
             foreach ($tagToken->getChildren(true) as $node) {
                 if ($node->getTagName() === 'each' || $node->getTagName() === 'foreach') {
@@ -66,6 +67,15 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                     $this->validateEach($explodedArgs);
                     $node->setArgs(['_name' => $explodedArgs[0], '_variable' => $explodedArgs[array_key_last($explodedArgs)]]);
                 }
+
+                # So, hook can work
+                /*if ($node->getTagName() === 'add_hook' || $node->getTagName() === 'add_placeholder'){
+                    $mode = $view->getModeRendererHandler($node->getTagName());
+                    if ($mode instanceof TonicsModeInterface) {
+                        $addHookToken = new OnTagToken($node);
+                        $mode->stickToContent($addHookToken);
+                    }
+                }*/
             }
         }
         $view->getContent()->addToContent('each', $tagToken->getContent(), ['loop' => $tagToken]);
@@ -93,10 +103,10 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                 # This could either be `continue` or `break` call, since they can't render, we return empty
                 return '';
             }
+
             # fresh or from an unknown context
-            $explodedArgs = explode(" ", $args[0]);
-            $this->validateEach($explodedArgs);
-            $tag->setArgs(['_name' => $explodedArgs[0], '_variable' => $explodedArgs[array_key_last($explodedArgs)]]);
+            $eachOnTagToken = new OnTagToken($tag);
+            $this->stickToContent($eachOnTagToken);
         }
 
         $loopVariable = $view->accessArrayWithSeparator($tag->getArgs()['_variable']);
@@ -109,6 +119,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
         if (is_string($loopVariable)){
             $loopVariable = [];
         }
+
         foreach ($loopVariable ?? [] as $key => $loop) {
             $eachOutput .= $content;
             if (isset($view->getLiveCacheVariableData()[$loopName])) {
@@ -122,6 +133,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                 'key' => $key,
             ]);
             $n = 0;
+
             foreach ($tag->getChildrenRecursive($tag) as $node) {
                 $mode = $view->getModeRendererHandler($node->getTagName());
                 if ($mode instanceof TonicsModeRendererInterface) {

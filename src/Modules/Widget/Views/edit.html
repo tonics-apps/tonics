@@ -1,14 +1,14 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 [[import("Modules::Core/Views/Blocks/MenuWidget")]]
 
-[[hook_into('in_head_title')Edit Widget]]
-[[hook_into('in_main_header_title')Edit Widget]]
+[[hook_into('Core::in_head_title')Edit Widget]]
+[[hook_into('Core::in_main_header_title')Edit Widget]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
     [[_use('Widget::form::edit')]]
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post")]]
     [[_use("session:delete-artifacts")]]

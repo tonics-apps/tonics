@@ -1,4 +1,4 @@
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 <style>
     .disable-select {
         user-select: none;
@@ -110,7 +110,7 @@
             <div class="d:none overflow:auto filter-container border-width:default border:black color:black padding:small flex-d:column flex-wrap:wrap d:flex flex-gap">
 
                 <div class="form-group d:flex flex-gap align-items:flex-end flex-wrap:wrap">
-                    [[add_hook('in_main_form_and_filter_status')]]
+                    [[add_hook('Core::in_main_form_and_filter_status')]]
                 </div>
 
                 <div class="filter-option-date-between">
@@ -121,7 +121,7 @@
                         <input value="[[string_str_replace(' ', 'T', 'v[URL.PARAMS.end_date]')]]"  class="border-width:default border:black color:black" type="datetime-local" name="end_date">
                     </label>
                 </div>
-                [[add_hook('after_in_main_form_and_filter_date')]]
+                [[add_hook('Core::after_in_main_form_and_filter_date')]]
 
                 <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);"
                         class="text-align:center bg:pure-white border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-2">
@@ -130,15 +130,18 @@
             </div>
         </form>
     </div>
-    [[add_hook('after_in_main_form_and_filter')]]
+    [[add_hook('Core::after_in_main_form_and_filter')]]
     <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
-        <table id="dt" style="grid-template-columns: [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]])]];">
+        <table id="dt" style="grid-template-columns:
+        [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]])
+            [[add_hook('Core::after_data_table_header')]]
+        ]];
+        ">
         <thead>
         <tr>
             [[each("dtHeader in DataTable.headers")
             <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
             ]]
-            [[add_hook('after_data_table_header')]]
         </tr>
             </thead>
             <tbody class="max-height:300px overflow-x:auto">
@@ -147,9 +150,9 @@
                     [[each("dtData in dtRow")
                     <td tabindex="-1">[[v('dtData')]]</td>
                     ]]
-                    [[add_hook('after_data_table_data')]]
+                    [[add_hook('Core::after_data_table_data')]]
                 </tr>
-                [[add_hook('after_data_table_row')]]
+                [[add_hook('Core::after_data_table_row')]]
                 ]]
             </tbody>
         </table>

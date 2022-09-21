@@ -1,16 +1,16 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 
-[[hook_into('in_head_title')Installer Page]]
-[[hook_into('before_in_main_header_title')[[_use("body.header.section-logo:center")]]]]
-[[hook_into('in_main_header_title')Installer]]
+[[hook_into('Core::in_head_title')Installer Page]]
+[[hook_into('Core::before_in_main_header_title')[[_use("body.header.section-logo:center")]]]]
+[[hook_into('Core::in_main_header_title')Installer]]
 
 [[reset_hook('header_section')]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 
     [[_use("body.main.form:installer-page")]]
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:installer-page")]]
 ]]

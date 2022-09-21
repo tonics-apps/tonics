@@ -13,7 +13,6 @@ namespace App\Modules\Core\Library\View\Extensions;
 use App\Modules\Core\Library\View\CustomTokenizerState\Conditional\ConditionalTokenizerState;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Content;
-use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateRuntimeException;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
 use Devsrealm\TonicsTemplateSystem\Node\Tag;

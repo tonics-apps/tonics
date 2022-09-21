@@ -1,14 +1,14 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 
-[[hook_into('in_head_title')Verify Email]]
-[[hook_into('in_main_header_title')Verify Email]]
+[[hook_into('Core::in_head_title')Verify Email]]
+[[hook_into('Core::in_main_header_title')Verify Email]]
 
 [[reset_hook('in_site_navigation_ul')]]
 
 [[reset_hook('in_header_section_class')]]
-[[hook_into('in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center]]
+[[hook_into('Core::in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 <form method="POST" class="padding:small owl margin-top:0">
     <input type="hidden" name="token" value="[[csrf()]]" >
     <span class="text-align:center text text:tip margin-top:0">
@@ -34,7 +34,7 @@
 </form>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:login-page")]]
     [[_use("session:delete-artifacts")]]

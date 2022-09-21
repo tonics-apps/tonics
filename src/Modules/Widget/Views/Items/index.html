@@ -2,17 +2,17 @@
 [[import("Modules::Core/Views/Blocks/MenuWidget")]]
 
 
-[[hook_into('in_head_title') Widget Builder ]]
-[[hook_into('in_main_header_title') Widget Builder ([[v('MenuWidgetBuilderName')]]) ]]
+[[hook_into('Core::in_head_title') Widget Builder ]]
+[[hook_into('Core::in_main_header_title') Widget Builder ([[v('MenuWidgetBuilderName')]]) ]]
 
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 <input type="hidden" name="widget_slug" value="[[v('MenuWidgetSlug')]]">
 <input type="hidden" name="widget_id" value="[[v('MenuWidgetID')]]">
 [[_use('Widget::Items::view::index')]]
 ]]
 
-[[hook_into('after_main')
+[[hook_into('Core::after_main')
 <form id="saveMenuWidgetBuilderItems" method="post" action="[[use('Widget::Items::route::posts.store')]]" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
     <input type="hidden" name="token" value="[[csrf()]]">
     <div class="form-group">
@@ -24,7 +24,7 @@
 </form>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
 [[_use("script:variables")]]
 [[_use("script:tinymce")]]
 [[_use("script:widget-item-index")]]

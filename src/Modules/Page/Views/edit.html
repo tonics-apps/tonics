@@ -1,19 +1,19 @@
 [[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
 [[import("Modules::Core/Views/Blocks/Page")]]
 
-[[hook_into('in_head_title')Pages Edit]]
+[[hook_into('Core::in_head_title')Pages Edit]]
 
-[[hook_into('in_main_header_title')Edit Page]]
+[[hook_into('Core::in_main_header_title')Edit Page]]
 
-[[hook_into('form_action')[[func('Page::route::posts.update', 'Page::route::slug')]]]]
+[[hook_into('Core::form_action')[[func('Page::route::posts.update', 'Page::route::slug')]]]]
 
-[[hook_into('before_form_section')
+[[hook_into('Core::before_form_section')
 
 
 <input type="hidden" name="page_id" value="[[v('Data.page_id')]]">
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post")]]
     [[_use("script:tinymce")]]

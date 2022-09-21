@@ -1,11 +1,11 @@
 [[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
 [[import("Modules::Core/Views/Blocks/Post")]]
 
-[[hook_into('in_head_title')Posts Index]]
+[[hook_into('Core::in_head_title')Posts Index]]
 
-[[hook_into('in_main_header_title')Posts]]
+[[hook_into('Core::in_main_header_title')Posts]]
 
-[[hook_into('after_in_main_form_and_filter_date')
+[[hook_into('Core::after_in_main_form_and_filter_date')
     <div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
     <div class="menu-box-checkbox-items max-height:300px overflow:auto">Choose Categories (All By Default)
         <ul class="menu-box-radiobox-items list:style:none">
@@ -15,7 +15,7 @@
 </div>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]

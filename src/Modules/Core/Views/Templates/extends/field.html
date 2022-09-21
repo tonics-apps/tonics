@@ -1,7 +1,7 @@
-[[hook_into('in_main')
-<form method="post" class="EditorsForm" id="EditorsForm"  action="[[add_hook('form_action')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+[[hook_into('Core::in_main')
+<form method="post" class="EditorsForm" id="EditorsForm"  action="[[add_hook('Core::form_action')]]" accept-charset="UTF-8" enctype="multipart/form-data">
   <input type="hidden" name="token" value="[[csrf()]]" >
-  [[add_hook('before_form_section')]]
+  [[add_hook('Core::before_form_section')]]
   <section class="post-admin-wrapper owl">
     <div class="admin-post-widget">
       <ul class="field-menu-ul width:100% menu-arranger list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap align-items:center">

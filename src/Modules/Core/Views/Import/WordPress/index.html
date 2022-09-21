@@ -1,9 +1,9 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 
-[[hook_into('in_head_title')WordPress Import]]
-[[hook_into('in_main_header_title')WordPress Import]]
+[[hook_into('Core::in_head_title')WordPress Import]]
+[[hook_into('Core::in_main_header_title')WordPress Import]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 
 <form id="ImportForm" method="post" class="owl" action="" accept-charset="UTF-8" enctype="multipart/form-data">
     <input type="hidden" name="tonics_csrf_token" value="[[csrf()]]" >
@@ -63,7 +63,7 @@
 </form>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:wp-import")]]
     [[_use("session:delete-artifacts")]]

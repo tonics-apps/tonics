@@ -3,32 +3,32 @@
 [[import("Modules::Core/Views/Blocks/Authentication")]]
 [[import("Modules::Core/Views/Blocks/Default")]]
 
-[[on_hook_into_event('core')]]
+[[on_hook_into_event()]]
 
-[[add_hook('before_html')]]
-<html lang="en" [[add_hook('in_html_attribute')]]>
+[[add_hook('Core::before_html')]]
+<html lang="en" [[add_hook('Core::in_html_attribute')]]>
 
-[[add_hook('before_head')]]
+[[add_hook('Core::before_head')]]
 
-<head [[add_hook('in_head_attribute')]]>
+<head [[add_hook('Core::in_head_attribute')]]>
     [[_use("default-secure-meta")]]
     [[_use("main-css-style")]]
-    <title>[[add_hook('in_head_title')]]</title>
-    [[add_hook('in_head')]]
+    <title>[[add_hook('Core::in_head_title')]]</title>
+    [[add_hook('Core::in_head')]]
 </head>
 
-[[add_hook('before_body')]]
-<body class="body-sticky-footer bg:gray-two" [[add_hook('in_body_attribute')]]>
+[[add_hook('Core::before_body')]]
+<body class="body-sticky-footer bg:gray-two" [[add_hook('Core::in_body_attribute')]]>
 
     [[_use("default-inline-svg")]]
 
-    [[add_hook('in_body')]]
+    [[add_hook('Core::in_body')]]
 
-    [[add_hook('before_header')]]
-    <header [[add_hook("in_header_attribute")]]>
+    [[add_hook('Core::before_header')]]
+    <header [[add_hook("Core::in_header_attribute")]]>
 
-    [[add_hook('header_section')
-        <section class="[[add_hook('in_header_section_class')]]">
+    [[add_hook('Core::header_section')
+        <section class="[[add_hook('Core::in_header_section_class')]]">
             <div class="site-logo">
                 <a href="[[url('admin.dashboard')]]" rel="home" itemprop="url">
                     <img src="/logo/o-ola-micky-logo.svg" class="image:avatar" alt="Tonics Official Logo" title="O-Ọlá Official Logo">
@@ -37,14 +37,14 @@
             <nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
                 <ul class="site-navigation-ul d:flex flex-gap list:style:none">
                     [[- The nested contents is hook default data -]]
-                    [[add_hook('in_site_navigation_ul')]]
+                    [[add_hook('Core::in_site_navigation_ul')]]
                 </ul>
             </nav>
         </section>
     ]]
 
-    [[hook_into('in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:space-around]]
-    [[hook_into('in_site_navigation_ul')
+    [[hook_into('Core::in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:space-around]]
+    [[hook_into('Core::in_site_navigation_ul')
         [[event('\App\Modules\Core\Events\OnAdminMenu', 'generateMenuTree')]]
         <li class="menu-block" data-menu-depth="0">
             <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
@@ -77,22 +77,22 @@
         </li>
     ]]
 
-    [[add_hook('in_header')]]
+    [[add_hook('Core::in_header')]]
     </header>
-    [[add_hook('after_header')]]
+    [[add_hook('Core::after_header')]]
 
     <main style="margin-bottom: 2em;" id="main" class="flex:one owl" tabindex="-1" data-container_for_selection="true">
-        [[add_hook('before_in_main_header_title')]]
-        <header class="main-header text-align:center padding:default">[[add_hook('in_main_header_title')]]</header>
-        [[add_hook('in_main')]]
+        [[add_hook('Core::before_in_main_header_title')]]
+        <header class="main-header text-align:center padding:default">[[add_hook('Core::in_main_header_title')]]</header>
+        [[add_hook('Core::in_main')]]
     </main>
-    [[add_hook('after_main')]]
+    [[add_hook('Core::after_main')]]
 
-    [[add_hook('before_closing_body')]]
+    [[add_hook('Core::before_closing_body')]]
 </body>
-    [[add_hook('after_body')]]
+    [[add_hook('Core::after_body')]]
 
-    [[add_hook('before_footer')]]
+    [[add_hook('Core::before_footer')]]
 <footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
     <nav class="footer-section d:flex flex-d:column justify-content:center align-items:center flex-gap:small">
         <div class="site-info">
@@ -100,7 +100,7 @@
             </span>
         </div>
     </nav>
-    [[add_hook('in_footer')]]
+    [[add_hook('Core::in_footer')]]
 </footer>
-    [[add_hook('after_footer')]]
+    [[add_hook('Core::after_footer')]]
 </html>

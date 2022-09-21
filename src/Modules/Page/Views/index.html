@@ -1,7 +1,7 @@
 [[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
 
-[[hook_into('in_head_title')Page Index]]
-[[hook_into('in_main_header_title')Pages]]
+[[hook_into('Core::in_head_title')Page Index]]
+[[hook_into('Core::in_main_header_title')Pages]]
 
 [[b('admin_page_query_callback')
 
@@ -39,7 +39,7 @@
 </li>
 ]]
 
-[[hook_into('after_in_main_form_and_filter')
+[[hook_into('Core::after_in_main_form_and_filter')
 
     [[SQL_BLOCK('reusable_sql')[[FROM('pages')]] ]]
 
@@ -91,7 +91,7 @@
 
 ]]
 
-[[hook_into('after_main')
+[[hook_into('Core::after_main')
 <form id="selectUtilitiesForm" method="get" action="" class="margin-top:0 admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
     <input type="hidden" name="token" value="[[csrf()]]" >
     <div class="form-group">
@@ -100,7 +100,7 @@
 </form>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]

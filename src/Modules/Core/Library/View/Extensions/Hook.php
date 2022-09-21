@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Library\View\Extensions;
 
+use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
@@ -24,13 +25,13 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  * <br>
  * To create a hook or a reserved spot, you do:
  *
- * `[[add_hook('hook_name')]]`
+ * `[[add_hook('Core::hook_name')]]`
  *
  * <br>
  * To use the hook later, you do:
  *
  * ```
- * [[hook_into('in_head')This data would be hooked into in_head]]
+ * [[hook_into('Core::in_head')This data would be hooked into in_head]]
  * ```
  *
  * <br>
@@ -113,8 +114,19 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
         }
 
         if ($current === 'add_hook' || $current === 'add_placeholder'){
+
+            # There are context in which you won't be able to hook into an event, for-example, a foreach
+            # is a late-renderer, for that reason, we need to use the OnHookEvent renderer each time we get an add_hook
+            $onHookIntoEvent = new OnHookIntoEvent();
+            $onHookIntoTemplate = new OnHookIntoTemplate($this->getTonicsView());
+            if ($args[0] === 'after_data_table_header'){
+                # Get types of hook
+               // dd($args[0], $nodes, $onHookIntoTemplate);
+            }
+
             $hook_name = $args[0];
             $storage = $this->getTonicsView()->getModeStorage('add_hook');
+
             $output = '';
             if (isset($storage[$hook_name]['nodes'])){
                 /**@var Tag $node */

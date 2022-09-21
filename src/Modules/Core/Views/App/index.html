@@ -1,9 +1,9 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 
-[[hook_into('in_head_title')Applications Index]]
-[[hook_into('in_main_header_title')Apps ]]
+[[hook_into('Core::in_head_title')Applications Index]]
+[[hook_into('Core::in_main_header_title')Apps ]]
 
-[[hook_into('in_main')
+[[hook_into('Core::in_main')
 <section style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
     [[each("appListing in AppListingFrag")
     <input tabindex="0" type="radio" id="[[v('_loop.key')]]" name="app_tabs" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
@@ -46,7 +46,7 @@
 </section>
 ]]
 
-[[hook_into('before_footer')
+[[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]
