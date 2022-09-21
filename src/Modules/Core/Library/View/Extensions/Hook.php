@@ -121,7 +121,7 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
             $onHookIntoTemplate = new OnHookIntoTemplate($this->getTonicsView());
             if ($args[0] === 'after_data_table_header'){
                 # Get types of hook
-               // dd($args[0], $nodes, $onHookIntoTemplate);
+                dd($args[0], $nodes, $onHookIntoTemplate);
             }
 
             $hook_name = $args[0];
