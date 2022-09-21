@@ -146,7 +146,7 @@
                 <tr>
                     [[add_hook('Core::before_data_table_data')]]
                     [[each("dtData in dtRow")
-                    <td tabindex="-1">[[v('dtData')]]</td>
+                    <td tabindex="-1">[[_v('dtData')]]</td>
                     ]]
                     [[add_hook('Core::after_data_table_data')]]
                 </tr>

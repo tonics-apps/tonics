@@ -10,7 +10,6 @@
 
 namespace App\Modules\Core\Library\View\Extensions;
 
-use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
@@ -135,23 +134,31 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
 
                 # Recall the storage
                 $storage = $this->getTonicsView()->getModeStorage('add_hook');
+
+                dd($addHookToken, $this->getTonicsView()->getModeStorage('add_hook'), $storage[$hook_name]);
             }
 
-            $output = '';
-            if (isset($storage[$hook_name]['nodes'])){
-                /**@var Tag $node */
-                foreach ($storage[$hook_name]['nodes'] as $node){
-                    $mode = $this->getTonicsView()->getModeRendererHandler($node->getTagName());
-                    if ($mode instanceof TonicsModeRendererInterface) {
-                        $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
-                        $output .= $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
-                    }
-                }
-                return $output;
-            }
+            return $this->renderAddHookNodes($storage, $hook_name);
         }
 
         return '';
+    }
+
+    public function renderAddHookNodes($storage, $hook_name): string
+    {
+        $output = '';
+        if (isset($storage[$hook_name]['nodes'])){
+            /**@var Tag $node */
+            foreach ($storage[$hook_name]['nodes'] as $node){
+                $mode = $this->getTonicsView()->getModeRendererHandler($node->getTagName());
+                if ($mode instanceof TonicsModeRendererInterface) {
+                    $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
+                    $output .= $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
+                }
+            }
+        }
+
+        return $output;
     }
 
     public function handleHookInto(OnTagToken $tagToken)
