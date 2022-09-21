@@ -33,8 +33,9 @@ class ViewHookIntoHandler implements HandlerInterface
             });
         }
 
-        $event->hookInto('Core::after_data_table_header', function (TonicsView $tonicsView){
-             dd($tonicsView, $tonicsView->accessArrayWithSeparator('DataTable.headers'));
+        $event->hookInto('Core::before_data_table_data', function (TonicsView $tonicsView){
+            // return '<td tabindex="-1">Checkmate</td>';
+              dd($tonicsView->getVariableData(), $tonicsView);
         });
 
         $event->hookInto('in_head', function (TonicsView $tonicsView){

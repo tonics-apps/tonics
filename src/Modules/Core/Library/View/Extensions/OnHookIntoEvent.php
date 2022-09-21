@@ -48,6 +48,15 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
      */
     public function render(string $content, array $args, array $nodes = []): string
     {
+        $this->handleHookIntoTemplateEventDispatcher();
+        return '';
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function handleHookIntoTemplateEventDispatcher()
+    {
         $onHookIntoTemplateEvent = new OnHookIntoTemplate($this->getTonicsView());
         event()->dispatch($onHookIntoTemplateEvent);
 
@@ -59,11 +68,10 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
             $handler = $hooker['handler'];
             if (isset($storage[$hook_name])){
                 $tag = new Tag('char');
-                $tag->setContent($handler($this->getTonicsView()));
+                $tag->setContent($handler($this->getTonicsView()) ?? '');
                 $storage[$hook_name]['nodes'] = [...$storage[$hook_name]['nodes'], $tag];
             }
         }
         $this->getTonicsView()->storeDataInModeStorage('add_hook', $storage);
-        return '';
     }
 }

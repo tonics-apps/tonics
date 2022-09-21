@@ -16,6 +16,7 @@ use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
 use Devsrealm\TonicsTemplateSystem\Node\Tag;
 use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
+use function Sodium\add;
 
 
 /**
@@ -102,6 +103,9 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
         return $this->error;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function render(string $content, array $args, array $nodes = []): string
     {
         $current = $this->getTonicsView()->getCurrentRenderingContentMode();
@@ -115,17 +119,23 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
 
         if ($current === 'add_hook' || $current === 'add_placeholder'){
 
-            # There are context in which you won't be able to hook into an event, for-example, a foreach
-            # is a late-renderer, for that reason, we need to use the OnHookEvent renderer each time we get an add_hook
-            $onHookIntoEvent = new OnHookIntoEvent();
-            $onHookIntoTemplate = new OnHookIntoTemplate($this->getTonicsView());
-            if ($args[0] === 'after_data_table_header'){
-                # Get types of hook
-                dd($args[0], $nodes, $onHookIntoTemplate);
-            }
-
             $hook_name = $args[0];
             $storage = $this->getTonicsView()->getModeStorage('add_hook');
+
+            if (isset($storage[$hook_name]['nodes']) === false){
+                # There are context in which you won't be able to hook into an event, for-example, a foreach
+                # is a late-renderer, for that reason, we need to use the OnHookEvent renderer each time we have an add_hook, but
+                # it doesn't exist in the add_hook storage.
+                $addHookToken = new OnTagToken((new Tag('add_hook'))->setNodes($nodes)->setArgs($args)->setContent($content));
+                $this->stickToContent($addHookToken);
+
+                /** @var TonicsModeRendererInterface $onHookIntoEvent */
+                $onHookIntoEvent = $this->getTonicsView()->getModeRendererHandler('on_hook_into_event');
+                $onHookIntoEvent->render('', []);
+
+                # Recall the storage
+                $storage = $this->getTonicsView()->getModeStorage('add_hook');
+            }
 
             $output = '';
             if (isset($storage[$hook_name]['nodes'])){

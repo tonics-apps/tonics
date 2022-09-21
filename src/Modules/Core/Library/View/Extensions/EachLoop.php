@@ -67,15 +67,6 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                     $this->validateEach($explodedArgs);
                     $node->setArgs(['_name' => $explodedArgs[0], '_variable' => $explodedArgs[array_key_last($explodedArgs)]]);
                 }
-
-                # So, hook can work
-                /*if ($node->getTagName() === 'add_hook' || $node->getTagName() === 'add_placeholder'){
-                    $mode = $view->getModeRendererHandler($node->getTagName());
-                    if ($mode instanceof TonicsModeInterface) {
-                        $addHookToken = new OnTagToken($node);
-                        $mode->stickToContent($addHookToken);
-                    }
-                }*/
             }
         }
         $view->getContent()->addToContent('each', $tagToken->getContent(), ['loop' => $tagToken]);

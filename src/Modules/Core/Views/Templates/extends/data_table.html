@@ -132,28 +132,26 @@
     </div>
     [[add_hook('Core::after_in_main_form_and_filter')]]
     <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
-        <table id="dt" style="grid-template-columns:
-        [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]])
-            [[add_hook('Core::after_data_table_header')]]
-        ]];
-        ">
+        <table id="dt" style="grid-template-columns: [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]]) ]];">
         <thead>
         <tr>
             [[each("dtHeader in DataTable.headers")
             <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
             ]]
+            [[add_hook('Core::after_data_table_header')]]
         </tr>
             </thead>
             <tbody class="max-height:300px overflow-x:auto">
                 [[each("dtRow in DataTable.postData.data")
                 <tr>
+                    [[add_hook('Core::before_data_table_data')]]
                     [[each("dtData in dtRow")
                     <td tabindex="-1">[[v('dtData')]]</td>
                     ]]
                     [[add_hook('Core::after_data_table_data')]]
                 </tr>
-                [[add_hook('Core::after_data_table_row')]]
                 ]]
+                [[add_hook('Core::after_data_table_row')]]
             </tbody>
         </table>
         <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
