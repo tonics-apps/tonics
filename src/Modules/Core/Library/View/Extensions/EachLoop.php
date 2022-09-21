@@ -128,8 +128,8 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
             foreach ($tag->getChildrenRecursive($tag) as $node) {
                 $mode = $view->getModeRendererHandler($node->getTagName());
 
-                if ($node->getTagName() === 'add_hook' && $iteration === 1){
-                    dd($node, $this->getTonicsView()->accessArrayWithSeparator('dtRow'), $this->getTonicsView()->getModeStorage('add_hook'));
+                if ($node->getTagName() === 'add_hook' && $iteration === 2){
+                 //   dd($eachOutput, $this->getTonicsView()->accessArrayWithSeparator('dtRow'), $this->getTonicsView()->getModeStorage('add_hook'));
                 }
 
                 if ($mode instanceof TonicsModeRendererInterface) {

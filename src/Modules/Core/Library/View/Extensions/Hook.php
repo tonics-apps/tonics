@@ -135,7 +135,15 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
                 # Recall the storage
                 $storage = $this->getTonicsView()->getModeStorage('add_hook');
 
-                dd($addHookToken, $this->getTonicsView()->getModeStorage('add_hook'), $storage[$hook_name]);
+                $output = $this->renderAddHookNodes($storage, $hook_name);
+
+                # We unset the $hook_name from the storage once we are done, this way in a foreach context
+                # a new one can start from fresh without any issue
+                unset($storage[$hook_name]);
+                $this->getTonicsView()->storeDataInModeStorage('add_hook', $storage);
+
+                # return the output
+                return $output;
             }
 
             return $this->renderAddHookNodes($storage, $hook_name);
