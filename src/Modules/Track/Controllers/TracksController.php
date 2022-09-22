@@ -12,6 +12,7 @@ namespace App\Modules\Track\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Controllers\Controller;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
@@ -91,6 +92,34 @@ class TracksController extends Controller
             'DefaultGenresMetaBox' => $this->getTrackData()->genreCheckBoxListing($genres, inputName: 'genre[]', type: 'checkbox'),
         ]);
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
+    }
+
 
     /**
      * @throws \Exception
@@ -241,99 +270,22 @@ class TracksController extends Controller
     }
 
     /**
-     * @throws \Exception
+     * @param $entityBag
+     * @return bool
+     * @throws Exception
      */
-    #[NoReturn] public function trash(string $slug)
+    protected function updateMultiple($entityBag): bool
     {
-        $toUpdate = [
-            'track_status' => -1
-        ];
-        db()->FastUpdate($this->getTrackData()->getTrackTable(), $toUpdate, db()->Where('track_slug', '=', $slug));
-        session()->flash(['Track Moved To Trash'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tracks.index'));
+        return $this->getTrackData()->dataTableUpdateMultiple('track_id', Tables::getTable(Tables::TRACKS), $entityBag, $this->trackUpdateMultipleRule());
     }
 
     /**
-     * @throws \Exception
+     * @param $entityBag
+     * @return bool
      */
-    #[NoReturn] public function trashMultiple()
+    public function deleteMultiple($entityBag): bool
     {
-        if (!input()->fromPost()->hasValue('itemsToTrash')){
-            session()->flash(['Nothing To Trash'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('tracks.index'));
-        }
-        $itemsToTrash = array_map(function ($item){
-            $itemCopy = json_decode($item, true);
-            $item = [];
-            foreach ($itemCopy as $k => $v){
-                if (key_exists($k, array_flip($this->getTrackData()->getTrackColumns()))){
-                    $item[$k] = $v;
-                }
-            }
-            $item['track_status'] = '-1';
-            return $item;
-        }, input()->fromPost()->retrieve('itemsToTrash'));
-
-        try {
-            db()->insertOnDuplicate(Tables::getTable(Tables::TRACKS), $itemsToTrash, ['track_status']);
-        } catch (\Exception $e){
-            session()->flash(['Fail To Trash Track Items']);
-            redirect(route('tracks.index'));
-        }
-        session()->flash(['Track(s) Trashed'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tracks.index'));
-    }
-
-    /**
-     * @param string $slug
-     * @return void
-     * @throws \Exception
-     */
-    public function delete(string $slug)
-    {
-        try {
-            $this->getTrackData()->deleteWithCondition(whereCondition: "track_slug = ?", parameter: [$slug], table: $this->getTrackData()->getTrackTable());
-            session()->flash(['Track Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('tracks.index'));
-        } catch (\Exception $e){
-            $errorCode = $e->getCode();
-            switch ($errorCode){
-                default:
-                    session()->flash(['Failed To Delete Track']);
-                    break;
-            }
-            redirect(route('tracks.index'));
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function deleteMultiple()
-    {
-        if (!input()->fromPost()->hasValue('itemsToDelete')){
-            session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('tracks.index'));
-        }
-
-        $this->getTrackData()->deleteMultiple(
-            $this->getTrackData()->getTrackTable(),
-            array_flip($this->getTrackData()->getTrackColumns()),
-            'track_id',
-            onSuccess: function (){
-                session()->flash(['Track Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-                redirect(route('tracks.index'));
-            },
-            onError: function ($e){
-                $errorCode = $e->getCode();
-                switch ($errorCode){
-                    default:
-                        session()->flash(['Failed To Delete Track']);
-                        break;
-                }
-                redirect(route('tracks.index'));
-            },
-        );
+        return $this->getTrackData()->dataTableDeleteMultiple('track_id', Tables::getTable(Tables::TRACKS), $entityBag);
     }
 
     /**

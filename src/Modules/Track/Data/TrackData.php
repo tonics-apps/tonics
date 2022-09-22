@@ -233,6 +233,7 @@ HTML;
      * @param string $inputName
      * @param string $type
      * @return string
+     * @throws \Exception
      */
     public function genreCheckBoxListing($genres, bool $showSearch = true, OnTrackCreate $onTrackCreate = null, string $inputName = 'fk_genre_id', string $type = 'radio'): string
     {
@@ -263,6 +264,10 @@ HTML;
     <label for="$id">{$onTrackCreate->getTrackGenreName()}</label>
 </li>
 HTML;
+            } else {
+                $selectedParam = url()->getParam('genre');
+                dd($selectedParam, 'ff');
+               // $selected = array_combine($selected, $selected);
             }
 
             foreach ($genres->data as $genre){
