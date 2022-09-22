@@ -11,12 +11,15 @@
 namespace App\Modules\Track\Controllers\Artist;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnArtistCreate;
 use App\Modules\Track\Rules\TrackValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
 class ArtistController
@@ -35,13 +38,67 @@ class ArtistController
      */
     public function index()
     {
-        view('Modules::Track/Views/Artist/index');
+        $table = Tables::getTable(Tables::ARTISTS);
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::ARTISTS . '::' . 'artist_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'artist_id'],
+            ['type' => 'text', 'slug' => Tables::ARTISTS . '::' . 'artist_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'artist_name'],
+            ['type' => 'date_time_local', 'slug' => Tables::ARTISTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+        ];
+
+        $tblCol = '*, CONCAT("/admin/artists/", artist_slug, "/edit" ) as _edit_link, CONCAT("/artists/", artist_slug) as _preview_link';
+
+        $data = db()->Select($tblCol)
+            ->From($table)
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('artist_name', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        
+        view('Modules::Track/Views/Artist/index', [
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => $data ?? [],
+                'dataTableType' => 'EDITABLE_PREVIEW',
+
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
+        ]);
     }
 
     /**
      * @throws \Exception
      */
-    public function create()
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function create(): void
     {
         view('Modules::Track/Views/Artist/create');
     }
@@ -50,7 +107,7 @@ class ArtistController
      * Store a newly created resource in storage.
      * @throws \Exception
      */
-    #[NoReturn] public function store()
+    #[NoReturn] public function store(): void
     {
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->artistStoreRule());
@@ -79,7 +136,7 @@ class ArtistController
      * @return void
      * @throws \Exception
      */
-    public function edit(string $slug)
+    public function edit(string $slug): void
     {
         $artist = $this->getTrackData()->selectWithCondition($this->getTrackData()->getArtistTable(), ['*'], "artist_slug = ?", [$slug]);
         if (!is_object($artist)) {
@@ -120,62 +177,25 @@ class ArtistController
     }
 
     /**
-     * @param string $slug
-     * @return void
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function delete(string $slug)
+    protected function updateMultiple($entityBag): bool
     {
-        try {
-            $this->getTrackData()->deleteWithCondition(whereCondition: "artist_slug = ?", parameter: [$slug], table: $this->getTrackData()->getArtistTable());
-            session()->flash(['Artist Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('artists.index'));
-        } catch (\Exception $e){
-            $errorCode = $e->getCode();
-            switch ($errorCode){
-                case "23000";
-                    session()->flash(["Artist is Currently Assigned to Track(s)"]);
-                    break;
-                default:
-                    session()->flash(['Failed To Delete Artist']);
-                    break;
-            }
-            redirect(route('artists.index'));
-        }
+        return $this->getTrackData()->dataTableUpdateMultiple('artist_id', Tables::getTable(Tables::ARTISTS), $entityBag, $this->artistUpdateMultipleRule());
     }
 
     /**
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function deleteMultiple(): void
+    public function deleteMultiple($entityBag): bool
     {
-        if (!input()->fromPost()->hasValue('itemsToDelete')){
-            session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('artists.index'));
-        }
-
-        $this->getTrackData()->deleteMultiple(
-            $this->getTrackData()->getArtistTable(),
-            array_flip($this->getTrackData()->getArtistColumns()),
-            'artist_id',
-            onSuccess: function (){
-                session()->flash(['Artist Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-                redirect(route('artists.index'));
-            },
-            onError: function ($e){
-                $errorCode = $e->getCode();
-                switch ($errorCode){
-                    case "23000";
-                        session()->flash(["Artist is Currently Assigned to Track(s)"]);
-                        break;
-                    default:
-                        session()->flash(['Failed To Delete Artist']);
-                        break;
-                }
-                redirect(route('artists.index'));
-            },
-        );
+        return $this->getTrackData()->dataTableDeleteMultiple('artist_id', Tables::getTable(Tables::ARTISTS), $entityBag);
     }
+
 
     /**
      * @return TrackData

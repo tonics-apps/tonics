@@ -41,6 +41,8 @@ trait Routes
                     # TRACK RESOURCES...
                 #---------------------------------
                 $route->get('', [TracksController::class, 'index'], alias: 'index');
+                $route->post('', [TracksController::class, 'dataTable'], alias: 'dataTables');
+
                 $route->post('store', [TracksController::class, 'store']);
                 $route->get('create', [TracksController::class, 'create'], alias: 'create');
                 $route->get(':track/edit', [TracksController::class, 'edit'], alias: 'edit');
@@ -59,6 +61,8 @@ trait Routes
                     # ARTIST RESOURCES...
                 #---------------------------------
                 $route->get('', [ArtistController::class, 'index'], alias: 'index');
+                $route->post('', [ArtistController::class, 'dataTable'], alias: 'dataTables');
+
                 $route->post('store', [ArtistController::class, 'store']);
                 $route->get('create', [ArtistController::class, 'create'], alias: 'create');
                 $route->get(':artist/edit', [ArtistController::class, 'edit'], alias: 'edit');
@@ -73,6 +77,8 @@ trait Routes
                     # GENRE RESOURCES...
                 #--------------------------------
                 $route->get('', [GenreController::class, 'index'], alias: 'index');
+                $route->post('', [GenreController::class, 'dataTable'], alias: 'dataTables');
+
                 $route->post('store', [GenreController::class, 'store']);
                 $route->get('create', [GenreController::class, 'create'], alias: 'create');
                 $route->get(':genre/edit', [GenreController::class, 'edit'], alias: 'edit');
@@ -88,6 +94,8 @@ trait Routes
                 #---------------------------------
                 $route->group('/license', function (Route $route){
                     $route->get('', [LicenseController::class, 'index'],  alias: 'index');
+                    $route->post('', [LicenseController::class, 'dataTable'],  alias: 'dataTables');
+
                     $route->post('store', [LicenseController::class, 'store']);
                     $route->get('create', [LicenseController::class, 'create'], alias: 'create');
                     $route->get(':license/edit', [LicenseController::class, 'edit'], alias: 'edit');

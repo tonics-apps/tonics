@@ -201,7 +201,6 @@ trait TrackValidationRules
             'track_id' => ['numeric'],
             'track_title' => ['required', 'string'],
             'updated_at' => ['required', 'string'],
-            'fk_genre_id' => ['required', 'numeric'],
         ];
     }
 }

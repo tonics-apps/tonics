@@ -11,12 +11,15 @@
 namespace App\Modules\Track\Controllers\Genre;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnGenreCreate;
 use App\Modules\Track\Rules\TrackValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
 class GenreController
@@ -35,7 +38,61 @@ class GenreController
      */
     public function index()
     {
-        view('Modules::Track/Views/Genre/index');
+        $table = Tables::getTable(Tables::GENRES);
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::GENRES . '::' . 'genre_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'genre_id'],
+            ['type' => 'text', 'slug' => Tables::GENRES . '::' . 'genre_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'genre_name'],
+            ['type' => 'date_time_local', 'slug' => Tables::GENRES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+        ];
+
+        $tblCol = '*, CONCAT("/admin/genres/", genre_slug, "/edit" ) as _edit_link, CONCAT("/genres/", genre_slug) as _preview_link';
+
+        $data = db()->Select($tblCol)
+            ->From($table)
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('genre_name', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+
+        view('Modules::Track/Views/Genre/index', [
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => $data ?? [],
+                'dataTableType' => 'EDITABLE_PREVIEW',
+
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
+        ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
     }
 
     /**
@@ -121,26 +178,23 @@ class GenreController
     }
 
     /**
-     * @param string $slug
-     * @return void
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function delete(string $slug): void
+    protected function updateMultiple($entityBag): bool
     {
-        try {
-            $genre = $this->getTrackData()->selectWithCondition($this->getTrackData()->getGenreTable(), ['*'], "genre_slug = ?", [$slug]);
-            if (isset($genre->can_delete) && $genre->can_delete === 0){
-                session()->flash(["You Can't Delete a Default Genre"]);
-                redirect(route('genres.index'));
-            }
+        return $this->getTrackData()->dataTableUpdateMultiple('genre_id', Tables::getTable(Tables::GENRES), $entityBag, $this->genreUpdateMultipleRule());
+    }
 
-            $this->getTrackData()->deleteWithCondition(whereCondition: "genre_slug = ?", parameter: [$slug], table: $this->getTrackData()->getGenreTable());
-            session()->flash(['Genre Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('genres.index'));
-        } catch (\Exception){
-            session()->flash(['Failed To Delete Genre']);
-            redirect(route('genres.index'));
-        }
+    /**
+     * @param $entityBag
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteMultiple($entityBag): bool
+    {
+        return $this->getTrackData()->dataTableDeleteMultiple('genre_id', Tables::getTable(Tables::GENRES), $entityBag);
     }
 
     /**
