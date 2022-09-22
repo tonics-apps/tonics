@@ -40,5 +40,45 @@ HTML;
             return $dataFrag;
         });
 
+        /** @var $event OnHookIntoTemplate */
+        $event->hookInto('Core::before_data_table', function (TonicsView $tonicsView){
+            $dtHeaders = $tonicsView->accessArrayWithSeparator('DataTable.headers');
+            if ($this->isDataTableTypeEditablePreview($tonicsView)){
+                $dtHeaders[] = [
+                    'title' => 'Actions',
+                    'minmax' => "250px, 1.2fr",
+                    'td' => 'postView'
+                ];
+
+                $tonicsView->addToVariableData('DataTable.headers', $dtHeaders);
+            }
+        });
+
+        $event->hookInto('Core::before_data_table_data', function (TonicsView $tonicsView) {
+            if ($this->isDataTableTypeEditablePreview($tonicsView)){
+                $dtRow = $tonicsView->accessArrayWithSeparator('dtRow');
+                $editButton = <<<HTML
+<a class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-3" href="$dtRow->_edit_link">
+    <span>Edit</span>
+</a>
+
+<a target="_blank" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-3" href="$dtRow->_preview_link">
+    <span>Preview</span>
+</a>
+HTML;
+                $dtRow->postView = $editButton;
+            }
+        });
+    }
+
+    /**
+     * @param TonicsView $tonicsView
+     * @return mixed
+     */
+    public function isDataTableTypeEditablePreview(TonicsView $tonicsView): mixed
+    {
+        return $tonicsView->accessArrayWithSeparator('DataTable.dataTableType') === 'EDITABLE_PREVIEW';
     }
 }
