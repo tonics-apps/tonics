@@ -42,6 +42,18 @@ trait WidgetValidationRules
         ];
     }
 
+    /**
+     * @return \string[][]
+     */
+    public function widgetUpdateMultipleRule(): array
+    {
+        return [
+            'widget_id' => ['numeric'],
+            'widget_name' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
     public function menuWidgetItemsStoreRule(): array
     {
         return [

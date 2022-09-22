@@ -1,28 +1,9 @@
-[[inherit("Modules::Core/Views/Templates/core")]]
-[[import("Modules::Core/Views/Blocks/Field")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
 
 [[hook_into('Core::in_head_title')Field Index]]
 [[hook_into('Core::in_main_header_title')Field Index]]
 
-[[hook_into('Core::in_main')
-    <div class="search-admin width:100% margin-top:0">
-        [[func('Field::form::search', 'empty', 'method-get')]]
-    </div>
-    [[_use('Field::view::index')]]
-]]
-
-[[hook_into('Core::after_main')
-    [[_use('Admin-Next-Prev-Link')]]
-    <form id="selectUtilitiesForm" method="get" action="" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
-        <input type="hidden" name="token" value="[[csrf()]]" >
-        <div class="form-group">
-            [[_use('SelectUtilitiesForm::PerPageGroup')]]
-        </div>
-        <div class="form-group">
-            [[func('SelectUtilitiesForm::ActionGroup', 'SelectUtilitiesForm::ActionGroup::MoreActionForField')]]
-        </div>
-    </form>
-]]
+[[reset_hook('Core::in_main_form_and_filter_status')]]
 
 [[hook_into('Core::before_footer')
     [[_use("script:variables")]]

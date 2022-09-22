@@ -42,6 +42,18 @@ trait FieldValidationRules
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function fieldUpdateMultipleRule(): array
+    {
+        return [
+            'field_id' => ['numeric'],
+            'field_name' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
     public function fieldItemsStoreRule(): array
     {
         return [

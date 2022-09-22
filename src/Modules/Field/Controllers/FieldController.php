@@ -11,13 +11,16 @@
 namespace App\Modules\Field\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldCreate;
 use App\Modules\Field\Rules\FieldValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
 class FieldController
@@ -36,22 +39,61 @@ class FieldController
      */
     public function index()
     {
-        $cols = '`field_id`, `field_name`, `field_slug`, `created_at`';
-        $data = $this->getFieldData()->generatePaginationData(
-            $cols,
-            'field_name',
-            $this->getFieldData()->getFieldTable());
+        $table = Tables::getTable(Tables::FIELD);
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::FIELD . '::' . 'field_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'field_id'],
+            ['type' => 'text', 'slug' => Tables::FIELD . '::' . 'field_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'field_name'],
+            ['type' => 'date_time_local', 'slug' => Tables::FIELD . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+        ];
 
-        $widgetListing = '';
-        if ($data !== null){
-            $widgetListing = $this->getFieldData()->adminFieldListing($data->data);
-            unset($data->data);
-        }
+        $tblCol = '*, CONCAT("/admin/tools/field/", field_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/field/items/", field_slug, "/builder") as _builder_link';
 
+        $data = db()->Select($tblCol)
+            ->From($table)
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('field_name', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        
         view('Modules::Field/Views/index', [
-            'Data' => $data,
-            'FieldListing' => $widgetListing
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => $data ?? [],
+                'dataTableType' => 'EDITABLE_BUILDER',
+
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
         ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getFieldData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getFieldData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
     }
 
     /**
@@ -137,48 +179,23 @@ class FieldController
 
 
     /**
-     * @param string $slug
-     * @return void
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function delete(string $slug)
+    protected function updateMultiple($entityBag): bool
     {
-        try {
-            $this->getFieldData()->deleteWithCondition(whereCondition: "field_slug = ? AND can_delete = 1", parameter: [$slug], table: $this->getFieldData()->getFieldTable());
-            session()->flash(['Field Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            
-            redirect(route('fields.index'));
-        } catch (\Exception){
-            session()->flash(['Failed To Delete Field']);
-            redirect(route('fields.index'));
-        }
+        return $this->getFieldData()->dataTableUpdateMultiple('field_id', Tables::getTable(Tables::FIELD), $entityBag, $this->fieldUpdateMultipleRule());
     }
 
     /**
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function deleteMultiple()
+    public function deleteMultiple($entityBag): bool
     {
-        if (!input()->fromPost()->hasValue('itemsToDelete')){
-            session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('fields.index'));
-        }
-
-        $this->getFieldData()->deleteMultiple(
-            $this->getFieldData()->getFieldTable(),
-            array_flip($this->getFieldData()->getFieldColumns()),
-            'field_id',
-            onSuccess: function (){
-                session()->flash(['Field Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-
-                redirect(route('fields.index'));
-            },
-            onError: function (){
-                session()->flash(['Failed To Delete Field']);
-                redirect(route('fields.index'));
-            },
-            moreWhereCondition: 'AND can_delete = 1',
-        );
+        return $this->getFieldData()->dataTableDeleteMultiple('field_id', Tables::getTable(Tables::FIELD), $entityBag);
     }
 
     /**

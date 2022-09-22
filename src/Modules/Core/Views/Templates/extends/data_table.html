@@ -145,7 +145,7 @@
         </tr>
             </thead>
             <tbody class="max-height:300px overflow-x:auto">
-                [[each("dtRow in DataTable.postData.data")
+                [[each("dtRow in DataTable.paginateData.data")
                 <tr>
                     [[add_hook('Core::before_data_table_data')]]
                     [[add_hook('Core::on_data_table_data')]]
@@ -162,7 +162,7 @@
         </table>
         <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
             <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
-                [[each("numberLinks in DataTable.postData.number_links")
+                [[each("numberLinks in DataTable.paginateData.number_links")
                 <li class="d:flex">
                     <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
                                     [[if('v[numberLinks.current] === bool[false]') color:black ]]

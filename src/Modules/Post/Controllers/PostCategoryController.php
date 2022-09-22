@@ -72,7 +72,7 @@ class PostCategoryController
         view('Modules::Post/Views/Category/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
-                'postData' => $data ?? [],
+                'paginateData' => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
             ],

@@ -25,7 +25,7 @@ final class Tables
         self::MENU_ITEMS => ['id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at'],
         self::MENUS => ['menu_id', 'menu_name', 'menu_slug', 'created_at', 'updated_at'],
         self::FIELD_ITEMS => ['id', 'fk_field_id', 'field_id', 'field_parent_id', 'field_name', 'field_options', 'created_at', 'updated_at'],
-        self::FIELD => ['field_id', 'field_name', 'field_slug', 'can_delete', 'created_at', 'updated_at'],
+        self::FIELD => ['field_id', 'field_name', 'field_slug', 'created_at', 'updated_at'],
         self::MIGRATIONS => ['id', 'migration'],
         self::POST_CATEGORIES => ['id', 'fk_cat_id', 'fk_post_id', 'created_at', 'updated_at'],
         self::POSTS => ['post_id', 'slug_id', 'user_id', 'image_url', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at'],

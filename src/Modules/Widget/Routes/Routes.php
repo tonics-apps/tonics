@@ -37,6 +37,8 @@ trait Routes
             #---------------------------------
             $route->group('/widget', function (Route $route){
                 $route->get('', [WidgetController::class, 'index'],  alias: 'index');
+                $route->post('', [WidgetController::class, 'dataTable'],  alias: 'dataTables');
+
                 $route->post('store', [WidgetController::class, 'store']);
                 $route->get('create', [WidgetController::class, 'create'], alias: 'create');
                 $route->get(':widget/edit', [WidgetController::class, 'edit'], alias: 'edit');

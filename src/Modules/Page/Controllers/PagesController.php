@@ -78,7 +78,7 @@ class PagesController
         view('Modules::Page/Views/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
-                'postData' => $data ?? [],
+                'paginateData' => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
             ],

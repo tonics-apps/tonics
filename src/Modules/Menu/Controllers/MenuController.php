@@ -46,8 +46,6 @@ class MenuController
             ['type' => 'date_time_local', 'slug' => Tables::MENUS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        // https://devsrealm.com/admin/tools/menu/items/header-menu/builder
-
         $tblCol = '*, CONCAT("/admin/tools/menu/", menu_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/menu/items/", menu_slug, "/builder") as _builder_link';
 
         $data = db()->Select($tblCol)
@@ -64,7 +62,7 @@ class MenuController
         view('Modules::Menu/Views/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
-                'postData' => $data ?? [],
+                'paginateData' => $data ?? [],
                 'dataTableType' => 'EDITABLE_BUILDER',
 
             ],
