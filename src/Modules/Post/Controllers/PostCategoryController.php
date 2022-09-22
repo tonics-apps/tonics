@@ -242,45 +242,12 @@ class PostCategoryController
      */
     protected function updateMultiple($entityBag): bool
     {
-        $table = Tables::getTable(Tables::CATEGORIES);
-        try {
-            $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
-            db()->beginTransaction();
-            foreach ($updateItems as $updateItem) {
-                $db = db();
-                $updateChanges = [];
-                $colForEvent = [];
-                foreach ($updateItem as $col => $value) {
-                    $tblCol = $this->getPostData()->validateTableColumnForDataTable($col);
-
-                    # We get the column (this also validates the table)
-                    $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
-
-                    $colForEvent[$tblCol[1]] = $value;
-                    $updateChanges[$setCol] = $value;
-                }
-
-                # Validate The col and type
-                $validator = $this->getValidator()->make($colForEvent, $this->postCategoryUpdateMultipleRule());
-                if ($validator->fails()) {
-                    throw new \Exception("DataTable::Validation Error {$validator->errorsAsString()}");
-                }
-
-                $catID = $updateChanges[table()->getColumn($table, 'cat_id')];
-                $db->FastUpdate($table, $updateChanges, db()->Where('cat_id', '=', $catID));
-            }
-            db()->commit();
-            apcu_clear_cache();
-            return true;
-        } catch (\Exception $exception) {
-            db()->rollBack();
-            return false;
-            // log..
-        }
+        return $this->getPostData()->dataTableUpdateMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
     }
 
     /**
-     * @throws \Exception
+     * @param $entityBag
+     * @return bool
      */
     public function deleteMultiple($entityBag): bool
     {

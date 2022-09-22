@@ -11,10 +11,13 @@
 namespace App\Modules\Core\Library;
 
 use App\Modules\Core\Configs\DatabaseConfig;
+use App\Modules\Core\Validation\Traits\Validator;
 use Exception;
 
 class AbstractDataLayer
 {
+
+    use Validator;
 
     const DataTableEventTypeSave = 'SaveEvent';
     const DataTableEventTypeDelete = 'DeleteEvent';
@@ -377,6 +380,60 @@ SQL, ...$parameter);
                 $onError();
             }
             return false;
+        }
+    }
+
+    /**
+     * @param string $id
+     * @param string $table
+     * @param $entityBag
+     * @param array $rules
+     * @param callable|null $onSuccess
+     * @param callable|null $onError
+     * @return bool
+     * @throws Exception
+     */
+    public function dataTableUpdateMultiple(string $id, string $table, $entityBag, array $rules = [], callable $onSuccess = null, callable $onError = null): bool
+    {
+        try {
+            $updateItems = $this->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
+            db()->beginTransaction();
+            foreach ($updateItems as $updateItem) {
+                $db = db();
+                $updateChanges = [];
+                $colForEvent = [];
+                foreach ($updateItem as $col => $value) {
+                    $tblCol = $this->validateTableColumnForDataTable($col);
+
+                    # We get the column (this also validates the table)
+                    $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
+
+                    $colForEvent[$tblCol[1]] = $value;
+                    $updateChanges[$setCol] = $value;
+                }
+
+                # Validate The col and type
+                $validator = $this->getValidator()->make($colForEvent, $rules);
+                if ($validator->fails()) {
+                    throw new \Exception("DataTable::Validation Error {$validator->errorsAsString()}");
+                }
+
+                $ID = $updateChanges[table()->getColumn($table, $id)];
+                $db->FastUpdate($table, $updateChanges, db()->Where($id, '=', $ID));
+                if ($onSuccess){
+                    $onSuccess($colForEvent, $entityBag);
+                }
+            }
+            db()->commit();
+            apcu_clear_cache();
+            return true;
+        } catch (\Exception $exception) {
+            db()->rollBack();
+            if ($onError){
+                $onError();
+            }
+            return false;
+            // log..
         }
     }
 }

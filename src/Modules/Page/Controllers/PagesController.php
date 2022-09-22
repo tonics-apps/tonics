@@ -238,41 +238,7 @@ class PagesController
      */
     protected function updateMultiple($entityBag): bool
     {
-        $pageTable = Tables::getTable(Tables::PAGES);
-        try {
-            $updateItems = $this->getPageData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
-            db()->beginTransaction();
-            foreach ($updateItems as $updateItem) {
-                $db = db();
-                $updateChanges = [];
-                $colForEvent = [];
-                foreach ($updateItem as $col => $value) {
-                    $tblCol = $this->getPageData()->validateTableColumnForDataTable($col);
-
-                    # We get the column (this also validates the table)
-                    $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
-
-                    $colForEvent[$tblCol[1]] = $value;
-                    $updateChanges[$setCol] = $value;
-                }
-
-                # Validate The col and type
-                $validator = $this->getValidator()->make($colForEvent, $this->pageUpdateMultipleRule());
-                if ($validator->fails()) {
-                    throw new \Exception("DataTable::Validation Error {$validator->errorsAsString()}");
-                }
-
-                $pageID = $updateChanges[table()->getColumn($pageTable, 'page_id')];
-                $db->FastUpdate($pageTable, $updateChanges, db()->Where('page_id', '=', $pageID));
-            }
-            db()->commit();
-            apcu_clear_cache();
-            return true;
-        } catch (\Exception $exception) {
-            db()->rollBack();
-            return false;
-            // log..
-        }
+        return $this->getPageData()->dataTableUpdateMultiple('page_id', Tables::getTable(Tables::PAGES), $entityBag, $this->pageUpdateMultipleRule());
     }
 
     /**
