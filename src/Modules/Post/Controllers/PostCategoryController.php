@@ -45,7 +45,7 @@ class PostCategoryController
     {
         $table = Tables::getTable(Tables::CATEGORIES);
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::CATEGORIES . '::' . 'cat_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'cat_id'],
+            ['type' => '', 'slug' => Tables::CATEGORIES . '::' . 'cat_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'cat_id'],
             ['type' => 'text', 'slug' => Tables::CATEGORIES . '::' . 'cat_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'cat_name'],
             ['type' => 'date_time_local', 'slug' => Tables::CATEGORIES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];

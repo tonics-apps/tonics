@@ -41,7 +41,7 @@ class WidgetController
     {
         $table = Tables::getTable(Tables::WIDGETS);
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::WIDGETS . '::' . 'widget_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'widget_id'],
+            ['type' => '', 'slug' => Tables::WIDGETS . '::' . 'widget_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'widget_id'],
             ['type' => 'text', 'slug' => Tables::WIDGETS . '::' . 'widget_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'widget_name'],
             ['type' => 'date_time_local', 'slug' => Tables::WIDGETS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];

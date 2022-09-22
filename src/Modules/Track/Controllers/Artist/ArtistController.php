@@ -40,7 +40,7 @@ class ArtistController
     {
         $table = Tables::getTable(Tables::ARTISTS);
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::ARTISTS . '::' . 'artist_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'artist_id'],
+            ['type' => '', 'slug' => Tables::ARTISTS . '::' . 'artist_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'artist_id'],
             ['type' => 'text', 'slug' => Tables::ARTISTS . '::' . 'artist_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'artist_name'],
             ['type' => 'date_time_local', 'slug' => Tables::ARTISTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];

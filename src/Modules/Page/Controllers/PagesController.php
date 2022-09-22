@@ -50,7 +50,7 @@ class PagesController
     {
         $table = Tables::getTable(Tables::PAGES);
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::PAGES . '::' . 'page_id', 'title' => 'Page ID', 'minmax' => '50px, .5fr', 'td' => 'page_id'],
+            ['type' => '', 'slug' => Tables::PAGES . '::' . 'page_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'page_id'],
             ['type' => 'text', 'slug' => Tables::PAGES . '::' . 'page_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'page_title'],
             ['type' => 'date_time_local', 'slug' => Tables::PAGES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];

@@ -41,7 +41,7 @@ class FieldController
     {
         $table = Tables::getTable(Tables::FIELD);
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::FIELD . '::' . 'field_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'field_id'],
+            ['type' => '', 'slug' => Tables::FIELD . '::' . 'field_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'field_id'],
             ['type' => 'text', 'slug' => Tables::FIELD . '::' . 'field_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'field_name'],
             ['type' => 'date_time_local', 'slug' => Tables::FIELD . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];

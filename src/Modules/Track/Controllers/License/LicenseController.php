@@ -11,12 +11,15 @@
 namespace App\Modules\Track\Controllers\License;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnLicenseCreate;
 use App\Modules\Track\Rules\TrackValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 use function view;
 
@@ -37,22 +40,61 @@ class LicenseController
      */
     public function index()
     {
-        $cols = '`license_id`, `license_name`, `license_slug`, `license_status`, `license_attr`';
-        $data = $this->getTrackData()->generatePaginationData(
-            $cols,
-            'license_name',
-            $this->getTrackData()->getLicenseTable());
+        $table = Tables::getTable(Tables::LICENSES);
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::LICENSES . '::' . 'license_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'license_id'],
+            ['type' => 'text', 'slug' => Tables::LICENSES . '::' . 'license_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'license_name'],
+            ['type' => 'date_time_local', 'slug' => Tables::LICENSES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+        ];
 
-        $licenseListing = '';
-        if ($data !== null){
-            $licenseListing = $this->getTrackData()->adminLicenseListing($data->data);
-            unset($data->data);
-        }
+        $tblCol = '*, CONCAT("/admin/tools/license/", license_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/license/items/", license_slug, "/builder") as _builder_link';
+
+        $data = db()->Select($tblCol)
+            ->From($table)
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('license_name', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
         view('Modules::Track/Views/License/index', [
-            'Data' => $data,
-            'LicenseListing' => $licenseListing
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => $data ?? [],
+                'dataTableType' => 'EDITABLE_BUILDER',
+
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
         ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
     }
 
     /**
@@ -135,45 +177,23 @@ class LicenseController
     }
 
     /**
-     * @param string $slug
-     * @return void
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function delete(string $slug)
+    protected function updateMultiple($entityBag): bool
     {
-        try {
-            $this->getTrackData()->deleteWithCondition(whereCondition: "license_slug = ?", parameter: [$slug], table: $this->getTrackData()->getLicenseTable());
-            session()->flash(['License Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('licenses.index'));
-        } catch (\Exception){
-            session()->flash(['Failed To Delete License']);
-            redirect(route('licenses.index'));
-        }
+        return $this->getTrackData()->dataTableUpdateMultiple('license_id', Tables::getTable(Tables::LICENSES), $entityBag, $this->licenseUpdateMultipleRule());
     }
 
     /**
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function deleteMultiple()
+    public function deleteMultiple($entityBag): bool
     {
-        if (!input()->fromPost()->hasValue('itemsToDelete')){
-            session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('licenses.index'));
-        }
-
-        $this->getTrackData()->deleteMultiple(
-            $this->getTrackData()->getLicenseTable(),
-            array_flip($this->getTrackData()->getLicenseColumns()),
-            'license_id',
-            onSuccess: function (){
-                session()->flash(['License Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-                redirect(route('licenses.index'));
-            },
-            onError: function (){
-                session()->flash(['Failed To Delete License']);
-                redirect(route('licenses.index'));
-            },
-        );
+        return $this->getTrackData()->dataTableDeleteMultiple('license_id', Tables::getTable(Tables::LICENSES), $entityBag);
     }
 
     /**
