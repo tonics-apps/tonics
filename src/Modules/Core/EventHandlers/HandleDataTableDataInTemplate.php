@@ -24,25 +24,21 @@ class HandleDataTableDataInTemplate implements HandlerInterface
     {
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('Core::on_data_table_data', function (TonicsView $tonicsView){
-            $td = [];
+            $dataFrag = '';
             $headers = $tonicsView->accessArrayWithSeparator('DataTable.headers');
             $dtRows = $tonicsView->accessArrayWithSeparator('dtRow');
             foreach ($headers as $header){
                 if (isset($header['td'])){
-                    $td[$header['td']] = $header['td'];
-                }
-            }
-
-            $dataFrag = '';
-            foreach ($dtRows as $key => $dtData){
-                if (key_exists($key, $td)){
-                    $dataFrag .=<<<HTML
-<td tabindex="-1">$dtData</td>
+                    if (property_exists($dtRows, $header['td'])){
+                        $data = $dtRows->{$header['td']};
+                        $dataFrag .=<<<HTML
+<td tabindex="-1">$data</td>
 HTML;
+                    }
                 }
             }
-
             return $dataFrag;
         });
+
     }
 }

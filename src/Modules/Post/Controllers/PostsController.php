@@ -77,8 +77,7 @@ class PostsController
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings']]) . ', CONCAT( cat_id, "::", cat_slug ) as fk_cat_id , ' .
-            table()->pickTable($postTbl, ['updated_at']);
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at']]) . ', CONCAT( cat_id, "::", cat_slug ) as fk_cat_id  ';
 
 
         $postData = db()->Select($tblCol)
