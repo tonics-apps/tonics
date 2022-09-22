@@ -131,7 +131,8 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                     $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
                     $eachOutput .= $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
                 }
-                helper()->garbageCollect();
+
+                helper()->garbageCollect(); # temporary solution to reduce memory increment in larger each loops.
                 ++$n;
             }
             ++$iteration;
