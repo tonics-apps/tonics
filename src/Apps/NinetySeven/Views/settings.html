@@ -5,10 +5,8 @@
 
 [[hook_into('form_action')/admin/tools/apps/ninety_seven/settings]]
 
-
-
-[[hook_into('before_footer')
-  [[_use("script:variables")]]
+[[hook_into('Core::before_footer')
   [[_use("script:core")]]
+  [[_use("script:variables")]]
   [[_use("session:delete-artifacts")]]
 ]]
