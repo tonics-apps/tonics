@@ -6,6 +6,9 @@
         <option value="-1" [[if("v[URL.PARAMS.status] == e[-1]")selected]]>Trash</option>
     </select>
 </label>
+]]
+
+[[hook_into('Core::in_main_form_and_filter_pageSize')
 <label for="page_size">Page Size
     <select class="default-selector border-width:default border:black color:black" name="per_page" id="page_size">
         <option value="5" [[if("v[URL.PARAMS.per_page] == e[5]")selected]]>5</option>
