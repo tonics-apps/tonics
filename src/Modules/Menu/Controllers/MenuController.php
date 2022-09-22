@@ -11,6 +11,7 @@
 namespace App\Modules\Menu\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
@@ -69,6 +70,33 @@ class MenuController
             ],
             'SiteURL' => AppConfig::getAppUrl(),
         ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getMenuData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getMenuData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
     }
 
     /**
@@ -140,45 +168,23 @@ class MenuController
     }
 
     /**
-     * @param string $slug
-     * @return void
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function delete(string $slug)
+    protected function updateMultiple($entityBag): bool
     {
-        try {
-            $this->getMenuData()->deleteWithCondition(whereCondition: "menu_slug = ?", parameter: [$slug], table: $this->getMenuData()->getMenuTable());
-            session()->flash(['Menu Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('menus.index'));
-        } catch (\Exception){
-            session()->flash(['Failed To Delete Menu']);
-            redirect(route('menus.index'));
-        }
+        return $this->getMenuData()->dataTableUpdateMultiple('menu_id', Tables::getTable(Tables::MENUS), $entityBag, $this->menuUpdateMultipleRule());
     }
 
     /**
+     * @param $entityBag
+     * @return bool
      * @throws \Exception
      */
-    public function deleteMultiple()
+    public function deleteMultiple($entityBag): bool
     {
-        if (!input()->fromPost()->hasValue('itemsToDelete')){
-            session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('menus.index'));
-        }
-
-        $this->getMenuData()->deleteMultiple(
-            $this->getMenuData()->getMenuTable(),
-            array_flip($this->getMenuData()->getMenuColumns()),
-            'menu_id',
-            onSuccess: function (){
-                session()->flash(['Menu Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-                redirect(route('menus.index'));
-            },
-            onError: function (){
-                session()->flash(['Failed To Delete Menu']);
-                redirect(route('menus.index'));
-            },
-        );
+        return $this->getMenuData()->dataTableDeleteMultiple('menu_id', Tables::getTable(Tables::MENUS), $entityBag);
     }
 
     /**

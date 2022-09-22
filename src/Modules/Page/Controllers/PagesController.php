@@ -242,7 +242,8 @@ class PagesController
     }
 
     /**
-     * @throws \Exception
+     * @param $entityBag
+     * @return bool
      */
     public function deleteMultiple($entityBag): bool
     {

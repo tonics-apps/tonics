@@ -34,6 +34,8 @@ trait Routes
             #---------------------------------
             $route->group('/menu', function (Route $route) {
                 $route->get('', [MenuController::class, 'index'], alias: 'index');
+                $route->post('', [MenuController::class, 'dataTable'], alias: 'dataTables');
+
                 $route->post('store', [MenuController::class, 'store']);
                 $route->get('create', [MenuController::class, 'create'], alias: 'create');
                 $route->get(':menu/edit', [MenuController::class, 'edit'], alias: 'edit');

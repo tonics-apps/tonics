@@ -42,6 +42,18 @@ trait MenuValidationRules
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function menuUpdateMultipleRule(): array
+    {
+        return [
+            'menu_id' => ['numeric'],
+            'menu_name' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
     public function menuItemsStoreRule(): array
     {
         return [
