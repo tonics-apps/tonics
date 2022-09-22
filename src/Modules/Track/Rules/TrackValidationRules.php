@@ -42,6 +42,18 @@ trait TrackValidationRules
         ];
     }
 
+    /**
+     * @return \string[][]
+     */
+    public function licenseUpdateMultipleRule(): array
+    {
+        return [
+            'license_id' => ['numeric'],
+            'license_name' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
     public function licenseItemsStoreRule(): array
     {
         return [
@@ -83,6 +95,18 @@ trait TrackValidationRules
     }
 
     /**
+     * @return \string[][]
+     */
+    public function artistUpdateMultipleRule(): array
+    {
+        return [
+            'artist_id' => ['numeric'],
+            'artist_name' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
+    /**
      * @throws \Exception
      */
     public function genreStoreRule(): array
@@ -109,6 +133,18 @@ trait TrackValidationRules
             'genre_slug' => ['required', 'string', 'unique' => [
                 $slugUnique => input()->fromPost()->retrieve('genre_id', '')]
             ]
+        ];
+    }
+
+    /**
+     * @return \string[][]
+     */
+    public function genreUpdateMultipleRule(): array
+    {
+        return [
+            'genre_id' => ['numeric'],
+            'genre_name' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
         ];
     }
 
@@ -153,6 +189,19 @@ trait TrackValidationRules
             'image_url' => ['string'],
             'audio_url' => ['string'],
             'license_attr_id_link' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * @return \string[][]
+     */
+    public function trackUpdateMultipleRule(): array
+    {
+        return [
+            'track_id' => ['numeric'],
+            'track_title' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+            'fk_genre_id' => ['required', 'numeric'],
         ];
     }
 }

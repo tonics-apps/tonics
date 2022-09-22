@@ -46,7 +46,7 @@ class PagesController
     /**
      * @throws \Exception
      */
-    public function index()
+    public function index(): void
     {
         $table = Tables::getTable(Tables::PAGES);
         $dataTableHeaders = [

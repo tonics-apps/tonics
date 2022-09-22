@@ -43,7 +43,7 @@ trait MenuValidationRules
     }
 
     /**
-     * @throws \Exception
+     * @return \string[][]
      */
     public function menuUpdateMultipleRule(): array
     {
