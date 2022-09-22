@@ -23,7 +23,7 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
     public function validate(OnTagToken $tagToken): bool
     {
         $view = $this->getTonicsView();
-        return $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName(), 0, 0);
+        return $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName(), 1, 0);
     }
 
     /**
@@ -48,14 +48,14 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
      */
     public function render(string $content, array $args, array $nodes = []): string
     {
-        $this->handleHookIntoTemplateEventDispatcher();
+        $this->handleHookIntoTemplateEventDispatcher($args);
         return '';
     }
 
     /**
      * @throws \Exception
      */
-    public function handleHookIntoTemplateEventDispatcher()
+    public function handleHookIntoTemplateEventDispatcher($args)
     {
         $onHookIntoTemplateEvent = new OnHookIntoTemplate($this->getTonicsView());
         event()->dispatch($onHookIntoTemplateEvent);
@@ -63,15 +63,33 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
         $hookers = $onHookIntoTemplateEvent->getHookInto();
         $storage = $this->getTonicsView()->getModeStorage('add_hook');
 
-        foreach ($hookers as $hooker){
-            $hook_name = $hooker['hook_into'];
-            $handler = $hooker['handler'];
-            if (isset($storage[$hook_name])){
-                $tag = new Tag('char');
-                $tag->setContent($handler($this->getTonicsView()) ?? '');
-                $storage[$hook_name]['nodes'] = [...$storage[$hook_name]['nodes'], $tag];
+        if (!empty($args)){
+            $hook_name = $args[0];
+            foreach ($hookers as $hooker){
+                $hook_into = $hooker['hook_into'];
+                if ($hook_name === $hook_into){
+                    $handler = $hooker['handler'];
+                    if (isset($storage[$hook_into])){
+                        $tag = new Tag('char');
+                        $tag->setContent($handler($this->getTonicsView()) ?? '');
+                        $storage[$hook_into]['nodes'] = [...$storage[$hook_into]['nodes'], $tag];
+                    }
+                    break;
+                }
+            }
+        } else {
+            foreach ($hookers as $hooker){
+                $hook_into = $hooker['hook_into'];
+                $handler = $hooker['handler'];
+
+                if (isset($storage[$hook_into])){
+                    $tag = new Tag('char');
+                    $tag->setContent($handler($this->getTonicsView()) ?? '');
+                    $storage[$hook_into]['nodes'] = [...$storage[$hook_into]['nodes'], $tag];
+                }
             }
         }
+
         $this->getTonicsView()->storeDataInModeStorage('add_hook', $storage);
     }
 }

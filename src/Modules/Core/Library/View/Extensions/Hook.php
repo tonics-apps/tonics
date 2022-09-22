@@ -130,7 +130,7 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
 
                 /** @var OnHookIntoEvent $onHookIntoEvent */
                 $onHookIntoEvent = $this->getTonicsView()->getModeRendererHandler('on_hook_into_event');
-                $onHookIntoEvent->render('', []);
+                $onHookIntoEvent->render('', [$hook_name]);
 
                 # Recall the storage
                 $storage = $this->getTonicsView()->getModeStorage('add_hook');

@@ -14,14 +14,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
-/**
- * The OnHookIntoTemplate Class.
- *
- * <br>
- * Note: Never ever hook into the same event in one handler,
- * for example, if you have hooked into `Core::on_data_table_data` don't repeat it in a handler, it would cause duplication, off course,
- * you can hook into different events just remember not to duplicate it.
- */
+
 class OnHookIntoTemplate implements EventInterface
 {
     private array $hookInto = [];

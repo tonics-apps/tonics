@@ -42,8 +42,6 @@ HTML;
                 }
             }
 
-            dd($dataFrag, $headers, $dtRows, $td);
-
             return $dataFrag;
         });
     }

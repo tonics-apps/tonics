@@ -33,10 +33,12 @@ class PostHookIntoDataTable implements HandlerInterface
                 ];
 
                 $tonicsView->addToVariableData('DataTable.headers', $dtHeaders);
+            }
+        });
 
-                # Add Post View
+        $event->hookInto('Core::before_data_table_data', function (TonicsView $tonicsView) {
+            if ($this->isDataTypePost($tonicsView)){
                 $dtRow = $tonicsView->accessArrayWithSeparator('dtRow');
-                dd($dtHeaders, $dtRow, $tonicsView->getVariableData());
                 $editButton = <<<HTML
 <a class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one 
 border:black padding:small margin-top:0 cursor:pointer button:box-shadow-variant-2" href="/admin/posts/$dtRow->post_slug/edit">
