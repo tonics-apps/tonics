@@ -72,7 +72,6 @@ class PostsController
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_id', 'title' => 'Post ID', 'minmax' => '50px, .5fr', 'td' => 'post_id'],
             ['type' => 'text', 'slug' => Tables::POSTS . '::' . 'post_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'post_title'],
-            // ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_slug', 'title' => 'Slug', 'minmax' => '150px, 1fr', 'td' => 'post_slug'],
             ['type' => 'select', 'slug' => Tables::POST_CATEGORIES . '::' . 'fk_cat_id', 'title' => 'Category', 'dataAttribute' => "data-select_data=$categoriesSelectDataAttribute", 'minmax' => '150px, 1fr', 'td' => 'fk_cat_id'],
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];

@@ -13,7 +13,6 @@ namespace App\Modules\Post;
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
-use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
@@ -25,7 +24,6 @@ use App\Modules\Post\EventHandlers\HandleNewPostSlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostToCategoryMapping;
 use App\Modules\Post\EventHandlers\HandleUpdatePostToCategoryMapping;
 use App\Modules\Post\EventHandlers\PostCategorySitemap;
-use App\Modules\Post\EventHandlers\PostHookIntoDataTable;
 use App\Modules\Post\EventHandlers\PostMenuMetaBox;
 use App\Modules\Post\EventHandlers\PostMenus;
 use App\Modules\Post\EventHandlers\PostSitemap;
@@ -94,11 +92,6 @@ class PostActivator implements ExtensionConfig
                 PostSitemap::class,
                 PostCategorySitemap::class,
             ],
-
-            OnHookIntoTemplate::class => [
-                PostHookIntoDataTable::class,
-            ],
-
         ];
     }
 
