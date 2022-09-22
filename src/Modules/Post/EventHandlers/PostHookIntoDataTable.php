@@ -29,15 +29,14 @@ class PostHookIntoDataTable implements HandlerInterface
                 $dtHeaders[] = [
                     'title' => 'Actions',
                     'minmax' => "250px, 1.2fr",
+                    'td' => 'postView'
                 ];
 
                 $tonicsView->addToVariableData('DataTable.headers', $dtHeaders);
-            }
-        });
 
-        $event->hookInto('Core::before_data_table_data', function (TonicsView $tonicsView) {
-            if ($this->isDataTypePost($tonicsView)){
+                # Add Post View
                 $dtRow = $tonicsView->accessArrayWithSeparator('dtRow');
+                dd($dtHeaders, $dtRow, $tonicsView->getVariableData());
                 $editButton = <<<HTML
 <a class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one 
 border:black padding:small margin-top:0 cursor:pointer button:box-shadow-variant-2" href="/admin/posts/$dtRow->post_slug/edit">

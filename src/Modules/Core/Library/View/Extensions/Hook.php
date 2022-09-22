@@ -128,7 +128,7 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
                 $addHookToken = new OnTagToken((new Tag('add_hook'))->setNodes($nodes)->setArgs($args)->setContent($content));
                 $this->stickToContent($addHookToken);
 
-                /** @var TonicsModeRendererInterface $onHookIntoEvent */
+                /** @var OnHookIntoEvent $onHookIntoEvent */
                 $onHookIntoEvent = $this->getTonicsView()->getModeRendererHandler('on_hook_into_event');
                 $onHookIntoEvent->render('', []);
 
