@@ -4,7 +4,7 @@
 [[hook_into('Core::in_main_header_title')Apps ]]
 
 [[hook_into('Core::in_main')
-<section style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
+<section id="tonicsFieldForAppSection" style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
     [[each("appListing in AppListingFrag")
     <input tabindex="0" type="radio" id="[[v('_loop.key')]]" name="app_tabs" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
     <label tabindex="0" for="[[v('_loop.key')]]">[[v('_loop.key')]]</label>

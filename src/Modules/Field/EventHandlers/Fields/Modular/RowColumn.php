@@ -199,8 +199,9 @@ HTML;
 
         # The Tabs Version:
         if ($useTabs){
+            $tabID = helper()->slug($fieldName, '_');
             $frag .= <<<HTML
-<ul class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
+<ul id="$tabID" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
 <style>
 .tonicsFieldTabsContainer {
      font-size: unset; 
@@ -233,9 +234,10 @@ HTML; $first = false;
                             }
                             if (!$first){ $first = true; $checked = 'checked'; } else $checked = '';
                             $fieldOptionName = $child->field_options->fieldName;
+                            $fieldOptionNameID = helper()->slug($fieldOptionName, '_');
                             $frag .= <<<HTML
-<input tabindex="0" type="radio" id="{$fieldOptionName}_field" name="$fieldNameTabUnique" $checked>
-<label tabindex="0" for="{$fieldOptionName}_field">$fieldOptionName</label>
+<input tabindex="0" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
+<label tabindex="0" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
 HTML;
                             $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                         }
