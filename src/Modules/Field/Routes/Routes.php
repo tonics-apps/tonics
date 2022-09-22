@@ -35,6 +35,8 @@ trait Routes
             $route->group('/field', function (Route $route){
 
                 $route->get('', [FieldController::class, 'index'],  alias: 'index');
+                $route->post('', [FieldController::class, 'dataTable'],  alias: 'dataTables');
+
                 $route->post('store', [FieldController::class, 'store']);
                 $route->get('create', [FieldController::class, 'create'], alias: 'create');
                 $route->get(':field/edit', [FieldController::class, 'edit'], alias: 'edit');
