@@ -40,13 +40,13 @@ class PostHookIntoDataTable implements HandlerInterface
             if ($this->isDataTypePost($tonicsView)){
                 $dtRow = $tonicsView->accessArrayWithSeparator('dtRow');
                 $editButton = <<<HTML
-<a class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one 
-border:black padding:small margin-top:0 cursor:pointer button:box-shadow-variant-2" href="/admin/posts/$dtRow->post_slug/edit">
+<a class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-3" href="/admin/posts/$dtRow->post_slug/edit">
     <span>Edit</span>
 </a>
 
-<a target="_blank" class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one 
-border:black padding:small margin-top:0 cursor:pointer button:box-shadow-variant-2" href="/posts/$dtRow->post_slug">
+<a target="_blank" class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-3" href="/posts/$dtRow->post_slug">
     <span>Preview</span>
 </a>
 HTML;
