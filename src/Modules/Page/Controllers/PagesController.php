@@ -11,6 +11,7 @@
 namespace App\Modules\Page\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
@@ -22,6 +23,7 @@ use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Page\Rules\PageValidationRules;
+use App\Modules\Post\Events\OnPostUpdate;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
@@ -53,7 +55,7 @@ class PagesController
             ['type' => 'date_time_local', 'slug' => Tables::PAGES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol  = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
+        $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
 
         $pageData = db()->Select($tblCol)
             ->From($pageTbl)
@@ -82,6 +84,33 @@ class PagesController
             ],
             'SiteURL' => AppConfig::getAppUrl(),
         ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getPageData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getPageData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
     }
 
     /**
@@ -178,9 +207,10 @@ class PagesController
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
         }
-        if (input()->fromPost()->hasValue('page_status') === false) {
+        if (input()->fromPost()->has('page_status') === false) {
             $_POST['page_status'] = "1";
         }
+
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->pageUpdateRule());
         if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
@@ -201,105 +231,77 @@ class PagesController
         redirect(route('pages.edit', ['page' => $id]));
     }
 
-    /**
-     * @throws \Exception
-     */
-    #[NoReturn] public function trash(string $id)
-    {
-        $toUpdate = [
-            'page_status' => -1
-        ];
-        db()->FastUpdate($this->pageData->getPageTable(), $toUpdate, db()->Where('page_id', '=', $id));
-        session()->flash(['Page Moved To Trash'], type: Session::SessionCategories_FlashMessageSuccess);
-        apcu_clear_cache();
-        redirect(route('pages.index'));
-    }
 
     /**
-     * @throws \Exception
+     * @param $entityBag
+     * @return bool
+     * @throws Exception
      */
-    #[NoReturn] public function trashMultiple()
+    protected function updateMultiple($entityBag): bool
     {
-        if (!input()->fromPost()->hasValue('itemsToTrash')) {
-            session()->flash(['Nothing To Trash'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('pages.index'));
-        }
-        $itemsToTrash = array_map(function ($item) {
-            $itemCopy = json_decode($item, true);
-            $item = [];
-            foreach ($itemCopy as $k => $v) {
-                if (key_exists($k, array_flip($this->pageData->getPageColumns()))) {
-                    $item[$k] = $v;
+        $pageTable = Tables::getTable(Tables::PAGES);
+        try {
+            $updateItems = $this->getPageData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
+            db()->beginTransaction();
+            foreach ($updateItems as $updateItem) {
+                $db = db();
+                $updateChanges = [];
+                $colForEvent = [];
+                foreach ($updateItem as $col => $value) {
+                    $tblCol = $this->getPageData()->validateTableColumnForDataTable($col);
+
+                    # We get the column (this also validates the table)
+                    $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
+
+                    $colForEvent[$tblCol[1]] = $value;
+                    $updateChanges[$setCol] = $value;
                 }
-            }
-            $item['page_status'] = '-1';
-            return $item;
-        }, input()->fromPost()->retrieve('itemsToTrash'));
 
-        try {
-            db()->insertOnDuplicate(Tables::getTable(Tables::PAGES), $itemsToTrash, ['page_status']);
-        } catch (\Exception $e) {
-            session()->flash(['Fail To Trash Page Items']);
-            redirect(route('pages.index'));
-        }
-        session()->flash(['Page(s) Trashed'], type: Session::SessionCategories_FlashMessageSuccess);
-        apcu_clear_cache();
-        redirect(route('pages.index'));
-    }
+                # Validate The col and type
+                $validator = $this->getValidator()->make($colForEvent, $this->pageUpdateMultipleRule());
+                if ($validator->fails()) {
+                    throw new \Exception("DataTable::Validation Error {$validator->errorsAsString()}");
+                }
 
-    /**
-     * @param string $id
-     * @return void
-     * @throws \Exception
-     */
-    public function delete(string $id)
-    {
-        try {
-            $this->getPageData()->deleteWithCondition(whereCondition: "page_id = ?", parameter: [$id], table: $this->getPageData()->getPageTable());
-            session()->flash(['Page Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('pages.index'));
-        } catch (\Exception $e){
-            $errorCode = $e->getCode();
-            switch ($errorCode){
-                default:
-                    session()->flash(['Failed To Delete Page']);
-                    break;
+                $pageID = $updateChanges[table()->getColumn($pageTable, 'page_id')];
+                $db->FastUpdate($pageTable, $updateChanges, db()->Where('page_id', '=', $pageID));
             }
+            db()->commit();
             apcu_clear_cache();
-            redirect(route('pages.index'));
+            return true;
+        } catch (\Exception $exception) {
+            db()->rollBack();
+            return false;
+            // log..
         }
     }
 
     /**
      * @throws \Exception
      */
-    public function deleteMultiple()
+    public function deleteMultiple($entityBag): bool
     {
-        if (!input()->fromPost()->hasValue('itemsToDelete')){
-            session()->flash(['Nothing To Delete'], type: Session::SessionCategories_FlashMessageInfo);
-            redirect(route('pages.index'));
-        }
-
-        $this->getPageData()->deleteMultiple(
-            $this->getPageData()->getPageTable(),
-            array_flip($this->getPageData()->getPageColumns()),
-            'page_id',
-            onSuccess: function (){
-                session()->flash(['Page Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-                redirect(route('pages.index'));
-            },
-            onError: function ($e){
-                $errorCode = $e->getCode();
-                switch ($errorCode){
-                    default:
-                        session()->flash(['Failed To Delete Page']);
-                        break;
+        $toDelete = [];
+        try {
+            $deleteItems = $this->getPageData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
+            foreach ($deleteItems as $deleteItem) {
+                foreach ($deleteItem as $col => $value) {
+                    $tblCol = $this->getPageData()->validateTableColumnForDataTable($col);
+                    if ($tblCol[1] === 'page_id') {
+                        $toDelete[] = $value;
+                    }
                 }
-                apcu_clear_cache();
-                redirect(route('pages.index'));
-            },
-        );
+            }
+
+            db()->FastDelete(Tables::getTable(Tables::PAGES), db()->WhereIn('page_id', $toDelete));
+            return true;
+        } catch (\Exception $exception) {
+            // log..
+            return false;
+        }
     }
+
+
 
     /**
      * @throws Exception
@@ -338,13 +340,13 @@ class PagesController
     {
         $slug = $page['field_ids'];
         $fieldSlugs = json_decode($slug) ?? [];
-        if (is_object($fieldSlugs)){
+        if (is_object($fieldSlugs)) {
             $fieldSlugs = (array)$fieldSlugs;
         }
 
-        if (empty($fieldSlugs) || !is_array($fieldSlugs)){
+        if (empty($fieldSlugs) || !is_array($fieldSlugs)) {
             // return default fields
-            return ["default-page-field","post-home-page"];
+            return ["default-page-field", "post-home-page"];
         }
 
         $hiddenSlug = event()->dispatch(new OnPageDefaultField())->getHiddenFieldSlug();

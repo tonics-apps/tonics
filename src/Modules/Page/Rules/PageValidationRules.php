@@ -47,4 +47,16 @@ trait PageValidationRules
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function pageUpdateMultipleRule(): array
+    {
+        return [
+            'page_id' => ['numeric'],
+            'page_title' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
 }

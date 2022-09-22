@@ -34,6 +34,8 @@ trait Routes
                 # TRACK RESOURCES...
                 #---------------------------------
                 $route->get('', [PagesController::class, 'index'], alias: 'index');
+                $route->post('', [PagesController::class, 'dataTable'],  alias: 'dataTables');
+
                 $route->post('store', [PagesController::class, 'store']);
                 $route->get('create', [PagesController::class, 'create'], alias: 'create');
                 $route->get(':page/edit', [PagesController::class, 'edit'], alias: 'edit');
