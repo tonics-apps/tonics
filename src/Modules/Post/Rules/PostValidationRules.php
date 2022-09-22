@@ -50,6 +50,18 @@ trait PostValidationRules
     /**
      * @throws \Exception
      */
+    public function postCategoryUpdateMultipleRule(): array
+    {
+        return [
+            'cat_id' => ['numeric'],
+            'cat_name' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function postStoreRule(): array
     {
         $postSlugUnique = Tables::getTable(Tables::POSTS) .':post_slug';
@@ -96,10 +108,8 @@ trait PostValidationRules
         return [
             'post_id' => ['numeric'],
             'post_title' => ['required', 'string'],
-           // 'post_content' => ['string'],
             'updated_at' => ['required', 'string'],
             'fk_cat_id' => ['numeric'],
-            //'image_url' => ['string'],
         ];
     }
 

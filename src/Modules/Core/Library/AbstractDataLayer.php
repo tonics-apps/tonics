@@ -343,4 +343,40 @@ SQL, ...$parameter);
 
         return $tblCol;
     }
+
+    /**
+     * @param string $id
+     * @param string $table
+     * @param $entityBag
+     * @param callable|null $onSuccess
+     * @param callable|null $onError
+     * @return bool
+     */
+    public function dataTableDeleteMultiple(string $id, string $table, $entityBag, callable $onSuccess = null, callable $onError = null): bool
+    {
+        $toDelete = [];
+        try {
+            $deleteItems = $this->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
+            foreach ($deleteItems as $deleteItem) {
+                foreach ($deleteItem as $col => $value) {
+                    $tblCol = $this->validateTableColumnForDataTable($col);
+                    if ($tblCol[1] === $id) {
+                        $toDelete[] = $value;
+                    }
+                }
+            }
+
+            db()->FastDelete($table, db()->WhereIn($id, $toDelete));
+            if ($onSuccess){
+                $onSuccess();
+            }
+            return true;
+        } catch (\Exception $exception) {
+            // log..
+            if ($onError){
+                $onError();
+            }
+            return false;
+        }
+    }
 }

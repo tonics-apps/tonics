@@ -55,6 +55,8 @@ trait Routes
             #---------------------------------
             $route->group('/category', function (Route $route){
                 $route->get('', [PostCategoryController::class, 'index'], alias: 'index');
+                $route->post('', [PostCategoryController::class, 'dataTable'], alias: 'dataTables');
+
                 $route->get(':category/edit', [PostCategoryController::class, 'edit'], alias: 'edit');
                 $route->get('create', [PostCategoryController::class, 'create'], alias: 'create');
                 $route->post('store', [PostCategoryController::class, 'store']);

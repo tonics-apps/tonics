@@ -48,7 +48,7 @@ class PagesController
      */
     public function index()
     {
-        $pageTbl = Tables::getTable(Tables::PAGES);
+        $table = Tables::getTable(Tables::PAGES);
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::PAGES . '::' . 'page_id', 'title' => 'Page ID', 'minmax' => '50px, .5fr', 'td' => 'page_id'],
             ['type' => 'text', 'slug' => Tables::PAGES . '::' . 'page_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'page_title'],
@@ -57,8 +57,8 @@ class PagesController
 
         $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
 
-        $pageData = db()->Select($tblCol)
-            ->From($pageTbl)
+        $data = db()->Select($tblCol)
+            ->From($table)
             ->when(url()->hasParamAndValue('status'),
                 function (TonicsQuery $db) {
                     $db->WhereEquals('page_status', url()->getParam('status'));
@@ -69,16 +69,16 @@ class PagesController
                 })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                 $db->WhereLike('page_title', url()->getParam('query'));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($pageTbl) {
-                $db->WhereBetween(table()->pickTable($pageTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->OrderByDesc(table()->pickTable($pageTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
 
         view('Modules::Page/Views/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
-                'postData' => $pageData ?? [],
+                'postData' => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
             ],
@@ -231,7 +231,6 @@ class PagesController
         redirect(route('pages.edit', ['page' => $id]));
     }
 
-
     /**
      * @param $entityBag
      * @return bool
@@ -281,27 +280,8 @@ class PagesController
      */
     public function deleteMultiple($entityBag): bool
     {
-        $toDelete = [];
-        try {
-            $deleteItems = $this->getPageData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
-            foreach ($deleteItems as $deleteItem) {
-                foreach ($deleteItem as $col => $value) {
-                    $tblCol = $this->getPageData()->validateTableColumnForDataTable($col);
-                    if ($tblCol[1] === 'page_id') {
-                        $toDelete[] = $value;
-                    }
-                }
-            }
-
-            db()->FastDelete(Tables::getTable(Tables::PAGES), db()->WhereIn('page_id', $toDelete));
-            return true;
-        } catch (\Exception $exception) {
-            // log..
-            return false;
-        }
+        return $this->getPageData()->dataTableDeleteMultiple('page_id', Tables::getTable(Tables::PAGES), $entityBag);
     }
-
-
 
     /**
      * @throws Exception
