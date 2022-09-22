@@ -43,9 +43,10 @@ class TracksController extends Controller
      */
     public function index()
     {
+        $genreURLParam = url()->getParam('genre');
         $genres = $this->getTrackData()->getGenrePaginationData();
         # For Genre Meta Box API
-        $this->getTrackData()->genreMetaBox($genres, 'genre[]', 'checkbox');
+        $this->getTrackData()->genreMetaBox($genres, 'genre[]', 'checkbox', $genreURLParam);
 
         $trackTbl = Tables::getTable(Tables::TRACKS);
         $genreTbl = Tables::getTable(Tables::GENRES);
@@ -73,14 +74,15 @@ class TracksController extends Controller
                 })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                 $db->WhereLike('track_title', url()->getParam('query'));
 
-            })->when(url()->hasParamAndValue('genre'), function (TonicsQuery $db) {
-                $db->WhereIn('genre_id', url()->getParam('genre'));
+            })->when(url()->hasParamAndValue('genre'), function (TonicsQuery $db) use ($genreURLParam) {
+                $db->WhereIn('genre_id', $genreURLParam);
 
             })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($trackTbl) {
                 $db->WhereBetween(table()->pickTable($trackTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
             })->OrderByDesc(table()->pickTable($trackTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
+        $genreSettings = ['genres' => $genres, 'selected' => $genreURLParam, 'type' => 'checkbox', 'inputName' => 'genre[]'];
         view('Modules::Track/Views/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
@@ -89,7 +91,7 @@ class TracksController extends Controller
 
             ],
             'SiteURL' => AppConfig::getAppUrl(),
-            'DefaultGenresMetaBox' => $this->getTrackData()->genreCheckBoxListing($genres, inputName: 'genre[]', type: 'checkbox'),
+            'DefaultGenresMetaBox' => $this->getTrackData()->genreCheckBoxListing($genreSettings),
         ]);
     }
 

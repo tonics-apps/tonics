@@ -227,18 +227,24 @@ HTML;
     }
 
     /**
-     * @param $genres
-     * @param bool $showSearch
-     * @param OnTrackCreate|null $onTrackCreate
-     * @param string $inputName
-     * @param string $type
+     * @param array $settings
      * @return string
      * @throws \Exception
      */
-    public function genreCheckBoxListing($genres, bool $showSearch = true, OnTrackCreate $onTrackCreate = null, string $inputName = 'fk_genre_id', string $type = 'radio'): string
+    public function genreCheckBoxListing(array $settings): string
     {
+        # Collate Settings
+        $genres = $settings['genres'] ?? [];
+        $showSearch = $settings['showSearch'] ?? true;
+        $selected = $settings['selected'] ?? [];
+        $inputName = $settings['inputName'] ?? 'fk_genre_id';
+        $type = $settings['type'] ?? 'radio';
+
         $htmlFrag = ''; $htmlMoreFrag = ''; $type = ($type !== 'radio') ? 'checkbox' : 'radio';
+
+        #
         # RADIO-BOX
+        # 
         if(isset($genres->data) && is_array($genres->data) && !empty($genres->data)){
             if ($showSearch){
                 $htmlFrag =<<<HTML
@@ -251,29 +257,28 @@ HTML;
 HTML;
             }
 
-            $checkedGenreID = null;
-
-            # SELECTED GENRE_ID IF WE HAVE ONE
-            if ($onTrackCreate instanceof OnTrackCreate){
-                $checkedGenreID = $onTrackCreate->getTrackFKGenreID();
-                $id = 'genre'. $onTrackCreate->getTrackFKGenreID() . '_' . $onTrackCreate->getTrackGenreSlug();
-                $htmlFrag .= <<<HTML
+            if (!empty($selected)){
+                $selectedGenres = db()->Select('*')->From(Tables::getTable(Tables::GENRES))->WhereIn('genre_id', $selected)->FetchResult();
+                $selected = array_combine($selected, $selected);
+                foreach ($selectedGenres as $genre){
+                    $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
+                    $htmlFrag .= <<<HTML
 <li class="menu-item">
     <input type="$type"
-    id="$id" checked="checked" name="$inputName" value="{$onTrackCreate->getTrackFKGenreID()}">
-    <label for="$id">{$onTrackCreate->getTrackGenreName()}</label>
+    id="$id" checked="checked" name="$inputName" value="$genre->genre_id">
+    <label for="$id">$genre->genre_name</label>
 </li>
 HTML;
-            } else {
-                $selectedParam = url()->getParam('genre');
-                dd($selectedParam, 'ff');
-               // $selected = array_combine($selected, $selected);
+                }
             }
 
+            #
+            # BUILD FRAG
+            #
             foreach ($genres->data as $genre){
                 $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
 
-                if ($onTrackCreate !== null && $checkedGenreID === $genre->genre_id){
+                if (key_exists($genre->genre_id, $selected)) {
                     continue;
                 }
 
@@ -673,11 +678,12 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function genreMetaBox($genre, string $inputName='fk_genre_id', $type = 'radio'){
+    public function genreMetaBox($genre, string $inputName='fk_genre_id', $type = 'radio', $selected = []){
 
         if (url()->getHeaderByKey('menuboxname') === 'genre') {
             if (url()->getHeaderByKey('action') === 'more' || url()->getHeaderByKey('action') === 'search') {
-                $frag = $this->genreCheckBoxListing($genre, false, inputName: $inputName, type: $type);
+                $genreSettings = ['genres' => $genre, 'showSearch' => false, 'selected' => $selected, 'type' => $type, 'inputName' => $inputName];
+                $frag = $this->genreCheckBoxListing($genreSettings);
                 helper()->onSuccess($frag);
             }
         }
