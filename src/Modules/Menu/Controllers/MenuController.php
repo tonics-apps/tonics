@@ -14,10 +14,12 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Menu\Data\MenuData;
 use App\Modules\Menu\Events\OnMenuCreate;
 use App\Modules\Menu\Rules\MenuValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
 class MenuController
@@ -36,7 +38,37 @@ class MenuController
      */
     public function index()
     {
-        view('Modules::Menu/Views/index');
+        $table = Tables::getTable(Tables::MENUS);
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::MENUS . '::' . 'menu_id', 'title' => 'Category ID', 'minmax' => '50px, .5fr', 'td' => 'menu_id'],
+            ['type' => 'text', 'slug' => Tables::MENUS . '::' . 'menu_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'menu_name'],
+            ['type' => 'date_time_local', 'slug' => Tables::MENUS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+        ];
+
+        // https://devsrealm.com/admin/tools/menu/items/header-menu/builder
+
+        $tblCol = '*, CONCAT("/admin/tools/menu/", menu_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/menu/items/", menu_slug, "/builder") as _builder_link';
+
+        $data = db()->Select($tblCol)
+            ->From($table)
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('menu_name', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+
+
+        view('Modules::Menu/Views/index', [
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'postData' => $data ?? [],
+                'dataTableType' => 'EDITABLE_BUILDER',
+
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
+        ]);
     }
 
     /**
