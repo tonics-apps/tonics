@@ -29,7 +29,9 @@ class DataTable {
     constructor($parentElement, apiEntry = '') {
         this.parentElement = document.querySelector($parentElement)
         this.apiEntry = apiEntry;
-        this.resetListID();
+        if (this.parentElement){
+            this.resetListID();
+        }
     }
 
     getParentElement() {
@@ -996,6 +998,6 @@ window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
 window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
 window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 
-// Remove This
+// boot dataTable
 const dataTable = new DataTable('.dataTable');
 dataTable.boot();

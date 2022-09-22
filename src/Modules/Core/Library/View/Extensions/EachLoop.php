@@ -40,6 +40,8 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  * ]]
  * ```
  *
+ * <br>
+ *
  */
 class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
@@ -104,7 +106,6 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
         $loopName = $tag->getArgs()['_name'];
 
         $eachOutput = '';
-        $view->setDontCacheVariable(true);
 
         $iteration = 0;
         if (is_string($loopVariable)){
@@ -113,9 +114,6 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
 
         foreach ($loopVariable ?? [] as $key => $loop) {
             $eachOutput .= $content;
-            if (isset($view->getLiveCacheVariableData()[$loopName])) {
-                $view->addToLiveCacheVariableData($loopName, $loop);
-            }
 
             $view->addToVariableData($loopName, $loop);
             $view->addToVariableData('_loop', [
@@ -127,10 +125,6 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
 
             foreach ($tag->getChildrenRecursive($tag) as $node) {
                 $mode = $view->getModeRendererHandler($node->getTagName());
-
-                if ($node->getTagName() === 'add_hook' && $iteration === 2){
-                 //   dd($eachOutput, $this->getTonicsView()->accessArrayWithSeparator('dtRow'), $this->getTonicsView()->getModeStorage('add_hook'));
-                }
 
                 if ($mode instanceof TonicsModeRendererInterface) {
                     $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());

@@ -33,7 +33,6 @@ class LicenseLoop implements QueryModeHandlerInterface
             if ($callback !== null){
                 $queryMode = $tonicsView->getVariableData()['QUERY_MODE'];
                 $queryMode[$query_name] = $license;
-                $tonicsView->setDontCacheVariable(true);
                 $tonicsView->addToVariableData('QUERY_MODE', $queryMode);
                 $frag .= $callback();
             }

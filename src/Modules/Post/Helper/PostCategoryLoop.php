@@ -39,7 +39,6 @@ class PostCategoryLoop implements QueryModeHandlerInterface
             if ($callback !== null){
                 $queryMode = $tonicsView->getVariableData()['QUERY_MODE'];
                 $queryMode[$query_name] = $category;
-                $tonicsView->setDontCacheVariable(true);
                 $tonicsView->addToVariableData('QUERY_MODE', $queryMode);
                 $frag .= $callback();
             }

@@ -40,7 +40,6 @@ class TrackLoop implements QueryModeHandlerInterface
             if ($callback !== null){
                 $queryMode = $tonicsView->getVariableData()['QUERY_MODE'];
                 $queryMode[$query_name] = $track;
-                $tonicsView->setDontCacheVariable(true);
                 $tonicsView->addToVariableData('QUERY_MODE', $queryMode);
                 $frag .= $callback();
             }

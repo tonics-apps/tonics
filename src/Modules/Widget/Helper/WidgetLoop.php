@@ -32,7 +32,6 @@ class WidgetLoop implements QueryModeHandlerInterface
             if ($callback !== null){
                 $queryMode = $tonicsView->getVariableData()['QUERY_MODE'];
                 $queryMode[$query_name] = $widget;
-                $tonicsView->setDontCacheVariable(true);
                 $tonicsView->addToVariableData('QUERY_MODE', $queryMode);
                 $frag .= $callback();
             }

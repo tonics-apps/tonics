@@ -132,9 +132,11 @@
     </div>
     [[add_hook('Core::after_in_main_form_and_filter')]]
     <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
+        [[add_hook('Core::before_data_table')]]
         <table id="dt" style="grid-template-columns: [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]]) ]];">
         <thead>
         <tr>
+            [[add_hook('Core::before_data_table_header')]]
             [[each("dtHeader in DataTable.headers")
             <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
             ]]

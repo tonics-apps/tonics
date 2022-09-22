@@ -32,7 +32,6 @@ class MenuLoop implements QueryModeHandlerInterface
             if ($callback !== null){
                 $queryMode = $tonicsView->getVariableData()['QUERY_MODE'];
                 $queryMode[$query_name] = $menu;
-                $tonicsView->setDontCacheVariable(true);
                 $tonicsView->addToVariableData('QUERY_MODE', $queryMode);
                 $frag .= $callback();
             }
