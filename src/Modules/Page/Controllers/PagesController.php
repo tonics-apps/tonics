@@ -22,6 +22,7 @@ use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Page\Rules\PageValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -45,7 +46,42 @@ class PagesController
      */
     public function index()
     {
-        view('Modules::Page/Views/index');
+        $pageTbl = Tables::getTable(Tables::PAGES);
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::PAGES . '::' . 'page_id', 'title' => 'Page ID', 'minmax' => '50px, .5fr', 'td' => 'page_id'],
+            ['type' => 'text', 'slug' => Tables::PAGES . '::' . 'page_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'page_title'],
+            ['type' => 'date_time_local', 'slug' => Tables::PAGES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+        ];
+
+        $tblCol  = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
+
+        $pageData = db()->Select($tblCol)
+            ->From($pageTbl)
+            ->when(url()->hasParamAndValue('status'),
+                function (TonicsQuery $db) {
+                    $db->WhereEquals('page_status', url()->getParam('status'));
+                },
+                function (TonicsQuery $db) {
+                    $db->WhereEquals('page_status', 1);
+
+                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('page_title', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($pageTbl) {
+                $db->WhereBetween(table()->pickTable($pageTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+            })->OrderByDesc(table()->pickTable($pageTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+
+
+        view('Modules::Page/Views/index', [
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'postData' => $pageData ?? [],
+                'dataTableType' => 'EDITABLE_PREVIEW',
+
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
+        ]);
     }
 
     /**

@@ -54,7 +54,6 @@ class PostsController
      */
     public function index()
     {
-
         $categoryTable = Tables::getTable(Tables::CATEGORIES);
         $categories = db()->Select(table()->pickTableExcept($categoryTable, ['field_settings', 'created_at', 'updated_at']))
             ->From(Tables::getTable(Tables::CATEGORIES))->FetchResult();
@@ -191,7 +190,7 @@ class PostsController
             event()->dispatch($onBeforePostSave);
             $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
 
-            if (is_object($postReturning)){
+            if (is_object($postReturning)) {
                 $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
             }
 
@@ -202,7 +201,7 @@ class PostsController
 
             session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // log..
             db()->rollBack();
             session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
@@ -313,7 +312,7 @@ class PostsController
             session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.edit', ['post' => $slug]));
 
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             db()->rollBack();
             // log..
             session()->flash(['Error Occur Updating Post'], $postToUpdate);
@@ -330,9 +329,9 @@ class PostsController
         try {
             $deleteItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
             foreach ($deleteItems as $deleteItem) {
-                foreach ($deleteItem as $col => $value){
+                foreach ($deleteItem as $col => $value) {
                     $tblCol = $this->getPostData()->validateTableColumnForDataTable($col);
-                    if ($tblCol[1] === 'post_id'){
+                    if ($tblCol[1] === 'post_id') {
                         $toDelete[] = $value;
                     }
                 }
@@ -357,21 +356,22 @@ class PostsController
             db()->beginTransaction();
             foreach ($updateItems as $updateItem) {
                 $db = db();
-                $postUpdate = []; $colForEvent = [];
-                foreach ($updateItem as $col => $value){
+                $postUpdate = [];
+                $colForEvent = [];
+                foreach ($updateItem as $col => $value) {
                     $tblCol = $this->getPostData()->validateTableColumnForDataTable($col);
 
                     # We get the column (this also validates the table)
                     $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
 
-                    if ($tblCol[1] === 'fk_cat_id'){
+                    if ($tblCol[1] === 'fk_cat_id') {
                         $value = explode('::', $value);
-                        if (key_exists(0, $value)){
+                        if (key_exists(0, $value)) {
                             $colForEvent[$tblCol[1]] = $value[0];
                         } else {
                             return false;
                         }
-                    }else {
+                    } else {
                         $colForEvent[$tblCol[1]] = $value;
                         $postUpdate[$setCol] = $value;
                     }
