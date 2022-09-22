@@ -4930,15 +4930,14 @@ if (getAllTonicsFieldTabContainer){
             let tonicsTabFieldIDLocalStorage = localStorage.getItem(`tonicsTabFieldID_${parentID}`);
             if (tonicsTabFieldIDLocalStorage){
                 let tabID = eachTabContainer.querySelector(`#${tonicsTabFieldIDLocalStorage}`);
-                console.log(tabID);
-                if (tabID.tagName.toString() === 'INPUT' && tabID.parentElement === eachTabContainer){
+                if (tabID?.tagName.toString() === 'INPUT' && tabID?.parentElement === eachTabContainer){
                     tabID.checked = true;
                 }
             }
 
             eachTabContainer.addEventListener('click', (e) => {
                 let el = e.target;
-                if (el?.tagName.toString() === 'INPUT' && el.parentElement === eachTabContainer){
+                if (el?.tagName.toString() === 'INPUT' && el?.parentElement === eachTabContainer){
                     let inputID = el.id;
                     // set local storage item
                     localStorage.setItem(`tonicsTabFieldID_${parentID}`, inputID);
