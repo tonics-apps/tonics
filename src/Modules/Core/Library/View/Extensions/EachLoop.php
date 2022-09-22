@@ -84,6 +84,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
      * @param array $args
      * @param array $nodes
      * @return string
+     * @throws \Exception
      */
     public function render(string $content, array $args, array $nodes = []): string
     {
@@ -130,6 +131,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
                     $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
                     $eachOutput .= $mode->render($node->getContent(), $node->getArgs(), $node->getNodes());
                 }
+                helper()->garbageCollect();
                 ++$n;
             }
             ++$iteration;

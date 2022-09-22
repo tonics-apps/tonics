@@ -37,6 +37,7 @@ HTML;
                     }
                 }
             }
+            $dtRows = null;
             return $dataFrag;
         });
 
@@ -52,6 +53,7 @@ HTML;
                 ];
 
                 $tonicsView->addToVariableData('DataTable.headers', $dtHeaders);
+                $dtHeaders = null;
             }
         });
 
@@ -86,6 +88,7 @@ HTML;
                 }
 
                 $dtRow->_view_links = $editButton;
+                // print_r([$tonicsView->accessArrayWithSeparator('_loop.iteration'), helper()->formatBytes(memory_get_usage())]);
             }
         });
     }
