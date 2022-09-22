@@ -63,6 +63,12 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
         $hookers = $onHookIntoTemplateEvent->getHookInto();
         $storage = $this->getTonicsView()->getModeStorage('add_hook');
 
+        #
+        # If $args isn't empty, then it means we are only hooking into a specific hook_name,
+        # this is so, we don't get repeated and unnecessary hookers when we hook_into several hooks withing a single class,
+        # on a norm, when we use several hooks withing a single class, it shouldn't give us any problem but this would cause a mess
+        # in a certain context, e.g. the context
+        #
         if (!empty($args)){
             $hook_name = $args[0];
             foreach ($hookers as $hooker){
