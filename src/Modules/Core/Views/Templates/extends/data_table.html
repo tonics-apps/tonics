@@ -50,12 +50,9 @@
                 [[each("dtRow in DataTable.paginateData.data")
                 <tr>
                     [[add_hook('Core::before_data_table_data')]]
+
                     [[add_hook('Core::on_data_table_data')]]
-                    [[-
-                    [[each("dtData in dtRow")
-                    <td tabindex="-1">[[_v('dtData')]]</td>
-                    ]]
-                    -]]
+
                     [[add_hook('Core::after_data_table_data')]]
                 </tr>
                 ]]
