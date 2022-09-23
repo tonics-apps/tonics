@@ -1047,3 +1047,103 @@ input.volume-slider::-ms-track {
     cursor: pointer;
     -webkit-appearance: none;
 }
+
+/*--------------------------------------------------------------
+                TONICS DATATABLE SPECIFIC
+--------------------------------------------------------------*/
+
+.dataTable .disable-select {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+.dataTable table {
+    display: grid;
+    border-collapse: collapse;
+    min-width: 100%;
+}
+
+.dataTable thead,
+.dataTable tbody,
+.dataTable tr {
+    display: contents;
+}
+
+.dataTable th,
+.dataTable td {
+    padding: 15px;
+    hyphens: manual;
+    overflow-wrap: break-word;
+    overflow: hidden;
+}
+
+.dataTable th {
+    border-style: solid;
+    outline: 0;
+    font-weight: inherit;
+    text-align: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 12px;
+    border-width: 0 0 2px 2px;
+    white-space: nowrap;
+    border-color: #dedede;
+    background-color: #f2f2f5;
+    color: black;
+    font-size: 1.15rem;
+}
+
+.dataTable td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: white;
+    color: #3a3636;
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
+    gap: 1em;
+    align-items: center;
+}
+
+.dataTable tr:nth-child(even) td {
+    background: #fcfcfd;
+}
+
+.dataTable tr.highlight > td {
+    background: #c2dbffa3;
+}
+
+.dataTable tr.deleting > td {
+    background: rgba(210, 18, 18, 0.64) !important;
+}
+
+.dataTable .editing {
+    background: rgba(255, 245, 194, 0.64) !important;
+}
+
+.dataTable .dataTable-menus {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 10px 5px;
+    background-color: #f2f2f5;
+}
+
+.dataTable nav.dataTable-site-footer-nav > ul {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+    list-style: none;
+}
+
+.dataTable .deactivate-menu {
+    opacity: 50%;
+    pointer-events: none;
+}

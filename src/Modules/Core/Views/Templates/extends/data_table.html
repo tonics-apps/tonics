@@ -1,102 +1,4 @@
 [[hook_into('Core::in_main')
-<style>
-    .disable-select {
-        user-select: none;
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        -ms-user-select: none;
-    }
-    table {
-        display: grid;
-        border-collapse: collapse;
-        min-width: 100%;
-    }
-
-    thead,
-    tbody,
-    tr {
-        display: contents;
-    }
-
-    th,
-    td {
-        padding: 15px;
-        hyphens: manual;
-        overflow-wrap: break-word;
-        overflow: hidden;
-    }
-
-    th {
-        border-style: solid;
-        outline: 0;
-        font-weight: inherit;
-        text-align: inherit;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding: 8px 12px;
-        border-width: 0 0 2px 2px;
-        white-space: nowrap;
-        border-color: #dedede;
-        background-color: #f2f2f5;
-        color: black;
-        font-size: 1.15rem;
-    }
-
-    td {
-        padding-top: 10px;
-        padding-bottom: 10px;
-        background: white;
-        color: #3a3636;
-        display: flex;
-        justify-content: flex-start;
-        align-content: center;
-        gap: 1em;
-        align-items: center;
-    }
-
-    tr:nth-child(even) td {
-        background: #fcfcfd;
-    }
-
-    tr.highlight > td {
-        background: #c2dbffa3;
-    }
-
-    tr.deleting > td {
-        background: rgba(210, 18, 18, 0.64) !important;
-    }
-
-    .editing {
-        background: rgba(255, 245, 194, 0.64) !important;
-    }
-
-    .dataTable-menus {
-        display: -ms-flexbox;
-        display: flex;
-        -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-        padding: 10px 5px;
-        background-color: #f2f2f5;
-    }
-
-    nav#dataTable-site-footer-nav > ul {
-        display: -ms-flexbox;
-        display: flex;
-        -ms-flex-direction: row;
-        flex-direction: row;
-        -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-        gap: 20px;
-        width: 100%;
-        list-style: none;
-    }
-
-    .deactivate-menu {
-        opacity: 50%;
-        pointer-events: none;
-    }
-
-</style>
 <section class="dataTable disable-select owl">
     <div class="search-admin width:100% margin-top:0">
         <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
@@ -175,7 +77,7 @@
         </div>
 
         <div class="dataTable-menus position:sticky bottom:0">
-            <nav id="dataTable-site-footer-nav" class="single-nav menu mobile-display-none" role="navigation">
+            <nav class="dataTable-site-footer-nav single-nav menu mobile-display-none" role="navigation">
                 <ul data-event-menu="true">
                     <li class="menu-item deactivate-menu">
                         <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
