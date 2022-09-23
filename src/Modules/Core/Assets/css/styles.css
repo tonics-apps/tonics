@@ -1052,7 +1052,7 @@ input.volume-slider::-ms-track {
                 TONICS DATATABLE SPECIFIC
 --------------------------------------------------------------*/
 
-.dataTable .disable-select {
+.disable-select {
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;

@@ -82,7 +82,7 @@ FORM;
             $onTrackCreate = new OnTrackCreate((object)getPostData(), $trackData);
         }
 
-        $genreSettings = ['genres' => $genre, 'selected' => [$onTrackCreate->getTrackFKGenreID()], 'inputName' => $inputName];
+        $genreSettings = ['genres' => $genre, 'selected' => [$onTrackCreate?->getTrackFKGenreID() ?? null], 'inputName' => $inputName];
         $genreCheckBoxListing = $trackData->genreCheckBoxListing($genreSettings);
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
