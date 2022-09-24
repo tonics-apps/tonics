@@ -3825,7 +3825,7 @@ class DataTable {
     }
 
     get tdElement() {
-        return this._trElement;
+        return this._tdElement;
     }
 
     set tdElement(value) {
@@ -3858,8 +3858,8 @@ class DataTable {
                         e.preventDefault();
                     }
 
-                    let isInput = el.closest('input, textarea, select');
-                    if (isInput) {
+                    let isOpen = el.closest('.data_table_is_open')
+                    if (isOpen) {
                         return false;
                     }
 
@@ -4329,7 +4329,8 @@ class DataTabledEditorNumber extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = this.createInput('number', tdValue).outerHTML;
+            let input = this.createInput('number', tdValue); input.classList.add('data_table_is_open')
+            this.tdElement.innerHTML = input.outerHTML;
         }
     }
 
@@ -4351,7 +4352,8 @@ class DataTabledEditorDate extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = this.createInput('date', tdValue).outerHTML;
+            let input = this.createInput('date', tdValue); input.classList.add('data_table_is_open');
+            this.tdElement.innerHTML = input.outerHTML;
         }
     }
 
@@ -4370,7 +4372,8 @@ class DataTabledEditorDateLocal extends DataTableEditorAbstract {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             tdValue.replace(' ', 'T');
-            this.tdElement.innerHTML = this.createInput('datetime-local', tdValue).outerHTML;
+            let input = this.createInput('datetime-local', tdValue); input.classList.add('data_table_is_open');
+            this.tdElement.innerHTML = input.outerHTML;
         }
     }
 
@@ -4397,7 +4400,8 @@ class DataTabledEditorDateMonth extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = this.createInput('month', tdValue).outerHTML;
+            let input = this.createInput('month', tdValue); input.classList.add('data_table_is_open');
+            this.tdElement.innerHTML = input.outerHTML;
         }
     }
 
@@ -4415,7 +4419,8 @@ class DataTabledEditorDateWeek extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = this.createInput('week', tdValue).outerHTML;
+            let input = this.createInput('week', tdValue); input.classList.add('data_table_is_open');
+            this.tdElement.innerHTML = input.outerHTML;
         }
     }
 
@@ -4433,7 +4438,8 @@ class DataTabledEditorDateTime extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = this.createInput('time', tdValue).outerHTML;
+            let input = this.createInput('time', tdValue); input.classList.add('data_table_is_open');
+            this.tdElement.innerHTML = input.outerHTML;
         }
     }
 
@@ -4460,7 +4466,7 @@ class DataTabledEditorSelect extends DataTableEditorAbstract {
                     selectOption += `<option title="${option}" value="${option}">${option}</option>`
                 }
             });
-            selectOption = "<select class=\"default-selector mg-b-plus-1\">" + selectOption + "</select>";
+            selectOption = "<select class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
             this.tdElement.innerHTML = selectOption;
         }
     }
@@ -4488,7 +4494,7 @@ class DataTableEditorTextArea extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            let textArea = document.createElement('textarea');
+            let textArea = document.createElement('textarea'); textArea.classList.add('data_table_is_open');
             textArea.defaultValue = tdValue;
             textArea.value = tdValue;
             this.tdElement.innerHTML = textArea.outerHTML;
@@ -4509,6 +4515,81 @@ class DataTableEditorTextArea extends DataTableEditorAbstract {
 
     }
 
+}
+
+class DataTableEditorFeaturedAudio extends DataTableEditorAbstract {
+
+    editorName() {
+        return 'tonics_media_featured_audio';
+    }
+
+    openEditor() {
+        if (this.hasTdElement) {
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = `<div class="position:relative ${this.editorName()}">
+                    <input data-widget-file-url="true" type="url" 
+                    class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="upload_plugin" 
+                    name="plugin_url" placeholder="Audio Link" value="${tdValue}">
+                    <div class="d:flex flex-gap:small flex-wrap:wrap">
+                        <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer">Upload Audio</button>
+                        
+                    </div>
+                </div>`;
+        }
+    }
+
+    closeEditor() {
+        let textArea = this.tdElement.querySelector(this.editorName());
+        let inputValue = textArea?.value;
+        if (textArea) {
+            textArea?.remove();
+            this.tdElement.innerHTML = inputValue;
+            this.editorElement = null;
+        }
+    }
+
+    editorValidation() {}
+
+}
+
+class DataTableEditorFeaturedImage extends DataTableEditorAbstract {
+
+}
+
+class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
+
+    editorName() {
+        return 'tonics_media_featured_link';
+    }
+
+    openEditor() {
+        if (this.hasTdElement) {
+            let tdValue = this.tdElement.innerText;
+            this.tdElement.innerHTML = `<div data-widget-form="true" class="position:relative data_table_is_open width:100% ${this.editorName()}">
+                    <input data-widget-file-url="true" type="url" 
+                    class="${this.editorName()}_input form-control input-checkout bg:white-one color:black border-width:default border:black" 
+                    name="plugin_url" placeholder="Audio Link" value="${tdValue}">
+                    <div class="d:flex flex-gap:small flex-wrap:wrap">
+                        <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer">Upload Link</button>
+                        
+                    </div>
+                </div>`;
+        }
+    }
+
+    closeEditor() {
+        let linkInput = this.tdElement.querySelector('[data-widget-file-url="true"]');
+        let inputValue = linkInput?.value;
+        if (linkInput) {
+            linkInput?.remove();
+            this.tdElement.innerHTML = inputValue;
+            this.editorElement = null;
+        }
+    }
+
+    editorValidation() {}
 }
 
 //----------------
@@ -4803,6 +4884,7 @@ window.TonicsDataTable.Editors.set('DATE_TIME_LOCAL', DataTabledEditorDateLocal)
 window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
 window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
 window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
+window.TonicsDataTable.Editors.set('TONICS_MEDIA_FEATURE_LINK', DataTableEditorFeaturedLink);
 
 // boot dataTable
 const dataTable = new DataTable('.dataTable');
