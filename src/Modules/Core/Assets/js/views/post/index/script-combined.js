@@ -4517,46 +4517,6 @@ class DataTableEditorTextArea extends DataTableEditorAbstract {
 
 }
 
-class DataTableEditorFeaturedAudio extends DataTableEditorAbstract {
-
-    editorName() {
-        return 'tonics_media_featured_audio';
-    }
-
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = `<div data-widget-form="true" class="position:relative data_table_is_open width:100% ${this.editorName()}">
-                    <input data-widget-audio-url="true" type="url" 
-                    class="${this.editorName()}_input form-control input-checkout bg:white-one color:black border-width:default border:black" 
-                    name="plugin_url" placeholder="Audio Link" value="${tdValue}">
-                    <div class="d:flex flex-gap:small flex-wrap:wrap">
-                        <button type="button" class="tonics-audio-featured text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer">Upload Audio</button>
-                        
-                    </div>
-                </div>`;
-        }
-    }
-
-    closeEditor() {
-        let linkInput = this.tdElement.querySelector('[data-widget-audio-url="true"]');
-        let inputValue = linkInput?.value;
-        if (linkInput) {
-            linkInput?.remove();
-            this.tdElement.innerHTML = inputValue;
-            this.editorElement = null;
-        }
-    }
-
-    editorValidation() {}
-
-}
-
-class DataTableEditorFeaturedImage extends DataTableEditorAbstract {
-
-}
-
 class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
 
     editorName() {
@@ -4885,8 +4845,6 @@ window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
 window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
 window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 window.TonicsDataTable.Editors.set('TONICS_MEDIA_FEATURE_LINK', DataTableEditorFeaturedLink);
-window.TonicsDataTable.Editors.set('TONICS_MEDIA_FEATURE_AUDIO', DataTableEditorFeaturedAudio);
-window.TonicsDataTable.Editors.set('TONICS_MEDIA_FEATURE_IMAGE', DataTableEditorFeaturedImage);
 
 // boot dataTable
 const dataTable = new DataTable('.dataTable');

@@ -495,9 +495,8 @@ class DataTableEditorAbstract {
      */
     createInput(type = 'text', value = '') {
         let input = document.createElement('input');
-        input.type = type;
-        input.defaultValue = value;
-        input.value = value;
+        input.classList.add('data_table_is_open'); input.type = type;
+        input.defaultValue = value; input.value = value;
         return input;
     }
 
