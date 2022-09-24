@@ -694,7 +694,7 @@ class DataTabledEditorSelect extends DataTableEditorAbstract {
 
     closeEditor() {
         let inputValue = this.tdElement.querySelector('select')?.value;
-        if (this.tdElement.querySelector('select')?.value) {
+        if (this.tdElement.querySelector('select')) {
             this.tdElement.querySelector('select')?.remove();
             this.tdElement.innerHTML = inputValue;
             this.editorElement = null;
@@ -704,6 +704,38 @@ class DataTabledEditorSelect extends DataTableEditorAbstract {
     editorValidation() {
 
     }
+}
+
+class DataTableEditorTextArea extends DataTableEditorAbstract {
+
+    editorName() {
+        return 'textarea';
+    }
+
+    openEditor() {
+        if (this.hasTdElement) {
+            let tdValue = this.tdElement.innerText;
+            let textArea = document.createElement('textarea');
+            textArea.defaultValue = tdValue;
+            textArea.value = tdValue;
+            this.tdElement.innerHTML = textArea.outerHTML;
+        }
+    }
+
+    closeEditor() {
+        let textArea = this.tdElement.querySelector('textarea');
+        let inputValue = textArea?.value;
+        if (textArea) {
+            textArea?.remove();
+            this.tdElement.innerHTML = inputValue;
+            this.editorElement = null;
+        }
+    }
+
+    editorValidation() {
+
+    }
+
 }
 
 //----------------
@@ -990,6 +1022,7 @@ window.TonicsDataTable = {};
 window.TonicsDataTable.Editors = new Map();
 
 window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
+window.TonicsDataTable.Editors.set('TEXT_AREA', DataTableEditorTextArea);
 window.TonicsDataTable.Editors.set('NUMBER', DataTabledEditorNumber);
 window.TonicsDataTable.Editors.set('SELECT', DataTabledEditorSelect);
 window.TonicsDataTable.Editors.set('DATE', DataTabledEditorDate);

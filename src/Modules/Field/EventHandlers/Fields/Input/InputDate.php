@@ -57,6 +57,7 @@ class InputDate implements HandlerInterface
             'Week' => 'week',
             'Time' => 'time',
         ];
+
         $dateFrag = '';
         foreach ($dateTypes as $dateK => $dateV){
             $dateSelected = ($dateV === $dateType) ? 'selected' : '';
