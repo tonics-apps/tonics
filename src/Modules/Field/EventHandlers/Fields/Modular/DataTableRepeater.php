@@ -14,7 +14,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class RowColumn implements HandlerInterface
+class DataTableRepeater implements HandlerInterface
 {
 
     /**
@@ -26,8 +26,8 @@ class RowColumn implements HandlerInterface
         $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox(
-            'RowColumn',
-            'Add an Unlimited Number of Row or Column',
+            'DataTableRepeater',
+            'A DataTable Repeater Field',
             'Modular',
             $script,
             settingsForm: function ($data) use ($event) {
@@ -46,7 +46,7 @@ class RowColumn implements HandlerInterface
      */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'RowColumn';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTableRepeater';
         $row = 1;
         $column = 1;
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
@@ -61,29 +61,6 @@ class RowColumn implements HandlerInterface
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
-
-        $useTab = (isset($data->useTab)) ? $data->useTab : '0';
-        $useTab = $event->booleanOptionSelect($useTab);
-
-        $group = (isset($data->group)) ? $data->group : '0';
-        $group = $event->booleanOptionSelect($group);
-
-        $more = <<<HTML
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="useTab-$changeID">Use Tabs
-     <select name="useTab" class="default-selector mg-b-plus-1" id="useTab-$changeID">
-           $useTab
-      </select>
-    </label>
-</div>
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="group-$changeID">Group
-     <select name="group" class="default-selector mg-b-plus-1" id="group-$changeID">
-           $group
-      </select>
-    </label>
-</div>
-HTML;
 
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
@@ -107,7 +84,7 @@ HTML;
         value="$column">
     </label>
 </div>
-{$event->generateMoreSettingsFrag($data, $more)}
+
     <div style="--row:$row; --column:$column;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
@@ -168,8 +145,6 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $useTabs = isset($data->useTab) && $data->useTab === '1';
-        $isGroup = isset($data->group) && $data->group === '1';
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'RowColumn';
         $row = 1;
         $column = 1;
@@ -181,138 +156,45 @@ HTML;
             $column = $data->column;
         }
 
-        if ($isGroup){
-            $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle){
-                return <<<HTML
-<li tabIndex="0" class="width:100% draggable menu-arranger-li cursor:move field-builder-items overflow:auto">
-            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
-HTML;
-            });
-        } else {
-            $frag = $event->_topHTMLWrapper($fieldName, $data, true);
-        }
+        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
         $cell = $row * $column;
         $fieldNameTabUnique = $fieldName . '_' . helper()->randString(10);
         // Having grid-template-columns: repeat(autofit, var(--column-width)); cancels out any row or col number
         // This is intended to make things responsive for user
 
-        # The Tabs Version:
-        if ($useTabs){
-            $tabID = helper()->slug($fieldName, '_');
-            $frag .= <<<HTML
-<ul id="$tabID" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
-<style>
-.tonicsFieldTabsContainer {
-     font-size: unset; 
-     max-width: unset; 
-     min-width: unset; 
-     width: unset; 
-}
-
-.tabs.tonicsFieldTabsContainer {
-    background: unset;
-    margin-left: unset;
-    margin-right: unset;
-}
-</style>
-HTML; $first = false;
-            for ($i = 1; $i <= $cell; $i++) {
-                if (!isset($data->_field->_children)) {
-                    continue;
-                }
-
-                if (isset($data->_field->_children)) {
-                    foreach ($data->_field->_children as  $child) {
-                        $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
-                            ? (int)$child->field_options->{$child->field_name . "_cell"}
-                            : $i;
-
-                        if ($childCellNumber === $i) {
-                            if (isset($child->field_options)) {
-                                $child->field_options->{"_field"} = $child;
-                            }
-                            if (!$first){ $first = true; $checked = 'checked'; } else $checked = '';
-                            $fieldOptionName = $child->field_options->fieldName;
-                            $fieldOptionNameID = helper()->slug($fieldOptionName, '_');
-                            $frag .= <<<HTML
-<input tabindex="0" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
-<label tabindex="0" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
-HTML;
-                            $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
-                        }
-                    }
-                }
-            }
-            $frag .= <<<HTML
-</ul>
-HTML;
-        } else {
-
-            if ($isGroup){
-                $frag .= <<<HTML
-<div class="row-col-parent" data-depth="0">
-    <ul style="margin-left: unset;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer">
-HTML;
-            } else {
-                $frag .= <<<HTML
+        $frag .= <<<HTML
 <div class="row-col-parent" data-depth="0">
     <div style="--row:$row; --column:$column; grid-template-columns: repeat(autofit, var(--column-width));" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
+
+        for ($i = 1; $i <= $cell; $i++) {
+            if (!isset($data->_field->_children)) {
+                continue;
             }
 
-            for ($i = 1; $i <= $cell; $i++) {
-                if (!isset($data->_field->_children)) {
-                    continue;
-                }
+            if (isset($data->_field->_children)) {
+                foreach ($data->_field->_children as $child) {
+                    $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
+                        ? (int)$child->field_options->{$child->field_name . "_cell"}
+                        : $i;
 
-                if (!$isGroup){
-                    $frag .= <<<HTML
-<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
-HTML;
-                }
-
-                if (isset($data->_field->_children)) {
-                    foreach ($data->_field->_children as $child) {
-                        $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
-                            ? (int)$child->field_options->{$child->field_name . "_cell"}
-                            : $i;
-
-                        if ($childCellNumber === $i) {
-                            if (isset($child->field_options)) {
-                                $child->field_options->{"_field"} = $child;
-                            }
-                            $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                    if ($childCellNumber === $i) {
+                        if (isset($child->field_options)) {
+                            $child->field_options->{"_field"} = $child;
                         }
+                        $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                     }
                 }
-                if (!$isGroup){
-                    $frag .= <<<HTML
-</ul>
-HTML;
-                }
             }
+        }
 
-            if ($isGroup){
-                $frag .= <<<HTML
-    </ul>
-</div>
-HTML;
-            } else {
-                $frag .= <<<HTML
+        $frag .= <<<HTML
     </div>
 </div>
 HTML;
-            }
-        }
 
-        if ($isGroup){
-            $frag .= $event->_bottomHTMLWrapper(function (){
-                return "</div></li>";
-            });
-        } else {
-            $frag .= $event->_bottomHTMLWrapper();
-        }
+        $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
 

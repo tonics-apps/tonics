@@ -501,8 +501,12 @@ fieldset {
 }
 
 .row-col-item {
-   /* border: 2px solid black;
-    padding: 2em;*/
+    border: 2px solid black;
+    padding: 2em;
+    min-width: 350px;
+}
+
+.row-col-item-user {
     min-width: 350px;
 }
 

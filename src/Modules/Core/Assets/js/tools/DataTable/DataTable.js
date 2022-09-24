@@ -755,7 +755,7 @@ class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
             this.tdElement.innerHTML = `<div data-widget-form="true" class="position:relative data_table_is_open width:100% ${this.editorName()}">
                     <input data-widget-file-url="true" type="url" 
                     class="${this.editorName()}_input form-control input-checkout bg:white-one color:black border-width:default border:black" 
-                    name="plugin_url" placeholder="Audio Link" value="${tdValue}">
+                    name="plugin_url" placeholder="URL Link" value="${tdValue}">
                     <div class="d:flex flex-gap:small flex-wrap:wrap">
                         <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
                         margin-top:0 cursor:pointer">Upload Link</button>

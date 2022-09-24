@@ -71,11 +71,12 @@ class PostsController
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'post_id'],
             ['type' => 'text', 'slug' => Tables::POSTS . '::' . 'post_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'post_title'],
+            ['type' => 'TONICS_MEDIA_FEATURE_LINK', 'slug' => Tables::POSTS . '::' . 'image_url', 'title' => 'Image', 'minmax' => '150px, 1fr', 'td' => 'image_url'],
             ['type' => 'select', 'slug' => Tables::POST_CATEGORIES . '::' . 'fk_cat_id', 'title' => 'Category', 'dataAttribute' => "data-select_data=$categoriesSelectDataAttribute", 'minmax' => '150px, 1fr', 'td' => 'fk_cat_id'],
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at']])
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at', 'image_url']])
             . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT("/admin/posts/", post_slug, "/edit") as _edit_link, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
 
 

@@ -4214,7 +4214,7 @@ window.addEventListener('message', (e) => {
     if (data.hasOwnProperty('cmd')) {
         if (featuredLinkInput) {
             if (featuredLinkInput) {
-                featuredLinkInput.value = data.value;
+                featuredLinkInput.value = data.value.replace(siteURL, '');
             }
             featuredLinkWindowInstance.close();
         }
