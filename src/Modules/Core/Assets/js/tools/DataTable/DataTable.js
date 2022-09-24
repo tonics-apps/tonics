@@ -744,46 +744,6 @@ class DataTableEditorTextArea extends DataTableEditorAbstract {
 
 }
 
-class DataTableEditorFeaturedAudio extends DataTableEditorAbstract {
-
-    editorName() {
-        return 'tonics_media_featured_audio';
-    }
-
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = `<div class="position:relative ${this.editorName()}">
-                    <input data-widget-file-url="true" type="url" 
-                    class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="upload_plugin" 
-                    name="plugin_url" placeholder="Audio Link" value="${tdValue}">
-                    <div class="d:flex flex-gap:small flex-wrap:wrap">
-                        <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer">Upload Audio</button>
-                        
-                    </div>
-                </div>`;
-        }
-    }
-
-    closeEditor() {
-        let textArea = this.tdElement.querySelector(this.editorName());
-        let inputValue = textArea?.value;
-        if (textArea) {
-            textArea?.remove();
-            this.tdElement.innerHTML = inputValue;
-            this.editorElement = null;
-        }
-    }
-
-    editorValidation() {}
-
-}
-
-class DataTableEditorFeaturedImage extends DataTableEditorAbstract {
-
-}
-
 class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
 
     editorName() {
