@@ -4268,9 +4268,8 @@ class DataTableEditorAbstract {
      */
     createInput(type = 'text', value = '') {
         let input = document.createElement('input');
-        input.type = type;
-        input.defaultValue = value;
-        input.value = value;
+        input.classList.add('data_table_is_open'); input.type = type;
+        input.defaultValue = value; input.value = value;
         return input;
     }
 
@@ -4529,7 +4528,7 @@ class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
             this.tdElement.innerHTML = `<div data-widget-form="true" class="position:relative data_table_is_open width:100% ${this.editorName()}">
                     <input data-widget-file-url="true" type="url" 
                     class="${this.editorName()}_input form-control input-checkout bg:white-one color:black border-width:default border:black" 
-                    name="plugin_url" placeholder="Audio Link" value="${tdValue}">
+                    name="plugin_url" placeholder="URL Link" value="${tdValue}">
                     <div class="d:flex flex-gap:small flex-wrap:wrap">
                         <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
                         margin-top:0 cursor:pointer">Upload Link</button>
@@ -4959,7 +4958,7 @@ window.addEventListener('message', (e) => {
     if (data.hasOwnProperty('cmd')) {
         if (featuredLinkInput) {
             if (featuredLinkInput) {
-                featuredLinkInput.value = data.value;
+                featuredLinkInput.value = data.value.replace(siteURL, '');
             }
             featuredLinkWindowInstance.close();
         }
