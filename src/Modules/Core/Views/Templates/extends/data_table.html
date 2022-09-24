@@ -26,6 +26,8 @@
         [[add_hook('Core::after_data_table_row')]]
         </tbody>
         </table>
+
+        [[- PAGINATION -]]
         [[if('v[DataTable.paginateData.number_links]')
             <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
             <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
@@ -41,6 +43,8 @@
             </ul>
         </div>
         ]]
+
+        [[- DATA_TABLES ACTION MENU -]]
         <div class="dataTable-menus position:sticky bottom:0">
             <nav class="dataTable-site-footer-nav single-nav menu mobile-display-none" role="navigation">
                 <ul data-event-menu="true">
