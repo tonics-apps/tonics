@@ -8,14 +8,9 @@
         <tr>
             [[add_hook('Core::before_data_table_header')]]
             [[each("dtHeader in DataTable.headers")
-                <th
-                    [[each("dtHeaderKeyValue in dtHeader")
-                        data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"
-                    ]]
-                    >
+                <th [[each("dtHeaderKeyValue in dtHeader") data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"]]>
                     [[v('dtHeader.title')]]
                 </th>
-            [[- <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th> -]]
             ]]
             [[add_hook('Core::after_data_table_header')]]
         </tr>
