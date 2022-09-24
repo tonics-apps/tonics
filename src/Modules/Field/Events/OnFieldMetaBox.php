@@ -29,6 +29,9 @@ class OnFieldMetaBox implements EventInterface
     private bool $errorEmitted = false;
     private ?stdClass $currentFieldBox = null;
 
+    private bool $disableTopHTMLWrapper = false;
+    private bool $disableBottomHTMLWrapper = false;
+
     private string $settingsType = OnFieldMetaBox::OnBackEndSettingsType;
 
     /**
@@ -262,6 +265,9 @@ HTML;
      */
     public function _topHTMLWrapper(string $name, $data, bool $root = false, callable $handleTop = null): string
     {
+        if ($this->isDisableBottomHTMLWrapper()){
+            return '';
+        }
         $slug = $data->field_slug ?? '';
         $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $postData = getPostData();
@@ -345,6 +351,10 @@ HTML;
 
     public function _bottomHTMLWrapper(callable $handleBottom = null): string
     {
+        if ($this->isDisableBottomHTMLWrapper()){
+            return '';
+        }
+
         if ($this->getSettingsType() === $this::OnUserSettingsType){
             if ($handleBottom){
                 return $handleBottom();
@@ -591,6 +601,42 @@ HTML;
     public function dispatchEvent(): OnFieldMetaBox
     {
         return event()->dispatch($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableTopHTMLWrapper(): bool
+    {
+        return $this->disableTopHTMLWrapper;
+    }
+
+    /**
+     * @param bool $disableTopHTMLWrapper
+     * @return OnFieldMetaBox
+     */
+    public function setDisableTopHTMLWrapper(bool $disableTopHTMLWrapper): OnFieldMetaBox
+    {
+        $this->disableTopHTMLWrapper = $disableTopHTMLWrapper;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableBottomHTMLWrapper(): bool
+    {
+        return $this->disableBottomHTMLWrapper;
+    }
+
+    /**
+     * @param bool $disableBottomHTMLWrapper
+     * @return OnFieldMetaBox
+     */
+    public function setDisableBottomHTMLWrapper(bool $disableBottomHTMLWrapper): OnFieldMetaBox
+    {
+        $this->disableBottomHTMLWrapper = $disableBottomHTMLWrapper;
+        return $this;
     }
 
 }

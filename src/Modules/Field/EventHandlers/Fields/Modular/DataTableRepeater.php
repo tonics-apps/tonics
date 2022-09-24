@@ -17,6 +17,8 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class DataTableRepeater implements HandlerInterface
 {
 
+    private array $dataTableData = [];
+
     /**
      * @inheritDoc
      * @throws \Exception
@@ -145,7 +147,6 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'RowColumn';
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -156,18 +157,12 @@ HTML;
             $column = $data->column;
         }
 
-        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
+        $event->setDisableBottomHTMLWrapper(true)
+            ->setDisableTopHTMLWrapper(true);
+
+        $frag = "<td>";
 
         $cell = $row * $column;
-        $fieldNameTabUnique = $fieldName . '_' . helper()->randString(10);
-        // Having grid-template-columns: repeat(autofit, var(--column-width)); cancels out any row or col number
-        // This is intended to make things responsive for user
-
-        $frag .= <<<HTML
-<div class="row-col-parent" data-depth="0">
-    <div style="--row:$row; --column:$column; grid-template-columns: repeat(autofit, var(--column-width));" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
-HTML;
-
         for ($i = 1; $i <= $cell; $i++) {
             if (!isset($data->_field->_children)) {
                 continue;
@@ -183,19 +178,16 @@ HTML;
                         if (isset($child->field_options)) {
                             $child->field_options->{"_field"} = $child;
                         }
-                        $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                        $frag .= "<td>" . $event->getUsersForm($child->field_name, $child->field_options ?? null) . "</td>";
                     }
                 }
             }
         }
 
-        $frag .= <<<HTML
-    </div>
-</div>
-HTML;
+        $frag .= "</td>";
 
-        $frag .= $event->_bottomHTMLWrapper();
-        return $frag;
+        dd($frag);
+
     }
 
     /**
