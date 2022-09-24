@@ -34,7 +34,7 @@ class Menu implements HandlerInterface
             return $this->userForm($event, $data);
         },
             handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
+               return $this->viewFrag($event, $data);
             }
         );
     }
@@ -155,7 +155,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function viewFrag(OnFieldMetaBox $event, $data): string
+    public function viewFrag(OnFieldMetaBox $event, $data)
     {
         $frag = '';
         $displayName = (isset($data->displayName)) ? $data->displayName : '';

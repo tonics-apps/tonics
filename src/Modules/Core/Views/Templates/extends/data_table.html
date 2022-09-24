@@ -1,5 +1,60 @@
 [[hook_into('Core::in_main')
 <section class="dataTable disable-select owl">
+    [[add_hook('Core::main_form_and_filter')]]
+    <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
+        [[add_hook('Core::before_data_table')]]
+        <table id="dt" style="grid-template-columns: [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]]) ]];">
+        <thead>
+        <tr>
+            [[add_hook('Core::before_data_table_header')]]
+            [[each("dtHeader in DataTable.headers")
+            <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
+            ]]
+            [[add_hook('Core::after_data_table_header')]]
+        </tr>
+        </thead>
+        <tbody class="max-height:300px overflow-x:auto">
+        [[each("dtRow in DataTable.paginateData.data")
+        <tr>
+            [[add_hook('Core::before_data_table_data')]]
+
+            [[add_hook('Core::on_data_table_data')]]
+
+            [[add_hook('Core::after_data_table_data')]]
+        </tr>
+        ]]
+        [[add_hook('Core::after_data_table_row')]]
+        </tbody>
+        </table>
+        [[if('v[DataTable.paginateData.number_links]')
+            <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
+            <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
+                [[each("numberLinks in DataTable.paginateData.number_links")
+                <li class="d:flex">
+                    <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
+                                    [[if('v[numberLinks.current] === bool[false]') color:black ]]
+                                    [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
+                                    flex-gap:small text-align:center bg:transparent border:none border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('numberLinks.link')]]#dt">[[v('numberLinks.number')]]</a>
+                </li>
+                ]]
+            </ul>
+        </div>
+        ]]
+        <div class="dataTable-menus position:sticky bottom:0">
+            <nav class="dataTable-site-footer-nav single-nav menu mobile-display-none" role="navigation">
+                <ul data-event-menu="true">
+                    [[add_hook('Core::data_table_menu')]]
+                    [[add_hook('Core::after_data_table_menu')]]
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+]]
+
+[[hook_into('Core::main_form_and_filter')
+    [[add_hook('Core::before_in_main_form_and_filter')]]
     <div class="search-admin width:100% margin-top:0">
         <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
             <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
@@ -34,98 +89,49 @@
         </form>
     </div>
     [[add_hook('Core::after_in_main_form_and_filter')]]
-    <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
-        [[add_hook('Core::before_data_table')]]
-        <table id="dt" style="grid-template-columns: [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]]) ]];">
-        <thead>
-        <tr>
-            [[add_hook('Core::before_data_table_header')]]
-            [[each("dtHeader in DataTable.headers")
-            <th data-type="[[v('dtHeader.type')]]" data-header_slug="[[v('dtHeader.slug')]]" [[v('dtHeader.dataAttribute')]] class="position:sticky top:0">[[v('dtHeader.title')]]</th>
-            ]]
-            [[add_hook('Core::after_data_table_header')]]
-        </tr>
-        </thead>
-        <tbody class="max-height:300px overflow-x:auto">
-        [[each("dtRow in DataTable.paginateData.data")
-        <tr>
-            [[add_hook('Core::before_data_table_data')]]
-
-            [[add_hook('Core::on_data_table_data')]]
-
-            [[add_hook('Core::after_data_table_data')]]
-        </tr>
-        ]]
-        [[add_hook('Core::after_data_table_row')]]
-        </tbody>
-        </table>
-        <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
-            <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
-                [[each("numberLinks in DataTable.paginateData.number_links")
-                <li class="d:flex">
-                    <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
-                                    [[if('v[numberLinks.current] === bool[false]') color:black ]]
-                                    [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
-                                    flex-gap:small text-align:center bg:transparent border:none border:black padding:default
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('numberLinks.link')]]#dt">[[v('numberLinks.number')]]</a>
-                </li>
-                ]]
-            </ul>
-        </div>
-
-        <div class="dataTable-menus position:sticky bottom:0">
-            <nav class="dataTable-site-footer-nav single-nav menu mobile-display-none" role="navigation">
-                <ul data-event-menu="true">
-                    [[add_hook('Core::data_table_menu')]]
-                    [[add_hook('Core::after_data_table_menu')]]
-                </ul>
-            </nav>
-        </div>
-    </div>
-</section>
 ]]
 
 [[hook_into('Core::data_table_menu')
-<li class="menu-item deactivate-menu">
-    <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="SaveEvent" aria-label="Save">
-        <span style="color:#85c12a">✓</span>
-        <span>Save</span>
-    </button>
-</li>
+    <li class="menu-item deactivate-menu">
+        <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="SaveEvent" aria-label="Save">
+            <span style="color:#85c12a">✓</span>
+            <span>Save</span>
+        </button>
+    </li>
 
-<li class="menu-item deactivate-menu">
-    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="CancelEvent" aria-label="Cancel">
-        ✘
-        <span>Cancel</span>
-    </button>
-</li>
+    <li class="menu-item deactivate-menu">
+        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="CancelEvent" aria-label="Cancel">
+            ✘
+            <span>Cancel</span>
+        </button>
+    </li>
 
-<li class="menu-item">
-    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-locked="false" data-menu-action="MultiEditEvent" aria-label="Multi-Edit">
-        ✏
-        <span>Multi-Edit
-                            <span class="multi-edit-locked-mode">(UnLocked)</span>
-                        </span>
-    </button>
-</li>
+    <li class="menu-item">
+        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" data-locked="false" data-menu-action="MultiEditEvent" aria-label="Multi-Edit">
+            ✏
+            <span>Multi-Edit
+                                <span class="multi-edit-locked-mode">(UnLocked)</span>
+                            </span>
+        </button>
+    </li>
 
-<li class="menu-item">
-    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="DeleteEvent" aria-label="Delete">
-        <span class="color:red">❌</span>
-        <span>Delete</span>
-    </button>
-</li>
+    <li class="menu-item">
+        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="DeleteEvent" aria-label="Delete">
+            <span class="color:red">❌</span>
+            <span>Delete</span>
+        </button>
+    </li>
 
-<li class="menu-item">
-    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="ReloadEvent" aria-label="Reload">
-        ↻
-        <span>Reload</span>
-    </button>
-</li>
+    <li class="menu-item">
+        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="ReloadEvent" aria-label="Reload">
+            ↻
+            <span>Reload</span>
+        </button>
+    </li>
 ]]
 

@@ -33,7 +33,7 @@ class Tracks implements HandlerInterface
                 return $this->userForm($event, $data);
             },
             handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
+                $this->viewData($event, $data);
             }
         );
     }
@@ -42,6 +42,7 @@ class Tracks implements HandlerInterface
      * @param OnFieldMetaBox $event
      * @param $data
      * @return string
+     * @throws \Exception
      */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
@@ -104,9 +105,10 @@ FORM;
     }
 
     /**
+     * DON'T USE: BAD IDEA...
      * @throws \Exception
      */
-    public function viewFrag(OnFieldMetaBox $event, $data): string
+    public function viewData(OnFieldMetaBox $event, $data)
     {
         $trackData = new TrackData();
         $trackTable = Tables::getTable(Tables::TRACKS);
@@ -179,7 +181,6 @@ SQL, ...$params);
         }
 
         addToGlobalVariable('TrackData', $trackArray);
-        return '';
     }
 
 }

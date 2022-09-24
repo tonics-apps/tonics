@@ -31,7 +31,7 @@ class InputChoices implements HandlerInterface
                 return $this->userForm($event, $data);
             },
             handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
+               $this->viewData($event, $data);
             }
         );
     }
@@ -164,9 +164,8 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewFrag(OnFieldMetaBox $event, $data): string
+    public function viewData(OnFieldMetaBox $event, $data)
     {
         $event->defaultInputViewHandler('InputChoice', $data);
-        return '';
     }
 }

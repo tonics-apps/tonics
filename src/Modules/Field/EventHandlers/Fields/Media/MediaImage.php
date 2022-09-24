@@ -32,7 +32,7 @@ class MediaImage implements HandlerInterface
                 return $this->userForm($event, $data);
             },
             handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
+                $this->viewData($event, $data);
             }
         );
     }
@@ -124,7 +124,7 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewFrag(OnFieldMetaBox $event, $data = null): string
+    public function viewData(OnFieldMetaBox $event, $data = null)
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
@@ -135,7 +135,6 @@ FORM;
         }
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         addToGlobalVariable("Image_$inputName", ['Name' => $fieldName, 'inputName' => $inputName, 'Link' => $defaultImage]);
-        return '';
     }
 
 }

@@ -30,7 +30,7 @@ class Sitemap implements HandlerInterface
             return $this->userForm($event, $data);
         },
             handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
+                // $this->viewData($event, $data);
             }
         );
     }

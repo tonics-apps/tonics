@@ -36,7 +36,7 @@ class DataTableRepeater implements HandlerInterface
             return $this->userForm($event, $data);
         },
             handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
+                $this->viewData($event, $data);
             }
         );
     }
@@ -201,7 +201,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function viewFrag(OnFieldMetaBox $event, $data): string
+    public function viewData(OnFieldMetaBox $event, $data): string
     {
         $frag = '';
         if (isset($data->_field->_children)) {
