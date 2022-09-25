@@ -4243,10 +4243,11 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
         el1.removeAttribute('style');
         el2.removeAttribute('style');
 
+        let copyEl1 = el1.cloneNode(true);
         let copyEl2 = el2.cloneNode(true);
-        el1.parentNode.insertBefore(copyEl2, el1);
-        el2.parentNode.insertBefore(el1, el2);
-        el2.parentNode.replaceChild(el2, copyEl2);
+
+        el1.replaceWith(copyEl2);
+        el2.replaceWith(copyEl1);
     }
 
     el2.addEventListener("transitionend", () => {

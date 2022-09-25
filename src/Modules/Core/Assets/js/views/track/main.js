@@ -9,7 +9,7 @@ if (document.querySelector('.audio-player')){
     new Draggables(parent)
         .settings(widgetChild, ['.track-license'], false) // draggable element
         .onDragDrop(function (element, self) {
-            let elementDropped = element.closest(widgetChild);
+            let elementDropped = self.getDroppedTarget().closest(widgetChild);
             let elementDragged = self.getDragging().closest(widgetChild);
             if (elementDropped !== elementDragged && top || bottom){
                 // swap element

@@ -340,7 +340,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 <ul class="cursor:pointer track-license d:none z-index:audio-sticky-footer:license-in-queue flex-d:column width:100% position:absolute flex-gap left:0 top:46px color:black bg:white-one border-width:default border:black">
     ${licenses['data']}
 </ul>
-<span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
                 </li>
 `)
             })

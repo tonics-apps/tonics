@@ -341,6 +341,7 @@ var Draggables = class extends ElementAbstract {
   constructor($draggableContainer) {
     super($draggableContainer);
     this.dragging = null;
+    this.droppedTarget = null;
     this._draggingOriginalRect = null;
     this.xPosition = 0;
     this.yPosition = -1;
@@ -428,8 +429,8 @@ var Draggables = class extends ElementAbstract {
             startDrag = false;
           }
         });
-        if (el.closest('.draggable') && startDrag) {
-          self == null ? void 0 : self.setDragging(el.closest('.draggable'));
+        if (el.closest(".draggable") && startDrag) {
+          self == null ? void 0 : self.setDragging(el.closest(".draggable"));
           let draggable = self.getDragging();
           shiftX = e.clientX;
           shiftY = e.clientY;
@@ -437,17 +438,6 @@ var Draggables = class extends ElementAbstract {
           draggable.classList.add("touch-action:none");
           draggable.classList.remove("draggable-animation");
           self._draggingOriginalRect = draggable.getBoundingClientRect();
-          let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
-          if (draggables) {
-            for (let i = 0, len = draggables.length; i < len; i++) {
-              if (draggables[i] !== draggable) {
-                let hiddenAboveDraggable = draggables[i].querySelector(".draggable-hidden-over");
-                if (hiddenAboveDraggable) {
-                  hiddenAboveDraggable.classList.add("position:absolute");
-                }
-              }
-            }
-          }
         }
       });
     }
@@ -469,15 +459,6 @@ var Draggables = class extends ElementAbstract {
           draggable.classList.remove("draggable-start");
           draggable.classList.remove("touch-action:none");
           draggable.classList.add("draggable-animation");
-          let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
-          if (draggables) {
-            for (let i = 0, len = draggables.length; i < len; i++) {
-              let hiddenAboveDraggable = draggables[i].querySelector(".draggable-hidden-over");
-              if (hiddenAboveDraggable) {
-                hiddenAboveDraggable.classList.remove("position:absolute");
-              }
-            }
-          }
         } else {
           return false;
         }
@@ -497,6 +478,10 @@ var Draggables = class extends ElementAbstract {
         });
         let draggable = self.getDragging();
         if (el.closest(".draggable") && startDrag && draggable) {
+          draggable.classList.add("pointer-events:none");
+          let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+          self.setDroppedTarget(elemBelow.closest(".draggable"));
+          draggable.classList.remove("pointer-events:none");
           e.preventDefault();
           let tx = e.clientX - shiftX;
           let ty = e.clientY - shiftY;
@@ -572,6 +557,12 @@ var Draggables = class extends ElementAbstract {
   setDragging(draggedData) {
     this.dragging = draggedData;
   }
+  getDroppedTarget() {
+    return this.droppedTarget;
+  }
+  setDroppedTarget(el) {
+    this.droppedTarget = el;
+  }
   isMouseActive() {
     return this.mouseActive;
   }
@@ -580,6 +571,10 @@ var Draggables = class extends ElementAbstract {
   }
 };
 __name(Draggables, "Draggables");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.Draggables = ($draggableContainer) => new Draggables($draggableContainer);
 export {
   Draggables
 };
@@ -3757,10 +3752,11 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
         el1.removeAttribute('style');
         el2.removeAttribute('style');
 
+        let copyEl1 = el1.cloneNode(true);
         let copyEl2 = el2.cloneNode(true);
-        el1.parentNode.insertBefore(copyEl2, el1);
-        el2.parentNode.insertBefore(el1, el2);
-        el2.parentNode.replaceChild(el2, copyEl2);
+
+        el1.replaceWith(copyEl2);
+        el2.replaceWith(copyEl1);
     }
 
     el2.addEventListener("transitionend", () => {
@@ -3799,35 +3795,29 @@ new Draggables(parent)
     .onDragDrop(function (element, self) {
         // to the right
         let nestedRight = document.querySelector(parent).querySelector('.nested-to-the-right');
+
         let elementDragged = self.getDragging().closest(widgetChild);
+        let elementDropped = self.getDroppedTarget()?.closest(widgetChild);
+
+        // to the left
+        let nestedLeft = document.querySelector(parent).querySelector('.nested-to-the-left');
         if (right) {
             if (nestedRight && nestedRight.querySelector('.menu-arranger-li-sub')) {
                 nestedRight.querySelector('.menu-arranger-li-sub').insertAdjacentElement('beforeend', elementDragged);
                 removeDraggableDirections();
             }
             right = false;
-        }
-
-        // to the left
-        let nestedLeft = document.querySelector(parent).querySelector('.nested-to-the-left');
-        if (left && nestedLeft) {
+        }else if (left && nestedLeft) {
             nestedLeft.insertAdjacentElement('afterend', elementDragged);
             removeDraggableDirections();
             left = false;
-        }
-
-        let dragToTheBottom = document.querySelector(parent).querySelector('.drag-to-the-bottom');
-        if (bottom && dragToTheBottom) {
-            swapNodes(elementDragged, dragToTheBottom, self.draggingOriginalRect);
-            removeDraggableDirections();
-            bottom = false;
-        }
-
-        let dragToTheTop = document.querySelector(parent).querySelector('.drag-to-the-top');
-        if (top && dragToTheTop){
-            swapNodes(elementDragged, dragToTheTop, self.draggingOriginalRect);
-            removeDraggableDirections();
-            top = false;
+        } else {
+            if (elementDropped !== elementDragged && top || bottom){
+                // swap element
+                swapNodes(elementDragged, elementDropped, self.draggingOriginalRect);
+                sensitivity = 0;
+                top = false; bottom = false;
+            }
         }
 
         setListDataArray();
@@ -3969,8 +3959,7 @@ if(menuPickerContainer){
                     if (menuArranger){
                         menuArranger.insertAdjacentHTML('beforeend', `
                             <li tabindex="0" class="width:100% draggable menu-arranger-li cursor:move no-text-highlight">
-            <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
-            <fieldset class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center pointer-events:none">
+            <fieldset class="width:100% padding:default d:flex justify-content:center pointer-events:none">
                 <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                     <span class="menu-arranger-text-head">${name}</span>
                     <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer" aria-expanded="false" aria-label="Expand child menu">

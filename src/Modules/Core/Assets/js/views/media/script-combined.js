@@ -32,6 +32,7 @@ var Draggables = class extends ElementAbstract {
   constructor($draggableContainer) {
     super($draggableContainer);
     this.dragging = null;
+    this.droppedTarget = null;
     this._draggingOriginalRect = null;
     this.xPosition = 0;
     this.yPosition = -1;
@@ -119,8 +120,8 @@ var Draggables = class extends ElementAbstract {
             startDrag = false;
           }
         });
-        if (el.closest('.draggable') && startDrag) {
-          self == null ? void 0 : self.setDragging(el.closest('.draggable'));
+        if (el.closest(".draggable") && startDrag) {
+          self == null ? void 0 : self.setDragging(el.closest(".draggable"));
           let draggable = self.getDragging();
           shiftX = e.clientX;
           shiftY = e.clientY;
@@ -128,17 +129,6 @@ var Draggables = class extends ElementAbstract {
           draggable.classList.add("touch-action:none");
           draggable.classList.remove("draggable-animation");
           self._draggingOriginalRect = draggable.getBoundingClientRect();
-          let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
-          if (draggables) {
-            for (let i = 0, len = draggables.length; i < len; i++) {
-              if (draggables[i] !== draggable) {
-                let hiddenAboveDraggable = draggables[i].querySelector(".draggable-hidden-over");
-                if (hiddenAboveDraggable) {
-                  hiddenAboveDraggable.classList.add("position:absolute");
-                }
-              }
-            }
-          }
         }
       });
     }
@@ -160,15 +150,6 @@ var Draggables = class extends ElementAbstract {
           draggable.classList.remove("draggable-start");
           draggable.classList.remove("touch-action:none");
           draggable.classList.add("draggable-animation");
-          let draggables = document.querySelectorAll(self.getDraggableElementDetails().draggable.draggableElement);
-          if (draggables) {
-            for (let i = 0, len = draggables.length; i < len; i++) {
-              let hiddenAboveDraggable = draggables[i].querySelector(".draggable-hidden-over");
-              if (hiddenAboveDraggable) {
-                hiddenAboveDraggable.classList.remove("position:absolute");
-              }
-            }
-          }
         } else {
           return false;
         }
@@ -188,6 +169,10 @@ var Draggables = class extends ElementAbstract {
         });
         let draggable = self.getDragging();
         if (el.closest(".draggable") && startDrag && draggable) {
+          draggable.classList.add("pointer-events:none");
+          let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+          self.setDroppedTarget(elemBelow.closest(".draggable"));
+          draggable.classList.remove("pointer-events:none");
           e.preventDefault();
           let tx = e.clientX - shiftX;
           let ty = e.clientY - shiftY;
@@ -263,6 +248,12 @@ var Draggables = class extends ElementAbstract {
   setDragging(draggedData) {
     this.dragging = draggedData;
   }
+  getDroppedTarget() {
+    return this.droppedTarget;
+  }
+  setDroppedTarget(el) {
+    this.droppedTarget = el;
+  }
   isMouseActive() {
     return this.mouseActive;
   }
@@ -271,6 +262,10 @@ var Draggables = class extends ElementAbstract {
   }
 };
 __name(Draggables, "Draggables");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.Draggables = ($draggableContainer) => new Draggables($draggableContainer);
 export {
   Draggables
 };
@@ -789,10 +784,11 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
         el1.removeAttribute('style');
         el2.removeAttribute('style');
 
+        let copyEl1 = el1.cloneNode(true);
         let copyEl2 = el2.cloneNode(true);
-        el1.parentNode.insertBefore(copyEl2, el1);
-        el2.parentNode.insertBefore(el1, el2);
-        el2.parentNode.replaceChild(el2, copyEl2);
+
+        el1.replaceWith(copyEl2);
+        el2.replaceWith(copyEl1);
     }
 
     el2.addEventListener("transitionend", () => {
@@ -1144,7 +1140,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 <ul class="cursor:pointer track-license d:none z-index:audio-sticky-footer:license-in-queue flex-d:column width:100% position:absolute flex-gap left:0 top:46px color:black bg:white-one border-width:default border:black">
     ${licenses['data']}
 </ul>
-<span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
                 </li>
 `)
             })
@@ -1435,7 +1430,7 @@ if (document.querySelector('.audio-player')){
     new Draggables(parent)
         .settings(widgetChild, ['.track-license'], false) // draggable element
         .onDragDrop(function (element, self) {
-            let elementDropped = element.closest(widgetChild);
+            let elementDropped = self.getDroppedTarget().closest(widgetChild);
             let elementDragged = self.getDragging().closest(widgetChild);
             if (elementDropped !== elementDragged && top || bottom){
                 // swap element

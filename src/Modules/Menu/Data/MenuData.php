@@ -99,8 +99,7 @@ class MenuData extends AbstractDataLayer
 data-id="$menu->mt_id"
 data-parentid="$menu->mt_parent_id"
 class="width:100%  draggable menu-arranger-li d:flex flex-d:column align-items:center justify-content:center cursor:move no-text-highlight">
-            <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
-            <fieldset class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center pointer-events:none">
+            <fieldset class="width:100% padding:default d:flex justify-content:center pointer-events:none">
                 <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                     <span class="menu-arranger-text-head">$menu->mt_name</span>
                     <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer" aria-expanded="false" aria-label="Expand child menu" data-menutoggle_click_outside="true">

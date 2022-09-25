@@ -98,7 +98,6 @@ MENU VIEWS
 
 [[b('Menu::Items-Data-Default')
 <li tabindex="0" class="width:100%  draggable menu-arranger-li d:flex flex-d:column align-items:center justify-content:center cursor:move no-text-highlight">
-    <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
     <fieldset class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center pointer-events:none">
         <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
             <span class="menu-arranger-text-head">Example Menu</span>
@@ -109,11 +108,16 @@ MENU VIEWS
             </button>
         </legend>
         <div class="d:none flex-d:column menu-widget-information pointer-events:all owl width:100%">
-
             <div class="form-group">
                 <label class="menu-settings-handle-name" for="menu-name">Overwrite Name
                     <input id="menu-name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="menu-name"
                            value="Remove This Menu" placeholder="Overwrite the menu name">
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="menu-settings-handle-name" for="menu-name">SVG Icon Name
+                    <input type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="svg-icon" value="" placeholder="e.g tonics-toggle-right">
                 </label>
             </div>
 

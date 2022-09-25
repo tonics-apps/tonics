@@ -54,23 +54,17 @@ try {
 new Draggables(parent)
     .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
     .onDragDrop(function (element, self) {
-        // to the right
+        let elementDropped = element.closest(fieldChild);
         let elementDragged = self.getDragging().closest(fieldChild);
-
-        let dragToTheBottom = document.querySelector(parent).querySelector('.drag-to-the-bottom');
-        if (bottom && dragToTheBottom) {
-            swapNodes(elementDragged, dragToTheBottom, self.draggingOriginalRect);
-            dragToTheBottom.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
-            bottom = false;
+        if (elementDropped !== elementDragged && top || bottom){
+            // swap element
+            swapNodes(elementDragged, elementDropped, self.draggingOriginalRect, () => {
+                console.log('hello')
+                setListDataArray();
+            });
+            sensitivity = 0;
+            top = false; bottom = false;
         }
-
-        let dragToTheTop = document.querySelector(parent).querySelector('.drag-to-the-top');
-        if (top && dragToTheTop){
-            swapNodes(elementDragged, dragToTheTop, self.draggingOriginalRect);
-            dragToTheTop.classList.remove('drag-to-the-bottom', 'drag-to-the-top', 'nested-to-the-left', 'nested-to-the-right');
-            top = false;
-        }
-        setListDataArray();
     }).onDragTop((element) => {
     if (sensitivity++ >= sensitivityMax){
         let dragToTheTop = element.previousElementSibling;

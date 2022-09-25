@@ -14,7 +14,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class DataTableRepeater implements HandlerInterface
+class RowColumnRepeater implements HandlerInterface
 {
 
     /**
@@ -26,7 +26,7 @@ class DataTableRepeater implements HandlerInterface
         $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox(
-            'DataTableRepeater',
+            'RowColumnRepeater',
             'A DataTable Repeater Field',
             'Modular',
             $script,
@@ -46,7 +46,7 @@ class DataTableRepeater implements HandlerInterface
      */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTableRepeater';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'RowColumnRepeater';
         $row = 1;
         $column = 1;
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
@@ -60,9 +60,19 @@ class DataTableRepeater implements HandlerInterface
         }
 
         $gridTemplateCol = $data->grid_template_col ?? '';
+        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
+
+        $more = <<<HTML
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="group-$changeID">Repeat Button Text
+     <input id="widget-name-$changeID" name="repeat_button_text" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$repeat_button_text" placeholder="Enter Repeat Button Text">
+    </label>
+</div>
+HTML;
 
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
@@ -91,7 +101,7 @@ class DataTableRepeater implements HandlerInterface
         value="$gridTemplateCol">
     </label>
 </div>
-
+{$event->generateMoreSettingsFrag($data, $more)}
     <div style="--row:$row; --column:$column;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 

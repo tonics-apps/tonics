@@ -20,7 +20,7 @@ new MenuToggle(parent, new Query())
 new Draggables(parent)
     .settings(widgetChild, ['.license-widget-information', 'legend'], false) // draggable element
     .onDragDrop(function (element, self) {
-        let elementDropped = element.closest(widgetChild);
+        let elementDropped = self.getDroppedTarget().closest(widgetChild);
         let elementDragged = self.getDragging().closest(widgetChild);
         if (elementDropped !== elementDragged && top || bottom){
             // swap element
@@ -48,7 +48,6 @@ let licenseArranger = document.getElementsByClassName('license-arranger')[0];
 function generateNewLicenseForm() {
     return `<li tabIndex="0"
                class="width:100% draggable menu-arranger-li cursor:move">
-        <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
         <fieldset
             class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center pointer-events:none">
             <legend class="bg:pure-black color:white padding:default pointer-events:none d:flex flex-gap:small align-items:center">

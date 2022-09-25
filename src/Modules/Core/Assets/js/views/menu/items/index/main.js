@@ -28,35 +28,29 @@ new Draggables(parent)
     .onDragDrop(function (element, self) {
         // to the right
         let nestedRight = document.querySelector(parent).querySelector('.nested-to-the-right');
+
         let elementDragged = self.getDragging().closest(widgetChild);
+        let elementDropped = self.getDroppedTarget()?.closest(widgetChild);
+
+        // to the left
+        let nestedLeft = document.querySelector(parent).querySelector('.nested-to-the-left');
         if (right) {
             if (nestedRight && nestedRight.querySelector('.menu-arranger-li-sub')) {
                 nestedRight.querySelector('.menu-arranger-li-sub').insertAdjacentElement('beforeend', elementDragged);
                 removeDraggableDirections();
             }
             right = false;
-        }
-
-        // to the left
-        let nestedLeft = document.querySelector(parent).querySelector('.nested-to-the-left');
-        if (left && nestedLeft) {
+        }else if (left && nestedLeft) {
             nestedLeft.insertAdjacentElement('afterend', elementDragged);
             removeDraggableDirections();
             left = false;
-        }
-
-        let dragToTheBottom = document.querySelector(parent).querySelector('.drag-to-the-bottom');
-        if (bottom && dragToTheBottom) {
-            swapNodes(elementDragged, dragToTheBottom, self.draggingOriginalRect);
-            removeDraggableDirections();
-            bottom = false;
-        }
-
-        let dragToTheTop = document.querySelector(parent).querySelector('.drag-to-the-top');
-        if (top && dragToTheTop){
-            swapNodes(elementDragged, dragToTheTop, self.draggingOriginalRect);
-            removeDraggableDirections();
-            top = false;
+        } else {
+            if (elementDropped !== elementDragged && top || bottom){
+                // swap element
+                swapNodes(elementDragged, elementDropped, self.draggingOriginalRect);
+                sensitivity = 0;
+                top = false; bottom = false;
+            }
         }
 
         setListDataArray();
@@ -198,8 +192,7 @@ if(menuPickerContainer){
                     if (menuArranger){
                         menuArranger.insertAdjacentHTML('beforeend', `
                             <li tabindex="0" class="width:100% draggable menu-arranger-li cursor:move no-text-highlight">
-            <span class="width:100% height:100% z-index:hidden-over-draggable draggable-hidden-over"></span>
-            <fieldset class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center pointer-events:none">
+            <fieldset class="width:100% padding:default d:flex justify-content:center pointer-events:none">
                 <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                     <span class="menu-arranger-text-head">${name}</span>
                     <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
