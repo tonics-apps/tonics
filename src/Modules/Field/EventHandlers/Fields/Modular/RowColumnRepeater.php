@@ -74,6 +74,11 @@ class RowColumnRepeater implements HandlerInterface
 </div>
 HTML;
 
+        $gridTemplateColFrag = '';
+        if (isset($data->grid_template_col)){
+            $gridTemplateColFrag = " grid-template-columns: {$data->grid_template_col};";
+        }
+
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
 <div class="form-group d:flex flex-gap align-items:flex-end">
@@ -102,7 +107,7 @@ HTML;
     </label>
 </div>
 {$event->generateMoreSettingsFrag($data, $more)}
-    <div style="--row:$row; --column:$column;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+    <div style="--row:$row; --column:$column; $gridTemplateColFrag" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
         $cell = $row * $column;
@@ -183,7 +188,7 @@ HTML;
         }
         $frag .= <<<HTML
 <div class="row-col-parent owl" data-depth="0">
-    <div style="--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
         for ($i = 1; $i <= $cell; $i++) {
