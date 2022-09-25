@@ -54,7 +54,7 @@ try {
 new Draggables(parent)
     .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
     .onDragDrop(function (element, self) {
-        let elementDropped = element.closest(fieldChild);
+        let elementDropped = self.getDroppedTarget().closest(fieldChild);
         let elementDragged = self.getDragging().closest(fieldChild);
         if (elementDropped !== elementDragged && top || bottom){
             // swap element
