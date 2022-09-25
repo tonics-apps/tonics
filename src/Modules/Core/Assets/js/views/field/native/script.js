@@ -1,6 +1,5 @@
 
 let menuArranger = document.querySelector('.menu-arranger');
-window.onload = () => nativeFieldModules();
 
 function nativeFieldModules() {
     if (menuArranger) {
@@ -51,11 +50,17 @@ function nativeFieldModules() {
                     rowColItem.checked = !rowColItem.checked;
                 }
             }
+
+            let rowColRepeaterButton;
+            if ((rowColRepeaterButton = el.closest('.row-col-repeater-button'))) {
+                let rowColContainer = el.closest('.row-col-parent').querySelector('.rowColumnItemContainer'),
+                    cloneRowColParent = rowColContainer.cloneNode(true);
+
+                rowColRepeaterButton.insertAdjacentElement('beforebegin', cloneRowColParent);
+            }
         });
     }
 }
-
-nativeFieldModules();
 
 function updateRowCol(row, col, parent) {
     let times = row * col;
@@ -116,3 +121,5 @@ if (inputTitle) {
         }
     });
 }
+
+nativeFieldModules();

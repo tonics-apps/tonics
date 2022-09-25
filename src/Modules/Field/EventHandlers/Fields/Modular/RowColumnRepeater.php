@@ -182,7 +182,7 @@ HTML;
             $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
         }
         $frag .= <<<HTML
-<div class="row-col-parent" data-depth="0">
+<div class="row-col-parent owl" data-depth="0">
     <div style="--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
@@ -214,8 +214,13 @@ HTML;
 HTML;
         }
 
+        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
         $frag .= <<<HTML
     </div>
+    <button type="button" class="row-col-repeater-button text-align:center bg:transparent border:none 
+    color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
+      $repeat_button_text
+    </button>
 </div>
 HTML;
 
