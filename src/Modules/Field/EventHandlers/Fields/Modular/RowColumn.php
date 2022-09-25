@@ -59,6 +59,8 @@ class RowColumn implements HandlerInterface
             $column = $data->column;
         }
 
+        $gridTemplateCol = $data->grid_template_col ?? '';
+
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
 
@@ -105,6 +107,11 @@ HTML;
        <label class="menu-settings-handle-name" for="widget-column-$changeID">Column
         <input id="widget-column-$changeID" name="column" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="column" 
         value="$column">
+    </label>
+     </label>
+       <label class="menu-settings-handle-name" for="widget-column-$changeID">Grid Template Col
+        <input id="widget-column-$changeID" name="grid_template_col" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="grid_template_col" 
+        value="$gridTemplateCol">
     </label>
 </div>
 {$event->generateMoreSettingsFrag($data, $more)}
@@ -195,7 +202,7 @@ HTML;
         $cell = $row * $column;
         $fieldNameTabUnique = $fieldName . '_' . helper()->randString(10);
         // Having grid-template-columns: repeat(autofit, var(--column-width)); cancels out any row or col number
-        // This is intended to make things responsive for user
+        // remove the comment to make that effect: This might improve the responsiveness
 
         # The Tabs Version:
         if ($useTabs){
@@ -255,9 +262,13 @@ HTML;
     <ul style="margin-left: unset;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer">
 HTML;
             } else {
+                $gridTemplateCol = '';
+                if (isset($data->grid_template_col)){
+                    $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
+                }
                 $frag .= <<<HTML
 <div class="row-col-parent" data-depth="0">
-    <div style="--row:$row; --column:$column; grid-template-columns: repeat(autofit, var(--column-width));" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+    <div style="--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
             }
 

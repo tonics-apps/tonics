@@ -19,10 +19,18 @@ function nativeFieldModules() {
                 }
             }
 
+            if (el.closest('[name="grid_template_col"]')){
+                let gridTemplateCol = el.closest('[name="grid_template_col"]');
+                let rowColParent =  el.closest('[name="grid_template_col"]').closest('.row-col-parent'),
+                    rowColItemContainer = rowColParent.querySelector('.rowColumnItemContainer');
+                rowColItemContainer.style.gridTemplateColumns = `${gridTemplateCol.value}`;
+                return;
+            }
+
             if (el.closest('.rowColumn')) {
-                let row = el.closest('.rowColumn').querySelector("[name='row']").value;
-                let column = el.closest('.rowColumn').querySelector("[name='column']").value;
-                updateRowCol(row, column, el.closest('.rowColumn').closest('.row-col-parent'))
+                let rowCol = el.closest('.rowColumn'), row = rowCol.querySelector("[name='row']").value,
+                    column = rowCol.querySelector("[name='column']").value, rowColParent = rowCol.closest('.row-col-parent');
+                updateRowCol(row, column, rowColParent);
             }
         })
 

@@ -14,6 +14,9 @@ use App\Modules\Field\Events\OnFieldMetaBox;
 
 abstract class AbstractDataTableFieldInterface
 {
+    private ?OnFieldMetaBox $event = null;
+    private $data = null;
+
     public function header(): array
     {
         return [
@@ -23,7 +26,42 @@ abstract class AbstractDataTableFieldInterface
         ];
     }
 
-    abstract public function renderDataTableView(OnFieldMetaBox $event, $data): string;
+    abstract public function renderDataTableView(): string;
+
+    /**
+     * @return OnFieldMetaBox|null
+     */
+    public function getEvent(): ?OnFieldMetaBox
+    {
+        return $this->event;
+    }
+
+    /**
+     * @param OnFieldMetaBox|null $event
+     * @return AbstractDataTableFieldInterface
+     */
+    public function setEvent(?OnFieldMetaBox $event): AbstractDataTableFieldInterface
+    {
+        $this->event = $event;
+        return $this;
+    }
+
+    /**
+     * @return null
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param null $data
+     */
+    public function setData($data): AbstractDataTableFieldInterface
+    {
+        $this->data = $data;
+        return $this;
+    }
 
 
 }

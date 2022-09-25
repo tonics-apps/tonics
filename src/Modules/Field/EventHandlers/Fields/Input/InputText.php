@@ -12,6 +12,7 @@ namespace App\Modules\Field\EventHandlers\Fields\Input;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
+use App\Modules\Field\Interfaces\AbstractDataTableFieldInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class InputText implements HandlerInterface
@@ -220,5 +221,4 @@ FORM;
     {
         $event->defaultInputViewHandler('InputText', $data);
     }
-
 }

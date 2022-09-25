@@ -17,8 +17,6 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class DataTableRepeater implements HandlerInterface
 {
 
-    private array $dataTableData = [];
-
     /**
      * @inheritDoc
      * @throws \Exception
@@ -61,6 +59,8 @@ class DataTableRepeater implements HandlerInterface
             $column = $data->column;
         }
 
+        $gridTemplateCol = $data->grid_template_col ?? '';
+
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
 
@@ -84,6 +84,11 @@ class DataTableRepeater implements HandlerInterface
        <label class="menu-settings-handle-name" for="widget-column-$changeID">Column
         <input id="widget-column-$changeID" name="column" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="column" 
         value="$column">
+    </label>
+    </label>
+       <label class="menu-settings-handle-name" for="widget-column-$changeID">Grid Template Col
+        <input id="widget-column-$changeID" name="grid_template_col" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" data-name="grid_template_col" 
+        value="$gridTemplateCol">
     </label>
 </div>
 
@@ -147,6 +152,7 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -157,16 +163,27 @@ HTML;
             $column = $data->column;
         }
 
-        $event->setDisableBottomHTMLWrapper(true)
-            ->setDisableTopHTMLWrapper(true);
-
-        $frag = "<td>";
+        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
         $cell = $row * $column;
+
+        $gridTemplateCol = '';
+        if (isset($data->grid_template_col)) {
+            $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
+        }
+        $frag .= <<<HTML
+<div class="row-col-parent" data-depth="0">
+    <div style="--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+HTML;
+
         for ($i = 1; $i <= $cell; $i++) {
             if (!isset($data->_field->_children)) {
                 continue;
             }
+
+            $frag .= <<<HTML
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+HTML;
 
             if (isset($data->_field->_children)) {
                 foreach ($data->_field->_children as $child) {
@@ -178,16 +195,22 @@ HTML;
                         if (isset($child->field_options)) {
                             $child->field_options->{"_field"} = $child;
                         }
-                        $frag .= "<td>" . $event->getUsersForm($child->field_name, $child->field_options ?? null) . "</td>";
+                        $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                     }
                 }
             }
+            $frag .= <<<HTML
+</ul>
+HTML;
         }
 
-        $frag .= "</td>";
+        $frag .= <<<HTML
+    </div>
+</div>
+HTML;
 
-        dd($frag);
-
+        $frag .= $event->_bottomHTMLWrapper();
+        return $frag;
     }
 
     /**
