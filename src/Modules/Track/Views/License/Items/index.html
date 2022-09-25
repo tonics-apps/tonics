@@ -1,47 +1,17 @@
-<!DOCTYPE html>
-[[import("Modules::Core/Views/Blocks/Assets")]]
-[[import("Modules::Core/Views/Blocks/Authentication")]]
-[[import("Modules::Core/Views/Blocks/Default")]]
+[[inherit("Modules::Core/Views/Templates/core")]]
 [[import("Modules::Core/Views/Blocks/Track/License")]]
-<html lang="en">
-<head>
-    [[_use("default-secure-meta")]]
-    [[_use("main-css-style")]]
-    <title>Menu Builder</title>
-</head>
 
-<body class="body-sticky-footer bg:gray-two">
-[[_use("default-inline-svg")]]
+[[hook_into('Core::in_head_title') License Builder ([[v('LicenseBuilderName')]]) ]]
+[[hook_into('Core::in_main_header_title') License Builder ([[v('LicenseBuilderName')]]) ]]
 
-<header>
-    [[func('body.header.section', 'body.header.section-site-header-classes:admin', 'admin:body.header.section-site-header-site-navigation')]]
-</header>
-
-<main id="main"  class="flex:one" tabindex="-1">
+[[hook_into('Core::in_main')
     <input type="hidden" name="license_slug" value="[[v('LicenseSlug')]]">
     <input type="hidden" name="license_id" value="[[v('LicenseID')]]">
-    [[b('body.main.header-text')License Builder ([[v('LicenseBuilderName')]]) ]]
-    [[func('body.main.header', 'body.main.header-text')]]
     [[_use('License::Items::view::index')]]
-</main>
+]]
 
-<form id="saveLicenseBuilderItems" method="post" action="[[use('License::Items::route::posts.store')]]" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
-    <input type="hidden" name="token" value="[[csrf()]]" >
-    <div class="form-group">
-        <button name="delete" class="save-license-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
-            Save Changes
-        </button>
-    </div>
-</form>
-
-<footer class="footer-area d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center">
-    <div class="footer-section">
-    </div>
-</footer>
-
-[[_use("script:variables")]]
-[[_use("script:license-item-index")]]
-[[_use("session:delete-artifacts")]]
-</body>
-</html>
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:license-item-index")]]
+    [[_use("session:delete-artifacts")]]
+]]
