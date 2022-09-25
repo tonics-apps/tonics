@@ -4430,7 +4430,7 @@ function generateNewLicenseForm() {
     return `<li tabIndex="0"
                class="width:100% draggable menu-arranger-li cursor:move">
         <fieldset
-            class="width:100% padding:default box-shadow-variant-1 d:flex justify-content:center pointer-events:none">
+            class="width:100% padding:default d:flex justify-content:center pointer-events:none">
             <legend class="bg:pure-black color:white padding:default pointer-events:none d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">New License</span>
                 <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer"
