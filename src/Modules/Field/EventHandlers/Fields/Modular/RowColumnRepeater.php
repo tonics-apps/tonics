@@ -16,6 +16,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class RowColumnRepeater implements HandlerInterface
 {
+    private int $depth = -1;
 
     /**
      * @inheritDoc
@@ -88,7 +89,7 @@ HTML;
     </label>
  <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
         <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-        value="$inputName" placeholder="(Optional) Input Name">
+        value="$inputName" placeholder="Input Name">
 </label>
 </div>
 <div class="form-group d:flex flex-d:row flex-gap:small rowColumn">
@@ -167,6 +168,10 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
+        if ($data->field_slug === 'modular_rowcolumnrepeater'){
+            ++$this->depth;
+        }
+
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
         $row = 1;
         $column = 1;
@@ -178,6 +183,7 @@ HTML;
             $column = $data->column;
         }
 
+        $depth = $this->depth;
         $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
         $cell = $row * $column;
@@ -186,13 +192,15 @@ HTML;
         if (isset($data->grid_template_col)) {
             $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
         }
+
+        $inputName = $data->inputName ?? '';
         $mainFrag = <<<HTML
 <style>
 .remove-row-col-repeater-button:hover + .rowColumnItemContainer {
     background: #c2dbffa3;
 }
 </style>
-<div class="row-col-parent repeater-field position:relative owl" data-depth="0">
+<div class="row-col-parent repeater-field position:relative owl" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
     <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
         color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
     <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">

@@ -320,7 +320,7 @@ if (menuArranger){
 
 
 // save menu builder
-let saveAllMenu = document.querySelector('.save-menu-builder-changes'),
+let saveAllMenu = document.querySelector('.tonics-save-changes'),
     saveMenuChangesForm = document.getElementById('saveMenuBuilderItems');
 if(saveAllMenu && saveMenuChangesForm){
     saveAllMenu.addEventListener('click', function (e) {

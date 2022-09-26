@@ -1,7 +1,9 @@
 
 let menuArranger = document.querySelector('.menu-arranger');
+let tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
 
 function nativeFieldModules() {
+
     if (menuArranger) {
         menuArranger.addEventListener('change', (e) => {
             let el = e.target;
@@ -32,7 +34,6 @@ function nativeFieldModules() {
                 updateRowCol(row, column, rowColParent);
             }
         })
-
         menuArranger.addEventListener('click', (e) => {
             let el = e.target;
             if (el.closest('.row-col-item')) {
@@ -64,6 +65,109 @@ function nativeFieldModules() {
             }
         });
     }
+
+    if (tonicsFieldSaveChangesButton){
+        tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
+            let editorsForm = document.getElementById('EditorsForm');
+            let formData = new FormData(editorsForm);
+            e.preventDefault();
+
+            let tree = {}, root = {}, lastObject = {}, breakLoopBackward = false, childStack = [];
+            let repeatersDepth = document.querySelectorAll('[data-repeater_depth]');
+
+
+            tree._data = [];
+            repeatersDepth.forEach((repeatEl => {
+                let data = getRepeatersData(repeatEl);
+                data._name = repeatEl.dataset.repeater_input_name;
+                data._depth = repeatEl.dataset.repeater_depth;
+                let currentDepth = parseInt(data._depth);
+
+                if (tree._data.length === 0 || currentDepth === 0){
+                    tree._data.push(data);
+                    lastObject = data;
+                    childStack.push(data);
+                    root = tree;
+                } else {
+                    let lastDepth = parseInt(lastObject._depth);
+                    if (currentDepth > lastDepth){
+                        if (!lastObject.hasOwnProperty('_data')){
+                            lastObject._data = [];
+                            lastObject._data.push(data);
+                            lastObject = data;
+                            childStack.push(data);
+                        }
+                    }
+
+                    if (currentDepth === lastDepth || currentDepth < lastDepth){
+                        for (const treeData of loopTreeBackward(childStack)) {
+                            if (treeData._depth < currentDepth){
+                                breakLoopBackward = true;
+                                treeData._data.push(data);
+                                lastObject = data;
+                                childStack.push(data);
+                            }
+                        }
+                    }
+                }
+
+            }));
+
+            function *loopTreeBackward(treeToLoop = null) {
+                if (treeToLoop === null){
+                    treeToLoop = this.tocTree;
+                }
+                for (let i = treeToLoop.length - 1; i >= 0; i--){
+                    if (breakLoopBackward){break;}
+                    yield treeToLoop[i];
+                }
+
+                breakLoopBackward = false;
+            }
+
+           console.log(tree);
+        })
+    }
+
+    function getRepeatersData(fieldSettingsEl) {
+        let widgetSettings = [],
+            fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');
+
+        let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name;
+         fieldBuilderItems.forEach((fieldList => {
+             let elements = fieldList.querySelectorAll('input, textarea, select'),
+                 fieldSettings = {};
+             for (let i = 0; i < elements.length; i++) {
+                 let inputs = elements[i];
+                 let inputDataRepeaterDepth = inputs.closest('[data-repeater_input_name]');
+                 if (inputDataRepeaterDepth.dataset.repeater_input_name !== fieldSettingsRepeaterName){
+                     break;
+                 }
+
+                 // collect checkbox
+                 if (inputs.type === 'checkbox'){
+                     let checkboxName = inputs.name;
+                     if (!fieldSettings.hasOwnProperty(checkboxName)){
+                         fieldSettings[checkboxName] = [];
+                     }
+                     if (inputs.checked){
+                         fieldSettings[checkboxName].push(inputs.value);
+                     }
+                 }
+
+                 if (!fieldSettings.hasOwnProperty(inputs.name)) {
+                     fieldSettings[inputs.name] = inputs.value;
+                 }
+             }
+
+             if (Object.keys(fieldSettings).length !== 0){
+                 widgetSettings.push(fieldSettings);
+             }
+         }));
+
+        return widgetSettings;
+    }
+
 }
 
 function updateRowCol(row, col, parent) {
