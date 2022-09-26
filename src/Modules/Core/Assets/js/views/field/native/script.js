@@ -69,12 +69,12 @@ function nativeFieldModules() {
     if (tonicsFieldSaveChangesButton){
         tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
             let editorsForm = document.getElementById('EditorsForm');
-            let formData = new FormData(editorsForm);
             e.preventDefault();
 
             let tree = {}, root = {}, lastObject = {}, breakLoopBackward = false, childStack = [];
             let repeatersDepth = document.querySelectorAll('[data-repeater_depth]');
 
+            let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
             tree._data = [];
             repeatersDepth.forEach((repeatEl => {
@@ -124,8 +124,23 @@ function nativeFieldModules() {
 
                 breakLoopBackward = false;
             }
+            function addHiddenInputToForm(form, key, value) {
+                let inputExist = form.querySelector(`input[name="${key}"]`);
+                if (inputExist){
+                    inputExist.value = value
+                }else {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
+                }
 
-           console.log(tree);
+            }
+            if (firstRepeaterName){
+                addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify(tree));
+            }
+            editorsForm.submit();
         })
     }
 
