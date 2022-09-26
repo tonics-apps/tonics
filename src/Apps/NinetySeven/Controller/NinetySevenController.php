@@ -48,6 +48,7 @@ class NinetySevenController
     public function update()
     {
         try {
+            dd($_POST, json_decode($_POST['repeater_col_1']));
             $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
             apcu_store(self::getCacheKey(), $settings);
             session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);

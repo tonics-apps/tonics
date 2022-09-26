@@ -71,46 +71,43 @@ function nativeFieldModules() {
             let editorsForm = document.getElementById('EditorsForm');
             e.preventDefault();
 
-            let tree = {}, root = {}, lastObject = {}, breakLoopBackward = false, childStack = [];
+            let tree = {}, lastObject = {}, breakLoopBackward = false, childStack = [];
             let repeatersDepth = document.querySelectorAll('[data-repeater_depth]');
 
             let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
-            tree._data = [];
+            tree._data = {}; let id = 0;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
                 data._name = repeatEl.dataset.repeater_input_name;
                 data._depth = repeatEl.dataset.repeater_depth;
                 let currentDepth = parseInt(data._depth);
 
-                if (tree._data.length === 0 || currentDepth === 0){
-                    tree._data.push(data);
+                if (currentDepth === 0){
+                    tree._data[id] = data;
                     lastObject = data;
                     childStack.push(data);
-                    root = tree;
                 } else {
                     let lastDepth = parseInt(lastObject._depth);
                     if (currentDepth > lastDepth){
-                        if (!lastObject.hasOwnProperty('_data')){
-                            lastObject._data = [];
-                            lastObject._data.push(data);
+                        if (!lastObject.hasOwnProperty('_children')){
+                            lastObject._children = {};
+                            lastObject._children[id] = data;
                             lastObject = data;
                             childStack.push(data);
                         }
-                    }
-
-                    if (currentDepth === lastDepth || currentDepth < lastDepth){
+                    }else if (currentDepth === lastDepth || currentDepth < lastDepth){
                         for (const treeData of loopTreeBackward(childStack)) {
                             if (treeData._depth < currentDepth){
                                 breakLoopBackward = true;
-                                treeData._data.push(data);
+                                treeData._children[id] = data;
                                 lastObject = data;
                                 childStack.push(data);
                             }
                         }
                     }
                 }
-
+                ++id;
             }));
 
             function *loopTreeBackward(treeToLoop = null) {
@@ -138,6 +135,8 @@ function nativeFieldModules() {
 
             }
             if (firstRepeaterName){
+                let tease = JSON.stringify(tree);
+                console.log(tree, JSON.parse(tease)); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify(tree));
             }
             editorsForm.submit();
@@ -145,10 +144,10 @@ function nativeFieldModules() {
     }
 
     function getRepeatersData(fieldSettingsEl) {
-        let widgetSettings = [],
+        let widgetSettings = {},
             fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');
 
-        let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name;
+        let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name,  id = 0
          fieldBuilderItems.forEach((fieldList => {
              let elements = fieldList.querySelectorAll('input, textarea, select'),
                  fieldSettings = {};
@@ -176,7 +175,8 @@ function nativeFieldModules() {
              }
 
              if (Object.keys(fieldSettings).length !== 0){
-                 widgetSettings.push(fieldSettings);
+                 widgetSettings[id] = fieldSettings;
+                 ++id;
              }
          }));
 
