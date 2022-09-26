@@ -330,7 +330,7 @@ HTML;
         if ($this->getSettingsType() === $this::OnUserSettingsType){
             $result .=<<<HTML
 <li $isEditorLi tabIndex="0"
-class="width:100% draggable menu-arranger-li cursor:move field-builder-items overflow:auto"
+class="width:100% field-builder-items overflow:auto"
 $scriptPath>
         <fieldset
             class="width:100% padding:default d:flex justify-content:center flex-d:column $rootOwl">

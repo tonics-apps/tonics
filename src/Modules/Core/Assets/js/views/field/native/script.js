@@ -53,10 +53,14 @@ function nativeFieldModules() {
 
             let rowColRepeaterButton;
             if ((rowColRepeaterButton = el.closest('.row-col-repeater-button'))) {
-                let rowColContainer = el.closest('.row-col-parent').querySelector('.rowColumnItemContainer'),
-                    cloneRowColParent = rowColContainer.cloneNode(true);
+                let repeaterFragment = rowColRepeaterButton.querySelector('template.repeater-frag');
+                let cloneFrag = repeaterFragment?.content?.querySelector('.row-col-parent').cloneNode(true);
+                rowColRepeaterButton.insertAdjacentElement('beforebegin', cloneFrag);
+            }
 
-                rowColRepeaterButton.insertAdjacentElement('beforebegin', cloneRowColParent);
+            let removeRowColRepeaterButton;
+            if ((removeRowColRepeaterButton = el.closest('.remove-row-col-repeater-button'))) {
+                removeRowColRepeaterButton?.closest('.row-col-parent').remove();
             }
         });
     }

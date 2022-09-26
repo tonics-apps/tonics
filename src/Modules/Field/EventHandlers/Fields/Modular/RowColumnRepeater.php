@@ -186,8 +186,15 @@ HTML;
         if (isset($data->grid_template_col)) {
             $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
         }
-        $frag .= <<<HTML
-<div class="row-col-parent owl" data-depth="0">
+        $mainFrag = <<<HTML
+<style>
+.remove-row-col-repeater-button:hover + .rowColumnItemContainer {
+    background: #c2dbffa3;
+}
+</style>
+<div class="row-col-parent repeater-field position:relative owl" data-depth="0">
+    <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
+        color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
     <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
@@ -196,7 +203,7 @@ HTML;
                 continue;
             }
 
-            $frag .= <<<HTML
+            $mainFrag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
 
@@ -210,26 +217,29 @@ HTML;
                         if (isset($child->field_options)) {
                             $child->field_options->{"_field"} = $child;
                         }
-                        $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                        $mainFrag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                     }
                 }
             }
-            $frag .= <<<HTML
+            $mainFrag .= <<<HTML
 </ul>
 HTML;
         }
 
         $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
-        $frag .= <<<HTML
+        $mainFrag .= <<<HTML
     </div>
-    <button type="button" class="row-col-repeater-button text-align:center bg:transparent border:none 
-    color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
-      $repeat_button_text
-    </button>
 </div>
+<button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
+color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
+  $repeat_button_text
+  <template class="repeater-frag">
+    $mainFrag
+  </template>
+</button>
 HTML;
 
-        $frag .= $event->_bottomHTMLWrapper();
+        $frag .= $mainFrag . $event->_bottomHTMLWrapper();
         return $frag;
     }
 
