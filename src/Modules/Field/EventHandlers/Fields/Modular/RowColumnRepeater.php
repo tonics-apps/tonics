@@ -373,24 +373,33 @@ HTML;
             $inputData = $inputData->_data;
         }
 
-        dd($data, $inputData, $this->fieldHashes);
+        // dd($data, $inputData, $this->fieldHashes);
 
-        $newData = new \stdClass(); $child = [];
+        $newData = new \stdClass();
         foreach ($inputData as $fields){
-            $this->rebuilding($fields, $child, $data);
-            dd($data, $inputData, $child);
+
+            $configurationOption = $this->fieldHashes[$fields->_configuration->_field_slug_unique_hash];
+            $configurationOption->_field->_children = [];
+            $child = &$configurationOption->_field->_children;
+            $this->rebuilding($fields, $child);
+
+            dd($data, $inputData, $configurationOption);
         }
     }
 
-    private function rebuilding($fields, &$child, $data)
+    private function rebuilding($fields, &$child)
     {
         foreach ($fields as $key => $field){
             if ((!is_numeric($key) && $key !== '_children') || (isset($field->field_slug) && $field->field_slug === 'modular_rowcolumnrepeater')){
                 continue;
             }
-
             if ($key === '_children'){
-                dd($child, $data, $field, $fields->_configuration);
+                foreach ($fields->_children as $childField){
+                    $configurationOption = $this->fieldHashes[$childField->_configuration->_field_slug_unique_hash];
+                    $child[] = $configurationOption;
+                    $configurationOption->_field->_children = [];
+                    $this->rebuilding($childField, $configurationOption->_field->_children);
+                }
             } else {
                 $fieldOption = $this->fieldHashes[$field->field_slug_unique_hash];
                 $fieldOption->_postData = $field;
