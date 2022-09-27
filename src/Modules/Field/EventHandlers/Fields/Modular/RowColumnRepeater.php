@@ -18,6 +18,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class RowColumnRepeater implements HandlerInterface
 {
     private array $fieldHashes = [];
+    private string $mainRepeaterName = '';
     /**
      * @inheritDoc
      * @throws \Exception
@@ -179,15 +180,15 @@ HTML;
             $column = $data->column;
         }
 
-        if (FieldConfig::hasFieldUnSortedItemsDataID()){
+        if (empty($this->mainRepeaterName) && FieldConfig::hasFieldUnSortedItemsDataID()){
             $oldPostData = getPostData();
             $inputData =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
             $this->buildFieldHashes();
+            $this->rebuildData($event, $data, $inputData);
+            dd(json_decode($inputData), $data, $this->fieldHashes);
             $frag = $this->getNestedFields($event, $data, $inputData);
+            $this->mainRepeaterName = $data->inputName;
         }
-
-
-        // dd($inputData, json_decode($inputData), FieldConfig::getFieldUnSortedItemsDataID());
 
         $depth = $data->_field->depth;
         $frag = $event->_topHTMLWrapper($fieldName, $data, true);
@@ -199,6 +200,8 @@ HTML;
             $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
         }
 
+        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
+
         $inputName = $data->inputName ?? '';
         $mainFrag = <<<HTML
 <style>
@@ -206,7 +209,7 @@ HTML;
     background: #c2dbffa3;
 }
 </style>
-<div class="row-col-parent repeater-field position:relative owl" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
+<div class="row-col-parent repeater-field position:relative owl" data-repeater_repeat_button_text="$repeat_button_text" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
     <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
         color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
     <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
@@ -240,7 +243,7 @@ HTML;
 HTML;
         }
 
-        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
+
         $mainFrag .= <<<HTML
     </div>
 </div>
@@ -270,9 +273,48 @@ HTML;
 
         foreach ($inputData as $fields){
             $fieldName = (isset($fields->_configuration->_field_name)) ? $fields->_configuration->_field_name : 'DataTable_Repeater';
-           // $frag = $event->_topHTMLWrapper($fieldName, $data, true);
-            dd($fields);
+            $inputName  = $fields->_configuration->_name ?? '';
+            $depth = $fields->_configuration->_depth ?? '0';
+
+            $row = 1;
+            $column = 1;
+            if (isset($data->row)) {
+                $row = $data->row;
+            }
+
+            if (isset($data->column)) {
+                $column = $data->column;
+            }
+
+            $gridTemplateCol = '';
+            if (isset($data->grid_template_col)) {
+                $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
+            }
+
+            dd($inputData, $fields);
+
+            $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+            $mainFrag = <<<HTML
+<style>
+.remove-row-col-repeater-button:hover + .rowColumnItemContainer {
+    background: #c2dbffa3;
+}
+</style>
+<div class="row-col-parent repeater-field position:relative owl" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
+    <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
+        color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
+    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+HTML;
+            dd($fields, $frag);
            $frag .= $this->getNestedFieldsFrag($event, $fields);
+
+            $mainFrag .= <<<HTML
+</ul>
+    </div>
+</div>
+HTML;
         }
 
         dd($frag, 'hh');
@@ -318,6 +360,41 @@ HTML;
         foreach (FieldConfig::getFieldUnSortedItemsDataID() as $fields){
             foreach ($fields as $field){
                 $this->fieldHashes[$field->field_options->field_slug_unique_hash] = $field->field_options;
+            }
+        }
+    }
+
+    private function rebuildData(OnFieldMetaBox $event, $data, $inputData)
+    {
+        $inputData = json_decode($inputData);
+        if (!isset($inputData->_data)){
+            return '';
+        } else {
+            $inputData = $inputData->_data;
+        }
+
+        dd($data, $inputData, $this->fieldHashes);
+
+        $newData = new \stdClass(); $child = [];
+        foreach ($inputData as $fields){
+            $this->rebuilding($fields, $child, $data);
+            dd($data, $inputData, $child);
+        }
+    }
+
+    private function rebuilding($fields, &$child, $data)
+    {
+        foreach ($fields as $key => $field){
+            if ((!is_numeric($key) && $key !== '_children') || (isset($field->field_slug) && $field->field_slug === 'modular_rowcolumnrepeater')){
+                continue;
+            }
+
+            if ($key === '_children'){
+                dd($child, $data, $field, $fields->_configuration);
+            } else {
+                $fieldOption = $this->fieldHashes[$field->field_slug_unique_hash];
+                $fieldOption->_postData = $field;
+                $child[] = $fieldOption;
             }
         }
     }

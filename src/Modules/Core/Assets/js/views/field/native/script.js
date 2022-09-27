@@ -82,9 +82,12 @@ function nativeFieldModules() {
                 data._configuration = {};
 
                 data._configuration._name = repeatEl.dataset.repeater_input_name;
+                data._configuration._field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
                 data._configuration._field_name = repeatEl.dataset.repeater_field_name;
                 data._configuration._depth = repeatEl.dataset.repeater_depth;
+                data._configuration._repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
                 data._configuration._grid_template_col = repeatEl.dataset.grid_template_col;
+
                 let currentDepth = parseInt(data._configuration._depth);
 
                 if (currentDepth === 0){
