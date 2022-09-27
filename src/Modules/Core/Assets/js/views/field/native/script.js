@@ -79,10 +79,13 @@ function nativeFieldModules() {
             tree._data = {}; let parentID = 0, childID = 0;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
-                data._name = repeatEl.dataset.repeater_input_name;
-                data._depth = repeatEl.dataset.repeater_depth;
-                data._grid_template_col = repeatEl.dataset.grid_template_col;
-                let currentDepth = parseInt(data._depth);
+                data._configuration = {};
+
+                data._configuration._name = repeatEl.dataset.repeater_input_name;
+                data._configuration._field_name = repeatEl.dataset.repeater_field_name;
+                data._configuration._depth = repeatEl.dataset.repeater_depth;
+                data._configuration._grid_template_col = repeatEl.dataset.grid_template_col;
+                let currentDepth = parseInt(data._configuration._depth);
 
                 if (currentDepth === 0){
                     tree._data[parentID] = data;
@@ -90,7 +93,7 @@ function nativeFieldModules() {
                     childStack.push(data);
                     ++parentID;
                 } else {
-                    let lastDepth = parseInt(lastObject._depth);
+                    let lastDepth = parseInt(lastObject._configuration._depth);
                     if (currentDepth > lastDepth){
                         if (!lastObject.hasOwnProperty('_children')){
                             childID = 0;
@@ -101,7 +104,7 @@ function nativeFieldModules() {
                         }
                     }else if (currentDepth === lastDepth || currentDepth < lastDepth){
                         for (const treeData of loopTreeBackward(childStack)) {
-                            if (treeData._depth < currentDepth){
+                            if (treeData._configuration._depth < currentDepth){
                                 breakLoopBackward = true;
                                 treeData._children[childID] = data;
                                 lastObject = data;

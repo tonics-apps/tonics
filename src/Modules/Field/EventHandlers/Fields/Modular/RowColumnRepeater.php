@@ -183,8 +183,7 @@ HTML;
             $oldPostData = getPostData();
             $inputData =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
             $this->buildFieldHashes();
-            $this->getNestedFields($event, $data, $inputData);
-            dd($this->fieldHashes);
+            $frag = $this->getNestedFields($event, $data, $inputData);
         }
 
 
@@ -207,7 +206,7 @@ HTML;
     background: #c2dbffa3;
 }
 </style>
-<div class="row-col-parent repeater-field position:relative owl" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
+<div class="row-col-parent repeater-field position:relative owl" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
     <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
         color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
     <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
@@ -270,9 +269,13 @@ HTML;
         }
 
         foreach ($inputData as $fields){
+            $fieldName = (isset($fields->_configuration->_field_name)) ? $fields->_configuration->_field_name : 'DataTable_Repeater';
+           // $frag = $event->_topHTMLWrapper($fieldName, $data, true);
+            dd($fields);
            $frag .= $this->getNestedFieldsFrag($event, $fields);
         }
 
+        dd($frag, 'hh');
         dd($inputData);
 
     }
