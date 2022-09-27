@@ -180,15 +180,15 @@ HTML;
             $column = $data->column;
         }
 
-        if (empty($this->mainRepeaterName) && FieldConfig::hasFieldUnSortedItemsDataID()){
-            $oldPostData = getPostData();
-            $inputData =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-            $this->buildFieldHashes();
-            $this->rebuildData($event, $data, $inputData);
-            dd(json_decode($inputData), $data, $this->fieldHashes);
-            $frag = $this->getNestedFields($event, $data, $inputData);
-            $this->mainRepeaterName = $data->inputName;
-        }
+//        if (empty($this->mainRepeaterName) && FieldConfig::hasFieldUnSortedItemsDataID()){
+//            $oldPostData = getPostData();
+//            $inputData =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+//            $this->buildFieldHashes();
+//            $this->rebuildData($event, $data, $inputData);
+//            dd(json_decode($inputData), $data, $this->fieldHashes);
+//            $frag = $this->getNestedFields($event, $data, $inputData);
+//            $this->mainRepeaterName = $data->inputName;
+//        }
 
         $depth = $data->_field->depth;
         $frag = $event->_topHTMLWrapper($fieldName, $data, true);
@@ -209,10 +209,10 @@ HTML;
     background: #c2dbffa3;
 }
 </style>
-<div class="row-col-parent repeater-field position:relative owl" data-repeater_repeat_button_text="$repeat_button_text" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
+<div class="row-col-parent repeater-field position:relative cursor:move owl draggable draggable-repeater" data-repeater_repeat_button_text="$repeat_button_text" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
     <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
         color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
-    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move owl flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
         for ($i = 1; $i <= $cell; $i++) {
@@ -269,11 +269,11 @@ HTML;
     {
         foreach (FieldConfig::getFieldUnSortedItemsDataID() as $fields){
             foreach ($fields as $field){
-                $field = (object)$field;
-                $field->field_options = (object)$field->field_options;
-                $this->fieldHashes[$field->field_options->field_slug_unique_hash] = $field->field_options;
+                $this->fieldHashes[$field->field_options->field_slug_unique_hash] = null;
             }
         }
+
+        dd($this->fieldHashes);
     }
 
     private function rebuildData(OnFieldMetaBox $event, $data, $inputData)
@@ -288,9 +288,9 @@ HTML;
         // dd($data, $inputData, $this->fieldHashes);
 
         $newData = null;
+        dd($inputData);
         foreach ($inputData as $fields){
             $configurationOption = $this->fieldHashes[$fields->_configuration->_field_slug_unique_hash];
-            $configurationOption->_field = new \stdClass();
             $configurationOption->_field->_children = [];
             $child = &$configurationOption->_field->_children;
             $this->rebuilding($fields, $child);
@@ -307,7 +307,9 @@ HTML;
             if ($key === '_children'){
                 foreach ($fields->_children as $childField){
                     $configurationOption = $this->fieldHashes[$childField->_configuration->_field_slug_unique_hash];
-                    $configurationOption->_field = new \stdClass();
+
+
+                    dd($configurationOption, (array)$configurationOption);
                     $child[] = $configurationOption;
                     $configurationOption->_field->_children = [];
                     $this->rebuilding($childField, $configurationOption->_field->_children);

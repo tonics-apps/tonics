@@ -3766,6 +3766,9 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
         }
     }, { once: true });
 }
+
+if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
+window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);
 let draggable = document.getElementsByClassName('draggable'),
     parent = '.menu-arranger',
     widgetChild = `.menu-arranger-li`,

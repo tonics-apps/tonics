@@ -3667,6 +3667,9 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
         }
     }, { once: true });
 }
+
+if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
+window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);
 let adminWidgetItemEl = document.querySelector('[class ^=admin-widget-item]');
 if (adminWidgetItemEl){
     let adminWidgetItemClassList = adminWidgetItemEl.classList;

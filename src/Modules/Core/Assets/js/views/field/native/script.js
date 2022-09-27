@@ -2,6 +2,30 @@
 let menuArranger = document.querySelector('.menu-arranger');
 let tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
 
+let repeaterParent = '.menu-arranger',
+    repeaterDraggable, repeaterChild = '.draggable-repeater';
+if ((repeaterDraggable = window?.TonicsScript?.Draggables)){
+    let repeaterTop = false, repeaterBottom = false,
+        repeaterSensitivity = 0, repeaterSensitivityMax = 5;
+    repeaterDraggable(repeaterParent).settings(repeaterChild, ['input', 'textarea', 'select', 'label', 'button', 'legend'], false)
+        .onDragDrop((element, self) => {
+            let elementDropped = self.getDroppedTarget()?.closest(repeaterChild);
+            let elementDragged = self.getDragging()?.closest(repeaterChild);
+            if (elementDropped && elementDropped !== elementDragged){
+                // swap element
+                let swapNodes;
+                if ((swapNodes = window?.TonicsScript?.swapNodes)){
+                    if (elementDragged.dataset.repeater_field_name === elementDropped.dataset.repeater_field_name){
+                        swapNodes(elementDragged, elementDropped, self.draggingOriginalRect);
+                        repeaterSensitivity = 0;
+                        repeaterTop = false; repeaterBottom = false;
+                    }
+                }
+            }
+
+        }).run();
+}
+
 function nativeFieldModules() {
 
     if (menuArranger) {
