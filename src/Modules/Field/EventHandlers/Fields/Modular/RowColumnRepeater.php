@@ -11,12 +11,13 @@
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class RowColumnRepeater implements HandlerInterface
 {
-
+    private array $fieldHashes = [];
     /**
      * @inheritDoc
      * @throws \Exception
@@ -178,6 +179,17 @@ HTML;
             $column = $data->column;
         }
 
+        if (FieldConfig::hasFieldUnSortedItemsDataID()){
+            $oldPostData = getPostData();
+            $inputData =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+            $this->buildFieldHashes();
+            $this->getNestedFields($event, $data, $inputData);
+            dd($this->fieldHashes);
+        }
+
+
+        // dd($inputData, json_decode($inputData), FieldConfig::getFieldUnSortedItemsDataID());
+
         $depth = $data->_field->depth;
         $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
@@ -245,6 +257,66 @@ HTML;
 
         $frag .= $mainFrag . $event->_bottomHTMLWrapper();
         return $frag;
+    }
+
+    private function getNestedFields(OnFieldMetaBox $event, $data, $inputData)
+    {
+        $frag = '';
+        $inputData = json_decode($inputData);
+        if (!isset($inputData->_data)){
+            return $frag;
+        } else {
+            $inputData = $inputData->_data;
+        }
+
+        foreach ($inputData as $fields){
+           $frag .= $this->getNestedFieldsFrag($event, $fields);
+        }
+
+        dd($inputData);
+
+    }
+
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $fields
+     * @return string
+     * @throws \Exception
+     */
+    private function getNestedFieldsFrag(OnFieldMetaBox $event, $fields): string
+    {
+        $frag = '';
+        foreach ($fields as $key => $data){
+            if ((!is_numeric($key) && $key !== '_children') || (isset($data->field_slug) && $data->field_slug === 'modular_rowcolumnrepeater')){
+                continue;
+            }
+
+            if ($key === '_children'){
+                foreach ($fields->_children as $dataChild){
+                    $frag .= $this->getNestedFieldsFrag($event, $dataChild);
+                }
+            } else {
+                $fieldHash = $data->field_slug_unique_hash;
+                $fieldOption = $this->fieldHashes[$fieldHash];
+                addToGlobalVariable('Data', (array)$data);
+                $frag .= $event->getUsersForm($data->field_slug, $fieldOption);
+            }
+        }
+
+        return $frag;
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    private function buildFieldHashes(): void
+    {
+        foreach (FieldConfig::getFieldUnSortedItemsDataID() as $fields){
+            foreach ($fields as $field){
+                $this->fieldHashes[$field->field_options->field_slug_unique_hash] = $field->field_options;
+            }
+        }
     }
 
     /**
