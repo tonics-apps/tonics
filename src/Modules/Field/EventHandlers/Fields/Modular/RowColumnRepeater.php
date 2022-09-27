@@ -267,13 +267,13 @@ HTML;
      */
     private function buildFieldHashes(): void
     {
-        dd(FieldConfig::getFieldUnSortedItemsDataID(), 'checkmate');
         foreach (FieldConfig::getFieldUnSortedItemsDataID() as $fields){
             foreach ($fields as $field){
+                $field = (object)$field;
+                $field->field_options = (object)$field->field_options;
                 $this->fieldHashes[$field->field_options->field_slug_unique_hash] = $field->field_options;
             }
         }
-        dd($this->fieldHashes);
     }
 
     private function rebuildData(OnFieldMetaBox $event, $data, $inputData)
@@ -289,7 +289,8 @@ HTML;
 
         $newData = null;
         foreach ($inputData as $fields){
-            $configurationOption = clone $this->fieldHashes[$fields->_configuration->_field_slug_unique_hash];
+            $configurationOption = $this->fieldHashes[$fields->_configuration->_field_slug_unique_hash];
+            $configurationOption->_field = new \stdClass();
             $configurationOption->_field->_children = [];
             $child = &$configurationOption->_field->_children;
             $this->rebuilding($fields, $child);
@@ -305,7 +306,8 @@ HTML;
             }
             if ($key === '_children'){
                 foreach ($fields->_children as $childField){
-                    $configurationOption = clone $this->fieldHashes[$childField->_configuration->_field_slug_unique_hash];
+                    $configurationOption = $this->fieldHashes[$childField->_configuration->_field_slug_unique_hash];
+                    $configurationOption->_field = new \stdClass();
                     $child[] = $configurationOption;
                     $configurationOption->_field->_children = [];
                     $this->rebuilding($childField, $configurationOption->_field->_children);
