@@ -261,107 +261,19 @@ HTML;
         return $frag;
     }
 
-    private function getNestedFields(OnFieldMetaBox $event, $data, $inputData)
-    {
-        $frag = '';
-        $inputData = json_decode($inputData);
-        if (!isset($inputData->_data)){
-            return $frag;
-        } else {
-            $inputData = $inputData->_data;
-        }
-
-        foreach ($inputData as $fields){
-            $fieldName = (isset($fields->_configuration->_field_name)) ? $fields->_configuration->_field_name : 'DataTable_Repeater';
-            $inputName  = $fields->_configuration->_name ?? '';
-            $depth = $fields->_configuration->_depth ?? '0';
-
-            $row = 1;
-            $column = 1;
-            if (isset($data->row)) {
-                $row = $data->row;
-            }
-
-            if (isset($data->column)) {
-                $column = $data->column;
-            }
-
-            $gridTemplateCol = '';
-            if (isset($data->grid_template_col)) {
-                $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
-            }
-
-            dd($inputData, $fields);
-
-            $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
-            $mainFrag = <<<HTML
-<style>
-.remove-row-col-repeater-button:hover + .rowColumnItemContainer {
-    background: #c2dbffa3;
-}
-</style>
-<div class="row-col-parent repeater-field position:relative owl" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
-    <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
-        color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
-    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
-
-<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
-HTML;
-            dd($fields, $frag);
-           $frag .= $this->getNestedFieldsFrag($event, $fields);
-
-            $mainFrag .= <<<HTML
-</ul>
-    </div>
-</div>
-HTML;
-        }
-
-        dd($frag, 'hh');
-        dd($inputData);
-
-    }
-
-    /**
-     * @param OnFieldMetaBox $event
-     * @param $fields
-     * @return string
-     * @throws \Exception
-     */
-    private function getNestedFieldsFrag(OnFieldMetaBox $event, $fields): string
-    {
-        $frag = '';
-        foreach ($fields as $key => $data){
-            if ((!is_numeric($key) && $key !== '_children') || (isset($data->field_slug) && $data->field_slug === 'modular_rowcolumnrepeater')){
-                continue;
-            }
-
-            if ($key === '_children'){
-                foreach ($fields->_children as $dataChild){
-                    $frag .= $this->getNestedFieldsFrag($event, $dataChild);
-                }
-            } else {
-                $fieldHash = $data->field_slug_unique_hash;
-                $fieldOption = $this->fieldHashes[$fieldHash];
-                addToGlobalVariable('Data', (array)$data);
-                $frag .= $event->getUsersForm($data->field_slug, $fieldOption);
-            }
-        }
-
-        return $frag;
-    }
-
     /**
      * @return void
      * @throws \Exception
      */
     private function buildFieldHashes(): void
     {
+        dd(FieldConfig::getFieldUnSortedItemsDataID(), 'checkmate');
         foreach (FieldConfig::getFieldUnSortedItemsDataID() as $fields){
             foreach ($fields as $field){
                 $this->fieldHashes[$field->field_options->field_slug_unique_hash] = $field->field_options;
             }
         }
+        dd($this->fieldHashes);
     }
 
     private function rebuildData(OnFieldMetaBox $event, $data, $inputData)
@@ -375,15 +287,13 @@ HTML;
 
         // dd($data, $inputData, $this->fieldHashes);
 
-        $newData = new \stdClass();
+        $newData = null;
         foreach ($inputData as $fields){
-
-            $configurationOption = $this->fieldHashes[$fields->_configuration->_field_slug_unique_hash];
+            $configurationOption = clone $this->fieldHashes[$fields->_configuration->_field_slug_unique_hash];
             $configurationOption->_field->_children = [];
             $child = &$configurationOption->_field->_children;
             $this->rebuilding($fields, $child);
-
-            dd($data, $inputData, $configurationOption);
+            dd($configurationOption, 'checkmate');
         }
     }
 
@@ -395,7 +305,7 @@ HTML;
             }
             if ($key === '_children'){
                 foreach ($fields->_children as $childField){
-                    $configurationOption = $this->fieldHashes[$childField->_configuration->_field_slug_unique_hash];
+                    $configurationOption = clone $this->fieldHashes[$childField->_configuration->_field_slug_unique_hash];
                     $child[] = $configurationOption;
                     $configurationOption->_field->_children = [];
                     $this->rebuilding($childField, $configurationOption->_field->_children);

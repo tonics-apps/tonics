@@ -81,8 +81,9 @@ COLUMNS;
     {
         if (!empty($slugs)) {
             $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
+
             # For Field
-            $fields = $this->selectWithCondition($this->getFieldTable(), ['field_id', 'field_slug'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
+            $fields = db()->Select("field_id, field_slug")->From($this->getFieldTable())->WhereIn('field_slug', $slugs)->OrderBy('field_id')->FetchResult();
             # For Field Items
             $fieldIDS = [];
             foreach ($fields as $field) {

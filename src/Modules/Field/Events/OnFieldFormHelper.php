@@ -72,6 +72,8 @@ class OnFieldFormHelper implements EventInterface
     {
         foreach ($sortedFieldItems as $k => $sortFieldItem) {
             $sortedFieldItems[$k] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $sortFieldItem, onData: function ($field) {
+                $field = (object)$field;
+                $field->field_options = (object)$field->field_options;
                 $field->field_options->{"_field"} = $field;
                 $field->field_options->{"_field"}->canValidate = !empty($postData);
                 return $field;
@@ -168,21 +170,18 @@ class OnFieldFormHelper implements EventInterface
             if (empty($fieldIDS)) {
                 return $sortedFieldItems;
             }
-            $questionMarks = helper()->returnRequiredQuestionMarks($fieldIDS);
             $fieldTable = $fieldData->getFieldTable(); $fieldItemsTable = $fieldData->getFieldItemsTable();
             $cols = $fieldData->getFieldAndFieldItemsCols();
 
-            $sql = <<<SQL
-SELECT $cols FROM $fieldItemsTable 
-JOIN $fieldTable ON $fieldTable.field_id = $fieldItemsTable.fk_field_id
-WHERE fk_field_id IN ($questionMarks)
-ORDER BY id;
-SQL;
-            $fieldItems = db()->run($sql, ...$fieldIDS);
+            $db = db();
+            $db->setPdoFetchType(\PDO::FETCH_ASSOC);
+            $fieldItems = $db->Select($cols)->From($fieldItemsTable)->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('id')->FetchResult();
+
             foreach ($fieldItems as $fieldItem) {
-                $fieldOption = json_decode($fieldItem->field_options);
-                $fieldItem->field_options = $fieldOption;
-                $sortedFieldItems[$fieldItem->fk_field_id][] = $fieldItem;
+                $fieldOption = json_decode($fieldItem['field_options'], true);
+                $fieldItem['field_options'] = $fieldOption;
+                $sortedFieldItems[$fieldItem['fk_field_id']][] = $fieldItem;
             }
 
             ksort($sortedFieldItems);
