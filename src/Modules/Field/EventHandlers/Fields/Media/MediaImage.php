@@ -99,6 +99,7 @@ FORM;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+
         $frag .= <<<FORM
 <div class="form-group">
  <label class="menu-settings-handle-name" for="featured-image-$changeID">

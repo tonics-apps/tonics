@@ -76,38 +76,40 @@ function nativeFieldModules() {
 
             let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
-            tree._data = {}; let id = 0;
+            tree._data = {}; let parentID = 0, childID = 0;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
                 data._name = repeatEl.dataset.repeater_input_name;
                 data._depth = repeatEl.dataset.repeater_depth;
+                data._grid_template_col = repeatEl.dataset.grid_template_col;
                 let currentDepth = parseInt(data._depth);
 
                 if (currentDepth === 0){
-                    tree._data[id] = data;
+                    tree._data[parentID] = data;
                     lastObject = data;
                     childStack.push(data);
+                    ++parentID;
                 } else {
                     let lastDepth = parseInt(lastObject._depth);
                     if (currentDepth > lastDepth){
                         if (!lastObject.hasOwnProperty('_children')){
+                            childID = 0;
                             lastObject._children = {};
-                            lastObject._children[id] = data;
+                            lastObject._children[childID] = data;
                             lastObject = data;
-                            childStack.push(data);
+                            childStack.push(data);  ++childID;
                         }
                     }else if (currentDepth === lastDepth || currentDepth < lastDepth){
                         for (const treeData of loopTreeBackward(childStack)) {
                             if (treeData._depth < currentDepth){
                                 breakLoopBackward = true;
-                                treeData._children[id] = data;
+                                treeData._children[childID] = data;
                                 lastObject = data;
-                                childStack.push(data);
+                                childStack.push(data); ++childID;
                             }
                         }
                     }
                 }
-                ++id;
             }));
 
             function *loopTreeBackward(treeToLoop = null) {
@@ -135,52 +137,49 @@ function nativeFieldModules() {
 
             }
             if (firstRepeaterName){
-                let tease = JSON.stringify(tree);
-                console.log(tree, JSON.parse(tease)); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify(tree));
             }
             editorsForm.submit();
         })
-    }
+        function getRepeatersData(fieldSettingsEl) {
+            let widgetSettings = {},
+                fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');
 
-    function getRepeatersData(fieldSettingsEl) {
-        let widgetSettings = {},
-            fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');
+            let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name,  id = 0
+            fieldBuilderItems.forEach((fieldList => {
+                let elements = fieldList.querySelectorAll('input, textarea, select'),
+                    fieldSettings = {};
+                for (let i = 0; i < elements.length; i++) {
+                    let inputs = elements[i];
+                    let inputDataRepeaterDepth = inputs.closest('[data-repeater_input_name]');
+                    if (inputDataRepeaterDepth.dataset.repeater_input_name !== fieldSettingsRepeaterName){
+                        break;
+                    }
 
-        let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name,  id = 0
-         fieldBuilderItems.forEach((fieldList => {
-             let elements = fieldList.querySelectorAll('input, textarea, select'),
-                 fieldSettings = {};
-             for (let i = 0; i < elements.length; i++) {
-                 let inputs = elements[i];
-                 let inputDataRepeaterDepth = inputs.closest('[data-repeater_input_name]');
-                 if (inputDataRepeaterDepth.dataset.repeater_input_name !== fieldSettingsRepeaterName){
-                     break;
-                 }
+                    // collect checkbox
+                    if (inputs.type === 'checkbox'){
+                        let checkboxName = inputs.name;
+                        if (!fieldSettings.hasOwnProperty(checkboxName)){
+                            fieldSettings[checkboxName] = [];
+                        }
+                        if (inputs.checked){
+                            fieldSettings[checkboxName].push(inputs.value);
+                        }
+                    }
 
-                 // collect checkbox
-                 if (inputs.type === 'checkbox'){
-                     let checkboxName = inputs.name;
-                     if (!fieldSettings.hasOwnProperty(checkboxName)){
-                         fieldSettings[checkboxName] = [];
-                     }
-                     if (inputs.checked){
-                         fieldSettings[checkboxName].push(inputs.value);
-                     }
-                 }
+                    if (!fieldSettings.hasOwnProperty(inputs.name)) {
+                        fieldSettings[inputs.name] = inputs.value;
+                    }
+                }
 
-                 if (!fieldSettings.hasOwnProperty(inputs.name)) {
-                     fieldSettings[inputs.name] = inputs.value;
-                 }
-             }
+                if (Object.keys(fieldSettings).length !== 0){
+                    widgetSettings[id] = fieldSettings;
+                    ++id;
+                }
+            }));
 
-             if (Object.keys(fieldSettings).length !== 0){
-                 widgetSettings[id] = fieldSettings;
-                 ++id;
-             }
-         }));
-
-        return widgetSettings;
+            return widgetSettings;
+        }
     }
 
 }
@@ -188,8 +187,11 @@ function nativeFieldModules() {
 function updateRowCol(row, col, parent) {
     let times = row * col;
     let rowColumnItemContainer = parent.querySelector('.rowColumnItemContainer');
-    let rowColItems = parent.querySelectorAll('.rowColumnItemContainer > .row-col-item');
+    let rowColItems = rowColumnItemContainer.querySelectorAll(':scope > .row-col-item');
+
     let cellItems = times - rowColItems.length;
+
+    // if negative
     if (Math.sign(cellItems) === -1) {
         // convert it to positive, and store in toRemove
         let toRemove = -cellItems;
@@ -198,6 +200,7 @@ function updateRowCol(row, col, parent) {
         }
     }
 
+    // this is non negative
     if (Math.sign(cellItems) === 1) {
         for (let i = 1; i <= cellItems; i++) {
             rowColumnItemContainer.insertAdjacentHTML('beforeend', getCellForm());

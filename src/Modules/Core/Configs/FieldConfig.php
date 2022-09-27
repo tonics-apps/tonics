@@ -57,6 +57,27 @@ class FieldConfig
         return AppConfig::initLoaderMinimal()::getGlobalVariableData(self::fieldSettingsID()) ?? [];
     }
 
+    public static function fieldUnSortedItemsDataID(): string
+    {
+        return '987654321123456789_fieldUnSortedItemsDataID_should_never_be_used_as_a_field_slug';
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function hasFieldUnSortedItemsDataID(): bool
+    {
+        return InitLoaderMinimal::globalVariableKeyExist(self::fieldUnSortedItemsDataID());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getFieldUnSortedItemsDataID()
+    {
+        return AppConfig::initLoaderMinimal()::getGlobalVariableData(self::fieldUnSortedItemsDataID()) ?? [];
+    }
+
     public static function postEditorFieldsContentID(): string
     {
         return '987654321123456789_postEditorFieldsContentID_should_never_be_used_as_a_field_slug';

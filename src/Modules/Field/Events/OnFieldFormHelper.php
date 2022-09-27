@@ -11,6 +11,7 @@
 namespace App\Modules\Field\Events;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
@@ -37,6 +38,7 @@ class OnFieldFormHelper implements EventInterface
         $this->fieldIDS = $fieldIDS;
         if (!empty($fieldIDS)) {
             $sortedFieldItems = (empty($sortedFieldItems)) ? $this->getFieldSortedItems($fieldIDS) : $sortedFieldItems;
+            addToGlobalVariable(FieldConfig::fieldUnSortedItemsDataID(), $sortedFieldItems);
             $htmlFrag = $this->generateHTMLFrags($sortedFieldItems, $postData);
         }
 
