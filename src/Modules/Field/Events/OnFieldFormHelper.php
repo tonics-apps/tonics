@@ -38,7 +38,6 @@ class OnFieldFormHelper implements EventInterface
         $this->fieldIDS = $fieldIDS;
         if (!empty($fieldIDS)) {
             $sortedFieldItems = (empty($sortedFieldItems)) ? $this->getFieldSortedItems($fieldIDS) : $sortedFieldItems;
-            addToGlobalVariable(FieldConfig::fieldUnSortedItemsDataID(), $sortedFieldItems);
             $htmlFrag = $this->generateHTMLFrags($sortedFieldItems, $postData);
         }
 

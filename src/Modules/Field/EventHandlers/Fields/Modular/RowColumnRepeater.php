@@ -11,13 +11,11 @@
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class RowColumnRepeater implements HandlerInterface
 {
-    private array $fieldHashes = [];
     private array $headerCountMax = [];
     private array $headerCount = [];
 
@@ -171,6 +169,7 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
+        $oldPostData = getPostData();
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
@@ -180,6 +179,8 @@ HTML;
             foreach ($inputData->treeTimes as $fields){
                 ++$count;
             }
+
+            dd($inputData);
 
             foreach ($inputData->treeTimes as $key => $fields) {
                 $this->headerCountMax = [];
@@ -198,6 +199,8 @@ HTML;
             $frag = $this->handleUserFormFrag($event, $data);
         }
 
+        // restore old postData;
+        addToGlobalVariable('Data', $oldPostData);
         return $frag;
     }
 
@@ -225,7 +228,7 @@ HTML;
             $fieldName = $parent->fieldName;
             $hashes = $inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash};
             $nextKey = array_key_first($hashes);
-            $hashData = $hashes[$nextKey];
+            $hashData = $hashes[$nextKey] ?? [];
             unset($inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
             addToGlobalVariable('Data', (array)$hashData);
         }
