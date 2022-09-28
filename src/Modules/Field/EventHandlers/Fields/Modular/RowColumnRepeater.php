@@ -173,14 +173,10 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-
-        $parentTest = [];
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
-        // return $this->handleUserFormFrag($event, $data);
         if (isset($inputData->treeTimes)) {
-           // dd($inputData->treeTimes);
             foreach ($inputData->treeTimes as $key => $fields) {
                 $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
@@ -208,6 +204,7 @@ HTML;
         $frag2 = '';
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
             $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+
             foreach ($childFields as $childField){
                 $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
@@ -227,11 +224,11 @@ HTML;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
-     * @param null $fields
+     * @param callable|null $interceptChild
      * @return string
      * @throws \Exception
      */
-    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null): string
+    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, bool $openTop = true, bool $closeBottom = true): string
     {
 
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
@@ -248,7 +245,9 @@ HTML;
         }
 
         $depth = $data->_field->depth;
-        $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+        if ($openTop){
+            $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+        }
 
         $cell = $row * $column;
         $gridTemplateCol = '';
@@ -308,6 +307,10 @@ HTML;
         $mainFrag .= <<<HTML
     </div>
 </div>
+HTML;
+
+        if ($closeBottom){
+            $mainFrag .=<<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
   $repeat_button_text
@@ -317,8 +320,10 @@ color:black bg:white-one border-width:default border:black padding:default curso
 </button>
 HTML;
 
-
-        $frag .= $mainFrag . $event->_bottomHTMLWrapper();
+            $frag .= $mainFrag . $event->_bottomHTMLWrapper();
+        } else {
+            $frag .= $mainFrag;
+        }
 
         return $frag;
     }
