@@ -95,12 +95,12 @@ function nativeFieldModules() {
             let editorsForm = document.getElementById('EditorsForm');
             e.preventDefault();
 
-            let tree = {}, lastObject = {}, breakLoopBackward = false, childStack = [];
+            let tree = {}, lastObject = {}, breakLoopBackward = false, childStack = [], parent = {};
             let repeatersDepth = document.querySelectorAll('[data-repeater_depth]');
 
             let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
-            tree._data = {}; let parentID = 0, childID = 0;
+            tree._data = {}; let parentID = 0, childID = -1;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
                 data._configuration = {};
@@ -113,6 +113,7 @@ function nativeFieldModules() {
                 data._configuration._grid_template_col = repeatEl.dataset.grid_template_col;
 
                 let currentDepth = parseInt(data._configuration._depth);
+                ++childID;
 
                 if (currentDepth === 0){
                     tree._data[parentID] = data;
@@ -123,19 +124,21 @@ function nativeFieldModules() {
                     let lastDepth = parseInt(lastObject._configuration._depth);
                     if (currentDepth > lastDepth){
                         if (!lastObject.hasOwnProperty('_children')){
-                            childID = 0;
+                            parent = lastObject;
                             lastObject._children = {};
                             lastObject._children[childID] = data;
                             lastObject = data;
-                            childStack.push(data);  ++childID;
+                            childStack.push(data);
                         }
-                    }else if (currentDepth === lastDepth || currentDepth < lastDepth){
+                    }
+
+                    if (currentDepth === lastDepth || currentDepth < lastDepth){
                         for (const treeData of loopTreeBackward(childStack)) {
                             if (treeData._configuration._depth < currentDepth){
                                 breakLoopBackward = true;
                                 treeData._children[childID] = data;
                                 lastObject = data;
-                                childStack.push(data); ++childID;
+                                childStack.push(data);
                             }
                         }
                     }
@@ -167,6 +170,7 @@ function nativeFieldModules() {
 
             }
             if (firstRepeaterName){
+                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify(tree));
             }
             editorsForm.submit();
