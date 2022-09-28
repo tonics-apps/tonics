@@ -174,7 +174,7 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
-        return $this->handleUserFormFrag($event, $data);
+       // return $this->handleUserFormFrag($event, $data);
         if (isset($inputData->treeTimes)) {
             foreach ($inputData->treeTimes as $key => $fields) {
                 $this->headerCountMax = []; $this->headerCount = [];

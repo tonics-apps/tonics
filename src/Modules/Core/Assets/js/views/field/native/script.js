@@ -100,7 +100,7 @@ function nativeFieldModules() {
 
             let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
-            tree._data = {}; let parentID = 0, childID = -1, treeTimes = {};
+            tree._data = {}; let parentID = 0, childID = -1, fieldItemID = -1, treeTimes = {}, lastDepth = 0;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
                 data._configuration = {};
@@ -119,10 +119,11 @@ function nativeFieldModules() {
                     tree._data[parentID] = data;
                     treeTimes[parentID] = {};
                     lastObject = data;
+                    lastDepth = parseInt(lastObject._configuration._depth);
                     childStack.push(data);
                     ++parentID;
                 } else {
-                    let lastDepth = parseInt(lastObject._configuration._depth);
+                    lastDepth = parseInt(lastObject._configuration._depth);
                     if (currentDepth > lastDepth){
                         if (!lastObject.hasOwnProperty('_children')){
                             parent = lastObject;
@@ -145,25 +146,38 @@ function nativeFieldModules() {
                     }
                 }
 
+
                 let fieldTimesParentID = treeTimes[parentID -1];
                 if (!fieldTimesParentID.hasOwnProperty(data._configuration._field_name)){
+                    ++fieldItemID;
                     fieldTimesParentID[data._configuration._field_name] = {};
-                    fieldTimesParentID[data._configuration._field_name]['data'] = [];
+                    fieldTimesParentID[data._configuration._field_name]['data'] = {};
                     fieldTimesParentID[data._configuration._field_name]['hash'] = {};
                 }
 
+                if (lastDepth > currentDepth){
+                    ++fieldItemID;
+                }
 
+                if (!fieldTimesParentID[data._configuration._field_name]['data'].hasOwnProperty(fieldItemID)){
+                    fieldTimesParentID[data._configuration._field_name]['data'][fieldItemID] = [];
+                }
+
+                if (!fieldTimesParentID[data._configuration._field_name]['hash'].hasOwnProperty(fieldItemID)){
+                    fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID] = [];
+                }
+
+                fieldTimesParentID[data._configuration._field_name]['data'][fieldItemID].push(data);
 
                 for (const it in data){
                     if (data[it].hasOwnProperty('field_slug_unique_hash')){
-                        if (!fieldTimesParentID[data._configuration._field_name]['hash'].hasOwnProperty(data[it].field_slug_unique_hash)){
-                            fieldTimesParentID[data._configuration._field_name]['hash'][data[it].field_slug_unique_hash] = [];
+                        if (!fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID].hasOwnProperty(data[it].field_slug_unique_hash)){
+                            fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID][data[it].field_slug_unique_hash] = [];
                         }
-                        fieldTimesParentID[data._configuration._field_name]['hash'][data[it].field_slug_unique_hash].push(data[it]);
+                        fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID][data[it].field_slug_unique_hash].push(data[it]);
                     }
                 }
 
-                fieldTimesParentID[data._configuration._field_name]['data'].push(data);
             }));
 
             function *loopTreeBackward(treeToLoop = null) {
