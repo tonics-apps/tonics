@@ -173,34 +173,27 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-//        if (empty($this->mainRepeaterName) && FieldConfig::hasFieldUnSortedItemsDataID()){
-//            $oldPostData = getPostData();
-//            $inputData =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-//            $this->mainRepeaterName = $data->inputName;
-//            $this->buildRepeaterFieldLoopTimes($inputData);
-//            return $this->getNestedFields($event, $data, $inputData);
-//            dd(json_decode($inputData), $data, $this->fieldHashes);
-//        }
 
-        if (!empty($this->fields)) {
-            return $this->handleUserFormFrag($event, $data);
-        }
-
+        $parentTest = [];
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
         // return $this->handleUserFormFrag($event, $data);
         if (isset($inputData->treeTimes)) {
+            dd($inputData->treeTimes);
             foreach ($inputData->treeTimes as $key => $fields) {
-                $frag .= $this->handleUserFormFrag($event, $data, function ($child) use ($event, $key, $inputData) {
+                $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
                     $frag2 = '';
                     if ($child->field_slug === 'modular_rowcolumnrepeater'){
                         $childFields = $inputData->treeTimes->{$key}->{$child->fieldName};
                         foreach ($childFields as $childField){
                             $frag2 .= $this->handleUserFormFrag($event, $child);
                         }
-                      //  dd($frag);
-                      //  dd($child, $inputData, $childFields);
+                    } else {
+                        $parentTest[] = $parent;
+                        dd($child, $parent);
+//                        $childFields = $inputData->treeTimes->{$key}->{$child->fieldName};
+//                        dd($childFields);
                     }
                     return $frag2;
                 });
@@ -208,6 +201,7 @@ HTML;
         } else {
             $frag = $this->handleUserFormFrag($event, $data);
         }
+
 
         return $frag;
     }
@@ -279,11 +273,11 @@ HTML;
                         if (isset($child->field_options)) {
                             $child->field_options->{"_field"} = $child;
                         }
+                        $interceptChildFrag = '';
                         if ($interceptChild){
-                            $mainFrag .= $interceptChild($child->field_options);
-                        }else {
-                            $mainFrag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                            $interceptChildFrag = $interceptChild($child->field_options, $data);
                         }
+                        $mainFrag .= (empty($interceptChildFrag)) ? $event->getUsersForm($child->field_name, $child->field_options ?? null) : $interceptChildFrag;
                     }
                 }
             }

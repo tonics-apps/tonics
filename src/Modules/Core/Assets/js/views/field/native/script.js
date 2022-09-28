@@ -147,10 +147,23 @@ function nativeFieldModules() {
 
                 let fieldTimesParentID = treeTimes[parentID -1];
                 if (!fieldTimesParentID.hasOwnProperty(data._configuration._field_name)){
-                    fieldTimesParentID[data._configuration._field_name] = [];
+                    fieldTimesParentID[data._configuration._field_name] = {};
+                    fieldTimesParentID[data._configuration._field_name]['data'] = [];
+                    fieldTimesParentID[data._configuration._field_name]['hash'] = {};
                 }
 
-                fieldTimesParentID[data._configuration._field_name].push(data);
+
+
+                for (const it in data){
+                    if (data[it].hasOwnProperty('field_slug_unique_hash')){
+                        if (!fieldTimesParentID[data._configuration._field_name]['hash'].hasOwnProperty(data[it].field_slug_unique_hash)){
+                            fieldTimesParentID[data._configuration._field_name]['hash'][data[it].field_slug_unique_hash] = [];
+                        }
+                        fieldTimesParentID[data._configuration._field_name]['hash'][data[it].field_slug_unique_hash].push(data[it]);
+                    }
+                }
+
+                fieldTimesParentID[data._configuration._field_name]['data'].push(data);
             }));
 
             function *loopTreeBackward(treeToLoop = null) {
@@ -178,6 +191,7 @@ function nativeFieldModules() {
                 }
 
             }
+
             if (firstRepeaterName){
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree, 'treeTimes': treeTimes}));
             }
