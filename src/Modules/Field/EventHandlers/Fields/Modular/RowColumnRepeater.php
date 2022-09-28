@@ -180,22 +180,10 @@ HTML;
         $frag = '';
         // return $this->handleUserFormFrag($event, $data);
         if (isset($inputData->treeTimes)) {
-            dd($inputData->treeTimes);
+           // dd($inputData->treeTimes);
             foreach ($inputData->treeTimes as $key => $fields) {
                 $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
-                    $frag2 = '';
-                    if ($child->field_slug === 'modular_rowcolumnrepeater'){
-                        $childFields = $inputData->treeTimes->{$key}->{$child->fieldName};
-                        foreach ($childFields as $childField){
-                            $frag2 .= $this->handleUserFormFrag($event, $child);
-                        }
-                    } else {
-                        $parentTest[] = $parent;
-                        dd($child, $parent);
-//                        $childFields = $inputData->treeTimes->{$key}->{$child->fieldName};
-//                        dd($childFields);
-                    }
-                    return $frag2;
+                    return $this->handleChild($child, $parent, $event, $key, $inputData);
                 });
             }
         } else {
@@ -204,6 +192,36 @@ HTML;
 
 
         return $frag;
+    }
+
+    /**
+     * @param $child
+     * @param $parent
+     * @param $event
+     * @param $key
+     * @param $inputData
+     * @return string
+     * @throws \Exception
+     */
+    private function handleChild($child, $parent, $event, $key, $inputData): string
+    {
+        $frag2 = '';
+        if ($child->field_slug === 'modular_rowcolumnrepeater'){
+            $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+            foreach ($childFields as $childField){
+                $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
+                    return $this->handleChild($child, $parent, $event, $key, $inputData);
+                });
+            }
+        } else {
+            $fieldName = $parent->fieldName;
+            $hashes = $inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash};
+            $nextKey = array_key_first($hashes);
+            $hashData = $hashes[$nextKey];
+            unset($inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
+            addToGlobalVariable('Data', (array)$hashData);
+        }
+        return $frag2;
     }
 
     /**
