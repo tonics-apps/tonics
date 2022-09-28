@@ -18,10 +18,8 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class RowColumnRepeater implements HandlerInterface
 {
     private array $fieldHashes = [];
-    private $fields = null;
-    private string $frag = '';
-    private array $fieldRepeaterLoopTimes = [];
-    private string $mainRepeaterName = '';
+    private array $headerCountMax = [];
+    private array $headerCount = [];
 
     /**
      * @inheritDoc
@@ -186,6 +184,7 @@ HTML;
             $frag = $this->handleUserFormFrag($event, $data);
         }
 
+        // dd($this);
 
         return $frag;
     }
@@ -208,11 +207,10 @@ HTML;
             $arrayKeyFirst = array_key_first($childFields ?? []);
             $arrayKeyLast = array_key_last($childFields ?? []);
 
-            $top = $event->_topHTMLWrapper($child->fieldName, $child, true);
+            $this->headerCountMax[$child->fieldName] = count($childFields);
 
             foreach ($childFields as $keyChild => $childField){
                 $top = true; $bottom = true;
-
                 if ($keyChild === $arrayKeyFirst){
                     $bottom = false;
                 } elseif ($keyChild === $arrayKeyLast){
@@ -230,6 +228,7 @@ HTML;
             unset($inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
             addToGlobalVariable('Data', (array)$hashData);
         }
+
         return $frag2;
     }
 
@@ -237,6 +236,8 @@ HTML;
      * @param OnFieldMetaBox $event
      * @param $data
      * @param callable|null $interceptChild
+     * @param bool $openTop
+     * @param bool $closeBottom
      * @return string
      * @throws \Exception
      */
@@ -258,8 +259,11 @@ HTML;
 
         $depth = $data->_field->depth;
 
-        if ($openTop){
+        if (!key_exists($fieldName, $this->headerCount)){
+            $this->headerCount[$fieldName] = 1;
             $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+        } else {
+            $this->headerCount[$fieldName] = ++$this->headerCount[$fieldName];
         }
 
         $cell = $row * $column;
@@ -322,7 +326,7 @@ HTML;
 </div>
 HTML;
 
-        if ($closeBottom){
+        if ($this->headerCount[$fieldName] === $this->headerCountMax[$fieldName]){
             $mainFrag .=<<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
