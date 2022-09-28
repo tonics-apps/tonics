@@ -205,10 +205,22 @@ HTML;
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
             $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
 
-            foreach ($childFields as $childField){
+            $arrayKeyFirst = array_key_first($childFields ?? []);
+            $arrayKeyLast = array_key_last($childFields ?? []);
+
+            $top = $event->_topHTMLWrapper($child->fieldName, $child, true);
+
+            foreach ($childFields as $keyChild => $childField){
+                $top = true; $bottom = true;
+
+                if ($keyChild === $arrayKeyFirst){
+                    $bottom = false;
+                } elseif ($keyChild === $arrayKeyLast){
+                    $top = false;
+                }
                 $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
-                });
+                }, $top, $bottom);
             }
         } else {
             $fieldName = $parent->fieldName;
@@ -245,6 +257,7 @@ HTML;
         }
 
         $depth = $data->_field->depth;
+
         if ($openTop){
             $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
         }
