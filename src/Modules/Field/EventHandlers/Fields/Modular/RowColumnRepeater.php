@@ -11,18 +11,15 @@
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
-use JetBrains\PhpStorm\NoReturn;
 
 class RowColumnRepeater implements HandlerInterface
 {
+    private array $fieldHashes = [];
     private array $headerCountMax = [];
     private array $headerCount = [];
-    private $inputData = null;
-    private $data = null;
-    private $repeaters = [];
-    private $runtimeRepeaters = null;
 
     /**
      * @inheritDoc
@@ -174,23 +171,22 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        $oldPostData = getPostData();
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
-
-        if (isset($inputData->tree->_data)) {
-            $this->inputData = $inputData;
-            $this->data = $data;
-            $this->unnestRepeater($data);
-            $this->buildRepeater($this->inputData->tree->_data);
-            dd($this);
+        return $this->handleUserFormFrag($event, $data);
+        if (isset($inputData->treeTimes)) {
+            foreach ($inputData->treeTimes as $key => $fields) {
+                $this->headerCountMax = []; $this->headerCount = [];
+                $this->headerCountMax[$data->fieldName] = 1;
+                $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
+                    return $this->handleChild($child, $parent, $event, $key, $inputData);
+                });
+            }
+        } else {
+            $frag = $this->handleUserFormFrag($event, $data);
         }
 
-        $frag = $this->handleUserFormFrag($event, $data);
-
-        // restore old postData;
-        addToGlobalVariable('Data', $oldPostData);
         return $frag;
     }
 
@@ -199,37 +195,27 @@ HTML;
      * @param $parent
      * @param $event
      * @param $key
-     * @param $children
+     * @param $inputData
      * @return string
      * @throws \Exception
      */
-    private function handleChild($child, $parent, $event, $key, $children): string
+    private function handleChild($child, $parent, $event, $key, $inputData): string
     {
         $frag2 = '';
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
-            $count = 0;
-            foreach ($children as $c){
-                ++$count;
-            }
-            // $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
-            $this->headerCountMax[$child->fieldName] = $count;
-            foreach ($children as $fields){
-                dd($fields);
-                if (isset($fields->_children)){
-                    $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($fields, $event, $key) {
-                        return $this->handleChild($child, $parent, $event, $key, $fields->_children);
-                    });
-                } else {
-                    $frag2 .= $this->handleUserFormFrag($event, $child);
-                }
-
+            $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+            $this->headerCountMax[$child->fieldName] = count($childFields);
+            foreach ($childFields as $childField){
+                $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
+                    return $this->handleChild($child, $parent, $event, $key, $inputData);
+                });
             }
         } else {
             $fieldName = $parent->fieldName;
-            $hashes = $this->inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash};
+            $hashes = $inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash};
             $nextKey = array_key_first($hashes);
             $hashData = $hashes[$nextKey] ?? [];
-            unset($this->inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
+            unset($inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
             addToGlobalVariable('Data', (array)$hashData);
         }
 
@@ -271,6 +257,7 @@ HTML;
                 $this->headerCount[$fieldName] = ++$this->headerCount[$fieldName];
             }
         }
+
 
 
         $cell = $row * $column;
@@ -333,7 +320,9 @@ HTML;
 </div>
 HTML;
 
-        if (empty($this->headerCountMax) || ($this->headerCount[$fieldName] === $this->headerCountMax[$fieldName])){
+
+
+        if (empty($this->headerCountMax) || (key_exists($fieldName, $this->headerCount) && $this->headerCount[$fieldName] === $this->headerCountMax[$fieldName])){
             $mainFrag .=<<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
@@ -350,43 +339,6 @@ HTML;
         }
 
         return $frag;
-    }
-
-    /**
-     * @param $data
-     * @return void
-     */
-    private function unnestRepeater($data): void
-    {
-        $this->repeaters[$data->field_slug_unique_hash] = $data;
-        if (isset($data->_field->_children)){
-            foreach ($data->_field->_children as $child){
-                if ($child->field_name === 'modular_rowcolumnrepeater'){
-                    $this->unnestRepeater($child->field_options);
-                }
-            }
-        }
-    }
-
-    private function buildRepeater($items)
-    {
-        foreach ($items as $item){
-            if (isset($item->_configuration) && isset($this->repeaters[$item->_configuration->_field_slug_unique_hash])){
-                $repeater = $this->repeaters[$item->_configuration->_field_slug_unique_hash];
-                $item->_configuration->_field = $repeater;
-                if (isset($repeater->_field->_children)){
-                    foreach ($repeater->_field->_children as $key => $child){
-                        if ($child->field_name === 'modular_rowcolumnrepeater'){
-                            unset($repeater->_field->_children[$key]);
-                        }
-                    }
-                }
-                dd($item);
-                if (isset($item->_children)){
-                    $this->buildRepeater($item->_children);
-                }
-            }
-        }
     }
 
     /**
