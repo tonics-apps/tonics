@@ -176,6 +176,8 @@ HTML;
         $frag = '';
         if (isset($inputData->treeTimes)) {
             foreach ($inputData->treeTimes as $key => $fields) {
+                $this->headerCountMax = []; $this->headerCount = [];
+                $this->headerCountMax[$data->fieldName] = 1;
                 $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
                 });
@@ -183,8 +185,6 @@ HTML;
         } else {
             $frag = $this->handleUserFormFrag($event, $data);
         }
-
-        // dd($this);
 
         return $frag;
     }
@@ -203,10 +203,8 @@ HTML;
         $frag2 = '';
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
             $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
-
             $this->headerCountMax[$child->fieldName] = count($childFields);
-
-            foreach ($childFields as $keyChild => $childField){
+            foreach ($childFields as $childField){
                 $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
                 });
