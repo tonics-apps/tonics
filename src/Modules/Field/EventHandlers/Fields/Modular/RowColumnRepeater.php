@@ -184,30 +184,10 @@ HTML;
             $this->data = $data;
             $this->unnestRepeater($data);
             $this->buildRepeater($this->inputData->tree->_data);
-
-            dd($this->repeaters, $inputData);
-            $count = 0;
-            foreach ($inputData->tree->_data as $fields){
-                ++$count;
-            }
-
-            return $this->handleUserFormFrag($event, $data);
-            foreach ($inputData->tree->_data as $key => $fields) {
-                $this->headerCountMax = [];
-                if (!empty($this->headerCount)){
-                    $headerCountFirst = $this->headerCount[$data->fieldName];
-                    $this->headerCount = [];
-                    $this->headerCount[$data->fieldName] = $headerCountFirst;
-                }
-                $this->headerCountMax[$data->fieldName] = $count;
-                $level = $fields->_configuration->_field_name;
-                $frag .= $this->handleUserFormFrag($event, $this->repeaters[$level], function ($child, $parent) use ($fields, $data, $event, $key) {
-                    return $this->handleChild($child, $parent, $event, $key, $fields->_children);
-                });
-            }
-        } else {
-            $frag = $this->handleUserFormFrag($event, $data);
+            dd($this);
         }
+
+        $frag = $this->handleUserFormFrag($event, $data);
 
         // restore old postData;
         addToGlobalVariable('Data', $oldPostData);
@@ -394,6 +374,14 @@ HTML;
             if (isset($item->_configuration) && isset($this->repeaters[$item->_configuration->_field_slug_unique_hash])){
                 $repeater = $this->repeaters[$item->_configuration->_field_slug_unique_hash];
                 $item->_configuration->_field = $repeater;
+                if (isset($repeater->_field->_children)){
+                    foreach ($repeater->_field->_children as $key => $child){
+                        if ($child->field_name === 'modular_rowcolumnrepeater'){
+                            unset($repeater->_field->_children[$key]);
+                        }
+                    }
+                }
+                dd($item);
                 if (isset($item->_children)){
                     $this->buildRepeater($item->_children);
                 }
