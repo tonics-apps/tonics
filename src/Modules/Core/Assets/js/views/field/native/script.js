@@ -164,7 +164,7 @@ function nativeFieldModules() {
                 }
 
                 if (!fieldTimesParentID[data._configuration._field_name]['hash'].hasOwnProperty(fieldItemID)){
-                    fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID] = [];
+                    fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID] = {};
                 }
 
                 fieldTimesParentID[data._configuration._field_name]['data'][fieldItemID].push(data);

@@ -203,7 +203,17 @@ HTML;
     {
         $frag2 = '';
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
-            $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+            $fieldData  = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+            $fieldDataNextObject = null;
+            foreach ($fieldData as $obj){
+                if (!$fieldDataNextObject){
+                    $fieldDataNextObject = $obj;
+                    break;
+                }
+            }
+
+            $childFields = $fieldDataNextObject;
+            dd($child, $fieldData, $fieldDataNextObject);
             $this->headerCountMax[$child->fieldName] = count($childFields);
             foreach ($childFields as $childField){
                 $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
@@ -212,7 +222,16 @@ HTML;
             }
         } else {
             $fieldName = $parent->fieldName;
-            $hashes = $inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash};
+            $hashData = $inputData->treeTimes->{$key}->{$fieldName}->hash;
+            $hashDataFirstObject = null;
+            foreach ($hashData as $obj){
+                if (!$hashDataFirstObject){
+                    $hashDataFirstObject = $obj;
+                    break;
+                }
+            }
+
+            $hashes = $hashDataFirstObject->{$child->field_slug_unique_hash};
             $nextKey = array_key_first($hashes);
             $hashData = $hashes[$nextKey] ?? [];
             unset($inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
