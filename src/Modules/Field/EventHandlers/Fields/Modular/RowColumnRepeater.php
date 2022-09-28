@@ -18,6 +18,7 @@ class RowColumnRepeater implements HandlerInterface
 {
     private array $headerCountMax = [];
     private array $headerCount = [];
+    private $inputData = null;
 
     /**
      * @inheritDoc
@@ -174,15 +175,15 @@ HTML;
         $inputData = json_decode($inputData);
         $frag = '';
 
-        if (isset($inputData->treeTimes)) {
+        if (isset($inputData->tree->_data)) {
             $count = 0;
-            foreach ($inputData->treeTimes as $fields){
+            foreach ($inputData->tree->_data as $fields){
                 ++$count;
             }
 
+            $this->inputData = $inputData;
             dd($inputData);
-
-            foreach ($inputData->treeTimes as $key => $fields) {
+            foreach ($inputData->tree->_data as $key => $fields) {
                 $this->headerCountMax = [];
                 if (!empty($this->headerCount)){
                     $headerCountFirst = $this->headerCount[$data->fieldName];
@@ -191,8 +192,8 @@ HTML;
 
                 }
                 $this->headerCountMax[$data->fieldName] = $count;
-                $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
-                    return $this->handleChild($child, $parent, $event, $key, $inputData);
+                $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($fields, $data, $event, $key) {
+                    return $this->handleChild($child, $parent, $event, $key, $fields->_children);
                 });
             }
         } else {
@@ -209,27 +210,30 @@ HTML;
      * @param $parent
      * @param $event
      * @param $key
-     * @param $inputData
+     * @param $children
      * @return string
      * @throws \Exception
      */
-    private function handleChild($child, $parent, $event, $key, $inputData): string
+    private function handleChild($child, $parent, $event, $key, $children): string
     {
         $frag2 = '';
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
-            $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
-            $this->headerCountMax[$child->fieldName] = count($childFields);
-            foreach ($childFields as $childField){
-                $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
-                    return $this->handleChild($child, $parent, $event, $key, $inputData);
+           // $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+           // $this->headerCountMax[$child->fieldName] = count($childFields);
+            foreach ($children as $fields){
+                $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($fields, $event, $key) {
+                    if (isset($fields->_children)){
+                        return $this->handleChild($child, $parent, $event, $key, $fields->_children);
+                    }
+                    return '';
                 });
             }
         } else {
             $fieldName = $parent->fieldName;
-            $hashes = $inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash};
+            $hashes = $this->inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash};
             $nextKey = array_key_first($hashes);
             $hashData = $hashes[$nextKey] ?? [];
-            unset($inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
+            unset($this->inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
             addToGlobalVariable('Data', (array)$hashData);
         }
 
