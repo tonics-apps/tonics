@@ -237,8 +237,6 @@ HTML;
      * @param OnFieldMetaBox $event
      * @param $data
      * @param callable|null $interceptChild
-     * @param bool $openTop
-     * @param bool $closeBottom
      * @return string
      * @throws \Exception
      */
@@ -260,12 +258,17 @@ HTML;
 
         $depth = $data->_field->depth;
 
-        if (!key_exists($fieldName, $this->headerCount)){
-            $this->headerCount[$fieldName] = 1;
+        if (empty($this->headerCountMax)){
             $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
         } else {
-            $this->headerCount[$fieldName] = ++$this->headerCount[$fieldName];
+            if (!key_exists($fieldName, $this->headerCount)){
+                $this->headerCount[$fieldName] = 1;
+                $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+            } else {
+                $this->headerCount[$fieldName] = ++$this->headerCount[$fieldName];
+            }
         }
+
 
         $cell = $row * $column;
         $gridTemplateCol = '';
@@ -327,7 +330,7 @@ HTML;
 </div>
 HTML;
 
-        if ($this->headerCount[$fieldName] === $this->headerCountMax[$fieldName]){
+        if (empty($this->headerCountMax) || ($this->headerCount[$fieldName] === $this->headerCountMax[$fieldName])){
             $mainFrag .=<<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
