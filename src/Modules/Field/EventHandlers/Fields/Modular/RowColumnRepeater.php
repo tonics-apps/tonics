@@ -174,10 +174,22 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
+
         if (isset($inputData->treeTimes)) {
+            $count = 0;
+            foreach ($inputData->treeTimes as $fields){
+                ++$count;
+            }
+
             foreach ($inputData->treeTimes as $key => $fields) {
-                $this->headerCountMax = []; $this->headerCount = [];
-                $this->headerCountMax[$data->fieldName] = 1;
+                $this->headerCountMax = [];
+                if (!empty($this->headerCount)){
+                    $headerCountFirst = $this->headerCount[$data->fieldName];
+                    $this->headerCount = [];
+                    $this->headerCount[$data->fieldName] = $headerCountFirst;
+
+                }
+                $this->headerCountMax[$data->fieldName] = $count;
                 $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
                 });
