@@ -19,8 +19,10 @@ class RowColumnRepeater implements HandlerInterface
 {
     private array $fieldHashes = [];
     private $fields = null;
+    private string $frag = '';
     private array $fieldRepeaterLoopTimes = [];
     private string $mainRepeaterName = '';
+
     /**
      * @inheritDoc
      * @throws \Exception
@@ -79,7 +81,7 @@ class RowColumnRepeater implements HandlerInterface
 HTML;
 
         $gridTemplateColFrag = '';
-        if (isset($data->grid_template_col)){
+        if (isset($data->grid_template_col)) {
             $gridTemplateColFrag = " grid-template-columns: {$data->grid_template_col};";
         }
 
@@ -180,16 +182,28 @@ HTML;
 //            dd(json_decode($inputData), $data, $this->fieldHashes);
 //        }
 
-        $inputData =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        if (!empty($this->fields)) {
+            return $this->handleUserFormFrag($event, $data);
+        }
+
+        $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
-        return $this->handleUserFormFrag($event, $data);
-        if (isset($inputData->_data)){
-            $inputData = $inputData->_data;
-            dd($inputData);
-            foreach ($inputData as $fields){
-                $this->fields = $fields;
-                $frag .= $this->handleUserFormFrag($event, $data);
+        // return $this->handleUserFormFrag($event, $data);
+        if (isset($inputData->treeTimes)) {
+            foreach ($inputData->treeTimes as $key => $fields) {
+                $frag .= $this->handleUserFormFrag($event, $data, function ($child) use ($event, $key, $inputData) {
+                    $frag2 = '';
+                    if ($child->field_slug === 'modular_rowcolumnrepeater'){
+                        $childFields = $inputData->treeTimes->{$key}->{$child->fieldName};
+                        foreach ($childFields as $childField){
+                            $frag2 .= $this->handleUserFormFrag($event, $child);
+                        }
+                      //  dd($frag);
+                      //  dd($child, $inputData, $childFields);
+                    }
+                    return $frag2;
+                });
             }
         } else {
             $frag = $this->handleUserFormFrag($event, $data);
@@ -205,9 +219,12 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    private function handleUserFormFrag(OnFieldMetaBox $event, $data): string
+    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null): string
     {
+
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
+
+        $frag = '';
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -219,10 +236,9 @@ HTML;
         }
 
         $depth = $data->_field->depth;
-        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
+        $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
 
         $cell = $row * $column;
-
         $gridTemplateCol = '';
         if (isset($data->grid_template_col)) {
             $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
@@ -230,9 +246,6 @@ HTML;
 
         $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
 
-        if (isset($this->fields->_configuration) && $this->fields->_configuration->_field_slug_unique_hash === $data->field_slug_unique_hash){
-            dd($this->fields, 'gotcha');
-        }
 
         $inputName = $data->inputName ?? '';
         $mainFrag = <<<HTML
@@ -266,8 +279,11 @@ HTML;
                         if (isset($child->field_options)) {
                             $child->field_options->{"_field"} = $child;
                         }
-
-                        $mainFrag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                        if ($interceptChild){
+                            $mainFrag .= $interceptChild($child->field_options);
+                        }else {
+                            $mainFrag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                        }
                     }
                 }
             }
@@ -291,6 +307,7 @@ HTML;
 
 
         $frag .= $mainFrag . $event->_bottomHTMLWrapper();
+
         return $frag;
     }
 
@@ -301,12 +318,12 @@ HTML;
     private function buildRepeaterFieldLoopTimes($inputData): void
     {
         $inputData = json_decode($inputData)->_data;
-        foreach ($inputData as $fields){
+        foreach ($inputData as $fields) {
             dd($inputData, $fields);
         }
 
-        foreach (FieldConfig::getFieldUnSortedItemsDataID() as $fields){
-            foreach ($fields as $field){
+        foreach (FieldConfig::getFieldUnSortedItemsDataID() as $fields) {
+            foreach ($fields as $field) {
                 $this->fieldHashes[$field->field_options->field_slug_unique_hash] = $field;
             }
         }
@@ -323,7 +340,7 @@ HTML;
     {
         $frag = '';
         $inputData = json_decode($inputData);
-        if (!isset($inputData->_data)){
+        if (!isset($inputData->_data)) {
             return $frag;
         } else {
             $inputData = $inputData->_data;
@@ -331,7 +348,7 @@ HTML;
 
         dd($inputData);
 
-        foreach ($inputData as $fields){
+        foreach ($inputData as $fields) {
             $frag .= $this->getNestedFieldsFrag($event, $fields);
             return $frag;
         }
@@ -349,7 +366,7 @@ HTML;
     private function getNestedFieldsFrag(OnFieldMetaBox $event, $fields): string
     {
         $fieldName = (isset($fields->_configuration->_field_name)) ? $fields->_configuration->_field_name : 'DataTable_Repeater';
-        $inputName  = $fields->_configuration->_name ?? '';
+        $inputName = $fields->_configuration->_name ?? '';
         $depth = $fields->_configuration->_depth ?? '0';
 
         $row = 1;
@@ -385,8 +402,8 @@ HTML;
 
         $cell = $row * $column;
 
-        foreach ($fields as $key => $data){
-            if ((!is_numeric($key) && $key !== '_children') || (isset($data->field_slug) && $data->field_slug === 'modular_rowcolumnrepeater')){
+        foreach ($fields as $key => $data) {
+            if ((!is_numeric($key) && $key !== '_children') || (isset($data->field_slug) && $data->field_slug === 'modular_rowcolumnrepeater')) {
                 continue;
             }
 
@@ -394,8 +411,8 @@ HTML;
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
 
-            if ($key === '_children'){
-                foreach ($fields->_children as $dataChild){
+            if ($key === '_children') {
+                foreach ($fields->_children as $dataChild) {
                     $mainFrag .= $this->getNestedFieldsFrag($event, $dataChild);
                 }
             } else {
@@ -409,7 +426,6 @@ HTML;
 </ul>
 HTML;
         }
-
 
 
         $mainFrag .= <<<HTML
