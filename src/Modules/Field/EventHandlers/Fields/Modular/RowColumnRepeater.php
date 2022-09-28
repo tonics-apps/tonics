@@ -204,21 +204,12 @@ HTML;
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
             $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
 
-            $arrayKeyFirst = array_key_first($childFields ?? []);
-            $arrayKeyLast = array_key_last($childFields ?? []);
-
             $this->headerCountMax[$child->fieldName] = count($childFields);
 
             foreach ($childFields as $keyChild => $childField){
-                $top = true; $bottom = true;
-                if ($keyChild === $arrayKeyFirst){
-                    $bottom = false;
-                } elseif ($keyChild === $arrayKeyLast){
-                    $top = false;
-                }
                 $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
-                }, $top, $bottom);
+                });
             }
         } else {
             $fieldName = $parent->fieldName;
@@ -241,7 +232,7 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, bool $openTop = true, bool $closeBottom = true): string
+    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null): string
     {
 
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
