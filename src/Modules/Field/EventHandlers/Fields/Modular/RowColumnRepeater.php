@@ -174,11 +174,11 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
-       // return $this->handleUserFormFrag($event, $data);
+        return $this->handleUserFormFrag($event, $data);
+        dd($inputData, $data);
         if (isset($inputData->treeTimes)) {
+           // return $this->handleUserFormFrag($event, $data);
             foreach ($inputData->treeTimes as $key => $fields) {
-                $this->headerCountMax = []; $this->headerCount = [];
-                $this->headerCountMax[$data->fieldName] = 1;
                 $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
                 });
@@ -203,22 +203,24 @@ HTML;
     {
         $frag2 = '';
         if ($child->field_slug === 'modular_rowcolumnrepeater'){
-            $fieldData  = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
-            $fieldDataNextObject = null;
-            foreach ($fieldData as $obj){
-                if (!$fieldDataNextObject){
-                    $fieldDataNextObject = $obj;
-                    break;
-                }
+            if (!isset($inputData->treeTimes->{$key}->{$child->fieldName})){
+                return '';
+                dd($child, $inputData, $key, $child->fieldName);
+            }
+            $childFields  = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+
+            $lastKey = null;
+            foreach ($childFields as $childKey => $childObject){
+                $lastKey = $childKey;
             }
 
-            $childFields = $fieldDataNextObject;
-            dd($child, $fieldData, $fieldDataNextObject);
-            $this->headerCountMax[$child->fieldName] = count($childFields);
-            foreach ($childFields as $childField){
+            foreach ($childFields as $childKey => $childObject){
+                $addButton = $lastKey === $childKey;
                 $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
-                });
+                }, $addButton);
+
+             unset($childFields->{$childKey});
             }
         } else {
             $fieldName = $parent->fieldName;
@@ -245,10 +247,11 @@ HTML;
      * @param OnFieldMetaBox $event
      * @param $data
      * @param callable|null $interceptChild
+     * @param bool $addRepeatButton
      * @return string
      * @throws \Exception
      */
-    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null): string
+    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, bool $addRepeatButton = true): string
     {
 
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
@@ -266,18 +269,7 @@ HTML;
 
         $depth = $data->_field->depth;
 
-        if (empty($this->headerCountMax)){
-            $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
-        } else {
-            if (!key_exists($fieldName, $this->headerCount)){
-                $this->headerCount[$fieldName] = 1;
-                $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
-            } else {
-                $this->headerCount[$fieldName] = ++$this->headerCount[$fieldName];
-            }
-        }
-
-
+        $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
 
         $cell = $row * $column;
         $gridTemplateCol = '';
@@ -295,7 +287,14 @@ HTML;
     background: #c2dbffa3;
 }
 </style>
-<div class="row-col-parent repeater-field position:relative cursor:move owl draggable draggable-repeater" data-repeater_repeat_button_text="$repeat_button_text" data-repeater_field_name="$fieldName" data-repeater_depth="$depth" data-repeater_input_name="$inputName">
+<div class="row-col-parent repeater-field position:relative cursor:move owl draggable draggable-repeater" 
+data-row="$row" 
+data-col="$column" 
+data-grid_template_col="$gridTemplateCol" 
+data-repeater_repeat_button_text="$repeat_button_text" 
+data-repeater_field_name="$fieldName" 
+data-repeater_depth="$depth" 
+data-repeater_input_name="$inputName">
     <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
         color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
     <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move owl flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
@@ -340,21 +339,18 @@ HTML;
 HTML;
 
 
+        $frag .= $mainFrag . $event->_bottomHTMLWrapper();
 
-        if (empty($this->headerCountMax) || (key_exists($fieldName, $this->headerCount) && $this->headerCount[$fieldName] === $this->headerCountMax[$fieldName])){
-            $mainFrag .=<<<HTML
+        if ($addRepeatButton){
+            $frag .=<<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
   $repeat_button_text
   <template class="repeater-frag">
-    $mainFrag
+    $frag
   </template>
 </button>
 HTML;
-
-            $frag .= $mainFrag . $event->_bottomHTMLWrapper();
-        } else {
-            $frag .= $mainFrag;
         }
 
         return $frag;

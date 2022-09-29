@@ -79,13 +79,13 @@ function nativeFieldModules() {
             let rowColRepeaterButton;
             if ((rowColRepeaterButton = el.closest('.row-col-repeater-button'))) {
                 let repeaterFragment = rowColRepeaterButton.querySelector('template.repeater-frag');
-                let cloneFrag = repeaterFragment?.content?.querySelector('.row-col-parent').cloneNode(true);
+                let cloneFrag = repeaterFragment?.content?.querySelector('.field-builder-items').cloneNode(true);
                 rowColRepeaterButton.insertAdjacentElement('beforebegin', cloneFrag);
             }
 
             let removeRowColRepeaterButton;
             if ((removeRowColRepeaterButton = el.closest('.remove-row-col-repeater-button'))) {
-                removeRowColRepeaterButton?.closest('.row-col-parent').remove();
+                removeRowColRepeaterButton?.closest('.field-builder-items').remove();
             }
         });
     }
@@ -103,16 +103,33 @@ function nativeFieldModules() {
             tree._data = {}; let parentID = 0, childID = -1, fieldItemID = -1, treeTimes = {}, lastDepth = 0;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
-                data._configuration = {};
+                ++childID;
+                for (const item in data){
+                    if (data[item].field_slug === 'modular_rowcolumnrepeater'){
+                        delete data[item];
+                    }
+                }
 
-                data._configuration._name = repeatEl.dataset.repeater_input_name;
-                data._configuration._field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
-                data._configuration._field_name = repeatEl.dataset.repeater_field_name;
-                data._configuration._depth = repeatEl.dataset.repeater_depth;
-                data._configuration._repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
-                data._configuration._grid_template_col = repeatEl.dataset.grid_template_col;
+                let field = {};
+                field.inputName = repeatEl.dataset.repeater_input_name;
+                field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
+                field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
+                field.field_name = repeatEl.dataset.repeater_field_name;
+                field.depth = repeatEl.dataset.repeater_depth;
+                field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
+                field.grid_template_col = repeatEl.dataset.grid_template_col;
+                field.row = repeatEl.dataset.row;
+                field.column = repeatEl.dataset.col;
+                field._children = {};
 
-                let currentDepth = parseInt(data._configuration._depth);
+                for (const item in data){
+                    field._children[childID] = data[item];
+                    ++childID;
+                }
+
+                console.log(field, tree);
+
+  /*
                 ++childID;
 
                 if (currentDepth === 0){
@@ -125,20 +142,26 @@ function nativeFieldModules() {
                 } else {
                     lastDepth = parseInt(lastObject._configuration._depth);
                     if (currentDepth > lastDepth){
-                        if (!lastObject.hasOwnProperty('_children')){
-                            parent = lastObject;
-                            lastObject._children = {};
-                            lastObject._children[childID] = data;
-                            lastObject = data;
-                            childStack.push(data);
-                        }
+                        parent = lastObject;
+                        lastObject[childID] = {};
+                        lastObject[childID] = data;
+                        lastObject = data;
+                        childStack.push(data);
                     }
 
-                    if (currentDepth === lastDepth || currentDepth < lastDepth){
+                    if (currentDepth === lastDepth){
+                        lastObject[childID] = data;
+                        lastObject = data;
+                        childStack.push(data);
+                    }
+
+                    if (currentDepth < lastDepth){
                         for (const treeData of loopTreeBackward(childStack)) {
                             if (treeData._configuration._depth < currentDepth){
                                 breakLoopBackward = true;
-                                treeData._children[childID] = data;
+                                treeData[childID] = {};
+                                childID = childID + 1;
+                                treeData[childID] = data;
                                 lastObject = data;
                                 childStack.push(data);
                             }
@@ -176,7 +199,7 @@ function nativeFieldModules() {
                         }
                         fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID][data[it].field_slug_unique_hash].push(data[it]);
                     }
-                }
+                }*/
 
             }));
 
@@ -207,6 +230,7 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
+                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree, 'treeTimes': treeTimes}));
             }
             editorsForm.submit();
