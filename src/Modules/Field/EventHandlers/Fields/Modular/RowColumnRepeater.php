@@ -30,6 +30,7 @@ class RowColumnRepeater implements HandlerInterface
     private string $testResult = '';
 
     private ?int $lastDepth = null;
+    private bool $breakLoopBackward = false;
 
     private $currentModularRepeaterField = null;
     private $lastModularRepeaterField = null;
@@ -290,21 +291,62 @@ OPEN_UL_TAG;
                     $this->finalChildStacks[] = $item;
                 } else {
                     if ($currentDepth === $this->lastDepth){
+                        $this->lastDepth = $currentDepth;
                        $this->finalChildStacks[array_key_last($this->finalChildStacks)]['frag'] .= <<<CLOSE_LAST_REPEATER
         </ul>
    </div>
 </div>
 {$event->_bottomHTMLWrapper()}
 CLOSE_LAST_REPEATER;
+                       $item['frag'] = $frag . $item['frag'];
                        $this->finalChildStacks[] = $item;
+                    }elseif ($currentDepth < $this->lastDepth){
+                        $this->lastDepth = $currentDepth;
+                        $lastDepthHash = $this->finalChildStacks[array_key_last($this->finalChildStacks)]['hash'];
+                        $item['frag'] = $frag . $item['frag'];
+                        $backwardFrag = '';
+                        if (isset($this->repeaterButton[$lastDepthHash])){
+                            // loop backward and keep popping as long as current depth is lesser than last depth
+                            foreach ($this->loopBackward($this->finalChildStacks) as $backwardItem){
+                                $backwardItemDepth = (int)$backwardItem['depth'];
+                                if ($currentDepth < $backwardItemDepth){
+                                    $popBackwardItem = array_pop($this->finalChildStacks);
+                                    $backwardFrag .= $popBackwardItem['frag'];
+                                } else {
+                                    $this->breakLoopBackward = true;
+                                }
+                            }
+
+                            $repeatersButton = $this->repeaterButton[$lastDepthHash];
+                            $backwardFrag .=$repeatersButton;
+                            $item['frag'] = $frag . $item['frag'] . $backwardFrag;
+                            $this->finalChildStacks[] = $item;
+
+                            dd($frag, $item, $repeaterField, $this);
+                        }
+
                     }
-                    dd($frag, $item, $repeaterField, $this);
                 }
 
             //    if (count())
             }
         }
         dd('checkmate', $items, $this);
+    }
+
+    /**
+     * @param $items
+     * @return \Generator
+     */
+    private function loopBackward($items): \Generator
+    {
+        for ($i = count($items) - 1; $i >= 0; $i--){
+            if ($this->breakLoopBackward){
+                break;
+            }
+            yield $items[$i];
+        }
+        $this->breakLoopBackward = false;
     }
 
     /**
