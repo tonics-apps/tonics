@@ -24,6 +24,8 @@ class RowColumnRepeater implements HandlerInterface
     private array $repeaterButton = [];
     private array $childStacks = [];
 
+    private array $depthCollector = [];
+
     private ?int $currentDepth = null;
     private ?int $lastDepth = null;
 
@@ -231,15 +233,8 @@ HTML;
         $this->currentDepth = (int)$item->depth;
         $this->currentModularRepeaterField = $item;
         $this->childStacks[] = $item;
-        if (count($this->childStacks) === 1) {
-            $this->lastDepth = $this->currentDepth;
-            $this->lastModularRepeaterField = $this->currentModularRepeaterField;
-            $this->handleRepeaterUserFormFrag($event, $item);
-        } else {
-            $this->handleRepeaterUserFormFrag($event, $item);
-        }
-
-        dd($item, $this->repeaters);
+        return $this->handleRepeaterUserFormFrag($event, $item);
+        // dd($item, $this->repeaters, $this);
     }
 
     /**
@@ -557,7 +552,11 @@ HTML;
 HTML;
 
         $frag .= $mainFrag . $event->_bottomHTMLWrapper();
-        dd('checkmate', $data, $frag);
+        $this->depthCollector[] = [
+            'depth' => $data->depth,
+            'hash' => $data->field_slug_unique_hash,
+            'frag' => $frag
+        ];
 
         return $frag;
     }
