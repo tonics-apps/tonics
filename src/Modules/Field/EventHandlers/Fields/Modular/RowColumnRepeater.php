@@ -240,7 +240,7 @@ HTML;
                 }
 
                 // if you have exhaust looping, and you couldn't match anything, then it means
-                // the originalFields has a new valuem push it in the sorted
+                // the originalFields has a new value push it in the sorted
             }
             dd($sorted, $originalFields, $treeFields);
         }
