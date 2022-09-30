@@ -224,8 +224,20 @@ HTML;
 
     private function sortWalkerTreeChildren($item)
     {
-        $children = $item->_children;
-        dd($item, $this->repeaters, $children);
+        $sorted = [];
+        if (isset($this->repeaters[$item->field_slug_unique_hash])){
+            $originalFields = $this->repeaters[$item->field_slug_unique_hash]->_field->_children;
+            $treeFields = $item->_children;
+            foreach ($originalFields as $originalField){
+                $originalFieldSlug = $originalField->field_options->field_slug;
+                foreach ($treeFields as $treeField){
+                    dd($originalFields, $treeFields, $originalField, $treeField);
+                }
+
+            }
+
+        }
+        // dd($item, $this->repeaters, $children);
     }
 
     /**
