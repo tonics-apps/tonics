@@ -198,13 +198,11 @@ HTML;
             function ($field) use ($event) {
                 $frag  = '';
                 if ($field->field_slug === 'modular_rowcolumnrepeater') {
-                    $this->headerCountMax[] = $field;
                     $frag = $this->repeatersButton($event, $field);
                 }
                 return $frag;
             },
             function ($field, $repeatButtonFrag) {
-                $this->headerCount[] = $field;
                  $this->repeaterButton[$field->field_slug_unique_hash] = $repeatButtonFrag;
                  return $repeatButtonFrag;
             });
