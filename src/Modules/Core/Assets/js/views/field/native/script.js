@@ -100,10 +100,11 @@ function nativeFieldModules() {
 
             let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
-            tree._data = {}; let parentID = 0, childID = -1, fieldItemID = -1, treeTimes = {}, lastDepth = 0;
+            tree._data = {}; let parentID = 0, childID = -1, fieldItemID = -1, treeTimes = {}, lastDepth = 0, lastField = null;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
                 ++childID;
+                // Clean Up Unnecessary Modular RowColumnRepeater
                 for (const item in data){
                     if (data[item].field_slug === 'modular_rowcolumnrepeater'){
                         delete data[item];
@@ -127,80 +128,39 @@ function nativeFieldModules() {
                     ++childID;
                 }
 
-                console.log(field, tree);
+                let currentDepth  = parseInt(field.depth);
 
-  /*
-                ++childID;
+               childStack.push(field);
 
                 if (currentDepth === 0){
-                    tree._data[parentID] = data;
+                    tree._data[parentID] = field;
                     treeTimes[parentID] = {};
-                    lastObject = data;
-                    lastDepth = parseInt(lastObject._configuration._depth);
-                    childStack.push(data);
+                    lastObject = field;
+                    lastDepth = parseInt(lastObject.depth);
                     ++parentID;
+                }
+
+                if (childStack.length === 1){
+                    lastDepth = currentDepth;
+                    lastField = field;
                 } else {
-                    lastDepth = parseInt(lastObject._configuration._depth);
                     if (currentDepth > lastDepth){
-                        parent = lastObject;
-                        lastObject[childID] = {};
-                        lastObject[childID] = data;
-                        lastObject = data;
-                        childStack.push(data);
-                    }
-
-                    if (currentDepth === lastDepth){
-                        lastObject[childID] = data;
-                        lastObject = data;
-                        childStack.push(data);
-                    }
-
-                    if (currentDepth < lastDepth){
+                        ++childID;
+                        lastDepth = currentDepth;
+                        lastField._children[childID] = field;
+                        lastField = field;
+                    }else if (currentDepth === lastDepth || currentDepth < lastDepth){
                         for (const treeData of loopTreeBackward(childStack)) {
-                            if (treeData._configuration._depth < currentDepth){
-                                breakLoopBackward = true;
-                                treeData[childID] = {};
-                                childID = childID + 1;
-                                treeData[childID] = data;
-                                lastObject = data;
-                                childStack.push(data);
+                            let treeDepth = parseInt(treeData.depth);
+                            if (currentDepth > treeDepth){
+                                 breakLoopBackward = true;
+                                 treeData._children[childID] = field;
+                                 lastDepth = currentDepth;
+                                 lastField = field;
                             }
                         }
                     }
                 }
-
-
-                let fieldTimesParentID = treeTimes[parentID -1];
-                if (!fieldTimesParentID.hasOwnProperty(data._configuration._field_name)){
-                    ++fieldItemID;
-                    fieldTimesParentID[data._configuration._field_name] = {};
-                    fieldTimesParentID[data._configuration._field_name]['data'] = {};
-                    fieldTimesParentID[data._configuration._field_name]['hash'] = {};
-                }
-
-                if (lastDepth > currentDepth){
-                    ++fieldItemID;
-                }
-
-                if (!fieldTimesParentID[data._configuration._field_name]['data'].hasOwnProperty(fieldItemID)){
-                    fieldTimesParentID[data._configuration._field_name]['data'][fieldItemID] = [];
-                }
-
-                if (!fieldTimesParentID[data._configuration._field_name]['hash'].hasOwnProperty(fieldItemID)){
-                    fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID] = {};
-                }
-
-                fieldTimesParentID[data._configuration._field_name]['data'][fieldItemID].push(data);
-
-                for (const it in data){
-                    if (data[it].hasOwnProperty('field_slug_unique_hash')){
-                        if (!fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID].hasOwnProperty(data[it].field_slug_unique_hash)){
-                            fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID][data[it].field_slug_unique_hash] = [];
-                        }
-                        fieldTimesParentID[data._configuration._field_name]['hash'][fieldItemID][data[it].field_slug_unique_hash].push(data[it]);
-                    }
-                }*/
-
             }));
 
             function *loopTreeBackward(treeToLoop = null) {
@@ -230,8 +190,7 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
-                console.log(tree); return;
-                addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree, 'treeTimes': treeTimes}));
+                addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
             }
             editorsForm.submit();
         })
