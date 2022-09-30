@@ -229,15 +229,21 @@ HTML;
             $originalFields = $this->repeaters[$item->field_slug_unique_hash]->_field->_children;
             $treeFields = $item->_children;
             foreach ($originalFields as $originalField){
-                $originalFieldSlug = $originalField->field_options->field_slug;
+                $originalFieldSlugHash = $originalField->field_options->field_slug_unique_hash;
+                $match = false;
                 foreach ($treeFields as $treeField){
-                    dd($originalFields, $treeFields, $originalField, $treeField);
+                    $treeFieldSlugHash = $treeField->field_slug_unique_hash;
+                    if ($originalFieldSlugHash === $treeFieldSlugHash){
+                        $sorted[] = $treeField;
+                        $match = true;
+                    }
                 }
 
+                // if you have exhaust looping, and you couldn't match anything, then it means
+                // the originalFields has a new valuem push it in the sorted
             }
-
+            dd($sorted, $originalFields, $treeFields);
         }
-        // dd($item, $this->repeaters, $children);
     }
 
     /**
