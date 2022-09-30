@@ -18,6 +18,9 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class RowColumnRepeater implements HandlerInterface
 {
     private array $fieldHashes = [];
+    private array $repeaters = [];
+    private $oldPostData = [];
+    private array $repeaterButton = [];
     private array $headerCountMax = [];
     private array $headerCount = [];
 
@@ -37,6 +40,7 @@ class RowColumnRepeater implements HandlerInterface
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             }, userForm: function ($data) use ($event) {
+
             return $this->userForm($event, $data);
         },
             handleViewProcessing: function ($data) use ($event) {
@@ -167,6 +171,46 @@ HTML;
     }
 
     /**
+     * @param $data
+     * @return void
+     */
+    private function unnestRepeater($data): void
+    {
+        if ($data->field_slug === 'modular_rowcolumnrepeater') {
+            $this->repeaters[$data->field_slug_unique_hash] = $data;
+            if (isset($data->_field->_children)) {
+                foreach ($data->_field->_children as $child) {
+                    $this->unnestRepeater($child->field_options);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
+     * @throws \Exception
+     */
+    private function repeatersButton(OnFieldMetaBox $event, $data): string
+    {
+        return $this->handleUserFormFrag($event, $data,
+            function ($field) use ($event) {
+                $frag  = '';
+                if ($field->field_slug === 'modular_rowcolumnrepeater') {
+                    $this->headerCountMax[] = $field;
+                    $frag = $this->repeatersButton($event, $field);
+                }
+                return $frag;
+            },
+            function ($field, $repeatButtonFrag) {
+                $this->headerCount[] = $field;
+                 $this->repeaterButton[$field->field_slug_unique_hash] = $repeatButtonFrag;
+                 return $repeatButtonFrag;
+            });
+    }
+
+    /**
      * @throws \Exception
      */
     public function userForm(OnFieldMetaBox $event, $data): string
@@ -174,10 +218,15 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
         $frag = '';
-        return $this->handleUserFormFrag($event, $data);
-        dd($inputData, $data);
+
+        $this->oldPostData = getPostData();
+        addToGlobalVariable('Data', []);
+        // return $this->handleUserFormFrag($event, $data);
+        $this->unnestRepeater($data);
+        $this->repeatersButton($event, $data);
+        dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
-           // return $this->handleUserFormFrag($event, $data);
+            // return $this->handleUserFormFrag($event, $data);
             foreach ($inputData->treeTimes as $key => $fields) {
                 $frag .= $this->handleUserFormFrag($event, $data, function ($child, $parent) use ($data, $event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
@@ -202,32 +251,32 @@ HTML;
     private function handleChild($child, $parent, $event, $key, $inputData): string
     {
         $frag2 = '';
-        if ($child->field_slug === 'modular_rowcolumnrepeater'){
-            if (!isset($inputData->treeTimes->{$key}->{$child->fieldName})){
+        if ($child->field_slug === 'modular_rowcolumnrepeater') {
+            if (!isset($inputData->treeTimes->{$key}->{$child->fieldName})) {
                 return '';
                 dd($child, $inputData, $key, $child->fieldName);
             }
-            $childFields  = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
+            $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
 
             $lastKey = null;
-            foreach ($childFields as $childKey => $childObject){
+            foreach ($childFields as $childKey => $childObject) {
                 $lastKey = $childKey;
             }
 
-            foreach ($childFields as $childKey => $childObject){
+            foreach ($childFields as $childKey => $childObject) {
                 $addButton = $lastKey === $childKey;
                 $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
                     return $this->handleChild($child, $parent, $event, $key, $inputData);
                 }, $addButton);
 
-             unset($childFields->{$childKey});
+                unset($childFields->{$childKey});
             }
         } else {
             $fieldName = $parent->fieldName;
             $hashData = $inputData->treeTimes->{$key}->{$fieldName}->hash;
             $hashDataFirstObject = null;
-            foreach ($hashData as $obj){
-                if (!$hashDataFirstObject){
+            foreach ($hashData as $obj) {
+                if (!$hashDataFirstObject) {
                     $hashDataFirstObject = $obj;
                     break;
                 }
@@ -251,7 +300,7 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, bool $addRepeatButton = true): string
+    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
     {
 
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
@@ -320,7 +369,7 @@ HTML;
                             $child->field_options->{"_field"} = $child;
                         }
                         $interceptChildFrag = '';
-                        if ($interceptChild){
+                        if ($interceptChild) {
                             $interceptChildFrag = $interceptChild($child->field_options, $data);
                         }
                         $mainFrag .= (empty($interceptChildFrag)) ? $event->getUsersForm($child->field_name, $child->field_options ?? null) : $interceptChildFrag;
@@ -341,8 +390,7 @@ HTML;
 
         $frag .= $mainFrag . $event->_bottomHTMLWrapper();
 
-        if ($addRepeatButton){
-            $frag .=<<<HTML
+        $frag .= <<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
   $repeat_button_text
@@ -351,6 +399,8 @@ color:black bg:white-one border-width:default border:black padding:default curso
   </template>
 </button>
 HTML;
+        if ($interceptBottom) {
+            return $interceptBottom($data, $frag);
         }
 
         return $frag;
