@@ -27,13 +27,9 @@ class RowColumnRepeater implements HandlerInterface
     private array $finalChildStacks = [];
 
     private array $depthCollector = [];
-    private string $testResult = '';
 
     private ?int $lastDepth = null;
     private bool $breakLoopBackward = false;
-
-    private $currentModularRepeaterField = null;
-    private $lastModularRepeaterField = null;
 
     /**
      * @inheritDoc
@@ -234,9 +230,7 @@ HTML;
         }
 
         $this->childStacks[$item->field_slug_unique_hash] = $item;
-        $frag = $this->handleRepeaterUserFormFrag($event, $item);
-        $this->testResult .= $frag;
-        return $frag;
+        return $this->handleRepeaterUserFormFrag($event, $item);
     }
 
     /**
@@ -275,14 +269,18 @@ HTML;
 
     private function sortAndCollectDepthFrag(OnFieldMetaBox $event, $items)
     {
+        dd($items);
         foreach ($items as $item){
             $itemHash = $item['hash'];
             if (isset($this->repeaters[$itemHash])){
                 $repeaterField = $this->repeaters[$itemHash];
                 $frag = $this->getTopWrapper($event, $repeaterField);
+
                 $frag .= <<<OPEN_UL_TAG
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 OPEN_UL_TAG;
+
+
                 $currentDepth = (int)$item['depth'];
                 // first encounter
                 if ($this->lastDepth === null){
@@ -293,7 +291,8 @@ OPEN_UL_TAG;
                     if ($currentDepth === $this->lastDepth){
                         $this->lastDepth = $currentDepth;
                        $this->finalChildStacks[array_key_last($this->finalChildStacks)]['frag'] .= <<<CLOSE_LAST_REPEATER
-        </ul>
+            </ul>
+        </div>
    </div>
 </div>
 {$event->_bottomHTMLWrapper()}
@@ -303,7 +302,6 @@ CLOSE_LAST_REPEATER;
                     }elseif ($currentDepth < $this->lastDepth){
                         $this->lastDepth = $currentDepth;
                         $lastDepthHash = $this->finalChildStacks[array_key_last($this->finalChildStacks)]['hash'];
-                        $item['frag'] = $frag . $item['frag'];
                         $backwardFrag = '';
                         if (isset($this->repeaterButton[$lastDepthHash])){
                             // loop backward and keep popping as long as current depth is lesser than last depth
@@ -321,17 +319,30 @@ CLOSE_LAST_REPEATER;
                             $backwardFrag .=$repeatersButton;
                             $item['frag'] = $frag . $item['frag'] . $backwardFrag;
                             $this->finalChildStacks[] = $item;
-
-                            dd($frag, $item, $repeaterField, $this);
                         }
-
+                    } elseif ($currentDepth > $this->lastDepth){
+                        $this->lastDepth = $currentDepth;
+                        $this->finalChildStacks[array_key_last($this->finalChildStacks)]['frag'] .= <<<CLOSE_LAST_REPEATER
+            </ul>
+        </div>
+   </div>
+</div>
+{$event->_bottomHTMLWrapper()}
+CLOSE_LAST_REPEATER;
+                        $item['frag'] = $frag . $item['frag'];
+                        $this->finalChildStacks[] = $item;
                     }
                 }
-
-            //    if (count())
             }
         }
-        dd('checkmate', $items, $this);
+
+        return $this->finalChildStacks[0]['frag'] . <<<CLOSE_LAST_REPEATER
+            </ul>
+        </div>
+   </div>
+</div>
+{$event->_bottomHTMLWrapper()}
+CLOSE_LAST_REPEATER;
     }
 
     /**
@@ -364,8 +375,7 @@ CLOSE_LAST_REPEATER;
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
         $this->walkTreeAndDoTheDo($event, $inputData->tree->_data->{'0'});
-        unset($this->testResult);
-        $this->sortAndCollectDepthFrag($event, $this->depthCollector);
+        return $this->sortAndCollectDepthFrag($event, $this->depthCollector);
         // return $this->depthCollector[13]['frag'];
         dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
@@ -401,7 +411,7 @@ CLOSE_LAST_REPEATER;
             $column = $data->column;
         }
 
-        $depth = $data->_field->depth;
+        $depth = $data->_field->depth ?? $data->depth;
 
         $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
@@ -528,50 +538,38 @@ HTML;
      */
     private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data): string
     {
-        $fieldName = (isset($data->field_name)) ? $data->field_name : 'DataTable_Repeater';
 
-        $frag = '';
-        $row = 1;
-        $column = 1;
-        if (isset($data->row)) {
-            $row = $data->row;
-        }
-
-        if (isset($data->column)) {
-            $column = $data->column;
-        }
-
-        $depth = $data->depth;
-
-       // $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
-
-        $gridTemplateCol = $data->grid_template_col ?? '';
-        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
-
-
-        $inputName = $data->inputName ?? '';
-        $mainFrag = '';
+        $this->finalChildStacks[] = $data;
+        $frag = $this->getTopWrapper($event, $data);
+        $frag .= <<<HTML
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+HTML;
 
         foreach ($data->_children as $child) {
             if ($child->field_slug === 'modular_rowcolumnrepeater'){
                 $this->walkTreeAndDoTheDo($event, $child);
-                // $mainFrag .= $this->walkTreeAndDoTheDo($event, $child);
             } else {
                 $childFieldSlugHash = $child->field_slug_unique_hash;
                 if (isset($this->nonRepeaters[$childFieldSlugHash])){
                     $fieldOriginal = $this->nonRepeaters[$childFieldSlugHash];
                     addToGlobalVariable('Data', (array)$child);
                     $fieldOriginal = $fieldOriginal->_field;
-                    $mainFrag .= $event->getUsersForm($fieldOriginal->field_name, $fieldOriginal->field_options ?? null);
+                    $frag .= $event->getUsersForm($fieldOriginal->field_name, $fieldOriginal->field_options ?? null);
 
                 }
             }
         }
 
+        $frag .= <<<HTML
+</ul>
+HTML;
+        dd($frag, $this);
+
        // $frag .= $mainFrag . $event->_bottomHTMLWrapper();
-       $frag .= $mainFrag;
+        // $frag .= $mainFrag;
         $this->depthCollector[] = [
             'depth' => $data->depth,
+            'is_repeater' => true,
             'field_name' => $data->field_name,
             'hash' => $data->field_slug_unique_hash,
             'frag' => $frag
