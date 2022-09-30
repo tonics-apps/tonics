@@ -296,7 +296,9 @@ HTML;
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
         $this->walkTreeAndDoTheDo($event, $inputData->tree->_data->{'0'});
-        return $this->depthCollector[13]['frag'];
+        unset($this->testResult);
+        $this->depthCollector = array_reverse($this->depthCollector);
+        // return $this->depthCollector[13]['frag'];
         dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
             // return $this->handleUserFormFrag($event, $data);
@@ -504,43 +506,19 @@ HTML;
 
         $depth = $data->depth;
 
-        $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+       // $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
 
-        $gridTemplateCol = '';
-        if (isset($data->grid_template_col)) {
-            $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
-        }
-
+        $gridTemplateCol = $data->grid_template_col ?? '';
         $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
 
 
         $inputName = $data->inputName ?? '';
-        $mainFrag = <<<HTML
-<style>
-.remove-row-col-repeater-button:hover + .rowColumnItemContainer {
-    background: #c2dbffa3;
-}
-</style>
-<div class="row-col-parent repeater-field position:relative cursor:move owl draggable draggable-repeater" 
-data-row="$row" 
-data-col="$column" 
-data-grid_template_col="$gridTemplateCol" 
-data-repeater_repeat_button_text="$repeat_button_text" 
-data-repeater_field_name="$fieldName" 
-data-repeater_depth="$depth" 
-data-repeater_input_name="$inputName">
-    <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
-        color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
-    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move owl flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
-HTML;
-
-        $mainFrag .= <<<HTML
-<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
-HTML;
+        $mainFrag = '';
 
         foreach ($data->_children as $child) {
             if ($child->field_slug === 'modular_rowcolumnrepeater'){
-                $mainFrag .= $this->walkTreeAndDoTheDo($event, $child);
+                $this->walkTreeAndDoTheDo($event, $child);
+                // $mainFrag .= $this->walkTreeAndDoTheDo($event, $child);
             } else {
                 $childFieldSlugHash = $child->field_slug_unique_hash;
                 if (isset($this->nonRepeaters[$childFieldSlugHash])){
@@ -548,21 +526,13 @@ HTML;
                     addToGlobalVariable('Data', (array)$child);
                     $fieldOriginal = $fieldOriginal->_field;
                     $mainFrag .= $event->getUsersForm($fieldOriginal->field_name, $fieldOriginal->field_options ?? null);
+
                 }
             }
         }
 
-        $mainFrag .= <<<HTML
-</ul>
-HTML;
-
-
-        $mainFrag .= <<<HTML
-    </div>
-</div>
-HTML;
-
-        $frag .= $mainFrag . $event->_bottomHTMLWrapper();
+       // $frag .= $mainFrag . $event->_bottomHTMLWrapper();
+       $frag .= $mainFrag;
         $this->depthCollector[] = [
             'depth' => $data->depth,
             'field_name' => $data->field_name,
