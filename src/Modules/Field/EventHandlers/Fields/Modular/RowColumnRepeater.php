@@ -25,6 +25,7 @@ class RowColumnRepeater implements HandlerInterface
     private array $childStacks = [];
 
     private array $depthCollector = [];
+    private string $testResult = '';
 
     private ?int $currentDepth = null;
     private ?int $lastDepth = null;
@@ -221,10 +222,10 @@ HTML;
     /**
      * @param OnFieldMetaBox $event
      * @param $item
-     * @return void
+     * @return string
      * @throws \Exception
      */
-    private function walkTreeAndDoTheDo(OnFieldMetaBox $event, $item): void
+    private function walkTreeAndDoTheDo(OnFieldMetaBox $event, $item): string
     {
         if (isset($item->_children)) {
             $item->_children = $this->sortWalkerTreeChildren($item);
@@ -233,15 +234,17 @@ HTML;
         $this->currentDepth = (int)$item->depth;
         $this->currentModularRepeaterField = $item;
         $this->childStacks[] = $item;
-        $this->handleRepeaterUserFormFrag($event, $item);
-        if (count($this->childStacks) === 1) {
+        $frag = $this->handleRepeaterUserFormFrag($event, $item);
+        $this->testResult .= $frag;
+        return $frag;
+/*        if (count($this->childStacks) === 1) {
             $this->lastDepth = $this->currentDepth;
             $this->lastModularRepeaterField = $this->currentModularRepeaterField;
         } else {
-            dd($this);
+            dd($this, 'checkMate');
         }
 
-        dd($item, $this->repeaters);
+        dd($item, $this->repeaters);*/
     }
 
     /**
@@ -293,6 +296,7 @@ HTML;
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
         $this->walkTreeAndDoTheDo($event, $inputData->tree->_data->{'0'});
+        return $this->depthCollector[13]['frag'];
         dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
             // return $this->handleUserFormFrag($event, $data);
