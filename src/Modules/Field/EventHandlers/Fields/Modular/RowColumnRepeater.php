@@ -561,6 +561,7 @@ HTML;
         $frag .= $mainFrag . $event->_bottomHTMLWrapper();
         $this->depthCollector[] = [
             'depth' => $data->depth,
+            'field_name' => $data->field_name,
             'hash' => $data->field_slug_unique_hash,
             'frag' => $frag
         ];
