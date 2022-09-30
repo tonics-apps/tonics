@@ -222,31 +222,24 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    private function walkTree(OnFieldMetaBox $event, $data): string
+    private function walkTree(OnFieldMetaBox $event, $item): string
     {
-        foreach ($data as $item) {
-
-            if (isset($item->_children)) {
-                $item->_children = $this->sortWalkerTreeChildren($item);
-            }
-
-            if (!isset($item->depth)){
-                dd($item);
-            }
-            $this->currentDepth = (int)$item->depth;
-            $this->currentModularRepeaterField = $item;
-            $this->childStacks[] = $item;
-            if (count($this->childStacks) === 1) {
-                $this->lastDepth = $this->currentDepth;
-                $this->lastModularRepeaterField = $this->currentModularRepeaterField;
-                $this->handleRepeaterUserFormFrag($event, $item);
-                dd($item, $this);
-                // $this->handleUserFormFrag($event)
-            } else {
-                $this->handleRepeaterUserFormFrag($event, $item);
-            }
+        if (isset($item->_children)) {
+            $item->_children = $this->sortWalkerTreeChildren($item);
         }
-        dd($data, $this->repeaters);
+
+        $this->currentDepth = (int)$item->depth;
+        $this->currentModularRepeaterField = $item;
+        $this->childStacks[] = $item;
+        if (count($this->childStacks) === 1) {
+            $this->lastDepth = $this->currentDepth;
+            $this->lastModularRepeaterField = $this->currentModularRepeaterField;
+            $this->handleRepeaterUserFormFrag($event, $item);
+        } else {
+            $this->handleRepeaterUserFormFrag($event, $item);
+        }
+
+        dd($item, $this->repeaters);
     }
 
     /**
@@ -297,7 +290,7 @@ HTML;
         // return $this->handleUserFormFrag($event, $data);
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
-        $this->walkTree($event, $inputData->tree->_data);
+        $this->walkTree($event, $inputData->tree->_data->{'0'});
         dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
             // return $this->handleUserFormFrag($event, $data);
@@ -541,7 +534,6 @@ HTML;
 
         foreach ($data->_children as $child) {
             if ($child->field_slug === 'modular_rowcolumnrepeater'){
-                dd($child, $data);
                 $mainFrag .= $this->walkTree($event, $child);
             } else {
                 $childFieldSlugHash = $child->field_slug_unique_hash;
@@ -564,8 +556,8 @@ HTML;
 </div>
 HTML;
 
-        dd('checkmate', $data);
         $frag .= $mainFrag . $event->_bottomHTMLWrapper();
+        dd('checkmate', $data, $frag);
 
         return $frag;
     }
