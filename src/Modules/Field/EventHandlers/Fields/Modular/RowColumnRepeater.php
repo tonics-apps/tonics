@@ -17,12 +17,10 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class RowColumnRepeater implements HandlerInterface
 {
-    private array $fieldHashes = [];
     private array $repeaters = [];
     private $oldPostData = [];
     private array $repeaterButton = [];
-    private array $headerCountMax = [];
-    private array $headerCount = [];
+    private array $childStacks = [];
 
     /**
      * @inheritDoc
@@ -209,6 +207,28 @@ HTML;
     }
 
     /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
+     * @throws \Exception
+     */
+    private function walkTree(OnFieldMetaBox $event, $data): string
+    {
+        foreach ($data as $item){
+            if (isset($item->_children)){
+                $item->_children = $this->sortWalkerTreeChildren($item);
+            }
+        }
+        dd($data, $this->repeaters);
+    }
+
+    private function sortWalkerTreeChildren($item)
+    {
+        $children = $item->_children;
+        dd($item, $this->repeaters, $children);
+    }
+
+    /**
      * @throws \Exception
      */
     public function userForm(OnFieldMetaBox $event, $data): string
@@ -222,6 +242,7 @@ HTML;
         // return $this->handleUserFormFrag($event, $data);
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
+        $this->walkTree($event, $inputData->tree->_data);
         dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
             // return $this->handleUserFormFrag($event, $data);
