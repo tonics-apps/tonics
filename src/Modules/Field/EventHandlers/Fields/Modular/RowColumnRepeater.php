@@ -18,9 +18,17 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class RowColumnRepeater implements HandlerInterface
 {
     private array $repeaters = [];
-    private $oldPostData = [];
+    private array $nonRepeaters = [];
+
+    private array $oldPostData = [];
     private array $repeaterButton = [];
     private array $childStacks = [];
+
+    private ?int $currentDepth = null;
+    private ?int $lastDepth = null;
+
+    private $currentModularRepeaterField = null;
+    private $lastModularRepeaterField = null;
 
     /**
      * @inheritDoc
@@ -181,6 +189,8 @@ HTML;
                     $this->unnestRepeater($child->field_options);
                 }
             }
+        } else {
+            $this->nonRepeaters[$data->field_slug_unique_hash] = $data;
         }
     }
 
@@ -194,15 +204,15 @@ HTML;
     {
         return $this->handleUserFormFrag($event, $data,
             function ($field) use ($event) {
-                $frag  = '';
+                $frag = '';
                 if ($field->field_slug === 'modular_rowcolumnrepeater') {
                     $frag = $this->repeatersButton($event, $field);
                 }
                 return $frag;
             },
             function ($field, $repeatButtonFrag) {
-                 $this->repeaterButton[$field->field_slug_unique_hash] = $repeatButtonFrag;
-                 return $repeatButtonFrag;
+                $this->repeaterButton[$field->field_slug_unique_hash] = $repeatButtonFrag;
+                return $repeatButtonFrag;
             });
     }
 
@@ -214,36 +224,63 @@ HTML;
      */
     private function walkTree(OnFieldMetaBox $event, $data): string
     {
-        foreach ($data as $item){
-            if (isset($item->_children)){
+        foreach ($data as $item) {
+
+            if (isset($item->_children)) {
                 $item->_children = $this->sortWalkerTreeChildren($item);
+            }
+
+            if (!isset($item->depth)){
+                dd($item);
+            }
+            $this->currentDepth = (int)$item->depth;
+            $this->currentModularRepeaterField = $item;
+            $this->childStacks[] = $item;
+            if (count($this->childStacks) === 1) {
+                $this->lastDepth = $this->currentDepth;
+                $this->lastModularRepeaterField = $this->currentModularRepeaterField;
+                $this->handleRepeaterUserFormFrag($event, $item);
+                dd($item, $this);
+                // $this->handleUserFormFrag($event)
+            } else {
+                $this->handleRepeaterUserFormFrag($event, $item);
             }
         }
         dd($data, $this->repeaters);
     }
 
-    private function sortWalkerTreeChildren($item)
+    /**
+     * @param $item
+     * @return array
+     */
+    private function sortWalkerTreeChildren($item): array
     {
         $sorted = [];
-        if (isset($this->repeaters[$item->field_slug_unique_hash])){
+        if (isset($this->repeaters[$item->field_slug_unique_hash])) {
             $originalFields = $this->repeaters[$item->field_slug_unique_hash]->_field->_children;
             $treeFields = $item->_children;
-            foreach ($originalFields as $originalField){
+            foreach ($originalFields as $originalField) {
                 $originalFieldSlugHash = $originalField->field_options->field_slug_unique_hash;
                 $match = false;
-                foreach ($treeFields as $treeField){
+                foreach ($treeFields as $treeField) {
                     $treeFieldSlugHash = $treeField->field_slug_unique_hash;
-                    if ($originalFieldSlugHash === $treeFieldSlugHash){
+                    if ($originalFieldSlugHash === $treeFieldSlugHash) {
                         $sorted[] = $treeField;
                         $match = true;
                     }
                 }
 
+                // TODO
                 // if you have exhaust looping, and you couldn't match anything, then it means
                 // the originalFields has a new value push it in the sorted
+                // for now, we won't do anything...
+                if (!$match) {
+                    // $sorted[] = ;
+                }
             }
-            dd($sorted, $originalFields, $treeFields);
         }
+
+        return $sorted;
     }
 
     /**
@@ -333,7 +370,7 @@ HTML;
      * @param OnFieldMetaBox $event
      * @param $data
      * @param callable|null $interceptChild
-     * @param bool $addRepeatButton
+     * @param callable|null $interceptBottom
      * @return string
      * @throws \Exception
      */
@@ -436,9 +473,99 @@ color:black bg:white-one border-width:default border:black padding:default curso
   </template>
 </button>
 HTML;
+
         if ($interceptBottom) {
             return $interceptBottom($data, $frag);
         }
+
+        return $frag;
+    }
+
+
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
+     * @throws \Exception
+     */
+    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data): string
+    {
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
+
+        $frag = '';
+        $row = 1;
+        $column = 1;
+        if (isset($data->row)) {
+            $row = $data->row;
+        }
+
+        if (isset($data->column)) {
+            $column = $data->column;
+        }
+
+        $depth = $data->depth;
+
+        $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+
+        $gridTemplateCol = '';
+        if (isset($data->grid_template_col)) {
+            $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
+        }
+
+        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
+
+
+        $inputName = $data->inputName ?? '';
+        $mainFrag = <<<HTML
+<style>
+.remove-row-col-repeater-button:hover + .rowColumnItemContainer {
+    background: #c2dbffa3;
+}
+</style>
+<div class="row-col-parent repeater-field position:relative cursor:move owl draggable draggable-repeater" 
+data-row="$row" 
+data-col="$column" 
+data-grid_template_col="$gridTemplateCol" 
+data-repeater_repeat_button_text="$repeat_button_text" 
+data-repeater_field_name="$fieldName" 
+data-repeater_depth="$depth" 
+data-repeater_input_name="$inputName">
+    <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
+        color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
+    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move owl flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+HTML;
+
+        $mainFrag .= <<<HTML
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+HTML;
+
+        foreach ($data->_children as $child) {
+            if ($child->field_slug === 'modular_rowcolumnrepeater'){
+                dd($child, $data);
+                $mainFrag .= $this->walkTree($event, $child);
+            } else {
+                $childFieldSlugHash = $child->field_slug_unique_hash;
+                if (isset($this->nonRepeaters[$childFieldSlugHash])){
+                    $fieldOriginal = $this->nonRepeaters[$childFieldSlugHash];
+                    addToGlobalVariable('Data', (array)$child);
+                    $fieldOriginal = $fieldOriginal->_field;
+                    $mainFrag .= $event->getUsersForm($fieldOriginal->field_name, $fieldOriginal->field_options ?? null);
+                }
+            }
+        }
+
+        $mainFrag .= <<<HTML
+</ul>
+HTML;
+
+
+        $mainFrag .= <<<HTML
+    </div>
+</div>
+HTML;
+
+        dd('checkmate', $data);
+        $frag .= $mainFrag . $event->_bottomHTMLWrapper();
 
         return $frag;
     }
