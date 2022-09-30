@@ -29,7 +29,6 @@ class RowColumnRepeater implements HandlerInterface
     private array $depthCollector = [];
     private string $testResult = '';
 
-    private ?int $currentDepth = null;
     private ?int $lastDepth = null;
 
     private $currentModularRepeaterField = null;
@@ -290,12 +289,19 @@ OPEN_UL_TAG;
                     $item['frag'] = $frag . $item['frag'];
                     $this->finalChildStacks[] = $item;
                 } else {
-
+                    if ($currentDepth === $this->lastDepth){
+                       $this->finalChildStacks[array_key_last($this->finalChildStacks)]['frag'] .= <<<CLOSE_LAST_REPEATER
+        </ul>
+   </div>
+</div>
+{$event->_bottomHTMLWrapper()}
+CLOSE_LAST_REPEATER;
+                       $this->finalChildStacks[] = $item;
+                    }
+                    dd($frag, $item, $repeaterField, $this);
                 }
 
             //    if (count())
-
-                dd($frag, $item, $items, $repeaterField, $this);
             }
         }
         dd('checkmate', $items, $this);
