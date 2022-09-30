@@ -24,6 +24,8 @@ class RowColumnRepeater implements HandlerInterface
     private array $repeaterButton = [];
     private array $childStacks = [];
 
+    private array $finalChildStacks = [];
+
     private array $depthCollector = [];
     private string $testResult = '';
 
@@ -231,20 +233,10 @@ HTML;
             $item->_children = $this->sortWalkerTreeChildren($item);
         }
 
-        $this->currentDepth = (int)$item->depth;
-        $this->currentModularRepeaterField = $item;
-        $this->childStacks[] = $item;
+        $this->childStacks[$item->field_slug_unique_hash] = $item;
         $frag = $this->handleRepeaterUserFormFrag($event, $item);
         $this->testResult .= $frag;
         return $frag;
-/*        if (count($this->childStacks) === 1) {
-            $this->lastDepth = $this->currentDepth;
-            $this->lastModularRepeaterField = $this->currentModularRepeaterField;
-        } else {
-            dd($this, 'checkMate');
-        }
-
-        dd($item, $this->repeaters);*/
     }
 
     /**
@@ -270,7 +262,7 @@ HTML;
 
                 // TODO
                 // if you have exhaust looping, and you couldn't match anything, then it means
-                // the originalFields has a new value push it in the sorted
+                // the originalFields has a new field push it in the sorted
                 // for now, we won't do anything...
                 if (!$match) {
                     // $sorted[] = ;
@@ -279,6 +271,34 @@ HTML;
         }
 
         return $sorted;
+    }
+
+    private function sortAndCollectDepthFrag(OnFieldMetaBox $event, $items)
+    {
+        foreach ($items as $item){
+            $itemHash = $item['hash'];
+            if (isset($this->repeaters[$itemHash])){
+                $repeaterField = $this->repeaters[$itemHash];
+                $frag = $this->getTopWrapper($event, $repeaterField);
+                $frag .= <<<OPEN_UL_TAG
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+OPEN_UL_TAG;
+                $currentDepth = (int)$item['depth'];
+                // first encounter
+                if ($this->lastDepth === null){
+                    $this->lastDepth = $currentDepth;
+                    $item['frag'] = $frag . $item['frag'];
+                    $this->finalChildStacks[] = $item;
+                } else {
+
+                }
+
+            //    if (count())
+
+                dd($frag, $item, $items, $repeaterField, $this);
+            }
+        }
+        dd('checkmate', $items, $this);
     }
 
     /**
@@ -297,7 +317,7 @@ HTML;
         $this->repeatersButton($event, $data);
         $this->walkTreeAndDoTheDo($event, $inputData->tree->_data->{'0'});
         unset($this->testResult);
-        $this->depthCollector = array_reverse($this->depthCollector);
+        $this->sortAndCollectDepthFrag($event, $this->depthCollector);
         // return $this->depthCollector[13]['frag'];
         dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
@@ -315,72 +335,14 @@ HTML;
     }
 
     /**
-     * @param $child
-     * @param $parent
-     * @param $event
-     * @param $key
-     * @param $inputData
-     * @return string
-     * @throws \Exception
-     */
-    private function handleChild($child, $parent, $event, $key, $inputData): string
-    {
-        $frag2 = '';
-        if ($child->field_slug === 'modular_rowcolumnrepeater') {
-            if (!isset($inputData->treeTimes->{$key}->{$child->fieldName})) {
-                return '';
-                dd($child, $inputData, $key, $child->fieldName);
-            }
-            $childFields = $inputData->treeTimes->{$key}->{$child->fieldName}->data;
-
-            $lastKey = null;
-            foreach ($childFields as $childKey => $childObject) {
-                $lastKey = $childKey;
-            }
-
-            foreach ($childFields as $childKey => $childObject) {
-                $addButton = $lastKey === $childKey;
-                $frag2 .= $this->handleUserFormFrag($event, $child, function ($child, $parent) use ($event, $key, $inputData) {
-                    return $this->handleChild($child, $parent, $event, $key, $inputData);
-                }, $addButton);
-
-                unset($childFields->{$childKey});
-            }
-        } else {
-            $fieldName = $parent->fieldName;
-            $hashData = $inputData->treeTimes->{$key}->{$fieldName}->hash;
-            $hashDataFirstObject = null;
-            foreach ($hashData as $obj) {
-                if (!$hashDataFirstObject) {
-                    $hashDataFirstObject = $obj;
-                    break;
-                }
-            }
-
-            $hashes = $hashDataFirstObject->{$child->field_slug_unique_hash};
-            $nextKey = array_key_first($hashes);
-            $hashData = $hashes[$nextKey] ?? [];
-            unset($inputData->treeTimes->{$key}->{$fieldName}->hash->{$child->field_slug_unique_hash}[$nextKey]); // remove for next key
-            addToGlobalVariable('Data', (array)$hashData);
-        }
-
-        return $frag2;
-    }
-
-    /**
      * @param OnFieldMetaBox $event
      * @param $data
-     * @param callable|null $interceptChild
-     * @param callable|null $interceptBottom
      * @return string
      * @throws \Exception
      */
-    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
+    private function getTopWrapper(OnFieldMetaBox $event, $data): string
     {
-
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
-
-        $frag = '';
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -393,9 +355,8 @@ HTML;
 
         $depth = $data->_field->depth;
 
-        $frag .= $event->_topHTMLWrapper($fieldName, $data, true);
+        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
-        $cell = $row * $column;
         $gridTemplateCol = '';
         if (isset($data->grid_template_col)) {
             $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
@@ -403,9 +364,8 @@ HTML;
 
         $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
 
-
         $inputName = $data->inputName ?? '';
-        $mainFrag = <<<HTML
+        $frag .= <<<HTML
 <style>
 .remove-row-col-repeater-button:hover + .rowColumnItemContainer {
     background: #c2dbffa3;
@@ -424,12 +384,41 @@ data-repeater_input_name="$inputName">
     <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move owl flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
+        return $frag;
+    }
+
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @param callable|null $interceptChild
+     * @param callable|null $interceptBottom
+     * @return string
+     * @throws \Exception
+     */
+    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
+    {
+        $row = 1;
+        $column = 1;
+        if (isset($data->row)) {
+            $row = $data->row;
+        }
+
+        if (isset($data->column)) {
+            $column = $data->column;
+        }
+
+        $cell = $row * $column;
+
+        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
+
+        $frag = $this->getTopWrapper($event, $data);
+
         for ($i = 1; $i <= $cell; $i++) {
             if (!isset($data->_field->_children)) {
                 continue;
             }
 
-            $mainFrag .= <<<HTML
+            $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
 HTML;
 
@@ -447,23 +436,23 @@ HTML;
                         if ($interceptChild) {
                             $interceptChildFrag = $interceptChild($child->field_options, $data);
                         }
-                        $mainFrag .= (empty($interceptChildFrag)) ? $event->getUsersForm($child->field_name, $child->field_options ?? null) : $interceptChildFrag;
+                        $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($child->field_name, $child->field_options ?? null) : $interceptChildFrag;
                     }
                 }
             }
-            $mainFrag .= <<<HTML
+            $frag .= <<<HTML
 </ul>
 HTML;
         }
 
 
-        $mainFrag .= <<<HTML
+        $frag .= <<<HTML
     </div>
 </div>
 HTML;
 
 
-        $frag .= $mainFrag . $event->_bottomHTMLWrapper();
+        $frag .= $event->_bottomHTMLWrapper();
 
         $frag .= <<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
