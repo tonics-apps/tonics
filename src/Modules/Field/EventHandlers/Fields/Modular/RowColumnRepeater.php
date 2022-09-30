@@ -220,11 +220,11 @@ HTML;
 
     /**
      * @param OnFieldMetaBox $event
-     * @param $data
-     * @return string
+     * @param $item
+     * @return void
      * @throws \Exception
      */
-    private function walkTree(OnFieldMetaBox $event, $item): string
+    private function walkTreeAndDoTheDo(OnFieldMetaBox $event, $item): void
     {
         if (isset($item->_children)) {
             $item->_children = $this->sortWalkerTreeChildren($item);
@@ -233,8 +233,15 @@ HTML;
         $this->currentDepth = (int)$item->depth;
         $this->currentModularRepeaterField = $item;
         $this->childStacks[] = $item;
-        return $this->handleRepeaterUserFormFrag($event, $item);
-        // dd($item, $this->repeaters, $this);
+        $this->handleRepeaterUserFormFrag($event, $item);
+        if (count($this->childStacks) === 1) {
+            $this->lastDepth = $this->currentDepth;
+            $this->lastModularRepeaterField = $this->currentModularRepeaterField;
+        } else {
+            dd($this);
+        }
+
+        dd($item, $this->repeaters);
     }
 
     /**
@@ -285,7 +292,7 @@ HTML;
         // return $this->handleUserFormFrag($event, $data);
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
-        $this->walkTree($event, $inputData->tree->_data->{'0'});
+        $this->walkTreeAndDoTheDo($event, $inputData->tree->_data->{'0'});
         dd($inputData, $data, $this);
         if (isset($inputData->treeTimes)) {
             // return $this->handleUserFormFrag($event, $data);
@@ -478,7 +485,7 @@ HTML;
      */
     private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
+        $fieldName = (isset($data->field_name)) ? $data->field_name : 'DataTable_Repeater';
 
         $frag = '';
         $row = 1;
@@ -529,7 +536,7 @@ HTML;
 
         foreach ($data->_children as $child) {
             if ($child->field_slug === 'modular_rowcolumnrepeater'){
-                $mainFrag .= $this->walkTree($event, $child);
+                $mainFrag .= $this->walkTreeAndDoTheDo($event, $child);
             } else {
                 $childFieldSlugHash = $child->field_slug_unique_hash;
                 if (isset($this->nonRepeaters[$childFieldSlugHash])){
