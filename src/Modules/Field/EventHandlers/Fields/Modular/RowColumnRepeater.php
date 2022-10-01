@@ -576,6 +576,8 @@ HTML;
             }
 
             $openTopWrapper = $this->getTopWrapper($event, $data);
+            $bottomWrapper = $event->_bottomHTMLWrapper();
+
             $item->frag = '';
             if ($key === 0){
                 $item->frag = $this->getTopWrapper($event, $data);
@@ -591,14 +593,29 @@ HTML;
                 } else {
                     $currentDepth = (int)$item->depth;
                     if ($currentDepth > $lastItemDepth){
+
                         if (count($this->justItem) > 1){
                             $justFrag = <<<OPEN_UL
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 OPEN_UL. implode('', $this->justItem) . "</ul>";
-
+                            $this->justItem = [];
                             $lastItemInStack->frag .= $justFrag;
                         }
 
+                        $lastItemInStack->frag .= <<<OPEN_UL_IN_LAST
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+OPEN_UL_IN_LAST;
+                        $item->frag = $openTopWrapper;
+                        $this->toTree[] = $item; $this->treeStack[] = $item;
+                    }
+
+                    if ($currentDepth === $lastItemDepth){
+                        $lastItemInStack->frag .= $bottomWrapper;
+                        $item->frag = $openTopWrapper;
+                        $this->toTree[] = $item; $this->treeStack[] = $item;
+                    }
+
+                    if ($currentDepth < $lastItemDepth){
                         dd($this);
                     }
                 }
