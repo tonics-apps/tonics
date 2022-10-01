@@ -27,6 +27,7 @@ class RowColumnRepeater implements HandlerInterface
     private array $fieldsSorted = [];
 
     private array $finalChildStacks = [];
+    private bool $inItem = false;
     private string $completeFrag = '';
 
     private array $repeaterTree = [];
@@ -571,7 +572,7 @@ HTML;
             if (key_exists($fieldSlugHash, $this->repeaters) || key_exists($fieldSlugHash, $this->nonRepeaters)){
                 $data = (isset($this->repeaters[$fieldSlugHash])) ? $this->repeaters[$fieldSlugHash] : $this->nonRepeaters[$fieldSlugHash];
             }
-            $frag = $this->getTopWrapper($event, $data);
+            $openTopWrapper = $this->getTopWrapper($event, $data);
 
             if ($key === 0){
                 $item->frag = $this->getTopWrapper($event, $data);
@@ -579,17 +580,20 @@ HTML;
             } else {
                 $lastItemInStack = $this->finalChildStacks[array_key_last($this->finalChildStacks)];
                 $lastItemDepth = (int)$lastItemInStack->depth;
-                if ($lastItemInStack->field_slug === 'modular_rowcolumnrepeater' && $item->field_slug !== 'modular_rowcolumnrepeater'){
-                    $lastItemInStack->frag .= <<<HTML
+                if ($this->inItem === false){
+                    if ($lastItemInStack->field_slug === 'modular_rowcolumnrepeater' && $item->field_slug !== 'modular_rowcolumnrepeater'){
+                        $lastItemInStack->frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
+                        $this->inItem = true;
+                    }
                 }
 
                 if ($item->field_slug === 'modular_rowcolumnrepeater'){
+                    $this->finalChildStacks[] = $item;
                     $currentDepth = (int)$item->depth;
                     // close last item
                     if ($lastItemDepth === $currentDepth){
-                        // this.tocTree[lastAddedElementToTree].data += '</li>' + item.data;
                         $lastItemInStack->frag .= <<<CLOSE_LAST_ITEM
     </div>
 </div>
@@ -600,13 +604,19 @@ CLOSE_LAST_ITEM;
 
                     if ($currentDepth > $lastItemDepth){
                         $lastItemInStack->frag .= "</ul>";
+                        $lastItemInStack->frag .= <<<HTML
+</ul>
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+HTML;
+                        $item->frag = $this->getTopWrapper($event, $data);
+
                         dd($items, $this);
                     }
 
                 } else {
                     addToGlobalVariable('Data', (array)$item);
                     $data = $this->nonRepeaters[$fieldSlugHash];
-                    $lastItemInStack->frag .= $frag . $event->getUsersForm($data->field_slug, $data ?? null);
+                    $lastItemInStack->frag .= $event->getUsersForm($data->field_slug, $data ?? null);
                 }
 
             }
