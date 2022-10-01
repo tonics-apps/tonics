@@ -100,7 +100,7 @@ function nativeFieldModules() {
 
             let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
-            tree._data = {}; let parentID = 0, childID = -1, treeTimes = {}, lastDepth = 0, lastField = null, cellPositionStack = [];
+            tree._data = {}; let parentID = 0, childID = -1, treeTimes = {}, lastDepth = 0, lastField = null;
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
                 ++childID;
@@ -115,7 +115,6 @@ function nativeFieldModules() {
                 field.inputName = repeatEl.dataset.repeater_input_name;
                 let cellPosition = repeatEl.closest('[data-cell_position]');
                 if (cellPosition){
-                    cellPositionStack.push(field);
                     cellPosition = cellPosition.dataset.cell_position;
                 } else {
                     cellPosition = null;
@@ -136,7 +135,6 @@ function nativeFieldModules() {
 
                 for (const item in data){
                     field._children[childID] = data[item];
-                    cellPositionStack.push(data[item]);
                     ++childID;
                 }
 
@@ -203,7 +201,6 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
-                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
             }
             editorsForm.submit();

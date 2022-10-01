@@ -309,28 +309,21 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 
+        return $this->handleUserFormFrag($event, $data);
         $this->oldPostData = getPostData();
         addToGlobalVariable('Data', []);
-
-        // return $this->handleUserFormFrag($event, $data);
-
-        $this->unnestRepeater($data);
-        $this->repeatersButton($event, $data);
-
-        foreach ($inputData->tree->_data as $tree_data) {
-            $this->walkTreeAndDoTheDo($tree_data);
-        }
-
-      //  dd($inputData->tree->_data);
-        return $this->handleRepeaterUserFormFrag($event, $inputData->tree->_data->{'0'});
-
-        dd($inputData, $data, $this);
-        if (isset($inputData->treeTimes)) {
-
+        if (isset($inputData->tree)) {
+            $this->unnestRepeater($data);
+            $this->repeatersButton($event, $data);
+            foreach ($inputData->tree->_data as $tree_data) {
+                $this->walkTreeAndDoTheDo($tree_data);
+            }
+            $frag = $this->handleRepeaterUserFormFrag($event, $inputData->tree->_data->{'0'});
         } else {
             $frag = $this->handleUserFormFrag($event, $data);
         }
-
+        // restore old post
+        addToGlobalVariable('Data', $this->oldPostData);
         return $frag;
     }
 
@@ -483,10 +476,11 @@ HTML;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     * @param bool $addRepeatersButton
      * @return string
      * @throws \Exception
      */
-    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data): string
+    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data, bool $addRepeatersButton = true): string
     {
         $row = 1;
         $column = 1;
@@ -500,7 +494,6 @@ HTML;
 
         $cell = $row * $column;
 
-        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
         $frag = $this->getTopWrapper($event, $data);
         for ($i = 1; $i <= $cell; $i++) {
             $frag .= <<<HTML
@@ -538,6 +531,12 @@ HTML;
 HTML;
 
         $frag .= $event->_bottomHTMLWrapper();
+
+        if ($addRepeatersButton){
+            if (isset($this->repeaterButton[$data->field_slug_unique_hash])){
+                $frag .= $this->repeaterButton[$data->field_slug_unique_hash];
+            }
+        }
 
         return $frag;
     }
