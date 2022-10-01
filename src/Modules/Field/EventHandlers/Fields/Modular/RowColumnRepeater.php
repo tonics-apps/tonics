@@ -309,7 +309,7 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 
-        return $this->handleUserFormFrag($event, $data);
+        // return $this->handleUserFormFrag($event, $data);
         $this->oldPostData = getPostData();
         addToGlobalVariable('Data', []);
         if (isset($inputData->tree)) {
@@ -496,12 +496,12 @@ HTML;
 
         $frag = $this->getTopWrapper($event, $data);
         for ($i = 1; $i <= $cell; $i++) {
-            $frag .= <<<HTML
+            if (isset($data->_children)) {
+                $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
 HTML;
-            if (isset($data->_children)) {
                 foreach ($data->_children as $child) {
-                    $childCellNumber = (int)$child->_cell_position ?? $i;
+                    $childCellNumber = (int)$child->_cell_position;
 
                     $fieldSlugHash = $child->field_slug_unique_hash;
                     $childField = null;
@@ -518,18 +518,16 @@ HTML;
                         }
                     }
                 }
-            }
-
-            $frag .= <<<HTML
+                $frag .= <<<HTML
         </ul>
 HTML;
+            }
         }
 
         $frag .= <<<HTML
     </div>
 </div>
 HTML;
-
         $frag .= $event->_bottomHTMLWrapper();
 
         if ($addRepeatersButton){
