@@ -614,18 +614,17 @@ CLOSE_LAST_ITEM;
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
                         $item->frag = $openTopWrapper;
-                        if ($currentDepth === 2){
-                            dd($lastItemInStack, $item, $this);
-                        }
                         $this->toTree[] = $item; $this->treeStack[] = $item;
                     }
 
                     if ($currentDepth < $lastItemDepth){
+
                         $item->frag = $this->getTopWrapper($event, $data);
                         $timeToClose = 0;
                         foreach ($this->loopBackward($this->treeStack) as $backItem){
                             $backItemDepth = (int)$backItem->depth;
                             if ($backItemDepth > $currentDepth){
+                                $currentDepth = $backItemDepth;
                                 $backItem->frag .= <<<HTML
         </ul>
     </div>
@@ -646,7 +645,7 @@ HTML;
 </div>
 {$event->_bottomHTMLWrapper()}
 HTML;
-                        $item->frag = str_repeat($closeFrag, $timeToClose) . $item->frag;
+                       // $item->frag = str_repeat($closeFrag, $timeToClose) . $item->frag;
                         $this->toTree[] = $item;
                     }
 
