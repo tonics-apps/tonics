@@ -100,7 +100,7 @@ function nativeFieldModules() {
 
             let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
 
-            tree._data = {}; let parentID = 0, childID = -1, fieldItemID = -1, treeTimes = {}, lastDepth = 0, lastField = null;
+            tree._data = {}; let parentID = 0, childID = -1, treeTimes = {}, lastDepth = 0, lastField = null, cellPositionStack = [];
             repeatersDepth.forEach((repeatEl => {
                 let data = getRepeatersData(repeatEl);
                 ++childID;
@@ -120,6 +120,8 @@ function nativeFieldModules() {
                     cellPosition = null;
                 }
 
+
+
                 field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
                 field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
                 field.field_name = repeatEl.dataset.repeater_field_name;
@@ -131,9 +133,11 @@ function nativeFieldModules() {
                 field._cell_position = cellPosition;
                 field._children = {};
 
+                cellPositionStack.push(field);
+
                 for (const item in data){
-                    data[item]._cell_position = cellPosition;
                     field._children[childID] = data[item];
+                    cellPositionStack.push(data[item]);
                     ++childID;
                 }
 
@@ -170,6 +174,12 @@ function nativeFieldModules() {
                         }
                     }
                 }
+
+                cellPositionStack.forEach((position) => {
+
+                })
+
+
             }));
 
             function *loopTreeBackward(treeToLoop = null) {
@@ -199,7 +209,6 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
-                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
             }
             editorsForm.submit();
@@ -233,6 +242,8 @@ function nativeFieldModules() {
                     if (!fieldSettings.hasOwnProperty(inputs.name)) {
                         fieldSettings[inputs.name] = inputs.value;
                     }
+
+                    fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
                 }
 
                 if (Object.keys(fieldSettings).length !== 0){

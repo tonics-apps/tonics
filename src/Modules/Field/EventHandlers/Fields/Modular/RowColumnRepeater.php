@@ -33,6 +33,7 @@ class RowColumnRepeater implements HandlerInterface
     private string $completeFrag = '';
 
     private array $repeaterTree = [];
+    private array $cellPositions = [];
 
     private array $depthCollector = [];
 
@@ -309,13 +310,14 @@ HTML;
 
         $this->oldPostData = getPostData();
         addToGlobalVariable('Data', []);
-        // return $this->handleUserFormFrag($event, $data);
+       // return $this->handleUserFormFrag($event, $data);
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
 
         foreach ($inputData->tree->_data as $tree_data) {
             $this->walkTreeAndDoTheDo($tree_data);
         }
+
 
         return $this->handleRepeaterUserFormFrag($event, $this->fieldsSorted);
         // return $this->sortAndCollectDepthFrag($event, $this->depthCollector);
@@ -501,6 +503,16 @@ HTML;
 
             $openTopWrapper = $this->getTopWrapper($event, $data);
 
+            $openCellUl = ''; $closeCellUl = '';
+            if (isset($item->_cell_position)){
+                if (!key_exists($item->_cell_position, $this->cellPositions)){
+                    $this->cellPositions[$item->_cell_position] = true;
+                    $openCellUl = <<<UL
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+UL;
+                }
+            }
+
             $item->frag = '';
             if ($key === 0) {
                 $item->frag = $this->getTopWrapper($event, $data);
@@ -510,10 +522,15 @@ HTML;
                 $lastItemDepth = (int)$lastItemInStack->depth;
 
                 if ($item->field_slug !== 'modular_rowcolumnrepeater') {
+                    $lastCellPosition = array_key_last($this->cellPositions);
+                    if ((int)$item->_cell_position > (int)$lastCellPosition){
+
+                    }
+                    dd($item, $items);
                     unset($items[$key]);
                     addToGlobalVariable('Data', (array)$item);
                     $data = $this->nonRepeaters[$fieldSlugHash];
-                    $this->justItem[] = $event->getUsersForm($data->field_slug, $data ?? null);
+                    $this->justItem[] = $openCellUl . $event->getUsersForm($data->field_slug, $data ?? null);
                 } else {
                     $currentDepth = (int)$item->depth;
 
