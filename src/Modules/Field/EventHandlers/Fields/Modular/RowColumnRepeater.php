@@ -27,6 +27,9 @@ class RowColumnRepeater implements HandlerInterface
     private array $fieldsSorted = [];
 
     private array $finalChildStacks = [];
+    private string $completeFrag = '';
+
+    private array $repeaterTree = [];
 
     private array $depthCollector = [];
 
@@ -388,8 +391,8 @@ CLOSE_LAST_REPEATER;
         foreach ($inputData->tree->_data as $tree_data){
             $this->walkTreeAndDoTheDo($tree_data);
         }
-        dd($this);
-        return $this->walkTreeAndDoTheDo($event, $inputData->tree->_data);
+
+        return $this->handleRepeaterUserFormFrag($event, $this->fieldsSorted);
        // return $this->sortAndCollectDepthFrag($event, $this->depthCollector);
         // return $this->depthCollector[13]['frag'];
         dd($inputData, $data, $this);
@@ -560,8 +563,28 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data): string
+    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $items): string
     {
+        foreach ($items as $key => $item){
+            $fieldSlugHash = $item->field_slug_unique_hash;
+            $data = null;
+            if (key_exists($fieldSlugHash, $this->repeaters) || key_exists($fieldSlugHash, $this->nonRepeaters)){
+                $data = (isset($this->repeaters[$fieldSlugHash])) ? $this->repeaters[$fieldSlugHash] : $this->nonRepeaters[$fieldSlugHash];
+            }
+            $frag = $this->getTopWrapper($event, $data);
+            $item->frag = $this->getTopWrapper($event, $data);
+
+            if ($key === 0){
+                $this->finalChildStacks[] = $item;
+            } else {
+
+                if ($item->field_slug === 'modular_rowcolumnrepeater'){{
+                }} else {
+                    dd($items, $data);
+                }
+
+            }
+        }
         $depth = (int)$data->depth;
         $this->finalChildStacks[] = $data;
         $frag = $this->getTopWrapper($event, $data);
@@ -588,10 +611,10 @@ HTML;
             } else {
                 $childFieldSlugHash = $child->field_slug_unique_hash;
                 if (isset($this->nonRepeaters[$childFieldSlugHash])){
-                    $fieldOriginal = $this->nonRepeaters[$childFieldSlugHash];
+                    $data = $this->nonRepeaters[$childFieldSlugHash];
                     addToGlobalVariable('Data', (array)$child);
-                    $fieldOriginal = $fieldOriginal->_field;
-                    $frag .= $event->getUsersForm($fieldOriginal->field_name, $fieldOriginal->field_options ?? null);
+                    $data = $data->_field;
+                    $frag .= $event->getUsersForm($data->field_name, $data->field_options ?? null);
 
                 }
             }
