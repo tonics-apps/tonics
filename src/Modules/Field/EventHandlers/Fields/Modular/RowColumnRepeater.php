@@ -572,14 +572,24 @@ HTML;
                 $data = (isset($this->repeaters[$fieldSlugHash])) ? $this->repeaters[$fieldSlugHash] : $this->nonRepeaters[$fieldSlugHash];
             }
             $frag = $this->getTopWrapper($event, $data);
-            $item->frag = $this->getTopWrapper($event, $data);
 
             if ($key === 0){
+                $item->frag = $this->getTopWrapper($event, $data);
                 $this->finalChildStacks[] = $item;
             } else {
+                $lastItemInStack = $this->finalChildStacks[array_key_last($this->finalChildStacks)];
+                if ($lastItemInStack->field_slug === 'modular_rowcolumnrepeater' && $item->field_slug !== 'modular_rowcolumnrepeater'){
+                    $lastItemInStack->frag .= <<<HTML
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+HTML;
+                }
 
-                if ($item->field_slug === 'modular_rowcolumnrepeater'){{
-                }} else {
+                if ($item->field_slug === 'modular_rowcolumnrepeater'){
+
+                } else {
+                    addToGlobalVariable('Data', (array)$item);
+                    $data = $data->_field;
+                    $item->frag = $this->getTopWrapper($event, $data) . $event->getUsersForm($data->field_name, $data->field_options ?? null);
                     dd($items, $data);
                 }
 
