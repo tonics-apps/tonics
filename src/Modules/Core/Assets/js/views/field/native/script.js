@@ -175,8 +175,16 @@ function nativeFieldModules() {
                     }
                 }
 
-                cellPositionStack.forEach((position) => {
-
+                let firstPosition = null;
+                cellPositionStack.forEach((position, index) => {
+                    if (firstPosition === null){
+                        firstPosition = position;
+                        position._open_cell_position = true;
+                    } else {
+                        if (position._cell_position > firstPosition._cell_position){
+                            firstPosition._close_cell_position = true;
+                        }
+                    }
                 })
 
 
@@ -209,6 +217,7 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
+                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
             }
             editorsForm.submit();
