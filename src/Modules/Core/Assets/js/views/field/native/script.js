@@ -115,6 +115,7 @@ function nativeFieldModules() {
                 field.inputName = repeatEl.dataset.repeater_input_name;
                 let cellPosition = repeatEl.closest('[data-cell_position]');
                 if (cellPosition){
+                    cellPositionStack.push(field);
                     cellPosition = cellPosition.dataset.cell_position;
                 } else {
                     cellPosition = null;
@@ -132,8 +133,6 @@ function nativeFieldModules() {
                 field.column = repeatEl.dataset.col;
                 field._cell_position = cellPosition;
                 field._children = {};
-
-                cellPositionStack.push(field);
 
                 for (const item in data){
                     field._children[childID] = data[item];
@@ -174,19 +173,6 @@ function nativeFieldModules() {
                         }
                     }
                 }
-
-                let firstPosition = null;
-                cellPositionStack.forEach((position, index) => {
-                    if (firstPosition === null){
-                        firstPosition = position;
-                        position._open_cell_position = true;
-                    } else {
-                        if (position._cell_position > firstPosition._cell_position){
-                            firstPosition._close_cell_position = true;
-                        }
-                    }
-                })
-
 
             }));
 
