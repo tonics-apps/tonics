@@ -589,6 +589,7 @@ HTML;
                 $lastItemDepth = (int)$lastItemInStack->depth;
 
                 if ($item->field_slug !== 'modular_rowcolumnrepeater') {
+                    unset($items[$key]);
                     addToGlobalVariable('Data', (array)$item);
                     $data = $this->nonRepeaters[$fieldSlugHash];
                     $this->justItem[] = $event->getUsersForm($data->field_slug, $data ?? null);
@@ -639,11 +640,11 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
                             $lastItemInStack->frag .= $justFrag . $bottomWrapper;
                         }
 
-                        $item->frag = $this->getTopWrapper($event, $data);
                         $timeToClose = 0;
 
                         $occurrence = [];
-                        foreach ($this->loopBackward($this->treeStack) as $backItem) {
+                        $backFrag = '';
+                        foreach ($this->loopBackward($this->toTree) as $backItem) {
                             $backItemDepth = (int)$backItem->depth;
 
                             if (key_exists($backItemDepth, $occurrence)){
@@ -654,20 +655,31 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
 
                             $occurrenceTimes = $occurrence[$backItemDepth];
                             if ($occurrenceTimes > 1){
+                                $backFrag = $backItem->frag . $backFrag;
                                 // reset...
-                                array_pop($this->treeStack);
+                                array_pop($this->toTree);
                                 $occurrence[$backItemDepth] = 1;
                                 continue;
                             }
 
                             if ($backItemDepth > $currentDepth) {
+                                $backFrag = $backItem->frag . $backFrag;
                                 $timeToClose++;
-                                array_pop($this->treeStack);
+                                array_pop($this->toTree);
                             }
 
                             if ($backItemDepth === $currentDepth) {
                                 $this->breakLoopBackward = true;
                             }
+                        }
+
+                       // $item->frag .= $this->getTopWrapper($event, $data);
+
+                       // $lastItemInStack = $this->toTree[array_key_last($this->toTree)];
+                       // $lastItemInStack->frag .= str_repeat($closeFrag, $timeToClose);
+
+                        if ($item->field_name === 'L5'){
+                         //   dd($timeToClose, $this, $item, $items);
                         }
 
                         $closeFrag = <<<HTML
@@ -676,7 +688,7 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
 </div>
 {$event->_bottomHTMLWrapper()}
 HTML;
-                        $item->frag = str_repeat($closeFrag, $timeToClose) . $item->frag;
+                        $item->frag = $backFrag . str_repeat($closeFrag, $timeToClose) . $this->getTopWrapper($event, $data);
                         $this->toTree[] = $item; $this->treeStack[] = $item;
                     }
                 }
