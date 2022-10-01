@@ -657,13 +657,13 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
 {$event->_bottomHTMLWrapper()}
 HTML;
                         $item->frag = str_repeat($closeFrag, $timeToClose) . $item->frag;
-                        $this->toTree[] = $item;
+                        $this->toTree[] = $item; $this->treeStack[] = $item;
                     }
                 }
             }
         }
 
-        dd($this, $this->toTree);
+       dd($this, $this->toTree);
 
         $justFrag = '';
         foreach ($this->toTree as $data){
