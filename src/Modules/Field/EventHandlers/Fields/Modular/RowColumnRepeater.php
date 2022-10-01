@@ -588,9 +588,8 @@ HTML;
 
                 } else {
                     addToGlobalVariable('Data', (array)$item);
-                    $data = $data->_field;
-                    $item->frag = $this->getTopWrapper($event, $data) . $event->getUsersForm($data->field_name, $data->field_options ?? null);
-                    dd($items, $data);
+                    $data = $this->nonRepeaters[$fieldSlugHash];
+                    $lastItemInStack->frag .= $this->getTopWrapper($event, $data) . $event->getUsersForm($data->field_slug, $data ?? null);
                 }
 
             }
