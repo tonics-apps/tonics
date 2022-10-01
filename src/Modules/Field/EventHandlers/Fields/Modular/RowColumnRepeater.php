@@ -597,7 +597,11 @@ HTML;
 $frag
 CLOSE_LAST_ITEM;
                     }
-                    dd($items);
+
+                    if ($currentDepth > $lastItemDepth){
+                        $lastItemInStack->frag .= "</ul>";
+                        dd($items, $this);
+                    }
 
                 } else {
                     addToGlobalVariable('Data', (array)$item);
