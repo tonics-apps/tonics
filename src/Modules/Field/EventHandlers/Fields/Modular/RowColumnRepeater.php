@@ -581,6 +581,7 @@ HTML;
                 $this->treeStack[] = $item;
             } else {
                 $lastItemInStack = $this->toTree[array_key_last($this->toTree)];
+
                 if ($this->inItem === false){
                     if ($lastItemInStack->field_slug === 'modular_rowcolumnrepeater' && $item->field_slug !== 'modular_rowcolumnrepeater'){
                         $lastItemInStack->frag .= <<<HTML
@@ -591,33 +592,32 @@ HTML;
                 }
 
                 if ($item->field_slug === 'modular_rowcolumnrepeater'){
-
-                    $lastItemInStack = $this->toTree[array_key_last($this->toTree)];
                     $lastItemDepth = (int)$lastItemInStack->depth;
 
                     $currentDepth = (int)$item->depth;
                     // close last item
                     if ($lastItemDepth === $currentDepth){
-                        $this->toTree[] = $item;
-                        $this->treeStack[] = $item;
                         $lastItemInStack->frag .= <<<CLOSE_LAST_ITEM
         </ul>
     </div>
 </div>
 {$event->_bottomHTMLWrapper()}
-$openTopWrapper
 CLOSE_LAST_ITEM;
+                        $item->frag = $openTopWrapper;
+                        $this->toTree[] = $item; $this->treeStack[] = $item;
                     }
 
                     if ($currentDepth > $lastItemDepth){
-                        $this->toTree[] = $item;
-                        $this->treeStack[] = $item;
                         $this->inItem = false;
                         $lastItemInStack->frag .= <<<HTML
 </ul>
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
                         $item->frag = $openTopWrapper;
+                        if ($currentDepth === 2){
+                            dd($lastItemInStack, $item, $this);
+                        }
+                        $this->toTree[] = $item; $this->treeStack[] = $item;
                     }
 
                     if ($currentDepth < $lastItemDepth){
