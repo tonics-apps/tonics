@@ -26,7 +26,8 @@ class RowColumnRepeater implements HandlerInterface
 
     private array $fieldsSorted = [];
 
-    private array $finalChildStacks = [];
+    private array $toTree = [];
+    private array $treeStack = [];
     private bool $inItem = false;
     private string $completeFrag = '';
 
@@ -300,11 +301,11 @@ OPEN_UL_TAG;
                 if ($this->lastDepth === null){
                     $this->lastDepth = $currentDepth;
                     $item['frag'] = $frag . $item['frag'];
-                    $this->finalChildStacks[] = $item;
+                    $this->toTree[] = $item;
                 } else {
                     if ($currentDepth === $this->lastDepth){
                         $this->lastDepth = $currentDepth;
-                       $this->finalChildStacks[array_key_last($this->finalChildStacks)]['frag'] .= <<<CLOSE_LAST_REPEATER
+                       $this->toTree[array_key_last($this->toTree)]['frag'] .= <<<CLOSE_LAST_REPEATER
             </ul>
         </div>
    </div>
@@ -312,17 +313,17 @@ OPEN_UL_TAG;
 {$event->_bottomHTMLWrapper()}
 CLOSE_LAST_REPEATER;
                        $item['frag'] = $frag . $item['frag'];
-                       $this->finalChildStacks[] = $item;
+                       $this->toTree[] = $item;
                     }elseif ($currentDepth < $this->lastDepth){
                         $this->lastDepth = $currentDepth;
-                        $lastDepthHash = $this->finalChildStacks[array_key_last($this->finalChildStacks)]['hash'];
+                        $lastDepthHash = $this->toTree[array_key_last($this->toTree)]['hash'];
                         $backwardFrag = '';
                         if (isset($this->repeaterButton[$lastDepthHash])){
                             // loop backward and keep popping as long as current depth is lesser than last depth
-                            foreach ($this->loopBackward($this->finalChildStacks) as $backwardItem){
+                            foreach ($this->loopBackward($this->toTree) as $backwardItem){
                                 $backwardItemDepth = (int)$backwardItem['depth'];
                                 if ($currentDepth < $backwardItemDepth){
-                                    $popBackwardItem = array_pop($this->finalChildStacks);
+                                    $popBackwardItem = array_pop($this->toTree);
                                     $backwardFrag .= $popBackwardItem['frag'];
                                 } else {
                                     $this->breakLoopBackward = true;
@@ -332,11 +333,11 @@ CLOSE_LAST_REPEATER;
                             $repeatersButton = $this->repeaterButton[$lastDepthHash];
                             $backwardFrag .=$repeatersButton;
                             $item['frag'] = $frag . $item['frag'] . $backwardFrag;
-                            $this->finalChildStacks[] = $item;
+                            $this->toTree[] = $item;
                         }
                     } elseif ($currentDepth > $this->lastDepth){
                         $this->lastDepth = $currentDepth;
-                        $this->finalChildStacks[array_key_last($this->finalChildStacks)]['frag'] .= <<<CLOSE_LAST_REPEATER
+                        $this->toTree[array_key_last($this->toTree)]['frag'] .= <<<CLOSE_LAST_REPEATER
             </ul>
         </div>
    </div>
@@ -344,13 +345,13 @@ CLOSE_LAST_REPEATER;
 {$event->_bottomHTMLWrapper()}
 CLOSE_LAST_REPEATER;
                         $item['frag'] = $frag . $item['frag'];
-                        $this->finalChildStacks[] = $item;
+                        $this->toTree[] = $item;
                     }
                 }
             }
         }
 
-        return $this->finalChildStacks[0]['frag'] . <<<CLOSE_LAST_REPEATER
+        return $this->toTree[0]['frag'] . <<<CLOSE_LAST_REPEATER
             </ul>
         </div>
    </div>
@@ -573,12 +574,13 @@ HTML;
                 $data = (isset($this->repeaters[$fieldSlugHash])) ? $this->repeaters[$fieldSlugHash] : $this->nonRepeaters[$fieldSlugHash];
             }
             $openTopWrapper = $this->getTopWrapper($event, $data);
-
+            $item->frag = '';
             if ($key === 0){
                 $item->frag = $this->getTopWrapper($event, $data);
-                $this->finalChildStacks[] = $item;
+                $this->toTree[] = $item;
+                dd($this);
             } else {
-                $lastItemInStack = $this->finalChildStacks[array_key_last($this->finalChildStacks)];
+                $lastItemInStack = $this->toTree[array_key_last($this->toTree)];
                 $lastItemDepth = (int)$lastItemInStack->depth;
                 if ($this->inItem === false){
                     if ($lastItemInStack->field_slug === 'modular_rowcolumnrepeater' && $item->field_slug !== 'modular_rowcolumnrepeater'){
@@ -590,27 +592,34 @@ HTML;
                 }
 
                 if ($item->field_slug === 'modular_rowcolumnrepeater'){
-                    $this->finalChildStacks[] = $item;
+                    $this->toTree[] = $item;
                     $currentDepth = (int)$item->depth;
                     // close last item
                     if ($lastItemDepth === $currentDepth){
                         $lastItemInStack->frag .= <<<CLOSE_LAST_ITEM
+    </ul>
     </div>
 </div>
 {$event->_bottomHTMLWrapper()}
-$frag
+$openTopWrapper
 CLOSE_LAST_ITEM;
                     }
 
                     if ($currentDepth > $lastItemDepth){
-                        $lastItemInStack->frag .= "</ul>";
+                        $this->inItem = false;
                         $lastItemInStack->frag .= <<<HTML
 </ul>
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
-                        $item->frag = $this->getTopWrapper($event, $data);
+                        $item->frag = $openTopWrapper;
+                    }
 
-                        dd($items, $this);
+                    if ($currentDepth < $lastItemDepth){
+                        $timeToClose = 0;
+                        foreach ($this->loopBackward($this->toTree) as $backItem){
+                            $backItemDepth = (int)$backItem->depth;
+                            dd($items, $backItem, $this);
+                        }
                     }
 
                 } else {
@@ -622,14 +631,14 @@ HTML;
             }
         }
         $depth = (int)$data->depth;
-        $this->finalChildStacks[] = $data;
+        $this->toTree[] = $data;
         $frag = $this->getTopWrapper($event, $data);
         $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
 
         foreach ($data->_children as $child) {
-            $lastField = $this->finalChildStacks[array_key_last($this->finalChildStacks)];
+            $lastField = $this->toTree[array_key_last($this->toTree)];
             $lastFieldDepth = (int)$lastField->depth;
             if ($child->field_slug === 'modular_rowcolumnrepeater'){
                 $childDepth = (int)$child->depth;
