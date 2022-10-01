@@ -583,7 +583,6 @@ HTML;
             if ($key === 0) {
                 $item->frag = $this->getTopWrapper($event, $data);
                 $this->toTree[] = $item;
-                $this->treeStack[] = $item;
             } else {
                 $lastItemInStack = $this->toTree[array_key_last($this->toTree)];
                 $lastItemDepth = (int)$lastItemInStack->depth;
@@ -611,7 +610,6 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
 OPEN_UL_IN_LAST;
                         $item->frag = $openTopWrapper;
                         $this->toTree[] = $item;
-                        $this->treeStack[] = $item;
                     }
 
                     if ($currentDepth === $lastItemDepth) {
@@ -627,7 +625,6 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
                         $lastItemInStack->frag .= $bottomWrapper;
                         $item->frag = $openTopWrapper;
                         $this->toTree[] = $item;
-                        $this->treeStack[] = $item;
                     }
 
                     if ($currentDepth < $lastItemDepth) {
@@ -673,15 +670,6 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
                             }
                         }
 
-                       // $item->frag .= $this->getTopWrapper($event, $data);
-
-                       // $lastItemInStack = $this->toTree[array_key_last($this->toTree)];
-                       // $lastItemInStack->frag .= str_repeat($closeFrag, $timeToClose);
-
-                        if ($item->field_name === 'L5'){
-                         //   dd($timeToClose, $this, $item, $items);
-                        }
-
                         $closeFrag = <<<HTML
         </ul>
     </div>
@@ -689,13 +677,22 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
 {$event->_bottomHTMLWrapper()}
 HTML;
                         $item->frag = $backFrag . str_repeat($closeFrag, $timeToClose) . $this->getTopWrapper($event, $data);
-                        $this->toTree[] = $item; $this->treeStack[] = $item;
+                        $this->toTree[] = $item;
                     }
                 }
             }
-        }
 
-       // dd($this, $this->toTree);
+            if ($key === count($items) - 1){
+                $lastItemInStack = $this->toTree[array_key_last($this->toTree)];
+                if (count($this->justItem) > 0) {
+                    $justFrag = <<<OPEN_UL
+<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
+OPEN_UL. implode('', $this->justItem) . "</ul>";
+                    $this->justItem = [];
+                    $lastItemInStack->frag .= $justFrag;
+                }
+            }
+        }
 
         $justFrag = '';
         foreach ($this->toTree as $data) {
