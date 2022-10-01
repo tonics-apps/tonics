@@ -578,6 +578,7 @@ HTML;
                 $this->finalChildStacks[] = $item;
             } else {
                 $lastItemInStack = $this->finalChildStacks[array_key_last($this->finalChildStacks)];
+                $lastItemDepth = (int)$lastItemInStack->depth;
                 if ($lastItemInStack->field_slug === 'modular_rowcolumnrepeater' && $item->field_slug !== 'modular_rowcolumnrepeater'){
                     $lastItemInStack->frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
@@ -585,11 +586,23 @@ HTML;
                 }
 
                 if ($item->field_slug === 'modular_rowcolumnrepeater'){
+                    $currentDepth = (int)$item->depth;
+                    // close last item
+                    if ($lastItemDepth === $currentDepth){
+                        // this.tocTree[lastAddedElementToTree].data += '</li>' + item.data;
+                        $lastItemInStack->frag .= <<<CLOSE_LAST_ITEM
+    </div>
+</div>
+{$event->_bottomHTMLWrapper()}
+$frag
+CLOSE_LAST_ITEM;
+                    }
+                    dd($items);
 
                 } else {
                     addToGlobalVariable('Data', (array)$item);
                     $data = $this->nonRepeaters[$fieldSlugHash];
-                    $lastItemInStack->frag .= $this->getTopWrapper($event, $data) . $event->getUsersForm($data->field_slug, $data ?? null);
+                    $lastItemInStack->frag .= $frag . $event->getUsersForm($data->field_slug, $data ?? null);
                 }
 
             }
