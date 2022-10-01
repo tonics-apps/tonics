@@ -592,7 +592,9 @@ HTML;
                     $this->justItem[] = $event->getUsersForm($data->field_slug, $data ?? null);
                 } else {
                     $currentDepth = (int)$item->depth;
+
                     if ($currentDepth > $lastItemDepth){
+
                         if (count($this->justItem) > 0){
                             $justFrag = <<<OPEN_UL
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
@@ -647,6 +649,7 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
                                 $this->breakLoopBackward = true;
                             }
                         }
+
                         $closeFrag = <<<HTML
         </ul>
     </div>
@@ -660,7 +663,7 @@ HTML;
             }
         }
 
-      //  dd($this, $this->toTree);
+        dd($this, $this->toTree);
 
         $justFrag = '';
         foreach ($this->toTree as $data){
