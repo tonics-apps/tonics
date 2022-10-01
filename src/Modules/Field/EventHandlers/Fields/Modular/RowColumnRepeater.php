@@ -261,12 +261,13 @@ HTML;
             $treeFields = $item->_children;
             foreach ($originalFields as $originalField) {
                 $originalFieldSlugHash = $originalField->field_options->field_slug_unique_hash;
-                $match = false;
+                $match = true;
                 foreach ($treeFields as $treeField) {
                     $treeFieldSlugHash = $treeField->field_slug_unique_hash;
                     if ($originalFieldSlugHash === $treeFieldSlugHash) {
                         $sorted[] = $treeField;
-                        $match = true;
+                    } else {
+                        $match = false;
                     }
                 }
 
@@ -275,90 +276,12 @@ HTML;
                 // the originalFields has a new field push it in the sorted
                 // for now, we won't do anything...
                 if (!$match) {
-                    // $sorted[] = ;
+                    // $sorted[] = $originalField->field_options;
                 }
             }
         }
 
         return $sorted;
-    }
-
-    private function sortAndCollectDepthFrag(OnFieldMetaBox $event, $items)
-    {
-        dd($items);
-        foreach ($items as $item) {
-            $itemHash = $item['hash'];
-            if (isset($this->repeaters[$itemHash])) {
-                $repeaterField = $this->repeaters[$itemHash];
-                $frag = $this->getTopWrapper($event, $repeaterField);
-
-                $frag .= <<<OPEN_UL_TAG
-<ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
-OPEN_UL_TAG;
-
-
-                $currentDepth = (int)$item['depth'];
-                // first encounter
-                if ($this->lastDepth === null) {
-                    $this->lastDepth = $currentDepth;
-                    $item['frag'] = $frag . $item['frag'];
-                    $this->toTree[] = $item;
-                } else {
-                    if ($currentDepth === $this->lastDepth) {
-                        $this->lastDepth = $currentDepth;
-                        $this->toTree[array_key_last($this->toTree)]['frag'] .= <<<CLOSE_LAST_REPEATER
-            </ul>
-        </div>
-   </div>
-</div>
-{$event->_bottomHTMLWrapper()}
-CLOSE_LAST_REPEATER;
-                        $item['frag'] = $frag . $item['frag'];
-                        $this->toTree[] = $item;
-                    } elseif ($currentDepth < $this->lastDepth) {
-                        $this->lastDepth = $currentDepth;
-                        $lastDepthHash = $this->toTree[array_key_last($this->toTree)]['hash'];
-                        $backwardFrag = '';
-                        if (isset($this->repeaterButton[$lastDepthHash])) {
-                            // loop backward and keep popping as long as current depth is lesser than last depth
-                            foreach ($this->loopBackward($this->toTree) as $backwardItem) {
-                                $backwardItemDepth = (int)$backwardItem['depth'];
-                                if ($currentDepth < $backwardItemDepth) {
-                                    $popBackwardItem = array_pop($this->toTree);
-                                    $backwardFrag .= $popBackwardItem['frag'];
-                                } else {
-                                    $this->breakLoopBackward = true;
-                                }
-                            }
-
-                            $repeatersButton = $this->repeaterButton[$lastDepthHash];
-                            $backwardFrag .= $repeatersButton;
-                            $item['frag'] = $frag . $item['frag'] . $backwardFrag;
-                            $this->toTree[] = $item;
-                        }
-                    } elseif ($currentDepth > $this->lastDepth) {
-                        $this->lastDepth = $currentDepth;
-                        $this->toTree[array_key_last($this->toTree)]['frag'] .= <<<CLOSE_LAST_REPEATER
-            </ul>
-        </div>
-   </div>
-</div>
-{$event->_bottomHTMLWrapper()}
-CLOSE_LAST_REPEATER;
-                        $item['frag'] = $frag . $item['frag'];
-                        $this->toTree[] = $item;
-                    }
-                }
-            }
-        }
-
-        return $this->toTree[0]['frag'] . <<<CLOSE_LAST_REPEATER
-            </ul>
-        </div>
-   </div>
-</div>
-{$event->_bottomHTMLWrapper()}
-CLOSE_LAST_REPEATER;
     }
 
     /**
@@ -383,11 +306,10 @@ CLOSE_LAST_REPEATER;
     {
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
-        $frag = '';
 
         $this->oldPostData = getPostData();
         addToGlobalVariable('Data', []);
-       // return $this->handleUserFormFrag($event, $data);
+        // return $this->handleUserFormFrag($event, $data);
         $this->unnestRepeater($data);
         $this->repeatersButton($event, $data);
 
@@ -678,6 +600,10 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
 HTML;
                         $item->frag = $backFrag . str_repeat($closeFrag, $timeToClose) . $this->getTopWrapper($event, $data);
                         $this->toTree[] = $item;
+
+                        if ($item->field_name === 'L5'){
+                          // dd($timeToClose, $this->toTree);
+                        }
                     }
                 }
             }

@@ -113,6 +113,13 @@ function nativeFieldModules() {
 
                 let field = {};
                 field.inputName = repeatEl.dataset.repeater_input_name;
+                let cellPosition = repeatEl.closest('[data-cell_position]');
+                if (cellPosition){
+                    cellPosition = cellPosition.dataset.cell_position;
+                } else {
+                    cellPosition = null;
+                }
+
                 field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
                 field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
                 field.field_name = repeatEl.dataset.repeater_field_name;
@@ -121,9 +128,11 @@ function nativeFieldModules() {
                 field.grid_template_col = repeatEl.dataset.grid_template_col;
                 field.row = repeatEl.dataset.row;
                 field.column = repeatEl.dataset.col;
+                field._cell_position = cellPosition;
                 field._children = {};
 
                 for (const item in data){
+                    data[item]._cell_position = cellPosition;
                     field._children[childID] = data[item];
                     ++childID;
                 }
@@ -190,6 +199,7 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
+                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
             }
             editorsForm.submit();
