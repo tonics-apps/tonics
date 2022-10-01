@@ -561,7 +561,7 @@ HTML;
 
     /**
      * @param OnFieldMetaBox $event
-     * @param $data
+     * @param $items
      * @return string
      * @throws \Exception
      */
@@ -625,12 +625,12 @@ HTML;
                             $backItemDepth = (int)$backItem->depth;
                             if ($backItemDepth > $currentDepth){
                                 $currentDepth = $backItemDepth;
-                                $backItem->frag .= <<<HTML
+                                /*$backItem->frag .= <<<HTML
         </ul>
     </div>
 </div>
 {$event->_bottomHTMLWrapper()}
-HTML;
+HTML;*/
                                 $timeToClose = $timeToClose + 1;
                                 array_pop($this->treeStack);
                             }
@@ -645,10 +645,9 @@ HTML;
 </div>
 {$event->_bottomHTMLWrapper()}
 HTML;
-                       // $item->frag = str_repeat($closeFrag, $timeToClose) . $item->frag;
+                        $item->frag = str_repeat($closeFrag, $timeToClose) . $item->frag;
                         $this->toTree[] = $item;
                     }
-
                 } else {
                     addToGlobalVariable('Data', (array)$item);
                     $data = $this->nonRepeaters[$fieldSlugHash];
@@ -658,7 +657,14 @@ HTML;
             }
         }
 
-        dd($items, $this);
+        dd($this);
+
+        $frag = '';
+        foreach ($this->toTree as $data){
+            $frag .= $data->frag;
+        }
+
+        return $frag . $event->_bottomHTMLWrapper();
     }
 
     /**
