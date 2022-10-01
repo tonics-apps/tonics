@@ -670,10 +670,6 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
                             }
                         }
 
-                        if ($item->field_name === 'L5') {
-                          // dd($this, $item, $timeToClose, $this->treeStack);
-                        }
-
                         $closeFrag = <<<HTML
         </ul>
     </div>
@@ -681,8 +677,7 @@ OPEN_UL. implode('', $this->justItem) . "</ul>";
 {$event->_bottomHTMLWrapper()}
 HTML;
                         $item->frag = str_repeat($closeFrag, $timeToClose) . $item->frag;
-                        $this->toTree[] = $item;
-                        // $this->treeStack[] = $item;
+                        $this->toTree[] = $item; $this->treeStack[] = $item;
                     }
                 }
             }
