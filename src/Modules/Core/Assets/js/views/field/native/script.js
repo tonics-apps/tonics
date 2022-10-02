@@ -114,13 +114,14 @@ function nativeFieldModules() {
                 let field = {};
                 field.inputName = repeatEl.dataset.repeater_input_name;
                 let cellPosition = repeatEl.closest('[data-cell_position]');
+                let repeaterButtonsIsNextSibling = false;
                 if (cellPosition){
+                    repeaterButtonsIsNextSibling = cellPosition.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
+                    repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('.row-col-repeater-button') : false;
                     cellPosition = cellPosition.dataset.cell_position;
                 } else {
                     cellPosition = null;
                 }
-
-
 
                 field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
                 field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
@@ -131,6 +132,7 @@ function nativeFieldModules() {
                 field.row = repeatEl.dataset.row;
                 field.column = repeatEl.dataset.col;
                 field._cell_position = cellPosition;
+                field._can_have_repeater_button = repeaterButtonsIsNextSibling
                 field._children = {};
 
                 for (const item in data){
@@ -201,6 +203,7 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
+                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
             }
             editorsForm.submit();

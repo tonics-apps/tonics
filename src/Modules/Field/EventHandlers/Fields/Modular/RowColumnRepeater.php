@@ -25,20 +25,7 @@ class RowColumnRepeater implements HandlerInterface
     private array $childStacks = [];
 
     private array $fieldsSorted = [];
-    private string $finalString = '';
-
-    private array $toTree = [];
-    private array $treeStack = [];
-    private array $justItem = [];
-    private bool $inItem = false;
-    private string $completeFrag = '';
-
-    private array $repeaterTree = [];
-    private array $cellPositions = [];
-
-    private array $depthCollector = [];
-
-    private ?int $lastDepth = null;
+    private array $depthsReceived = [];
     private bool $breakLoopBackward = false;
 
     /**
@@ -309,7 +296,7 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 
-        // return $this->handleUserFormFrag($event, $data);
+        return $this->handleUserFormFrag($event, $data);
         $this->oldPostData = getPostData();
         addToGlobalVariable('Data', []);
         if (isset($inputData->tree)) {
