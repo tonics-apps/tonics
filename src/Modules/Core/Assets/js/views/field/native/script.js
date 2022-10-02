@@ -114,10 +114,10 @@ function nativeFieldModules() {
                 let field = {};
                 field.inputName = repeatEl.dataset.repeater_input_name;
                 let cellPosition = repeatEl.closest('[data-cell_position]');
-                let repeaterButtonsIsNextSibling = false;
+                let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
+                console.log(repeaterButtonsIsNextSibling);
+                repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
                 if (cellPosition){
-                    repeaterButtonsIsNextSibling = cellPosition.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
-                    repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('.row-col-repeater-button') : false;
                     cellPosition = cellPosition.dataset.cell_position;
                 } else {
                     cellPosition = null;
@@ -203,7 +203,6 @@ function nativeFieldModules() {
             }
 
             if (firstRepeaterName){
-                console.log(tree); return;
                 addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
             }
             editorsForm.submit();

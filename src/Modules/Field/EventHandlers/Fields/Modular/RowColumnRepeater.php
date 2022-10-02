@@ -296,7 +296,6 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 
-        return $this->handleUserFormFrag($event, $data);
         $this->oldPostData = getPostData();
         addToGlobalVariable('Data', []);
         if (isset($inputData->tree)) {
@@ -305,7 +304,10 @@ HTML;
             foreach ($inputData->tree->_data as $tree_data) {
                 $this->walkTreeAndDoTheDo($tree_data);
             }
-            $frag = $this->handleRepeaterUserFormFrag($event, $inputData->tree->_data->{'0'});
+            $frag = '';
+            foreach ($inputData->tree->_data as $modularRepeaterData) {
+                $frag .= $this->handleRepeaterUserFormFrag($event, $modularRepeaterData);
+            }
         } else {
             $frag = $this->handleUserFormFrag($event, $data);
         }
@@ -469,7 +471,7 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data, bool $addRepeatersButton = true): string
+    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data): string
     {
         $row = 1;
         $column = 1;
@@ -519,9 +521,9 @@ HTML;
 HTML;
         $frag .= $event->_bottomHTMLWrapper();
 
-        if ($addRepeatersButton){
+        if ($data->_can_have_repeater_button){
             if (isset($this->repeaterButton[$data->field_slug_unique_hash])){
-               $frag .= $this->repeaterButton[$data->field_slug_unique_hash];
+                $frag .= $this->repeaterButton[$data->field_slug_unique_hash];
             }
         }
 
