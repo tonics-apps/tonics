@@ -3,7 +3,7 @@ let menuArranger = document.querySelector('.menu-arranger');
 let tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
 
 let repeaterParent = '.menu-arranger',
-    repeaterDraggable, repeaterChild = '.draggable-repeater';
+    repeaterDraggable, repeaterChild = '[data-slug="modular_rowcolumnrepeater"]';
 if ((repeaterDraggable = window?.TonicsScript?.Draggables)){
     let repeaterTop = false, repeaterBottom = false,
         repeaterSensitivity = 0, repeaterSensitivityMax = 5;
@@ -15,7 +15,9 @@ if ((repeaterDraggable = window?.TonicsScript?.Draggables)){
                 // swap element
                 let swapNodes;
                 if ((swapNodes = window?.TonicsScript?.swapNodes)){
-                    if (elementDragged.dataset.repeater_field_name === elementDropped.dataset.repeater_field_name){
+                    let rowColElDragged = elementDragged.querySelector('.repeater-field');
+                    let rowColElDropped = elementDropped.querySelector('.repeater-field');
+                    if ((rowColElDragged && rowColElDropped) && rowColElDragged.dataset.repeater_field_name === rowColElDropped.dataset.repeater_field_name){
                         swapNodes(elementDragged, elementDropped, self.draggingOriginalRect);
                         repeaterSensitivity = 0;
                         repeaterTop = false; repeaterBottom = false;

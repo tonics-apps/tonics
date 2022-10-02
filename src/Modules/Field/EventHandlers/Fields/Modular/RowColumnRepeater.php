@@ -363,7 +363,7 @@ HTML;
     background: #c2dbffa3;
 }
 </style>
-<div class="row-col-parent repeater-field position:relative cursor:move owl draggable draggable-repeater" 
+<div class="row-col-parent repeater-field position:relative" 
 data-row="$row" 
 data-col="$column" 
 data-grid_template_col="$gridTemplateCol" 

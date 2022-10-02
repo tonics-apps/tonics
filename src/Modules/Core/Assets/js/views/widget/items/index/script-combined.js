@@ -515,8 +515,9 @@ var Draggables = class extends ElementAbstract {
             startDrag = false;
           }
         });
-        if (el.closest(".draggable") && startDrag) {
-          self == null ? void 0 : self.setDragging(el.closest(".draggable"));
+        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+        if (el.closest(draggableSelector) && startDrag) {
+          self == null ? void 0 : self.setDragging(el.closest(draggableSelector));
           let draggable = self.getDragging();
           shiftX = e.clientX;
           shiftY = e.clientY;
@@ -563,10 +564,11 @@ var Draggables = class extends ElementAbstract {
           }
         });
         let draggable = self.getDragging();
-        if (el.closest(".draggable") && startDrag && draggable) {
+        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+        if (el.closest(draggableSelector) && startDrag && draggable) {
           draggable.classList.add("pointer-events:none");
           let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-          self.setDroppedTarget(elemBelow.closest(".draggable"));
+          self.setDroppedTarget(elemBelow.closest(draggableSelector));
           draggable.classList.remove("pointer-events:none");
           e.preventDefault();
           let tx = e.clientX - shiftX;
