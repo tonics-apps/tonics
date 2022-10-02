@@ -97,116 +97,131 @@ function nativeFieldModules() {
             let editorsForm = document.getElementById('EditorsForm');
             e.preventDefault();
 
-            let tree = {}, lastObject = {}, breakLoopBackward = false, childStack = [], parent = {};
-            let repeatersDepth = document.querySelectorAll('[data-repeater_depth]');
+            let repeaters = {};
+            let rootRepeaters = document.querySelectorAll('[data-repeater_depth="0"]');
+            if (rootRepeaters.length > 0){
+                rootRepeaters.forEach(rootRepeater => {
+                   let rootRepeatersName = rootRepeater.dataset.repeater_input_name;
+                   if (repeaters.hasOwnProperty(rootRepeatersName)){
+                       repeaters[rootRepeatersName].push(rootRepeater.closest('[data-slug="modular_rowcolumnrepeater"]'))
+                   } else {
+                       repeaters[rootRepeatersName] = [];
+                       repeaters[rootRepeatersName].push(rootRepeater.closest('[data-slug="modular_rowcolumnrepeater"]'));
+                   }
+                });
 
-            let firstRepeaterName = document.querySelector('[data-repeater_depth="0"]')?.dataset?.repeater_input_name;
-
-            tree._data = {}; let parentID = 0, childID = -1, treeTimes = {}, lastDepth = 0, lastField = null;
-            repeatersDepth.forEach((repeatEl => {
-                let data = getRepeatersData(repeatEl);
-                ++childID;
-                // Clean Up Unnecessary Modular RowColumnRepeater
-                for (const item in data){
-                    if (data[item].field_slug === 'modular_rowcolumnrepeater'){
-                        delete data[item];
-                    }
-                }
-
-                let field = {};
-                field.inputName = repeatEl.dataset.repeater_input_name;
-                let cellPosition = repeatEl.closest('[data-cell_position]');
-                let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
-                repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
-                if (cellPosition){
-                    cellPosition = cellPosition.dataset.cell_position;
-                } else {
-                    cellPosition = null;
-                }
-
-                field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
-                field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
-                field.field_name = repeatEl.dataset.repeater_field_name;
-                field.depth = repeatEl.dataset.repeater_depth;
-                field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
-                field.grid_template_col = repeatEl.dataset.grid_template_col;
-                field.row = repeatEl.dataset.row;
-                field.column = repeatEl.dataset.col;
-                field._cell_position = cellPosition;
-                field._can_have_repeater_button = repeaterButtonsIsNextSibling
-                field._children = {};
-
-                for (const item in data){
-                    field._children[childID] = data[item];
-                    ++childID;
-                }
-
-                let currentDepth  = parseInt(field.depth);
-
-                if (currentDepth === 0){
-                    tree._data[parentID] = field;
-                    treeTimes[parentID] = {};
-                    lastObject = field;
-                    lastDepth = parseInt(lastObject.depth);
-                    childStack = [];
-                    ++parentID;
-                }
-
-                childStack.push(field);
-
-                if (childStack.length === 1){
-                    lastDepth = currentDepth;
-                    lastField = field;
-                } else {
-                    if (currentDepth > lastDepth){
-                        ++childID;
-                        lastDepth = currentDepth;
-                        lastField._children[childID] = field;
-                        lastField = field;
-                    }else if (currentDepth === lastDepth || currentDepth < lastDepth){
-                        for (const treeData of loopTreeBackward(childStack)) {
-                            let treeDepth = parseInt(treeData.depth);
-                            if (currentDepth > treeDepth){
-                                 breakLoopBackward = true;
-                                 treeData._children[childID] = field;
-                                 lastDepth = currentDepth;
-                                 lastField = field;
+                for (const repeaterName in repeaters){
+                    let repeatersDepth = repeaters[repeaterName];
+                    let tree = {}, lastObject = {}, breakLoopBackward = false, childStack = [];
+                    tree._data = {}; let parentID = 0, childID = -1, treeTimes = {}, lastDepth = 0, lastField = null;
+                    repeatersDepth.forEach(eachRoot => {
+                        let elements = eachRoot.querySelectorAll('[data-repeater_depth]');
+                        elements.forEach(repeatEl => {
+                            let data = getRepeatersData(repeatEl);
+                            ++childID;
+                            // Clean Up Unnecessary Modular RowColumnRepeater
+                            for (const item in data){
+                                if (data[item].field_slug === 'modular_rowcolumnrepeater'){
+                                    delete data[item];
+                                }
                             }
+
+                            let field = {};
+                            field.inputName = repeatEl.dataset.repeater_input_name;
+                            let cellPosition = repeatEl.closest('[data-cell_position]');
+                            let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
+                            repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
+                            if (cellPosition){
+                                cellPosition = cellPosition.dataset.cell_position;
+                            } else {
+                                cellPosition = null;
+                            }
+
+                            field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
+                            field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
+                            field.field_name = repeatEl.dataset.repeater_field_name;
+                            field.depth = repeatEl.dataset.repeater_depth;
+                            field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
+                            field.grid_template_col = repeatEl.dataset.grid_template_col;
+                            field.row = repeatEl.dataset.row;
+                            field.column = repeatEl.dataset.col;
+                            field._cell_position = cellPosition;
+                            field._can_have_repeater_button = repeaterButtonsIsNextSibling
+                            field._children = {};
+
+                            for (const item in data){
+                                field._children[childID] = data[item];
+                                ++childID;
+                            }
+
+                            let currentDepth  = parseInt(field.depth);
+
+                            if (currentDepth === 0){
+                                tree._data[parentID] = field;
+                                treeTimes[parentID] = {};
+                                lastObject = field;
+                                lastDepth = parseInt(lastObject.depth);
+                                childStack = [];
+                                ++parentID;
+                            }
+
+                            childStack.push(field);
+
+                            if (childStack.length === 1){
+                                lastDepth = currentDepth;
+                                lastField = field;
+                            } else {
+                                if (currentDepth > lastDepth){
+                                    ++childID;
+                                    lastDepth = currentDepth;
+                                    lastField._children[childID] = field;
+                                    lastField = field;
+                                }else if (currentDepth === lastDepth || currentDepth < lastDepth){
+                                    for (const treeData of loopTreeBackward(childStack)) {
+                                        let treeDepth = parseInt(treeData.depth);
+                                        if (currentDepth > treeDepth){
+                                            breakLoopBackward = true;
+                                            treeData._children[childID] = field;
+                                            lastDepth = currentDepth;
+                                            lastField = field;
+                                        }
+                                    }
+                                }
+                            }
+
+                        });
+
+                        function *loopTreeBackward(treeToLoop = null) {
+                            if (treeToLoop === null){
+                                treeToLoop = this.tocTree;
+                            }
+                            for (let i = treeToLoop.length - 1; i >= 0; i--){
+                                if (breakLoopBackward){break;}
+                                yield treeToLoop[i];
+                            }
+
+                            breakLoopBackward = false;
                         }
+                    });
+
+                    function addHiddenInputToForm(form, key, value) {
+                        let inputExist = form.querySelector(`input[name="${key}"]`);
+                        if (inputExist){
+                            inputExist.value = value
+                        }else {
+                            const input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = key;
+                            input.value = value;
+                            form.appendChild(input);
+                        }
+
                     }
-                }
 
-            }));
-
-            function *loopTreeBackward(treeToLoop = null) {
-                if (treeToLoop === null){
-                    treeToLoop = this.tocTree;
+                    addHiddenInputToForm(editorsForm, repeaterName, JSON.stringify({'tree': tree}));
                 }
-                for (let i = treeToLoop.length - 1; i >= 0; i--){
-                    if (breakLoopBackward){break;}
-                    yield treeToLoop[i];
-                }
-
-                breakLoopBackward = false;
             }
 
-            function addHiddenInputToForm(form, key, value) {
-                let inputExist = form.querySelector(`input[name="${key}"]`);
-                if (inputExist){
-                    inputExist.value = value
-                }else {
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = key;
-                    input.value = value;
-                    form.appendChild(input);
-                }
-
-            }
-
-            if (firstRepeaterName){
-                addHiddenInputToForm(editorsForm, firstRepeaterName, JSON.stringify({'tree': tree}));
-            }
             editorsForm.submit();
         })
         function getRepeatersData(fieldSettingsEl) {
