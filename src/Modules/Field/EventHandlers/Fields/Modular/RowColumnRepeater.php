@@ -250,13 +250,13 @@ HTML;
             $treeFields = $item->_children;
             foreach ($originalFields as $originalField) {
                 $originalFieldSlugHash = $originalField->field_options->field_slug_unique_hash;
-                $match = true;
-                foreach ($treeFields as $treeField) {
+                $match = false;
+                foreach ($treeFields as $treeKey => $treeField) {
                     $treeFieldSlugHash = $treeField->field_slug_unique_hash;
                     if ($originalFieldSlugHash === $treeFieldSlugHash) {
                         $sorted[] = $treeField;
-                    } else {
-                        $match = false;
+                        unset($treeFields->{$treeKey});
+                        $match = true;
                     }
                 }
 
@@ -265,9 +265,20 @@ HTML;
                 // the originalFields has a new field push it in the sorted
                 // for now, we won't do anything...
                 if (!$match) {
-                    // $sorted[] = $originalField->field_options;
+                  //  dd($originalFields, $sorted);
+                  //  dd($originalField, $treeFields, $treeField, $sorted);
+                    $slug = $originalField->field_options->field_slug;
+                    $cellName = $originalField->field_options->field_slug . '_cell';
+                    $cellPosition = $originalField->field_options->{$cellName};
+                    $originalField->field_options->_cell_position = $cellPosition;
+                    if ($slug === 'modular_rowcolumnrepeater'){
+                        $originalField->field_options->_can_have_repeater_button = true;
+                        dd($originalField);
+                    }
+                    $sorted[] = $originalField->field_options;
                 }
             }
+
         }
 
         return $sorted;
