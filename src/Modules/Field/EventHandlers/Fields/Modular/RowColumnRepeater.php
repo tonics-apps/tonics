@@ -298,6 +298,7 @@ HTML;
 
         $this->oldPostData = getPostData();
         addToGlobalVariable('Data', []);
+
         if (isset($inputData->tree)) {
             $this->unnestRepeater($data);
             $this->repeatersButton($event, $data);

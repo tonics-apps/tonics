@@ -115,7 +115,6 @@ function nativeFieldModules() {
                 field.inputName = repeatEl.dataset.repeater_input_name;
                 let cellPosition = repeatEl.closest('[data-cell_position]');
                 let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
-                console.log(repeaterButtonsIsNextSibling);
                 repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
                 if (cellPosition){
                     cellPosition = cellPosition.dataset.cell_position;
@@ -142,15 +141,16 @@ function nativeFieldModules() {
 
                 let currentDepth  = parseInt(field.depth);
 
-               childStack.push(field);
-
                 if (currentDepth === 0){
                     tree._data[parentID] = field;
                     treeTimes[parentID] = {};
                     lastObject = field;
                     lastDepth = parseInt(lastObject.depth);
+                    childStack = [];
                     ++parentID;
                 }
+
+                childStack.push(field);
 
                 if (childStack.length === 1){
                     lastDepth = currentDepth;
