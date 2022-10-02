@@ -455,7 +455,7 @@ HTML;
 HTML;
         $frag .= $event->_bottomHTMLWrapper();
 
-        $frag .= <<<HTML
+        $repeaterButtonFrag = <<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
   $repeat_button_text
@@ -465,8 +465,10 @@ color:black bg:white-one border-width:default border:black padding:default curso
 </button>
 HTML;
 
+        $frag .= $repeaterButtonFrag;
+
         if ($interceptBottom) {
-            return $interceptBottom($data, $frag);
+            return $interceptBottom($data, $repeaterButtonFrag);
         }
 
         return $frag;
@@ -532,7 +534,7 @@ HTML;
 
         if ($addRepeatersButton){
             if (isset($this->repeaterButton[$data->field_slug_unique_hash])){
-                $frag .= $this->repeaterButton[$data->field_slug_unique_hash];
+               $frag .= $this->repeaterButton[$data->field_slug_unique_hash];
             }
         }
 
