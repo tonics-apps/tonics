@@ -227,7 +227,8 @@ HTML;
             $children = $item->_children;
             // unset($item->_children);
             foreach ($children as $child) {
-                if ($child->field_slug === 'modular_rowcolumnrepeater') {
+                $slug = $child->field_slug ?? $child->field_options->field_slug;
+                if ($slug === 'modular_rowcolumnrepeater') {
                     $this->walkTreeAndDoTheDo($child);
                 } else {
                     $this->fieldsSorted[] = $child;
@@ -235,7 +236,8 @@ HTML;
             }
         }
 
-        $this->childStacks[$item->field_slug_unique_hash] = $item;
+        $fieldSlugHash = $item->field_slug_unique_hash ?? $item->field_options->field_slug_unique_hash;
+        $this->childStacks[$fieldSlugHash] = $item;
     }
 
     /**
@@ -245,14 +247,16 @@ HTML;
     private function sortWalkerTreeChildren($item): array
     {
         $sorted = [];
-        if (isset($this->repeaters[$item->field_slug_unique_hash])) {
-            $originalFields = $this->repeaters[$item->field_slug_unique_hash]->_field->_children;
+        $fieldSlugHash = $item->field_slug_unique_hash ?? $item->field_options->field_slug_unique_hash;
+        if (isset($this->repeaters[$fieldSlugHash])) {
+            $originalFields = $this->repeaters[$fieldSlugHash]->_field->_children;
             $treeFields = $item->_children;
             foreach ($originalFields as $originalField) {
                 $originalFieldSlugHash = $originalField->field_options->field_slug_unique_hash;
                 $match = false;
                 foreach ($treeFields as $treeKey => $treeField) {
-                    $treeFieldSlugHash = $treeField->field_slug_unique_hash;
+                    $treeFieldSlugHash = $treeField->field_slug_unique_hash ?? $treeField->field_options->field_slug_unique_hash;
+
                     if ($originalFieldSlugHash === $treeFieldSlugHash) {
                         $sorted[] = $treeField;
                         unset($treeFields->{$treeKey});
@@ -263,17 +267,15 @@ HTML;
                 // TODO
                 // if you have exhaust looping, and you couldn't match anything, then it means
                 // the originalFields has a new field push it in the sorted
-                // for now, we won't do anything...
+                // for now, we won't do anything... (SOLVED)
                 if (!$match) {
-                  //  dd($originalFields, $sorted);
-                  //  dd($originalField, $treeFields, $treeField, $sorted);
                     $slug = $originalField->field_options->field_slug;
                     $cellName = $originalField->field_options->field_slug . '_cell';
                     $cellPosition = $originalField->field_options->{$cellName};
                     $originalField->field_options->_cell_position = $cellPosition;
                     if ($slug === 'modular_rowcolumnrepeater'){
                         $originalField->field_options->_can_have_repeater_button = true;
-                        dd($originalField);
+                        $originalField->field_options->_children = $originalField->_children;
                     }
                     $sorted[] = $originalField->field_options;
                 }
@@ -282,21 +284,6 @@ HTML;
         }
 
         return $sorted;
-    }
-
-    /**
-     * @param $items
-     * @return \Generator
-     */
-    private function loopBackward($items): \Generator
-    {
-        for ($i = count($items) - 1; $i >= 0; $i--) {
-            if ($this->breakLoopBackward) {
-                break;
-            }
-            yield $items[$i];
-        }
-        $this->breakLoopBackward = false;
     }
 
     /**
@@ -358,7 +345,7 @@ HTML;
         $gridTemplateCol = '';
         # from js tree input
         if (isset($data->field_name)) {
-            $gridTemplateCol = "$data->grid_template_col";
+            $gridTemplateCol = $data->grid_template_col ?? '';
         } else {
             if (isset($data->grid_template_col)) {
                 $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
@@ -504,9 +491,14 @@ HTML;
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
 HTML;
                 foreach ($data->_children as $child) {
-                    $childCellNumber = (int)$child->_cell_position;
+                    if (!isset($child->_cell_position)){
+                        $slugCell = $child->field_options->field_slug . '_cell';
+                        $childCellNumber = (int)$child->field_options->{$slugCell};
+                    } else {
+                        $childCellNumber = (int)$child->_cell_position;
+                    }
 
-                    $fieldSlugHash = $child->field_slug_unique_hash;
+                    $fieldSlugHash = $child->field_slug_unique_hash ?? $child->field_options->field_slug_unique_hash;
                     $childField = null;
                     if (key_exists($fieldSlugHash, $this->repeaters) || key_exists($fieldSlugHash, $this->nonRepeaters)) {
                         $childField = (isset($this->repeaters[$fieldSlugHash])) ? $this->repeaters[$fieldSlugHash] : $this->nonRepeaters[$fieldSlugHash];
@@ -533,10 +525,13 @@ HTML;
 HTML;
         $frag .= $event->_bottomHTMLWrapper();
 
-        if ($data->_can_have_repeater_button){
-            if (isset($this->repeaterButton[$data->field_slug_unique_hash])){
-                $frag .= $this->repeaterButton[$data->field_slug_unique_hash];
+        $slugHash = $data->field_slug_unique_hash ?? $data->field_options->field_slug_unique_hash;
+        if (isset($data->_can_have_repeater_button) && $data->_can_have_repeater_button){
+            if (isset($this->repeaterButton[$slugHash])){
+                $frag .= $this->repeaterButton[$slugHash];
             }
+        } else {
+            $frag .= $this->repeaterButton[$slugHash];
         }
 
         return $frag;
