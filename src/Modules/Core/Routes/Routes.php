@@ -36,7 +36,7 @@ trait Routes
     {
 
         # experiment with table layout
-        $route->get("/table", [DashboardController::class, 'table']);
+        //$route->get("/table", [DashboardController::class, 'table']);
 
         ## For WEB
         $route->group('/admin', function (Route $route){
@@ -105,7 +105,10 @@ trait Routes
                 # Apps Routes...
             #---------------------------------
             $route->group('/apps', function (Route $route) {
+
                 $route->get('', [AppsController::class, 'index'], alias: 'index');
+                $route->post('', [AppsController::class, 'dataTable'], alias: 'dataTables');
+
                 $route->post('/install', [AppsController::class, 'install'], alias: 'install');
                 $route->post('/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
                 $route->match(['post', 'delete'], '/delete', [AppsController::class, 'delete']);

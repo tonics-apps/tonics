@@ -15,6 +15,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\CoreActivator;
 use App\Modules\Core\Data\AppsData;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\AppsSystem;
@@ -44,12 +45,11 @@ class AppsController
     {
 
         $dataTableHeaders = [
-            ['type' => '', 'title' => 'Name', 'minmax' => '150px, .6fr', 'td' => 'name'],
-            ['type' => '', 'title' => 'Description', 'minmax' => '300px, 1.6fr', 'td' => 'description'],
-            ['type' => '', 'title' => 'Type', 'minmax' => '50px, 1fr', 'td' => 'type'],
+            ['type' => '', 'title' => 'Name', 'slug' => 'name', 'minmax' => '150px, .6fr', 'td' => 'name'],
+            ['type' => '', 'title' => 'Description', 'slug' => 'description', 'minmax' => '300px, 1.6fr', 'td' => 'description'],
+            ['type' => '', 'title' => 'Type', 'slug' => 'type', 'minmax' => '50px, 1fr', 'td' => 'type'],
             ['type' => '', 'title' => 'Actions', 'minmax' => '50px, 1fr', 'td' => 'update_frag'],
         ];
-
 
         view('Modules::Core/Views/App/index', [
             'DataTable' => [
@@ -62,6 +62,35 @@ class AppsController
             'SiteURL' => AppConfig::getAppUrl(),
         ]);
 
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function dataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+                dd($entityBag);
+            })) {
+            if ($this->getAppsData($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500);
+            }
+        }
     }
 
     /**
@@ -253,4 +282,5 @@ class AppsController
     {
         return $this->appsData;
     }
+
 }

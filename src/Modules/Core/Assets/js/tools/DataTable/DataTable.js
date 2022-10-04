@@ -941,9 +941,11 @@ class SaveEventHandler {
         let saveEvent = event.getElementTarget().closest(`[data-menu-action="SaveEvent"]`);
         let headers = [];
         if (saveEvent) {
+
             dataTable.getAllThElements().forEach(header => {
-                headers.push(header.dataset?.header_slug)
+                headers.push(header.dataset?.slug)
             });
+
             saveData.headers = headers;
 
             if (dataTable.deletingElements.size > 0){
