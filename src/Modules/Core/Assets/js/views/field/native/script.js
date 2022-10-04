@@ -98,7 +98,7 @@ function nativeFieldModules() {
             e.preventDefault();
 
             let repeaters = {};
-            let rootRepeaters = document.querySelectorAll('[data-repeater_depth="0"]');
+            let rootRepeaters = document.querySelectorAll('[data-is_repeater_root="true"]');
             if (rootRepeaters.length > 0){
                 rootRepeaters.forEach(rootRepeater => {
                    let rootRepeatersName = rootRepeater.dataset.repeater_input_name;
@@ -155,8 +155,7 @@ function nativeFieldModules() {
                             }
 
                             let currentDepth  = parseInt(field.depth);
-
-                            if (currentDepth === 0){
+                            if (currentDepth === 0 || repeatEl.dataset?.is_repeater_root === 'true'){
                                 tree._data[parentID] = field;
                                 treeTimes[parentID] = {};
                                 lastObject = field;
@@ -217,11 +216,9 @@ function nativeFieldModules() {
                         }
 
                     }
-
                     addHiddenInputToForm(editorsForm, repeaterName, JSON.stringify({'tree': tree}));
                 }
             }
-
             editorsForm.submit();
         })
         function getRepeatersData(fieldSettingsEl) {

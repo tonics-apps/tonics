@@ -25,8 +25,8 @@ class RowColumnRepeater implements HandlerInterface
     private array $childStacks = [];
 
     private array $fieldsSorted = [];
-    private array $depthsReceived = [];
-    private bool $breakLoopBackward = false;
+
+    private bool $isRoot = false;
 
     /**
      * @inheritDoc
@@ -328,6 +328,12 @@ HTML;
             $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
         }
 
+        $root = 'false';
+        if (!$this->isRoot){
+            $root = 'true';
+            $this->isRoot = true;
+        }
+
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -364,6 +370,7 @@ HTML;
 <div class="row-col-parent repeater-field position:relative" 
 data-row="$row" 
 data-col="$column" 
+data-is_repeater_root="$root" 
 data-grid_template_col="$gridTemplateCol" 
 data-repeater_repeat_button_text="$repeat_button_text" 
 data-repeater_field_name="$fieldName" 
@@ -466,7 +473,6 @@ HTML;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
-     * @param bool $addRepeatersButton
      * @return string
      * @throws \Exception
      */
