@@ -23,7 +23,7 @@ class AppsData extends AbstractDataLayer
      */
     public function getAppList(): array
     {
-        $frag = []; $csrfToken = session()->getCSRFToken();
+        $csrfToken = session()->getCSRFToken();
 
         $tdData = [];
 
@@ -31,7 +31,6 @@ class AppsData extends AbstractDataLayer
         $internal_modules = helper()->getModuleActivators([ExtensionConfig::class]);
         $updatesObject = AppConfig::getAppUpdatesObject();
 
-        $k = 1;
         foreach ($apps as $path => $app){
             $classToString = $app::class;
 
@@ -50,15 +49,8 @@ class AppsData extends AbstractDataLayer
 <form method="post" class="d:contents" action="/admin/tools/apps/install">
     <input type="hidden" name="token" value="$csrfToken">
     <input type="hidden" name="activator[]" value="$classToString">
-    <button type="submit" class="listing-button color:black bg:white-one border:none border-width:default border:black padding:tiny
+    <button type="submit" class="color:black bg:white-one border:none border-width:default border:black padding:tiny
     margin-top:0 cursor:pointer">Install
-    </button>
-</form>
-<form method="post" class="d:contents" action="/admin/tools/apps/delete">
-    <input type="hidden" name="token" value="$csrfToken">
-    <input type="hidden" name="activator[]" value="$classToString">
-    <button data-click-onconfirmdelete="true" type="button" class="listing-button color:white bg:pure-black border:none border-width:default border:black padding:tiny
-    margin-top:0 cursor:pointer">Delete
     </button>
 </form>
 HTML;
@@ -67,7 +59,7 @@ HTML;
 <form method="post" class="d:contents" action="/admin/tools/apps/uninstall">
     <input type="hidden" name="token" value="$csrfToken">
     <input type="hidden" name="activator[]" value="$classToString">
-    <button type="submit" class="listing-button bg:white-one color:black border:none border-width:default border:black padding:tiny
+    <button type="submit" class="bg:white-one color:black border:none border-width:default border:black padding:tiny
     margin-top:0 cursor:pointer">UnInstall
     </button>
 </form>
@@ -80,10 +72,10 @@ HTML;
 <form method="post" class="d:contents" action="/admin/tools/apps/update">
                     <input type="hidden" name="token" value="$csrfToken">
                     <input type="hidden" name="activator[]" value="$classToString">
-                    <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
+                    <button type="submit" class="bg:pure-black color:white border:none border-width:default border:black padding:small
         margin-top:0 cursor:pointer">Update
                     </button>
-                </form>
+</form>
 FORM;
             }
 
@@ -91,7 +83,8 @@ FORM;
             if (isset($data['settings_page']) && !empty($data['settings_page'])){
                 $settingsFrag =<<<FORM
 <a class="bg:pure-black color:white border:none border-width:default border:black padding:tiny
-        margin-top:0 cursor:pointer" href="{$data['settings_page']}">Settings</a>
+        margin-top:0 cursor:pointer" href="{$data['settings_page']}">Settings
+</a>
 FORM;
             }
 
@@ -103,7 +96,7 @@ FORM;
             $data['type'] = strtoupper($type);
 
             $data['update_frag'] = <<<HTML
-<div class="form-group d:flex flex-gap:small flex-wrap:wrap">
+<div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
             $installedFrag
             $updateFrag
             $settingsFrag
@@ -136,10 +129,25 @@ HTML;
                     <button type="submit" class="bg:pure-black color:white border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer">Update
                     </button>
-                </form>
+</form>
 FORM;
             }
-            $data['update_frag'] = $updateFrag;
+
+            $settingsFrag = '';
+            if (isset($data['settings_page']) && !empty($data['settings_page'])){
+                $settingsFrag =<<<FORM
+<a class="bg:pure-black color:white border:none border-width:default border:black padding:tiny
+        margin-top:0 cursor:pointer" href="{$data['settings_page']}">Settings
+</a>
+FORM;
+            }
+
+            $data['update_frag'] = <<<HTML
+<div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
+            $updateFrag
+            $settingsFrag
+</div>
+HTML;
 
             $tdData[] = $data;
 
