@@ -100,7 +100,7 @@ FORM;
                 $type = strtolower($data['type']);
                 $type = ($type === 'module' || $type === 'modules') ? 'External Modules' : $type;
             }
-            $data['type'] = $type;
+            $data['type'] = strtoupper($type);
 
             $data['update_frag'] = <<<HTML
 <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
@@ -124,6 +124,8 @@ HTML;
                 ...$updateInfos,
                 ...$module->info()
             ];
+
+            $data['type'] = 'MODULE';
 
             $updateFrag = '';
             if (isset($data['can_update']) && $data['can_update']){
