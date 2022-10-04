@@ -192,7 +192,6 @@ class AppsSystem extends SimpleState
                 /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
                 if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
-                    dd($appDirPath);
                     $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
 
                     # You can't delete an app that has .installed file
@@ -200,7 +199,6 @@ class AppsSystem extends SimpleState
                         $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
                         continue;
                     }
-
                     # You can't delete an internal module (the AppNameSpace check should have prevented it but 2 check ain't bad)
                     if ($this->isInternalModulePath($appDirPath)){
                         $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
@@ -210,31 +208,25 @@ class AppsSystem extends SimpleState
                     # Okay, Things are fine, remove the app
                     try {
                         $activator->onDelete();
-                    } catch (\Exception){
+                        if(helper()->deleteDirectory($appDirPath)){
+                            $deletedApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                        } else {
+                            $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
+                        }
+                    } catch (\Exception $exception){
                         // Log..
                     }
-                    if(helper()->deleteDirectory($appDirPath)){
-                        $deletedApp[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
-                    } else {
-                        $errorActivatorName[] = isset($activator->info()['name']) ? $activator->info()['name'] : '';
-                    }
+
                 }
             }
         }
 
         if (!empty($errorActivatorName)){
-            $errorActivatorName = implode(',', $errorActivatorName);
+            $errorActivatorName = implode(', ', $errorActivatorName);
             $this->setErrorMessage("An Error Occurred Deleting App: [$errorActivatorName]");
-
-          //  session()->flash(["An Error Occurred Deleting App: [$errorActivatorName]"], []);
-          //  redirect(route('apps.index'));
-
-        }
-
-        if (!empty($deletedApp)){
-            $deletedApp = implode(',', $deletedApp);
+        }elseif (!empty($deletedApp)){
+            $deletedApp = implode(', ', $deletedApp);
             $this->setSucessMessage("[$deletedApp] App Deleted");
-            // session()->flash(["[$deletedApp] App Deleted"], [], type: Session::SessionCategories_FlashMessageSuccess);
             return self::DONE;
         }
 

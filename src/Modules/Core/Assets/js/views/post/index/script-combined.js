@@ -4742,7 +4742,9 @@ class SaveEventHandler {
                         successToast(data.message);
                     }
                 }, (err) => {
-                    errorToast('An error occurred saving changes');
+                    let errMsg = err?.message ?? 'An error occurred saving changes';
+                    console.log(err)
+                    errorToast(errMsg);
                 });
             });
 

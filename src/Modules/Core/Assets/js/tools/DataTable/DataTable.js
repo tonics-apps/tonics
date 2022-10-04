@@ -968,11 +968,11 @@ class SaveEventHandler {
                         if (data.more === dataTable.apiEvents().DELETE_EVENT){
                             dataTable.removeDeletingElements();
                         }
-
                         successToast(data.message);
                     }
                 }, (err) => {
-                    errorToast('An error occurred saving changes');
+                    let errMsg = err?.message ?? 'An error occurred saving changes';
+                    errorToast(errMsg);
                 });
             });
 

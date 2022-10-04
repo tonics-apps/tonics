@@ -11,7 +11,7 @@ class DisableDeleteMenuOnModuleAppSelection {
 
     constructor(event) {
         let dataTable = event.dataTable;
-        let dataTdOfTType = null;
+        let dataTdOfTType;
         let trEl = event.elementTarget.closest('tr');
         if ((dataTdOfTType = trEl?.querySelector('[data-td="type"]'))){
             if (dataTdOfTType.innerText.toLowerCase() === 'module'){

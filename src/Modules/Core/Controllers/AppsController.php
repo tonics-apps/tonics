@@ -78,20 +78,19 @@ class AppsController
                 $entityBag = $decodedBag;
             })) {
             $deleteActivators = $this->getToDeletesActivators($entityBag);
-            if (empty($deleteActivators)){
-                response()->onSuccess([], "Nothing To Delete", more: AbstractDataLayer::DataTableEventTypeDelete);
-            } else {
+            $error = "An Error Occurred Deleting App";
+            if (!empty($deleteActivators)){
                 $appSystem = new AppsSystem($deleteActivators);
                 $appSystem->setCurrentState(AppsSystem::OnAppDeleteState);
                 $appSystem->runStates(false);
-
-                if ($appSystem->getStateResult() === SimpleState::ERROR ){
-                    response()->onError(500);
+                if ($appSystem->getStateResult() === SimpleState::DONE ){
+                    response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
                 } else {
-                    response()->onSuccess([], $appSystem->getErrorMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
+                    $error = $appSystem->getErrorMessage();
                 }
             }
 
+            response()->onError(500, $error);
         } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
