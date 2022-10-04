@@ -16,6 +16,7 @@ use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\CoreActivator;
 use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\AppsSystem;
 use App\Modules\Core\States\UpdateMechanismState;
 use App\Modules\Media\FileManager\LocalDriver;
@@ -41,8 +42,21 @@ class AppsController
      */
     public function index(): void
     {
+
+        $dataTableHeaders = [
+            ['type' => '', 'title' => 'Name', 'minmax' => '150px, 1.6fr', 'td' => 'app_name'],
+            ['type' => '', 'title' => 'Description', 'minmax' => '300px, 1.6fr', 'td' => 'app_description'],
+        ];
+
         view('Modules::Core/Views/App/index', [
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => [],
+                'dataTableType' => 'APPLICATION_VIEW',
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
             'AppListingFrag' => $this->appsData->prepareAndGetAppListFrag(),
+
         ]);
 
     }
