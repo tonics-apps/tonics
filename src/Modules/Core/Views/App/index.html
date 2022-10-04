@@ -1,50 +1,56 @@
-[[inherit("Modules::Core/Views/Templates/core")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table")]]
 
 [[hook_into('Core::in_head_title')Applications Index]]
 [[hook_into('Core::in_main_header_title')Apps ]]
 
-[[hook_into('Core::in_main')
-<section id="tonicsFieldForAppSection" style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
-    [[each("appListing in AppListingFrag")
-    <input tabindex="0" type="radio" id="[[v('_loop.key')]]" name="app_tabs" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
-    <label tabindex="0" for="[[v('_loop.key')]]">[[v('_loop.key')]]</label>
-    <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
-        [[_v('appListing')]]
-    </ul>
-    ]]
-    <input tabindex="0" type="radio" id="app_settings" name="app_tabs">
-    <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="app_settings">Settings</label>
-    <div>
-        <form method="post" class="d:contents" action="/admin/tools/apps/discover_updates">
-            <input type="hidden" name="token" value="[[csrf()]]">
-            <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:tiny
-        margin-top:0 cursor:pointer">Force Check For App Updates
-            </button>
-        </form>
-    </div>
-    <input tabindex="0" type="radio" id="app_uploads" name="app_tabs">
-    <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="app_uploads">Upload App</label>
-    <div>
-        <form method="post" class="d:contents" action="/admin/tools/apps/upload">
-            <input type="hidden" name="token" value="[[csrf()]]">
-            <div data-widget-form="true" class="form-group">
-                <label class="menu-settings-handle-name" for="upload_plugin">Link To Zipped Plugin</label>
-                <div class="position:relative">
-                    <input data-widget-file-url="true" type="url" required class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="upload_plugin" name="plugin_url"
-                           placeholder="Link To Zipped Plugin" value="">
-                    <div class="d:flex flex-gap:small flex-wrap:wrap">
-                        <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer">Upload Link</button>
-                        <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:default
-        margin-top:0 cursor:pointer">Upload
-                        </button>
+[[reset_hook('Core::main_form_and_filter')]]
+
+[[-
+
+    [[hook_into('Core::in_main')
+    <section id="tonicsFieldForAppSection" style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
+        [[each("appListing in AppListingFrag")
+        <input tabindex="0" type="radio" id="[[v('_loop.key')]]" name="app_tabs" [[if('v[_loop.iteration] === e[1]]')checked="checked"]]>
+        <label tabindex="0" for="[[v('_loop.key')]]">[[v('_loop.key')]]</label>
+        <ul class="admin-widget list:style:none d:flex flex-wrap:wrap flex-gap padding:default">
+            [[_v('appListing')]]
+        </ul>
+        ]]
+        <input tabindex="0" type="radio" id="app_settings" name="app_tabs">
+        <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="app_settings">Settings</label>
+        <div>
+            <form method="post" class="d:contents" action="/admin/tools/apps/discover_updates">
+                <input type="hidden" name="token" value="[[csrf()]]">
+                <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:tiny
+            margin-top:0 cursor:pointer">Force Check For App Updates
+                </button>
+            </form>
+        </div>
+        <input tabindex="0" type="radio" id="app_uploads" name="app_tabs">
+        <label tabindex="0" style="background: black !important;" class="bg:pure-black color:white" for="app_uploads">Upload App</label>
+        <div>
+            <form method="post" class="d:contents" action="/admin/tools/apps/upload">
+                <input type="hidden" name="token" value="[[csrf()]]">
+                <div data-widget-form="true" class="form-group">
+                    <label class="menu-settings-handle-name" for="upload_plugin">Link To Zipped Plugin</label>
+                    <div class="position:relative">
+                        <input data-widget-file-url="true" type="url" required class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="upload_plugin" name="plugin_url"
+                               placeholder="Link To Zipped Plugin" value="">
+                        <div class="d:flex flex-gap:small flex-wrap:wrap">
+                            <button type="button" class="tonics-featured-link text-align:center bg:transparent border:none color:white bg:pure-black border-width:default border:black padding:default
+                            margin-top:0 cursor:pointer">Upload Link</button>
+                            <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:default
+            margin-top:0 cursor:pointer">Upload
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-</section>
-]]
+            </form>
+        </div>
+    </section>
+    ]]
+
+-]]
 
 [[hook_into('Core::before_footer')
     [[_use("script:variables")]]
