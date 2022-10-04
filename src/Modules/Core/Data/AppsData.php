@@ -66,19 +66,6 @@ HTML;
 HTML;
             }
 
-            $updateFrag = '';
-            if (isset($data['can_update']) && $data['can_update']){
-                $updateFrag =<<<FORM
-<form method="post" class="d:contents" action="/admin/tools/apps/update">
-                    <input type="hidden" name="token" value="$csrfToken">
-                    <input type="hidden" name="activator[]" value="$classToString">
-                    <button type="submit" class="bg:pure-black color:white border:none border-width:default border:black padding:small
-        margin-top:0 cursor:pointer">Update
-                    </button>
-</form>
-FORM;
-            }
-
             $settingsFrag = '';
             if (isset($data['settings_page']) && !empty($data['settings_page'])){
                 $settingsFrag =<<<FORM
@@ -94,11 +81,11 @@ FORM;
                 $type = ($type === 'module' || $type === 'modules') ? 'External Modules' : $type;
             }
             $data['type'] = strtoupper($type);
+            $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
 
             $data['update_frag'] = <<<HTML
 <div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
             $installedFrag
-            $updateFrag
             $settingsFrag
 </div>
 HTML;
@@ -120,18 +107,7 @@ HTML;
 
             $data['type'] = 'MODULE';
 
-            $updateFrag = '';
-            if (isset($data['can_update']) && $data['can_update']){
-                $updateFrag =<<<FORM
-<form method="post" class="d:contents" action="/admin/tools/apps/update">
-                    <input type="hidden" name="token" value="$csrfToken">
-                    <input type="hidden" name="activator[]" value="$classToString">
-                    <button type="submit" class="bg:pure-black color:white border:none border-width:default border:black padding:tiny
-        margin-top:0 cursor:pointer">Update
-                    </button>
-</form>
-FORM;
-            }
+            $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
 
             $settingsFrag = '';
             if (isset($data['settings_page']) && !empty($data['settings_page'])){
@@ -147,7 +123,6 @@ FORM;
 <button style="opacity: 50%" class="bg:pure-white color:black border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer pointer-events:none">Installed
 </button>
-            $updateFrag
             $settingsFrag
 </div>
 HTML;

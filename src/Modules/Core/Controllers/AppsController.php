@@ -49,6 +49,7 @@ class AppsController
             ['type' => '', 'title' => 'Description', 'slug' => 'description', 'minmax' => '300px, 1.6fr', 'td' => 'description'],
             ['type' => '', 'title' => 'Type', 'slug' => 'type', 'minmax' => '50px, 1fr', 'td' => 'type'],
             ['type' => '', 'title' => 'Actions', 'minmax' => '50px, 1fr', 'td' => 'update_frag'],
+            ['type' => '', 'title' => 'Update Available', 'minmax' => '35px, .7fr', 'td' => 'update_available'],
         ];
 
         view('Modules::Core/Views/App/index', [
