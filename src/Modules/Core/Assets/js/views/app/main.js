@@ -10,7 +10,11 @@
 class DisableDeleteMenuOnModuleAppSelection {
 
     constructor(event) {
-        console.log(event);
+        let dataTable = event.dataTable;
+        let trElement = null;
+        let correspondingHeader = null;
+        let thEl = dataTable.findCorrespondingTableHeader(event.elementTarget);
+        console.log(event, event.elementTarget.closest('tr'));
     }
 
 }
