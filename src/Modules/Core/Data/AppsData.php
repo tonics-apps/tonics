@@ -144,6 +144,9 @@ FORM;
 
             $data['update_frag'] = <<<HTML
 <div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
+<button style="opacity: 50%" class="bg:pure-white color:black border:none border-width:default border:black padding:tiny
+        margin-top:0 cursor:pointer pointer-events:none">Installed
+</button>
             $updateFrag
             $settingsFrag
 </div>
