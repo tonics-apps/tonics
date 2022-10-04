@@ -97,47 +97,77 @@
     [[add_hook('Core::after_in_main_form_and_filter')]]
 ]]
 
-[[hook_into('Core::data_table_menu')
-    <li class="menu-item deactivate-menu">
-        <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+[[b('Core::data_table_menu_save')
+<li class="menu-item deactivate-menu">
+    <button class="d:flex flex-gap:small text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                             margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="SaveEvent" aria-label="Save">
-            <span style="color:#85c12a">✓</span>
-            <span>Save</span>
-        </button>
-    </li>
+        <span style="color:#85c12a">✓</span>
+        <span>Save</span>
+    </button>
+</li>
+]]
 
-    <li class="menu-item deactivate-menu">
-        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+[[b('Core::data_table_menu_cancel')
+<li class="menu-item deactivate-menu">
+    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                             margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="CancelEvent" aria-label="Cancel">
-            ✘
-            <span>Cancel</span>
-        </button>
-    </li>
+        ✘
+        <span>Cancel</span>
+    </button>
+</li>
+]]
 
-    <li class="menu-item">
-        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+[[b('Core::data_table_menu_multi-edit')
+<li class="menu-item">
+    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                             margin-top:0 cursor:pointer button:box-shadow-variant-2" data-locked="false" data-menu-action="MultiEditEvent" aria-label="Multi-Edit">
-            ✏
-            <span>Multi-Edit
+        ✏
+        <span>Multi-Edit
                                 <span class="multi-edit-locked-mode">(UnLocked)</span>
                             </span>
-        </button>
-    </li>
+    </button>
+</li>
+]]
 
-    <li class="menu-item">
-        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+[[b('Core::data_table_menu_delete')
+<li class="menu-item">
+    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                             margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="DeleteEvent" aria-label="Delete">
-            <span class="color:red">❌</span>
-            <span>Delete</span>
-        </button>
-    </li>
+        <span class="color:red">❌</span>
+        <span>Delete</span>
+    </button>
+</li>
+]]
 
-    <li class="menu-item">
-        <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+[[b('Core::data_table_menu_reload')
+<li class="menu-item">
+    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
                             margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="ReloadEvent" aria-label="Reload">
-            ↻
-            <span>Reload</span>
-        </button>
-    </li>
+        ↻
+        <span>Reload</span>
+    </button>
+</li>
+]]
+
+[[b('Core::data_table_menu_update')
+<li class="menu-item">
+    <button class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="UpdateEvent" aria-label="Update">
+        ⇩
+        <span>Update</span>
+    </button>
+</li>
+]]
+
+
+
+[[hook_into('Core::data_table_menu')
+    [[_use('Core::data_table_menu_save')]]
+    [[_use('Core::data_table_menu_cancel')]]
+    [[_use('Core::data_table_menu_multi-edit')]]
+    [[_use('Core::data_table_menu_delete')]]
+    [[_use('Core::data_table_menu_reload')]]
+
+    [[add_hook('Core::in_after_last_data_table_menu')]]
 ]]
 

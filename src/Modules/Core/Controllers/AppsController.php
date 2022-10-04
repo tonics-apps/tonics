@@ -44,19 +44,22 @@ class AppsController
     {
 
         $dataTableHeaders = [
-            ['type' => '', 'title' => 'Name', 'minmax' => '150px, 1.6fr', 'td' => 'app_name'],
-            ['type' => '', 'title' => 'Description', 'minmax' => '300px, 1.6fr', 'td' => 'app_description'],
+            ['type' => '', 'title' => 'Name', 'minmax' => '150px, .6fr', 'td' => 'name'],
+            ['type' => '', 'title' => 'Description', 'minmax' => '300px, 1.6fr', 'td' => 'description'],
+            ['type' => '', 'title' => 'Type', 'minmax' => '50px, 1fr', 'td' => 'type'],
+            ['type' => '', 'title' => 'Actions', 'minmax' => '50px, 1fr', 'td' => 'update_frag'],
         ];
+
 
         view('Modules::Core/Views/App/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
-                'paginateData' => [],
+                'paginateData' => [
+                    'data' => $this->appsData->getAppList()
+                ],
                 'dataTableType' => 'APPLICATION_VIEW',
             ],
             'SiteURL' => AppConfig::getAppUrl(),
-            'AppListingFrag' => $this->appsData->prepareAndGetAppListFrag(),
-
         ]);
 
     }

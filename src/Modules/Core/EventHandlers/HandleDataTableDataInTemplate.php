@@ -29,6 +29,9 @@ class HandleDataTableDataInTemplate implements HandlerInterface
             $dtRows = $tonicsView->accessArrayWithSeparator('dtRow');
             foreach ($headers as $header){
                 if (isset($header['td'])){
+                    if (is_array($dtRows)){
+                        $dtRows = (object)$dtRows;
+                    }
                     if (property_exists($dtRows, $header['td'])){
                         $data = $dtRows->{$header['td']};
                         $dataFrag .=<<<HTML
@@ -42,7 +45,6 @@ HTML;
         });
 
         /** @var $event OnHookIntoTemplate */
-
         $event->hookInto('Core::before_data_table', function (TonicsView $tonicsView){
             $dtHeaders = $tonicsView->accessArrayWithSeparator('DataTable.headers');
             if ($this->isDataTableTypeEditablePreview($tonicsView) || $this->isDataTableTypeEditableBuilder($tonicsView)){
@@ -56,7 +58,6 @@ HTML;
                 $dtHeaders = null;
             }
         });
-
 
         $event->hookInto('Core::before_data_table_data', handler: function (TonicsView $tonicsView) {
 
@@ -88,26 +89,49 @@ HTML;
                 }
 
                 $dtRow->_view_links = $editButton;
-                // print_r([$tonicsView->accessArrayWithSeparator('_loop.iteration'), helper()->formatBytes(memory_get_usage())]);
+            }
+        });
+
+        #
+        # FOR PLUGINS PAGE
+        #
+        /** @var $event OnHookIntoTemplate */
+        $event->hookInto('Core::before_data_table', function (TonicsView $tonicsView){
+            $dtHeaders = $tonicsView->accessArrayWithSeparator('DataTable.headers');
+            if ($this->isDataTableTypeApplicationView($tonicsView)){
+               // dd($dtHeaders);
+                $dtHeaders[] = [
+                    'title' => 'Actions',
+                    'minmax' => "250px, 1.2fr",
+                    'td' => '_view_links'
+                ];
+
+               // $tonicsView->addToVariableData('DataTable.headers', $dtHeaders);
+                $dtHeaders = null;
             }
         });
     }
 
     /**
      * @param TonicsView $tonicsView
-     * @return mixed
+     * @return bool
      */
-    public function isDataTableTypeEditablePreview(TonicsView $tonicsView): mixed
+    public function isDataTableTypeEditablePreview(TonicsView $tonicsView): bool
     {
         return $tonicsView->accessArrayWithSeparator('DataTable.dataTableType') === 'EDITABLE_PREVIEW';
     }
 
     /**
      * @param TonicsView $tonicsView
-     * @return mixed
+     * @return bool
      */
-    public function isDataTableTypeEditableBuilder(TonicsView $tonicsView): mixed
+    public function isDataTableTypeEditableBuilder(TonicsView $tonicsView): bool
     {
         return $tonicsView->accessArrayWithSeparator('DataTable.dataTableType') === 'EDITABLE_BUILDER';
+    }
+
+    public function isDataTableTypeApplicationView(TonicsView $tonicsView): bool
+    {
+        return $tonicsView->accessArrayWithSeparator('DataTable.dataTableType') === 'APPLICATION_VIEW';
     }
 }

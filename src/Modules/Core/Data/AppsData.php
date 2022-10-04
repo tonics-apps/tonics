@@ -21,9 +21,11 @@ class AppsData extends AbstractDataLayer
     /**
      * @throws \Exception
      */
-    public function prepareAndGetAppListFrag(): array
+    public function getAppList(): array
     {
         $frag = []; $csrfToken = session()->getCSRFToken();
+
+        $tdData = [];
 
         $apps = InitLoader::getAllApps();
         $internal_modules = helper()->getModuleActivators([ExtensionConfig::class]);
@@ -32,16 +34,16 @@ class AppsData extends AbstractDataLayer
         $k = 1;
         foreach ($apps as $path => $app){
             $classToString = $app::class;
-            $updateInfos = [$classToString];
 
             if (isset($updatesObject['app']) && isset($updatesObject['app'][$classToString])){
                 $updateInfos = $updatesObject['app'][$classToString];
+                $data = [
+                    ...$updateInfos,
+                    ...$app->info()
+                ];
+            } else {
+                $data = $app->info();
             }
-
-            $data = [
-                ...$updateInfos,
-                ...$app->info()
-            ];
 
             $isInstalled = helper()->fileExists($path . DIRECTORY_SEPARATOR . '.installed');
             $installedFrag = <<<HTML
@@ -98,35 +100,23 @@ FORM;
                 $type = strtolower($data['type']);
                 $type = ($type === 'module' || $type === 'modules') ? 'External Modules' : $type;
             }
+            $data['type'] = $type;
 
-            $type = ucfirst($type);
-            if (!isset($frag[$type])){
-                $frag[$type] = '';
-            }
-
-            $frag[$type] .= <<<HTML
-<li data-list_id="$k" tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-    <fieldset class="padding:default width:100% height:100% draggable d:flex justify-content:center">
-        <div class="owl width:100%">
-            <div class="text-on-admin-util text-highlight">{$data['name']}</div>
-            <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
+            $data['update_frag'] = <<<HTML
+<div class="form-group d:flex flex-gap:small flex-wrap:wrap">
             $installedFrag
             $updateFrag
             $settingsFrag
-            </div>
-        </div>
-    </fieldset>
-</li>
+</div>
 HTML;
-            ++$k;
+            $tdData[] = $data;
         }
-
-        ksort($frag);
 
         foreach ($internal_modules as $module){
             /** @var $module ExtensionConfig **/
             $classToString = $module::class;
             $updateInfos = [];
+
             if (isset($updatesObject['module']) && isset($updatesObject['module'][$classToString])){
                 $updateInfos = $updatesObject['module'][$classToString];
             }
@@ -147,31 +137,13 @@ HTML;
                 </form>
 FORM;
             }
+            $data['update_frag'] = $updateFrag;
 
-            if (!isset($frag['Module'])){
-                $frag['Module'] = '';
-            }
+            $tdData[] = $data;
 
-            if (isset($data['name'])){
-                $frag['Module'] .= <<<HTML
-<li data-list_id="$k" tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-    <fieldset class="padding:default width:100% height:100% draggable d:flex justify-content:center">
-        <div class="owl width:100%">
-            <div class="text-on-admin-util text-highlight">{$data['name']}</div>
-            <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
-                $updateFrag
-            </div>
-
-        </div>
-    </fieldset>
-</li>
-HTML;
-            }
-            ++$k;
         }
 
-        return $frag;
-
+        return $tdData;
     }
 
     /**
