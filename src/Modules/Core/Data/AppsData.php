@@ -90,7 +90,7 @@ FORM;
             $settingsFrag = '';
             if (isset($data['settings_page']) && !empty($data['settings_page'])){
                 $settingsFrag =<<<FORM
-<a class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:small
+<a class="bg:pure-black color:white border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer" href="{$data['settings_page']}">Settings</a>
 FORM;
             }
@@ -131,7 +131,7 @@ HTML;
 <form method="post" class="d:contents" action="/admin/tools/apps/update">
                     <input type="hidden" name="token" value="$csrfToken">
                     <input type="hidden" name="activator[]" value="$classToString">
-                    <button type="submit" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:tiny
+                    <button type="submit" class="bg:pure-black color:white border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer">Update
                     </button>
                 </form>
