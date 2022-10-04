@@ -192,6 +192,7 @@ class AppsSystem extends SimpleState
                 /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
                 if (($appDirPath = helper()->getClassDirectory($activator)) !== false && AppConfig::isAppNameSpace($activator)){
+                    dd($appDirPath);
                     $installedFilePath = $appDirPath . DIRECTORY_SEPARATOR . '.installed';
 
                     # You can't delete an app that has .installed file

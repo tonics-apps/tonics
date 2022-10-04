@@ -146,6 +146,12 @@ class {{AppExample}}Activator implements ExtensionConfig
     {
         return;
     }
+    
+
+    public function onDelete(): void
+    {
+    
+    }
 
     public function info(): array
     {

@@ -220,7 +220,7 @@ JSON;
      */
     public function onDelete(): void
     {
-        $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
+        $toDelete = ['app-ninety-seven-settings', 'app-ninety-seven-post-home-page'];
         $tb = $this->fieldData->getFieldTable();
         db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
     }
