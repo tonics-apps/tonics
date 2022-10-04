@@ -252,6 +252,8 @@ class DataTable {
         return {
             SAVE_EVENT: "SaveEvent",
             CANCEL_EVENT: "CancelEvent",
+            DELETE_EVENT: "DeleteEvent",
+            UPDATE_EVENT: "UpdateEvent",
         }
     }
 
