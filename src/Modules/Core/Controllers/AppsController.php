@@ -10,12 +10,14 @@
 
 namespace App\Modules\Core\Controllers;
 
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\CoreActivator;
 use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\AppsSystem;
@@ -74,13 +76,22 @@ class AppsController
         if ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
-                dd($entityBag);
             })) {
-            if ($this->getAppsData($entityBag)) {
-                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            $deleteActivators = $this->getToDeletesActivators($entityBag);
+            if (empty($deleteActivators)){
+                response()->onSuccess([], "Nothing To Delete", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
-                response()->onError(500);
+                $appSystem = new AppsSystem($deleteActivators);
+                $appSystem->setCurrentState(AppsSystem::OnAppDeleteState);
+                $appSystem->runStates(false);
+
+                if ($appSystem->getStateResult() === SimpleState::ERROR ){
+                    response()->onError(500);
+                } else {
+                    response()->onSuccess([], $appSystem->getErrorMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
+                }
             }
+
         } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
@@ -92,6 +103,29 @@ class AppsController
                 response()->onError(500);
             }
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function getToDeletesActivators($entityBag): array
+    {
+        $activators = [];
+        $deleteItems = $this->getAppsData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
+        $apps = InitLoader::getAllApps();
+        foreach ($apps as $path => $app){
+            $classToString = $app::class;
+            /** @var  $app ExtensionConfig */
+            $name = (isset($app->info()['name'])) ? $app->info()['name'] : '';
+            foreach ($deleteItems as $item){
+                if (!isset($item->name)){ continue; }
+                if ($name === $item->name){
+                    $activators[] = $classToString;
+                }
+            }
+        }
+
+        return $activators;
     }
 
     /**
@@ -142,7 +176,16 @@ class AppsController
             $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
             $appSystem->setCurrentState(AppsSystem::OnAppDeleteState);
             $appSystem->runStates(false);
+
+            if ($appSystem->getStateResult() === SimpleState::ERROR ){
+                session()->flash([$appSystem->getErrorMessage()], []);
+            } else {
+                session()->flash([$appSystem->getErrorMessage()], [], Session::SessionCategories_FlashMessageSuccess);
+            }
+            redirect(route('apps.index'));
         }
+
+
         session()->flash(['An Error Occurred Deleting App'], []);
         redirect(route('apps.index'));
     }

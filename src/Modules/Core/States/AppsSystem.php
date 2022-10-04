@@ -223,13 +223,17 @@ class AppsSystem extends SimpleState
 
         if (!empty($errorActivatorName)){
             $errorActivatorName = implode(',', $errorActivatorName);
-            session()->flash(["An Error Occurred Deleting App: [$errorActivatorName]"], []);
-            redirect(route('apps.index'));
+            $this->setErrorMessage("An Error Occurred Deleting App: [$errorActivatorName]");
+
+          //  session()->flash(["An Error Occurred Deleting App: [$errorActivatorName]"], []);
+          //  redirect(route('apps.index'));
+
         }
 
         if (!empty($deletedApp)){
             $deletedApp = implode(',', $deletedApp);
-            session()->flash(["[$deletedApp] App Deleted"], [], type: Session::SessionCategories_FlashMessageSuccess);
+            $this->setSucessMessage("[$deletedApp] App Deleted");
+            // session()->flash(["[$deletedApp] App Deleted"], [], type: Session::SessionCategories_FlashMessageSuccess);
             return self::DONE;
         }
 
