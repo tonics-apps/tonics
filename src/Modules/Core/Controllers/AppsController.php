@@ -85,6 +85,7 @@ class AppsController
                 $appSystem = new AppsSystem($deleteActivators);
                 $appSystem->setCurrentState(AppsSystem::OnAppDeleteState)->setDebug(false);
                 $appSystem->runStates(false);
+
                 if ($appSystem->getStateResult() === SimpleState::DONE ){
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
                 } else {

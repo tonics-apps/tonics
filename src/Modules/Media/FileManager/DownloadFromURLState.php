@@ -43,6 +43,8 @@ class DownloadFromURLState extends SimpleState
     private LocalDriver $localDriver;
     private float $totalChunks;
 
+    private bool $messageDebug = true;
+
     /**
      * @throws \Exception
      */
@@ -130,7 +132,10 @@ class DownloadFromURLState extends SimpleState
      */
     public function PrepareFileDownloadState(): string
     {
-        helper()->addEventStreamHeader();
+        if ($this->isMessageDebug()){
+            helper()->addEventStreamHeader();
+        }
+
         if (isset($this->headers['Content-Length']) && isset($this->headers['Accept-Ranges']) && $this->headers['Accept-Ranges'] === 'bytes') {
             $this->switchState(self::FilePreflightState);
             return self::NEXT;
@@ -342,6 +347,22 @@ class DownloadFromURLState extends SimpleState
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMessageDebug(): bool
+    {
+        return $this->messageDebug;
+    }
+
+    /**
+     * @param bool $messageDebug
+     */
+    public function setMessageDebug(bool $messageDebug): void
+    {
+        $this->messageDebug = $messageDebug;
     }
 
     /**

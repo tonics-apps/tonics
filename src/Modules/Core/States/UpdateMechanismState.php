@@ -53,7 +53,7 @@ class UpdateMechanismState extends SimpleState
     private string $discoveredFrom;
     private array $collate;
 
-    private bool $debug = true;
+    private bool $messageDebug = true;
 
     public function __construct(array $updates = [], array $types = [], string $action = 'discover', string $discoveredFrom = self::DiscoveredFromConsole)
     {
@@ -342,7 +342,7 @@ class UpdateMechanismState extends SimpleState
 
             if ($module['can_update'] && !empty($module['download_url'])) {
                 $localDriver = new LocalDriver();
-                $localDriver->setDebug($this->debug);
+                $localDriver->setMessageDebug($this->messageDebug);
 
                 $name = strtolower($module['version']) . '.zip';
                 $folderName = $module['folder_name'];
@@ -503,6 +503,24 @@ class UpdateMechanismState extends SimpleState
     public function setCollate(array $collate): void
     {
         $this->collate = $collate;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMessageDebug(): bool
+    {
+        return $this->messageDebug;
+    }
+
+    /**
+     * @param bool $messageDebug
+     * @return UpdateMechanismState
+     */
+    public function setMessageDebug(bool $messageDebug): UpdateMechanismState
+    {
+        $this->messageDebug = $messageDebug;
+        return $this;
     }
 
 

@@ -43,7 +43,7 @@ class AppsSystem extends SimpleState
     const OnAppUploadState = 'OnAppUploadState';
     const OnAppProcessUploadState = 'OnAppProcessUploadState';
 
-    private bool $debug = true;
+    private bool $messageDebug = true;
 
     /**
      * @throws \Exception
@@ -262,7 +262,7 @@ class AppsSystem extends SimpleState
                     # is module
                     if (str_starts_with($appDirPath, AppConfig::getModulesPath())){
                         $moduleUpdate = new UpdateMechanismState();
-                        $moduleUpdate->setDebug($this->debug);
+                        $moduleUpdate->setDebug($this->messageDebug);
                         $moduleUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['module'])->setAction('update')
                             ->runStates(false);
                         if ($moduleUpdate->getStateResult() === SimpleState::ERROR){
@@ -273,7 +273,7 @@ class AppsSystem extends SimpleState
                     # is app
                     if (str_starts_with($appDirPath, AppConfig::getAppsPath())){
                         $appUpdate = new UpdateMechanismState();
-                        $appUpdate->setDebug($this->debug);
+                        $appUpdate->setDebug($this->messageDebug);
 
                         $appUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['app'])->setAction('update')
                             ->runStates(false);
@@ -441,17 +441,19 @@ class AppsSystem extends SimpleState
     /**
      * @return bool
      */
-    public function isDebug(): bool
+    public function isMessageDebug(): bool
     {
-        return $this->debug;
+        return $this->messageDebug;
     }
 
     /**
-     * @param bool $debug
+     * @param bool $messageDebug
+     * @return AppsSystem
      */
-    public function setDebug(bool $debug): void
+    public function setMessageDebug(bool $messageDebug): AppsSystem
     {
-        $this->debug = $debug;
+        $this->messageDebug = $messageDebug;
+        return $this;
     }
 
 }

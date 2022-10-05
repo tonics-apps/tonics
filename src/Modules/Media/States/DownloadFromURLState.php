@@ -45,7 +45,7 @@ class DownloadFromURLState extends SimpleState
     private LocalDriver $localDriver;
     private float $totalChunks;
 
-    private bool $debug = true;
+    private bool $messageDebug = true;
 
     /**
      * @throws \Exception
@@ -200,7 +200,7 @@ class DownloadFromURLState extends SimpleState
                     $blobData = substr($blobData, $this->bytePerChunk, strlen($blobData));
                     $this->getLocalDriver()->insertBlobChunk($blobInfo, $subBlob, $filePath);
                     $percentage = $this->chunkProgress($filePath, true)->uploadPercentage;
-                    if ($this->isDebug()){
+                    if ($this->isMessageDebug()){
                         helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
                     }
 
@@ -219,7 +219,7 @@ class DownloadFromURLState extends SimpleState
             $this->getLocalDriver()->insertBlobChunk($blobInfo, $blobData, $filePath);
             $percentage = $this->chunkProgress($filePath, true)->uploadPercentage;
 
-            if ($this->isDebug()){
+            if ($this->isMessageDebug()){
                 helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
             }
 
@@ -267,7 +267,7 @@ class DownloadFromURLState extends SimpleState
                     fwrite($outFile, $subBlob);
                     $fileUploaded = $this->chunkProgress($filePath, false, $uploadedProgress)->uploaded;
 
-                    if ($this->isDebug()){
+                    if ($this->isMessageDebug()){
                         helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
                     }
                 }
@@ -283,7 +283,7 @@ class DownloadFromURLState extends SimpleState
             fwrite($outFile, $blobData);
             $fileUploaded = $this->chunkProgress($filePath, false, $uploadedProgress, true)->uploaded;
 
-            if ($this->isDebug()){
+            if ($this->isMessageDebug()){
                 helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
             }
 
@@ -368,6 +368,22 @@ class DownloadFromURLState extends SimpleState
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMessageDebug(): bool
+    {
+        return $this->messageDebug;
+    }
+
+    /**
+     * @param bool $messageDebug
+     */
+    public function setMessageDebug(bool $messageDebug): void
+    {
+        $this->messageDebug = $messageDebug;
     }
 
     /**

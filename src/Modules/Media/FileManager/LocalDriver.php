@@ -30,7 +30,7 @@ class LocalDriver implements StorageDriverInterface
 
     private string $path;
 
-    private bool $debug = true;
+    private bool $messageDebug = true;
 
     public function __construct()
     {
@@ -80,7 +80,7 @@ SQL, $f);
     public function createFromURL(string $url, string $uploadTo = '', string $filename = '', bool $importToDB = true): bool
     {
         $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename, $importToDB);
-        $downloadFromURLState->setDebug($this->debug);
+        $downloadFromURLState->setMessageDebug($this->messageDebug);
 
         $initState = $downloadFromURLState::InitialState;
         $downloadFromURLState->setCurrentState($initState)->runStates(false);
@@ -105,7 +105,7 @@ SQL, $f);
         if (strtolower($archiveType) === 'zip') {
             $extractFileState = new ExtractFileState($this); $lastExtractedFilePath = '';
             helper()->extractZipFile($pathToArchive, $extractTo, function ($extractedFilePath, $shortFilePath, $remaining) use ($importToDB, $extractFileState) {
-                if ($this->isDebug()){
+                if ($this->isMessageDebug()){
                     helper()->sendMsg('ExtractFileState', "Extracted $shortFilePath");
                     helper()->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
                 }
@@ -887,7 +887,7 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
 
     /**
      * @param $id
-     * @return mixed
+     * @return void
      * @throws \Exception
      */
     #[NoReturn] public function serveFile($id): void
@@ -1023,16 +1023,18 @@ SQL, ...$pathTrail);
     /**
      * @return bool
      */
-    public function isDebug(): bool
+    public function isMessageDebug(): bool
     {
-        return $this->debug;
+        return $this->messageDebug;
     }
 
     /**
-     * @param bool $debug
+     * @param bool $messageDebug
+     * @return LocalDriver
      */
-    public function setDebug(bool $debug): void
+    public function setMessageDebug(bool $messageDebug): LocalDriver
     {
-        $this->debug = $debug;
+        $this->messageDebug = $messageDebug;
+        return $this;
     }
 }
