@@ -213,7 +213,7 @@ class UpdateMechanismState extends SimpleState
         try {
             $this->downloadExtractCopy('app', DriveConfig::getTempPathForApps(), AppConfig::getAppsPath());
         } catch (\Throwable $throwable) {
-            $this->errorMessage($throwable->getMessage());
+            $this->setErrorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
             // log..
         }
@@ -227,7 +227,7 @@ class UpdateMechanismState extends SimpleState
         try {
             $this->downloadExtractCopy('module', DriveConfig::getTempPathForModules(), AppConfig::getModulesPath());
         } catch (\Throwable $throwable) {
-            $this->errorMessage($throwable->getMessage());
+            $this->setErrorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
             // log..
         }

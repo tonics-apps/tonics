@@ -45,6 +45,8 @@ class AutoUpdate implements ConsoleCommand
 
         $updateMechanismState = new UpdateMechanismState();
 
+        helper()->updateActivateEventStreamMessage(1);
+
         if ($autoUpdateModules === true || is_array($autoUpdateModules)) {
             $this->infoMessage("Modules Update Initializing...");
             $autoUpdateModules = ($autoUpdateModules === true) ? [] : $autoUpdateModules;
