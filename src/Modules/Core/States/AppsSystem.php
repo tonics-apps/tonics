@@ -43,7 +43,7 @@ class AppsSystem extends SimpleState
     const OnAppUploadState = 'OnAppUploadState';
     const OnAppProcessUploadState = 'OnAppProcessUploadState';
 
-    private ?TonicsHelpers $tonicsHelpers = null;
+    private bool $debug = true;
 
     /**
      * @throws \Exception
@@ -262,6 +262,7 @@ class AppsSystem extends SimpleState
                     # is module
                     if (str_starts_with($appDirPath, AppConfig::getModulesPath())){
                         $moduleUpdate = new UpdateMechanismState();
+                        $moduleUpdate->setDebug($this->debug);
                         $moduleUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['module'])->setAction('update')
                             ->runStates(false);
                         if ($moduleUpdate->getStateResult() === SimpleState::ERROR){
@@ -272,6 +273,8 @@ class AppsSystem extends SimpleState
                     # is app
                     if (str_starts_with($appDirPath, AppConfig::getAppsPath())){
                         $appUpdate = new UpdateMechanismState();
+                        $appUpdate->setDebug($this->debug);
+
                         $appUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['app'])->setAction('update')
                             ->runStates(false);
                         if ($appUpdate->getStateResult() === SimpleState::ERROR){
@@ -436,19 +439,19 @@ class AppsSystem extends SimpleState
     }
 
     /**
-     * @return TonicsHelpers|null
+     * @return bool
      */
-    public function getTonicsHelpers(): ?TonicsHelpers
+    public function isDebug(): bool
     {
-        return $this->tonicsHelpers;
+        return $this->debug;
     }
 
     /**
-     * @param TonicsHelpers|null $tonicsHelpers
+     * @param bool $debug
      */
-    public function setTonicsHelpers(?TonicsHelpers $tonicsHelpers): void
+    public function setDebug(bool $debug): void
     {
-        $this->tonicsHelpers = $tonicsHelpers;
+        $this->debug = $debug;
     }
 
 }

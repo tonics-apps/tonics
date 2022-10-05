@@ -74,7 +74,6 @@ class AppsController
      */
     public function dataTable(): void
     {
-
         $entityBag = null;
         if ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
@@ -84,11 +83,7 @@ class AppsController
             $error = "An Error Occurred Deleting App";
             if (!empty($deleteActivators)){
                 $appSystem = new AppsSystem($deleteActivators);
-                $appSystem->setTonicsHelpers(helper());
                 $appSystem->setCurrentState(AppsSystem::OnAppDeleteState);
-
-                InitLoader::setActivateEventSource(false);
-
                 $appSystem->runStates(false);
                 if ($appSystem->getStateResult() === SimpleState::DONE ){
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
@@ -108,8 +103,6 @@ class AppsController
                 $appSystem = new AppsSystem($updateActivators);
                 $appSystem->setTonicsHelpers(helper());
                 $appSystem->setCurrentState(AppsSystem::OnAppUpdateState);
-
-                InitLoader::setActivateEventSource(false);
 
                 $appSystem->runStates(false);
                 if ($appSystem->getStateResult() === SimpleState::DONE){
