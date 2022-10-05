@@ -40,7 +40,6 @@ class AppsData extends AbstractDataLayer
                     ...$updateInfos,
                     ...$app->info()
                 ];
-                dd($data);
             } else {
                 $data = $app->info();
             }
