@@ -22,6 +22,7 @@ class AbstractDataLayer
     const DataTableEventTypeSave = 'SaveEvent';
     const DataTableEventTypeDelete = 'DeleteEvent';
     const DataTableEventTypeUpdate = 'UpdateEvent';
+    const DataTableEventTypeAppUpdate = 'AppUpdateEvent';
     const DataTableEventTypeUpsert = 'UpsertEvent';
 
     const DataTableRetrieveHeaders = 'headers';

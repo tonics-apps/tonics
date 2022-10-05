@@ -42,7 +42,7 @@ class DisableUpdateMenuOnNonUpdateAvailability {
 
 class UpdateEventHandlerForApps {
     constructor(event) {
-        let updateEvent = event.getElementTarget().closest(`[data-menu-action="UpdateEvent"]`);
+        let updateEvent = event.getElementTarget().closest(`[data-menu-action="AppUpdateEvent"]`);
         if (updateEvent) {
             console.log(updateEvent);
         }
@@ -54,6 +54,7 @@ if (window?.TonicsEvent?.EventConfig) {
         ...[
             DisableDeleteMenuOnModuleAppSelection,
             DisableUpdateMenuOnNonUpdateAvailability,
+            UpdateEventHandlerForApps,
         ]
     );
 }

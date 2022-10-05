@@ -326,6 +326,20 @@ class DataTable {
         return null;
     }
 
+    collateTdFromTrAndPushToSaveTo(trElements, saveTo, headers) {
+        if (trElements.size > 0) {
+            trElements.forEach(edit => {
+                let tdData = {};
+                for (let i = 0; i < edit.cells.length; i++) {
+                    if (headers[i]){
+                        tdData[headers[i]] = edit.cells[i].innerHTML;
+                    }
+                }
+                saveTo.push(tdData);
+            });
+        }
+    }
+
     resetListID() {
         let tableRows = this.getParentElement().querySelectorAll('tbody > tr');
         if (tableRows && tableRows.length > 0) {
@@ -951,10 +965,10 @@ class SaveEventHandler {
             saveData.headers = headers;
 
             if (dataTable.deletingElements.size > 0){
-                this.collateTdFromTrAndSave(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
+                dataTable.collateTdFromTrAndPushToSaveTo(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().DELETE_EVENT);
             }else if (dataTable.editingElements.size > 0){
-                this.collateTdFromTrAndSave(dataTable.editingElements, saveData.updateElements, saveData.headers);
+                dataTable.collateTdFromTrAndPushToSaveTo(dataTable.editingElements, saveData.updateElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
             }
 
@@ -976,20 +990,6 @@ class SaveEventHandler {
                 });
             });
 
-        }
-    }
-
-    collateTdFromTrAndSave(trElements, saveTo, headers) {
-        if (trElements.size > 0) {
-            trElements.forEach(edit => {
-                let tdData = {};
-                for (let i = 0; i < edit.cells.length; i++) {
-                    if (headers[i]){
-                        tdData[headers[i]] = edit.cells[i].innerHTML;
-                    }
-                }
-                saveTo.push(tdData);
-            });
         }
     }
 }
