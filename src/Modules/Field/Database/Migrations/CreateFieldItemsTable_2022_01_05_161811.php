@@ -404,6 +404,13 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_id": 1,
     "field_parent_id": null,
     "field_options": "{\"field_slug\":\"widget_widgets\",\"field_slug_unique_hash\":\"tqtc2pjcx4g000000000\",\"fieldName\":\"sidebar_widget\",\"inputName\":\"sidebar_widget\",\"widgetSlug\":\"sidebar-widget:1\"}"
+  },
+  {
+    "fk_field_id": "Upload App Page",
+    "field_name": "media_media-manager",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_slug\":\"media_media-manager\",\"field_slug_unique_hash\":\"6hekf1492880000000000\",\"fieldName\":\"Upload App\",\"inputName\":\"plugin_url\",\"featured_link\":\"\",\"file_url\":\"\"}"
   }
 ]
 JSON;
