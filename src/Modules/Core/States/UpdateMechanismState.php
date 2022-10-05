@@ -251,12 +251,12 @@ class UpdateMechanismState extends SimpleState
                     $moduleClass = new $class;
                     /**@var $moduleClass ExtensionConfig */
                     $moduleClass->onUpdate();
-                    $this->successMessage("$folderName Updated");
+                    $this->setSucessMessage("$folderName Updated");
                 }
             }
         } else {
             $error = "Update Was Successfully But Failed To Call onUpdate method";
-            $this->errorMessage($error);
+            $this->setErrorMessage($error);
             $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
         }
     }
@@ -340,7 +340,7 @@ class UpdateMechanismState extends SimpleState
                 $createFromURLResult = $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
                 if ($createFromURLResult === false) {
                     $error = "An Error Occurred Downloading {$module['download_url']}";
-                    $this->errorMessage($error);
+                    $this->setErrorMessage($error);
                     $this->setStateResult(SimpleState::ERROR);
                     $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                     break;
@@ -361,6 +361,7 @@ class UpdateMechanismState extends SimpleState
 
                     if ($deleted === false) {
                         $error = "An Error Occurred Updating $folderName";
+                        $this->setErrorMessage($error);
                         $this->setStateResult(SimpleState::ERROR);
                         $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                         break;
@@ -370,7 +371,7 @@ class UpdateMechanismState extends SimpleState
                     $tonicsHelper->deleteDirectory($tempPathFolder);
                     if (!$renamedResult) {
                         $error = "An Error Occurred, Moving $tempPathFolder to $appModulePathFolder";
-                        $this->errorMessage($error);
+                        $this->setErrorMessage($error);
                         $this->setStateResult(SimpleState::ERROR);
                         $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                         break;
@@ -381,7 +382,7 @@ class UpdateMechanismState extends SimpleState
                     }
                 } else {
                     $error = "Failed To Extract: '$name'";
-                    $this->errorMessage($error);
+                    $this->setErrorMessage($error);
                     $this->setStateResult(SimpleState::ERROR);
                     helper()->sendMsg($this->getCurrentState(), $error, 'issue');
                     break;
