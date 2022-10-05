@@ -113,7 +113,7 @@ class AppsController
         $activators = [];
         $deleteItems = $this->getAppsData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
         $apps = InitLoader::getAllApps();
-        foreach ($apps as $path => $app){
+        foreach ($apps as  $app){
             $classToString = $app::class;
             /** @var  $app ExtensionConfig */
             $name = (isset($app->info()['name'])) ? $app->info()['name'] : '';
@@ -128,7 +128,52 @@ class AppsController
         return $activators;
     }
 
+    /**
+     * @param $entityBag
+     * @return array
+     * @throws \Exception
+     */
+    private function getToUpdateActivators($entityBag): array
+    {
+        $activators = [];
+        $updateItems = $this->getAppsData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveAppUpdateElements, $entityBag);
+        $apps = InitLoader::getAllApps();
+        $internal_modules = helper()->getModuleActivators([ExtensionConfig::class]);
+        foreach ($apps as  $app){
+            $classToString = $app::class;
+            /** @var  $app ExtensionConfig */
+            $name = (isset($app->info()['name'])) ? $app->info()['name'] : '';
+            foreach ($updateItems as $item){
+                if (!isset($item->name)){ continue; }
+                if (!isset($item->type)){ continue; }
 
+                if (strtoupper($item->type) === 'MODULE'){
+                    continue;
+                }
+
+                if ($name === $item->name){
+                    $activators[] = $classToString;
+                }
+            }
+        }
+
+        foreach ($internal_modules as $module){
+            $classToString = $module::class;
+            /** @var  $module ExtensionConfig */
+            $name = (isset($module->info()['name'])) ? $module->info()['name'] : '';
+            foreach ($updateItems as $item){
+                if (!isset($item->name)){ continue; }
+                if (!isset($item->type)){ continue; }
+                if (strtoupper($item->type) === 'MODULE'){
+                    if ($name === $item->name){
+                        $activators[] = $classToString;
+                    }
+                }
+            }
+        }
+
+        return $activators;
+    }
 
     /**
      * @throws \Exception
