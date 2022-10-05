@@ -41,7 +41,6 @@ class InitLoader
     private static ?Scheduler $scheduler = null;
 
     private static bool $eventStreamAsHTML = false;
-    private static bool $activateEventSource = true;
 
     /**
      * @return bool
@@ -58,22 +57,6 @@ class InitLoader
     public static function setEventStreamAsHTML(bool $eventStreamAsHTML): void
     {
         self::$eventStreamAsHTML = $eventStreamAsHTML;
-    }
-
-    /**
-     * @return bool
-     */
-    public static function isActivateEventSource(): bool
-    {
-        return self::$activateEventSource;
-    }
-
-    /**
-     * @param bool $activateEventSource
-     */
-    public static function setActivateEventSource(bool $activateEventSource): void
-    {
-        self::$activateEventSource = $activateEventSource;
     }
 
     /**

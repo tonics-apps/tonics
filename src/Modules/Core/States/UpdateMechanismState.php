@@ -183,7 +183,7 @@ class UpdateMechanismState extends SimpleState
                 # This switch doesn't actually switch any state, it only changes the current state property
                 $this->switchState(self::$DOWNLOADER[$type]);
                 $this->dispatchState(self::$DOWNLOADER[$type]);
-                # If we had an error from the above dispatch, return it immediately
+                # If we had an error from the above dispatch, break it immediately
                 if ($this->getStateResult() === self::ERROR) {
                     break;
                 }
