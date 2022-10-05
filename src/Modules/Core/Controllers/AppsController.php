@@ -91,9 +91,10 @@ class AppsController
             }
 
             response()->onError(500, $error);
-        } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+        } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeAppUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
+                dd($entityBag);
             })) {
 
             if ($this->updateMultiple($entityBag)) {
@@ -126,6 +127,8 @@ class AppsController
 
         return $activators;
     }
+
+
 
     /**
      * @throws \Exception
