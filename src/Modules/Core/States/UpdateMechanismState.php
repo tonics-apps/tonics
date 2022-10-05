@@ -344,22 +344,25 @@ class UpdateMechanismState extends SimpleState
                         @file_put_contents($tempPathFolder . DIRECTORY_SEPARATOR . '.installed', '');
                     }
 
-                   $renamedResult = @rename($tempPathFolder, $appModulePathFolder);
-                    if (!$renamedResult) {
-                        $error = "An Error Occurred, Moving Some Files In: '$name'";
-                        $this->errorMessage($error);
-                        $this->setStateResult(SimpleState::ERROR);
-                       // $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
-                    } else {
-                        $directory = $dirPath . $sep . "$folderName";
-                        $this->collate[$type][$classString]['can_update'] = false;
-                        $this->reActivate($directory, $folderName);
+                    $deleted = $tonicsHelper->deleteDirectory($appModulePathFolder);
+                    if ($deleted){
+                        $renamedResult = @rename($tempPathFolder, $appModulePathFolder);
+                        if (!$renamedResult) {
+                            $error = "An Error Occurred, Moving $tempPathFolder to $appModulePathFolder";
+                            $this->errorMessage($error);
+                            $this->setStateResult(SimpleState::ERROR);
+                            $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
+                        } else {
+                            $directory = $dirPath . $sep . "$folderName";
+                            $this->collate[$type][$classString]['can_update'] = false;
+                            $this->reActivate($directory, $folderName);
+                        }
                     }
                 } else {
                     $error = "Failed To Extract: '$name'";
                     $this->errorMessage($error);
                     $this->setStateResult(SimpleState::ERROR);
-                   // helper()->sendMsg($this->getCurrentState(), $error, 'issue');
+                    helper()->sendMsg($this->getCurrentState(), $error, 'issue');
                 }
             }
         }

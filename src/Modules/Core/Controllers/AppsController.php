@@ -73,6 +73,7 @@ class AppsController
      */
     public function dataTable(): void
     {
+        InitLoader::setActivateEventSource(false);
         $entityBag = null;
         if ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {

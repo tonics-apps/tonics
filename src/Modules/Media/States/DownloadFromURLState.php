@@ -159,13 +159,10 @@ class DownloadFromURLState extends SimpleState
             'Chunkstosend' => ceil($totalByteSize / ($bytePerChunk))
         ];
         $preflightData = $this->getLocalDriver()->preFlight($data);
-        dd($preflightData, $data, $this->headers);
         $ranges = $this->getByteRanges($preflightData['preflightData']);
         $preflightData['ranges'] = $ranges;
         $this->preflightData = $preflightData;
         $this->totalChunks = ceil($totalByteSize / ($bytePerChunk));
-
-        dd($this);
 
         $this->switchState(self::DownloadResuming);
         return self::NEXT;
