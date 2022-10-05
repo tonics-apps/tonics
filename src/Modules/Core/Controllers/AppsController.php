@@ -83,7 +83,7 @@ class AppsController
             $error = "An Error Occurred Deleting App";
             if (!empty($deleteActivators)){
                 $appSystem = new AppsSystem($deleteActivators);
-                $appSystem->setCurrentState(AppsSystem::OnAppDeleteState);
+                $appSystem->setCurrentState(AppsSystem::OnAppDeleteState)->setDebug(false);
                 $appSystem->runStates(false);
                 if ($appSystem->getStateResult() === SimpleState::DONE ){
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
@@ -101,10 +101,9 @@ class AppsController
             $error = "An Error Occurred Updating App";
             if (!empty($updateActivators)){
                 $appSystem = new AppsSystem($updateActivators);
-                $appSystem->setTonicsHelpers(helper());
-                $appSystem->setCurrentState(AppsSystem::OnAppUpdateState);
-
+                $appSystem->setCurrentState(AppsSystem::OnAppUpdateState)->setDebug(false);
                 $appSystem->runStates(false);
+
                 if ($appSystem->getStateResult() === SimpleState::DONE){
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeAppUpdate);
                 } else {
