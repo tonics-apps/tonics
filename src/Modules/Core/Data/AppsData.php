@@ -81,8 +81,7 @@ FORM;
                 $type = ($type === 'module' || $type === 'modules') ? 'External Modules' : $type;
             }
             $data['type'] = strtoupper($type);
-            // $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
-            $data['update_available'] = 'Yes';
+            $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
 
             $data['update_frag'] = <<<HTML
 <div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
