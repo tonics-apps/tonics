@@ -111,10 +111,8 @@ trait Routes
 
                 $route->post('/install', [AppsController::class, 'install'], alias: 'install');
                 $route->post('/uninstall', [AppsController::class, 'uninstall'], alias: 'uninstall');
-                $route->match(['post', 'delete'], '/delete', [AppsController::class, 'delete']);
 
                 $route->post('/discover_updates', [AppsController::class, 'discover_updates'], alias: 'discover_updates');
-                $route->post('/update', [AppsController::class, 'update'], alias: 'update');
                 $route->post('/upload', [AppsController::class, 'upload'], alias: 'upload');
             }, [AppAccess::class], alias: 'apps');
 

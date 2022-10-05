@@ -200,68 +200,6 @@ class AppsController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function update(): void
-    {
-        $url = route('apps.index');
-        if (input()->fromPost()->has('activator')){
-
-            InitLoader::setEventStreamAsHTML(true);
-            $updateActivator = input()->fromPost()->retrieve('activator', []);
-
-            #
-            # On every update request, we include the CoreActivator since it is mandatory for every
-            # dependency, and besides, it should always be the latest version, this should be
-            # replaced by a dependency graph which is not currently supported and might never will.
-            #
-            if (!empty($updateActivator)){
-                $coreFound = false;
-                foreach ($updateActivator as $activator){
-                    if (CoreActivator::class === $activator){
-                        $coreFound = true;
-                    }
-                }
-                if (!$coreFound){
-                    $updateActivator = [CoreActivator::class, ...$updateActivator];
-                }
-            }
-
-            $appSystem = new AppsSystem($updateActivator);
-            $appSystem->setCurrentState(AppsSystem::OnAppUpdateState);
-            $appSystem->runStates(false);
-            InitLoader::setEventStreamAsHTML(false);
-           if ($appSystem->getStateResult() === SimpleState::DONE){
-               $this->appsData->handleAppRedirection($url, $appSystem->getSucessMessage());
-           }
-        }
-        $this->appsData->handleAppRedirection($url, "An Error Occurred Updating App");
-    }
-
-    /**
-     * @throws \Exception
-     */
-    #[NoReturn] public function delete(): void
-    {
-        if (input()->fromPost()->has('activator')){
-            $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
-            $appSystem->setCurrentState(AppsSystem::OnAppDeleteState);
-            $appSystem->runStates(false);
-
-            if ($appSystem->getStateResult() === SimpleState::ERROR ){
-                session()->flash([$appSystem->getErrorMessage()], []);
-            } else {
-                session()->flash([$appSystem->getErrorMessage()], [], Session::SessionCategories_FlashMessageSuccess);
-            }
-            redirect(route('apps.index'));
-        }
-
-
-        session()->flash(['An Error Occurred Deleting App'], []);
-        redirect(route('apps.index'));
-    }
-
-    /**
-     * @throws \Exception
-     */
     #[NoReturn] public function install(): void
     {
         if (input()->fromPost()->has('activator')){
