@@ -275,7 +275,6 @@ class UpdateMechanismState extends SimpleState
                 if (isset($data->tag_name) && isset($data->assets[0])) {
                     $releaseTimestamp = $tonicsHelper->getTimeStampFromVersion($data->tag_name);
                     $moduleTimestamp = $tonicsHelper->getTimeStampFromVersion($module->info()['version'] ?? '');
-                    $canUpdate = $releaseTimestamp > $moduleTimestamp;
                     $discovered = (isset($data->name)) ? $data->name : $dirName;
                     $this->collate[$type][$module::class] = [
                         'name' => $discovered,
@@ -283,7 +282,7 @@ class UpdateMechanismState extends SimpleState
                         'version' => $data->tag_name,
                         'discovered_from' => $this->discoveredFrom,
                         'download_url' => (isset($data->assets[0]->browser_download_url)) ? $data->assets[0]->browser_download_url : '',
-                        'can_update' => $canUpdate,
+                        'can_update' => $releaseTimestamp > $moduleTimestamp,
                         'module_timestamp' => $moduleTimestamp,
                         'release_timestamp' => $releaseTimestamp,
                         'last_checked' => helper()->date()
