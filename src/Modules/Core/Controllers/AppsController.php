@@ -19,10 +19,8 @@ use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\AppsSystem;
 use App\Modules\Core\States\UpdateMechanismState;
-use App\Modules\Media\FileManager\LocalDriver;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -94,9 +92,9 @@ class AppsController
         } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeAppUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
-                dd($entityBag);
+                $updateActivators = $this->getToUpdateActivators($entityBag);
+                dd($updateActivators);
             })) {
-
             if ($this->updateMultiple($entityBag)) {
                 response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
             } else {
@@ -172,6 +170,23 @@ class AppsController
             }
         }
 
+        #
+        # On every update request, we include the CoreActivator since it is mandatory for every
+        # dependency, and besides, it should always be the latest version, this should be
+        # replaced by a dependency graph which is not currently supported and might never will.
+        #
+        if (!empty($activators)){
+            $coreFound = false;
+            foreach ($activators as $activator){
+                if (CoreActivator::class === $activator){
+                    $coreFound = true;
+                }
+            }
+            if (!$coreFound){
+                $activators = [CoreActivator::class, ...$activators];
+            }
+        }
+
         return $activators;
     }
 
@@ -189,7 +204,7 @@ class AppsController
             #
             # On every update request, we include the CoreActivator since it is mandatory for every
             # dependency, and besides, it should always be the latest version, this should be
-            # replaced by a dependency graph which is not currently supported.
+            # replaced by a dependency graph which is not currently supported and might never will.
             #
             if (!empty($updateActivator)){
                 $coreFound = false;
