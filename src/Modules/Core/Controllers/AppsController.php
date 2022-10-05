@@ -74,6 +74,8 @@ class AppsController
      */
     public function dataTable(): void
     {
+        helper()->updateActivateEventStreamMessage();
+
         $entityBag = null;
         if ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
@@ -87,11 +89,14 @@ class AppsController
                 $appSystem->runStates(false);
 
                 if ($appSystem->getStateResult() === SimpleState::DONE ){
+                    helper()->updateActivateEventStreamMessage(1);
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
                 } else {
                     $error = $appSystem->getErrorMessage();
                 }
             }
+
+            helper()->updateActivateEventStreamMessage(1);
             response()->onError(500, $error);
 
         } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeAppUpdate,
@@ -106,12 +111,14 @@ class AppsController
                 $appSystem->runStates(false);
 
                 if ($appSystem->getStateResult() === SimpleState::DONE){
+                    helper()->updateActivateEventStreamMessage(1);
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeAppUpdate);
                 } else {
                     $error = $appSystem->getErrorMessage();
                 }
             }
 
+            helper()->updateActivateEventStreamMessage(1);
             response()->onError(500, $error);
         }
     }

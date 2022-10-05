@@ -262,7 +262,6 @@ class AppsSystem extends SimpleState
                     # is module
                     if (str_starts_with($appDirPath, AppConfig::getModulesPath())){
                         $moduleUpdate = new UpdateMechanismState();
-                        $moduleUpdate->setMessageDebug($this->messageDebug);
                         $moduleUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['module'])->setAction('update')
                             ->runStates(false);
                         if ($moduleUpdate->getStateResult() === SimpleState::ERROR){
@@ -273,7 +272,6 @@ class AppsSystem extends SimpleState
                     # is app
                     if (str_starts_with($appDirPath, AppConfig::getAppsPath())){
                         $appUpdate = new UpdateMechanismState();
-                        $appUpdate->setMessageDebug($this->messageDebug);
 
                         $appUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['app'])->setAction('update')
                             ->runStates(false);
