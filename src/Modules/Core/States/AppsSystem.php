@@ -250,7 +250,7 @@ class AppsSystem extends SimpleState
     public function OnAppProcessUpdateState(): string
     {
         $updateTypes = []; $appOrModuleToUpdate = [];
-        helper()->addEventStreamHeader(1000000, 'text/html');
+        // helper()->addEventStreamHeader(1000000, 'text/html');
         foreach ($this->activatorsFromPost as $activatorPost) {
             if (isset($this->allActivators[$activatorPost])) {
                 /** @var ExtensionConfig $activator */
@@ -283,7 +283,7 @@ class AppsSystem extends SimpleState
         }
 
         $appOrModuleToUpdate = implode(',', $appOrModuleToUpdate);
-        $this->setSucessMessage("[$appOrModuleToUpdate]] Updated: Go Back");
+        $this->setSucessMessage("[$appOrModuleToUpdate]] Updated: Reload Page");
         return self::DONE;
     }
 

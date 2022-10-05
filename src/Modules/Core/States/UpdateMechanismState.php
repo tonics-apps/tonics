@@ -207,7 +207,13 @@ class UpdateMechanismState extends SimpleState
      */
     public function DownloadAppsState()
     {
-        $this->downloadExtractCopy('app', DriveConfig::getTempPathForApps(), AppConfig::getAppsPath());
+        try {
+            $this->downloadExtractCopy('app', DriveConfig::getTempPathForApps(), AppConfig::getAppsPath());
+        } catch (\Throwable $throwable){
+            $this->errorMessage($throwable->getMessage());
+            $this->setStateResult(SimpleState::ERROR);
+            // log..
+        }
     }
 
     /**
@@ -215,7 +221,13 @@ class UpdateMechanismState extends SimpleState
      */
     public function DownloadModulesState()
     {
-        $this->downloadExtractCopy('module', DriveConfig::getTempPathForModules(), AppConfig::getModulesPath());
+        try {
+            $this->downloadExtractCopy('module', DriveConfig::getTempPathForModules(), AppConfig::getModulesPath());
+        }catch (\Throwable $throwable){
+            $this->errorMessage($throwable->getMessage());
+            $this->setStateResult(SimpleState::ERROR);
+            // log..
+        }
     }
 
 
@@ -337,7 +349,7 @@ class UpdateMechanismState extends SimpleState
                         $error = "An Error Occurred, Moving Some Files In: '$name'";
                         $this->errorMessage($error);
                         $this->setStateResult(SimpleState::ERROR);
-                        $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
+                       // $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                     } else {
                         $directory = $dirPath . $sep . "$folderName";
                         $this->collate[$type][$classString]['can_update'] = false;
@@ -347,7 +359,7 @@ class UpdateMechanismState extends SimpleState
                     $error = "Failed To Extract: '$name'";
                     $this->errorMessage($error);
                     $this->setStateResult(SimpleState::ERROR);
-                    helper()->sendMsg($this->getCurrentState(), $error, 'issue');
+                   // helper()->sendMsg($this->getCurrentState(), $error, 'issue');
                 }
             }
         }

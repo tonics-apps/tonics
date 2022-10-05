@@ -75,6 +75,7 @@ SQL, $f);
     public function createFromURL(string $url, string $uploadTo = '', string $filename = '', bool $importToDB = true): bool
     {
         $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename, $importToDB);
+        dd($downloadFromURLState);
         $initState = $downloadFromURLState::InitialState;
         $downloadFromURLState->setCurrentState($initState)->runStates(false);
         return $downloadFromURLState->getStateResult() === SimpleState::DONE;
