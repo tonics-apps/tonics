@@ -17,6 +17,7 @@ use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Media\FileManager\LocalDriver;
+use Devsrealm\TonicsHelpers\TonicsHelpers;
 
 class UpdateMechanismState extends SimpleState
 {
@@ -32,6 +33,8 @@ class UpdateMechanismState extends SimpleState
     const DownloadAppsState = 'DownloadAppsState';
 
     const ExamineCollation = 'ExamineCollation';
+
+    private ?TonicsHelpers $tonicsHelpers = null;
 
     private array $updates;
     private array $types;
@@ -110,11 +113,11 @@ class UpdateMechanismState extends SimpleState
         }
 
         $oldCollate = AppConfig::getAppUpdatesObject();
-        if (is_array($oldCollate)){
+        if (is_array($oldCollate)) {
             foreach ($oldCollate as $type => $collate) {
                 $type = strtolower($type);
-                if (key_exists($type, self::$TYPES) && is_array($oldCollate[$type])){
-                    if (isset($this->collate[$type]) && is_array($this->collate[$type])){
+                if (key_exists($type, self::$TYPES) && is_array($oldCollate[$type])) {
+                    if (isset($this->collate[$type]) && is_array($this->collate[$type])) {
                         $this->collate[$type] = [...$oldCollate[$type], ...$this->collate[$type]];
                     } else {
                         $this->collate[$type] = $oldCollate[$type];
@@ -123,7 +126,7 @@ class UpdateMechanismState extends SimpleState
             }
         }
 
-        if (!empty($this->collate)){
+        if (!empty($this->collate)) {
             db(true)->insertOnDuplicate(
                 $globalTable,
                 [
@@ -178,7 +181,7 @@ class UpdateMechanismState extends SimpleState
                 $this->switchState(self::$DOWNLOADER[$type]);
                 $this->dispatchState(self::$DOWNLOADER[$type]);
                 # If we had an error from the above dispatch, return it immediately
-                if ($this->getStateResult() === self::ERROR){
+                if ($this->getStateResult() === self::ERROR) {
                     break;
                 }
             }
@@ -186,12 +189,12 @@ class UpdateMechanismState extends SimpleState
 
         helper()->updateMaintainanceMode();
         # If we had an error from the above dispatch, return it
-        if ($this->getStateResult() === self::ERROR){
+        if ($this->getStateResult() === self::ERROR) {
             return self::ERROR;
         }
 
         $globalTable = Tables::getTable(Tables::GLOBAL);
-        if (!empty($this->collate)){
+        if (!empty($this->collate)) {
             db(true)->insertOnDuplicate(
                 $globalTable,
                 [
@@ -212,7 +215,7 @@ class UpdateMechanismState extends SimpleState
     {
         try {
             $this->downloadExtractCopy('app', DriveConfig::getTempPathForApps(), AppConfig::getAppsPath());
-        } catch (\Throwable $throwable){
+        } catch (\Throwable $throwable) {
             $this->errorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
             // log..
@@ -226,7 +229,7 @@ class UpdateMechanismState extends SimpleState
     {
         try {
             $this->downloadExtractCopy('module', DriveConfig::getTempPathForModules(), AppConfig::getModulesPath());
-        }catch (\Throwable $throwable){
+        } catch (\Throwable $throwable) {
             $this->errorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
             // log..
@@ -241,7 +244,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         $file = $tonicsHelper->findFilesWithExtension(['php'], $directory);
-        if (isset($file[0]) && $tonicsHelper->fileExists($file[0])){
+        if (isset($file[0]) && $tonicsHelper->fileExists($file[0])) {
             $class = $tonicsHelper->getFullClassName(file_get_contents($file[0]));
             $implements = @class_implements($class);
             $implementors = [ExtensionConfig::class];
@@ -257,7 +260,7 @@ class UpdateMechanismState extends SimpleState
         } else {
             $error = "Update Was Successfully But Failed To Call onUpdate method";
             $this->errorMessage($error);
-            helper()->sendMsg($this->getCurrentState(), $error, 'issue');
+            $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
         }
     }
 
@@ -271,7 +274,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         $updates = [];
-        foreach ($this->updates as $update){
+        foreach ($this->updates as $update) {
             $updates[strtolower($update)] = $update;
         }
         $this->updates = $updates;
@@ -337,45 +340,53 @@ class UpdateMechanismState extends SimpleState
                 $sep = DIRECTORY_SEPARATOR;
 
                 $createFromURLResult = $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
-                if ($createFromURLResult === false){
+                if ($createFromURLResult === false) {
                     $error = "An Error Occurred Downloading {$module['download_url']}";
                     $this->errorMessage($error);
                     $this->setStateResult(SimpleState::ERROR);
                     $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
-                    return;
+                    break;
                 }
 
-                $result = $localDriver->extractFile($tempPath . $sep. "$name", $tempPath, importToDB: false);
+                $result = $localDriver->extractFile($tempPath . $sep . "$name", $tempPath, importToDB: false);
                 $tempPathFolder = $tempPath . $sep . "$folderName";
                 $appModulePathFolder = $dirPath . $sep . "$folderName";
                 if ($result && $tonicsHelper->fileExists($tempPathFolder) && $tonicsHelper->fileExists($appModulePathFolder)) {
 
                     # If there is .installed in the app path, drop it in the tempPath, if it fails, then user might
                     # want to re-install the app
-                    if ($tonicsHelper->fileExists($appModulePathFolder . DIRECTORY_SEPARATOR . '.installed')){
+                    if ($tonicsHelper->fileExists($appModulePathFolder . DIRECTORY_SEPARATOR . '.installed')) {
                         @file_put_contents($tempPathFolder . DIRECTORY_SEPARATOR . '.installed', '');
                     }
 
                     $deleted = $tonicsHelper->deleteDirectory($appModulePathFolder);
-                    if ($deleted){
-                        $renamedResult = @rename($tempPathFolder, $appModulePathFolder);
-                        $tonicsHelper->deleteDirectory($tempPathFolder);
-                        if (!$renamedResult) {
-                            $error = "An Error Occurred, Moving $tempPathFolder to $appModulePathFolder";
-                            $this->errorMessage($error);
-                            $this->setStateResult(SimpleState::ERROR);
-                            $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
-                        } else {
-                            $directory = $dirPath . $sep . "$folderName";
-                            $this->collate[$type][$classString]['can_update'] = false;
-                            $this->reActivate($directory, $folderName);
-                        }
+
+                    if ($deleted === false) {
+                        $error = "An Error Occurred Updating $folderName";
+                        $this->setStateResult(SimpleState::ERROR);
+                        $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
+                        break;
+                    }
+
+                    $renamedResult = @rename($tempPathFolder, $appModulePathFolder);
+                    $tonicsHelper->deleteDirectory($tempPathFolder);
+                    if (!$renamedResult) {
+                        $error = "An Error Occurred, Moving $tempPathFolder to $appModulePathFolder";
+                        $this->errorMessage($error);
+                        $this->setStateResult(SimpleState::ERROR);
+                        $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
+                        break;
+                    } else {
+                        $directory = $dirPath . $sep . "$folderName";
+                        $this->collate[$type][$classString]['can_update'] = false;
+                        $this->reActivate($directory, $folderName);
                     }
                 } else {
                     $error = "Failed To Extract: '$name'";
                     $this->errorMessage($error);
                     $this->setStateResult(SimpleState::ERROR);
                     helper()->sendMsg($this->getCurrentState(), $error, 'issue');
+                    break;
                 }
             }
         }
@@ -389,7 +400,7 @@ class UpdateMechanismState extends SimpleState
     {
         $update_key = AppConfig::getAppUpdateKey();
         // update_key could be used to identify a site in case of premium plugins and or themes
-        $curl = curl_init($url."?update_key=$update_key");
+        $curl = curl_init($url . "?update_key=$update_key");
         curl_setopt_array($curl, [
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_PROXY_SSL_VERIFYPEER => false,
@@ -475,6 +486,22 @@ class UpdateMechanismState extends SimpleState
     public function setCollate(array $collate): void
     {
         $this->collate = $collate;
+    }
+
+    /**
+     * @return TonicsHelpers|null
+     */
+    public function getTonicsHelpers(): ?TonicsHelpers
+    {
+        return $this->tonicsHelpers;
+    }
+
+    /**
+     * @param TonicsHelpers|null $tonicsHelpers
+     */
+    public function setTonicsHelpers(?TonicsHelpers $tonicsHelpers): void
+    {
+        $this->tonicsHelpers = $tonicsHelpers;
     }
 
 

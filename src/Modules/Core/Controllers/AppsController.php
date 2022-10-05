@@ -74,7 +74,6 @@ class AppsController
      */
     public function dataTable(): void
     {
-        InitLoader::setActivateEventSource(false);
 
         $entityBag = null;
         if ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -85,7 +84,11 @@ class AppsController
             $error = "An Error Occurred Deleting App";
             if (!empty($deleteActivators)){
                 $appSystem = new AppsSystem($deleteActivators);
+                $appSystem->setTonicsHelpers(helper());
                 $appSystem->setCurrentState(AppsSystem::OnAppDeleteState);
+
+                InitLoader::setActivateEventSource(false);
+
                 $appSystem->runStates(false);
                 if ($appSystem->getStateResult() === SimpleState::DONE ){
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
@@ -103,7 +106,11 @@ class AppsController
             $error = "An Error Occurred Updating App";
             if (!empty($updateActivators)){
                 $appSystem = new AppsSystem($updateActivators);
+                $appSystem->setTonicsHelpers(helper());
                 $appSystem->setCurrentState(AppsSystem::OnAppUpdateState);
+
+                InitLoader::setActivateEventSource(false);
+
                 $appSystem->runStates(false);
                 if ($appSystem->getStateResult() === SimpleState::DONE){
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeAppUpdate);

@@ -16,6 +16,7 @@ use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Media\FileManager\LocalDriver;
+use Devsrealm\TonicsHelpers\TonicsHelpers;
 use JetBrains\PhpStorm\NoReturn;
 
 class AppsSystem extends SimpleState
@@ -41,6 +42,8 @@ class AppsSystem extends SimpleState
 
     const OnAppUploadState = 'OnAppUploadState';
     const OnAppProcessUploadState = 'OnAppProcessUploadState';
+
+    private ?TonicsHelpers $tonicsHelpers = null;
 
     /**
      * @throws \Exception
@@ -430,6 +433,22 @@ class AppsSystem extends SimpleState
     public function setPluginURL(string $pluginURL): void
     {
         $this->pluginURL = $pluginURL;
+    }
+
+    /**
+     * @return TonicsHelpers|null
+     */
+    public function getTonicsHelpers(): ?TonicsHelpers
+    {
+        return $this->tonicsHelpers;
+    }
+
+    /**
+     * @param TonicsHelpers|null $tonicsHelpers
+     */
+    public function setTonicsHelpers(?TonicsHelpers $tonicsHelpers): void
+    {
+        $this->tonicsHelpers = $tonicsHelpers;
     }
 
 }
