@@ -4738,12 +4738,10 @@ class SaveEventHandler {
                         if (data.more === dataTable.apiEvents().DELETE_EVENT){
                             dataTable.removeDeletingElements();
                         }
-
                         successToast(data.message);
                     }
                 }, (err) => {
                     let errMsg = err?.message ?? 'An error occurred saving changes';
-                    console.log(err)
                     errorToast(errMsg);
                 });
             });

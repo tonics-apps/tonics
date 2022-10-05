@@ -826,3 +826,102 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 .wrap-select {
     position: relative;
 }
+
+/**
+ * ==============================================
+ * Dot Elastic
+ * Copyright (c) 2018 nzbin From https://nzbin.github.io/three-dots/
+ * ==============================================
+ */
+
+ .loading-animation {
+     align-self: center;
+     left: 50%;
+     width: 10px;
+     height: 10px;
+     border-radius: 5px;
+     background-color: #18234e;
+     color: #18234e;
+     animation: dotElastic 1s infinite linear;
+ }
+
+.loading-animation:before, .loading-animation:after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 0;
+}
+
+.loading-animation:before {
+    left: -15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #18234e;
+    color: #18234e;
+    animation: dotElasticBefore 1s infinite linear;
+}
+
+.loading-animation:after {
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #18234e;
+    color: #18234e;
+    animation: dotElasticAfter 1s infinite linear;
+}
+
+@keyframes dotElasticBefore {
+    0% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(1, 1.5);
+    }
+    50% {
+        transform: scale(1, 0.67);
+    }
+    75% {
+        transform: scale(1, 1);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
+@keyframes dotElastic {
+    0% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(1, 1);
+    }
+    50% {
+        transform: scale(1, 1.5);
+    }
+    75% {
+        transform: scale(1, 1);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
+@keyframes dotElasticAfter {
+    0% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(1, 1);
+    }
+    50% {
+        transform: scale(1, 0.67);
+    }
+    75% {
+        transform: scale(1, 1.5);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
