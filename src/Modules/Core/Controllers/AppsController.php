@@ -17,10 +17,10 @@ use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\CoreActivator;
 use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\AbstractDataLayer;
-use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\States\AppsSystem;
 use App\Modules\Core\States\UpdateMechanismState;
+use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -29,13 +29,16 @@ class AppsController
     use FileHelper;
 
     private AppsData $appsData;
+    private ?FieldData $fieldData;
 
     /**
      * @param AppsData $appsData
+     * @param FieldData|null $fieldData
      */
-    public function __construct(AppsData $appsData)
+    public function __construct(AppsData $appsData, FieldData $fieldData = null)
     {
         $this->appsData = $appsData;
+        $this->fieldData = $fieldData;
     }
 
     /**
@@ -245,6 +248,21 @@ class AppsController
     /**
      * @throws \Exception
      */
+    public function uploadForm(): void
+    {
+        $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
+            ['upload-app-page']
+        )->getHTMLFrag();
+
+        view('Modules::Core/Views/App/app_upload', [
+                'FieldItems' => $fieldItems,
+            ]
+        );
+    }
+
+    /**
+     * @throws \Exception
+     */
     #[NoReturn] public function upload(): void
     {
         $url = route('apps.index');
@@ -332,6 +350,14 @@ class AppsController
     public function getAppsData(): AppsData
     {
         return $this->appsData;
+    }
+
+    /**
+     * @return FieldData|null
+     */
+    public function getFieldData(): ?FieldData
+    {
+        return $this->fieldData;
     }
 
 }

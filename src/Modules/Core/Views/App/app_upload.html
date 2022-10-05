@@ -1,0 +1,13 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field")]]
+[[import("Modules::Core/Views/Blocks/Post")]]
+
+[[hook_into('Core::in_head_title')Upload New App]]
+[[hook_into('Core::in_main_header_title')Upload New App]]
+
+[[hook_into('Core::form_action')/admin/tools/apps/upload]]
+
+[[hook_into('Core::before_footer')
+[[_use("script:variables")]]
+[[_use("script:post")]]
+[[_use("session:delete-artifacts")]]
+]]

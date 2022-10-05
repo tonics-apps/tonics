@@ -91,8 +91,8 @@ FORM;
      <input id="featured-audio-$changeID" class="tonics-audio-featured color:black border-width:default border:black placeholder-color:gray" name="featured_audio" type="file">
  </label>
 </div>
-<div class="form-group">
-    <input id="default-image-$changeID" placeholder="Audio Demo URL" type="url" data-widget-audio-url="true" name="$inputName" value="$defaultAudio">
+<div style="margin-top: 1em;" class="form-group">
+    <input id="default-image-$changeID" placeholder="Or Audio Demo URL" type="url" data-widget-audio-url="true" name="$inputName" value="$defaultAudio">
 </div>
 <div class="margin-top:0">
     <button type="button" class="remove-audio-demo d:none background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">

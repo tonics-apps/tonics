@@ -94,9 +94,9 @@ FORM;
      </label>
  </div>
 
-<div class="form-group">
+<div style="margin-top: 1em;" class="form-group">
     <label class="menu-settings-handle-name" for="featured-link-url-$changeID">File Link (leave blank for no default)
-        <input id="featured-link-url-$changeID" placeholder="File URL" type="url" data-widget-file-url="true" name="$inputName" value="$defaultFileLink">
+        <input id="featured-link-url-$changeID" placeholder="Or File URL" type="url" data-widget-file-url="true" name="$inputName" value="$defaultFileLink">
     </label>
 </div>
 FORM;
