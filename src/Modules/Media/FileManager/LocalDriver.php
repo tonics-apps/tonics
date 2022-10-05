@@ -30,8 +30,6 @@ class LocalDriver implements StorageDriverInterface
 
     private string $path;
 
-    private bool $messageDebug = true;
-
     public function __construct()
     {
         $this->path = DriveConfig::getPrivatePath();
@@ -105,11 +103,8 @@ SQL, $f);
         if (strtolower($archiveType) === 'zip') {
             $extractFileState = new ExtractFileState($this); $lastExtractedFilePath = '';
             helper()->extractZipFile($pathToArchive, $extractTo, function ($extractedFilePath, $shortFilePath, $remaining) use ($importToDB, $extractFileState) {
-                if ($this->isMessageDebug()){
-                    helper()->sendMsg('ExtractFileState', "Extracted $shortFilePath");
-                    helper()->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
-                }
-
+                helper()->sendMsg('ExtractFileState', "Extracted $shortFilePath");
+                helper()->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
                 if ($importToDB){
                     $extractFileState
                         ->setExtractedFilePath($extractedFilePath)
@@ -1018,23 +1013,5 @@ SQL, ...$pathTrail);
     public function getPath(): string
     {
         return $this->path;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMessageDebug(): bool
-    {
-        return $this->messageDebug;
-    }
-
-    /**
-     * @param bool $messageDebug
-     * @return LocalDriver
-     */
-    public function setMessageDebug(bool $messageDebug): LocalDriver
-    {
-        $this->messageDebug = $messageDebug;
-        return $this;
     }
 }

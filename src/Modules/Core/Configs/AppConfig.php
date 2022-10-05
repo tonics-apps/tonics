@@ -42,7 +42,7 @@ class AppConfig
      * The second entry point into our app after initialization of minimal dependencies, this uses injection sort of to construct all the
      * necessary objects, and caches it, so, it constructs it just once, and the subsequent request might be a bit faster.
      * @param bool $failSilently
-     * @return \App\Modules\Core\Boot\InitLoader
+     * @return InitLoader
      * @throws Exception
      */
     public static function initLoaderOthers(bool $failSilently = false): InitLoader
@@ -298,6 +298,11 @@ class AppConfig
     {
         $update = env('AUTO_UPDATE_MODULES', 'NULL');
         return self::handleAutoUpdateReturn($update);
+    }
+
+    public static function isActivateEventStreamMessage(): bool
+    {
+        return env('ACTIVATE_EVENT_STREAM_MESSAGE') === '1';
     }
 
     private static function handleAutoUpdateReturn($update): array|bool

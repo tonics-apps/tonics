@@ -70,7 +70,10 @@ class UpdateEventHandlerForApps {
                             window.TonicsScript.successToast(data.message);
                         }
                     }, (err) => {
-                        let errMsg = err?.message ?? 'An error occurred updating apps';
+                        let errMsg = err?.message;
+                        if(!errMsg){
+                            errMsg = 'An error occurred updating app';
+                        }
                         updateEvent.querySelector('.loading-animation').classList.add('d:none');
                         window.TonicsScript.errorToast(errMsg);
                     });
