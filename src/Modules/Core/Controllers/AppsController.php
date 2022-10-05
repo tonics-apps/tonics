@@ -87,19 +87,26 @@ class AppsController
                     $error = $appSystem->getErrorMessage();
                 }
             }
-
             response()->onError(500, $error);
+
         } elseif ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeAppUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
-                $updateActivators = $this->getToUpdateActivators($entityBag);
-                dd($updateActivators);
             })) {
-            if ($this->updateMultiple($entityBag)) {
-                response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
-            } else {
-                response()->onError(500);
+            $updateActivators = $this->getToUpdateActivators($entityBag);
+            $error = "An Error Occurred Updating App";
+            if (!empty($updateActivators)){
+                $appSystem = new AppsSystem($updateActivators);
+                $appSystem->setCurrentState(AppsSystem::OnAppUpdateState);
+                $appSystem->runStates(false);
+                if ($appSystem->getStateResult() === SimpleState::DONE){
+                    response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeAppUpdate);
+                } else {
+                    $error = $appSystem->getErrorMessage();
+                }
             }
+
+            response()->onError(500, $error);
         }
     }
 
