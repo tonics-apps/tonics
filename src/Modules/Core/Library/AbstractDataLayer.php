@@ -29,6 +29,7 @@ class AbstractDataLayer
     const DataTableRetrievePageSize = 'pageSize';
     const DataTableRetrieveDeleteElements = 'deleteElements';
     const DataTableRetrieveUpdateElements = 'updateElements';
+    const DataTableRetrieveAppUpdateElements = 'appUpdateElements';
     const DataTableRetrieveFilterOption = 'filterOption';
 
     /**

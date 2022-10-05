@@ -3466,6 +3466,13 @@ function isValidTagName(tagName) {
   return document.createElement(tagName).toString() !== "[object HTMLUnknownElement]";
 }
 __name(isValidTagName, "isValidTagName");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.promptToast = (title, confirmText = "Proceed", onConfirmed, onDenied = null, onDismiss = null) => promptToast(title, confirmText, onConfirmed, onDenied, onDismiss);
+window.TonicsScript.successToast = (message, timer = 4e3) => successToast(message, timer);
+window.TonicsScript.errorToast = (message, timer = 4e3) => errorToast(message, timer);
+window.TonicsScript.infoToast = (message, timer = 4e3) => infoToast(message, timer);
 export {
   activateMenus,
   addHiddenInputToForm,

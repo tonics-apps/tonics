@@ -31,9 +31,9 @@ class DisableUpdateMenuOnNonUpdateAvailability {
         let trEl = event.elementTarget.closest('tr');
         if ((dataTdOfTType = trEl?.querySelector('[data-td="update_available"]'))){
             if (dataTdOfTType.innerText.toLowerCase() === 'no'){
-                dataTable.deActivateMenus([dataTable.menuActions().UPDATE_EVENT]);
+                dataTable.deActivateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
             } else {
-                dataTable.activateMenus([dataTable.menuActions().UPDATE_EVENT]);
+                dataTable.activateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
             }
         }
     }
@@ -42,10 +42,39 @@ class DisableUpdateMenuOnNonUpdateAvailability {
 
 class UpdateEventHandlerForApps {
     constructor(event) {
-        let updateEvent = event.getElementTarget().closest(`[data-menu-action="AppUpdateEvent"]`);
-        if (updateEvent) {
-            console.log(updateEvent);
+        let appUpdateData = {
+            type: [],
+            headers: [],
+            appUpdateElements: [],
         }
+        let dataTable = event.dataTable,
+            updateEvent = event.getElementTarget().closest(`[data-menu-action="AppUpdateEvent"]`),
+            headers = [];
+        if (updateEvent) {
+            dataTable.getAllThElements().forEach(header => {
+                headers.push(header.dataset?.slug)
+            });
+
+            appUpdateData.headers = headers;
+            let getAllSelectedTrElement = dataTable.getAllSelectedTrElement();
+            if (getAllSelectedTrElement.length > 0){
+                dataTable.collateTdFromTrAndPushToSaveTo(getAllSelectedTrElement, appUpdateData.appUpdateElements, appUpdateData.headers);
+                appUpdateData.type.push(dataTable.apiEvents().APP_UPDATE_EVENT);
+                console.log(appUpdateData);
+
+                window.TonicsScript.promptToast("Update Operation Might Be Irreversible", "Proceed To Update", () => {
+                    dataTable.sendPostRequest(appUpdateData, (data) => {
+                        if (data.status === 200){
+                            successToast(data.message);
+                        }
+                    }, (err) => {
+                        let errMsg = err?.message ?? 'An error occurred updating apps';
+                        errorToast(errMsg);
+                    });
+                });
+            }
+        }
+
     }
 }
 

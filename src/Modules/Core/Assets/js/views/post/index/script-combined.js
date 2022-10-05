@@ -3739,6 +3739,13 @@ function isValidTagName(tagName) {
   return document.createElement(tagName).toString() !== "[object HTMLUnknownElement]";
 }
 __name(isValidTagName, "isValidTagName");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.promptToast = (title, confirmText = "Proceed", onConfirmed, onDenied = null, onDismiss = null) => promptToast(title, confirmText, onConfirmed, onDenied, onDismiss);
+window.TonicsScript.successToast = (message, timer = 4e3) => successToast(message, timer);
+window.TonicsScript.errorToast = (message, timer = 4e3) => errorToast(message, timer);
+window.TonicsScript.infoToast = (message, timer = 4e3) => infoToast(message, timer);
 export {
   activateMenus,
   addHiddenInputToForm,
@@ -4024,6 +4031,7 @@ class DataTable {
             CANCEL_EVENT: "CancelEvent",
             DELETE_EVENT: "DeleteEvent",
             UPDATE_EVENT: "UpdateEvent",
+            APP_UPDATE_EVENT: "AppUpdateEvent",
         }
     }
 
@@ -4033,6 +4041,7 @@ class DataTable {
             SAVE_EVENT: "SaveEvent",
             DELETE_EVENT: "DeleteEvent",
             UPDATE_EVENT: "UpdateEvent",
+            APP_UPDATE_EVENT: "AppUpdateEvent",
             UPSERT_EVENT: "UpsertEvent",
             FILTER_EVENT: "FilterEvent",
         }
@@ -4060,6 +4069,10 @@ class DataTable {
 
     getSelectedTrElement() {
         return this.getParentElement().querySelector('.highlight');
+    }
+
+    getAllSelectedTrElement() {
+        return this.getParentElement().querySelectorAll('.highlight');
     }
 
     getEventDispatcher() {
@@ -4097,7 +4110,8 @@ class DataTable {
     }
 
     collateTdFromTrAndPushToSaveTo(trElements, saveTo, headers) {
-        if (trElements.size > 0) {
+        let length = trElements.size ?? trElements.length;
+        if (length > 0) {
             trElements.forEach(edit => {
                 let tdData = {};
                 for (let i = 0; i < edit.cells.length; i++) {
@@ -4720,7 +4734,6 @@ class SaveEventHandler {
             headers: [],
             deleteElements: [],
             updateElements: [],
-
         };
 
         let dataTable = event.dataTable;
