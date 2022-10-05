@@ -51,7 +51,7 @@ class UpdateMechanismState extends SimpleState
     const DiscoveredFromBrowser = 'browser';
 
     private string $discoveredFrom;
-    private array $collate = [];
+    private array $collate;
 
     public function __construct(array $updates = [], array $types = [], string $action = 'discover', string $discoveredFrom = self::DiscoveredFromConsole)
     {
@@ -176,12 +176,15 @@ class UpdateMechanismState extends SimpleState
             if (isset(self::$DOWNLOADER[$type])) {
                 # This switch doesn't actually switch any state, it only changes the current state property
                 $this->switchState(self::$DOWNLOADER[$type]);
-                # We are manually doing the dispatching ourselves cos if one update types fails, we want to continue with the next type regardless...
                 $this->dispatchState(self::$DOWNLOADER[$type]);
+                # If we had an error from the above dispatch, return it immediately
+                if ($this->getStateResult() === self::ERROR){
+                    break;
+                }
             }
         }
-        helper()->updateMaintainanceMode();
 
+        helper()->updateMaintainanceMode();
         # If we had an error from the above dispatch, return it
         if ($this->getStateResult() === self::ERROR){
             return self::ERROR;
@@ -332,7 +335,16 @@ class UpdateMechanismState extends SimpleState
                 $name = strtolower($module['version']) . '.zip';
                 $folderName = $module['folder_name'];
                 $sep = DIRECTORY_SEPARATOR;
-                $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
+
+                $createFromURLResult = $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
+                if ($createFromURLResult === false){
+                    $error = "An Error Occurred Downloading {$module['download_url']}";
+                    $this->errorMessage($error);
+                    $this->setStateResult(SimpleState::ERROR);
+                    $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
+                    return;
+                }
+
                 $result = $localDriver->extractFile($tempPath . $sep. "$name", $tempPath, importToDB: false);
                 $tempPathFolder = $tempPath . $sep . "$folderName";
                 $appModulePathFolder = $dirPath . $sep . "$folderName";
@@ -347,6 +359,7 @@ class UpdateMechanismState extends SimpleState
                     $deleted = $tonicsHelper->deleteDirectory($appModulePathFolder);
                     if ($deleted){
                         $renamedResult = @rename($tempPathFolder, $appModulePathFolder);
+                        $tonicsHelper->deleteDirectory($tempPathFolder);
                         if (!$renamedResult) {
                             $error = "An Error Occurred, Moving $tempPathFolder to $appModulePathFolder";
                             $this->errorMessage($error);

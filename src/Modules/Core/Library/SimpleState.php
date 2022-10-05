@@ -59,7 +59,7 @@ abstract class SimpleState
      * @param bool $returnErrorPage
      * @throws \Exception
      */
-    public function runStates(bool $returnErrorPage = true)
+    public function runStates(bool $returnErrorPage = true): void
     {
         while ($stateResult = $this->dispatchState($this->currentState)){
             $this->stateResult = $stateResult;
@@ -87,7 +87,7 @@ abstract class SimpleState
      * @param bool $returnErrorPage
      * @throws \Exception
      */
-    #[NoReturn] public  function emitError(bool $returnErrorPage = true)
+    #[NoReturn] public  function emitError(bool $returnErrorPage = true): void
     {
         if ($returnErrorPage) {
             $this->displayErrorMessage($this->errorCode, $this->errorMessage);
@@ -98,7 +98,7 @@ abstract class SimpleState
     /**
      * @throws \Exception
      */
-    #[NoReturn] public static function displayErrorMessage(int|string $errorCode, string $errorMessage, bool $isAPI = false)
+    #[NoReturn] public static function displayErrorMessage(int|string $errorCode, string $errorMessage, bool $isAPI = false): void
     {
         if (str_starts_with(request()->getRequestURL(), '/api')){
             $isAPI = true;
@@ -122,7 +122,7 @@ abstract class SimpleState
     #[NoReturn] public static function displayUnauthorizedErrorMessage(
         int|string $errorCode = self::ERROR_UNAUTHORIZED_ACCESS__CODE,
         string $errorMessage = self::ERROR_UNAUTHORIZED_ACCESS__MESSAGE,
-        bool $isAPI = false)
+        bool $isAPI = false): void
     {
         if (str_starts_with(request()->getRequestURL(), '/api')){
             $isAPI = true;

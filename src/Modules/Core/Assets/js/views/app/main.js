@@ -65,14 +65,14 @@ class UpdateEventHandlerForApps {
                     updateEvent.querySelector('.loading-animation').classList.remove('d:none');
                     dataTable.deActivateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
                     dataTable.sendPostRequest(appUpdateData, (data) => {
-                        if (data.status === 200){
-                            successToast(data.message);
-                        }
                         updateEvent.querySelector('.loading-animation').classList.add('d:none');
+                        if (data.status === 200){
+                            window.TonicsScript.successToast(data.message);
+                        }
                     }, (err) => {
                         let errMsg = err?.message ?? 'An error occurred updating apps';
                         updateEvent.querySelector('.loading-animation').classList.add('d:none');
-                        errorToast(errMsg);
+                        window.TonicsScript.errorToast(errMsg);
                     });
                 });
             }

@@ -249,7 +249,7 @@ class AppsSystem extends SimpleState
      */
     public function OnAppProcessUpdateState(): string
     {
-        $updateTypes = []; $appOrModuleToUpdate = [];
+        $appOrModuleToUpdate = [];
         foreach ($this->activatorsFromPost as $activatorPost) {
             if (isset($this->allActivators[$activatorPost])) {
                 /** @var ExtensionConfig $activator */
@@ -281,8 +281,8 @@ class AppsSystem extends SimpleState
             }
         }
 
-        $appOrModuleToUpdate = implode(',', $appOrModuleToUpdate);
-        $this->setSucessMessage("[$appOrModuleToUpdate]] Updated: Reload Page");
+        $appOrModuleToUpdate = implode(', ', $appOrModuleToUpdate);
+        $this->setSucessMessage("[$appOrModuleToUpdate] Updated: Reload Page");
         return self::DONE;
     }
 
