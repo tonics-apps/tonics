@@ -283,7 +283,10 @@ class UpdateMechanismState extends SimpleState
                         'version' => $data->tag_name,
                         'discovered_from' => $this->discoveredFrom,
                         'download_url' => (isset($data->assets[0]->browser_download_url)) ? $data->assets[0]->browser_download_url : '',
-                        'can_update' => $canUpdate
+                        'can_update' => $canUpdate,
+                        'module_timestamp' => $moduleTimestamp,
+                        'release_timestamp' => $releaseTimestamp,
+                        'last_checked' => helper()->date()
                     ];
                     $tonicsHelper->sendMsg(self::getCurrentState(), "Discovered $discovered");
                 }
