@@ -134,7 +134,7 @@ class DownloadFromURLState extends SimpleState
      */
     public function PrepareFileDownloadState(): string
     {
-        if (isset($this->headers['Content-Length']) && isset($this->headers['Accept-Ranges']) && $this->headers['Accept-Ranges'] === 'bytes') {
+        if (isset($this->headers['Content-Length']) && !is_array($this->headers['Content-Length']) && isset($this->headers['Accept-Ranges']) && $this->headers['Accept-Ranges'] === 'bytes') {
             $this->switchState(self::FilePreflightState);
             return self::NEXT;
         }
@@ -159,10 +159,13 @@ class DownloadFromURLState extends SimpleState
             'Chunkstosend' => ceil($totalByteSize / ($bytePerChunk))
         ];
         $preflightData = $this->getLocalDriver()->preFlight($data);
+        dd($preflightData, $data, $this->headers);
         $ranges = $this->getByteRanges($preflightData['preflightData']);
         $preflightData['ranges'] = $ranges;
         $this->preflightData = $preflightData;
         $this->totalChunks = ceil($totalByteSize / ($bytePerChunk));
+
+        dd($this);
 
         $this->switchState(self::DownloadResuming);
         return self::NEXT;

@@ -47,13 +47,17 @@ class LocalDriver implements StorageDriverInterface
         $f = $data['Uploadto'] . DIRECTORY_SEPARATOR . $fileName;
         $chunksTemp = helper()
             ->generateBlobCollatorsChunksToSend($data['Byteperchunk'], $data['Totalblobsize'], $data['Chunkstosend'], $data['Uploadto'], $f);
+
         db()->insertOnDuplicate(
             table: $tbl, data: $chunksTemp, update: ['hash_id', 'moreBlobInfo'], chunkInsertRate: 2000
         );
 
-        // Return rows that are either corrupted or needs to be filled
-        // A data is corrupted if missing_blob_chunk_byte is greater than 0 (the missing byte is due to connection outage or some weird shit)
-        // A data hasn't been filled if missing_blob_chunk_byte is null
+
+        /**
+         * RETURN ROWS THAT ARE EITHER CORRUPTED OR NEEDS TO BE FILLED
+         * A DATA IS CORRUPTED IF missing_blob_chunk_byte is greater than 0 (The Missing Byte is Due To Connection Outage or Some Weird Shit)
+         * A DATA Hasn't Been Filled If missing_blob_chunk_byte is null
+         */
         $preflightData = db()
             ->run(<<<SQL
 SELECT `id`, `blob_name`, `blob_chunk_part`, `blob_chunk_size`, `moreBlobInfo` 
@@ -75,7 +79,6 @@ SQL, $f);
     public function createFromURL(string $url, string $uploadTo = '', string $filename = '', bool $importToDB = true): bool
     {
         $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename, $importToDB);
-        dd($downloadFromURLState);
         $initState = $downloadFromURLState::InitialState;
         $downloadFromURLState->setCurrentState($initState)->runStates(false);
         return $downloadFromURLState->getStateResult() === SimpleState::DONE;
