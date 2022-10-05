@@ -39,11 +39,9 @@ class CoreMenus implements HandlerInterface
                     'Tools',
                     helper()->getIcon('tools', 'icon:admin'),
                     '#0')
-                ->addMenu(
-                    OnAdminMenu::AppsMenuID,
-                    'Apps',
-                    helper()->getIcon('plugin', 'icon:admin'),
-                    route('apps.index'), parent:  OnAdminMenu::ToolsMenuID)
+                ->addMenu( OnAdminMenu::AppsMenuID, 'Apps', helper()->getIcon('plugin', 'icon:admin'), route('apps.index'), parent:  OnAdminMenu::ToolsMenuID)
+                    ->addMenu(OnAdminMenu::AppsMenuID + 1, 'Force Update Check', helper()->getIcon('more-horizontal', 'icon:admin'), route('apps.discover_updates'), parent:  OnAdminMenu::AppsMenuID)
+
                 ->if(UserData::canAccess(Roles::CAN_ACCESS_TRACK, $event->userRole()), function ($event) {
                     return $event->addMenu(OnAdminMenu::LicenseMenuID, 'License', helper()->getIcon('license','icon:admin'), route('licenses.create'), parent:  OnAdminMenu::TrackMenuID)
                         ->addMenu(OnAdminMenu::LicenseMenuID + 1, 'New License', helper()->getIcon('plus', 'icon:admin'), route('licenses.create'), parent: OnAdminMenu::LicenseMenuID)
