@@ -45,6 +45,8 @@ class DownloadFromURLState extends SimpleState
     private LocalDriver $localDriver;
     private float $totalChunks;
 
+    private bool $debug = true;
+
     /**
      * @throws \Exception
      */
@@ -198,7 +200,10 @@ class DownloadFromURLState extends SimpleState
                     $blobData = substr($blobData, $this->bytePerChunk, strlen($blobData));
                     $this->getLocalDriver()->insertBlobChunk($blobInfo, $subBlob, $filePath);
                     $percentage = $this->chunkProgress($filePath, true)->uploadPercentage;
-                    helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
+                    if ($this->isDebug()){
+                        helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
+                    }
+
                     ++$currentBlobID;
                 }
                 $uploaded = $uploaded + $len;
@@ -213,7 +218,11 @@ class DownloadFromURLState extends SimpleState
             $blobInfo->id = $this->preflightData['preflightData'][$currentBlobID]->id;
             $this->getLocalDriver()->insertBlobChunk($blobInfo, $blobData, $filePath);
             $percentage = $this->chunkProgress($filePath, true)->uploadPercentage;
-            helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
+
+            if ($this->isDebug()){
+                helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
+            }
+
             $this->getLocalDriver()->deleteBlobs($this->totalChunks, $this->preflightData['preflightData'][$currentBlobID]->blob_name);
             $this->switchState(self::DownloadCompleted);
             if ($this->importToDB){
@@ -257,7 +266,10 @@ class DownloadFromURLState extends SimpleState
                     $blobData = substr($blobData, $this->bytePerChunk, strlen($blobData));
                     fwrite($outFile, $subBlob);
                     $fileUploaded = $this->chunkProgress($filePath, false, $uploadedProgress)->uploaded;
-                    helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
+
+                    if ($this->isDebug()){
+                        helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
+                    }
                 }
                 $uploaded = $uploaded + $len;
                 $uploadedProgress = $uploadedProgress + $len;
@@ -270,7 +282,11 @@ class DownloadFromURLState extends SimpleState
         if ($response === true) {
             fwrite($outFile, $blobData);
             $fileUploaded = $this->chunkProgress($filePath, false, $uploadedProgress, true)->uploaded;
-            helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
+
+            if ($this->isDebug()){
+                helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
+            }
+
             $this->switchState(self::DownloadCompleted);
             fclose($outFile);
             $outFile = null;

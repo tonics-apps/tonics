@@ -342,6 +342,8 @@ class UpdateMechanismState extends SimpleState
 
             if ($module['can_update'] && !empty($module['download_url'])) {
                 $localDriver = new LocalDriver();
+                $localDriver->setDebug($this->debug);
+
                 $name = strtolower($module['version']) . '.zip';
                 $folderName = $module['folder_name'];
                 $sep = DIRECTORY_SEPARATOR;

@@ -30,6 +30,7 @@ class LocalDriver implements StorageDriverInterface
 
     private string $path;
 
+    private bool $debug = true;
 
     public function __construct()
     {
@@ -79,6 +80,8 @@ SQL, $f);
     public function createFromURL(string $url, string $uploadTo = '', string $filename = '', bool $importToDB = true): bool
     {
         $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename, $importToDB);
+        $downloadFromURLState->setDebug($this->debug);
+
         $initState = $downloadFromURLState::InitialState;
         $downloadFromURLState->setCurrentState($initState)->runStates(false);
         return $downloadFromURLState->getStateResult() === SimpleState::DONE;
@@ -102,8 +105,11 @@ SQL, $f);
         if (strtolower($archiveType) === 'zip') {
             $extractFileState = new ExtractFileState($this); $lastExtractedFilePath = '';
             helper()->extractZipFile($pathToArchive, $extractTo, function ($extractedFilePath, $shortFilePath, $remaining) use ($importToDB, $extractFileState) {
-                helper()->sendMsg('ExtractFileState', "Extracted $shortFilePath");
-                helper()->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
+                if ($this->isDebug()){
+                    helper()->sendMsg('ExtractFileState', "Extracted $shortFilePath");
+                    helper()->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
+                }
+
                 if ($importToDB){
                     $extractFileState
                         ->setExtractedFilePath($extractedFilePath)
@@ -1012,5 +1018,21 @@ SQL, ...$pathTrail);
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDebug(): bool
+    {
+        return $this->debug;
+    }
+
+    /**
+     * @param bool $debug
+     */
+    public function setDebug(bool $debug): void
+    {
+        $this->debug = $debug;
     }
 }
