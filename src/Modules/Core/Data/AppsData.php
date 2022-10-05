@@ -54,6 +54,7 @@ class AppsData extends AbstractDataLayer
     </button>
 </form>
 HTML;
+            $settingsFrag = '';
             if ($isInstalled){
                 $installedFrag = <<<HTML
 <form method="post" class="d:contents" action="/admin/tools/apps/uninstall">
@@ -64,15 +65,13 @@ HTML;
     </button>
 </form>
 HTML;
-            }
-
-            $settingsFrag = '';
-            if (isset($data['settings_page']) && !empty($data['settings_page'])){
-                $settingsFrag =<<<FORM
+                if (isset($data['settings_page']) && !empty($data['settings_page'])){
+                    $settingsFrag =<<<FORM
 <a class="bg:pure-black color:white border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer" href="{$data['settings_page']}">Settings
 </a>
 FORM;
+                }
             }
 
             $type = 'Uncategorized';
@@ -80,8 +79,12 @@ FORM;
                 $type = strtolower($data['type']);
                 $type = ($type === 'module' || $type === 'modules') ? 'External Modules' : $type;
             }
+
             $data['type'] = strtoupper($type);
             $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
+            if ((isset($data['can_update']) && $data['can_update']) ){
+                dd($data);
+            }
 
             $data['update_frag'] = <<<HTML
 <div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
