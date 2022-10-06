@@ -10,6 +10,7 @@
 
 namespace App\Modules\Post\RequestInterceptor;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
@@ -20,6 +21,7 @@ use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnPostDefaultField;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
 class PostAccessView
@@ -129,6 +131,29 @@ class PostAccessView
     {
         $category = $this->category;
         if (!empty($category)){
+
+            # GET CORRESPONDING POST IN CATEGORY
+            $postTbl = Tables::getTable(Tables::POSTS);
+            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+            $CatTbl = Tables::getTable(Tables::CATEGORIES);
+
+            $postData = [];
+            try {
+                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
+                $postData = db()->Select($tblCol)
+                    ->From($postCatTbl)
+                    ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                    ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                    ->WhereEquals('post_status', 1)
+                    ->WhereEquals('cat_id', $category['cat_id'])
+                    ->Where("$postTbl.created_at", '<=', helper()->date())
+                    ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
+
+                $postData = ['PostData' => $postData];
+            }catch (\Exception $exception){
+                // log..
+            }
+
             $fieldSettings = json_decode($category['field_settings'], true);
             $this->getFieldData()->unwrapFieldContent($fieldSettings, contentKey: 'cat_content');
             $category = [...$fieldSettings, ...$category];
@@ -139,8 +164,12 @@ class PostAccessView
 
             event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
             $slugs = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
-            $onFieldUserForm->handleFrontEnd($slugs, [...$category, ...$moreData]);
-            view($postView);
+
+            $dataBundle = [...$category, ...$moreData, ...$postData];
+            // dd($dataBundle, $postView);
+            // apcu_clear_cache();
+            $onFieldUserForm->handleFrontEnd($slugs, $dataBundle);
+            view($postView, $dataBundle);
         }
 
         exit();
