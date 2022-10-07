@@ -86,7 +86,11 @@ class OnPostUpdate implements EventInterface
 
     public function getPostCatIDS(): array
     {
-        return (property_exists($this->post, 'fk_cat_id')) ? [$this->post->fk_cat_id] : [];
+        $catIDS = (property_exists($this->post, 'fk_cat_id')) ? $this->post->fk_cat_id : [];
+        if (!is_array($catIDS) && !empty($catIDS)){
+            $catIDS = [$catIDS];
+        }
+        return $catIDS;
     }
 
     public function getCatCreatedAt(): mixed

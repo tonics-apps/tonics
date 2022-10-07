@@ -246,6 +246,7 @@ class PostsController
     public function edit(string $slug)
     {
         $post = $this->postData->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
+        dd($post);
         if (!is_object($post)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
