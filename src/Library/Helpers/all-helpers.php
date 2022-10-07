@@ -228,6 +228,7 @@ function getGlobalVariableData()
  */
 function view(string $viewname, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
+
     $data = [...$data, ...getGlobalVariableData()];
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
     return $view->render($viewname, $condition);

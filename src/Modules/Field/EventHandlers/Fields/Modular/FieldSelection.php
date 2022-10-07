@@ -140,9 +140,12 @@ HTML;
 HTML;
             }
         }
+
+       // dd($data, getPostData(), $fieldSlug, json_decode($fieldSlug));
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlug}_$changeID";
         $fieldSlug = explode(':', $fieldSlug);
         $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1] : '';
+
         if (!empty($fieldID) && $expandField === '1') {
             $onFieldUserForm = new OnFieldFormHelper([$fieldID], new FieldData(), getPostData());
             $frag .= $onFieldUserForm->getHTMLFrag();

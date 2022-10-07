@@ -216,11 +216,14 @@ function nativeFieldModules() {
                         }
 
                     }
+                    // console.log(tree);
                     addHiddenInputToForm(editorsForm, repeaterName, JSON.stringify({'tree': tree}));
                 }
             }
+             // return;
             editorsForm.submit();
         })
+
         function getRepeatersData(fieldSettingsEl) {
             let widgetSettings = {},
                 fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');

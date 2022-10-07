@@ -20,7 +20,7 @@ class RowColumnRepeater implements HandlerInterface
     private array $repeaters = [];
     private array $nonRepeaters = [];
 
-    private array $oldPostData = [];
+    private ?string $oldPostDataUniqueKey = null;
     private array $repeaterButton = [];
     private array $childStacks = [];
 
@@ -291,14 +291,14 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        // dd($data);
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 
-        $this->oldPostData = getPostData();
-        addToGlobalVariable('Data', []);
+        $this->oldPostDataUniqueKey = helper()->randomString();
+        addToGlobalVariable($this->oldPostDataUniqueKey, getPostData());
 
         if (isset($inputData->tree)) {
+
             $this->unnestRepeater($data);
             $this->repeatersButton($event, $data);
             foreach ($inputData->tree->_data as $tree_data) {
@@ -308,11 +308,18 @@ HTML;
             foreach ($inputData->tree->_data as $modularRepeaterData) {
                 $frag .= $this->handleRepeaterUserFormFrag($event, $modularRepeaterData);
             }
+
         } else {
             $frag = $this->handleUserFormFrag($event, $data);
         }
-        // restore old post
-        addToGlobalVariable('Data', $this->oldPostData);
+
+
+        if (!empty($this->oldPostDataUniqueKey) && isset(getGlobalVariableData()[$this->oldPostDataUniqueKey])){
+            // restore old post
+            addToGlobalVariable('Data', getGlobalVariableData()[$this->oldPostDataUniqueKey]);
+        }
+
+
         return $frag;
     }
 
