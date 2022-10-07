@@ -253,7 +253,7 @@ class PagesController
     /**
      * @throws Exception
      */
-    public function viewPage()
+    public function viewPage(): void
     {
         $foundURL = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode();
         $page = $foundURL->getMoreSettings('GET');
@@ -276,6 +276,8 @@ class PagesController
         $fieldSettings = $beforePageViewEvent->getFieldSettings();
         $fieldSlugs = $this->getFieldSlug($beforePageViewEvent->getFieldSettings());
         $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings, $beforePageViewEvent->isCacheData());
+
+        // dd($page, $fieldSettings, getGlobalVariableData());
 
         view($beforePageViewEvent->getViewName());
     }

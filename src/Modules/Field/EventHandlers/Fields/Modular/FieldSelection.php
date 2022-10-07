@@ -118,14 +118,15 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
-        $fieldSlug = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $inputName = $data->inputName;
+        $fieldSlug = (isset(getPostData()[$inputName])) ? getPostData()[$inputName] : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $table = Tables::getTable(Tables::FIELD);
-        $fields = db()->run("SELECT * FROM $table");
+        $fields = db()->Select('*')->From($table)->FetchResult();
         $fieldFrag = '';
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug:$field->field_id";

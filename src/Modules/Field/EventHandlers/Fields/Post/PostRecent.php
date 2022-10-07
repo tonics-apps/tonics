@@ -31,7 +31,9 @@ class PostRecent implements HandlerInterface
             userForm: function ($data) use ($event){
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
+            handleViewProcessing: function ($data) use ($event){
+                $this->viewData($event, $data);
+            }
         );
     }
 
@@ -104,10 +106,7 @@ FORM;
     public function viewData(OnFieldMetaBox $event, $data = null)
     {
         $postTake = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : $data->postTake;
-        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-
         $postTbl = Tables::getTable(Tables::POSTS);
-
         $postData = [];
         try {
             $tblCol = table()->pickTableExcept($postTbl,  ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
@@ -120,6 +119,6 @@ FORM;
             // log..
         }
 
-        addToGlobalVariable("PostRecent_$inputName", ['Data' => $postData]);
+        addToGlobalVariable("PostRecent_$data->inputName", ['Data' => $postData]);
     }
 }
