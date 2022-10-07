@@ -89,14 +89,19 @@ class PostData extends AbstractDataLayer
 
     /**
      * @param $category
-     * @param null $currentCatData
+     * @param null $currentCatIDS
      * @param $type
      * @return string
      * @throws \Exception
      */
-    private function getCategoryHTMLSelectFragments($category, $currentCatData = null): string
+    private function getCategoryHTMLSelectFragments($category, $currentCatIDS = null): string
     {
-        $currentCatData = (is_object($currentCatData) && property_exists($currentCatData, 'cat_parent_id')) ? $currentCatData->cat_parent_id : $currentCatData;
+        $currentCatIDS = (is_object($currentCatIDS) && property_exists($currentCatIDS, 'cat_parent_id')) ? $currentCatIDS->cat_parent_id : $currentCatIDS;
+
+        if (!is_array($currentCatIDS)){
+            $currentCatIDS = [$currentCatIDS];
+        }
+
         $catSelectFrag = '';
         $catID = $category->cat_id;
         if ($category->depth === 0) {
@@ -104,17 +109,22 @@ class PostData extends AbstractDataLayer
     <option data-is-parent="yes" data-depth="$category->depth"
             data-slug="$category->cat_slug" data-path="/$category->path/" value="$catID"
 CAT;
-            if (!empty($currentCatData) && $currentCatData == $category->cat_id) {
-                $catSelectFrag .= 'selected';
+            foreach ($currentCatIDS as $currentCatID){
+                if ($currentCatID == $category->cat_id) {
+                    $catSelectFrag .= 'selected';
+                }
             }
+
             $catSelectFrag .= ">" . $category->cat_name;
         } else {
             $catSelectFrag .= <<<CAT
     <option data-slug="$category->cat_slug" data-depth="$category->depth" data-path="/$category->path/"
             value="$catID"
 CAT;
-            if (!empty($currentCatData) && $currentCatData == $category->cat_id) {
-                $catSelectFrag .= 'selected';
+            foreach ($currentCatIDS as $currentCatID){
+                if ($currentCatID == $category->cat_id) {
+                    $catSelectFrag .= 'selected';
+                }
             }
 
             $catSelectFrag .= ">" . str_repeat("&nbsp;&nbsp;&nbsp;", $category->depth + 1);
@@ -124,7 +134,7 @@ CAT;
 
         if (isset($category->_children)) {
             foreach ($category->_children as $catChildren) {
-                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($catChildren, $currentCatData);
+                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($catChildren, $currentCatIDS);
             }
         }
 
