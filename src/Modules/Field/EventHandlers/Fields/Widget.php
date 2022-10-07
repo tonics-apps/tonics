@@ -156,5 +156,6 @@ HTML;
         });
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
         addToGlobalVariable("Widget_$inputName", ['Name' => $fieldName, 'InputName' => $inputName, 'Data' => $widgetDataArray]);
+        return '';
     }
 }

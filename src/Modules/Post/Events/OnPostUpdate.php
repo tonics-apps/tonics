@@ -84,9 +84,9 @@ class OnPostUpdate implements EventInterface
         return (property_exists($this->post, 'post_status')) ? $this->post->post_status : '';
     }
 
-    public function getPostCatID(): string|int
+    public function getPostCatIDS(): array
     {
-        return (property_exists($this->post, 'fk_cat_id')) ? $this->post->fk_cat_id : '';
+        return (property_exists($this->post, 'fk_cat_id')) ? [$this->post->fk_cat_id] : [];
     }
 
     public function getCatCreatedAt(): mixed

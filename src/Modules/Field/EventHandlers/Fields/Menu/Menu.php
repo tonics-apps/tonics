@@ -62,6 +62,7 @@ HTML;
 <option value="1">True</option>
 HTML;
         }
+
         $menuData = new MenuData();
         $menuFrag = '';
         $menus = $menuData->getMenus();
@@ -97,6 +98,7 @@ HTML;
      </select>
     </label>
 </div>
+
 <div class="form-group">
      <label class="menu-settings-handle-name" for="displayName-$changeID">Display Menu Names ?
      <select name="displayName" class="default-selector mg-b-plus-1" id="displayName-$changeID">

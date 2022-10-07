@@ -42,6 +42,21 @@ class PostCategorySelect implements HandlerInterface
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Posts Category Select';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
+
+
+        if ($multipleSelection === '1') {
+            $typeName = <<<HTML
+<option value="0">False</option>
+<option value="1" selected>True</option>
+HTML;
+        } else {
+            $typeName = <<<HTML
+<option value="0" selected>False</option>
+<option value="1">True</option>
+HTML;
+        }
+
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -54,6 +69,14 @@ class PostCategorySelect implements HandlerInterface
     <label class="menu-settings-handle-name" for="inputName-$changeID">Input Name
             <input id="inputName-$changeID" name="inputName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$inputName" placeholder="(Optional) Input Name">
+    </label>
+</div>
+
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="multipleSelect-$changeID">Multiple Selection ?
+     <select name="multipleSelect" class="default-selector mg-b-plus-1" id="multipleSelect-$changeID">
+        $typeName
+     </select>
     </label>
 </div>
 FORM;
@@ -71,16 +94,27 @@ FORM;
         $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $postData = new PostData();
         $categories = $postData->getCategoryHTMLSelect($inputName ?: null);
+        $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
+
 
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
+        $multipleAttr = '';
+        $selectName = "$inputName";
+        $height = '';
+        if ($multipleSelection === '1'){
+            $multipleAttr = 'multiple';
+            $selectName = "{$inputName}[]";
+            $height = 'height: 300px;';
+        }
+
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
-    <select id="categories" data-widget-select-category="true" name="$inputName" class="default-selector">
-                    <option value="" selected style="color: #004085">-Parent Category-</option>
+    <select style="$height" id="categories" data-widget-select-category="true" $multipleAttr name="$selectName" class="default-selector">
+                    <option value="" style="color: #004085">-Parent Category-</option>
                     $categories
     </select>
 </div>

@@ -304,9 +304,10 @@ HTML;
             foreach ($inputData->tree->_data as $tree_data) {
                 $this->walkTreeAndDoTheDo($tree_data);
             }
-            $this->isRoot = false; // reset is root
+
             $frag = '';
             foreach ($inputData->tree->_data as $modularRepeaterData) {
+                $this->isRoot = false; // reset root for each $modularRepeaterData root
                 $frag .= $this->handleRepeaterUserFormFrag($event, $modularRepeaterData);
             }
 

@@ -23,13 +23,16 @@ class HandleUpdatePostToCategoryMapping implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
+        dd($event);
         /**
          * @var OnPostUpdate $event
          */
         $postToCategoryUpdate = [
-            'fk_cat_id' => $event->getPostCatID(),
+            'fk_cat_id' => $event->getPostCatIDS(),
             'fk_post_id' => $event->getPostID(),
         ];
+
+        dd($postToCategoryUpdate);
 
         db()->FastUpdate($event->getPostData()->getPostToCategoryTable(), $postToCategoryUpdate, db()->Where('fk_post_id', '=', $event->getPostID()));
     }
