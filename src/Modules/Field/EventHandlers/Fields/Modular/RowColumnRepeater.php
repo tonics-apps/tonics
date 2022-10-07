@@ -297,12 +297,14 @@ HTML;
         if (isset($inputData->tree)) {
             $this->oldPostDataUniqueKey = helper()->randomString();
             addToGlobalVariable($this->oldPostDataUniqueKey, getPostData());
+            addToGlobalVariable('Data', []);
 
             $this->unnestRepeater($data);
             $this->repeatersButton($event, $data);
             foreach ($inputData->tree->_data as $tree_data) {
                 $this->walkTreeAndDoTheDo($tree_data);
             }
+            $this->isRoot = false; // reset is root
             $frag = '';
             foreach ($inputData->tree->_data as $modularRepeaterData) {
                 $frag .= $this->handleRepeaterUserFormFrag($event, $modularRepeaterData);
