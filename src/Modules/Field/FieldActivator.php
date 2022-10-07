@@ -32,6 +32,7 @@ use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelection;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumn;
 use App\Modules\Field\EventHandlers\Fields\Post\PostAuthorSelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategorySelect;
+use App\Modules\Field\EventHandlers\Fields\Post\PostRecent;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtist;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtistSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackGenre;
@@ -85,9 +86,9 @@ class FieldActivator implements ExtensionConfig
                 # POSTS
                 PostCategorySelect::class,
                 PostAuthorSelect::class,
+                PostRecent::class,
 
                 # TRACKS
-                Tracks::class,
                 TrackArtist::class,
                 TrackGenre::class,
                 TrackLicenseSelect::class,

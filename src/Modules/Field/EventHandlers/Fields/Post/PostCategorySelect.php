@@ -12,8 +12,9 @@ namespace App\Modules\Field\EventHandlers\Fields\Post;
 
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Post\Data\PostData;
+use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class PostCategorySelect implements \Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface
+class PostCategorySelect implements HandlerInterface
 {
 
     /**
@@ -41,7 +42,6 @@ class PostCategorySelect implements \Devsrealm\TonicsEventSystem\Interfaces\Hand
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Posts Category Select';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $attributes = (isset($data->attributes)) ? helper()->htmlSpecChar($data->attributes) : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -71,6 +71,7 @@ FORM;
         $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $postData = new PostData();
         $categories = $postData->getCategoryHTMLSelect($inputName ?: null);
+
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";

@@ -10,22 +10,21 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Post;
 
-use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class PostAuthorSelect implements HandlerInterface
+class PostRecent implements HandlerInterface
 {
 
     /**
      * @inheritDoc
-     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
         /** @var $event OnFieldMetaBox */
-        $event->addFieldBox('PostAuthorSelect', 'Post Author HTML Selection', 'Post',
+        $event->addFieldBox('PostRecent', 'Recent Post', 'Post',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
@@ -36,7 +35,6 @@ class PostAuthorSelect implements HandlerInterface
         );
     }
 
-
     /**
      * @param OnFieldMetaBox $event
      * @param $data
@@ -45,8 +43,9 @@ class PostAuthorSelect implements HandlerInterface
      */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Posts Author Select';
+        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Posts Recent';
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $postTake =  (isset($data->postTake)) ? $data->postTake : '5';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -61,6 +60,13 @@ class PostAuthorSelect implements HandlerInterface
             value="$inputName" placeholder="(Optional) Input Name">
     </label>
 </div>
+
+<div class="form-group">
+    <label class="menu-settings-handle-name" for="recent-post-name">Number of Posts
+        <input name="postTake" id="recent-post-name" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+         value="$postTake">
+    </label>
+</div>
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -73,23 +79,47 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostAuthorSelect';
-        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $userData = new UserData();
-        $authors = $userData->getPostAuthorHTMLSelect($inputName ?: null);
-        $slug = $data->field_slug;
+        $postTake = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : $data->postTake;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
+        $slug = $data->field_slug;
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag .= <<<FORM
-<div class="form-group margin-top:0">
-    <select id="authors" name="$inputName" class="default-selector">
-                    $authors
-    </select>
+<div class="form-group">
+    <label class="menu-settings-handle-name" for="recent-post-name">Number of Posts
+        <input name="$inputName" id="recent-post-name" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+         value="$postTake">
+    </label>
 </div>
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function viewData(OnFieldMetaBox $event, $data = null)
+    {
+        $postTake = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : $data->postTake;
+        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+
+        $postTbl = Tables::getTable(Tables::POSTS);
+
+        $postData = [];
+        try {
+            $tblCol = table()->pickTableExcept($postTbl,  ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
+            $postData = db()->Select($tblCol)
+                ->From($postTbl)
+                ->WhereEquals('post_status', 1)
+                ->Where("$postTbl.created_at", '<=', helper()->date())
+                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->Limit($postTake)->FetchResult();
+        }catch (\Exception $exception){
+            // log..
+        }
+
+        addToGlobalVariable("PostRecent_$inputName", ['Data' => $postData]);
     }
 }

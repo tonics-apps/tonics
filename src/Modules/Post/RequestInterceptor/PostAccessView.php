@@ -166,8 +166,6 @@ class PostAccessView
             $slugs = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
 
             $dataBundle = [...$category, ...$moreData, ...$postData];
-            // dd($dataBundle, $postView);
-            // apcu_clear_cache();
             $onFieldUserForm->handleFrontEnd($slugs, $dataBundle);
             view($postView, $dataBundle);
         }
