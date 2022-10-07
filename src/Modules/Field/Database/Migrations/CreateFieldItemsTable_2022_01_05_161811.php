@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_name": "modular_rowcolumn",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"596c407bfb4f4d17bff1b1840c7fcf\",\"fieldName\":\"Post Experience\",\"inputName\":\"post_experience\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"596c407bfb4f4d17bff1b1840c7fcf\",\"fieldName\":\"Post Experience\",\"inputName\":\"post_experience\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Post Page",
@@ -74,63 +74,63 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_name": "input_rich-text",
     "field_id": 3,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"28d4f12fdd87c72c2217e68f781b7c\",\"fieldName\":\"Post Content\",\"inputName\":\"post_content\",\"maxChar\":\"\",\"placeholder\":\"You can start writing...\",\"readOnly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"28d4f12fdd87c72c2217e68f781b7c\",\"fieldName\":\"Post Content\",\"inputName\":\"post_content\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"You can start writing...\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Post Page",
     "field_name": "modular_rowcolumn",
     "field_id": 4,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"cd79f31a02ebaf382524255bb9977f\",\"fieldName\":\"Post Settings\",\"inputName\":\"post_settings\",\"row\":\"2\",\"column\":\"2\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"cd79f31a02ebaf382524255bb9977f\",\"fieldName\":\"Post Settings\",\"inputName\":\"post_settings\",\"row\":\"2\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Post Page",
+    "field_name": "media_media-image",
+    "field_id": 5,
+    "field_parent_id": 4,
+    "field_options": "{\"field_slug\":\"media_media-image\",\"media_media-image_cell\":\"1\",\"field_slug_unique_hash\":\"c37249cd27fa2cf9fb227c48f80a96\",\"fieldName\":\"Featured Image\",\"inputName\":\"image_url\",\"imageLink\":\"\",\"featured_image\":\"\",\"defaultImage\":\"\"}"
   },
   {
     "fk_field_id": "Post Page",
     "field_name": "post_postcategoryselect",
-    "field_id": 5,
+    "field_id": 6,
     "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"post_postcategoryselect\",\"post_postcategoryselect_cell\":\"1\",\"field_slug_unique_hash\":\"98a6eec61986b338a606a293d52641\",\"fieldName\":\"Posts Category\",\"inputName\":\"fk_cat_id\"}"
+    "field_options": "{\"field_slug\":\"post_postcategoryselect\",\"post_postcategoryselect_cell\":\"2\",\"field_slug_unique_hash\":\"98a6eec61986b338a606a293d52641\",\"fieldName\":\"Posts Category\",\"inputName\":\"fk_cat_id\",\"multipleSelect\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Post Page",
+    "field_name": "post_postauthorselect",
+    "field_id": 7,
+    "field_parent_id": 4,
+    "field_options": "{\"field_slug\":\"post_postauthorselect\",\"post_postauthorselect_cell\":\"3\",\"field_slug_unique_hash\":\"108w14fmdpow000000000\",\"fieldName\":\"Author\",\"inputName\":\"user_id\"}"
   },
   {
     "fk_field_id": "Post Page",
     "field_name": "modular_rowcolumn",
-    "field_id": 6,
+    "field_id": 8,
     "field_parent_id": 4,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"2\",\"field_slug_unique_hash\":\"63xrwrywapc0000000000\",\"fieldName\":\"Meta\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"4\",\"field_slug_unique_hash\":\"63xrwrywapc0000000000\",\"fieldName\":\"Meta\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Post Page",
     "field_name": "input_text",
-    "field_id": 7,
-    "field_parent_id": 6,
+    "field_id": 9,
+    "field_parent_id": 8,
     "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"qnje9n94xxs000000000\",\"fieldName\":\"Post Slug\",\"inputName\":\"post_slug\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Post Slug (optional)\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Post Page",
     "field_name": "input_select",
-    "field_id": 8,
-    "field_parent_id": 6,
+    "field_id": 10,
+    "field_parent_id": 8,
     "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"48jzxkcjymw0000000000\",\"fieldName\":\"Status\",\"inputName\":\"post_status\",\"selectData\":\"0:Draft,1:Publish,-1:Trash\",\"defaultValue\":\"0\"}"
   },
   {
     "fk_field_id": "Post Page",
     "field_name": "input_date",
-    "field_id": 9,
-    "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"13mgpl0rp37g000000000\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
-  },
-  {
-    "fk_field_id": "Post Page",
-    "field_name": "media_media-image",
-    "field_id": 10,
-    "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"media_media-image\",\"media_media-image_cell\":\"3\",\"field_slug_unique_hash\":\"c37249cd27fa2cf9fb227c48f80a96\",\"fieldName\":\"Featured Image\",\"inputName\":\"image_url\",\"imageLink\":\"\",\"featured_image\":\"\",\"defaultImage\":\"\"}"
-  },
-  {
-    "fk_field_id": "Post Page",
-    "field_name": "post_postauthorselect",
     "field_id": 11,
-    "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"post_postauthorselect\",\"post_postauthorselect_cell\":\"4\",\"field_slug_unique_hash\":\"108w14fmdpow000000000\",\"fieldName\":\"Author\",\"inputName\":\"user_id\"}"
+    "field_parent_id": 8,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"13mgpl0rp37g000000000\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
   },
   {
     "fk_field_id": "Post Category Page",

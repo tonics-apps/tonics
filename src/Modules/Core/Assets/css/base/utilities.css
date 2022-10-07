@@ -431,8 +431,16 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     align-items: flex-end;
 }
 
+.align-items\:end {
+    align-items: end;
+}
+
 .align-items\:flex-start {
     align-items: flex-start;
+}
+
+.align-items\:start {
+    align-items: start;
 }
 
 .align-self\:flex-start {

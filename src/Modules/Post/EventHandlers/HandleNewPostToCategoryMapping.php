@@ -27,14 +27,15 @@ class HandleNewPostToCategoryMapping implements HandlerInterface
         /**
          * @var OnPostCreate $event
          */
-        $postToCategory = [
-            'fk_cat_id' => $event->getPostCatID(),
-            'fk_post_id' => $event->getPostID(),
-        ];
+        $toInsert = [];
+        foreach ($event->getPostCatIDS() as $catID){
+            $toInsert[] = [
+                'fk_cat_id' => $catID,
+                'fk_post_id' => $event->getPostID(),
+            ];
+        }
 
-        $event->getPostData()->insertForPost(
-            $postToCategory,
-            PostData::PostCategory_INT,
-            $event->getPostData()->getPostToCategoriesColumns());
+        $table = $event->getPostData()->getPostToCategoryTable();
+        db()->Insert($table, $toInsert);
     }
 }

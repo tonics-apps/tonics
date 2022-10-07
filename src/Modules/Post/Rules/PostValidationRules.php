@@ -75,7 +75,7 @@ trait PostValidationRules
             'user_id' => ['required', 'numeric'],
             'created_at' => ['required', 'string'],
             'image_url' => ['string'],
-            'fk_cat_id' => ['numeric'],
+            'fk_cat_id' => ['array'],
         ];
     }
 
