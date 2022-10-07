@@ -337,12 +337,6 @@ HTML;
             $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
         }
 
-        $root = 'false';
-        if ($this->isRoot === false){
-            $root = 'true';
-            $this->isRoot = true;
-        }
-
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -354,6 +348,16 @@ HTML;
         }
 
         $depth = $data->_field->depth ?? $data->depth;
+
+        $root = 'false';
+        if ($this->isRoot === false){
+            $root = 'true';
+            $this->isRoot = true;
+        }
+
+        if ($depth == '0'){
+            $root = 'true';
+        }
 
         $frag = $event->_topHTMLWrapper($fieldName, $data, true);
 
@@ -505,7 +509,7 @@ HTML;
                 $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
 HTML;
-                foreach ($data->_children as $keyChild => $child) {
+                foreach ($data->_children as $child) {
                     if (!isset($child->_cell_position)){
                         $slugCell = $child->field_options->field_slug . '_cell';
                         $childCellNumber = (int)$child->field_options->{$slugCell};
@@ -522,7 +526,6 @@ HTML;
                     if ($childCellNumber === $i) {
                         if ($childField->field_slug === 'modular_rowcolumnrepeater'){
                             $frag .= $this->handleRepeaterUserFormFrag($event, $child);
-                           // dd($child);
                         } else {
                             addToGlobalVariable('Data', (array)$child);
                             $frag .= $event->getUsersForm($childField->field_slug, $childField ?? null);
