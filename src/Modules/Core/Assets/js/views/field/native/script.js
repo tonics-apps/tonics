@@ -216,10 +216,11 @@ function nativeFieldModules() {
                         }
 
                     }
-                    // console.log(tree);
+                    console.log(tree);
                     addHiddenInputToForm(editorsForm, repeaterName, JSON.stringify({'tree': tree}));
                 }
             }
+             console.log(rootRepeaters);
              // return;
             editorsForm.submit();
         })

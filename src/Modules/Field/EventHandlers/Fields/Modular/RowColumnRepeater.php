@@ -294,10 +294,9 @@ HTML;
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 
-        $this->oldPostDataUniqueKey = helper()->randomString();
-        addToGlobalVariable($this->oldPostDataUniqueKey, getPostData());
-
         if (isset($inputData->tree)) {
+            $this->oldPostDataUniqueKey = helper()->randomString();
+            addToGlobalVariable($this->oldPostDataUniqueKey, getPostData());
 
             $this->unnestRepeater($data);
             $this->repeatersButton($event, $data);
@@ -309,14 +308,13 @@ HTML;
                 $frag .= $this->handleRepeaterUserFormFrag($event, $modularRepeaterData);
             }
 
+            if (!empty($this->oldPostDataUniqueKey) && isset(getGlobalVariableData()[$this->oldPostDataUniqueKey])){
+                // restore old post
+                addToGlobalVariable('Data', getGlobalVariableData()[$this->oldPostDataUniqueKey]);
+            }
+
         } else {
             $frag = $this->handleUserFormFrag($event, $data);
-        }
-
-
-        if (!empty($this->oldPostDataUniqueKey) && isset(getGlobalVariableData()[$this->oldPostDataUniqueKey])){
-            // restore old post
-            addToGlobalVariable('Data', getGlobalVariableData()[$this->oldPostDataUniqueKey]);
         }
 
 
@@ -337,7 +335,7 @@ HTML;
         }
 
         $root = 'false';
-        if (!$this->isRoot){
+        if ($this->isRoot === false){
             $root = 'true';
             $this->isRoot = true;
         }
@@ -504,7 +502,7 @@ HTML;
                 $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
 HTML;
-                foreach ($data->_children as $child) {
+                foreach ($data->_children as $keyChild => $child) {
                     if (!isset($child->_cell_position)){
                         $slugCell = $child->field_options->field_slug . '_cell';
                         $childCellNumber = (int)$child->field_options->{$slugCell};
@@ -521,6 +519,7 @@ HTML;
                     if ($childCellNumber === $i) {
                         if ($childField->field_slug === 'modular_rowcolumnrepeater'){
                             $frag .= $this->handleRepeaterUserFormFrag($event, $child);
+                           // dd($child);
                         } else {
                             addToGlobalVariable('Data', (array)$child);
                             $frag .= $event->getUsersForm($childField->field_slug, $childField ?? null);
@@ -540,12 +539,13 @@ HTML;
         $frag .= $event->_bottomHTMLWrapper();
 
         $slugHash = $data->field_slug_unique_hash ?? $data->field_options->field_slug_unique_hash;
+        if (!isset($data->_can_have_repeater_button)){
+            $frag .= $this->repeaterButton[$slugHash];
+        }
         if (isset($data->_can_have_repeater_button) && $data->_can_have_repeater_button){
             if (isset($this->repeaterButton[$slugHash])){
                 $frag .= $this->repeaterButton[$slugHash];
             }
-        } else {
-            $frag .= $this->repeaterButton[$slugHash];
         }
 
         return $frag;

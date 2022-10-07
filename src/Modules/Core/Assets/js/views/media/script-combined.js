@@ -789,6 +789,7 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
         let tempEl = document.createElement("div");
         el1.parentNode.insertBefore(tempEl, el1); el2.parentNode.insertBefore(el1, el2);
         tempEl.parentNode.insertBefore(el2, tempEl); tempEl.parentNode.removeChild(tempEl);
+
 /*
         // THIS ONE KEEP LOSING SELECT DATA BUT THE TEMP VERSION ABOVE WORKS SUPERB
         let copyEl1 = el1.cloneNode(true);
