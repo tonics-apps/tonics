@@ -43,10 +43,10 @@ class RowColumnRepeater implements HandlerInterface
             $script,
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
-            }, userForm: function ($data) use ($event) {
-
-            return $this->userForm($event, $data);
-        },
+            },
+            userForm: function ($data) use ($event) {
+                return $this->userForm($event, $data);
+                },
             handleViewProcessing: function ($data) use ($event) {
                 $this->viewData($event, $data);
             }
@@ -77,7 +77,29 @@ class RowColumnRepeater implements HandlerInterface
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
 
+        $disallowRepeat = (isset($data->disallowRepeat)) ? $data->disallowRepeat : '0';
+
+        if ($disallowRepeat === '1') {
+            $disallowRepeatFrag = <<<HTML
+<option value="0">False</option>
+<option value="1" selected>True</option>
+HTML;
+        } else {
+            $disallowRepeatFrag = <<<HTML
+<option value="0" selected>False</option>
+<option value="1">True</option>
+HTML;
+        }
+
         $more = <<<HTML
+<div class="form-group">
+     <label class="menu-settings-handle-name" for="disallowRepeat-$changeID">Disallow Repeat
+     <select name="disallowRepeat" class="default-selector mg-b-plus-1" id="disallowRepeat-$changeID">
+        $disallowRepeatFrag
+     </select>
+    </label>
+</div>
+
 <div class="form-group">
      <label class="menu-settings-handle-name" for="group-$changeID">Repeat Button Text
      <input id="widget-name-$changeID" name="repeat_button_text" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -463,7 +485,11 @@ HTML;
 HTML;
         $frag .= $event->_bottomHTMLWrapper();
 
-        $repeaterButtonFrag = <<<HTML
+        $disallowRepeat = (isset($data->disallowRepeat)) ? $data->disallowRepeat : '0';
+        $repeaterButtonFrag = '';
+
+        if ($disallowRepeat === '0'){
+            $repeaterButtonFrag = <<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
   $repeat_button_text
@@ -472,9 +498,9 @@ color:black bg:white-one border-width:default border:black padding:default curso
   </template>
 </button>
 HTML;
+        }
 
         $frag .= $repeaterButtonFrag;
-
         if ($interceptBottom) {
             return $interceptBottom($data, $repeaterButtonFrag);
         }
@@ -544,13 +570,17 @@ HTML;
 HTML;
         $frag .= $event->_bottomHTMLWrapper();
 
-        $slugHash = $data->field_slug_unique_hash ?? $data->field_options->field_slug_unique_hash;
-        if (!isset($data->_can_have_repeater_button)){
-            $frag .= $this->repeaterButton[$slugHash];
-        }
-        if (isset($data->_can_have_repeater_button) && $data->_can_have_repeater_button){
-            if (isset($this->repeaterButton[$slugHash])){
+        $disallowRepeat = (isset($data->disallowRepeat)) ? $data->disallowRepeat : '0';
+
+        if ($disallowRepeat === '0'){
+            $slugHash = $data->field_slug_unique_hash ?? $data->field_options->field_slug_unique_hash;
+            if (!isset($data->_can_have_repeater_button)){
                 $frag .= $this->repeaterButton[$slugHash];
+            }
+            if (isset($data->_can_have_repeater_button) && $data->_can_have_repeater_button){
+                if (isset($this->repeaterButton[$slugHash])){
+                    $frag .= $this->repeaterButton[$slugHash];
+                }
             }
         }
 
