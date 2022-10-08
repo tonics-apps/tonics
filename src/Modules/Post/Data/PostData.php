@@ -10,6 +10,7 @@
 
 namespace App\Modules\Post\Data;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
@@ -17,6 +18,7 @@ use App\Modules\Field\Data\FieldData;
 use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Post\Events\OnPostCategoryDefaultField;
 use App\Modules\Post\Events\OnPostDefaultField;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class PostData extends AbstractDataLayer
 {
@@ -500,6 +502,73 @@ HTML;
 HTML;
         }
         return $htmlFrag;
+    }
+
+    /**
+     * @param array|\stdClass $children
+     * @return object|null
+     * @throws \Exception
+     */
+    public function generatePostDataFromPostQueryBuilderField(array|\stdClass $children): ?object
+    {
+        $postTbl = Tables::getTable(Tables::POSTS);
+        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+        $CatTbl = Tables::getTable(Tables::CATEGORIES);
+
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at', 'image_url']])
+            . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
+
+        $db = db()->Select($tblCol)
+            ->From($postCatTbl)
+            ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+            ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+            ->WhereEquals('post_status', 1)
+            ->Where("$postTbl.created_at", '<=', helper()->date());
+
+        $perPage = AppConfig::getAppPaginationMax();
+        $orderBy = 'asc';
+        $operator = 'IN';
+
+        foreach ($children as $child){
+
+                if (isset($child->post_query_builder_orderBy)){
+                    $orderBy = $child->post_query_builder_orderBy;
+                }
+
+                if (isset($child->post_query_builder_perPost)){
+                    $perPage = (int)$child->post_query_builder_perPost;
+                }
+
+                // for Category
+                if (isset($child->field_slug) && isset($child->inputName) && $child->inputName === 'post_query_builder_CategoryIn'){
+                    if (isset($child->_children)){
+                        foreach ($child->_children as $catChild){
+                            if (isset($catChild->categoryOperator)){
+                                $operator = $catChild->categoryOperator;
+                            }
+                            if (isset($catChild->{"post_query_builder_Category[]"})){
+                                switch ($operator){
+                                    case 'IN':
+                                        $db->WhereIn('cat_id', $catChild->{"post_query_builder_Category[]"});
+                                        break;
+                                    case 'NOT IN':
+                                        $db->WhereNotIn('cat_id', $catChild->{"post_query_builder_Category[]"});
+                                        break;
+                                    default:
+                                        $db->WhereIn('cat_id', $catChild->{"post_query_builder_Category[]"});
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        return $db->when($orderBy === 'asc', function (TonicsQuery $db) use ($postTbl) {
+            $db->OrderByAsc(table()->pickTable($postTbl, ['updated_at']));
+        }, function (TonicsQuery $db) use ($postTbl) {
+            $db->OrderByDesc(table()->pickTable($postTbl, ['updated_at']));
+        })->SimplePaginate($perPage);
+
     }
 
     /**

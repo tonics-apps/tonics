@@ -101,6 +101,9 @@ function nativeFieldModules() {
             let rootRepeaters = document.querySelectorAll('[data-is_repeater_root="true"]');
             if (rootRepeaters.length > 0){
                 rootRepeaters.forEach(rootRepeater => {
+
+                    console.log(rootRepeater.closest('.row-col-parent'));
+
                    let rootRepeatersName = rootRepeater.dataset.repeater_input_name;
                    if (repeaters.hasOwnProperty(rootRepeatersName)){
                        repeaters[rootRepeatersName].push(rootRepeater.closest('[data-slug="modular_rowcolumnrepeater"]'))
@@ -216,12 +219,12 @@ function nativeFieldModules() {
                         }
 
                     }
-                    // console.log(tree);
+                    console.log(tree);
                     addHiddenInputToForm(editorsForm, repeaterName, JSON.stringify({'tree': tree}));
                 }
             }
             // console.log(rootRepeaters);
-             // return;
+             return;
             editorsForm.submit();
         })
 
@@ -297,7 +300,7 @@ function updateRowCol(row, col, parent) {
         }
     }
 
-    // this is non negative
+    // this is non-negative
     if (Math.sign(cellItems) === 1) {
         for (let i = 1; i <= cellItems; i++) {
             rowColumnItemContainer.insertAdjacentHTML('beforeend', getCellForm());

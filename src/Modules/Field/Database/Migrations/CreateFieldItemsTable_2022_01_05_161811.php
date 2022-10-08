@@ -411,6 +411,69 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_id": 1,
     "field_parent_id": null,
     "field_options": "{\"field_slug\":\"media_media-manager\",\"field_slug_unique_hash\":\"6hekf1492880000000000\",\"fieldName\":\"Upload App\",\"inputName\":\"plugin_url\",\"featured_link\":\"\",\"file_url\":\"\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "modular_rowcolumnrepeater",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"4z1rbnzzwho0000000000\",\"fieldName\":\"Post Query Builder\",\"inputName\":\"post_query_builder_field\",\"row\":\"2\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"1\",\"repeat_button_text\":\"Add Post Query Builder\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "input_text",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"737sstzo4iw000000000\",\"fieldName\":\"Number of Post\",\"inputName\":\"post_query_builder_perPost\",\"textType\":\"number\",\"defaultValue\":\"10\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Number of Post To Retrieve\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "input_select",
+    "field_id": 3,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"2\",\"field_slug_unique_hash\":\"68ekrqwt2fc0000000000\",\"fieldName\":\"Order By\",\"inputName\":\"post_query_builder_orderBy\",\"selectData\":\"asc:Ascending, desc:Descending\",\"defaultValue\":\"desc\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "modular_rowcolumnrepeater",
+    "field_id": 4,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"3\",\"field_slug_unique_hash\":\"2ihh3lv7etc0000000000\",\"fieldName\":\"Author In\",\"inputName\":\"post_query_builder_AuthorIn\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add Author In\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "input_select",
+    "field_id": 5,
+    "field_parent_id": 4,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"2lgn727lizy0000000000\",\"fieldName\":\"Operator\",\"inputName\":\"authorOperator\",\"selectData\":\"IN,NOT IN\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "post_postauthorselect",
+    "field_id": 6,
+    "field_parent_id": 4,
+    "field_options": "{\"field_slug\":\"post_postauthorselect\",\"post_postauthorselect_cell\":\"1\",\"field_slug_unique_hash\":\"5s1jan95tw80000000000\",\"fieldName\":\"Posts Author Select\",\"inputName\":\"post_query_builder_Author\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "modular_rowcolumnrepeater",
+    "field_id": 7,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"4\",\"field_slug_unique_hash\":\"4pvzswsjd9q0000000000\",\"fieldName\":\"Category In\",\"inputName\":\"post_query_builder_CategoryIn\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add Category In\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "input_select",
+    "field_id": 8,
+    "field_parent_id": 7,
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"47bcdkcxrd6000000000\",\"fieldName\":\"Operator\",\"inputName\":\"categoryOperator\",\"selectData\":\"IN,NOT IN\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "post_postcategoryselect",
+    "field_id": 9,
+    "field_parent_id": 7,
+    "field_options": "{\"field_slug\":\"post_postcategoryselect\",\"post_postcategoryselect_cell\":\"1\",\"field_slug_unique_hash\":\"cemz102yrg0000000000\",\"fieldName\":\"Choose Category\",\"inputName\":\"post_query_builder_Category\",\"multipleSelect\":\"1\"}"
   }
 ]
 JSON;
