@@ -216,11 +216,11 @@ function nativeFieldModules() {
                         }
 
                     }
-                    console.log(tree);
+                    // console.log(tree);
                     addHiddenInputToForm(editorsForm, repeaterName, JSON.stringify({'tree': tree}));
                 }
             }
-             console.log(rootRepeaters);
+            // console.log(rootRepeaters);
              // return;
             editorsForm.submit();
         })
@@ -249,9 +249,20 @@ function nativeFieldModules() {
                         if (inputs.checked){
                             fieldSettings[checkboxName].push(inputs.value);
                         }
-                    }
+                    }else if (inputs.type === 'select-multiple'){
+                        let selectOptions = inputs.options;
+                        let selectBoxName = inputs.name;
+                        for (let k = 0; k < selectOptions.length; k++) {
+                            let option = selectOptions[k];
+                            if (option.selected){
+                                if (!fieldSettings.hasOwnProperty(selectBoxName)){
+                                    fieldSettings[selectBoxName] = [];
+                                }
 
-                    if (!fieldSettings.hasOwnProperty(inputs.name)) {
+                                fieldSettings[selectBoxName].push(option.value || option.text);
+                            }
+                        }
+                    }else if (!fieldSettings.hasOwnProperty(inputs.name)) {
                         fieldSettings[inputs.name] = inputs.value;
                     }
 

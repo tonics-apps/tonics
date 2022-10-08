@@ -91,17 +91,11 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostCategorySelect';
-        $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $postData = new PostData();
-        $categories = $postData->getCategoryHTMLSelect($inputName ?: null);
-        $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
-
-
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
+        $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
+        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $multipleAttr = '';
         $selectName = "$inputName";
         $height = '';
@@ -110,6 +104,12 @@ FORM;
             $selectName = "{$inputName}[]";
             $height = 'height: 300px;';
         }
+
+        $inputData = (isset(getPostData()[$selectName])) ? getPostData()[$selectName] : '';
+        $postData = new PostData();
+        $categories = $postData->getCategoryHTMLSelect($inputData ?: null);
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
