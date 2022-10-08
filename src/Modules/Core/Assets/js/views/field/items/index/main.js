@@ -59,7 +59,6 @@ new Draggables(parent)
         if (elementDropped && elementDropped !== elementDragged && top || bottom){
             // swap element
             swapNodes(elementDragged, elementDropped, self.draggingOriginalRect, () => {
-                console.log('hello')
                 setListDataArray();
             });
             sensitivity = 0;
@@ -157,6 +156,7 @@ function getListDataArray() {
                         }
                     }
                 });
+
                 i = i+1;
                 ListArray.push({
                     "fk_field_id": fieldID,
@@ -175,8 +175,7 @@ function getListDataArray() {
  * @param requestHeaders
  * @protected
  */
-function defaultXHR(requestHeaders = {})
-{
+function defaultXHR(requestHeaders = {}) {
     let defaultHeader = {};
     return new XHRApi({...defaultHeader, ...requestHeaders});
 }
@@ -278,12 +277,12 @@ let saveAllMenu = document.querySelector('.tonics-save-changes'),
 if(saveAllMenu && saveMenuChangesForm){
     saveAllMenu.addEventListener('click', function (e) {
         e.preventDefault();
-        setListDataArray();
+       // setListDataArray();
         addHiddenInputToForm(saveMenuChangesForm, 'fieldSlug', fieldSlug);
         addHiddenInputToForm(saveMenuChangesForm, 'fieldDetails', JSON.stringify({
             fieldID: fieldID,
             fieldSlug: fieldSlug,
-            fieldItems: getListDataArray(),
+            fieldItems: setListDataArray(),
         }));
         saveMenuChangesForm.submit();
     })

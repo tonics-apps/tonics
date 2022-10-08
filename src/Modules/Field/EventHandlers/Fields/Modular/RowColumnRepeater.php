@@ -339,6 +339,7 @@ HTML;
             }
 
         } else {
+            $this->isRoot = false;
             $frag = $this->handleUserFormFrag($event, $data);
         }
 

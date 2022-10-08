@@ -94,137 +94,149 @@ function nativeFieldModules() {
 
     if (tonicsFieldSaveChangesButton){
         tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
-            let editorsForm = document.getElementById('EditorsForm');
             e.preventDefault();
-
-            let repeaters = {};
-            let rootRepeaters = document.querySelectorAll('[data-is_repeater_root="true"]');
-            if (rootRepeaters.length > 0){
-                rootRepeaters.forEach(rootRepeater => {
-
-                    console.log(rootRepeater.closest('.row-col-parent'));
-
-                   let rootRepeatersName = rootRepeater.dataset.repeater_input_name;
-                   if (repeaters.hasOwnProperty(rootRepeatersName)){
-                       repeaters[rootRepeatersName].push(rootRepeater.closest('[data-slug="modular_rowcolumnrepeater"]'))
-                   } else {
-                       repeaters[rootRepeatersName] = [];
-                       repeaters[rootRepeatersName].push(rootRepeater.closest('[data-slug="modular_rowcolumnrepeater"]'));
-                   }
-                });
-
-                for (const repeaterName in repeaters){
-                    let repeatersDepth = repeaters[repeaterName];
-                    let tree = {}, lastObject = {}, breakLoopBackward = false, childStack = [];
-                    tree._data = {}; let parentID = 0, childID = -1, treeTimes = {}, lastDepth = 0, lastField = null;
-                    repeatersDepth.forEach(eachRoot => {
-                        let elements = eachRoot.querySelectorAll('[data-repeater_depth]');
-                        elements.forEach(repeatEl => {
-                            let data = getRepeatersData(repeatEl);
-                            ++childID;
-                            // Clean Up Unnecessary Modular RowColumnRepeater
-                            for (const item in data){
-                                if (data[item].field_slug === 'modular_rowcolumnrepeater'){
-                                    delete data[item];
-                                }
-                            }
-
-                            let field = {};
-                            field.inputName = repeatEl.dataset.repeater_input_name;
-                            let cellPosition = repeatEl.closest('[data-cell_position]');
-                            let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
-                            repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
-                            if (cellPosition){
-                                cellPosition = cellPosition.dataset.cell_position;
-                            } else {
-                                cellPosition = null;
-                            }
-
-                            field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
-                            field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
-                            field.field_name = repeatEl.dataset.repeater_field_name;
-                            field.depth = repeatEl.dataset.repeater_depth;
-                            field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
-                            field.grid_template_col = repeatEl.dataset.grid_template_col;
-                            field.row = repeatEl.dataset.row;
-                            field.column = repeatEl.dataset.col;
-                            field._cell_position = cellPosition;
-                            field._can_have_repeater_button = repeaterButtonsIsNextSibling
-                            field._children = {};
-
-                            for (const item in data){
-                                field._children[childID] = data[item];
-                                ++childID;
-                            }
-
-                            let currentDepth  = parseInt(field.depth);
-                            if (currentDepth === 0 || repeatEl.dataset?.is_repeater_root === 'true'){
-                                tree._data[parentID] = field;
-                                treeTimes[parentID] = {};
-                                lastObject = field;
-                                lastDepth = parseInt(lastObject.depth);
-                                childStack = [];
-                                ++parentID;
-                            }
-
-                            childStack.push(field);
-
-                            if (childStack.length === 1){
-                                lastDepth = currentDepth;
-                                lastField = field;
-                            } else {
-                                if (currentDepth > lastDepth){
-                                    ++childID;
-                                    lastDepth = currentDepth;
-                                    lastField._children[childID] = field;
-                                    lastField = field;
-                                }else if (currentDepth === lastDepth || currentDepth < lastDepth){
-                                    for (const treeData of loopTreeBackward(childStack)) {
-                                        let treeDepth = parseInt(treeData.depth);
-                                        if (currentDepth > treeDepth){
-                                            breakLoopBackward = true;
-                                            treeData._children[childID] = field;
-                                            lastDepth = currentDepth;
-                                            lastField = field;
-                                        }
-                                    }
-                                }
-                            }
-
-                        });
-
-                        function *loopTreeBackward(treeToLoop = null) {
-                            if (treeToLoop === null){
-                                treeToLoop = this.tocTree;
-                            }
-                            for (let i = treeToLoop.length - 1; i >= 0; i--){
-                                if (breakLoopBackward){break;}
-                                yield treeToLoop[i];
-                            }
-
-                            breakLoopBackward = false;
+            let draggable = document.querySelectorAll('.field-builder-items');
+            function setListDataArray() {
+                if(draggable){
+                    for(let i = 0, len = draggable.length ; i < len ; i++) {
+                        let id = i + 1;
+                        draggable[i].setAttribute("data-id", id); // add ID's to all draggable item
+                        let parentID = null;
+                        let parentDraggable = draggable[i].parentElement.closest('.field-builder-items');
+                        if (parentDraggable){
+                            parentID = parentDraggable.getAttribute("data-id");
                         }
-                    });
-
-                    function addHiddenInputToForm(form, key, value) {
-                        let inputExist = form.querySelector(`input[name="${key}"]`);
-                        if (inputExist){
-                            inputExist.value = value
-                        }else {
-                            const input = document.createElement("input");
-                            input.type = "hidden";
-                            input.name = key;
-                            input.value = value;
-                            form.appendChild(input);
-                        }
-
+                        draggable[i].setAttribute("data-parentid",
+                            (draggable[i].classList.contains('field-builder-items'))  ? parentID : null)
                     }
-                    console.log(tree);
-                    addHiddenInputToForm(editorsForm, repeaterName, JSON.stringify({'tree': tree}));
+                    for(let i = 0, len = draggable.length ; i < len ; i++) {
+                        let cell = 1;
+                        let cellsEl = draggable[i].querySelectorAll('.row-col-item');
+                        cellsEl.forEach((cellEl) => {
+                            if (cellEl.querySelector('.field-builder-items')){
+                                if (cellEl.querySelector('.field-builder-items').dataset.parentid === draggable[i].dataset.id){
+                                    cellEl.dataset.cell =`${cell}`;
+                                    cell++;
+                                }
+                            }
+                        });
+                    }
+                    return getListDataArray();
                 }
             }
-            // console.log(rootRepeaters);
-             return;
+            function getListDataArray() {
+                if(draggable){
+                    let ListArray = [],
+                        fieldName = '',
+                        fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
+                        i = 0,
+                        parentID = null;
+                    fieldSettingsEl.forEach(form => {
+                        let formTagname = form.tagName.toLowerCase();
+                        if (formTagname === 'form' || formTagname === 'div'){
+                            let draggable = form.closest('.field-builder-items');
+                            parentID = draggable.getAttribute('data-parentid');
+                            if (parentID === 'null'){
+                                parentID = null;
+                            }
+                            if(draggable.querySelector('input[name="field_slug"]') ){
+                                fieldName = draggable.querySelector('input[name="field_slug"]').value;
+                            }
+                            let elements = form.querySelectorAll('input, textarea, select'),
+                                firstElementParentID = elements[0].closest('.field-builder-items').getAttribute('data-id');
+
+                            let fieldSettings = {};
+                            for (let i = 0; i < elements.length; i++) {
+                                let inputs = elements[i];
+                                if (inputs.closest('.field-builder-items').dataset.id === firstElementParentID){
+                                    // collect checkbox
+                                    if (inputs.type === 'checkbox'){
+                                        let checkboxName = inputs.name;
+                                        if (!fieldSettings.hasOwnProperty(checkboxName)){
+                                            fieldSettings[checkboxName] = [];
+                                        }
+                                        if (inputs.checked){
+                                            fieldSettings[checkboxName].push(inputs.value);
+                                        }
+                                    }else if (inputs.type === 'select-multiple'){
+                                        let selectOptions = inputs.options;
+                                        let selectBoxName = inputs.name;
+                                        for (let k = 0; k < selectOptions.length; k++) {
+                                            let option = selectOptions[k];
+                                            if (option.selected){
+                                                if (!fieldSettings.hasOwnProperty(selectBoxName)){
+                                                    fieldSettings[selectBoxName] = [];
+                                                }
+
+                                                fieldSettings[selectBoxName].push(option.value || option.text);
+                                            }
+                                        }
+                                    }else if (!fieldSettings.hasOwnProperty(inputs.name)) {
+                                        fieldSettings[inputs.name] = inputs.value;
+                                    }
+
+                                    let repeatEl = inputs.closest('[data-repeater_input_name]');
+                                    if (repeatEl){
+                                        let field = {};
+                                        field.inputName = repeatEl.dataset.repeater_input_name;
+                                        let cellPosition = repeatEl.closest('[data-cell_position]');
+                                        let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
+                                        repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
+                                        if (cellPosition){
+                                            cellPosition = cellPosition.dataset.cell_position;
+                                        } else {
+                                            cellPosition = null;
+                                        }
+
+                                        field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
+                                        field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
+                                        field.field_name = repeatEl.dataset.repeater_field_name;
+                                        field.depth = repeatEl.dataset.repeater_depth;
+                                        field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
+                                        field.grid_template_col = repeatEl.dataset.grid_template_col;
+                                        field.row = repeatEl.dataset.row;
+                                        field.column = repeatEl.dataset.col;
+                                        field._cell_position = cellPosition;
+                                        field._can_have_repeater_button = repeaterButtonsIsNextSibling
+
+                                        fieldSettings['_moreOptions'] = field;
+
+                                    }
+
+                                    fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
+                                }
+                            }
+
+
+                            i = i+1;
+                            ListArray.push({
+                                "field_id": i,
+                                "field_parent_id": (draggable.classList.contains('field-builder-items')) ? parentID : null,
+                                "field_name": fieldName,
+                                "field_options": JSON.stringify(fieldSettings),
+                            });
+                        }
+                    });
+                    return ListArray;
+                }
+            }
+            let editorsForm = document.getElementById('EditorsForm');
+            function addHiddenInputToForm(form, key, value) {
+                let inputExist = form.querySelector(`input[name="${key}"]`);
+                if (inputExist){
+                    inputExist.value = value
+                }else {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
+                }
+
+            }
+            addHiddenInputToForm(editorsForm, '_fieldDetails', JSON.stringify(setListDataArray()))
+             // console.log(repeaters);
+             // return;
             editorsForm.submit();
         })
 

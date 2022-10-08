@@ -171,6 +171,8 @@ class PagesController
      */
     public function edit(string $id)
     {
+
+
         $this->fieldData->getFieldItemsAPI();
 
         $page = $this->pageData->selectWithCondition($this->pageData->getPageTable(), ['*'], "page_id = ?", [$id]);
