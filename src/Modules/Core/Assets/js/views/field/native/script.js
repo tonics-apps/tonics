@@ -183,8 +183,8 @@ function nativeFieldModules() {
                                         fieldSettings[inputs.name] = inputs.value;
                                     }
 
-                                    let repeatEl = inputs.closest('[data-repeater_input_name]');
-                                    if (repeatEl){
+                                    let repeatEl = inputs.closest('.widgetSettings').querySelector('[data-repeater_input_name]');
+                                    if (fieldName === 'modular_rowcolumnrepeater'){
                                         let field = {};
                                         field.inputName = repeatEl.dataset.repeater_input_name;
                                         let cellPosition = repeatEl.closest('[data-cell_position]');
@@ -208,7 +208,6 @@ function nativeFieldModules() {
                                         field._can_have_repeater_button = repeaterButtonsIsNextSibling
 
                                         fieldSettings['_moreOptions'] = field;
-
                                     }
 
                                     fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;

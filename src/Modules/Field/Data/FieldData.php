@@ -80,8 +80,6 @@ COLUMNS;
     public function generateFieldWithFieldSlug(array $slugs, array $postData = []): OnFieldFormHelper
     {
         if (!empty($slugs)) {
-            $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
-
             # For Field
             $fields = db()->Select("field_id, field_slug")->From($this->getFieldTable())->WhereIn('field_slug', $slugs)->OrderBy('field_id')->FetchResult();
             # For Field Items

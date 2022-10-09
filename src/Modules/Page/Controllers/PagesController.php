@@ -189,11 +189,32 @@ class PagesController
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
         $onPageDefaultField->setFieldSlug($fieldIDS);
         event()->dispatch($onPageDefaultField);
-
         $fieldMainSlugs = array_combine($onPageDefaultField->getFieldSlug(), $onPageDefaultField->getFieldSlug());
-        $fieldCategories = [];
-        foreach ($fieldMainSlugs as $fieldMainSlug){
-            $fieldCategories[$fieldMainSlug] = [];
+
+        $fieldTable = $this->getFieldData()->getFieldTable();
+        $fieldItemsTable = $this->getFieldData()->getFieldItemsTable();
+        $fieldAndFieldItemsCols = $this->getFieldData()->getFieldAndFieldItemsCols();
+
+        $originalFieldIDAndSlugs = db()->Select("field_id, field_slug")->From($this->getFieldData()->getFieldTable())
+            ->WhereIn('field_slug', $onPageDefaultField->getFieldSlug())->OrderBy('field_id')->FetchResult();
+
+        # For Field Items
+        $fieldIDS = []; $fieldCategories = [];
+        foreach ($originalFieldIDAndSlugs as $originalFieldIDAndSlug) {
+            if (key_exists($originalFieldIDAndSlug->field_slug, $fieldMainSlugs)){
+                $fieldIDS[] = $originalFieldIDAndSlug->field_id;
+                $fieldCategories[$originalFieldIDAndSlug->field_slug] = [];
+            }
+        }
+
+        $originalFieldItems = db()->Select($fieldAndFieldItemsCols)->From($fieldItemsTable)->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+            ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('id')->FetchResult();
+
+        $buildHashes = [];
+        foreach ($originalFieldItems as $originalFieldItem){
+            $fieldOption = json_decode($originalFieldItem->field_options);
+            $originalFieldItem->field_options = $fieldOption;
+            $buildHashes[$fieldOption->field_slug_unique_hash] = $originalFieldItem;
         }
 
         $fieldItems = json_decode($fieldSettings['_fieldDetails']);
@@ -212,25 +233,10 @@ class PagesController
             }
         }
 
-        dd($fieldItems, $fieldCategories);
+        $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);
+        // $htmlFrag = @$fieldFormHelper->generateHTMLFrags($fieldCategories, $_POST);
 
-        foreach ($fieldItems as $fieldItem) {
-            if (isset($fieldItem->field_main_slug) && key_exists($fieldItem->field_main_slug, $fieldCategories)){
-                $fieldOption = json_decode($fieldItem->field_options);
-                $fieldItem->field_options = $fieldOption;
-                $fieldCategories[$fieldItem->field_main_slug][] = $fieldItem;
-            }
-        }
-
-        foreach ($fieldCategories as $key => $fieldCategory){
-            $tree = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldCategory, onData: function ($field) {
-                $field->field_options->{"_field"} = $field;
-                return $field;
-            });
-            $fieldCategory[$key] = $tree;
-        }
-
-        dd($fieldCategories, $fieldItems);
+        dd($fieldItems, $originalFieldItems, $originalFieldIDAndSlugs);
 
         $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
