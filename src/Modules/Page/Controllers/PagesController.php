@@ -222,10 +222,10 @@ class PagesController
             if (isset($field->field_options) && helper()->isJSON($field->field_options)){
                 $fieldOption = json_decode($field->field_options);
                 if (key_exists($fieldOption->field_slug_unique_hash, $buildHashes)){
-                    $field->field_options = $buildHashes[$fieldOption->field_slug_unique_hash];
-                    $field->field_options->{"_field"} = $field;
+                    $field->field_options = json_decode(json_encode($buildHashes[$fieldOption->field_slug_unique_hash]->field_options));
                 }
                 $field->field_data = $fieldOption;
+                $field->field_options->{"_field"} = $field;
             }
             return $field;
         });
