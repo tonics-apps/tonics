@@ -214,8 +214,9 @@ class PagesController
         $buildHashes = [];
         foreach ($originalFieldItems as $originalFieldItem){
             $fieldOption = json_decode($originalFieldItem->field_options);
+            $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->inputName;
             $originalFieldItem->field_options = $fieldOption;
-            $buildHashes[$fieldOption->field_slug_unique_hash] = $originalFieldItem;
+            $buildHashes[$hash] = $originalFieldItem;
         }
 
         $fieldItems = json_decode($fieldSettings['_fieldDetails']);
@@ -223,11 +224,13 @@ class PagesController
         $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
             if (isset($field->field_options) && helper()->isJSON($field->field_options)){
                 $fieldOption = json_decode($field->field_options);
+                // dd($fieldOption, $field);
+               // $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->inputName;
                 if (key_exists($fieldOption->field_slug_unique_hash, $buildHashes)){
-                    $field->field_options = json_decode(json_encode($buildHashes[$fieldOption->field_slug_unique_hash]->field_options));
+              //      $field->field_options = json_decode(json_encode($buildHashes[$fieldOption->field_slug_unique_hash]->field_options));
                 }
-                $field->field_data = $fieldOption;
-                $field->field_options->{"_field"} = $field;
+              //  $field->field_data = $fieldOption;
+               // $field->field_options->{"_field"} = $field;
             }
             return $field;
         });

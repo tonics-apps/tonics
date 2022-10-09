@@ -265,12 +265,12 @@ HTML;
      */
     public function _topHTMLWrapper(string $name, $data, bool $root = false, callable $handleTop = null): string
     {
-        // dd($data);
         if ($this->isDisableBottomHTMLWrapper()){
             return '';
         }
         $slug = $data->field_slug ?? '';
         $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $postData = getPostData();
 
         $settings = $this->currentFieldBox ?? $this->getFieldMetaSettings($slug);
@@ -348,6 +348,7 @@ HTML;
                 <input type="hidden" name="field_slug" value="$slug">
                 $field_table_slug
                 <input type="hidden" name="field_slug_unique_hash" value="$hash">
+                <input type="hidden" name="field_input_name" value="$inputName">
 HTML;
     }
 
