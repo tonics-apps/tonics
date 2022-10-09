@@ -223,17 +223,18 @@ class PagesController
 
         $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
             if (isset($field->field_options) && helper()->isJSON($field->field_options)){
-                $fieldOption = json_decode($field->field_options);
-                // dd($fieldOption, $field);
-               // $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->inputName;
-                if (key_exists($fieldOption->field_slug_unique_hash, $buildHashes)){
-              //      $field->field_options = json_decode(json_encode($buildHashes[$fieldOption->field_slug_unique_hash]->field_options));
+                 $fieldOption = json_decode($field->field_options);
+                 $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->field_input_name;
+                if (key_exists($hash, $buildHashes)){
+                    $field->field_options = json_decode(json_encode($buildHashes[$hash]->field_options));
                 }
-              //  $field->field_data = $fieldOption;
-               // $field->field_options->{"_field"} = $field;
+                $field->field_data = $fieldOption;
+                $field->field_options->{"_field"} = $field;
             }
             return $field;
         });
+
+        dd($fieldItems);
 
         foreach ($fieldItems as $fieldItem) {
             if (isset($fieldItem->field_main_slug) && key_exists($fieldItem->field_main_slug, $fieldCategories)){
