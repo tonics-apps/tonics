@@ -171,8 +171,6 @@ class PagesController
      */
     public function edit(string $id)
     {
-
-
         $this->fieldData->getFieldItemsAPI();
 
         $page = $this->pageData->selectWithCondition($this->pageData->getPageTable(), ['*'], "page_id = ?", [$id]);
@@ -191,6 +189,30 @@ class PagesController
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
         $onPageDefaultField->setFieldSlug($fieldIDS);
         event()->dispatch($onPageDefaultField);
+
+        $fieldMainSlugs = array_combine($onPageDefaultField->getFieldSlug(), $onPageDefaultField->getFieldSlug());
+        $fieldCategories = [];
+        foreach ($fieldMainSlugs as $fieldMainSlug){
+            $fieldCategories[$fieldMainSlug] = [];
+        }
+
+        $fieldItems = json_decode($fieldSettings['_fieldDetails']);
+        foreach ($fieldItems as $fieldItem) {
+            if (isset($fieldItem->field_main_slug) && key_exists($fieldItem->field_main_slug, $fieldCategories)){
+                $fieldOption = json_decode($fieldItem->field_options);
+                $fieldItem->field_options = $fieldOption;
+                $fieldCategories[$fieldItem->field_main_slug][] = $fieldItem;
+            }
+        }
+
+        foreach ($fieldCategories as $key => $fieldCategory){
+            $fieldCategory[$key] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) {
+                $field->field_options->{"_field"} = $field;
+                return $field;
+            });
+        }
+
+        dd($fieldCategories, json_decode($fieldSettings['_fieldDetails']), $fieldItems);
 
         $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [

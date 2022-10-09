@@ -127,7 +127,7 @@ function nativeFieldModules() {
             function getListDataArray() {
                 if(draggable){
                     let ListArray = [],
-                        fieldName = '',
+                        fieldName = '', fieldMainSlug = '',
                         fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
                         i = 0,
                         parentID = null;
@@ -138,10 +138,18 @@ function nativeFieldModules() {
                             parentID = draggable.getAttribute('data-parentid');
                             if (parentID === 'null'){
                                 parentID = null;
+                            } else {
+                                parentID = parseInt(parentID);
                             }
+
                             if(draggable.querySelector('input[name="field_slug"]') ){
                                 fieldName = draggable.querySelector('input[name="field_slug"]').value;
                             }
+
+                            if(draggable.querySelector('input[name="main_field_slug"]') ){
+                                fieldMainSlug = draggable.querySelector('input[name="main_field_slug"]').value;
+                            }
+
                             let elements = form.querySelectorAll('input, textarea, select'),
                                 firstElementParentID = elements[0].closest('.field-builder-items').getAttribute('data-id');
 
@@ -207,13 +215,13 @@ function nativeFieldModules() {
                                 }
                             }
 
-
                             i = i+1;
                             ListArray.push({
                                 "field_id": i,
                                 "field_parent_id": (draggable.classList.contains('field-builder-items')) ? parentID : null,
                                 "field_name": fieldName,
-                                "field_options": JSON.stringify(fieldSettings),
+                                "field_main_slug": fieldMainSlug,
+                                "field_options": JSON.stringify(fieldSettings)
                             });
                         }
                     });
