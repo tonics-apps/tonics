@@ -197,6 +197,23 @@ class PagesController
         }
 
         $fieldItems = json_decode($fieldSettings['_fieldDetails']);
+        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) {
+            if (isset($field->field_options) && helper()->isJSON($field->field_options)){
+                $fieldOption = json_decode($field->field_options);
+                $field->field_options = $fieldOption;
+                $field->field_options->{"_field"} = $field;
+            }
+            return $field;
+        });
+
+        foreach ($fieldItems as $fieldItem) {
+            if (isset($fieldItem->field_main_slug) && key_exists($fieldItem->field_main_slug, $fieldCategories)){
+                $fieldCategories[$fieldItem->field_main_slug][] = $fieldItem;
+            }
+        }
+
+        dd($fieldItems, $fieldCategories);
+
         foreach ($fieldItems as $fieldItem) {
             if (isset($fieldItem->field_main_slug) && key_exists($fieldItem->field_main_slug, $fieldCategories)){
                 $fieldOption = json_decode($fieldItem->field_options);
@@ -206,13 +223,14 @@ class PagesController
         }
 
         foreach ($fieldCategories as $key => $fieldCategory){
-            $fieldCategory[$key] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) {
+            $tree = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldCategory, onData: function ($field) {
                 $field->field_options->{"_field"} = $field;
                 return $field;
             });
+            $fieldCategory[$key] = $tree;
         }
 
-        dd($fieldCategories, json_decode($fieldSettings['_fieldDetails']), $fieldItems);
+        dd($fieldCategories, $fieldItems);
 
         $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
