@@ -127,7 +127,7 @@ function nativeFieldModules() {
             function getListDataArray() {
                 if(draggable){
                     let ListArray = [],
-                        fieldName = '', fieldMainSlug = '', fieldSlugUniqueHash = '';
+                        fieldName = '', fieldMainSlug = '', fieldInputName = '';
                         fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
                         i = 0,
                         parentID = null;
@@ -148,6 +148,10 @@ function nativeFieldModules() {
 
                             if(draggable.querySelector('input[name="main_field_slug"]') ){
                                 fieldMainSlug = draggable.querySelector('input[name="main_field_slug"]').value;
+                            }
+
+                            if(draggable.querySelector('input[name="field_input_name"]') ){
+                                fieldInputName = draggable.querySelector('input[name="field_input_name"]').value;
                             }
 
                             let elements = form.querySelectorAll('input, textarea, select'),
@@ -219,6 +223,7 @@ function nativeFieldModules() {
                                 "field_id": i,
                                 "field_parent_id": (draggable.classList.contains('field-builder-items')) ? parentID : null,
                                 "field_name": fieldName,
+                                "field_input_name": fieldInputName,
                                 "field_main_slug": fieldMainSlug,
                                 "field_options": JSON.stringify(fieldSettings)
                             });
