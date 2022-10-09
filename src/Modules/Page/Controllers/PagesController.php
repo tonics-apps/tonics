@@ -218,11 +218,14 @@ class PagesController
         }
 
         $fieldItems = json_decode($fieldSettings['_fieldDetails']);
-        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) {
+        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
             if (isset($field->field_options) && helper()->isJSON($field->field_options)){
                 $fieldOption = json_decode($field->field_options);
-                $field->field_options = $fieldOption;
-                $field->field_options->{"_field"} = $field;
+                if (key_exists($fieldOption->field_slug_unique_hash, $buildHashes)){
+                    $field->field_options = $buildHashes[$fieldOption->field_slug_unique_hash];
+                    $field->field_options->{"_field"} = $field;
+                }
+                $field->field_data = $fieldOption;
             }
             return $field;
         });
@@ -236,7 +239,7 @@ class PagesController
         $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);
         // $htmlFrag = @$fieldFormHelper->generateHTMLFrags($fieldCategories, $_POST);
 
-        dd($fieldItems, $originalFieldItems, $originalFieldIDAndSlugs);
+        dd($fieldItems, $originalFieldItems, $buildHashes);
 
         $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
