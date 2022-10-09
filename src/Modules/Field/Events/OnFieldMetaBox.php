@@ -265,6 +265,7 @@ HTML;
      */
     public function _topHTMLWrapper(string $name, $data, bool $root = false, callable $handleTop = null): string
     {
+        // dd($data);
         if ($this->isDisableBottomHTMLWrapper()){
             return '';
         }

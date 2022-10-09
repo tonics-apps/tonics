@@ -18,6 +18,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldFormHelper;
+use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Page\Data\PageData;
 use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
@@ -218,6 +219,7 @@ class PagesController
         }
 
         $fieldItems = json_decode($fieldSettings['_fieldDetails']);
+
         $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
             if (isset($field->field_options) && helper()->isJSON($field->field_options)){
                 $fieldOption = json_decode($field->field_options);
@@ -236,10 +238,19 @@ class PagesController
             }
         }
 
-        $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);
+        # re-dispatch so we can get the form values
+        $onFieldMetaBox = new OnFieldMetaBox();
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+        $htmlFrag = '';
+        foreach ($fieldItems as $fieldItem) {
+           // dd($fieldItems, $fieldItem);
+          // $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
+        }
+
+        // $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);
         // $htmlFrag = @$fieldFormHelper->generateHTMLFrags($fieldCategories, $_POST);
 
-        dd($fieldItems, $originalFieldItems, $buildHashes);
+        // dd($fieldItems, $originalFieldItems, $buildHashes);
 
         $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [

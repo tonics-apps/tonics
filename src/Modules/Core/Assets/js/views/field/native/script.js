@@ -127,7 +127,7 @@ function nativeFieldModules() {
             function getListDataArray() {
                 if(draggable){
                     let ListArray = [],
-                        fieldName = '', fieldMainSlug = '',
+                        fieldName = '', fieldMainSlug = '', fieldSlugUniqueHash = '';
                         fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
                         i = 0,
                         parentID = null;
@@ -196,8 +196,8 @@ function nativeFieldModules() {
                                             cellPosition = null;
                                         }
 
-                                        field.field_slug_unique_hash = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
-                                        field.field_slug = repeatEl.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
+                                        field.field_slug_unique_hash = inputs.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
+                                        field.field_slug = inputs.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
                                         field.field_name = repeatEl.dataset.repeater_field_name;
                                         field.depth = repeatEl.dataset.repeater_depth;
                                         field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;

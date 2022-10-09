@@ -200,35 +200,35 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_name": "modular_rowcolumn",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"14iibgynqv40000000000\",\"fieldName\":\"Track Experience\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"14iibgynqv40000000000\",\"fieldName\":\"Track Experience\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "input_text",
     "field_id": 2,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"14iibgynqv40000000000\",\"fieldName\":\"Track Title\",\"inputName\":\"track_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Track Title Here\",\"readOnly\":\"0\",\"required\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2zs6itust540000000000\",\"fieldName\":\"Track Title\",\"inputName\":\"track_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Track Title Here\",\"readOnly\":\"0\",\"required\":\"1\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "input_rich-text",
     "field_id": 3,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"14iibgynqv40000000000\",\"fieldName\":\"Track Content\",\"inputName\":\"track_content\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"6gdz75f8uqw0000000000\",\"fieldName\":\"Track Content\",\"inputName\":\"track_content\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "modular_rowcolumn",
     "field_id": 4,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"7e5llf54gds0000000000\",\"fieldName\":\"Track Settings\",\"inputName\":\"\",\"row\":\"2\",\"column\":\"2\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"7e5llf54gds0000000000\",\"fieldName\":\"Track Settings\",\"inputName\":\"\",\"row\":\"2\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "modular_rowcolumn",
     "field_id": 5,
     "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"74cf7kls1jk0000000000\",\"fieldName\":\"Featured Asset\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+    "field_options": "{\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"74cf7kls1jk0000000000\",\"fieldName\":\"Featured Asset\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Page",
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_name": "modular_rowcolumn",
     "field_id": 8,
     "field_parent_id": 4,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"2\",\"field_slug_unique_hash\":\"2hlqfa9tbts0000000000\",\"fieldName\":\"Meta\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"2\",\"field_slug_unique_hash\":\"2hlqfa9tbts0000000000\",\"fieldName\":\"Meta\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Page",
@@ -277,49 +277,49 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     "field_name": "track_trackgenreradio",
     "field_id": 12,
     "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"track_trackgenreradio\",\"track_trackgenreradio_cell\":\"3\",\"field_slug_unique_hash\":\"7e5llf54gds0000000000\",\"fieldName\":\"Genre\",\"inputName\":\"fk_genre_id\"}"
+    "field_options": "{\"field_slug\":\"track_trackgenreradio\",\"track_trackgenreradio_cell\":\"3\",\"field_slug_unique_hash\":\"2n0vd2xqjxq0000000000\",\"fieldName\":\"Genre\",\"inputName\":\"fk_genre_id\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_tracklicenseselect",
     "field_id": 13,
     "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"track_tracklicenseselect\",\"track_tracklicenseselect_cell\":\"3\",\"field_slug_unique_hash\":\"7e5llf54gds0000000000\",\"fieldName\":\"License\",\"inputName\":\"fk_license_id\"}"
+    "field_options": "{\"field_slug\":\"track_tracklicenseselect\",\"track_tracklicenseselect_cell\":\"3\",\"field_slug_unique_hash\":\"112o1lw7n05s000000000\",\"fieldName\":\"License\",\"inputName\":\"fk_license_id\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_trackartistselect",
     "field_id": 14,
     "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"track_trackartistselect\",\"track_trackartistselect_cell\":\"4\",\"field_slug_unique_hash\":\"7e5llf54gds0000000000\",\"fieldName\":\"Artist\",\"inputName\":\"fk_artist_id\"}"
+    "field_options": "{\"field_slug\":\"track_trackartistselect\",\"track_trackartistselect_cell\":\"4\",\"field_slug_unique_hash\":\"4w48rjsg7de0000000000\",\"fieldName\":\"Artist\",\"inputName\":\"fk_artist_id\"}"
   },
   {
     "fk_field_id": "Default Page Field",
     "field_name": "modular_rowcolumn",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4ci4p6m7qxw0000000000\",\"fieldName\":\"Page Experience\",\"inputName\":\"page_experience\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"cell\":\"on\",\"groupName\":\"This is a text group\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4ci4p6m7qxw0000000000\",\"fieldName\":\"Page Experience\",\"inputName\":\"page_experience\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Default Page Field",
     "field_name": "input_text",
     "field_id": 2,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"input_text_group\":\"This is a text group\",\"field_slug_unique_hash\":\"4ci4p6m7qxw0000000000\",\"fieldName\":\"Page Title\",\"inputName\":\"page_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Page Title\",\"readOnly\":\"0\",\"required\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1pyxksvf39b4000000000\",\"fieldName\":\"Page Title\",\"inputName\":\"page_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Page Title\",\"readOnly\":\"0\",\"required\":\"1\"}"
   },
   {
     "fk_field_id": "Default Page Field",
     "field_name": "input_text",
     "field_id": 3,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"input_text_group\":\"This is a text group\",\"field_slug_unique_hash\":\"4ci4p6m7qxw0000000000\",\"fieldName\":\"Page Slug\",\"inputName\":\"page_slug\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Page Slug (Optional)\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3f02xf18sko0000000000\",\"fieldName\":\"Page Slug\",\"inputName\":\"page_slug\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Page Slug (Optional)\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Default Page Field",
     "field_name": "input_select",
     "field_id": 4,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"input_select_group\":\"This is a text group\",\"field_slug_unique_hash\":\"4ci4p6m7qxw0000000000\",\"fieldName\":\"Page Status\",\"inputName\":\"page_status\",\"selectData\":\"0:Draft,1:Publish,-1:Trash\",\"defaultValue\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"k7mheu3xnto00000000\",\"fieldName\":\"Page Status\",\"inputName\":\"page_status\",\"selectData\":\"0:Draft,1:Publish,-1:Trash\",\"defaultValue\":\"0:Draft,1:Publish,-1:Trash\"}"
   },
   {
     "fk_field_id": "SEO Settings",
