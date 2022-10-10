@@ -313,7 +313,7 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-        dd($data, 'checkmate');
+       // dd($data, 'checkmate');
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 
@@ -458,9 +458,13 @@ HTML;
 
             if (isset($data->_field->_children)) {
                 foreach ($data->_field->_children as $child) {
-                    $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
-                        ? (int)$child->field_options->{$child->field_name . "_cell"}
-                        : $i;
+                    $childCellNumber = (isset($child->field_data['_cell_position'])) ? (int)$child->field_data['_cell_position'] : null;
+                    if ($childCellNumber === null){
+                        $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
+                            ? (int)$child->field_options->{$child->field_name . "_cell"}
+                            : $i;
+                    }
+
 
                     if ($childCellNumber === $i) {
                         if (isset($child->field_options)) {

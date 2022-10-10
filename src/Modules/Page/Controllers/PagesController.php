@@ -208,8 +208,12 @@ class PagesController
             }
         }
 
-        $originalFieldItems = db()->Select($fieldAndFieldItemsCols)->From($fieldItemsTable)->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+        $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
+            ->From($fieldItemsTable)
+            ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
             ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('id')->FetchResult();
+
+       // dd($originalFieldItems);
 
         $buildHashes = [];
         foreach ($originalFieldItems as $originalFieldItem){
@@ -250,6 +254,7 @@ class PagesController
           // dd($fieldItems, $fieldItem);
            $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
         }
+        dd($htmlFrag);
 
         // $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);
         // $htmlFrag = @$fieldFormHelper->generateHTMLFrags($fieldCategories, $_POST);
