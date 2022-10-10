@@ -211,9 +211,9 @@ class PagesController
         $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
             ->From($fieldItemsTable)
             ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-            ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('id')->FetchResult();
+            ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
 
-       // dd($originalFieldItems);
+        dd($originalFieldItems, $fieldIDS, $originalFieldIDAndSlugs);
 
         $buildHashes = [];
         foreach ($originalFieldItems as $originalFieldItem){
@@ -224,6 +224,8 @@ class PagesController
         }
 
         $fieldItems = json_decode($fieldSettings['_fieldDetails']);
+
+        dd($originalFieldItems, $fieldItems);
 
         $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
             if (isset($field->field_options) && helper()->isJSON($field->field_options)){
@@ -244,7 +246,7 @@ class PagesController
             }
         }
 
-       // dd($fieldItems, $fieldCategories, $originalFieldItems);
+        dd($fieldItems, $fieldCategories, $originalFieldItems);
 
         # re-dispatch so we can get the form values
         $onFieldMetaBox = new OnFieldMetaBox();
@@ -254,18 +256,18 @@ class PagesController
           // dd($fieldItems, $fieldItem);
            $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
         }
-        dd($htmlFrag);
+        // dd($htmlFrag);
 
         // $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);
         // $htmlFrag = @$fieldFormHelper->generateHTMLFrags($fieldCategories, $_POST);
 
         // dd($fieldItems, $originalFieldItems, $buildHashes);
 
-        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
+        // $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
             'Data' => $page,
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
-            'FieldItems' => $fieldItems
+            'FieldItems' => $htmlFrag
         ]);
     }
 

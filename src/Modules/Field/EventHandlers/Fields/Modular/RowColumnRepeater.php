@@ -495,7 +495,14 @@ HTML;
         $repeaterButtonFrag = '';
 
         if ($disallowRepeat === '0'){
-            $repeaterButtonFrag = <<<HTML
+            $canHaveRepeaterButton = true;
+            if ((isset($data->_field->field_data['_moreOptions']))){
+                $moreOption = $data->_field->field_data['_moreOptions'];
+                $canHaveRepeaterButton = $moreOption->_can_have_repeater_button;
+            }
+
+            if ($canHaveRepeaterButton){
+                $repeaterButtonFrag = <<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
   $repeat_button_text
@@ -504,6 +511,8 @@ color:black bg:white-one border-width:default border:black padding:default curso
   </template>
 </button>
 HTML;
+            }
+
         }
 
         $frag .= $repeaterButtonFrag;
