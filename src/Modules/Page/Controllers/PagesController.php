@@ -262,15 +262,20 @@ class PagesController
             }
         }
 
-        dd($originalFieldCategories, $fieldCategories);
+      //  dd($originalFieldCategories, $fieldCategories, $fieldItems);
 
 
         # re-dispatch so we can get the form values
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
         $htmlFrag = '';
-        foreach ($fieldItems as $fieldItem) {
-           $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
+        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
+            if (isset($fieldCategories[$originalFieldCategoryKey])) {
+                $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                foreach ($userFieldItems as $userFieldItem) {
+                    $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
+                }
+            }
         }
 
         // $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
