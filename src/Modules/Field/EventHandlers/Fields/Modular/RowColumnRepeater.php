@@ -313,6 +313,7 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
+        dd($data, 'checkmate');
         $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
         $inputData = json_decode($inputData);
 

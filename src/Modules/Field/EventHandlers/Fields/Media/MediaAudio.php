@@ -79,7 +79,8 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
-        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultAudio = (isset($data->audio_url) && !empty($inputName)) ? $inputName : $data->audio_url;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';

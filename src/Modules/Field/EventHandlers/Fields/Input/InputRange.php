@@ -111,7 +111,8 @@ FORM;
         $min = (isset($data->min)) ? "min=" . $data->min . '"' : '';
         $max= (isset($data->max)) ? "max=" . $data->max . '"' : '';
         $textType = 'range';
-        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
@@ -120,7 +121,7 @@ FORM;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $error = '';
-        if ($data->_field->canValidate && !empty($data->field_validations)){
+        if (!empty($data->field_validations)){
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
         $frag .= <<<FORM

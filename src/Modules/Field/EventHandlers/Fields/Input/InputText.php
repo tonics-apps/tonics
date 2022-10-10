@@ -168,7 +168,8 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Text';
-        $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $defaultValue = helper()->htmlSpecChar($defaultValue);
 
@@ -184,7 +185,7 @@ FORM;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $error = '';
-        if ($data->_field->canValidate && !empty($data->field_validations)){
+        if (!empty($data->field_validations)){
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
 

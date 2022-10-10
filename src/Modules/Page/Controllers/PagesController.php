@@ -228,13 +228,11 @@ class PagesController
                 if (key_exists($hash, $buildHashes)){
                     $field->field_options = json_decode(json_encode($buildHashes[$hash]->field_options));
                 }
-                $field->field_data = $fieldOption;
+                $field->field_data = (array)$fieldOption;
                 $field->field_options->{"_field"} = $field;
             }
             return $field;
         });
-
-        dd($fieldItems);
 
         foreach ($fieldItems as $fieldItem) {
             if (isset($fieldItem->field_main_slug) && key_exists($fieldItem->field_main_slug, $fieldCategories)){
@@ -242,13 +240,15 @@ class PagesController
             }
         }
 
+       // dd($fieldItems, $fieldCategories, $originalFieldItems);
+
         # re-dispatch so we can get the form values
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
         $htmlFrag = '';
         foreach ($fieldItems as $fieldItem) {
-           // dd($fieldItems, $fieldItem);
-          // $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
+          // dd($fieldItems, $fieldItem);
+           $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
         }
 
         // $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);

@@ -107,8 +107,9 @@ FORM;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Choice';
-        $selectedChoices = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : [];
+        $selectedChoices = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : [];
         if (!is_array($selectedChoices)){
             $selectedChoices = [];
         }
