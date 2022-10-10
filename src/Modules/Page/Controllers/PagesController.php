@@ -202,11 +202,11 @@ class PagesController
             ->WhereIn('field_slug', $onPageDefaultField->getFieldSlug())->OrderBy('field_id')->FetchResult();
 
         # For Field Items
-        $fieldIDS = []; $fieldCategories = [];
+        $fieldIDS = []; $categoriesFromFieldIDAndSlug = [];
         foreach ($originalFieldIDAndSlugs as $originalFieldIDAndSlug) {
             if (key_exists($originalFieldIDAndSlug->field_slug, $fieldMainSlugs)){
                 $fieldIDS[] = $originalFieldIDAndSlug->field_id;
-                $fieldCategories[$originalFieldIDAndSlug->field_slug] = [];
+                $categoriesFromFieldIDAndSlug[$originalFieldIDAndSlug->field_slug] = [];
             }
         }
 
@@ -237,13 +237,23 @@ class PagesController
             }
             return $field;
         });
+        $fieldCategories = [];
         foreach ($fieldItems as $fieldItem) {
-            if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $fieldCategories)){
+            if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
                 $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
             }
         }
 
-        dd($fieldCategories);
+        // Sort and Arrange OriginalFieldItems
+        $originalFieldCategories = [];
+        $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
+        foreach ($originalFieldItems as $originalFieldItem) {
+            if (isset($originalFieldItem->main_field_slug) && key_exists($originalFieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
+                $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
+            }
+        }
+
+        dd($fieldCategories, $originalFieldCategories);
 
 
         # re-dispatch so we can get the form values
