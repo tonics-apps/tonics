@@ -316,12 +316,14 @@ class PagesController
             if (!$match) {
                 $slug = $originalFieldItem->field_options->field_slug;
                 $cellName = $originalFieldItem->field_options->field_slug . '_cell';
-                $cellPosition = $originalFieldItem->field_options->{$cellName};
-                $originalFieldItem->field_options->_cell_position = $cellPosition;
-                if ($slug === 'modular_rowcolumnrepeater'){
-                    $originalFieldItem->field_options->_can_have_repeater_button = true;
+                if (isset($originalFieldItem->field_options->{$cellName})){
+                    $cellPosition = $originalFieldItem->field_options->{$cellName};
+                    $originalFieldItem->field_options->_cell_position = $cellPosition;
+                }
+                if (isset($originalFieldItem->_children)){
                     $originalFieldItem->field_options->_children = $originalFieldItem->_children;
                 }
+
                 $sorted[] = $originalFieldItem->field_options;
             }
 
