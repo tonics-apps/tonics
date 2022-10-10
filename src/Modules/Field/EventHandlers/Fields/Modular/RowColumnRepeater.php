@@ -431,6 +431,7 @@ HTML;
      */
     private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
     {
+        // dd($data);
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -457,14 +458,27 @@ HTML;
 HTML;
 
             if (isset($data->_field->_children)) {
+                //dd($data, $cell);
                 foreach ($data->_field->_children as $child) {
+                    $fieldSlug = '';
+                    if (isset($child->field_name)){
+                        $fieldSlug = $child->field_name;
+                    } elseif (isset($child->field_options->field_slug)){
+                        $fieldSlug = $child->field_options->field_slug;
+                    } elseif (isset($child->field_slug)){
+                        $fieldSlug = $child->field_slug;
+                    }
                     $childCellNumber = (isset($child->field_data['_cell_position'])) ? (int)$child->field_data['_cell_position'] : null;
-                    if ($childCellNumber === null){
-                        $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
-                            ? (int)$child->field_options->{$child->field_name . "_cell"}
-                            : $i;
+
+                    if (isset($child->_cell_position)){
+                        $childCellNumber = (int)$child->_cell_position;
                     }
 
+                    if ($childCellNumber === null){
+                        $childCellNumber = (isset($child->field_options->{$fieldSlug . "_cell"}))
+                            ? (int)$child->field_options->{$fieldSlug . "_cell"}
+                            : $i;
+                    }
 
                     if ($childCellNumber === $i) {
                         if (isset($child->field_options)) {
@@ -474,7 +488,8 @@ HTML;
                         if ($interceptChild) {
                             $interceptChildFrag = $interceptChild($child->field_options, $data);
                         }
-                        $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($child->field_name, $child->field_options ?? null) : $interceptChildFrag;
+
+                        $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($fieldSlug, $child->field_options ?? null) : $interceptChildFrag;
                     }
                 }
             }

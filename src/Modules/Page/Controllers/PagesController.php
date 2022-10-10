@@ -185,6 +185,7 @@ class PagesController
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$page];
         }
+        $htmlFrag = '';
 
        // dd(json_decode($fieldSettings['_fieldDetails']));
 
@@ -229,56 +230,56 @@ class PagesController
             $buildHashes[$hash] = $originalFieldItem;
         }
 
-        $fieldItems = json_decode($fieldSettings['_fieldDetails']);
+        if (isset($fieldSettings['_fieldDetails'])){
+            $fieldItems = json_decode($fieldSettings['_fieldDetails']);
 
-        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
-            if (isset($field->field_options) && helper()->isJSON($field->field_options)){
-                 $fieldOption = json_decode($field->field_options);
-                 $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->field_input_name;
-                if (key_exists($hash, $buildHashes)){
-                    $field->field_options = json_decode(json_encode($buildHashes[$hash]->field_options));
+            $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
+                if (isset($field->field_options) && helper()->isJSON($field->field_options)){
+                    $fieldOption = json_decode($field->field_options);
+                    $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->field_input_name;
+                    if (key_exists($hash, $buildHashes)){
+                        $field->field_options = json_decode(json_encode($buildHashes[$hash]->field_options));
+                        $field->field_data = (array)$fieldOption;
+                        $field->field_options->{"_field"} = $field;
+                    }
                 }
-                $field->field_data = (array)$fieldOption;
-                $field->field_options->{"_field"} = $field;
-            }
-            return $field;
-        });
-        $fieldCategories = [];
-        foreach ($fieldItems as $fieldItem) {
-            if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
-                $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
-            }
-        }
-
-        // Sort and Arrange OriginalFieldItems
-        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
-            $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
-        }
-
-        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
-            if (isset($fieldCategories[$originalFieldCategoryKey])){
-                $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
-                $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
-            }
-        }
-
-      //  dd($originalFieldCategories, $fieldCategories, $fieldItems);
-
-
-        # re-dispatch so we can get the form values
-        $onFieldMetaBox = new OnFieldMetaBox();
-        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
-        $htmlFrag = '';
-        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
-            if (isset($fieldCategories[$originalFieldCategoryKey])) {
-                $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
-                foreach ($userFieldItems as $userFieldItem) {
-                    $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
+                return $field;
+            });
+            $fieldCategories = [];
+            foreach ($fieldItems as $fieldItem) {
+                if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
+                    $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
                 }
             }
+
+            // Sort and Arrange OriginalFieldItems
+            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
+                $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
+            }
+
+            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
+                if (isset($fieldCategories[$originalFieldCategoryKey])){
+                    $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                    $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
+                }
+            }
+
+
+            # re-dispatch so we can get the form values
+            $onFieldMetaBox = new OnFieldMetaBox();
+            $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
+                if (isset($fieldCategories[$originalFieldCategoryKey])) {
+                    $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                    foreach ($userFieldItems as $userFieldItem) {
+                        $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
+                    }
+                }
+            }
+        } else {
+            $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         }
 
-        // $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
             'Data' => $page,
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
