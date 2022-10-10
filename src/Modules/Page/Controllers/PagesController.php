@@ -225,7 +225,7 @@ class PagesController
             $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
 
             $fieldOption = json_decode($originalFieldItem->field_options);
-            $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->inputName;
+            $hash = $fieldOption->field_slug_unique_hash;
             $originalFieldItem->field_options = $fieldOption;
             $buildHashes[$hash] = $originalFieldItem;
         }
@@ -236,16 +236,18 @@ class PagesController
             $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
                 if (isset($field->field_options) && helper()->isJSON($field->field_options)){
                     $fieldOption = json_decode($field->field_options);
-                    $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->field_input_name;
+                    $hash = $fieldOption->field_slug_unique_hash;
                     if (key_exists($hash, $buildHashes)){
                         $field->field_options = json_decode(json_encode($buildHashes[$hash]->field_options));
                         $field->field_data = (array)$fieldOption;
                         $field->field_options->{"_field"} = $field;
                     }
                 }
+
                 return $field;
             });
             $fieldCategories = [];
+
             foreach ($fieldItems as $fieldItem) {
                 if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
                     $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
@@ -257,17 +259,22 @@ class PagesController
                 $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
             }
 
+            // dd($fieldCategories);
+
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
                 if (isset($fieldCategories[$originalFieldCategoryKey])){
-                    $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                   $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
                     $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
                 }
             }
+
+          //  dd($fieldItems, $fieldCategories, $originalFieldCategories);
 
 
             # re-dispatch so we can get the form values
             $onFieldMetaBox = new OnFieldMetaBox();
             $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
                 if (isset($fieldCategories[$originalFieldCategoryKey])) {
                     $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
@@ -303,7 +310,7 @@ class PagesController
 
                 # Speak Sorted $userFieldItem
                 if (key_exists($userFieldKey, $doneKey)){
-                    continue;
+                   continue;
                 }
 
                 if ($originalFieldSlugHash === $userFieldSlugHash) {
@@ -327,11 +334,12 @@ class PagesController
                     $originalFieldItem->field_options->_children = $originalFieldItem->_children;
                 }
 
-                $sorted[] = $originalFieldItem->field_options;
+                $sorted[] = $originalFieldItem;
             }
 
             // For Nested Children
             if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
+                // if ($userFieldItem->field_input_name === 'more_post_category_container'){ dd($userFieldItem, $originalFieldItem->_children, $userFieldItem->_children);}
                 $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
             }
         }
