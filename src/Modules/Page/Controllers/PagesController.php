@@ -257,7 +257,9 @@ class PagesController
 
         foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
             if (isset($fieldCategories[$originalFieldCategoryKey])){
-                $test = $this->sortFieldWalkerTree($originalFieldCategory, $fieldCategories[$originalFieldCategoryKey]);
+                $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                $userFieldItems = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
+                dd($userFieldItems, $originalFieldCategory);
             }
         }
 
@@ -280,40 +282,52 @@ class PagesController
         ]);
     }
 
-    public function sortFieldWalkerTree($originalFieldItems, $userFieldItems)
+    /**
+     * @param $originalFieldItems
+     * @param $userFieldItems
+     * @return array
+     */
+    public function sortFieldWalkerTree($originalFieldItems, $userFieldItems): array
     {
         $sorted = [];
         foreach ($originalFieldItems as $originalFieldItem){
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
-            $match = false;
+            $match = false; $doneKey = [];
             foreach ($userFieldItems as $userFieldKey => $userFieldItem){
                 $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash;
+
+                if (key_exists($userFieldKey, $doneKey)){
+                    continue;
+                }
+
                 if ($originalFieldSlugHash === $userFieldSlugHash) {
+                    $doneKey[$userFieldKey] = $userFieldKey;
                     $sorted[] = $userFieldItem;
-                    unset($userFieldItems->{$userFieldKey});
+                    // dd($originalFieldItem, $userFieldItem);
+                    // unset($userFieldItems->{$userFieldKey});
                     $match = true;
                 }
+            }
 
-                // TODO
-                // if you have exhaust looping, and you couldn't match anything, then it means
-                // the originalFields has a new field push it in the sorted
-                // for now, we won't do anything...
-                if (!$match) {
-                    $slug = $originalFieldItem->field_options->field_slug;
-                    $cellName = $originalFieldItem->field_options->field_slug . '_cell';
-                    $cellPosition = $originalFieldItem->field_options->{$cellName};
-                    $originalFieldItem->field_options->_cell_position = $cellPosition;
-                    if ($slug === 'modular_rowcolumnrepeater'){
-                        $originalFieldItem->field_options->_can_have_repeater_button = true;
-                        $originalFieldItem->field_options->_children = $originalFieldItem->_children;
-                    }
-                    $sorted[] = $originalFieldItem->field_options;
+            // TODO
+            // if you have exhaust looping, and you couldn't match anything, then it means
+            // the originalFields has a new field push it in the sorted
+            // for now, we won't do anything...
+            if (!$match) {
+                $slug = $originalFieldItem->field_options->field_slug;
+                $cellName = $originalFieldItem->field_options->field_slug . '_cell';
+                $cellPosition = $originalFieldItem->field_options->{$cellName};
+                $originalFieldItem->field_options->_cell_position = $cellPosition;
+                if ($slug === 'modular_rowcolumnrepeater'){
+                    $originalFieldItem->field_options->_can_have_repeater_button = true;
+                    $originalFieldItem->field_options->_children = $originalFieldItem->_children;
                 }
+                $sorted[] = $originalFieldItem->field_options;
+            }
 
-                // For Nested Children
-                if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
-                    $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
-                }
+            // For Nested Children
+            if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
+                $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
             }
         }
 
