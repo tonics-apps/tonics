@@ -258,12 +258,11 @@ class PagesController
         foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
             if (isset($fieldCategories[$originalFieldCategoryKey])){
                 $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
-                $userFieldItems = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
-                dd($userFieldItems, $originalFieldCategory);
+                $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
             }
         }
 
-        dd($fieldCategories, $originalFieldCategories);
+        dd($originalFieldCategories, $fieldCategories);
 
 
         # re-dispatch so we can get the form values
@@ -294,7 +293,7 @@ class PagesController
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
             $match = false; $doneKey = [];
             foreach ($userFieldItems as $userFieldKey => $userFieldItem){
-                $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash;
+                $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash ?? $userFieldItem->field_slug_unique_hash;
 
                 # Speak Sorted $userFieldItem
                 if (key_exists($userFieldKey, $doneKey)){
