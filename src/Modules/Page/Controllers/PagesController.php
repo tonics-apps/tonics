@@ -257,7 +257,7 @@ class PagesController
 
         foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
             if (isset($fieldCategories[$originalFieldCategoryKey])){
-                $this->sortFieldWalkerTree($originalFieldCategory, $fieldCategories[$originalFieldCategoryKey]);
+                $test = $this->sortFieldWalkerTree($originalFieldCategory, $fieldCategories[$originalFieldCategoryKey]);
             }
         }
 
@@ -286,11 +286,11 @@ class PagesController
         foreach ($originalFieldItems as $originalFieldItem){
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
             $match = false;
-            foreach ($userFieldItems as $userFieldItem){
+            foreach ($userFieldItems as $userFieldKey => $userFieldItem){
                 $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash;
                 if ($originalFieldSlugHash === $userFieldSlugHash) {
                     $sorted[] = $userFieldItem;
-                    unset($userFieldItems->{$treeKey});
+                    unset($userFieldItems->{$userFieldKey});
                     $match = true;
                 }
 
@@ -298,9 +298,26 @@ class PagesController
                 // if you have exhaust looping, and you couldn't match anything, then it means
                 // the originalFields has a new field push it in the sorted
                 // for now, we won't do anything...
-                dd($originalFieldItems, $originalFieldItem, $originalFieldSlugHash, $userFieldSlugHash, $userFieldItems);
+                if (!$match) {
+                    $slug = $originalFieldItem->field_options->field_slug;
+                    $cellName = $originalFieldItem->field_options->field_slug . '_cell';
+                    $cellPosition = $originalFieldItem->field_options->{$cellName};
+                    $originalFieldItem->field_options->_cell_position = $cellPosition;
+                    if ($slug === 'modular_rowcolumnrepeater'){
+                        $originalFieldItem->field_options->_can_have_repeater_button = true;
+                        $originalFieldItem->field_options->_children = $originalFieldItem->_children;
+                    }
+                    $sorted[] = $originalFieldItem->field_options;
+                }
+
+                // For Nested Children
+                if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
+                    $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
+                }
             }
         }
+
+        return $sorted;
     }
 
     /**
