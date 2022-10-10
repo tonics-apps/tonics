@@ -224,7 +224,7 @@ function nativeFieldModules() {
                                 "field_parent_id": (draggable.classList.contains('field-builder-items')) ? parentID : null,
                                 "field_name": fieldName,
                                 "field_input_name": fieldInputName,
-                                "field_main_slug": fieldMainSlug,
+                                "main_field_slug": fieldMainSlug,
                                 "field_options": JSON.stringify(fieldSettings)
                             });
                         }
