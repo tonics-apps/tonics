@@ -255,6 +255,11 @@ class PagesController
             $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
         }
 
+        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
+            if (isset($fieldCategories[$originalFieldCategoryKey])){
+                $this->sortFieldWalkerTree($originalFieldCategory, $fieldCategories[$originalFieldCategoryKey]);
+            }
+        }
 
         dd($fieldCategories, $originalFieldCategories);
 
@@ -273,6 +278,15 @@ class PagesController
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
             'FieldItems' => $htmlFrag
         ]);
+    }
+
+    public function sortFieldWalkerTree($originalFieldItems, $userFieldItems)
+    {
+        foreach ($originalFieldItems as $originalFieldItem){
+            $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
+            $match = false;
+            dd($originalFieldItems, $originalFieldItem, $originalFieldSlugHash, $userFieldItems);
+        }
     }
 
     /**
