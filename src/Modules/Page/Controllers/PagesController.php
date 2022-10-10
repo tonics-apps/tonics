@@ -282,10 +282,24 @@ class PagesController
 
     public function sortFieldWalkerTree($originalFieldItems, $userFieldItems)
     {
+        $sorted = [];
         foreach ($originalFieldItems as $originalFieldItem){
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
             $match = false;
-            dd($originalFieldItems, $originalFieldItem, $originalFieldSlugHash, $userFieldItems);
+            foreach ($userFieldItems as $userFieldItem){
+                $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash;
+                if ($originalFieldSlugHash === $userFieldSlugHash) {
+                    $sorted[] = $userFieldItem;
+                    unset($userFieldItems->{$treeKey});
+                    $match = true;
+                }
+
+                // TODO
+                // if you have exhaust looping, and you couldn't match anything, then it means
+                // the originalFields has a new field push it in the sorted
+                // for now, we won't do anything...
+                dd($originalFieldItems, $originalFieldItem, $originalFieldSlugHash, $userFieldSlugHash, $userFieldItems);
+            }
         }
     }
 
