@@ -259,11 +259,11 @@ class PagesController
                 $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
             }
 
-           // dd($fieldCategories);
+         //  dd($fieldCategories, $originalFieldCategories);
 
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
                 if (isset($fieldCategories[$originalFieldCategoryKey])){
-                   $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                    $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
                     $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
                 }
             }
@@ -302,7 +302,6 @@ class PagesController
     public function sortFieldWalkerTree($originalFieldItems, $userFieldItems): array
     {
         $sorted = [];
-        dd($originalFieldItems, $userFieldItems);
         foreach ($originalFieldItems as $originalFieldItem){
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
             $match = false; $doneKey = [];
@@ -318,6 +317,10 @@ class PagesController
                     $doneKey[$userFieldKey] = $userFieldKey;
                     $sorted[] = $userFieldItem;
                     $match = true;
+                    // For Nested Children
+                    if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
+                        $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
+                    }
                 }
             }
 
@@ -336,14 +339,6 @@ class PagesController
                 }
 
                 $sorted[] = $originalFieldItem;
-            }
-
-            // For Nested Children
-            if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
-                 if ($userFieldItem->field_input_name === 'more_post_category_container'){
-                     dd($userFieldItem, $originalFieldItem);
-                 }
-                $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
             }
         }
 
