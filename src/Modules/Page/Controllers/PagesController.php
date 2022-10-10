@@ -192,7 +192,7 @@ class PagesController
         event()->dispatch($onPageDefaultField);
         $fieldMainSlugs = array_combine($onPageDefaultField->getFieldSlug(), $onPageDefaultField->getFieldSlug());
 
-        $fieldTable = $this->getFieldData()->getFieldTable();
+/*        $fieldTable = $this->getFieldData()->getFieldTable();
         $fieldItemsTable = $this->getFieldData()->getFieldItemsTable();
         $fieldAndFieldItemsCols = $this->getFieldData()->getFieldAndFieldItemsCols();
 
@@ -213,8 +213,6 @@ class PagesController
             ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
             ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
 
-        dd($originalFieldItems, $fieldIDS, $originalFieldIDAndSlugs);
-
         $buildHashes = [];
         foreach ($originalFieldItems as $originalFieldItem){
             $fieldOption = json_decode($originalFieldItem->field_options);
@@ -224,8 +222,6 @@ class PagesController
         }
 
         $fieldItems = json_decode($fieldSettings['_fieldDetails']);
-
-        dd($originalFieldItems, $fieldItems);
 
         $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
             if (isset($field->field_options) && helper()->isJSON($field->field_options)){
@@ -239,35 +235,27 @@ class PagesController
             }
             return $field;
         });
-
         foreach ($fieldItems as $fieldItem) {
+            // dd($fieldItem, $fieldCategories);
             if (isset($fieldItem->field_main_slug) && key_exists($fieldItem->field_main_slug, $fieldCategories)){
                 $fieldCategories[$fieldItem->field_main_slug][] = $fieldItem;
             }
         }
 
-        dd($fieldItems, $fieldCategories, $originalFieldItems);
 
         # re-dispatch so we can get the form values
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
         $htmlFrag = '';
         foreach ($fieldItems as $fieldItem) {
-          // dd($fieldItems, $fieldItem);
            $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
-        }
-        // dd($htmlFrag);
+        }*/
 
-        // $fieldFormHelper = new OnFieldFormHelper([], $this->fieldData);
-        // $htmlFrag = @$fieldFormHelper->generateHTMLFrags($fieldCategories, $_POST);
-
-        // dd($fieldItems, $originalFieldItems, $buildHashes);
-
-        // $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
+        $fieldItems = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         view('Modules::Page/Views/edit', [
             'Data' => $page,
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
-            'FieldItems' => $htmlFrag
+            'FieldItems' => $fieldItems
         ]);
     }
 
