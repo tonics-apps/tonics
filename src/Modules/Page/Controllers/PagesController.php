@@ -259,7 +259,7 @@ class PagesController
                 $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
             }
 
-            // dd($fieldCategories);
+           // dd($fieldCategories);
 
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
                 if (isset($fieldCategories[$originalFieldCategoryKey])){
@@ -302,6 +302,7 @@ class PagesController
     public function sortFieldWalkerTree($originalFieldItems, $userFieldItems): array
     {
         $sorted = [];
+        dd($originalFieldItems, $userFieldItems);
         foreach ($originalFieldItems as $originalFieldItem){
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
             $match = false; $doneKey = [];
@@ -310,7 +311,7 @@ class PagesController
 
                 # Speak Sorted $userFieldItem
                 if (key_exists($userFieldKey, $doneKey)){
-                   continue;
+                  continue;
                 }
 
                 if ($originalFieldSlugHash === $userFieldSlugHash) {
@@ -339,7 +340,9 @@ class PagesController
 
             // For Nested Children
             if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
-                // if ($userFieldItem->field_input_name === 'more_post_category_container'){ dd($userFieldItem, $originalFieldItem->_children, $userFieldItem->_children);}
+                 if ($userFieldItem->field_input_name === 'more_post_category_container'){
+                     dd($userFieldItem, $originalFieldItem);
+                 }
                 $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
             }
         }
