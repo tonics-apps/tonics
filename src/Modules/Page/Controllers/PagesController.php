@@ -296,6 +296,7 @@ class PagesController
             foreach ($userFieldItems as $userFieldKey => $userFieldItem){
                 $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash;
 
+                # Speak Sorted $userFieldItem
                 if (key_exists($userFieldKey, $doneKey)){
                     continue;
                 }
@@ -303,8 +304,6 @@ class PagesController
                 if ($originalFieldSlugHash === $userFieldSlugHash) {
                     $doneKey[$userFieldKey] = $userFieldKey;
                     $sorted[] = $userFieldItem;
-                    // dd($originalFieldItem, $userFieldItem);
-                    // unset($userFieldItems->{$userFieldKey});
                     $match = true;
                 }
             }
@@ -314,7 +313,6 @@ class PagesController
             // the originalFields has a new field push it in the sorted
             // for now, we won't do anything...
             if (!$match) {
-                $slug = $originalFieldItem->field_options->field_slug;
                 $cellName = $originalFieldItem->field_options->field_slug . '_cell';
                 if (isset($originalFieldItem->field_options->{$cellName})){
                     $cellPosition = $originalFieldItem->field_options->{$cellName};
