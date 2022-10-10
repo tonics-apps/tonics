@@ -215,8 +215,14 @@ class PagesController
             ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
             ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
 
-        $buildHashes = [];
+        $buildHashes = []; $originalFieldCategories = [];
         foreach ($originalFieldItems as $originalFieldItem){
+
+            if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)){
+                $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
+            }
+            $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
+
             $fieldOption = json_decode($originalFieldItem->field_options);
             $hash = $fieldOption->field_slug_unique_hash . '_' . $fieldOption->inputName;
             $originalFieldItem->field_options = $fieldOption;
@@ -245,13 +251,10 @@ class PagesController
         }
 
         // Sort and Arrange OriginalFieldItems
-        $originalFieldCategories = [];
-        $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
-        foreach ($originalFieldItems as $originalFieldItem) {
-            if (isset($originalFieldItem->main_field_slug) && key_exists($originalFieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
-                $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
-            }
+        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
+            $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
         }
+
 
         dd($fieldCategories, $originalFieldCategories);
 
