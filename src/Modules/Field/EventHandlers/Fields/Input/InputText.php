@@ -91,7 +91,11 @@ HTML;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
+        $fieldSanitization = (isset($data->field_sanitization)) ? $data->field_sanitization : '';
+
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
+
+        $sanitizationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldSanitization, $changeID);
 
         $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
 <div class="form-group">
