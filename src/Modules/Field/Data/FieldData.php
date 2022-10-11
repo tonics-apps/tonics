@@ -278,7 +278,7 @@ HTML;
 
     /**
      * @param OnAddFieldSanitization $fieldSanitization
-     * @param string $fieldSanitizationSlug
+     * @param string|null $fieldSanitizationSlug
      * @param string $uniqueID
      * @return string
      * @throws \Exception

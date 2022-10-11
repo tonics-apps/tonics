@@ -548,7 +548,12 @@ HTML;
         return $error;
     }
 
-    public function sanitize($sanitizationName, $sanitizationValue)
+    /**
+     * @param $sanitizationName
+     * @param $sanitizationValue
+     * @return mixed
+     */
+    public function sanitize($sanitizationName, $sanitizationValue): mixed
     {
         foreach ($this->fieldSanitization->getFieldsSanitization() as $fieldSanitizationName => $fieldSanitizationObject) {
             if ($sanitizationName === $fieldSanitizationName){
