@@ -32,6 +32,8 @@ class OnFieldMetaBox implements EventInterface
     private bool $disableTopHTMLWrapper = false;
     private bool $disableBottomHTMLWrapper = false;
 
+    private ?OnAddFieldSanitization $fieldSanitization;
+
     private string $settingsType = OnFieldMetaBox::OnBackEndSettingsType;
 
     /**
@@ -42,6 +44,7 @@ class OnFieldMetaBox implements EventInterface
         $this->fieldData = new FieldData();
         $onAddFieldSanitization = new OnAddFieldSanitization();
         event()->dispatch($onAddFieldSanitization);
+        $this->fieldSanitization = $onAddFieldSanitization;
     }
 
     /**
@@ -642,6 +645,14 @@ HTML;
     {
         $this->disableBottomHTMLWrapper = $disableBottomHTMLWrapper;
         return $this;
+    }
+
+    /**
+     * @return OnAddFieldSanitization|null
+     */
+    public function getFieldSanitization(): ?OnAddFieldSanitization
+    {
+        return $this->fieldSanitization;
     }
 
 }

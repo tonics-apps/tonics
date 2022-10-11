@@ -21,7 +21,7 @@ class DefaultSlugFieldSanitization implements HandlerInterface, FieldValueSaniti
      */
     public function handleEvent(object $event): void
     {
-        // TODO: Implement handleEvent() method.
+        $event->addField($this);
     }
 
     public function sanitizeName(): string
