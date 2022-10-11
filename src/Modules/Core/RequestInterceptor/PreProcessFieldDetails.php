@@ -23,17 +23,22 @@ class PreProcessFieldDetails implements TonicsRouterRequestInterceptorInterface
     public function handle(OnRequestProcess $request): void
     {
         $fieldDetails = input()->fromPost()->retrieve('_fieldDetails');
+        $fieldSlugIDS = [];
         if (helper()->isJSON($fieldDetails)){
             $fieldDetails = json_decode($fieldDetails);
-            $tree = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field){
+            $tree = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field) use ($fieldSlugIDS) {
                 if (isset($field->field_options) && helper()->isJSON($field->field_options)){
                     $fieldOption = json_decode($field->field_options);
                     $field->field_data = (array)$fieldOption;
+                }
+                if (!key_exists($field->main_field_slug, $fieldSlugIDS)){
+                    $fieldSlugIDS[$field->main_field_slug] = $field->main_field_slug;
                 }
                 return $field;
             });
 
             $_POST['_fieldDetails'] = json_encode($tree);
+            dd($_POST, $request, $tree);
         }
     }
 }

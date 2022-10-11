@@ -40,6 +40,8 @@ class OnFieldMetaBox implements EventInterface
     public function __construct()
     {
         $this->fieldData = new FieldData();
+        $onAddFieldSanitization = new OnAddFieldSanitization();
+        event()->dispatch($onAddFieldSanitization);
     }
 
     /**

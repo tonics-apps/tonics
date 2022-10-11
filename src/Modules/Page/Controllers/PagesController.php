@@ -226,7 +226,6 @@ class PagesController
 
         if (isset($fieldSettings['_fieldDetails'])){
             $fieldItems = json_decode($fieldSettings['_fieldDetails']);
-
             $fieldCategories = [];
             foreach ($fieldItems as $fieldItem) {
                 if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
@@ -245,6 +244,8 @@ class PagesController
                     $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
                 }
             }
+
+            // dd($fieldCategories, 'hey');
 
             # re-dispatch so we can get the form values
             $onFieldMetaBox = new OnFieldMetaBox();
@@ -335,6 +336,8 @@ class PagesController
         if (input()->fromPost()->has('page_status') === false) {
             $_POST['page_status'] = "1";
         }
+        
+        dd(input()->fromPost()->retrieve('_fieldDetails'));
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->pageUpdateRule());
         if ($validator->fails()) {

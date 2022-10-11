@@ -14,6 +14,7 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\EventHandlers\Field\CacheFieldIDItems;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\EventHandlers\DefaultSanitization\PageSlugFieldSanitization;
 use App\Modules\Field\EventHandlers\FieldMenus;
 use App\Modules\Field\EventHandlers\Fields\Input\InputChoices;
 use App\Modules\Field\EventHandlers\Fields\Input\InputColor;
@@ -41,6 +42,7 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\Tracks;
 use App\Modules\Field\EventHandlers\Fields\Widget;
 use App\Modules\Field\Events\FieldTemplateFile;
+use App\Modules\Field\Events\OnAddFieldSanitization;
 use App\Modules\Field\Events\OnAfterPreSavePostEditorFieldItems;
 use App\Modules\Field\Events\OnEditorFieldSelection;
 use App\Modules\Field\Events\OnFieldCreate;
@@ -129,6 +131,10 @@ class FieldActivator implements ExtensionConfig
             OnAfterPreSavePostEditorFieldItems::class => [
 
             ],
+
+            OnAddFieldSanitization::class => [
+                PageSlugFieldSanitization::class
+            ]
         ];
     }
 

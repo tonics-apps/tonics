@@ -40,7 +40,8 @@ trait PageValidationRules
             'page_title' => ['required', 'string'],
             'page_slug' => ['required', 'string',
                 'unique' => [
-                    $postSlugUnique => input()->fromPost()->retrieve('page_id', '')]
+                    $postSlugUnique => input()->fromPost()->retrieve('page_id', '')
+                ]
             ],
             'page_status' => ['required', 'numeric'],
             'created_at' => ['required', 'string'],

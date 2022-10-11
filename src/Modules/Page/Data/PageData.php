@@ -47,10 +47,12 @@ class PageData extends AbstractDataLayer
                     $page[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
+
                 if ($inputKey === 'page_slug'){
                     $page[$inputKey] = $slug;
                     continue;
                 }
+
                 $page[$inputKey] = $inputValue;
             }
         }
