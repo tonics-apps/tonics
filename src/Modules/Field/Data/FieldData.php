@@ -299,8 +299,8 @@ HTML;
 
             $fieldsFrag .= <<<HTML
 <li class="field-item">
-    <input type="radio" data-collect_checkboxes $checked title="$fieldSanitizationName" id="field-validation-$fieldSanitizationName-$uniqueID" name="field_validations" value="$fieldSanitizationName">
-    <label for="field-validation-$fieldSanitizationName-$uniqueID">$fieldSanitizationName</label>
+    <input type="radio" data-collect_checkboxes $checked title="$fieldSanitizationName" id="field_sanitization-$fieldSanitizationName-$uniqueID" name="field_sanitization" value="$fieldSanitizationName">
+    <label for="field_sanitization-$fieldSanitizationName-$uniqueID">$fieldSanitizationName</label>
 </li>
 HTML;
         }

@@ -94,8 +94,7 @@ HTML;
         $fieldSanitization = (isset($data->field_sanitization)) ? $data->field_sanitization : '';
 
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
-
-        $sanitizationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldSanitization, $changeID);
+        $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);
 
         $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
 <div class="form-group">
@@ -159,6 +158,10 @@ HTML);
 $moreSettings
 <div class="form-group">
 $validationFrag
+</div>
+
+<div class="form-group">
+$sanitizationFrag
 </div>
 FORM;
 
