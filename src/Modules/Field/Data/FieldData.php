@@ -18,6 +18,7 @@ use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Events\FieldTemplateFile;
+use App\Modules\Field\Events\OnAddFieldSanitization;
 use App\Modules\Field\Events\OnAfterPreSavePostEditorFieldItems;
 use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -273,6 +274,25 @@ HTML;
         </fieldset>
 </li>
 HTML;
+    }
+
+    /**
+     * @param OnAddFieldSanitization $fieldSanitization
+     * @param string $fieldSanitizationSlug
+     * @param string $uniqueID
+     * @return string
+     * @throws \Exception
+     */
+    public function getFieldsSanitizationSelection(OnAddFieldSanitization $fieldSanitization, string $fieldSanitizationSlug = '', string $uniqueID = ''): string
+    {
+        $fieldsFrag = "";
+        $hash = helper()->randomString(10);
+        if (empty($uniqueID)) {
+            $uniqueID = $hash;
+        }
+
+
+        return $fieldsFrag;
     }
 
     /**
