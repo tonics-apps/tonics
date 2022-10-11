@@ -192,7 +192,13 @@ FORM;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $error = '';
-        if (!empty($data->field_validations)){
+        $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
+        $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
+        if (!empty($fieldValidation)){
+            $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
+        }
+
+        if (!empty($fieldSanitization)){
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
 

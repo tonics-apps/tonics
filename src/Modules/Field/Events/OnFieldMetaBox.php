@@ -11,6 +11,7 @@
 namespace App\Modules\Field\Events;
 
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Interfaces\FieldValueSanitizationInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsValidation\Validation;
 use stdClass;
@@ -545,6 +546,18 @@ HTML;
         }
 
         return $error;
+    }
+
+    public function sanitize($sanitizationName, $sanitizationValue)
+    {
+        foreach ($this->fieldSanitization->getFieldsSanitization() as $fieldSanitizationName => $fieldSanitizationObject) {
+            if ($sanitizationName === $fieldSanitizationName){
+                /** @var FieldValueSanitizationInterface $fieldSanitizationObject */
+                $sanitizationValue = $fieldSanitizationObject->sanitize($sanitizationValue);
+            }
+        }
+
+        return $sanitizationValue;
     }
 
     /**
