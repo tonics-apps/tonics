@@ -94,8 +94,13 @@ HTML;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
+        $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
+
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
+        $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);
+
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
@@ -156,8 +161,11 @@ HTML;
 <div class="form-group">
     $validationFrag
 </div>
-FORM;
 
+<div class="form-group">
+$sanitizationFrag
+</div>
+FORM;
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
@@ -179,10 +187,16 @@ FORM;
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
+        $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
         $error = '';
-        if (!empty($data->field_validations)){
+        if (!empty($fieldValidation)){
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
+        if (!empty($fieldSanitization)){
+            $defaultValue = $event->sanitize($fieldSanitization, $defaultValue);
+        }
+
         $defaultValue = str_replace(' ', 'T', $defaultValue);
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
