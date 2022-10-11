@@ -233,7 +233,7 @@ class PagesController
         if (isset($fieldSettings['_fieldDetails'])){
             $fieldItems = json_decode($fieldSettings['_fieldDetails']);
 
-            $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
+            /*$fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
                 if (isset($field->field_options) && helper()->isJSON($field->field_options)){
                     $fieldOption = json_decode($field->field_options);
                     $hash = $fieldOption->field_slug_unique_hash;
@@ -245,21 +245,21 @@ class PagesController
                 }
 
                 return $field;
-            });
-            $fieldCategories = [];
+            });*/
 
+            $fieldCategories = [];
             foreach ($fieldItems as $fieldItem) {
                 if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
                     $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
                 }
             }
 
+           // dd($fieldItems, $fieldCategories);
+
             // Sort and Arrange OriginalFieldItems
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
                 $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
             }
-
-         //  dd($fieldCategories, $originalFieldCategories);
 
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
                 if (isset($fieldCategories[$originalFieldCategoryKey])){
@@ -268,7 +268,7 @@ class PagesController
                 }
             }
 
-          //  dd($fieldItems, $fieldCategories, $originalFieldCategories);
+          // dd($fieldItems, $fieldCategories, $originalFieldCategories);
 
 
             # re-dispatch so we can get the form values
@@ -306,7 +306,7 @@ class PagesController
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
             $match = false; $doneKey = [];
             foreach ($userFieldItems as $userFieldKey => $userFieldItem){
-                $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash ?? $userFieldItem->field_slug_unique_hash;
+                $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
 
                 # Speak Sorted $userFieldItem
                 if (key_exists($userFieldKey, $doneKey)){
@@ -315,6 +315,9 @@ class PagesController
 
                 if ($originalFieldSlugHash === $userFieldSlugHash) {
                     $doneKey[$userFieldKey] = $userFieldKey;
+                    $userFieldItem->field_options = json_decode(json_encode($originalFieldItem->field_options));
+                    $userFieldItem->field_options->{"_field"} = $userFieldItem;
+                    $userFieldItem->field_data = (array)$userFieldItem->field_data;
                     $sorted[] = $userFieldItem;
                     $match = true;
                     // For Nested Children

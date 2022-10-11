@@ -13,6 +13,7 @@ namespace App\Modules\Page\Routes;
 use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
+use App\Modules\Core\RequestInterceptor\PreProcessFieldDetails;
 use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Page\Controllers\PagesController;
 use App\Modules\Page\RequestInterceptor\PageAccess;
@@ -36,10 +37,10 @@ trait Routes
                 $route->get('', [PagesController::class, 'index'], alias: 'index');
                 $route->post('', [PagesController::class, 'dataTable'],  alias: 'dataTables');
 
-                $route->post('store', [PagesController::class, 'store']);
+                $route->post('store', [PagesController::class, 'store'], [PreProcessFieldDetails::class]);
                 $route->get('create', [PagesController::class, 'create'], alias: 'create');
                 $route->get(':page/edit', [PagesController::class, 'edit'], alias: 'edit');
-                $route->match(['post', 'put'], ':page/update', [PagesController::class, 'update']);
+                $route->match(['post', 'put'], ':page/update', [PagesController::class, 'update'], [PreProcessFieldDetails::class]);
                 $route->post( '/trash/multiple', [PagesController::class, 'trashMultiple'], alias: 'trashMultiple');
                 $route->post( ':page/trash', [PagesController::class, 'trash'], alias: 'trash');
                 $route->match(['post', 'delete'], ':page/delete', [PagesController::class, 'delete'], alias: 'delete');
