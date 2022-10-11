@@ -199,7 +199,7 @@ FORM;
         }
 
         if (!empty($fieldSanitization)){
-            $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
+            $defaultValue = $event->sanitize($fieldSanitization, $defaultValue);
         }
 
         if ($textType === 'textarea') {
