@@ -72,7 +72,10 @@ HTML;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
+        $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
+
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
+        $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);
 
         $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
 <div class="form-group">
@@ -129,6 +132,10 @@ $moreSettings
 <div class="form-group">
     $validationFrag
 </div>
+
+<div class="form-group">
+$sanitizationFrag
+</div>
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
@@ -152,10 +159,18 @@ FORM;
         $slug = $data->field_slug;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag = $event->_topHTMLWrapper($fieldName, $data);
+
+        $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
+        $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
         $error = '';
-        if ($data->_field->canValidate && !empty($data->field_validations)){
-            $error = $event->validationMake(['defaultValue' => $defaultValue], ['defaultValue' => $data->field_validations]);
+        if (!empty($fieldValidation)){
+            $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
+
+        if (!empty($fieldSanitization)){
+            $defaultValue = $event->sanitize($fieldSanitization, $defaultValue);
+        }
+
         $defaultValue = helper()->htmlSpecChar($defaultValue);
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
