@@ -291,6 +291,19 @@ HTML;
             $uniqueID = $hash;
         }
 
+        foreach ($fieldSanitization->getFieldsSanitization() as $fieldSanitizationName => $fieldSanitizationObject) {
+            $checked = '';
+            if ($fieldSanitizationName === $fieldSanitizationSlug){
+                $checked = "checked";
+            }
+
+            $fieldsFrag .= <<<HTML
+<li class="field-item">
+    <input type="radio" data-collect_checkboxes $checked title="$fieldSanitizationName" id="field-validation-$fieldSanitizationName-$uniqueID" name="field_validations" value="$fieldSanitizationName">
+    <label for="field-validation-$fieldSanitizationName-$uniqueID">$fieldSanitizationName</label>
+</li>
+HTML;
+        }
 
         return $fieldsFrag;
     }
