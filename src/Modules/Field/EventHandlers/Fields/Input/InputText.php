@@ -91,7 +91,7 @@ HTML;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
-        $fieldSanitization = (isset($data->field_sanitization)) ? $data->field_sanitization : '';
+        $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
 
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
         $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);

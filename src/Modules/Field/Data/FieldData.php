@@ -283,7 +283,7 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    public function getFieldsSanitizationSelection(OnAddFieldSanitization $fieldSanitization, string $fieldSanitizationSlug = '', string $uniqueID = ''): string
+    public function getFieldsSanitizationSelection(OnAddFieldSanitization $fieldSanitization, ?string $fieldSanitizationSlug = '', string $uniqueID = ''): string
     {
         $fieldsFrag = "";
         $hash = helper()->randomString(10);
