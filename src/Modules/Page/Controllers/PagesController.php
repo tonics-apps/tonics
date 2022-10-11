@@ -187,8 +187,6 @@ class PagesController
         }
         $htmlFrag = '';
 
-       // dd(json_decode($fieldSettings['_fieldDetails']));
-
         $onPageDefaultField = $this->onPageDefaultField;
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
         $onPageDefaultField->setFieldSlug($fieldIDS);
@@ -216,36 +214,18 @@ class PagesController
             ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
             ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
 
-        $buildHashes = []; $originalFieldCategories = [];
+        $originalFieldCategories = [];
         foreach ($originalFieldItems as $originalFieldItem){
-
             if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)){
                 $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
             }
             $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
-
             $fieldOption = json_decode($originalFieldItem->field_options);
-            $hash = $fieldOption->field_slug_unique_hash;
             $originalFieldItem->field_options = $fieldOption;
-            $buildHashes[$hash] = $originalFieldItem;
         }
 
         if (isset($fieldSettings['_fieldDetails'])){
             $fieldItems = json_decode($fieldSettings['_fieldDetails']);
-
-            /*$fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($buildHashes) {
-                if (isset($field->field_options) && helper()->isJSON($field->field_options)){
-                    $fieldOption = json_decode($field->field_options);
-                    $hash = $fieldOption->field_slug_unique_hash;
-                    if (key_exists($hash, $buildHashes)){
-                        $field->field_options = json_decode(json_encode($buildHashes[$hash]->field_options));
-                        $field->field_data = (array)$fieldOption;
-                        $field->field_options->{"_field"} = $field;
-                    }
-                }
-
-                return $field;
-            });*/
 
             $fieldCategories = [];
             foreach ($fieldItems as $fieldItem) {
@@ -253,8 +233,6 @@ class PagesController
                     $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
                 }
             }
-
-           // dd($fieldItems, $fieldCategories);
 
             // Sort and Arrange OriginalFieldItems
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
@@ -267,9 +245,6 @@ class PagesController
                     $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
                 }
             }
-
-          // dd($fieldItems, $fieldCategories, $originalFieldCategories);
-
 
             # re-dispatch so we can get the form values
             $onFieldMetaBox = new OnFieldMetaBox();
