@@ -101,7 +101,7 @@ class InputRange implements HandlerInterface
 </div>
 
 <div class="form-group">
-$sanitizationFrag
+    $sanitizationFrag
 </div>
 FORM;
 

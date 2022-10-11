@@ -134,7 +134,7 @@ $moreSettings
 </div>
 
 <div class="form-group">
-$sanitizationFrag
+    $sanitizationFrag
 </div>
 FORM;
 

@@ -157,11 +157,11 @@ HTML);
 
 $moreSettings
 <div class="form-group">
-$validationFrag
+    $validationFrag
 </div>
 
 <div class="form-group">
-$sanitizationFrag
+    $sanitizationFrag
 </div>
 FORM;
 
