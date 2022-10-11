@@ -14,6 +14,7 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\EventHandlers\Field\CacheFieldIDItems;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\EventHandlers\DefaultSanitization\DefaultSlugFieldSanitization;
 use App\Modules\Field\EventHandlers\DefaultSanitization\PageSlugFieldSanitization;
 use App\Modules\Field\EventHandlers\FieldMenus;
 use App\Modules\Field\EventHandlers\Fields\Input\InputChoices;
@@ -133,7 +134,8 @@ class FieldActivator implements ExtensionConfig
             ],
 
             OnAddFieldSanitization::class => [
-                PageSlugFieldSanitization::class
+                PageSlugFieldSanitization::class,
+                DefaultSlugFieldSanitization::class
             ]
         ];
     }
