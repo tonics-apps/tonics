@@ -118,13 +118,21 @@ FORM;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
+        $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
+        $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
+
         $choiceFrag = ''; $error = '';
         foreach ($choiceKeyValue as $key => $value){
             $selected = '';
             if ($key == $defaultValue){
-                if (!empty($data->field_validations)){
-                    $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
+                if (!empty($fieldValidation)){
+                    $error = $event->validationMake([$inputName => $value], [$inputName => $data->field_validations]);
                 }
+
+                if (!empty($fieldSanitization)){
+                    $value = $event->sanitize($fieldSanitization, $value);
+                }
+
                 $selected = 'selected';
             }
             $choiceFrag .=<<<HTML
