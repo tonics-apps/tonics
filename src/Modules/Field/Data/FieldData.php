@@ -797,6 +797,27 @@ SQL;
     }
 
     /**
+     * @param array $fieldCategories
+     * @return string
+     * @throws \Exception
+     */
+    public function getUsersFormFrag(array $fieldCategories): string
+    {
+        # re-dispatch so we can get the form values
+        $onFieldMetaBox = new OnFieldMetaBox();
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+
+        $htmlFrag = '';
+        foreach ($fieldCategories as $fieldItems){
+            foreach ($fieldItems as $fieldItem) {
+                $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
+            }
+        }
+
+        return $htmlFrag;
+    }
+
+    /**
      * @param $originalFieldItems
      * @param $userFieldItems
      * @return array

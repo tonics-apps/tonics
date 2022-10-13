@@ -195,18 +195,9 @@ class PagesController
         event()->dispatch($onPageDefaultField);
 
         if (isset($fieldSettings['_fieldDetails'])){
-            $originalFieldCategories = $this->getFieldData()
+            $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems($onPageDefaultField->getFieldSlug(), json_decode($fieldSettings['_fieldDetails']));
-
-            # re-dispatch so we can get the form values
-            $onFieldMetaBox = new OnFieldMetaBox();
-            $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
-
-            foreach ($originalFieldCategories as $userFieldItems){
-                foreach ($userFieldItems as $userFieldItem) {
-                    $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
-                }
-            }
+            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
         }
