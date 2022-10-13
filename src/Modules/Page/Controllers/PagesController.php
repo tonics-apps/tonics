@@ -250,7 +250,7 @@ class PagesController
 
         # For Fields
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
-            session()->flash(['An Error Occurred Updating Changes'], input()->fromPost()->all());
+            session()->flash(['Page Updated But Some Field Details Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
             redirect(route('pages.edit', [$id]));
         } else {
             session()->flash(['Page Updated'], type: Session::SessionCategories_FlashMessageSuccess);

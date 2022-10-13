@@ -39,11 +39,12 @@ class PreProcessFieldDetails implements TonicsRouterRequestInterceptorInterface
             foreach ($fieldCategories as $userFieldItems){
                 foreach ($userFieldItems as $userFieldItem) {
                     $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
+                    # Break it immediately, we only need one to be sure...
+                    if ($onFieldMetaBox->isErrorEmitted()){
+                        $_POST['_fieldErrorEmitted'] = true;
+                        break;
+                    }
                 }
-            }
-
-            if ($onFieldMetaBox->isErrorEmitted()){
-                $_POST['_fieldErrorEmitted'] = true;
             }
 
         }

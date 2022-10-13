@@ -30,8 +30,6 @@ class Session
     const SessionCategories_FlashMessageInfo = 'bt_flash_message_tonicsInfoMessage';
     const SessionCategories_FlashMessageSuccess = 'bt_flash_message_tonicsSuccessMessage';
 
-    const SessionCategories_FieldItemsEmittedError = 'SessionCategories_FieldItemsEmittedError';
-
     const SessionCategories_CSRFToken = 'tonics_csrf_token';
     const SessionCategories_URLReferer = 'tonics_url_referer';
     const SessionCategories_WordPressImport = 'tonics_wordpress_import';
