@@ -119,7 +119,8 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $inputName = $data->inputName;
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = $postData ?: getPostData();
         $fieldSlug = (isset($postData[$inputName])) ? $postData[$inputName] : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
@@ -171,7 +172,8 @@ HTML;
     public function viewFrag(OnFieldMetaBox $event, $data): string
     {
         $frag = '';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = $postData ?: getPostData();
         $fieldSlug = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         if (empty($fieldSlug)) {
             return $frag;

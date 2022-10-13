@@ -252,14 +252,6 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
-        if (is_array($oldFormInput)) {
-            $oldFormInputFieldSettings = json_decode($oldFormInput['field_settings'], true) ?? [];
-            $fieldSettings = [...$fieldSettings, ...$oldFormInputFieldSettings];
-        }
-
-       // dd($fieldSettings);
-
         $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
 
         if (empty($fieldSettings)) {
@@ -270,13 +262,21 @@ class PostsController
 
         event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
-        $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $fieldSettings);
-        $fieldItems = $fieldForm->getHTMLFrag();
+        if (isset($fieldSettings['_fieldDetails'])){
+            addToGlobalVariable('Data', (array)$post);
+            $fieldCategories = $this->getFieldData()
+                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
+        } else {
+            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $fieldSettings);
+            $htmlFrag = $fieldForm->getHTMLFrag();
+        }
+
         view('Modules::Post/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
             'Data' => $post,
-            'FieldItems' => $fieldItems,
+            'FieldItems' => $htmlFrag,
         ]);
     }
 
@@ -308,8 +308,13 @@ class PostsController
 
             db()->commit();
 
+            # For Fields
             $slug = $postToUpdate['post_slug'];
-            session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+                session()->flash(['Post Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+            } else {
+                session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            }
             redirect(route('posts.edit', ['post' => $slug]));
 
         } catch (\Exception $exception) {

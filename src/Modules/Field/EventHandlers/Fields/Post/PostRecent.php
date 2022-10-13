@@ -81,7 +81,8 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostAuthorSelect';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = $postData ?: getPostData();
         $postTake = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : $data->postTake;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
@@ -106,7 +107,8 @@ FORM;
      */
     public function viewData(OnFieldMetaBox $event, $data = null)
     {
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = $postData ?: getPostData();
         $postTake = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : $data->postTake;
         $postTbl = Tables::getTable(Tables::POSTS);
         $postData = [];

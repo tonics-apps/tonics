@@ -13,6 +13,7 @@ namespace App\Modules\Post\Routes;
 use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
+use App\Modules\Core\RequestInterceptor\PreProcessFieldDetails;
 use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Post\Controllers\PostCategoryController;
 use App\Modules\Post\Controllers\PostsController;
@@ -41,10 +42,10 @@ trait Routes
             $route->get('', [PostsController::class, 'index'],  alias: 'index');
             $route->post('', [PostsController::class, 'dataTable'],  alias: 'dataTables');
 
-            $route->post('store', [PostsController::class, 'store']);
+            $route->post('store', [PostsController::class, 'store'], [PreProcessFieldDetails::class]);
             $route->get('create', [PostsController::class, 'create'], alias: 'create');
             $route->get(':post/edit', [PostsController::class, 'edit'], alias: 'edit');
-            $route->match(['post', 'put'], ':post/update', [PostsController::class, 'update']);
+            $route->match(['post', 'put'], ':post/update', [PostsController::class, 'update'], [PreProcessFieldDetails::class]);
             $route->post( ':post/trash', [PostsController::class, 'trash'], alias: 'trash');
             $route->post( '/trash/multiple', [PostsController::class, 'trashMultiple'], alias: 'trashMultiple');
             $route->match(['post', 'delete'], ':post/delete', [PostsController::class, 'delete'], alias: 'delete');
@@ -59,10 +60,10 @@ trait Routes
 
                 $route->get(':category/edit', [PostCategoryController::class, 'edit'], alias: 'edit');
                 $route->get('create', [PostCategoryController::class, 'create'], alias: 'create');
-                $route->post('store', [PostCategoryController::class, 'store']);
+                $route->post('store', [PostCategoryController::class, 'store'], [PreProcessFieldDetails::class]);
                 $route->post(':category/trash', [PostCategoryController::class, 'trash']);
                 $route->post( '/trash/multiple', [PostCategoryController::class, 'trashMultiple'], alias: 'trashMultiple');
-                $route->match(['post', 'put', 'patch'], ':category/update', [PostCategoryController::class, 'update']);
+                $route->match(['post', 'put', 'patch'], ':category/update', [PostCategoryController::class, 'update'], [PreProcessFieldDetails::class]);
                 $route->match(['post', 'delete'], ':category/delete', [PostCategoryController::class, 'delete']);
             }, alias: 'category');
 

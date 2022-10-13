@@ -194,7 +194,7 @@ class PagesController
 
         if (isset($fieldSettings['_fieldDetails'])){
             $fieldCategories = $this->getFieldData()
-                ->compareSortAndUpdateFieldItems($onPageDefaultField->getFieldSlug(), json_decode($fieldSettings['_fieldDetails']));
+                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
@@ -239,7 +239,7 @@ class PagesController
 
         # For Fields
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
-            session()->flash(['Page Updated But Some Field Details Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+            session()->flash(['Page Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
             redirect(route('pages.edit', [$id]));
         } else {
             session()->flash(['Page Updated'], type: Session::SessionCategories_FlashMessageSuccess);

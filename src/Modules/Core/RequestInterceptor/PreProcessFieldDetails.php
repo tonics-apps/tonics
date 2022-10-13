@@ -28,7 +28,7 @@ class PreProcessFieldDetails implements TonicsRouterRequestInterceptorInterface
         if (helper()->isJSON($fieldDetails)){
             $fieldData = new FieldData();
             $fieldItems = json_decode($fieldDetails);
-            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(input()->fromPost()->retrieve('field_ids', []), $fieldItems);
+            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems($fieldItems);
             # re-dispatch so we can get the form values
             $onFieldMetaBox = new OnFieldMetaBox();
             $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();

@@ -73,7 +73,8 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostAuthorSelect';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = $postData ?: getPostData();
         $inputName = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $userData = new UserData();
         $authors = $userData->getPostAuthorHTMLSelect($inputName ?: null);

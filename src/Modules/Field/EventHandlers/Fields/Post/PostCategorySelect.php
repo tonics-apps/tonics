@@ -105,8 +105,10 @@ FORM;
             $height = 'height: 300px;';
         }
 
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = $postData ?: getPostData();
         $inputData = (isset($postData[$inputName])) ? $postData[$inputName] : '';
+
         # If input is empty, try $selectName
         if (empty($inputData)){
             $inputData = (isset($postData[$selectName])) ? $postData[$selectName] : '';

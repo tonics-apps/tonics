@@ -313,39 +313,9 @@ HTML;
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
-       // dd($data, 'checkmate');
-        $inputData = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
-        $inputData = json_decode($inputData);
-
-        if (isset($inputData->tree)) {
-            $this->oldPostDataUniqueKey = helper()->randomString();
-            addToGlobalVariable($this->oldPostDataUniqueKey, getPostData());
-            addToGlobalVariable('Data', []);
-
-            $this->unnestRepeater($data);
-            $this->repeatersButton($event, $data);
-            foreach ($inputData->tree->_data as $tree_data) {
-                $this->walkTreeAndDoTheDo($tree_data);
-            }
-
-            $frag = '';
-            foreach ($inputData->tree->_data as $modularRepeaterData) {
-                $this->isRoot = false; // reset root for each $modularRepeaterData root
-                $frag .= $this->handleRepeaterUserFormFrag($event, $modularRepeaterData);
-            }
-
-            if (!empty($this->oldPostDataUniqueKey) && isset(getGlobalVariableData()[$this->oldPostDataUniqueKey])){
-                // restore old post
-                addToGlobalVariable('Data', getGlobalVariableData()[$this->oldPostDataUniqueKey]);
-            }
-
-        } else {
-            $this->isRoot = false;
-            $frag = $this->handleUserFormFrag($event, $data);
-        }
-
-
-        return $frag;
+        // $this->repeatersButton($event, $data);
+        $this->isRoot = false;
+        return $this->handleUserFormFrag($event, $data);
     }
 
     /**
@@ -458,7 +428,6 @@ HTML;
 HTML;
 
             if (isset($data->_field->_children)) {
-                //dd($data, $cell);
                 foreach ($data->_field->_children as $child) {
                     $fieldSlug = '';
                     if (isset($child->field_name)){

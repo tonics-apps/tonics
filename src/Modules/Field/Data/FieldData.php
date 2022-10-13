@@ -743,21 +743,35 @@ SQL;
      * @return array
      * @throws \Exception
      */
-    public function compareSortAndUpdateFieldItems(array $fieldSlugIDS, array $fieldItems): array
+    public function compareSortAndUpdateFieldItems(array $fieldItems): array
     {
-        $fieldMainSlugs = array_combine($fieldSlugIDS, $fieldSlugIDS);
+        $fieldCategories = []; $fieldSlugIDS = [];
+        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use (&$fieldSlugIDS) {
+            if (isset($field->main_field_slug) && !key_exists($field->main_field_slug, $fieldSlugIDS)){
+                $fieldSlugIDS[$field->main_field_slug] = $field->main_field_slug;
+            }
+
+            if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
+                $fieldOption = json_decode($field->field_options);
+                $field->field_data = (array)$fieldOption;
+                $field->field_options = $fieldOption;
+            }
+
+            return $field;
+        });
+
         $fieldTable = $this->getFieldTable();
         $fieldItemsTable = $this->getFieldItemsTable();
         $fieldAndFieldItemsCols = $this->getFieldAndFieldItemsCols();
 
         $originalFieldIDAndSlugs = db()->Select("field_id, field_slug")->From($fieldTable)
-            ->WhereIn('field_slug', $fieldMainSlugs)->OrderBy('field_id')->FetchResult();
+            ->WhereIn('field_slug', $fieldSlugIDS)->OrderBy('field_id')->FetchResult();
 
         # For Field Items
         $fieldIDS = [];
         $categoriesFromFieldIDAndSlug = [];
         foreach ($originalFieldIDAndSlugs as $originalFieldIDAndSlug) {
-            if (key_exists($originalFieldIDAndSlug->field_slug, $fieldMainSlugs)) {
+            if (key_exists($originalFieldIDAndSlug->field_slug, $fieldSlugIDS)) {
                 $fieldIDS[] = $originalFieldIDAndSlug->field_id;
                 $categoriesFromFieldIDAndSlug[$originalFieldIDAndSlug->field_slug] = [];
             }
@@ -777,17 +791,6 @@ SQL;
             $fieldOption = json_decode($originalFieldItem->field_options);
             $originalFieldItem->field_options = $fieldOption;
         }
-
-        $fieldCategories = [];
-        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) {
-            if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
-                $fieldOption = json_decode($field->field_options);
-                $field->field_data = (array)$fieldOption;
-                $field->field_options = $fieldOption;
-            }
-
-            return $field;
-        });
 
         foreach ($fieldItems as $fieldItem) {
             if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)) {
