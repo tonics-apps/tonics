@@ -20,12 +20,7 @@ class RowColumnRepeater implements HandlerInterface
     private array $repeaters = [];
     private array $nonRepeaters = [];
 
-    private ?string $oldPostDataUniqueKey = null;
     private array $repeaterButton = [];
-    private array $childStacks = [];
-
-    private array $fieldsSorted = [];
-
     private bool $isRoot = false;
 
     /**
@@ -412,85 +407,6 @@ HTML;
         $frag .= $repeaterButtonFrag;
         if ($interceptBottom) {
             return $interceptBottom($data, $repeaterButtonFrag);
-        }
-
-        return $frag;
-    }
-
-
-    /**
-     * @param OnFieldMetaBox $event
-     * @param $data
-     * @return string
-     * @throws \Exception
-     */
-    private function handleRepeaterUserFormFrag(OnFieldMetaBox $event, $data): string
-    {
-        $row = 1;
-        $column = 1;
-        if (isset($data->row)) {
-            $row = $data->row;
-        }
-
-        if (isset($data->column)) {
-            $column = $data->column;
-        }
-
-        $cell = $row * $column;
-
-        $frag = $this->getTopWrapper($event, $data);
-        for ($i = 1; $i <= $cell; $i++) {
-            if (isset($data->_children)) {
-                $frag .= <<<HTML
-<ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
-HTML;
-                foreach ($data->_children as $child) {
-                    if (!isset($child->_cell_position)){
-                        $slugCell = $child->field_options->field_slug . '_cell';
-                        $childCellNumber = (int)$child->field_options->{$slugCell};
-                    } else {
-                        $childCellNumber = (int)$child->_cell_position;
-                    }
-
-                    $fieldSlugHash = $child->field_slug_unique_hash ?? $child->field_options->field_slug_unique_hash;
-                    $childField = null;
-                    if (key_exists($fieldSlugHash, $this->repeaters) || key_exists($fieldSlugHash, $this->nonRepeaters)) {
-                        $childField = (isset($this->repeaters[$fieldSlugHash])) ? $this->repeaters[$fieldSlugHash] : $this->nonRepeaters[$fieldSlugHash];
-                    }
-
-                    if ($childCellNumber === $i) {
-                        if ($childField->field_slug === 'modular_rowcolumnrepeater'){
-                            $frag .= $this->handleRepeaterUserFormFrag($event, $child);
-                        } else {
-                            addToGlobalVariable('Data', (array)$child);
-                            $frag .= $event->getUsersForm($childField->field_slug, $childField ?? null);
-                        }
-                    }
-                }
-                $frag .= <<<HTML
-        </ul>
-HTML;
-            }
-        }
-
-        $frag .= <<<HTML
-    </div>
-</div>
-HTML;
-        $frag .= $event->_bottomHTMLWrapper();
-
-        $disallowRepeat = (isset($data->disallowRepeat)) ? $data->disallowRepeat : '0';
-
-        if ($disallowRepeat === '0'){
-            $slugHash = $data->field_slug_unique_hash ?? $data->field_options->field_slug_unique_hash;
-            if (!isset($data->_can_have_repeater_button)){
-                $frag .= $this->repeaterButton[$slugHash];
-            }
-            if (isset($data->_can_have_repeater_button) && $data->_can_have_repeater_button){
-                if (isset($this->repeaterButton[$slugHash])){
-                    $frag .= $this->repeaterButton[$slugHash];
-                }
-            }
         }
 
         return $frag;
