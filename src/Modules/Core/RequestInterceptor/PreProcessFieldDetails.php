@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\RequestInterceptor;
 
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
@@ -29,25 +30,22 @@ class PreProcessFieldDetails implements TonicsRouterRequestInterceptorInterface
         $fieldDetails = input()->fromPost()->retrieve('_fieldDetails');
         if (helper()->isJSON($fieldDetails)){
             $fieldData = new FieldData();
-            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(input()->fromPost()->retrieve('field_ids', []), json_decode($fieldDetails));
+            $fieldItems = json_decode($fieldDetails);
+            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(input()->fromPost()->retrieve('field_ids', []), $fieldItems);
             # re-dispatch so we can get the form values
             $onFieldMetaBox = new OnFieldMetaBox();
             $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
-            $htmlFrag = '';
+
             foreach ($fieldCategories as $userFieldItems){
                 foreach ($userFieldItems as $userFieldItem) {
-                    $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
+                    $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
                 }
             }
 
-            $_POST['_fieldDetails'] = [
-                'errorEmitted' => false,
-                'htmlFrag' => $htmlFrag
-            ];
-
             if ($onFieldMetaBox->isErrorEmitted()){
-                $_POST['_fieldDetails']['errorEmitted'] = true;
+                $_POST['_fieldErrorEmitted'] = true;
             }
+
         }
     }
 }

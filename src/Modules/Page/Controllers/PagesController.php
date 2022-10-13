@@ -11,6 +11,7 @@
 namespace App\Modules\Page\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
@@ -172,6 +173,7 @@ class PagesController
      */
     public function edit(string $id)
     {
+
         $this->fieldData->getFieldItemsAPI();
 
         $page = $this->pageData->selectWithCondition($this->pageData->getPageTable(), ['*'], "page_id = ?", [$id]);
@@ -191,70 +193,18 @@ class PagesController
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
         $onPageDefaultField->setFieldSlug($fieldIDS);
         event()->dispatch($onPageDefaultField);
-        $fieldMainSlugs = array_combine($onPageDefaultField->getFieldSlug(), $onPageDefaultField->getFieldSlug());
-
-        $fieldTable = $this->getFieldData()->getFieldTable();
-        $fieldItemsTable = $this->getFieldData()->getFieldItemsTable();
-        $fieldAndFieldItemsCols = $this->getFieldData()->getFieldAndFieldItemsCols();
-
-        $originalFieldIDAndSlugs = db()->Select("field_id, field_slug")->From($this->getFieldData()->getFieldTable())
-            ->WhereIn('field_slug', $onPageDefaultField->getFieldSlug())->OrderBy('field_id')->FetchResult();
-
-        # For Field Items
-        $fieldIDS = []; $categoriesFromFieldIDAndSlug = [];
-        foreach ($originalFieldIDAndSlugs as $originalFieldIDAndSlug) {
-            if (key_exists($originalFieldIDAndSlug->field_slug, $fieldMainSlugs)){
-                $fieldIDS[] = $originalFieldIDAndSlug->field_id;
-                $categoriesFromFieldIDAndSlug[$originalFieldIDAndSlug->field_slug] = [];
-            }
-        }
-
-        $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
-            ->From($fieldItemsTable)
-            ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-            ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
-
-        $originalFieldCategories = [];
-        foreach ($originalFieldItems as $originalFieldItem){
-            if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)){
-                $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
-            }
-            $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
-            $fieldOption = json_decode($originalFieldItem->field_options);
-            $originalFieldItem->field_options = $fieldOption;
-        }
 
         if (isset($fieldSettings['_fieldDetails'])){
-            $fieldItems = json_decode($fieldSettings['_fieldDetails']);
-            $fieldCategories = [];
-            foreach ($fieldItems as $fieldItem) {
-                if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)){
-                    $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
-                }
-            }
-
-            // Sort and Arrange OriginalFieldItems
-            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
-                $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
-            }
-
-            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
-                if (isset($fieldCategories[$originalFieldCategoryKey])){
-                    $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
-                    $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
-                }
-            }
+            $originalFieldCategories = $this->getFieldData()
+                ->compareSortAndUpdateFieldItems($onPageDefaultField->getFieldSlug(), json_decode($fieldSettings['_fieldDetails']));
 
             # re-dispatch so we can get the form values
             $onFieldMetaBox = new OnFieldMetaBox();
             $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
 
-            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory){
-                if (isset($fieldCategories[$originalFieldCategoryKey])) {
-                    $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
-                    foreach ($userFieldItems as $userFieldItem) {
-                        $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
-                    }
+            foreach ($originalFieldCategories as $userFieldItems){
+                foreach ($userFieldItems as $userFieldItem) {
+                    $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
                 }
             }
         } else {
@@ -268,59 +218,6 @@ class PagesController
         ]);
     }
 
-    /**
-     * @param $originalFieldItems
-     * @param $userFieldItems
-     * @return array
-     */
-    public function sortFieldWalkerTree($originalFieldItems, $userFieldItems): array
-    {
-        $sorted = [];
-        foreach ($originalFieldItems as $originalFieldItem){
-            $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
-            $match = false; $doneKey = [];
-            foreach ($userFieldItems as $userFieldKey => $userFieldItem){
-                $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
-
-                # Speak Sorted $userFieldItem
-                if (key_exists($userFieldKey, $doneKey)){
-                  continue;
-                }
-
-                if ($originalFieldSlugHash === $userFieldSlugHash) {
-                    $doneKey[$userFieldKey] = $userFieldKey;
-                    $userFieldItem->field_options = json_decode(json_encode($originalFieldItem->field_options));
-                    $userFieldItem->field_options->{"_field"} = $userFieldItem;
-                    $userFieldItem->field_data = (array)$userFieldItem->field_data;
-                    $sorted[] = $userFieldItem;
-                    $match = true;
-                    // For Nested Children
-                    if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)){
-                        $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
-                    }
-                }
-            }
-
-            // TODO
-            // if you have exhaust looping, and you couldn't match anything, then it means
-            // the originalFields has a new field push it in the sorted
-            // for now, we won't do anything...
-            if (!$match) {
-                $cellName = $originalFieldItem->field_options->field_slug . '_cell';
-                if (isset($originalFieldItem->field_options->{$cellName})){
-                    $cellPosition = $originalFieldItem->field_options->{$cellName};
-                    $originalFieldItem->field_options->_cell_position = $cellPosition;
-                }
-                if (isset($originalFieldItem->_children)){
-                    $originalFieldItem->field_options->_children = $originalFieldItem->_children;
-                }
-
-                $sorted[] = $originalFieldItem;
-            }
-        }
-
-        return $sorted;
-    }
 
     /**
      * @throws \ReflectionException
@@ -331,11 +228,10 @@ class PagesController
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
         }
+
         if (input()->fromPost()->has('page_status') === false) {
             $_POST['page_status'] = "1";
         }
-        
-        dd(input()->fromPost()->retrieve('_fieldDetails'));
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->pageUpdateRule());
         if ($validator->fails()) {
@@ -352,9 +248,16 @@ class PagesController
             redirect(route('pages.edit', [$id]));
         }
 
-        session()->flash(['Page Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-        apcu_clear_cache();
-        redirect(route('pages.edit', ['page' => $id]));
+        # For Fields
+        if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+            session()->flash(['An Error Occurred Updating Changes'], input()->fromPost()->all());
+            redirect(route('pages.edit', [$id]));
+        } else {
+            session()->flash(['Page Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            apcu_clear_cache();
+            redirect(route('pages.edit', ['page' => $id]));
+        }
+
     }
 
     /**
