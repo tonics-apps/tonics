@@ -189,10 +189,18 @@ HTML;
         }
 
         if ($isGroup){
-            $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle){
+            $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle) use ($data, $event) {
+                $slug = $data->field_slug ?? '';
+                $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+                $inputName = (isset($data->inputName)) ? $data->inputName : '';
+                $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
                 return <<<HTML
 <li tabIndex="0" class="width:100% field-builder-items overflow:auto">
             <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+<input type="hidden" name="field_slug" value="$slug">
+$field_table_slug
+<input type="hidden" name="field_slug_unique_hash" value="$hash">
+<input type="hidden" name="field_input_name" value="$inputName">
 HTML;
             });
         } else {
