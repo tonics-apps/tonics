@@ -803,6 +803,8 @@ SQL;
             $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
         }
 
+       dd($fieldCategories, $originalFieldCategories);
+
         foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
             if (isset($fieldCategories[$originalFieldCategoryKey])) {
                 $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
