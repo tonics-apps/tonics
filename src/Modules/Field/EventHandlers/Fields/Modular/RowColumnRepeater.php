@@ -197,24 +197,6 @@ HTML;
     }
 
     /**
-     * @param $data
-     * @return void
-     */
-    private function unnestRepeater($data): void
-    {
-        if ($data->field_slug === 'modular_rowcolumnrepeater') {
-            $this->repeaters[$data->field_slug_unique_hash] = $data;
-            if (isset($data->_field->_children)) {
-                foreach ($data->_field->_children as $child) {
-                    $this->unnestRepeater($child->field_options);
-                }
-            }
-        } else {
-            $this->nonRepeaters[$data->field_slug_unique_hash] = $data;
-        }
-    }
-
-    /**
      * @param OnFieldMetaBox $event
      * @param $data
      * @return string
@@ -234,78 +216,6 @@ HTML;
                 $this->repeaterButton[$field->field_slug_unique_hash] = $repeatButtonFrag;
                 return $repeatButtonFrag;
             });
-    }
-
-    /**
-     * @param $item
-     * @return void
-     * @throws \Exception
-     */
-    private function walkTreeAndDoTheDo($item): void
-    {
-        $this->fieldsSorted[] = $item;
-        if (isset($item->_children)) {
-            $item->_children = $this->sortWalkerTreeChildren($item);
-            $children = $item->_children;
-            // unset($item->_children);
-            foreach ($children as $child) {
-                $slug = $child->field_slug ?? $child->field_options->field_slug;
-                if ($slug === 'modular_rowcolumnrepeater') {
-                    $this->walkTreeAndDoTheDo($child);
-                } else {
-                    $this->fieldsSorted[] = $child;
-                }
-            }
-        }
-
-        $fieldSlugHash = $item->field_slug_unique_hash ?? $item->field_options->field_slug_unique_hash;
-        $this->childStacks[$fieldSlugHash] = $item;
-    }
-
-    /**
-     * @param $item
-     * @return array
-     */
-    private function sortWalkerTreeChildren($item): array
-    {
-        $sorted = [];
-        $fieldSlugHash = $item->field_slug_unique_hash ?? $item->field_options->field_slug_unique_hash;
-        if (isset($this->repeaters[$fieldSlugHash])) {
-            $originalFields = $this->repeaters[$fieldSlugHash]->_field->_children;
-            $treeFields = $item->_children;
-            foreach ($originalFields as $originalField) {
-                $originalFieldSlugHash = $originalField->field_options->field_slug_unique_hash;
-                $match = false;
-                foreach ($treeFields as $treeKey => $treeField) {
-                    $treeFieldSlugHash = $treeField->field_slug_unique_hash ?? $treeField->field_options->field_slug_unique_hash;
-
-                    if ($originalFieldSlugHash === $treeFieldSlugHash) {
-                        $sorted[] = $treeField;
-                        unset($treeFields->{$treeKey});
-                        $match = true;
-                    }
-                }
-
-                // TODO
-                // if you have exhaust looping, and you couldn't match anything, then it means
-                // the originalFields has a new field push it in the sorted
-                // for now, we won't do anything... (SOLVED)
-                if (!$match) {
-                    $slug = $originalField->field_options->field_slug;
-                    $cellName = $originalField->field_options->field_slug . '_cell';
-                    $cellPosition = $originalField->field_options->{$cellName};
-                    $originalField->field_options->_cell_position = $cellPosition;
-                    if ($slug === 'modular_rowcolumnrepeater'){
-                        $originalField->field_options->_can_have_repeater_button = true;
-                        $originalField->field_options->_children = $originalField->_children;
-                    }
-                    $sorted[] = $originalField->field_options;
-                }
-            }
-
-        }
-
-        return $sorted;
     }
 
     /**
