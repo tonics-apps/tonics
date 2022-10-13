@@ -206,12 +206,19 @@ class PostCategoryController
         }
 
         event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
-        $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
-        $fieldItems = $fieldForm->getHTMLFrag();
+        if (isset($fieldSettings['_fieldDetails'])){
+            addToGlobalVariable('Data', (array)$category);
+            $fieldCategories = $this->getFieldData()
+                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
+        } else {
+            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
+            $htmlFrag = $fieldForm->getHTMLFrag();
+        }
 
         view('Modules::Post/Views/Category/edit', [
             'Data' => $category,
-            'FieldItems' => $fieldItems,
+            'FieldItems' => $htmlFrag,
         ]);
     }
 
@@ -231,7 +238,12 @@ class PostCategoryController
 
         db()->FastUpdate($this->postData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
         $slug = $categoryToUpdate['cat_slug'];
-        session()->flash(['Post Category Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+
+        if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+            session()->flash(['Post Category Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+        } else {
+            session()->flash(['Post Category Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+        }
         redirect(route('posts.category.edit', ['category' => $slug]));
     }
 

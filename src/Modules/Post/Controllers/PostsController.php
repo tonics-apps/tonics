@@ -266,7 +266,6 @@ class PostsController
             addToGlobalVariable('Data', (array)$post);
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
-            // dd($fieldCategories);
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $fieldSettings);
