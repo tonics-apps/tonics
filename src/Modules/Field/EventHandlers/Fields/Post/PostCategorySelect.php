@@ -107,6 +107,10 @@ FORM;
 
         $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
         $inputData = (isset($postData[$inputName])) ? $postData[$inputName] : '';
+        # If input is empty, try $selectName
+        if (empty($inputData)){
+            $inputData = (isset($postData[$selectName])) ? $postData[$selectName] : '';
+        }
         $postData = new PostData();
         $categories = $postData->getCategoryHTMLSelect($inputData ?: null);
 
