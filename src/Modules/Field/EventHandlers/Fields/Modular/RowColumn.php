@@ -254,7 +254,11 @@ HTML; $first = false;
 <input tabindex="0" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
 <label tabindex="0" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
 HTML;
-                            $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                            if ($child->field_name === 'modular_rowcolumnrepeater'){
+                                $frag .= '<ul>' . $event->getUsersForm($child->field_name, $child->field_options ?? null) . '</ul>';
+                            } else {
+                                $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                            }
                         }
                     }
                 }
@@ -301,6 +305,7 @@ HTML;
                             if (isset($child->field_options)) {
                                 $child->field_options->{"_field"} = $child;
                             }
+
                             $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                         }
                     }

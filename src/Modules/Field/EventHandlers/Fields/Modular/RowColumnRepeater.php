@@ -17,8 +17,6 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class RowColumnRepeater implements HandlerInterface
 {
-    private array $repeaters = [];
-    private array $nonRepeaters = [];
 
     private array $repeaterButton = [];
     private bool $isRoot = false;
@@ -246,7 +244,11 @@ HTML;
             $column = $data->column;
         }
 
-        $depth = $data->_field->depth ?? $data->depth;
+        if (!isset($data->depth) || (!isset($data->_field->depth))){
+            $depth = 0;
+        } else {
+            $depth = $data->_field->depth ?? $data->depth;
+        }
 
         $root = 'false';
         if ($this->isRoot === false){
@@ -306,7 +308,6 @@ HTML;
      */
     private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
     {
-        // dd($data);
         $row = 1;
         $column = 1;
         if (isset($data->row)) {
@@ -324,7 +325,11 @@ HTML;
         $frag = $this->getTopWrapper($event, $data);
 
         for ($i = 1; $i <= $cell; $i++) {
-            if (!isset($data->_field->_children)) {
+            if (isset($data->_children)){
+                $children = $data->_children;
+            } elseif (isset($data->_field->_children)){
+                $children = $data->_field->_children;
+            } else {
                 continue;
             }
 
@@ -332,39 +337,37 @@ HTML;
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
 HTML;
 
-            if (isset($data->_field->_children)) {
-                foreach ($data->_field->_children as $child) {
-                    $fieldSlug = '';
-                    if (isset($child->field_name)){
-                        $fieldSlug = $child->field_name;
-                    } elseif (isset($child->field_options->field_slug)){
-                        $fieldSlug = $child->field_options->field_slug;
-                    } elseif (isset($child->field_slug)){
-                        $fieldSlug = $child->field_slug;
-                    }
-                    $childCellNumber = (isset($child->field_data['_cell_position'])) ? (int)$child->field_data['_cell_position'] : null;
+            foreach ($children as $child) {
+                $fieldSlug = '';
+                if (isset($child->field_name)){
+                    $fieldSlug = $child->field_name;
+                } elseif (isset($child->field_options->field_slug)){
+                    $fieldSlug = $child->field_options->field_slug;
+                } elseif (isset($child->field_slug)){
+                    $fieldSlug = $child->field_slug;
+                }
+                $childCellNumber = (isset($child->field_data['_cell_position'])) ? (int)$child->field_data['_cell_position'] : null;
 
-                    if (isset($child->_cell_position)){
-                        $childCellNumber = (int)$child->_cell_position;
+                if (isset($child->_cell_position)){
+                    $childCellNumber = (int)$child->_cell_position;
+                }
+
+                if ($childCellNumber === null){
+                    $childCellNumber = (isset($child->field_options->{$fieldSlug . "_cell"}))
+                        ? (int)$child->field_options->{$fieldSlug . "_cell"}
+                        : $i;
+                }
+
+                if ($childCellNumber === $i) {
+                    if (isset($child->field_options)) {
+                        $child->field_options->{"_field"} = $child;
+                    }
+                    $interceptChildFrag = '';
+                    if ($interceptChild) {
+                        $interceptChildFrag = $interceptChild($child->field_options, $data);
                     }
 
-                    if ($childCellNumber === null){
-                        $childCellNumber = (isset($child->field_options->{$fieldSlug . "_cell"}))
-                            ? (int)$child->field_options->{$fieldSlug . "_cell"}
-                            : $i;
-                    }
-
-                    if ($childCellNumber === $i) {
-                        if (isset($child->field_options)) {
-                            $child->field_options->{"_field"} = $child;
-                        }
-                        $interceptChildFrag = '';
-                        if ($interceptChild) {
-                            $interceptChildFrag = $interceptChild($child->field_options, $data);
-                        }
-
-                        $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($fieldSlug, $child->field_options ?? null) : $interceptChildFrag;
-                    }
+                    $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($fieldSlug, $child->field_options ?? null) : $interceptChildFrag;
                 }
             }
 
