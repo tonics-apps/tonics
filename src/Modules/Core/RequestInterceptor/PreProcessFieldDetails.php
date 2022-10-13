@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\RequestInterceptor;
 
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -39,12 +40,14 @@ class PreProcessFieldDetails implements TonicsRouterRequestInterceptorInterface
                 }
             }
 
-            if ($onFieldMetaBox->isErrorEmitted()){
-                dd('checker');
-            }
+            $_POST['_fieldDetails'] = [
+                'errorEmitted' => false,
+                'htmlFrag' => $htmlFrag
+            ];
 
-            $_POST['_fieldDetails'] = json_encode($fieldCategories);
-            dd($fieldCategories, $htmlFrag);
+            if ($onFieldMetaBox->isErrorEmitted()){
+                $_POST['_fieldDetails']['errorEmitted'] = true;
+            }
         }
     }
 }
