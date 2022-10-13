@@ -76,7 +76,6 @@ class PostsController
         $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at', 'image_url']])
             . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT("/admin/posts/", post_slug, "/edit") as _edit_link, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
 
-
         $postData = db()->Select($tblCol)
             ->From($postCatTbl)
             ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
@@ -97,7 +96,9 @@ class PostsController
             })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($postTbl) {
                 $db->WhereBetween(table()->pickTable($postTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+            })
+            ->GroupBy('post_id')
+            ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
         view('Modules::Post/Views/index', [
             'DataTable' => [
@@ -257,6 +258,8 @@ class PostsController
             $fieldSettings = [...$fieldSettings, ...$oldFormInputFieldSettings];
         }
 
+       // dd($fieldSettings);
+
         $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
 
         if (empty($fieldSettings)) {
@@ -283,7 +286,6 @@ class PostsController
      */
     #[NoReturn] public function update(string $slug)
     {
-
         $this->postData->setDefaultPostCategoryIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
         if ($validator->fails()) {

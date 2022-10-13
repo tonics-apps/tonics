@@ -611,12 +611,20 @@ SQL;
         url()->removeFromHeader('HTTP_ACTION');
     }
 
+    /**
+     * @param FieldTemplateFileInterface $fieldHandler
+     * @param $data
+     * @return string
+     */
     public function handleWithFieldHandler(FieldTemplateFileInterface $fieldHandler, $data): string
     {
         return $fieldHandler->handleFieldLogic(data: $data);
     }
 
     /**
+     * @param $fieldSettings
+     * @param string $contentKey
+     * @return mixed
      * @throws \Exception
      */
     public function handleEditorMode($fieldSettings, string $contentKey)
@@ -626,6 +634,9 @@ SQL;
     }
 
     /**
+     * @param $fieldSettings
+     * @param $contentKey
+     * @return array|mixed
      * @throws \Exception
      */
     public function preSavePostEditorFieldItems(&$fieldSettings, $contentKey)
@@ -708,6 +719,9 @@ SQL;
 
 
     /**
+     * @param $post
+     * @param string $fieldSettingsKey
+     * @return void
      * @throws \Exception
      */
     public function unwrapForPost(&$post, string $fieldSettingsKey = 'field_settings')
@@ -832,7 +846,7 @@ SQL;
             foreach ($userFieldItems as $userFieldKey => $userFieldItem) {
                 $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
 
-                # Speak Sorted $userFieldItem
+                # Skip Sorted $userFieldItem
                 if (key_exists($userFieldKey, $doneKey)) {
                     continue;
                 }

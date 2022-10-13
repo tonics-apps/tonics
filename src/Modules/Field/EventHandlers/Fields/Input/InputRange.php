@@ -120,7 +120,7 @@ FORM;
         $min = (isset($data->min)) ? "min=" . $data->min . '"' : '';
         $max= (isset($data->max)) ? "max=" . $data->max . '"' : '';
         $textType = 'range';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
         $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';

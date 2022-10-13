@@ -93,7 +93,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
         $inputName = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultImage = (isset($data->defaultImage) && !empty($inputName)) ? $inputName : $data->defaultImage;
         $slug = $data->field_slug;
@@ -129,7 +129,7 @@ FORM;
     public function viewData(OnFieldMetaBox $event, $data = null)
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
         $inputName = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultImage = (isset($data->defaultImage) && !empty($inputName)) ? $inputName : $data->defaultImage;
         $imageLink = (isset($data->imageLink)) ? $data->imageLink : '';

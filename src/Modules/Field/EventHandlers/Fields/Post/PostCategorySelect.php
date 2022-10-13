@@ -105,8 +105,8 @@ FORM;
             $height = 'height: 300px;';
         }
 
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
-        $inputData = (isset($postData[$selectName])) ? $postData[$selectName] : '';
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
+        $inputData = (isset($postData[$inputName])) ? $postData[$inputName] : '';
         $postData = new PostData();
         $categories = $postData->getCategoryHTMLSelect($inputData ?: null);
 

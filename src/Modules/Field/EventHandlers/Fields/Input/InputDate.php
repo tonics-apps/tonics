@@ -176,7 +176,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Date';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
         $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $min = (isset($data->min)) ? "min='$data->min'" : '';

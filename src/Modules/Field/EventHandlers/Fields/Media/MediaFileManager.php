@@ -80,7 +80,7 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'MediaManager';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : [];
+        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : getPostData();
         $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultFileLink = (isset($data->file_url) && !empty($inputName)) ? $inputName : $data->file_url;
         $slug = $data->field_slug;

@@ -173,7 +173,6 @@ class PagesController
      */
     public function edit(string $id)
     {
-
         $this->fieldData->getFieldItemsAPI();
 
         $page = $this->pageData->selectWithCondition($this->pageData->getPageTable(), ['*'], "page_id = ?", [$id]);
@@ -187,7 +186,6 @@ class PagesController
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$page];
         }
-        $htmlFrag = '';
 
         $onPageDefaultField = $this->onPageDefaultField;
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
