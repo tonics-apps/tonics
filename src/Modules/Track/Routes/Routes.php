@@ -13,6 +13,7 @@ namespace App\Modules\Track\Routes;
 use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CSRFGuard;
+use App\Modules\Core\RequestInterceptor\PreProcessFieldDetails;
 use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Track\Controllers\Artist\ArtistController;
 use App\Modules\Track\Controllers\Genre\GenreController;
@@ -43,10 +44,10 @@ trait Routes
                 $route->get('', [TracksController::class, 'index'], alias: 'index');
                 $route->post('', [TracksController::class, 'dataTable'], alias: 'dataTables');
 
-                $route->post('store', [TracksController::class, 'store']);
+                $route->post('store', [TracksController::class, 'store'], [PreProcessFieldDetails::class]);
                 $route->get('create', [TracksController::class, 'create'], alias: 'create');
                 $route->get(':track/edit', [TracksController::class, 'edit'], alias: 'edit');
-                $route->match(['post', 'put'], ':track/update', [TracksController::class, 'update']);
+                $route->match(['post', 'put'], ':track/update', [TracksController::class, 'update'], [PreProcessFieldDetails::class]);
                 $route->post( '/trash/multiple', [TracksController::class, 'trashMultiple'], alias: 'trashMultiple');
                 $route->post( ':track/trash', [TracksController::class, 'trash'], alias: 'trash');
                 $route->match(['post', 'delete'], ':track/delete', [TracksController::class, 'delete'], alias: 'delete');

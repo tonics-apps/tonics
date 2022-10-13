@@ -224,14 +224,20 @@ class TracksController extends Controller
         }
 
         event()->dispatch($this->getOnTrackDefaultField());
-
-        $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug($this->getOnTrackDefaultField()->getFieldSlug(), $fieldSettings)->getHTMLFrag();
+        if (isset($fieldSettings['_fieldDetails'])){
+            addToGlobalVariable('Data', $onTrackCreate->getAllToArray());
+            $fieldCategories = $this->getFieldData()
+                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
+        } else {
+            $htmlFrag = $this->getFieldData()->generateFieldWithFieldSlug($this->getOnTrackDefaultField()->getFieldSlug(), $fieldSettings)->getHTMLFrag();
+        }
 
         view('Modules::Track/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
             'Data' => $onTrackCreate->getAllToArray(),
-            'FieldItems' => $fieldItems
+            'FieldItems' => $htmlFrag
         ]);
     }
 
@@ -266,7 +272,12 @@ class TracksController extends Controller
         }
 
         $slug = $track['track_slug'];
-        session()->flash(['Track Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+        if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+            session()->flash(['Track Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+        } else {
+            session()->flash(['Track Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+        }
+
         apcu_clear_cache();
         redirect(route('tracks.edit', ['track' => $slug]));
     }
