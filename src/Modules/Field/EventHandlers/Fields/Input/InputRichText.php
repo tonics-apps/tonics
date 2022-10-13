@@ -149,8 +149,8 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Rich Text';
         $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = $postData ?: getPostData();
+        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
         $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
         $readOnly = ($data->readOnly == 1) ? 'readonly' : '';

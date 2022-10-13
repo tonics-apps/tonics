@@ -78,8 +78,10 @@ FORM;
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $genre = $trackData->getGenrePaginationData();
         $onTrackCreate = null;
-        if (!empty(getPostData())){
-            $onTrackCreate = new OnTrackCreate((object)getPostData(), $trackData);
+        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
+        if (!empty($postData)){
+            $onTrackCreate = new OnTrackCreate((object)$postData, $trackData);
         }
 
         $genreSettings = ['genres' => $genre, 'selected' => [$onTrackCreate?->getTrackFKGenreID() ?? null], 'inputName' => $inputName];

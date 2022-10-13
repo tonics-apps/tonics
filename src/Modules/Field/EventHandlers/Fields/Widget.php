@@ -97,8 +97,8 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Menu';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = $postData ?: getPostData();
+        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
         $widgetSlug =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -140,8 +140,8 @@ HTML;
     {
         $frag = '';
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
-        $postData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = $postData ?: getPostData();
+        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
+        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
         $widgetSlug =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
         if (empty($widgetSlug)){
             return $frag;
