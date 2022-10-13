@@ -147,51 +147,6 @@ COLUMNS;
     /**
      * @throws \Exception
      */
-    public function adminFieldListing($fields): string
-    {
-        $csrfToken = session()->getCSRFToken();
-        $htmlFrag = '';
-        foreach ($fields as $k => $field) {
-            $htmlFrag .= <<<HTML
-    <li 
-    data-list_id="$k" data-id="$field->field_id"  
-    data-field_id="$field->field_id" 
-    data-field_slug="$field->field_slug" 
-    data-field_name="$field->field_name"
-    data-db_click_link="/admin/tools/field/$field->field_slug/edit"
-    tabindex="0" 
-    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-        <fieldset class="padding:default width:100% d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$field->field_name</legend>
-            <div class="admin-widget-information owl width:100%">
-            <div class="text-on-admin-util text-highlight">$field->field_name</div>
-         
-                <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
-                     <a href="/admin/tools/field/$field->field_slug/edit" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cursor:pointer">Edit</a>
-                        
-                         <a href="/admin/tools/field/items/$field->field_slug/builder" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cursor:pointer">Builder</a>
-                   
-                   <form method="post" class="d:contents" action="/admin/tools/field/$field->field_slug/delete">
-                    <input type="hidden" name="token" value="$csrfToken" >
-                       <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-                        margin-top:0 cursor:pointer">Delete</button>
-                    </form>
-                </div>
-                
-            </div>
-        </fieldset>
-    </li>
-HTML;
-        }
-
-        return $htmlFrag;
-    }
-
-    /**
-     * @throws \Exception
-     */
     public function createField(array $ignore = []): array
     {
         $slug = $this->generateUniqueSlug($this->getFieldTable(),
@@ -293,7 +248,7 @@ HTML;
 
         foreach ($fieldSanitization->getFieldsSanitization() as $fieldSanitizationName => $fieldSanitizationObject) {
             $checked = '';
-            if ($fieldSanitizationName === $fieldSanitizationSlug){
+            if ($fieldSanitizationName === $fieldSanitizationSlug) {
                 $checked = "checked";
             }
 
@@ -720,25 +675,25 @@ SQL;
         $data['field_settings'] = input()->fromPost()->all();
         unset($_POST['field_settings']['token'], $data[$contentKey]);
 
-        if (isset($data[$titleKey])){
-            if (isset($data['field_settings']['seo_title']) && empty($data['field_settings']['seo_title'])){
+        if (isset($data[$titleKey])) {
+            if (isset($data['field_settings']['seo_title']) && empty($data['field_settings']['seo_title'])) {
                 $data['field_settings']['seo_title'] = $data[$titleKey];
             }
-            if (!isset($data['field_settings']['seo_title'])){
+            if (!isset($data['field_settings']['seo_title'])) {
                 $data['field_settings']['seo_title'] = $data[$titleKey];
             }
         }
 
-        if (isset($data['field_settings'][$contentKey])){
-            if (isset($data['field_settings']['seo_description']) && empty($data['field_settings']['seo_description'])){
+        if (isset($data['field_settings'][$contentKey])) {
+            if (isset($data['field_settings']['seo_description']) && empty($data['field_settings']['seo_description'])) {
                 $data['field_settings']['seo_description'] = substr(strip_tags($data['field_settings'][$contentKey]), 0, 200);
             }
-            if (!isset($data['field_settings']['seo_description'])){
+            if (!isset($data['field_settings']['seo_description'])) {
                 $data['field_settings']['seo_description'] = substr(strip_tags($data['field_settings'][$contentKey]), 0, 200);
             }
         }
 
-        if (isset($_POST['fieldItemsDataFromEditor'])){
+        if (isset($_POST['fieldItemsDataFromEditor'])) {
             $data['field_settings'][$contentKey] = $_POST['fieldItemsDataFromEditor'];
             unset($data['field_settings']['fieldItemsDataFromEditor']);
         }
@@ -764,5 +719,135 @@ SQL;
         $post['created_at_words'] = strtoupper($date->format('j M, Y'));
     }
 
+    /**
+     * The purpose of this function is using the $fieldSlugIDS to not only sort the $fieldItems for any updated fields,
+     * but also to build its field_options.
+     *
+     * The $fieldItems is expected to be a decoded field from the POST REQUEST
+     * @param array $fieldSlugIDS
+     * @param array $fieldItems
+     * @return array
+     * @throws \Exception
+     */
+    public function compareSortAndUpdateFieldItems(array $fieldSlugIDS, array $fieldItems): array
+    {
+        $fieldMainSlugs = array_combine($fieldSlugIDS, $fieldSlugIDS);
+        $fieldTable = $this->getFieldTable();
+        $fieldItemsTable = $this->getFieldItemsTable();
+        $fieldAndFieldItemsCols = $this->getFieldAndFieldItemsCols();
 
+        $originalFieldIDAndSlugs = db()->Select("field_id, field_slug")->From($fieldTable)
+            ->WhereIn('field_slug', $fieldMainSlugs)->OrderBy('field_id')->FetchResult();
+
+        # For Field Items
+        $fieldIDS = [];
+        $categoriesFromFieldIDAndSlug = [];
+        foreach ($originalFieldIDAndSlugs as $originalFieldIDAndSlug) {
+            if (key_exists($originalFieldIDAndSlug->field_slug, $fieldMainSlugs)) {
+                $fieldIDS[] = $originalFieldIDAndSlug->field_id;
+                $categoriesFromFieldIDAndSlug[$originalFieldIDAndSlug->field_slug] = [];
+            }
+        }
+
+        $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
+            ->From($fieldItemsTable)
+            ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+            ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
+
+        $originalFieldCategories = [];
+        foreach ($originalFieldItems as $originalFieldItem) {
+            if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)) {
+                $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
+            }
+            $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
+            $fieldOption = json_decode($originalFieldItem->field_options);
+            $originalFieldItem->field_options = $fieldOption;
+        }
+
+        $fieldCategories = [];
+        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) {
+            if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
+                $fieldOption = json_decode($field->field_options);
+                $field->field_data = (array)$fieldOption;
+                $field->field_options = $fieldOption;
+            }
+
+            return $field;
+        });
+
+        foreach ($fieldItems as $fieldItem) {
+            if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)) {
+                $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
+            }
+        }
+
+        // Sort and Arrange OriginalFieldItems
+        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
+            $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
+        }
+
+        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
+            if (isset($fieldCategories[$originalFieldCategoryKey])) {
+                $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
+            }
+        }
+
+        return $fieldCategories;
+    }
+
+    /**
+     * @param $originalFieldItems
+     * @param $userFieldItems
+     * @return array
+     */
+    public function sortFieldWalkerTree($originalFieldItems, $userFieldItems): array
+    {
+        $sorted = [];
+        foreach ($originalFieldItems as $originalFieldItem) {
+            $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
+            $match = false;
+            $doneKey = [];
+            foreach ($userFieldItems as $userFieldKey => $userFieldItem) {
+                $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
+
+                # Speak Sorted $userFieldItem
+                if (key_exists($userFieldKey, $doneKey)) {
+                    continue;
+                }
+
+                if ($originalFieldSlugHash === $userFieldSlugHash) {
+                    $doneKey[$userFieldKey] = $userFieldKey;
+                    $userFieldItem->field_options = json_decode(json_encode($originalFieldItem->field_options));
+                    $userFieldItem->field_options->{"_field"} = $userFieldItem;
+                    $userFieldItem->field_data = (array)$userFieldItem->field_data;
+                    $sorted[] = $userFieldItem;
+                    $match = true;
+                    // For Nested Children
+                    if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)) {
+                        $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
+                    }
+                }
+            }
+
+            // TODO
+            // if you have exhaust looping, and you couldn't match anything, then it means
+            // the originalFields has a new field push it in the sorted
+            // for now, we won't do anything...
+            if (!$match) {
+                $cellName = $originalFieldItem->field_options->field_slug . '_cell';
+                if (isset($originalFieldItem->field_options->{$cellName})) {
+                    $cellPosition = $originalFieldItem->field_options->{$cellName};
+                    $originalFieldItem->field_options->_cell_position = $cellPosition;
+                }
+                if (isset($originalFieldItem->_children)) {
+                    $originalFieldItem->field_options->_children = $originalFieldItem->_children;
+                }
+
+                $sorted[] = $originalFieldItem;
+            }
+        }
+
+        return $sorted;
+    }
 }

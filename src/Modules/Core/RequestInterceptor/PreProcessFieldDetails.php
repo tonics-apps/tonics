@@ -10,6 +10,9 @@
 
 namespace App\Modules\Core\RequestInterceptor;
 
+use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 
@@ -23,22 +26,25 @@ class PreProcessFieldDetails implements TonicsRouterRequestInterceptorInterface
     public function handle(OnRequestProcess $request): void
     {
         $fieldDetails = input()->fromPost()->retrieve('_fieldDetails');
-        $fieldSlugIDS = [];
         if (helper()->isJSON($fieldDetails)){
-            $fieldDetails = json_decode($fieldDetails);
-            $tree = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field) use ($fieldSlugIDS) {
-                if (isset($field->field_options) && helper()->isJSON($field->field_options)){
-                    $fieldOption = json_decode($field->field_options);
-                    $field->field_data = (array)$fieldOption;
+            $fieldData = new FieldData();
+            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(input()->fromPost()->retrieve('field_ids', []), json_decode($fieldDetails));
+            # re-dispatch so we can get the form values
+            $onFieldMetaBox = new OnFieldMetaBox();
+            $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+            $htmlFrag = '';
+            foreach ($fieldCategories as $userFieldItems){
+                foreach ($userFieldItems as $userFieldItem) {
+                    $htmlFrag .= $onFieldMetaBox->getUsersForm($userFieldItem->field_options->field_slug, $userFieldItem->field_options);
                 }
-                if (!key_exists($field->main_field_slug, $fieldSlugIDS)){
-                    $fieldSlugIDS[$field->main_field_slug] = $field->main_field_slug;
-                }
-                return $field;
-            });
+            }
 
-            $_POST['_fieldDetails'] = json_encode($tree);
-            dd($_POST, $request, $tree);
+            if ($onFieldMetaBox->isErrorEmitted()){
+                dd('checker');
+            }
+
+            $_POST['_fieldDetails'] = json_encode($fieldCategories);
+            dd($fieldCategories, $htmlFrag);
         }
     }
 }

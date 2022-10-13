@@ -245,8 +245,6 @@ class PagesController
                 }
             }
 
-            // dd($fieldCategories, 'hey');
-
             # re-dispatch so we can get the form values
             $onFieldMetaBox = new OnFieldMetaBox();
             $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
