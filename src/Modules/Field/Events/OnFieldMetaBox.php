@@ -405,9 +405,10 @@ HTML;
         $value = '';
         if (isset($data->_field->field_data[$key])){
             $value = $data->_field->field_data[$key];
-            if (empty($value) && $findInGlobalPost && isset(getPostData()[$key])){
-                $value = getPostData()[$key];
-            }
+        }
+
+        if (empty($value) && $findInGlobalPost && isset(getPostData()[$key])){
+            $value = getPostData()[$key];
         }
 
         return $value;
