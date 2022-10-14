@@ -10,7 +10,6 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -147,9 +146,46 @@ HTML;
         $fieldSlug = (isset($fieldSlugAndID[0])) ? $fieldSlugAndID[0] : '';
         $fieldID = (isset($fieldSlugAndID[1]) && is_numeric($fieldSlugAndID[1])) ? (int)$fieldSlugAndID[1] : '';
 
-        dd($data, $fieldSlug, $fieldID, getPostData());
-
         if (!empty($fieldID) && $expandField === '1') {
+            $fieldData = new FieldData();
+            $fieldItems = []; $fieldDetails = [];
+            if (isset(getPostData()['_fieldDetails'])){
+                $fieldItems = json_decode(getPostData()['_fieldDetails']);
+            }
+
+            foreach ($fieldItems as $fieldItem){
+                if (isset($fieldItem) && $fieldItem->main_field_slug === $fieldSlug){
+                    $fieldDetails[] = $fieldItem;
+                }
+            }
+
+            $fieldTable = $fieldData->getFieldTable();
+            $fieldItemsTable = $fieldData->getFieldItemsTable();
+            $fieldAndFieldItemsCols = $fieldData->getFieldAndFieldItemsCols();
+
+            $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
+                ->From($fieldItemsTable)
+                ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                ->WhereIn('fk_field_id', [$fieldID])->OrderBy('fk_field_id')->FetchResult();
+
+            $originalFieldCategories = [];
+            foreach ($originalFieldItems as $originalFieldItem) {
+                if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)) {
+                    $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
+                }
+                $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
+                $fieldOption = json_decode($originalFieldItem->field_options);
+                $originalFieldItem->field_options = $fieldOption;
+            }
+
+            dd($fieldItems, $fieldDetails, $data->_field->_children, $originalFieldCategories);
+
+            $fieldCategories = $fieldData
+                ->compareSortAndUpdateFieldItems($fieldDetails, [$fieldSlug]);
+
+            dd($fieldCategories, $fieldDetails);
+
+
             $htmlFrag = '';
             if (isset($data->_field) && isset($data->_field->_children)){
                 foreach ($data->_field->_children as $fieldItem) {

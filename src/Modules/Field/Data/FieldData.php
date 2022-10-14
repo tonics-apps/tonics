@@ -746,7 +746,7 @@ SQL;
     public function compareSortAndUpdateFieldItems(array $fieldItems, array $slugIDS = []): array
     {
         $fieldCategories = []; $fieldSlugIDS = [];
-        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use (&$fieldSlugIDS) {
+        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($slugIDS, &$fieldSlugIDS) {
             if (isset($field->main_field_slug) && !key_exists($field->main_field_slug, $fieldSlugIDS)){
                 $fieldSlugIDS[$field->main_field_slug] = $field->main_field_slug;
             }
@@ -759,6 +759,9 @@ SQL;
 
             return $field;
         });
+
+
+
         if (!empty($slugIDS)){
             $fieldSlugIDS = $slugIDS;
             $fieldSlugIDS = array_combine($slugIDS, $slugIDS);
