@@ -175,25 +175,12 @@ HTML;
 
             // Sort and Arrange OriginalFieldItems
             $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
-            $sortFieldWalker = $fieldData->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
-
-            dd($fieldItems, $fieldDetails, $data->_field->_children, $originalFieldItems);
-
-            $fieldCategories = $fieldData
-                ->compareSortAndUpdateFieldItems($fieldDetails, [$fieldSlug]);
-
-            dd($fieldCategories, $fieldDetails);
-
+            $sortedFieldWalkerItems = $fieldData->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
 
             $htmlFrag = '';
-            if (isset($data->_field) && isset($data->_field->_children)){
-                foreach ($data->_field->_children as $fieldItem) {
-                    dd($data->_field->_children, $fieldItem, getPostData());
-                    $htmlFrag .= $event->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
-                }
+            foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
+                $htmlFrag .= $event->getUsersForm($sortedFieldWalkerItem->field_options->field_slug, $sortedFieldWalkerItem->field_options);
             }
-          //  dd($data, $htmlFrag);
-            // $onFieldUserForm = new OnFieldFormHelper([$fieldID], new FieldData(), getPostData());
             $frag .= $htmlFrag;
         } else {
             $frag .= <<<HTML

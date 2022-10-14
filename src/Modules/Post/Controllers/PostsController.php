@@ -262,6 +262,11 @@ class PostsController
 
         event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
+        # Since Cat_ID would be multiple, if the multiple version doesn't exist, add it...
+        if (isset($fieldSettings['fk_cat_id']) && !isset($fieldSettings['fk_cat_id[]'])){
+            $fieldSettings['fk_cat_id[]'] = [$fieldSettings['fk_cat_id']];
+        }
+
         if (isset($fieldSettings['_fieldDetails'])){
             addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()
