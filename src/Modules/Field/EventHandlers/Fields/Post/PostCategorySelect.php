@@ -106,7 +106,6 @@ FORM;
         }
 
         $inputData = $event->getKeyValueInData($data, $selectName);
-        dd($inputData, $selectName, $data, getPostData());
         $postData = new PostData();
         $categories = $postData->getCategoryHTMLSelect($inputData ?: null);
 
