@@ -78,10 +78,10 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
-        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
-        $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
-        $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
+
+        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $defaultValue = (isset($data->defaultValue) && !empty($keyValue)) ? $keyValue : $data->defaultValue;
+
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $slug = $data->field_slug;
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
