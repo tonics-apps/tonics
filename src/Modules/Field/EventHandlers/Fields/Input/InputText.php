@@ -176,8 +176,9 @@ FORM;
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Text';
 
+        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
         $keyValue =  $event->getKeyValueInData($data, $data->inputName);
-        $defaultValue = (isset($data->defaultValue) && !empty($keyValue)) ? $keyValue : $data->defaultValue;
+        $defaultValue =  $keyValue ?: $defaultValue;
         $defaultValue = helper()->htmlSpecChar($defaultValue);
 
         $maxChar =  (isset($data->maxChar)) ?  'maxlength="' . $data->maxChar . '"' : '';

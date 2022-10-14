@@ -118,10 +118,8 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
-        $inputName = $data->inputName;
-        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
-        $fieldSlug = (isset($postData[$inputName])) ? $postData[$inputName] : $data->fieldSlug;
+        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $fieldSlug = (isset($data->fieldSlug) && !empty($keyValue)) ? $keyValue : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 

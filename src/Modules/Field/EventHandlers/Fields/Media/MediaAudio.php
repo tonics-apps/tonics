@@ -34,6 +34,12 @@ class MediaAudio implements HandlerInterface
         );
     }
 
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
+     * @throws \Exception
+     */
     public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Audio';
@@ -79,10 +85,9 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
-        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
-        $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
-        $defaultAudio = (isset($data->audio_url) && !empty($inputName)) ? $inputName : $data->audio_url;
+
+        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $defaultAudio = (isset($data->audio_url) && !empty($keyValue)) ? $keyValue : $data->audio_url;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);

@@ -105,13 +105,11 @@ FORM;
             $height = 'height: 300px;';
         }
 
-        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
-        $inputData = (isset($postData[$inputName])) ? $postData[$inputName] : '';
+        $inputData = $event->getKeyValueInData($data, $inputName);
 
         # If input is empty, try $selectName
         if (empty($inputData)){
-            $inputData = (isset($postData[$selectName])) ? $postData[$selectName] : '';
+            $inputData = $event->getKeyValueInData($data, $selectName);
         }
         $postData = new PostData();
         $categories = $postData->getCategoryHTMLSelect($inputData ?: null);

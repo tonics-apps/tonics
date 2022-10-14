@@ -88,15 +88,16 @@ FORM;
     }
 
     /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     * @return string
      * @throws \Exception
      */
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
-        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
-        $inputName = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
-        $defaultImage = (isset($data->defaultImage) && !empty($inputName)) ? $inputName : $data->defaultImage;
+        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $defaultImage = (isset($data->defaultImage) && !empty($keyValue)) ? $keyValue : $data->defaultImage;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
