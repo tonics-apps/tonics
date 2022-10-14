@@ -394,6 +394,26 @@ HTML;
     }
 
     /**
+     * @param $data
+     * @param string $key
+     * @param bool $findInGlobalPost
+     * @return mixed|string
+     * @throws \Exception
+     */
+    public function getKeyValueInData($data, string $key, bool $findInGlobalPost = true): mixed
+    {
+        $value = '';
+        if (isset($data->_field->field_data[$key])){
+            $value = $data->_field->field_data[$key];
+            if (empty($value) && $findInGlobalPost && isset(getPostData()[$key])){
+                $value = getPostData()[$key];
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * @throws \Exception
      */
     public function generateMoreSettingsFrag($data = null, string $more = ''): string

@@ -99,11 +99,10 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
-        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
-        $inputName =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
-        $defaultValue = $inputName;
-        if (mb_strlen($inputName, 'UTF-8') === 0 && isset($data->defaultValue)){
+
+        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $defaultValue = $keyValue;
+        if (mb_strlen($keyValue, 'UTF-8') === 0 && isset($data->defaultValue)){
             $defaultValue = $data->defaultValue;
         }
 
