@@ -10,6 +10,7 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -119,7 +120,7 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $keyValue =  $event->getKeyValueInData($data, $data->inputName);
-        $fieldSlug = (isset($data->fieldSlug) && !empty($keyValue)) ? $keyValue : $data->fieldSlug;
+        $fieldSlugAndID = (isset($data->fieldSlug) && !empty($keyValue)) ? $keyValue : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 
@@ -130,7 +131,7 @@ FORM;
         $fieldFrag = '';
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug:$field->field_id";
-            if ($fieldSlug === $uniqueSlug) {
+            if ($fieldSlugAndID === $uniqueSlug) {
                 $fieldFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$field->field_name</option>
 HTML;
@@ -141,13 +142,24 @@ HTML;
             }
         }
 
-        $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlug}_$changeID";
-        $fieldSlug = explode(':', $fieldSlug);
-        $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1] : '';
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlugAndID}_$changeID";
+        $fieldSlugAndID = explode(':', $fieldSlugAndID);
+        $fieldSlug = (isset($fieldSlugAndID[0])) ? $fieldSlugAndID[0] : '';
+        $fieldID = (isset($fieldSlugAndID[1]) && is_numeric($fieldSlugAndID[1])) ? (int)$fieldSlugAndID[1] : '';
+
+        dd($data, $fieldSlug, $fieldID, getPostData());
 
         if (!empty($fieldID) && $expandField === '1') {
-            $onFieldUserForm = new OnFieldFormHelper([$fieldID], new FieldData(), getPostData());
-            $frag .= $onFieldUserForm->getHTMLFrag();
+            $htmlFrag = '';
+            if (isset($data->_field) && isset($data->_field->_children)){
+                foreach ($data->_field->_children as $fieldItem) {
+                    dd($data->_field->_children, $fieldItem, getPostData());
+                    $htmlFrag .= $event->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
+                }
+            }
+          //  dd($data, $htmlFrag);
+            // $onFieldUserForm = new OnFieldFormHelper([$fieldID], new FieldData(), getPostData());
+            $frag .= $htmlFrag;
         } else {
             $frag .= <<<HTML
 <div class="form-group margin-top:0">

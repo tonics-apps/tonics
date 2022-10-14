@@ -99,6 +99,7 @@ class FieldConfig
         return AppConfig::initLoaderMinimal()::getGlobalVariableData(self::postEditorFieldsContentID()) ?? [];
     }
 
+
     /**
      * @param $key
      * Only File That Contains JSON data

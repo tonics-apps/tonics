@@ -193,8 +193,9 @@ class PagesController
         event()->dispatch($onPageDefaultField);
 
         if (isset($fieldSettings['_fieldDetails'])){
+            addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()
-                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']), $onPageDefaultField->getFieldSlug());
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();

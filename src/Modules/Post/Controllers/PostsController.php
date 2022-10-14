@@ -263,7 +263,7 @@ class PostsController
         event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
         if (isset($fieldSettings['_fieldDetails'])){
-            addToGlobalVariable('Data', (array)$post);
+            addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);

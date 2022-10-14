@@ -743,7 +743,7 @@ SQL;
      * @return array
      * @throws \Exception
      */
-    public function compareSortAndUpdateFieldItems(array $fieldItems): array
+    public function compareSortAndUpdateFieldItems(array $fieldItems, array $slugIDS = []): array
     {
         $fieldCategories = []; $fieldSlugIDS = [];
         $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use (&$fieldSlugIDS) {
@@ -759,6 +759,11 @@ SQL;
 
             return $field;
         });
+        if (!empty($slugIDS)){
+            $fieldSlugIDS = $slugIDS;
+            $fieldSlugIDS = array_combine($slugIDS, $slugIDS);
+
+        }
 
         $fieldTable = $this->getFieldTable();
         $fieldItemsTable = $this->getFieldItemsTable();

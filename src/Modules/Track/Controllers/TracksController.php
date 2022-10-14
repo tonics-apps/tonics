@@ -225,7 +225,7 @@ class TracksController extends Controller
 
         event()->dispatch($this->getOnTrackDefaultField());
         if (isset($fieldSettings['_fieldDetails'])){
-            addToGlobalVariable('Data', $onTrackCreate->getAllToArray());
+            addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
