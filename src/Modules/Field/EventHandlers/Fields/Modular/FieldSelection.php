@@ -168,17 +168,16 @@ HTML;
                 ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
                 ->WhereIn('fk_field_id', [$fieldID])->OrderBy('fk_field_id')->FetchResult();
 
-            $originalFieldCategories = [];
-            foreach ($originalFieldItems as $originalFieldItem) {
-                if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)) {
-                    $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
-                }
-                $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
+            foreach ($originalFieldItems as $originalFieldItem){
                 $fieldOption = json_decode($originalFieldItem->field_options);
                 $originalFieldItem->field_options = $fieldOption;
             }
 
-            dd($fieldItems, $fieldDetails, $data->_field->_children, $originalFieldCategories);
+            // Sort and Arrange OriginalFieldItems
+            $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
+            $sortFieldWalker = $fieldData->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+
+            dd($fieldItems, $fieldDetails, $data->_field->_children, $originalFieldItems);
 
             $fieldCategories = $fieldData
                 ->compareSortAndUpdateFieldItems($fieldDetails, [$fieldSlug]);
