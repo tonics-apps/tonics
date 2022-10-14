@@ -332,7 +332,6 @@ HTML;
             } else {
                 continue;
             }
-
             $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user owl">
 HTML;

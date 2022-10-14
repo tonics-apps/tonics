@@ -124,6 +124,7 @@ FORM;
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $htmlFrag = '';
 
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->Select('*')->From($table)->FetchResult();
@@ -148,16 +149,6 @@ HTML;
 
         if (!empty($fieldID) && $expandField === '1') {
             $fieldData = new FieldData();
-            $fieldItems = []; $fieldDetails = [];
-            if (isset(getPostData()['_fieldDetails'])){
-                $fieldItems = json_decode(getPostData()['_fieldDetails']);
-            }
-
-            foreach ($fieldItems as $fieldItem){
-                if (isset($fieldItem) && $fieldItem->main_field_slug === $fieldSlug){
-                    $fieldDetails[] = $fieldItem;
-                }
-            }
 
             $fieldTable = $fieldData->getFieldTable();
             $fieldItemsTable = $fieldData->getFieldItemsTable();
@@ -175,12 +166,21 @@ HTML;
 
             // Sort and Arrange OriginalFieldItems
             $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
-            $sortedFieldWalkerItems = $fieldData->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+           // dd($data, $originalFieldItems);
+            if (isset($data->_field->_children)){
+                $sortedFieldWalkerItems = $fieldData->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+            } else {
+                $sortedFieldWalkerItems = $originalFieldItems;
+            }
 
-            $htmlFrag = '';
             foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
+                if (isset($sortedFieldWalkerItem->_children)) {
+                    $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
+                }
+
                 $htmlFrag .= $event->getUsersForm($sortedFieldWalkerItem->field_options->field_slug, $sortedFieldWalkerItem->field_options);
             }
+
             $frag .= $htmlFrag;
         } else {
             $frag .= <<<HTML
