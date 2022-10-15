@@ -4114,6 +4114,7 @@ function getPostData(fieldSettingsEl) {
 let tinyEditorsForm = document.getElementById('EditorsForm');
 if (tinyEditorsForm){
     tinyEditorsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
 
         if (tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             e.preventDefault(); let nodesData = {}, key = 0;
@@ -4148,7 +4149,7 @@ if (tinyEditorsForm){
 
             addHiddenInputToForm(tinyEditorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
             addHiddenInputToForm(tinyEditorsForm, 'fieldTableSlugsInEditor', JSON.stringify(getFieldSlugsTable()));
-            tinyEditorsForm.submit();
+           // tinyEditorsForm.submit();
         }
     });
 }

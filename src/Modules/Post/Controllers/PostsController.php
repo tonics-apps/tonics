@@ -298,6 +298,8 @@ class PostsController
             redirect(route('posts.edit', [$slug]));
         }
 
+       // dd($_POST, json_decode($_POST['_fieldDetails']));
+
         $postToUpdate = $this->postData->createPost(['token']);
         $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
         event()->dispatch(new OnBeforePostSave($postToUpdate));
