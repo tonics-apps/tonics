@@ -22,6 +22,10 @@ const EventsConfig = {
     OnShiftClickEvent: [],
     OnRowMarkForDeletionEvent: [],
 
+    OnSubmitFieldEditorsFormEvent: [],
+
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
+
+

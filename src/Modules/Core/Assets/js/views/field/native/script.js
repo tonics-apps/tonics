@@ -28,6 +28,187 @@ if ((repeaterDraggable = window?.TonicsScript?.Draggables)){
         }).run();
 }
 
+class CollateFieldItemsOnFieldsEditorsSubmit {
+    draggable = null;
+    editorsForm = null;
+    /** @type OnSubmitFieldEditorsFormEvent */
+    fieldSubmitEvObj = null;
+    constructor(event) {
+        this.fieldSubmitEvObj = event;
+        this.draggable = document.querySelectorAll('.field-builder-items');
+        event.addHiddenInputToForm(event.editorsForm, '_fieldDetails', JSON.stringify(this.setListDataArray()));
+    }
+
+    setListDataArray() {
+        if(this.draggable){
+            let draggable = this.draggable;
+            for(let i = 0, len = draggable.length ; i < len ; i++) {
+                let id = i + 1;
+                draggable[i].setAttribute("data-id", id); // add ID's to all draggable item
+                let parentID = null;
+                let parentDraggable = draggable[i].parentElement.closest('.field-builder-items');
+                if (parentDraggable){
+                    parentID = parentDraggable.getAttribute("data-id");
+                }
+                draggable[i].setAttribute("data-parentid",
+                    (draggable[i].classList.contains('field-builder-items'))  ? parentID : null)
+            }
+            for(let i = 0, len = draggable.length ; i < len ; i++) {
+                let cell = 1;
+                let cellsEl = draggable[i].querySelectorAll('.row-col-item');
+                cellsEl.forEach((cellEl) => {
+                    if (cellEl.querySelector('.field-builder-items')){
+                        if (cellEl.querySelector('.field-builder-items').dataset.parentid === draggable[i].dataset.id){
+                            cellEl.dataset.cell =`${cell}`;
+                            cell++;
+                        }
+                    }
+                });
+            }
+            return this.getListDataArray();
+        }
+    }
+
+    getListDataArray() {
+        if(this.draggable){
+            let draggable = this.draggable;
+            let ListArray = [], fieldName = '', fieldMainSlug = '', fieldInputName = '',
+            fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
+                i = 0,  parentID = null, self = this;
+            fieldSettingsEl.forEach(form => {
+                let formTagname = form.tagName.toLowerCase();
+                if (formTagname === 'form' || formTagname === 'div'){
+                    let draggable = form.closest('.field-builder-items');
+                    parentID = draggable.getAttribute('data-parentid');
+                    if (parentID === 'null'){
+                        parentID = null;
+                    } else {
+                        parentID = parseInt(parentID);
+                    }
+
+                    if(draggable.querySelector('input[name="field_slug"]') ){
+                        fieldName = draggable.querySelector('input[name="field_slug"]').value;
+                    }
+
+                    if(draggable.querySelector('input[name="main_field_slug"]') ){
+                        fieldMainSlug = draggable.querySelector('input[name="main_field_slug"]').value;
+                    }
+
+                    if(draggable.querySelector('input[name="field_input_name"]') ){
+                        fieldInputName = draggable.querySelector('input[name="field_input_name"]').value;
+                    }
+
+                    let elements = form.querySelectorAll('input, textarea, select'),
+                        firstElementParentID = elements[0].closest('.field-builder-items').getAttribute('data-id');
+
+                    let fieldSettings = {};
+                    for (let i = 0; i < elements.length; i++) {
+                        let inputs = elements[i];
+                        if (inputs.closest('.field-builder-items').dataset.id === firstElementParentID){
+                            fieldSettings = self.fieldSubmitEvObj.getInputData(inputs, fieldSettings);
+                            let repeatEl = inputs.closest('.widgetSettings').querySelector('[data-repeater_input_name]');
+                            if (fieldName === 'modular_rowcolumnrepeater'){
+                                let field = {};
+                                field.inputName = repeatEl.dataset.repeater_input_name;
+                                let cellPosition = repeatEl.closest('[data-cell_position]');
+                                let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
+                                repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
+                                if (cellPosition){
+                                    cellPosition = cellPosition.dataset.cell_position;
+                                } else {
+                                    cellPosition = null;
+                                }
+
+                                field.field_slug_unique_hash = inputs.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
+                                field.field_slug = inputs.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
+                                field.field_name = repeatEl.dataset.repeater_field_name;
+                                field.depth = repeatEl.dataset.repeater_depth;
+                                field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
+                                field.grid_template_col = repeatEl.dataset.grid_template_col;
+                                field.row = repeatEl.dataset.row;
+                                field.column = repeatEl.dataset.col;
+                                field._cell_position = cellPosition;
+                                field._can_have_repeater_button = repeaterButtonsIsNextSibling
+
+                                fieldSettings['_moreOptions'] = field;
+                            }
+                            fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
+                        }
+                    }
+
+                    i = i+1;
+                    ListArray.push({
+                        "field_id": i,
+                        "field_parent_id": (draggable.classList.contains('field-builder-items')) ? parentID : null,
+                        "field_name": fieldName,
+                        "field_input_name": fieldInputName,
+                        "main_field_slug": fieldMainSlug,
+                        "field_options": JSON.stringify(fieldSettings)
+                    });
+                }
+            });
+            return ListArray;
+        }
+    }
+
+    getRepeatersData(fieldSettingsEl) {
+        let widgetSettings = {},
+            fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');
+
+        let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name,  id = 0
+        fieldBuilderItems.forEach((fieldList => {
+            let elements = fieldList.querySelectorAll('input, textarea, select'),
+                fieldSettings = {};
+            for (let i = 0; i < elements.length; i++) {
+                let inputs = elements[i];
+                let inputDataRepeaterDepth = inputs.closest('[data-repeater_input_name]');
+                if (inputDataRepeaterDepth.dataset.repeater_input_name !== fieldSettingsRepeaterName){
+                    break;
+                }
+
+                // collect checkbox
+                if (inputs.type === 'checkbox'){
+                    let checkboxName = inputs.name;
+                    if (!fieldSettings.hasOwnProperty(checkboxName)){
+                        fieldSettings[checkboxName] = [];
+                    }
+                    if (inputs.checked){
+                        fieldSettings[checkboxName].push(inputs.value);
+                    }
+                }else if (inputs.type === 'select-multiple'){
+                    let selectOptions = inputs.options;
+                    let selectBoxName = inputs.name;
+                    for (let k = 0; k < selectOptions.length; k++) {
+                        let option = selectOptions[k];
+                        if (option.selected){
+                            if (!fieldSettings.hasOwnProperty(selectBoxName)){
+                                fieldSettings[selectBoxName] = [];
+                            }
+
+                            fieldSettings[selectBoxName].push(option.value || option.text);
+                        }
+                    }
+                }else if (!fieldSettings.hasOwnProperty(inputs.name)) {
+                    fieldSettings[inputs.name] = inputs.value;
+                }
+
+                fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
+            }
+
+            if (Object.keys(fieldSettings).length !== 0){
+                widgetSettings[id] = fieldSettings;
+                ++id;
+            }
+        }));
+
+        return widgetSettings;
+    }
+}
+
+if (window?.TonicsEvent?.EventConfig) {
+    window.TonicsEvent.EventConfig.OnSubmitFieldEditorsFormEvent.push(...[CollateFieldItemsOnFieldsEditorsSubmit]);
+}
+
 function nativeFieldModules() {
 
     if (menuArranger) {
@@ -90,220 +271,6 @@ function nativeFieldModules() {
                 removeRowColRepeaterButton?.closest('.field-builder-items').remove();
             }
         });
-    }
-
-    if (tonicsFieldSaveChangesButton){
-        tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            let draggable = document.querySelectorAll('.field-builder-items');
-            function setListDataArray() {
-                if(draggable){
-                    for(let i = 0, len = draggable.length ; i < len ; i++) {
-                        let id = i + 1;
-                        draggable[i].setAttribute("data-id", id); // add ID's to all draggable item
-                        let parentID = null;
-                        let parentDraggable = draggable[i].parentElement.closest('.field-builder-items');
-                        if (parentDraggable){
-                            parentID = parentDraggable.getAttribute("data-id");
-                        }
-                        draggable[i].setAttribute("data-parentid",
-                            (draggable[i].classList.contains('field-builder-items'))  ? parentID : null)
-                    }
-                    for(let i = 0, len = draggable.length ; i < len ; i++) {
-                        let cell = 1;
-                        let cellsEl = draggable[i].querySelectorAll('.row-col-item');
-                        cellsEl.forEach((cellEl) => {
-                            if (cellEl.querySelector('.field-builder-items')){
-                                if (cellEl.querySelector('.field-builder-items').dataset.parentid === draggable[i].dataset.id){
-                                    cellEl.dataset.cell =`${cell}`;
-                                    cell++;
-                                }
-                            }
-                        });
-                    }
-                    return getListDataArray();
-                }
-            }
-            function getListDataArray() {
-                if(draggable){
-                    let ListArray = [],
-                        fieldName = '', fieldMainSlug = '', fieldInputName = '';
-                        fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
-                        i = 0,
-                        parentID = null;
-                    fieldSettingsEl.forEach(form => {
-                        let formTagname = form.tagName.toLowerCase();
-                        if (formTagname === 'form' || formTagname === 'div'){
-                            let draggable = form.closest('.field-builder-items');
-                            parentID = draggable.getAttribute('data-parentid');
-                            if (parentID === 'null'){
-                                parentID = null;
-                            } else {
-                                parentID = parseInt(parentID);
-                            }
-
-                            if(draggable.querySelector('input[name="field_slug"]') ){
-                                fieldName = draggable.querySelector('input[name="field_slug"]').value;
-                            }
-
-                            if(draggable.querySelector('input[name="main_field_slug"]') ){
-                                fieldMainSlug = draggable.querySelector('input[name="main_field_slug"]').value;
-                            }
-
-                            if(draggable.querySelector('input[name="field_input_name"]') ){
-                                fieldInputName = draggable.querySelector('input[name="field_input_name"]').value;
-                            }
-
-                            let elements = form.querySelectorAll('input, textarea, select'),
-                                firstElementParentID = elements[0].closest('.field-builder-items').getAttribute('data-id');
-
-                            let fieldSettings = {};
-                            for (let i = 0; i < elements.length; i++) {
-                                let inputs = elements[i];
-                                if (inputs.closest('.field-builder-items').dataset.id === firstElementParentID){
-                                    // collect checkbox
-                                    if (inputs.type === 'checkbox'){
-                                        let checkboxName = inputs.name;
-                                        if (!fieldSettings.hasOwnProperty(checkboxName)){
-                                            fieldSettings[checkboxName] = [];
-                                        }
-                                        if (inputs.checked){
-                                            fieldSettings[checkboxName].push(inputs.value);
-                                        }
-                                    }else if (inputs.type === 'select-multiple'){
-                                        let selectOptions = inputs.options;
-                                        let selectBoxName = inputs.name;
-                                        for (let k = 0; k < selectOptions.length; k++) {
-                                            let option = selectOptions[k];
-                                            if (option.selected){
-                                                if (!fieldSettings.hasOwnProperty(selectBoxName)){
-                                                    fieldSettings[selectBoxName] = [];
-                                                }
-
-                                                fieldSettings[selectBoxName].push(option.value || option.text);
-                                            }
-                                        }
-                                    }else if (!fieldSettings.hasOwnProperty(inputs.name)) {
-                                        fieldSettings[inputs.name] = inputs.value;
-                                    }
-
-                                    let repeatEl = inputs.closest('.widgetSettings').querySelector('[data-repeater_input_name]');
-                                    if (fieldName === 'modular_rowcolumnrepeater'){
-                                        let field = {};
-                                        field.inputName = repeatEl.dataset.repeater_input_name;
-                                        let cellPosition = repeatEl.closest('[data-cell_position]');
-                                        let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
-                                        repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
-                                        if (cellPosition){
-                                            cellPosition = cellPosition.dataset.cell_position;
-                                        } else {
-                                            cellPosition = null;
-                                        }
-
-                                        field.field_slug_unique_hash = inputs.closest('.widgetSettings').querySelector('input[name="field_slug_unique_hash"]').value;
-                                        field.field_slug = inputs.closest('.widgetSettings').querySelector('input[name="field_slug"]').value;
-                                        field.field_name = repeatEl.dataset.repeater_field_name;
-                                        field.depth = repeatEl.dataset.repeater_depth;
-                                        field.repeat_button_text = repeatEl.dataset.repeater_repeat_button_text;
-                                        field.grid_template_col = repeatEl.dataset.grid_template_col;
-                                        field.row = repeatEl.dataset.row;
-                                        field.column = repeatEl.dataset.col;
-                                        field._cell_position = cellPosition;
-                                        field._can_have_repeater_button = repeaterButtonsIsNextSibling
-
-                                        fieldSettings['_moreOptions'] = field;
-                                    }
-
-                                    fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
-                                }
-                            }
-
-                            i = i+1;
-                            ListArray.push({
-                                "field_id": i,
-                                "field_parent_id": (draggable.classList.contains('field-builder-items')) ? parentID : null,
-                                "field_name": fieldName,
-                                "field_input_name": fieldInputName,
-                                "main_field_slug": fieldMainSlug,
-                                "field_options": JSON.stringify(fieldSettings)
-                            });
-                        }
-                    });
-                    return ListArray;
-                }
-            }
-            let editorsForm = document.getElementById('EditorsForm');
-            function addHiddenInputToForm(form, key, value) {
-                let inputExist = form.querySelector(`input[name="${key}"]`);
-                if (inputExist){
-                    inputExist.value = value
-                }else {
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = key;
-                    input.value = value;
-                    form.appendChild(input);
-                }
-
-            }
-            addHiddenInputToForm(editorsForm, '_fieldDetails', JSON.stringify(setListDataArray()))
-             // console.log(repeaters);
-             // return;
-            editorsForm.submit();
-        })
-
-        function getRepeatersData(fieldSettingsEl) {
-            let widgetSettings = {},
-                fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');
-
-            let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name,  id = 0
-            fieldBuilderItems.forEach((fieldList => {
-                let elements = fieldList.querySelectorAll('input, textarea, select'),
-                    fieldSettings = {};
-                for (let i = 0; i < elements.length; i++) {
-                    let inputs = elements[i];
-                    let inputDataRepeaterDepth = inputs.closest('[data-repeater_input_name]');
-                    if (inputDataRepeaterDepth.dataset.repeater_input_name !== fieldSettingsRepeaterName){
-                        break;
-                    }
-
-                    // collect checkbox
-                    if (inputs.type === 'checkbox'){
-                        let checkboxName = inputs.name;
-                        if (!fieldSettings.hasOwnProperty(checkboxName)){
-                            fieldSettings[checkboxName] = [];
-                        }
-                        if (inputs.checked){
-                            fieldSettings[checkboxName].push(inputs.value);
-                        }
-                    }else if (inputs.type === 'select-multiple'){
-                        let selectOptions = inputs.options;
-                        let selectBoxName = inputs.name;
-                        for (let k = 0; k < selectOptions.length; k++) {
-                            let option = selectOptions[k];
-                            if (option.selected){
-                                if (!fieldSettings.hasOwnProperty(selectBoxName)){
-                                    fieldSettings[selectBoxName] = [];
-                                }
-
-                                fieldSettings[selectBoxName].push(option.value || option.text);
-                            }
-                        }
-                    }else if (!fieldSettings.hasOwnProperty(inputs.name)) {
-                        fieldSettings[inputs.name] = inputs.value;
-                    }
-
-                    fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
-                }
-
-                if (Object.keys(fieldSettings).length !== 0){
-                    widgetSettings[id] = fieldSettings;
-                    ++id;
-                }
-            }));
-
-            return widgetSettings;
-        }
     }
 
 }

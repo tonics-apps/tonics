@@ -232,9 +232,20 @@ function getPostData(fieldSettingsEl) {
             if (inputs.checked){
                 widgetSettings[checkboxName].push(inputs.value);
             }
-        }
+        }else if (inputs.type === 'select-multiple'){
+            let selectOptions = inputs.options;
+            let selectBoxName = inputs.name;
+            for (let k = 0; k < selectOptions.length; k++) {
+                let option = selectOptions[k];
+                if (option.selected){
+                    if (!widgetSettings.hasOwnProperty(selectBoxName)){
+                        widgetSettings[selectBoxName] = [];
+                    }
 
-        if (!widgetSettings.hasOwnProperty(inputs.name)) {
+                    widgetSettings[selectBoxName].push(option.value || option.text);
+                }
+            }
+        }else if (!widgetSettings.hasOwnProperty(inputs.name)) {
             widgetSettings[inputs.name] = inputs.value;
         }
     });
