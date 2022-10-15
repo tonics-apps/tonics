@@ -189,7 +189,7 @@ if (tonicsFieldSaveChangesButton) {
         let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
         eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
         let fieldsEditorsForm = document.getElementById('EditorsForm');
-       // fieldsEditorsForm.submit();
+        // fieldsEditorsForm.submit();
     });
 }
 
@@ -4332,11 +4332,14 @@ function getPostData(fieldSettingsEl) {
     return widgetSettings;
 }
 
-let tinyEditorsForm = document.getElementById('EditorsForm');
-if (tinyEditorsForm){
-    tinyEditorsForm.addEventListener('submit', (e) => {
+class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
+    /** @type OnSubmitFieldEditorsFormEvent */
+    fieldSubmitEvObj = null;
+    constructor(event) {
+        this.fieldSubmitEvObj = event;
+        let self = this;
         if (tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
-            e.preventDefault(); let nodesData = {}, key = 0;
+            let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
             bodyNode.forEach((node) => {
                 if (node.classList.contains('tonicsFieldTabsContainer')) {
@@ -4347,7 +4350,12 @@ if (tinyEditorsForm){
                     if (fieldTableSlug){
                         fieldTableSlug = fieldTableSlug.value;
                     }
-                    let postData = getPostData(node);
+                    let postData = {};
+                    let elements = node.querySelectorAll('input, textarea, select');
+                    elements.forEach((inputs) => {
+                        self.fieldSubmitEvObj.getInputData(inputs, postData);
+                    });
+
                     const OnBeforeTonicsFieldSubmit = new OnBeforeTonicsFieldSubmitEvent(postData, node);
                     let eventDispatcher = window.TonicsEvent.EventDispatcher;
                     eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnBeforeTonicsFieldSubmitEvent);
@@ -4366,11 +4374,14 @@ if (tinyEditorsForm){
                 }
             });
 
-            addHiddenInputToForm(tinyEditorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
-            addHiddenInputToForm(tinyEditorsForm, 'fieldTableSlugsInEditor', JSON.stringify(getFieldSlugsTable()));
-            tinyEditorsForm.submit();
+            event.addHiddenInputToForm(event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
+            event.addHiddenInputToForm(event.editorsForm, 'fieldTableSlugsInEditor', JSON.stringify(getFieldSlugsTable()));
         }
-    });
+    }
+}
+
+if (window?.TonicsEvent?.EventConfig) {
+    window.TonicsEvent.EventConfig.OnSubmitFieldEditorsFormEvent.push(...[CollatePostContentFieldItemsOnFieldsEditorsSubmit]);
 }
 
 function getFieldSlugsTable(el = null) {

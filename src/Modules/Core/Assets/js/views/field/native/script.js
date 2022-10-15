@@ -150,59 +150,6 @@ class CollateFieldItemsOnFieldsEditorsSubmit {
             return ListArray;
         }
     }
-
-    getRepeatersData(fieldSettingsEl) {
-        let widgetSettings = {},
-            fieldBuilderItems = fieldSettingsEl.querySelectorAll('.field-builder-items');
-
-        let fieldSettingsRepeaterName = fieldSettingsEl.dataset.repeater_input_name,  id = 0
-        fieldBuilderItems.forEach((fieldList => {
-            let elements = fieldList.querySelectorAll('input, textarea, select'),
-                fieldSettings = {};
-            for (let i = 0; i < elements.length; i++) {
-                let inputs = elements[i];
-                let inputDataRepeaterDepth = inputs.closest('[data-repeater_input_name]');
-                if (inputDataRepeaterDepth.dataset.repeater_input_name !== fieldSettingsRepeaterName){
-                    break;
-                }
-
-                // collect checkbox
-                if (inputs.type === 'checkbox'){
-                    let checkboxName = inputs.name;
-                    if (!fieldSettings.hasOwnProperty(checkboxName)){
-                        fieldSettings[checkboxName] = [];
-                    }
-                    if (inputs.checked){
-                        fieldSettings[checkboxName].push(inputs.value);
-                    }
-                }else if (inputs.type === 'select-multiple'){
-                    let selectOptions = inputs.options;
-                    let selectBoxName = inputs.name;
-                    for (let k = 0; k < selectOptions.length; k++) {
-                        let option = selectOptions[k];
-                        if (option.selected){
-                            if (!fieldSettings.hasOwnProperty(selectBoxName)){
-                                fieldSettings[selectBoxName] = [];
-                            }
-
-                            fieldSettings[selectBoxName].push(option.value || option.text);
-                        }
-                    }
-                }else if (!fieldSettings.hasOwnProperty(inputs.name)) {
-                    fieldSettings[inputs.name] = inputs.value;
-                }
-
-                fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
-            }
-
-            if (Object.keys(fieldSettings).length !== 0){
-                widgetSettings[id] = fieldSettings;
-                ++id;
-            }
-        }));
-
-        return widgetSettings;
-    }
 }
 
 if (window?.TonicsEvent?.EventConfig) {
