@@ -7,3 +7,16 @@
  * and/or sell copies of this program without written permission to me.
  */
 
+let fieldsEditorsForm = document.getElementById('EditorsForm');
+if (fieldsEditorsForm) {
+    fieldsEditorsForm.addEventListener('submit', (e) => {
+        let eventDispatcher = window.TonicsEvent.EventDispatcher;
+        let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
+        eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
+    });
+}
+
+class OnSubmitFieldEditorsFormEvent {
+    constructor(e) {
+    }
+}
