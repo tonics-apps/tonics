@@ -160,7 +160,7 @@ HTML;
             $widgetDataArray[] = ['htmlFrag' => $widgetViewDataInstance, 'options' => $widgetItem];
         });
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        addToGlobalVariable("Widget_$inputName", ['Name' => $fieldName, 'InputName' => $inputName, 'Data' => $widgetDataArray]);
+        addToGlobalVariable("Widget_$inputName", ['Name' => $data->_field->main_field_name, 'InputName' => $inputName, 'Data' => $widgetDataArray]);
         return '';
     }
 }
