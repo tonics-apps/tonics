@@ -10,6 +10,18 @@
     [[_use('License::Items::view::index')]]
 ]]
 
+[[hook_into('Core::after_main')
+<form id="saveLicenseBuilderItems" method="post" action="[[use('License::Items::route::posts.store')]]" class="admin-select-utilities d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+    <input type="hidden" name="token" value="[[csrf()]]">
+    <div class="form-group">
+        <button name="save_changes" class="tonics-save-changes save-license-builder-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            Save Changes
+        </button>
+    </div>
+</form>
+]]
+
 [[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:license-item-index")]]

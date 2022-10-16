@@ -239,12 +239,12 @@ class PagesController
         }
 
         # For Fields
+        apcu_clear_cache();
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
             session()->flash(['Page Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
             redirect(route('pages.edit', [$id]));
         } else {
             session()->flash(['Page Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-            apcu_clear_cache();
             redirect(route('pages.edit', ['page' => $id]));
         }
 
@@ -296,7 +296,16 @@ class PagesController
         $fieldSlugs = $this->getFieldSlug($beforePageViewEvent->getFieldSettings());
         $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings, $beforePageViewEvent->isCacheData());
 
-        // dd($page, $fieldSettings, getGlobalVariableData());
+        $fieldDetails = json_decode($fieldSettings['_fieldDetails']);
+        $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field){
+            if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
+                $fieldOption = json_decode($field->field_options);
+               // $field->field_data = (array)$fieldOption;
+                $field->field_options = $fieldOption;
+            }
+            return $field;
+        });
+        dd($page, $fieldSettings, $fieldDetails);
 
         view($beforePageViewEvent->getViewName());
     }

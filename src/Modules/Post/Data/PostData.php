@@ -92,7 +92,6 @@ class PostData extends AbstractDataLayer
     /**
      * @param $category
      * @param null $currentCatIDS
-     * @param $type
      * @return string
      * @throws \Exception
      */
@@ -515,8 +514,10 @@ HTML;
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
+        $postFieldSettings = $postTbl . '.field_settings';
         $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at', 'image_url']])
-            . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
+            . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
+            . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
 
         $db = db()->Select($tblCol)
             ->From($postCatTbl)

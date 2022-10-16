@@ -157,6 +157,8 @@ class PostAccessView
                 // log..
             }
 
+            // dd($postData);
+
             $fieldSettings = json_decode($category['field_settings'], true);
             $this->getFieldData()->unwrapFieldContent($fieldSettings, contentKey: 'cat_content');
             $category = [...$fieldSettings, ...$category];
