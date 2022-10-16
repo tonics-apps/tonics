@@ -297,19 +297,6 @@ class PagesController
         $fieldSlugs = $this->getFieldSlug($beforePageViewEvent->getFieldSettings());
         $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings, $beforePageViewEvent->isCacheData());
 
-        $fieldDetails = json_decode($fieldSettings['_fieldDetails']);
-        $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field){
-            if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
-                $fieldOption = json_decode($field->field_options);
-               // $field->field_data = (array)$fieldOption;
-                $field->field_options = $fieldOption;
-            }
-            return $field;
-        });
-        $postQueryBuilderTest = $fieldDetails[1]->_children[1]->_children[0]->_children;
-        $result = FieldHelpers::postDataFromPostQueryBuilderField($postQueryBuilderTest);
-        dd($page, $fieldSettings, $fieldDetails, $result);
-
         view($beforePageViewEvent->getViewName());
     }
 
