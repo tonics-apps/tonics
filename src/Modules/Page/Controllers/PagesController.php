@@ -20,6 +20,7 @@ use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Field\Events\OnFieldMetaBox;
+use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Page\Data\PageData;
 use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
@@ -305,7 +306,9 @@ class PagesController
             }
             return $field;
         });
-        dd($page, $fieldSettings, $fieldDetails);
+        $postQueryBuilderTest = $fieldDetails[1]->_children[1]->_children[0]->_children;
+        $result = FieldHelpers::postDataFromPostQueryBuilderField($postQueryBuilderTest);
+        dd($page, $fieldSettings, $fieldDetails, $result);
 
         view($beforePageViewEvent->getViewName());
     }

@@ -21,7 +21,7 @@ class FieldHelpers
      * @return object|null
      * @throws \Exception
      */
-    function postDataFromPostQueryBuilderField($childrenFieldItems): ?object
+    public static function postDataFromPostQueryBuilderField($childrenFieldItems): ?object
     {
         $postTbl = Tables::getTable(Tables::POSTS);
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
@@ -44,9 +44,7 @@ class FieldHelpers
         $operator = 'IN';
 
         foreach ($childrenFieldItems as $child){
-
             if (isset($child->field_options)){
-
                 if (isset($child->field_options->post_query_builder_orderBy)){
                     $orderBy = $child->field_options->post_query_builder_orderBy;
                 }
