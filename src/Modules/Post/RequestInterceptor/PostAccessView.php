@@ -139,7 +139,10 @@ class PostAccessView
 
             $postData = [];
             try {
-                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
+                $postFieldSettings = $postTbl . '.field_settings';
+                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
+                    . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link '
+                    . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
                 $postData = db()->Select($tblCol)
                     ->From($postCatTbl)
                     ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))

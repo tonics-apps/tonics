@@ -36,7 +36,7 @@ class HandleUpdatePostToCategoryMapping implements HandlerInterface
         }
 
         $table = $event->getPostData()->getPostToCategoryTable();
-        db()->FastDelete($table, db()->WhereIn('fk_cat_id', $event->getPostCatIDS()));
+        db()->FastDelete($table, db()->WhereIn('fk_post_id', $event->getPostID()));
         db()->Insert($table, $toInsert);
     }
 }

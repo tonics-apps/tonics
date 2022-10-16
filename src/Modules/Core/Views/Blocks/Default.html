@@ -38,16 +38,16 @@
 
 [[b('pagination')
 <div class="d:flex flex-gap justify-content:center padding:default flex-wrap:wrap">
-    [[if("v[QUERY_MODE.Result.prev_page_url]")
+    [[if("v[Data.PostData.prev_page_url]")
     <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
-       title="Previous" href="[[v('QUERY_MODE.Result.prev_page_url')]]#sfc">
+       title="Previous" href="[[v('Data.PostData.prev_page_url')]]#sfc">
         Previous
     </a>
     ]]
 
-    [[if("v[QUERY_MODE.Result]")
+    [[if("v[Data.PostData]")
     <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
-        [[each("numberLinks in QUERY_MODE.Result.number_links")
+        [[each("numberLinks in Data.PostData.number_links")
         <li class="d:flex">
             <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
                                     [[if('v[numberLinks.current] === bool[false]') color:black ]]
@@ -59,9 +59,9 @@
     </ul>
     ]]
 
-    [[if("v[QUERY_MODE.Result.next_page_url]")
+    [[if("v[Data.PostData.next_page_url]")
     <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
-       title="Next" href="[[v('QUERY_MODE.Result.next_page_url')]]#sfc">
+       title="Next" href="[[v('Data.PostData.next_page_url')]]#sfc">
         Next
     </a>
     ]]
