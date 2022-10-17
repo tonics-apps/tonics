@@ -262,6 +262,11 @@ class AppConfig
         return AppConfig::getAppEnv() === 'production';
     }
 
+    public static function canLog404(): bool
+    {
+        return env('APP_LOG_404') === '1';
+    }
+
     public static function getAppInstallKey(): string
     {
         return env('INSTALL_KEY');

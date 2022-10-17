@@ -22,6 +22,7 @@ use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnPostDefaultField;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
+use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use JetBrains\PhpStorm\NoReturn;
 
 class PostAccessView

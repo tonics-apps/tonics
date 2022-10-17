@@ -12,6 +12,7 @@ namespace App\Modules\Core\States;
 
 use App\Modules\Core\Library\SimpleState;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
+use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use JetBrains\PhpStorm\NoReturn;
 
 /**
@@ -122,7 +123,7 @@ class CommonResourceRedirection extends SimpleState
             $callable = $this->onResourceErrorState;
             $callable();
         } else{
-            SimpleState::displayUnauthorizedErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+            throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
         }
     }
     /**

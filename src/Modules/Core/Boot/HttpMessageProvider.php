@@ -41,9 +41,14 @@ class HttpMessageProvider implements ServiceProvider
     {
         try {
             $this->getRouter()->dispatchRequestURL();
-        } catch (\ReflectionException | \Throwable $e) {
+        } catch (\Exception | \Throwable $e) {
              $redirect_to = $this->tryURLRedirection();
              if ($redirect_to === false){
+
+                 if (AppConfig::canLog404()){
+                     dd('checl');
+                 }
+
                  if (AppConfig::isProduction()){
                      SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
                  }
