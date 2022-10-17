@@ -1,0 +1,102 @@
+[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
+
+[[hook_into('in_head')
+    <meta property="og:type" content="website">
+]]
+[[hook_into('in_head_title')[[v('Data.seo_title .. Data.page_title')]] ]]
+[[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.page_title")]] ]]
+
+[[hook_into('in_main_class')padding:default more-owl]]
+[[hook_into('in_main')
+
+<div class="top-featured">
+    [[if("v[Data.NinetySevenHomePage.Featured]")
+        <div class="item featured border-width:default border:black bg:pure-black color:white position:relative">
+        <h3 class="padding:tiny">[[v('Data.NinetySevenHomePage.Featured.Label')]]</h3>
+            [[each("_featuredPost in Data.NinetySevenHomePage.Featured.QueryData.data")
+            <div class="d:flex flex-gap:small h flex-d:column">
+                <div class="width:100% ">
+                    <div class="post-thumbnail">
+                        [[if('v[_featuredPost.image_url]')
+                            <a href="[[v('_featuredPost._preview_link')]]">
+                                <img src="[[v('_featuredPost.image_url')]]" loading="lazy" alt="[[v('_featuredPost.post_title')]]">
+                            </a>
+                        ]]
+                    </div>
+                    <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
+                        <h4 class="margin-left:0">[[v('_featuredPost.post_title')]]</h4>
+                        <p style="max-width:unset;">[[v('_featuredPost.post_description')]]</p>
+                    </div>
+                    <div class="form-group d:flex flex-gap:small padding:default ">
+                        <a title="[[v('_featuredPost.post_title')]]" href="[[v('_featuredPost._preview_link')]]" class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:white border-width:default border:white padding:default
+                                    margin-top:0 cursor:pointer">Read More</a>
+                    </div>
+                </div>
+            </div>
+            ]]
+        </div>
+    ]]
+
+    [[if("v[Data.NinetySevenHomePage.Best]")
+        <div class="item items border-width:default border:black color:black padding:tiny">
+        <h3 class="">[[v('Data.NinetySevenHomePage.Best.Label')]]</h3>
+        <ul class="top-best-list">
+            [[each("_bestPost in Data.NinetySevenHomePage.Best.QueryData.data")
+            <li tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer position:relative justify-content:flex-start border-width:default border:black color:black">
+                <div class="width:100% d:flex flex-d:column height:100%">
+                    <div class="post-thumbnail">
+                        [[if('v[_bestPost.image_url]')
+                        <a href="[[v('_bestPost._preview_link')]]">
+                            <img src="[[v('_bestPost.image_url')]]" loading="lazy" alt="[[v('_bestPost.post_title')]]">
+                        </a>
+                        ]]
+                    </div>
+                    <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
+                        <h4 class="margin-left:0">[[v('_bestPost.post_title')]]</h4>
+                        <p style="max-width:unset;">[[v('_bestPost.post_description')]]</p>
+                    </div>
+                    <div class="form-group d:flex flex-gap:small padding:default ">
+                        <a title="[[v('_bestPost.post_title')]]" href="[[v('_bestPost._preview_link')]]" class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default
+                                    margin-top:0 cursor:pointer">Read More</a>
+                    </div>
+                </div>
+            </li>
+            ]]
+        </ul>
+    </div>
+    ]]
+</div>
+
+[[each("_otherCategory in Data.NinetySevenHomePage.OtherCategories")
+    <div class="item items border-width:default border:black color:black padding:default owl">
+    <h3 class="">
+        <a href="[[v('_otherCategory.Link')]]" class="color:black">[[v('_otherCategory.Title')]]</a>
+    </h3>
+    <div class=""><p>[[v('_otherCategory.Desc')]]</p></div>
+    <ul class="top-best-list">
+        [[each("_otherCategoryPost in _otherCategory.QueryData.data")
+        <li tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer position:relative justify-content:flex-start border-width:default border:black color:black">
+            <div class="width:100% d:flex flex-d:column height:100%">
+                <div class="post-thumbnail">
+                    [[if('v[_otherCategoryPost.image_url]')
+                    <a href="[[v('_otherCategoryPost._preview_link')]]">
+                        <img src="[[v('_otherCategoryPost.image_url')]]" loading="lazy" alt="[[v('_otherCategoryPost.post_title')]]">
+                    </a>
+                    ]]
+                </div>
+                <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
+                    <h4 class="margin-left:0">[[v('_otherCategoryPost.post_title')]]</h4>
+                    <p style="max-width:unset;">[[v('_otherCategoryPost.post_description')]]</p>
+                </div>
+                <div class="form-group d:flex flex-gap:small padding:default ">
+                    <a title="[[v('_otherCategoryPost.post_title')]]" href="[[v('_otherCategoryPost._preview_link')]]" class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default
+                                    margin-top:0 cursor:pointer">Read More</a>
+                </div>
+            </div>
+        </li>
+        ]]
+    </ul>
+</div>
+]]
+
+]]
