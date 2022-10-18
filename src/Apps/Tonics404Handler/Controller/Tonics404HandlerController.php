@@ -13,6 +13,7 @@ namespace App\Apps\Tonics404Handler\Controller;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 
@@ -20,6 +21,8 @@ class Tonics404HandlerController
 {
     private AbstractDataLayer $dataLayer;
     private ?FieldData $fieldData;
+
+    CONST TONICS404HANDLER_FIELD_SLUG = 'app-tonics404handler-settings';
 
     /**
      * @param AbstractDataLayer $dataLayer
@@ -56,7 +59,7 @@ FROM $table tg, json_table(tg.value, '$[*]'
 SQL);
 
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
-            ['app-tonics404handler-settings'],
+            [self::TONICS404HANDLER_FIELD_SLUG],
         )->getHTMLFrag();
 
         view('Apps::Tonics404Handler/Views/index', [
@@ -70,11 +73,6 @@ SQL);
             'FieldItems' => $fieldItems,
             'SiteURL' => AppConfig::getAppUrl(),
         ]);
-    }
-
-    public function store()
-    {
-        dd($_POST);
     }
 
     /**
@@ -107,7 +105,72 @@ SQL);
         if (isset($_POST['_fieldDetails'])){
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($_POST['_fieldDetails']));
-            dd($fieldCategories);
+            if (isset($fieldCategories[self::TONICS404HANDLER_FIELD_SLUG])){
+                $fieldsItems = $fieldCategories[self::TONICS404HANDLER_FIELD_SLUG];
+                $toInsert = [];
+                $fromName = 'tonics404handler_404_url';
+                $redirectToName = 'tonics404handler_redirect_to';
+                $redirectTypeName = 'tonics404handler_redirect_type';
+                foreach ($fieldsItems as $fieldsItem){
+                    if (isset($fieldsItem->_children)){
+                        $settings = [
+                            'from' => '',
+                            'to'   => '',
+                            'date' => helper()->date(),
+                            'redirection_type' => 301
+                        ];
+                        foreach ($fieldsItem->_children as $child){
+                            if (isset($child->field_data)){
+                                if ($child->field_input_name === $fromName){ $settings['from'] = $child->field_data[$fromName]; }
+                                if ($child->field_input_name === $redirectToName){ $settings['to'] = $child->field_data[$redirectToName]; }
+                                if ($child->field_input_name === $redirectTypeName){ $settings['redirection_type'] = (int)$child->field_data[$redirectTypeName]; }
+                            }
+                        }
+                        $toInsert[] = (object)$settings;
+                    }
+                }
+
+                try {
+                    $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
+                    if (property_exists($jsonValues, 'value')) {
+                        $jsonValues = json_decode($jsonValues->value);
+                        if (!is_array($jsonValues)){$jsonValues = [];}
+
+                        foreach ($jsonValues as $jsonKey => $jsonValue){
+                            foreach ($toInsert as $insertKey => $insert){
+                                if ($jsonValue->from === $insert->from){
+                                    $jsonValues[$jsonKey] = $insert;
+                                    unset($toInsert[$insertKey]);
+                                    break;
+                                }
+                            }
+                        }
+
+                        # Push New to jsonValues
+                        foreach ($toInsert as $insert){
+                            if (!empty($insert->from)){
+                                $jsonValues[] = $insert;
+                            }
+                        }
+
+                        # Update JSON VALUES
+                        $jsonValues = array_values($jsonValues);
+                        $table = Tables::getTable(Tables::GLOBAL);
+                        db()->Update($table)
+                            ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
+                            ->WhereEquals('`key`', 'url_redirections')
+                            ->FetchFirst();
+
+                        session()->flash(['Redirect Added or Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+                        redirect(route('tonics404Handler.settings'));
+                    }
+                }catch (\Exception $exception){
+                    // log..
+                    session()->flash(['Error Occur Inserting New Redirect']);
+                    redirect(route('tonics404Handler.settings'));
+                }
+
+            }
         }
     }
 
