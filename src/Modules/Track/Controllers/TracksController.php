@@ -24,6 +24,7 @@ use App\Modules\Track\Events\OnTrackDefaultField;
 use App\Modules\Track\Helper\TrackRedirection;
 use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
+use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -314,7 +315,7 @@ class TracksController extends Controller
             redirect($trackRedirection->getIntendedTrackURL());
         }
 
-        SimpleState::displayUnauthorizedErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+        throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
     }
 
 

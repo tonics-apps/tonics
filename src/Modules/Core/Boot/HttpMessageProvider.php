@@ -64,13 +64,17 @@ class HttpMessageProvider implements ServiceProvider
                      }
                  }
 
-                 if (AppConfig::isProduction()){
-                     SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
-                 }
-                 SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
              } else {
-                 redirect($redirect_to->redirect_to, $redirect_to->redirection_type);
+                 if (isset($redirect_to->redirect_to) && !empty($redirect_to->redirect_to)){
+                     redirect($redirect_to->redirect_to, $redirect_to->redirection_type);
+                 }
              }
+
+            if (AppConfig::isProduction()){
+                SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
+            } else {
+                SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
+            }
         }
     }
 
@@ -90,9 +94,9 @@ FROM $table tg, JSON_TABLE(tg.value, '$[*]'
 ) as jt WHERE tg.`key` = 'url_redirections' AND from_url = ?;
 SQL, url()->getRequestURL());
 
-       if (isset($result->redirect_to) && !empty($result->redirect_to)){
-           return $result;
-       }
+        if (is_object($result)){
+            return $result;
+        }
 
        return false;
     }

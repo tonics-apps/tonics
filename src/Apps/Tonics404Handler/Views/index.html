@@ -1,0 +1,13 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/field")]]
+
+[[hook_into('Core::in_head_title')Tonics 404 Index]]
+[[hook_into('Core::in_main_header_title')404 Logs ]]
+
+[[reset_hook('Core::main_form_and_filter')]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:post-index")]]
+    [[_use("session:delete-artifacts")]]
+    [[_use("script:app-index")]]
+]]

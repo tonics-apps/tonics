@@ -11,7 +11,6 @@
 namespace App\Apps\NinetySeven\Route;
 
 use App\Apps\NinetySeven\Controller\NinetySevenController;
-use App\Apps\NinetySeven\Controller\PagesController;
 use App\Apps\NinetySeven\Controller\PostsController;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\AuthConfig;
