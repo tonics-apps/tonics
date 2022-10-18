@@ -41,34 +41,36 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
 
             try {
                 $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-                $jsonValues = json_decode($jsonValues->value);
+                if (isset($jsonValues->value)){
+                    $jsonValues = json_decode($jsonValues->value);
 
-                # Remove The Old Canonical
-                foreach ($jsonValues as $jsonKey => $jsonValue){
-                    if ($jsonValue->to === $canonical){
-                        unset($jsonValues[$jsonKey]);
+                    # Remove The Old Canonical
+                    foreach ($jsonValues as $jsonKey => $jsonValue){
+                        if ($jsonValue->to === $canonical){
+                            unset($jsonValues[$jsonKey]);
+                        }
                     }
-                }
 
-                # Push New to jsonValues
-                foreach ($oldURLS as $oldURL){
-                    $oldURL = filter_var($oldURL, FILTER_SANITIZE_URL);
-                    $oldURL = rtrim($oldURL, '/');
-                    $settings = [
-                        'from' => $oldURL,
-                        'to'   => $canonical,
-                        'date' => helper()->date(),
-                        'redirection_type' => 301
-                    ];
-                    $jsonValues[] = (object)$settings;
-                }
+                    # Push New to jsonValues
+                    foreach ($oldURLS as $oldURL){
+                        $oldURL = filter_var($oldURL, FILTER_SANITIZE_URL);
+                        $oldURL = rtrim($oldURL, '/');
+                        $settings = [
+                            'from' => $oldURL,
+                            'to'   => $canonical,
+                            'date' => helper()->date(),
+                            'redirection_type' => 301
+                        ];
+                        $jsonValues[] = (object)$settings;
+                    }
 
-                $jsonValues = array_values($jsonValues);
-                $table = Tables::getTable(Tables::GLOBAL);
-                db()->Update($table)
-                    ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
-                    ->WhereEquals('`key`', 'url_redirections')
-                    ->FetchFirst();
+                    $jsonValues = array_values($jsonValues);
+                    $table = Tables::getTable(Tables::GLOBAL);
+                    db()->Update($table)
+                        ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
+                        ->WhereEquals('`key`', 'url_redirections')
+                        ->FetchFirst();
+                }
             }catch (\Exception $exception){
                 // Log..
             }

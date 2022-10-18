@@ -400,6 +400,12 @@ class WordPressImportState extends SimpleState
             }
         }
 
+        try {
+
+        }catch (\Exception $exception){
+            // Log..
+        }
+
         db()->insertOnDuplicate(
             Tables::getTable(Tables::GLOBAL),
             [
