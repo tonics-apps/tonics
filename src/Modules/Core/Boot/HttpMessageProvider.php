@@ -44,9 +44,25 @@ class HttpMessageProvider implements ServiceProvider
         } catch (\Exception | \Throwable $e) {
              $redirect_to = $this->tryURLRedirection();
              if ($redirect_to === false){
-
                  if (AppConfig::canLog404()){
-                     dd('checl');
+                     $reURL = url()->getRequestURL();
+                     $urlRedirection = [
+                         'from' => $reURL,
+                         'to'   => null,
+                         'date' => helper()->date(),
+                         'redirection_type' => 301
+                     ];
+                     $urlRedirection = json_encode($urlRedirection, JSON_UNESCAPED_SLASHES);
+                     $table = Tables::getTable(Tables::GLOBAL);
+                     $db = db();
+                     try {
+                         $db->Update($table)
+                             ->Set('value', db()->JsonArrayAppend('value', ['$' => $urlRedirection]))
+                             ->WhereEquals('`key`', 'url_redirections')
+                             ->FetchFirst();
+                     }catch (\Exception $exception){
+                         // Log..
+                     }
                  }
 
                  if (AppConfig::isProduction()){
