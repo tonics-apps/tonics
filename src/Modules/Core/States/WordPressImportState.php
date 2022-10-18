@@ -401,19 +401,42 @@ class WordPressImportState extends SimpleState
         }
 
         try {
+            $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
+            if (property_exists($jsonValues, 'value')){
+                $jsonValues = json_decode($jsonValues->value);
+                if (!is_array($jsonValues)){ $jsonValues = []; }
 
+                # Remove The Old From
+                foreach ($jsonValues as $jsonKey => $jsonValue){
+                    if (isset($this->urlRedirections[$jsonValue->from])){
+                        unset($jsonValues[$jsonKey]);
+                    }
+                }
+
+                # Push New to jsonValues
+                foreach ($this->urlRedirections as $from => $to){
+                    $from = filter_var($from, FILTER_SANITIZE_URL);
+                    $from = rtrim($from, '/');
+                    $settings = [
+                        'from' => $from,
+                        'to'   => $to,
+                        'date' => helper()->date(),
+                        'redirection_type' => 301
+                    ];
+                    $jsonValues[] = (object)$settings;
+                }
+
+                # Update JSON VALUES
+                $jsonValues = array_values($jsonValues);
+                $table = Tables::getTable(Tables::GLOBAL);
+                db()->Update($table)
+                    ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
+                    ->WhereEquals('`key`', 'url_redirections')
+                    ->FetchFirst();
+            }
         }catch (\Exception $exception){
             // Log..
         }
-
-        db()->insertOnDuplicate(
-            Tables::getTable(Tables::GLOBAL),
-            [
-                'key' => 'url_redirections',
-                'value' => json_encode($this->urlRedirections, JSON_UNESCAPED_SLASHES)
-            ],
-            ['value']
-        );
 
         return $this->switchState(self::PhaseDone, self::NEXT);
     }
