@@ -19,19 +19,18 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
         /** @var $event OnAfterPreSavePostEditorFieldItems */
         $fieldSettings = $event->getFieldSettings();
-
         $canonical = '';
         if (isset($fieldSettings['seo_canonical_url'])){
             $canonical = trim($fieldSettings['seo_canonical_url']);
             $canonical = filter_var($canonical, FILTER_SANITIZE_URL);
         }
 
-        $urlRedirection = [];
         if (isset($fieldSettings['seo_old_urls']) && !empty($canonical)){
             $oldURLS = explode(PHP_EOL, $fieldSettings['seo_old_urls']) ?? [];
             $canonical = parse_url($canonical);
@@ -39,23 +38,40 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
                 return;
             }
             $canonical = $canonical['path'];
+            $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
+            $jsonValues = json_decode($jsonValues->value);
 
+            # Remove The Old Canonical
+            foreach ($jsonValues as $jsonKey => $jsonValue){
+                if ($jsonValue->to === $canonical){
+                    unset($jsonValues[$jsonKey]);
+                }
+            }
+
+            # Push New to jsonValues
             foreach ($oldURLS as $oldURL){
                 $oldURL = filter_var($oldURL, FILTER_SANITIZE_URL);
                 $oldURL = rtrim($oldURL, '/');
-                $urlRedirection[$oldURL] = $canonical;
+                $settings = [
+                    'from' => $oldURL,
+                    'to'   => $canonical,
+                    'date' => helper()->date(),
+                    'redirection_type' => 301
+                ];
+                $jsonValues[] = (object)$settings;
             }
 
+            $jsonValues = array_values($jsonValues);
             try {
                 $table = Tables::getTable(Tables::GLOBAL);
-                db()->run(<<<SQL
-UPDATE $table 
-   SET value = JSON_MERGE_PATCH(value, ?) 
- WHERE `key` = 'url_redirections';
-SQL, json_encode($urlRedirection, JSON_UNESCAPED_SLASHES));
+                db()->Update($table)
+                    ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
+                    ->WhereEquals('`key`', 'url_redirections')
+                    ->FetchFirst();
             }catch (\Exception $exception){
-                // log..
+                // Log..
             }
+
         }
     }
 }

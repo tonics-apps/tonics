@@ -54,9 +54,8 @@ class HttpMessageProvider implements ServiceProvider
                      ];
                      $urlRedirection = json_encode($urlRedirection, JSON_UNESCAPED_SLASHES);
                      $table = Tables::getTable(Tables::GLOBAL);
-                     $db = db();
                      try {
-                         $db->Update($table)
+                         db()->Update($table)
                              ->Set('value', db()->JsonArrayAppend('value', ['$' => $urlRedirection]))
                              ->WhereEquals('`key`', 'url_redirections')
                              ->FetchFirst();
@@ -70,7 +69,7 @@ class HttpMessageProvider implements ServiceProvider
                  }
                  SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
              } else {
-                 redirect($redirect_to, 302);
+                 redirect($redirect_to->redirect_to, $redirect_to->redirection_type);
              }
         }
     }
@@ -78,14 +77,23 @@ class HttpMessageProvider implements ServiceProvider
     /**
      * @throws \Exception
      */
-    public function tryURLRedirection():string|bool
+    public function tryURLRedirection():object|bool
     {
         $table = Tables::getTable(Tables::GLOBAL);
-        $result = db()->Select()->JsonExtract('value', url()->getRequestURL())->As('redirect_to')
-            ->From($table)->Where('`key`', '=', 'url_redirections')->FetchFirst();
+        $result = db()->row(<<<SQL
+SELECT redirect_to, redirection_type 
+FROM $table tg, JSON_TABLE(tg.value, '$[*]' 
+  columns(
+   from_url  varchar(500) path '$.from', 
+   redirect_to  varchar(500) path '$.to',
+   redirection_type int(4) path '$.redirection_type' ) 
+) as jt WHERE tg.`key` = 'url_redirections' AND from_url = ?;
+SQL, url()->getRequestURL());
+
        if (isset($result->redirect_to) && !empty($result->redirect_to)){
-           return json_decode($result->redirect_to);
+           return $result;
        }
+
        return false;
     }
 
