@@ -41,8 +41,11 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
 
             try {
                 $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-                if (isset($jsonValues->value)){
+                if (property_exists($jsonValues, 'value')){
                     $jsonValues = json_decode($jsonValues->value);
+                    if (!is_array($jsonValues)){
+                        $jsonValues = [];
+                    }
 
                     # Remove The Old Canonical
                     foreach ($jsonValues as $jsonKey => $jsonValue){
@@ -55,15 +58,18 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
                     foreach ($oldURLS as $oldURL){
                         $oldURL = filter_var($oldURL, FILTER_SANITIZE_URL);
                         $oldURL = rtrim($oldURL, '/');
-                        $settings = [
-                            'from' => $oldURL,
-                            'to'   => $canonical,
-                            'date' => helper()->date(),
-                            'redirection_type' => 301
-                        ];
-                        $jsonValues[] = (object)$settings;
+                        if (!empty($oldURL)){
+                            $settings = [
+                                'from' => $oldURL,
+                                'to'   => $canonical,
+                                'date' => helper()->date(),
+                                'redirection_type' => 301
+                            ];
+                            $jsonValues[] = (object)$settings;
+                        }
                     }
 
+                    # Update JSON VALUES
                     $jsonValues = array_values($jsonValues);
                     $table = Tables::getTable(Tables::GLOBAL);
                     db()->Update($table)
