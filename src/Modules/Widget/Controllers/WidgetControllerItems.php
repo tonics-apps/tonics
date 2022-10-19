@@ -90,7 +90,7 @@ class WidgetControllerItems extends Controller
                 db()->commit();
                 $error = true;
             }catch (\Exception){
-
+                // Log..
             }
         }
 

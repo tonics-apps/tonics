@@ -140,7 +140,7 @@ HTML;
     public function viewData(OnFieldMetaBox $event, $data)
     {
         $frag = '';
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
+        // $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
         $postData = !empty(getPostData()) ? getPostData() : $fieldData;
         $widgetSlug =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
@@ -153,14 +153,14 @@ HTML;
             return $frag;
         }
         $widgetData = new WidgetData();
-        $widget = $widgetData->decodeWidgetOptions($widgetData->getWidgetItems($widgetID));
-
+        $widget = $widgetData->getWidgetItems($widgetID);
+        $widgetName = (isset($widget[0]->widget_name)) ? $widget[0]->widget_name : $data->_field->main_field_name;
         $widgetDataArray = [];
         $widgetData->getWidgetViewListing($widget, function ($widgetViewDataInstance, $widgetItem) use (&$frag, &$widgetDataArray){
             $widgetDataArray[] = ['htmlFrag' => $widgetViewDataInstance, 'options' => $widgetItem];
         });
         $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        addToGlobalVariable("Widget_$inputName", ['Name' => $data->_field->main_field_name, 'InputName' => $inputName, 'Data' => $widgetDataArray]);
+        addToGlobalVariable("Widget_$inputName", ['Name' => $widgetName, 'InputName' => $inputName, 'Data' => $widgetDataArray]);
         return '';
     }
 }

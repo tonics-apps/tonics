@@ -66,8 +66,11 @@ class WidgetData extends AbstractDataLayer
      */
     public function getWidgetItems(int $fkWidgetID): array
     {
-        $table = $this->getWidgetItemsTable();
-        $result = db()->run("SELECT * FROM $table WHERE `fk_widget_id` = ?", $fkWidgetID);
+        $widgetItemsTable = $this->getWidgetItemsTable();
+        $widgetTable = $this->getWidgetTable();
+        $result = db()->Select('*')->From($widgetItemsTable)
+            ->Join($widgetTable, table()->pickTable($widgetTable, ['widget_id']), table()->pickTable($widgetItemsTable, ['fk_widget_id']))
+            ->WhereEquals('fk_widget_id', $fkWidgetID)->FetchResult();
         return $this->decodeWidgetOptions($result);
     }
 

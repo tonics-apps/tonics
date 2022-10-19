@@ -168,6 +168,7 @@ class WidgetController
             db()->FastUpdate($this->getWidgetData()->getWidgetTable(), $widgetToUpdate, db()->Where('widget_slug', '=', $slug));
 
             $slug = $widgetToUpdate['widget_slug'];
+            helper()->clearAPCUCache();
             session()->flash(['Widget Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             
             redirect(route('widgets.edit', ['widget' => $slug]));
