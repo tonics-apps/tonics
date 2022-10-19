@@ -167,7 +167,7 @@ JSON;
             "description" => "This is TonicsToc",
             "info_url" => '',
             "settings_page" => route('tonicsToc.settings'), // can be null or a route name
-            "update_discovery_url" => "",
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_toc/releases/latest",
             "authors" => [
                 "name" => "Your Name",
                 "email" => "name@website.com",
