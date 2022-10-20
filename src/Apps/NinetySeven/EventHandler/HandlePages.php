@@ -29,7 +29,9 @@ class HandlePages implements HandlerInterface
 
         /** @var $event BeforePageView */
         # Load Some Settings Option From Theme
-        $fieldSettings = [...$event->getFieldSettings(), ...NinetySevenController::getSettingData()];
+        $ninetySevenSettings = NinetySevenController::getSettingData();
+        unset($ninetySevenSettings['_fieldDetails']);
+        $fieldSettings = [...$event->getFieldSettings(), ...$ninetySevenSettings];
         $event->setFieldSettings($fieldSettings);
 
         switch ($event->getPagePath()){

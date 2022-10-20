@@ -11,7 +11,6 @@
 namespace App\Modules\Page\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
@@ -19,14 +18,11 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldFormHelper;
-use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Page\Data\PageData;
 use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Page\Rules\PageValidationRules;
-use App\Modules\Post\Events\OnPostUpdate;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
@@ -294,7 +290,7 @@ class PagesController
 
         $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
         $fieldSettings = $beforePageViewEvent->getFieldSettings();
-        $fieldSlugs = $this->getFieldSlug($beforePageViewEvent->getFieldSettings());
+        $fieldSlugs = $this->getFieldSlug($fieldSettings);
         $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings, $beforePageViewEvent->isCacheData());
 
         view($beforePageViewEvent->getViewName());

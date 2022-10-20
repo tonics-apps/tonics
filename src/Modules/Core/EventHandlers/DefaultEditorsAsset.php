@@ -22,6 +22,7 @@ class DefaultEditorsAsset implements HandlerInterface
         /** @var $event EditorsAsset */
         $event
             ->addJS(AppConfig::getModuleAsset('Core', '/js/views/field/items/selection-manager/script-combined.js'))
+            ->addJS(AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js'))
             ->addJS(AppConfig::getModuleAsset('Core', '/js/tools/Widget/FeaturedImage.js'))
             ->addJS(AppConfig::getModuleAsset('Core', '/js/tools/Widget/FeaturedLink.js'));
     }

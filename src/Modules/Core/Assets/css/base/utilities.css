@@ -57,7 +57,7 @@ body#tinymce > .tabs > [type=radio]:not(:checked) + label + *, .tonicsFieldTabsC
 }
 
 body#tinymce > .tabs, .tonicsFieldTabsContainer {
-    width: 40%;
+    width: min-content;
     min-width: 30em;
     max-width: 60em;
     font-size: 80%;
