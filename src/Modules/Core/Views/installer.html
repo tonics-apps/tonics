@@ -4,10 +4,9 @@
 [[hook_into('Core::before_in_main_header_title')[[_use("body.header.section-logo:center")]]]]
 [[hook_into('Core::in_main_header_title')Installer]]
 
-[[reset_hook('header_section')]]
+[[reset_hook('Core::header_section')]]
 
 [[hook_into('Core::in_main')
-
     [[_use("body.main.form:installer-page")]]
 ]]
 

@@ -31,6 +31,15 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+        $this->getDB()->insertOnDuplicate(
+            $this->tableName(),
+            [
+                'key' => 'url_redirections',
+                'value' => null
+            ],
+            ['value']
+        );
     }
 
     /**

@@ -70,10 +70,15 @@ class SessionView extends TonicsTemplateViewAbstract implements TonicsModeInterf
         $currentRenderingMode = $view->getCurrentRenderingContentMode();
 
 
-        if (!empty($args)){
-            $result = call_user_func_array(array(session(), $sessionFunc), $args);
-        } else {
-            $result = call_user_func(array(session(), $sessionFunc));
+        $result = '';
+        try {
+            if (!empty($args)){
+                $result = call_user_func_array(array(session(), $sessionFunc), $args);
+            } else {
+                $result = call_user_func(array(session(), $sessionFunc));
+            }
+        } catch (\Exception $exception){
+            // Log..
         }
 
         if ($currentRenderingMode === '__session'){

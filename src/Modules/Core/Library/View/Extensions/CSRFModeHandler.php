@@ -46,6 +46,12 @@ class CSRFModeHandler extends TonicsTemplateViewAbstract implements TonicsModeIn
      */
     public function render(string $content, array $args, array $nodes = []): string
     {
-        return \session()->getCSRFToken();
+        $csrf = '';
+        try {
+            $csrf = \session()->getCSRFToken();
+        }catch (\Exception $exception){
+            // Log..
+        }
+        return $csrf;
     }
 }

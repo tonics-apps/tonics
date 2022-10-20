@@ -27,10 +27,11 @@ class HookIntoAdminMenuTree implements HandlerInterface
     {
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView){
-            if (UserData::canAccess(Roles::CAN_ACCESS_CORE, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
-                $token = session()->getCSRFToken();
-                $logout = route('admin.logout');
-                return <<<HTML
+            try {
+                if (UserData::canAccess(Roles::CAN_ACCESS_CORE, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
+                    $token = session()->getCSRFToken();
+                    $logout = route('admin.logout');
+                    return <<<HTML
 <li class="menu-block" data-menu-depth="0">
             <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
                 <svg class="icon:admin tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>
@@ -61,8 +62,10 @@ class HookIntoAdminMenuTree implements HandlerInterface
             </ul>
         </li>
 HTML;
+                }
+            } catch (\Exception $exception){
+                // Log..
             }
-
             return '';
         });
     }

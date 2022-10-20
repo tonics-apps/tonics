@@ -330,17 +330,18 @@ class AppsController
         $requestPath = $this->normalizePathname($requestPath);
         $path = $appModulesPath . "/$moduleAppName/Assets/" . $requestPath;
         $ext = helper()->extension($path);
-        if (helper()->fileExists($path)){
-            $aliasPath = $xAccelPath . "$moduleAppName/Assets/" . $requestPath;
-            $mime = match ($ext) {
-                'css' => 'text/css',
-                'js' => 'text/javascript',
-                default => mime_content_type($path),
-            };
-            $this->serveDownloadableFile($aliasPath, helper()->fileSize($path), false, $mime);
+        if (!helper()->fileExists($path)){
+            die("Resource Doesn't Exist");
         }
 
-        die("Resource Doesn't Exist");
+        $aliasPath = $xAccelPath . "$moduleAppName/Assets/" . $requestPath;
+        $mime = match ($ext) {
+            'css' => 'text/css',
+            'js' => 'text/javascript',
+            default => mime_content_type($path),
+        };
+
+        $this->serveDownloadableFile($aliasPath, helper()->fileSize($path), false, $mime);
     }
 
 

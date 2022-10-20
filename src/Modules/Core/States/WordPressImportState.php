@@ -402,6 +402,11 @@ class WordPressImportState extends SimpleState
 
         try {
             $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
+            if (!is_object($jsonValues)){
+                $jsonValues = (object)[
+                    'value' => null
+                ];
+            }
             if (property_exists($jsonValues, 'value')){
                 $jsonValues = json_decode($jsonValues->value);
                 if (!is_array($jsonValues)){ $jsonValues = []; }
@@ -429,10 +434,15 @@ class WordPressImportState extends SimpleState
                 # Update JSON VALUES
                 $jsonValues = array_values($jsonValues);
                 $table = Tables::getTable(Tables::GLOBAL);
-                db()->Update($table)
-                    ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
-                    ->WhereEquals('`key`', 'url_redirections')
-                    ->FetchFirst();
+
+                db(true)->insertOnDuplicate(
+                    $table,
+                    [
+                        'key' => 'url_redirections',
+                        'value' => json_encode($jsonValues, JSON_UNESCAPED_SLASHES)
+                    ],
+                    ['value']
+                );
             }
         }catch (\Exception $exception){
             // Log..

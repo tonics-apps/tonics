@@ -83,8 +83,9 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function tryURLRedirection():object|bool
     {
-        $table = Tables::getTable(Tables::GLOBAL);
-        $result = db()->row(<<<SQL
+        try {
+            $table = Tables::getTable(Tables::GLOBAL);
+            $result = db()->row(<<<SQL
 SELECT redirect_to, redirection_type 
 FROM $table tg, JSON_TABLE(tg.value, '$[*]' 
   columns(
@@ -94,8 +95,11 @@ FROM $table tg, JSON_TABLE(tg.value, '$[*]'
 ) as jt WHERE tg.`key` = 'url_redirections' AND from_url = ?;
 SQL, url()->getRequestURL());
 
-        if (is_object($result)){
-            return $result;
+            if (is_object($result)){
+                return $result;
+            }
+        } catch (\Exception){
+            // Log..
         }
 
        return false;

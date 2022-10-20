@@ -21,6 +21,7 @@ class FieldSelection implements HandlerInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
@@ -68,7 +69,7 @@ HTML;
         $fields = db()->run("SELECT * FROM $table");
         $fieldFrag = '';
         foreach ($fields as $field) {
-            $uniqueSlug = "$field->field_slug:$field->field_id";
+            $uniqueSlug = "$field->field_slug";
             $fieldSelected = ($fieldSlug === $uniqueSlug) ? 'selected' : '';
             $fieldFrag .= <<<HTML
 <option value="$uniqueSlug" $fieldSelected>$field->field_name</option>
@@ -130,7 +131,7 @@ FORM;
         $fields = db()->Select('*')->From($table)->FetchResult();
         $fieldFrag = '';
         foreach ($fields as $field) {
-            $uniqueSlug = "$field->field_slug:$field->field_id";
+            $uniqueSlug = "$field->field_slug";
             if ($fieldSlugAndID === $uniqueSlug) {
                 $fieldFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$field->field_name</option>
@@ -145,14 +146,16 @@ HTML;
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlugAndID}_$changeID";
         $fieldSlugAndID = explode(':', $fieldSlugAndID);
         $fieldSlug = (isset($fieldSlugAndID[0])) ? $fieldSlugAndID[0] : '';
-        $fieldID = (isset($fieldSlugAndID[1]) && is_numeric($fieldSlugAndID[1])) ? (int)$fieldSlugAndID[1] : '';
+
+        $fieldData = new FieldData();
+
+        $fieldTable = $fieldData->getFieldTable();
+        $fieldItemsTable = $fieldData->getFieldItemsTable();
+        $fieldAndFieldItemsCols = $fieldData->getFieldAndFieldItemsCols();
+
+        $fieldID = db()->Select('field_id')->From($fieldTable)->WhereEquals('field_slug', $fieldSlug)->FetchFirst()?->field_id;
 
         if (!empty($fieldID) && $expandField === '1') {
-            $fieldData = new FieldData();
-
-            $fieldTable = $fieldData->getFieldTable();
-            $fieldItemsTable = $fieldData->getFieldItemsTable();
-            $fieldAndFieldItemsCols = $fieldData->getFieldAndFieldItemsCols();
 
             $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
                 ->From($fieldItemsTable)
@@ -166,7 +169,6 @@ HTML;
 
             // Sort and Arrange OriginalFieldItems
             $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
-           // dd($data, $originalFieldItems);
             if (isset($data->_field->_children)){
                 $sortedFieldWalkerItems = $fieldData->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
             } else {

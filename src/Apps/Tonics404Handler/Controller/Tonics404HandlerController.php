@@ -132,7 +132,13 @@ SQL);
 
                 try {
                     $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-                    if (property_exists($jsonValues, 'value')) {
+                    if (!is_object($jsonValues)){
+                        $jsonValues = (object)[
+                            'value' => null
+                        ];
+                    }
+
+                    if (is_object($jsonValues) && property_exists($jsonValues, 'value')) {
                         $jsonValues = json_decode($jsonValues->value);
                         if (!is_array($jsonValues)){$jsonValues = [];}
 
@@ -156,22 +162,26 @@ SQL);
                         # Update JSON VALUES
                         $jsonValues = array_values($jsonValues);
                         $table = Tables::getTable(Tables::GLOBAL);
-                        db()->Update($table)
-                            ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
-                            ->WhereEquals('`key`', 'url_redirections')
-                            ->FetchFirst();
-
+                        db(true)->insertOnDuplicate(
+                            $table,
+                            [
+                                'key' => 'url_redirections',
+                                'value' => json_encode($jsonValues, JSON_UNESCAPED_SLASHES)
+                            ],
+                            ['value']
+                        );
                         session()->flash(['Redirect Added or Updated'], type: Session::SessionCategories_FlashMessageSuccess);
                         redirect(route('tonics404Handler.settings'));
                     }
                 }catch (\Exception $exception){
                     // log..
-                    session()->flash(['Error Occur Inserting New Redirect']);
-                    redirect(route('tonics404Handler.settings'));
                 }
 
             }
         }
+
+        session()->flash(['Error Occur Inserting New Redirect']);
+        redirect(route('tonics404Handler.settings'));
     }
 
     /**
