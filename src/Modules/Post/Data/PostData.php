@@ -237,6 +237,7 @@ CAT;
                     $post[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
+
                 if ($inputKey === 'post_slug') {
                     $post[$inputKey] = $slug;
                     continue;
@@ -426,7 +427,7 @@ SQL, ...$parameter);
         if (input()->fromPost()->hasValue('fk_cat_id') === false) {
             $findDefault = $this->selectWithConditionFromCategory(['cat_slug', 'cat_id'], "cat_slug = ?", ['default-category']);
             if (is_object($findDefault) && isset($findDefault->cat_id)) {
-                $_POST['fk_cat_id'] = $findDefault->cat_id;
+                $_POST['fk_cat_id'] = [$findDefault->cat_id];
                 return;
             }
 

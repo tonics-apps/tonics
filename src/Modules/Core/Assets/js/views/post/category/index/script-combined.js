@@ -3512,14 +3512,15 @@ function loadScriptDynamically($scriptPath, $uniqueIdentifier) {
 }
 __name(loadScriptDynamically, "loadScriptDynamically");
 function getCSRFFromInput(csrfNames) {
-  let csrf = "";
+  let csrf = null;
   csrfNames.forEach((value, index) => {
-    let inputCSRF = document.querySelector(`input[name=${value}]`);
+    var _a, _b;
+    let inputCSRF = (_a = document.querySelector(`input[name=${value}]`)) == null ? void 0 : _a.value;
     if (!inputCSRF) {
-      inputCSRF = document.querySelector(`meta[name=${value}]`);
+      inputCSRF = (_b = document.querySelector(`meta[name=${value}]`)) == null ? void 0 : _b.content;
     }
-    if (inputCSRF) {
-      csrf = inputCSRF.value;
+    if (!csrf && inputCSRF) {
+      csrf = inputCSRF;
     }
   });
   return csrf;

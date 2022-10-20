@@ -217,10 +217,15 @@ class PostsController
     {
         $previousPOSTGlobal = $_POST;
         try {
+            db()->beginTransaction();
             foreach ($postData as $k => $cat) {
                 $_POST[$k] = $cat;
             }
             $this->postData->setDefaultPostCategoryIfNotSet();
+            if (isset($_POST['fk_cat_id']) && !is_array($_POST['fk_cat_id'])){
+                $_POST['fk_cat_id'] = [$_POST['fk_cat_id']];
+            }
+
             $validator = $this->getValidator()->make($_POST, $this->postStoreRule());
             if ($validator->fails()) {
                 helper()->sendMsg('PostsController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
@@ -228,15 +233,21 @@ class PostsController
             }
             $post = $this->postData->createPost(['token']);
             $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
+            if (is_object($postReturning)) {
+                $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
+            }
+            $onPostCreate = new OnPostCreate($postReturning, $this->postData);
+            event()->dispatch($onPostCreate);
+
+            $_POST = $previousPOSTGlobal;
+            db()->commit();
+            return $onPostCreate;
         } catch (\Exception $e) {
+            db()->rollBack();
             helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');
             return false;
         }
 
-        $onPostCreate = new OnPostCreate($postReturning, $this->postData);
-        event()->dispatch($onPostCreate);
-        $_POST = $previousPOSTGlobal;
-        return $onPostCreate;
     }
 
     /**
