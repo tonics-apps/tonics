@@ -67,7 +67,7 @@ HTML;
         $menuFrag = '';
         $menus = $menuData->getMenus();
         foreach ($menus as $menu) {
-            $uniqueSlug = "$menu->menu_slug:$menu->menu_id";
+            $uniqueSlug = "$menu->menu_slug";
             if ($menuSlug === $uniqueSlug) {
                 $menuFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$menu->menu_name</option>
@@ -128,7 +128,7 @@ FORM;
         $menuData = new MenuData();
         $menus = $menuData->getMenus();
         foreach ($menus as $menu) {
-            $uniqueSlug = "$menu->menu_slug:$menu->menu_id";
+            $uniqueSlug = "$menu->menu_slug";
             if ($menuSlug === $uniqueSlug) {
                 $menuFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$menu->menu_name</option>
@@ -167,13 +167,9 @@ HTML;
         if (empty($menuSlug)) {
             return $frag;
         }
-        $menuSlug = explode(':', $menuSlug);
-        $menuID = (isset($menuSlug[1]) && is_numeric($menuSlug[1])) ? (int)$menuSlug[1] : '';
-        if (empty($menuID)) {
-            return $frag;
-        }
+
         $menuData = new MenuData();
-        $tree = $menuData->getMenuItems($menuID);
+        $tree = $menuData->getMenuItems($menuSlug);
         foreach ($tree as $t) {
             $frag .= $this->getMenuHTMLFragment($t, 0, $displayName);
         }

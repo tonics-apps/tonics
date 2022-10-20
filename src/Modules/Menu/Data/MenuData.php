@@ -13,6 +13,7 @@ namespace App\Modules\Menu\Data;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class MenuData extends AbstractDataLayer
 {
@@ -64,10 +65,20 @@ class MenuData extends AbstractDataLayer
     /**
      * @throws \Exception
      */
-    public function getMenuItems(int $fkMenuID, bool $generateTree = true): mixed
+    public function getMenuItems(int|string $menuIDOrSlug, bool $generateTree = true): mixed
     {
-        $table = $this->getMenuItemsTable();
-        $data = db()->run("SELECT * FROM $table WHERE `fk_menu_id` = ?", $fkMenuID);
+        $menuItemsTable = $this->getMenuItemsTable();
+        $menuTable = $this->getMenuTable();
+        $data = db()->Select('*')->From($menuItemsTable)
+            ->Join($menuTable, table()->pickTable($menuTable, ['menu_id']), table()->pickTable($menuItemsTable, ['fk_menu_id']))
+            ->when(is_string($menuIDOrSlug),
+                function (TonicsQuery $db) use ($menuIDOrSlug) {
+                    $db->WhereEquals('menu_slug', $menuIDOrSlug);
+                },
+                function (TonicsQuery $db) use ($menuIDOrSlug) {
+                    $db->WhereEquals('fk_menu_id', $menuIDOrSlug);
+                })
+            ->FetchResult();
         if ($data){
             if ($generateTree){
                 return helper()->generateTree(['parent_id' => 'mt_parent_id', 'id' => 'mt_id'], $data);
