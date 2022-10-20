@@ -36,7 +36,7 @@ class FieldSelection implements HandlerInterface
             return $this->userForm($event, $data);
         },
             handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
+                return '';
             }
         );
     }
@@ -197,29 +197,6 @@ HTML;
         }
 
         $frag .= $event->_bottomHTMLWrapper();
-        return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewFrag(OnFieldMetaBox $event, $data): string
-    {
-        $frag = '';
-        $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
-        $postData = !empty(getPostData()) ? getPostData() : $fieldData;
-        $fieldSlug = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
-        if (empty($fieldSlug)) {
-            return $frag;
-        }
-        $fieldSlug = explode(':', $fieldSlug);
-        $fieldID = (isset($fieldSlug[1]) && is_numeric($fieldSlug[1])) ? (int)$fieldSlug[1] : '';
-        if (empty($fieldID)) {
-            return $frag;
-        }
-
-        $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
-        $onFieldUserForm->handleFrontEnd([$fieldSlug[0]], getPostData());
         return $frag;
     }
 
