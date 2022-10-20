@@ -210,7 +210,8 @@ class PostsController
     }
 
     /**
-     * @throws \ReflectionException
+     * @param array $postData
+     * @return bool|object
      * @throws \Exception
      */
     public function storeFromImport(array $postData): bool|object
@@ -231,15 +232,17 @@ class PostsController
                 helper()->sendMsg('PostsController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
                 return false;
             }
+
             $post = $this->postData->createPost(['token']);
             $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
             if (is_object($postReturning)) {
                 $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
             }
+
             $onPostCreate = new OnPostCreate($postReturning, $this->postData);
             event()->dispatch($onPostCreate);
-
             $_POST = $previousPOSTGlobal;
+
             db()->commit();
             return $onPostCreate;
         } catch (\Exception $e) {
