@@ -136,7 +136,7 @@ class NinetySevenActivator implements ExtensionConfig
     "field_name": "modular_fieldselection",
     "field_id": 3,
     "field_parent_id": 1,
-    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"1\",\"field_slug_unique_hash\":\"50p241i02fg0000000000\",\"field_input_name\":\"ninetySeven_featured_postQuery\",\"fieldName\":\"Featured Post Query\",\"inputName\":\"ninetySeven_featured_postQuery\",\"fieldSlug\":\"post-query-builder:41\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
+    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"1\",\"field_slug_unique_hash\":\"50p241i02fg0000000000\",\"field_input_name\":\"ninetySeven_featured_postQuery\",\"fieldName\":\"Featured Post Query\",\"inputName\":\"ninetySeven_featured_postQuery\",\"fieldSlug\":\"post-query-builder\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
   },
   {
     "fk_field_id": "App Ninety Seven [Post Home Page]",
@@ -150,7 +150,7 @@ class NinetySevenActivator implements ExtensionConfig
     "field_name": "modular_fieldselection",
     "field_id": 5,
     "field_parent_id": 1,
-    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"2\",\"field_slug_unique_hash\":\"743gv1qsz740000000000\",\"field_input_name\":\"ninetySeven_best_postQuery\",\"fieldName\":\"Best Post Query\",\"inputName\":\"ninetySeven_best_postQuery\",\"fieldSlug\":\"post-query-builder:41\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
+    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"2\",\"field_slug_unique_hash\":\"743gv1qsz740000000000\",\"field_input_name\":\"ninetySeven_best_postQuery\",\"fieldName\":\"Best Post Query\",\"inputName\":\"ninetySeven_best_postQuery\",\"fieldSlug\":\"post-query-builder\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
   },
   {
     "fk_field_id": "App Ninety Seven [Post Home Page]",
@@ -164,28 +164,28 @@ class NinetySevenActivator implements ExtensionConfig
     "field_name": "input_text",
     "field_id": 7,
     "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3py5fz8te140000000000\",\"field_input_name\":\"\",\"fieldName\":\"Category Title\",\"inputName\":\"ninetySeven_category_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Title\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3py5fz8te140000000000\",\"field_input_name\":\"ninetySeven_category_title\",\"fieldName\":\"Category Title\",\"inputName\":\"ninetySeven_category_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Title\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "App Ninety Seven [Post Home Page]",
     "field_name": "input_text",
     "field_id": 8,
     "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[\"url\"],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"28m1lcaob24g000000000\",\"field_input_name\":\"\",\"fieldName\":\"Category Link\",\"inputName\":\"ninetySeven_category_link\",\"textType\":\"url\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Link\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[\"url\"],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"28m1lcaob24g000000000\",\"field_input_name\":\"ninetySeven_category_link\",\"fieldName\":\"Category Link\",\"inputName\":\"ninetySeven_category_link\",\"textType\":\"url\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Link\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "App Ninety Seven [Post Home Page]",
     "field_name": "input_text",
     "field_id": 9,
     "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"136tqlcfowdc00000000\",\"field_input_name\":\"\",\"fieldName\":\"Category Description\",\"inputName\":\"ninetySeven_category_description\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Description\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"136tqlcfowdc00000000\",\"field_input_name\":\"ninetySeven_category_description\",\"fieldName\":\"Category Description\",\"inputName\":\"ninetySeven_category_description\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Description\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "App Ninety Seven [Post Home Page]",
     "field_name": "modular_fieldselection",
     "field_id": 10,
     "field_parent_id": 6,
-    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"1\",\"field_slug_unique_hash\":\"1b4e4dbm2aow000000000\",\"field_input_name\":\"\",\"fieldName\":\"Category Query\",\"inputName\":\"ninetySeven_categoryQuery\",\"fieldSlug\":\"post-query-builder:41\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
+    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"1\",\"field_slug_unique_hash\":\"1b4e4dbm2aow000000000\",\"field_input_name\":\"ninetySeven_categoryQuery\",\"fieldName\":\"Category Query\",\"inputName\":\"ninetySeven_categoryQuery\",\"fieldSlug\":\"post-query-builder\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
   },
   {
     "fk_field_id": "App Ninety Seven Settings",
@@ -213,14 +213,14 @@ class NinetySevenActivator implements ExtensionConfig
     "field_name": "menu_menus",
     "field_id": 4,
     "field_parent_id": 2,
-    "field_options": "{\"field_slug\":\"menu_menus\",\"menu_menus_cell\":\"2\",\"field_slug_unique_hash\":\"7ozvcwh4f4w000000000\",\"field_input_name\":\"site_header_menu\",\"fieldName\":\"site_header_menu\",\"inputName\":\"site_header_menu\",\"menuSlug\":\"header-menu:1\",\"displayName\":\"1\"}"
+    "field_options": "{\"field_slug\":\"menu_menus\",\"menu_menus_cell\":\"2\",\"field_slug_unique_hash\":\"7ozvcwh4f4w000000000\",\"field_input_name\":\"site_header_menu\",\"fieldName\":\"site_header_menu\",\"inputName\":\"site_header_menu\",\"menuSlug\":\"header-menu\",\"displayName\":\"1\"}"
   },
   {
     "fk_field_id": "App Ninety Seven Settings",
     "field_name": "widget_widgets",
     "field_id": 5,
     "field_parent_id": 1,
-    "field_options": "{\"field_slug\":\"widget_widgets\",\"widget_widgets_cell\":\"2\",\"field_slug_unique_hash\":\"6kcp1ee1xu00000000000\",\"field_input_name\":\"sidebar_widget\",\"fieldName\":\"Sidebar Widget\",\"inputName\":\"sidebar_widget\",\"widgetSlug\":\"sidebar-widget:1\"}"
+    "field_options": "{\"field_slug\":\"widget_widgets\",\"widget_widgets_cell\":\"2\",\"field_slug_unique_hash\":\"6kcp1ee1xu00000000000\",\"field_input_name\":\"sidebar_widget\",\"fieldName\":\"Sidebar Widget\",\"inputName\":\"sidebar_widget\",\"widgetSlug\":\"sidebar-widget\"}"
   },
   {
     "fk_field_id": "App Ninety Seven Settings",
@@ -234,7 +234,7 @@ class NinetySevenActivator implements ExtensionConfig
     "field_name": "menu_menus",
     "field_id": 7,
     "field_parent_id": 6,
-    "field_options": "{\"field_slug\":\"menu_menus\",\"menu_menus_cell\":\"1\",\"field_slug_unique_hash\":\"6mkrfyi63z00000000000\",\"field_input_name\":\"site_footer_menu\",\"fieldName\":\"site_footer\",\"inputName\":\"site_footer_menu\",\"menuSlug\":\"footer-menu:2\",\"displayName\":\"0\"}"
+    "field_options": "{\"field_slug\":\"menu_menus\",\"menu_menus_cell\":\"1\",\"field_slug_unique_hash\":\"6mkrfyi63z00000000000\",\"field_input_name\":\"site_footer_menu\",\"fieldName\":\"site_footer\",\"inputName\":\"site_footer_menu\",\"menuSlug\":\"footer-menu\",\"displayName\":\"0\"}"
   },
   {
     "fk_field_id": "App Ninety Seven Settings",

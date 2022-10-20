@@ -234,13 +234,6 @@ class FieldConfig
   },
   {
     "fk_field_id": "Post Category Page",
-    "field_name": "modular_rowcolumn",
-    "field_id": 1,
-    "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"5dk0d0jv6uk0000000000\",\"fieldName\":\"Category Experience\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
-  },
-  {
-    "fk_field_id": "Post Category Page",
     "field_name": "input_text",
     "field_id": 2,
     "field_parent_id": 1,
@@ -398,13 +391,6 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4ci4p6m7qxw0000000000\",\"fieldName\":\"Page Experience\",\"inputName\":\"page_experience\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
-  },
-  {
-    "fk_field_id": "Default Page Field",
-    "field_name": "modular_rowcolumn",
-    "field_id": 1,
-    "field_parent_id": null,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[\"PageSlug\"],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4ci4p6m7qxw0000000000\",\"field_input_name\":\"page_experience\",\"fieldName\":\"Page Experience\",\"inputName\":\"page_experience\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
   },
   {
@@ -503,21 +489,21 @@ class FieldConfig
     "field_name": "menu_menus",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_slug\":\"menu_menus\",\"field_slug_unique_hash\":\"i5ap1q0rukg000000000\",\"fieldName\":\"site_header\",\"inputName\":\"site_header_menu\",\"menuSlug\":\"header-menu:1\",\"displayName\":\"1\"}"
+    "field_options": "{\"field_slug\":\"menu_menus\",\"field_slug_unique_hash\":\"i5ap1q0rukg000000000\",\"field_input_name\":\"site_header_menu\",\"fieldName\":\"site_header\",\"inputName\":\"site_header_menu\",\"menuSlug\":\"header-menu\",\"displayName\":\"1\"}"
   },
   {
     "fk_field_id": "Site Footer",
     "field_name": "menu_menus",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_slug\":\"menu_menus\",\"field_slug_unique_hash\":\"1zqxqpbnlkhs000000000\",\"fieldName\":\"site_footer\",\"inputName\":\"site_footer_menu\",\"menuSlug\":\"footer-menu:2\",\"displayName\":\"0\"}"
+    "field_options": "{\"field_slug\":\"menu_menus\",\"field_slug_unique_hash\":\"1zqxqpbnlkhs000000000\",\"field_input_name\":\"site_footer_menu\",\"fieldName\":\"site_footer\",\"inputName\":\"site_footer_menu\",\"menuSlug\":\"footer-menu\",\"displayName\":\"0\"}"
   },
   {
     "fk_field_id": "Sidebar Widget",
     "field_name": "widget_widgets",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_slug\":\"widget_widgets\",\"field_slug_unique_hash\":\"tqtc2pjcx4g000000000\",\"fieldName\":\"sidebar_widget\",\"inputName\":\"sidebar_widget\",\"widgetSlug\":\"sidebar-widget:1\"}"
+    "field_options": "{\"field_slug\":\"widget_widgets\",\"field_slug_unique_hash\":\"tqtc2pjcx4g000000000\",\"field_input_name\":\"sidebar_widget\",\"fieldName\":\"sidebar_widget\",\"inputName\":\"sidebar_widget\",\"widgetSlug\":\"sidebar-widget\"}"
   },
   {
     "fk_field_id": "Upload App Page",
