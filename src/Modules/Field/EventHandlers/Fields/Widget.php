@@ -140,7 +140,6 @@ HTML;
     public function viewData(OnFieldMetaBox $event, $data)
     {
         $frag = '';
-        // $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
         $postData = !empty(getPostData()) ? getPostData() : $fieldData;
         $widgetSlug =  (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';
@@ -149,7 +148,7 @@ HTML;
         }
 
         $widgetData = new WidgetData();
-        $widget = $widgetData->getWidgetItems($widgetID);
+        $widget = $widgetData->getWidgetItems($widgetSlug);
         $widgetName = (isset($widget[0]->widget_name)) ? $widget[0]->widget_name : $data->_field->main_field_name;
         $widgetDataArray = [];
         $widgetData->getWidgetViewListing($widget, function ($widgetViewDataInstance, $widgetItem) use (&$frag, &$widgetDataArray){

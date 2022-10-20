@@ -14,6 +14,7 @@ use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Widget\Events\OnMenuWidgetMetaBox;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class WidgetData extends AbstractDataLayer
 {
@@ -64,13 +65,20 @@ class WidgetData extends AbstractDataLayer
     /**
      * @throws \Exception
      */
-    public function getWidgetItems(int $fkWidgetID): array
+    public function getWidgetItems(int|string $widgetIDOrSlug): array
     {
         $widgetItemsTable = $this->getWidgetItemsTable();
         $widgetTable = $this->getWidgetTable();
         $result = db()->Select('*')->From($widgetItemsTable)
             ->Join($widgetTable, table()->pickTable($widgetTable, ['widget_id']), table()->pickTable($widgetItemsTable, ['fk_widget_id']))
-            ->WhereEquals('fk_widget_id', $fkWidgetID)->FetchResult();
+            ->when(is_string($widgetIDOrSlug),
+                function (TonicsQuery $db) use ($widgetIDOrSlug) {
+                    $db->WhereEquals('widget_slug', $widgetIDOrSlug);
+                },
+                function (TonicsQuery $db) use ($widgetIDOrSlug) {
+                    $db->WhereEquals('fk_widget_id', $widgetIDOrSlug);
+                })
+            ->FetchResult();
         return $this->decodeWidgetOptions($result);
     }
 
