@@ -53,7 +53,7 @@ class Widget implements HandlerInterface
         $widgetFrag = '';
         $widgets = $widgetData->getWidgets();
         foreach ($widgets as $widget){
-            $uniqueSlug = "$widget->widget_slug:$widget->widget_id";
+            $uniqueSlug = "$widget->widget_slug";
             if ($widgetSlug === $uniqueSlug){
                 $widgetFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$widget->widget_name</option>
@@ -108,7 +108,7 @@ FORM;
         $widgetData = new WidgetData();
         $widgets = $widgetData->getWidgets();
         foreach ($widgets as $widget){
-            $uniqueSlug = "$widget->widget_slug:$widget->widget_id";
+            $uniqueSlug = "$widget->widget_slug";
             if ($widgetSlug === $uniqueSlug){
                 $menuFrag .= <<<HTML
 <option value="$uniqueSlug" selected>$widget->widget_name</option>
@@ -147,11 +147,7 @@ HTML;
         if (empty($widgetSlug)){
             return $frag;
         }
-        $widgetSlug = explode(':', $widgetSlug);
-        $widgetID = (isset($widgetSlug[1]) && is_numeric($widgetSlug[1])) ? (int)$widgetSlug[1]: '';
-        if (empty($widgetID)){
-            return $frag;
-        }
+
         $widgetData = new WidgetData();
         $widget = $widgetData->getWidgetItems($widgetID);
         $widgetName = (isset($widget[0]->widget_name)) ? $widget[0]->widget_name : $data->_field->main_field_name;

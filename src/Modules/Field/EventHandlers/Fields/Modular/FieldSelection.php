@@ -120,47 +120,25 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $keyValue =  $event->getKeyValueInData($data, $data->inputName);
-        $fieldSlugAndID = (isset($data->fieldSlug) && !empty($keyValue)) ? $keyValue : $data->fieldSlug;
+        $fieldSlug = (isset($data->fieldSlug) && !empty($keyValue)) ? $keyValue : $data->fieldSlug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $htmlFrag = '';
 
-        $table = Tables::getTable(Tables::FIELD);
-        $fields = db()->Select('*')->From($table)->FetchResult();
-        $fieldFrag = '';
-        foreach ($fields as $field) {
-            $uniqueSlug = "$field->field_slug";
-            if ($fieldSlugAndID === $uniqueSlug) {
-                $fieldFrag .= <<<HTML
-<option value="$uniqueSlug" selected>$field->field_name</option>
-HTML;
-            } else {
-                $fieldFrag .= <<<HTML
-<option value="$uniqueSlug">$field->field_name</option>
-HTML;
-            }
-        }
-
-        $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlugAndID}_$changeID";
-        $fieldSlugAndID = explode(':', $fieldSlugAndID);
-        $fieldSlug = (isset($fieldSlugAndID[0])) ? $fieldSlugAndID[0] : '';
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlug}_$changeID";
 
         $fieldData = new FieldData();
-
         $fieldTable = $fieldData->getFieldTable();
         $fieldItemsTable = $fieldData->getFieldItemsTable();
         $fieldAndFieldItemsCols = $fieldData->getFieldAndFieldItemsCols();
 
-        $fieldID = db()->Select('field_id')->From($fieldTable)->WhereEquals('field_slug', $fieldSlug)->FetchFirst()?->field_id;
-
-        if (!empty($fieldID) && $expandField === '1') {
-
+        if ($expandField === '1') {
             $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
                 ->From($fieldItemsTable)
                 ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                ->WhereIn('fk_field_id', [$fieldID])->OrderBy('fk_field_id')->FetchResult();
+                ->WhereEquals('field_slug', $fieldSlug)->OrderBy('fk_field_id')->FetchResult();
 
             foreach ($originalFieldItems as $originalFieldItem){
                 $fieldOption = json_decode($originalFieldItem->field_options);
@@ -185,6 +163,21 @@ HTML;
 
             $frag .= $htmlFrag;
         } else {
+            $fields = db()->Select('*')->From($fieldTable)->FetchResult();
+            $fieldFrag = '';
+            foreach ($fields as $field) {
+                $uniqueSlug = "$field->field_slug";
+                if ($fieldSlug === $uniqueSlug) {
+                    $fieldFrag .= <<<HTML
+<option value="$uniqueSlug" selected>$field->field_name</option>
+HTML;
+                } else {
+                    $fieldFrag .= <<<HTML
+<option value="$uniqueSlug">$field->field_name</option>
+HTML;
+                }
+            }
+
             $frag .= <<<HTML
 <div class="form-group margin-top:0">
      <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
