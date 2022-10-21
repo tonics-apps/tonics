@@ -40,10 +40,11 @@ class Tonics404HandlerController
     public function index()
     {
         $dataTableHeaders = [
-            ['type' => '', 'title' => 'From', 'slug' => 'from', 'minmax' => '200px, 1fr', 'td' => 'from'],
-            ['type' => 'text', 'title' => 'To', 'slug' => 'to', 'minmax' => '150px, 1fr', 'td' => 'to'],
-            ['type' => 'select', 'title' => 'Type', 'slug' => 'type', 'select_data' => "301,302", 'minmax' => '50px, 1fr', 'td' => 'redirection_type'],
-            ['type' => '', 'slug' => 'date_added', 'title' => 'Date Added', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+            ['type' => '', 'slug' => Tables::BROKEN_LINKS . '::' . 'id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'id'],
+            ['type' => '', 'title' => 'From', 'slug' => Tables::BROKEN_LINKS . '::' . 'from', 'minmax' => '200px, 1fr', 'td' => 'from'],
+            ['type' => 'text', 'title' => 'To', 'slug' => Tables::BROKEN_LINKS . '::' . 'to', 'minmax' => '150px, 1fr', 'td' => 'to'],
+            ['type' => 'select', 'title' => 'Redirection Type', 'slug' => Tables::BROKEN_LINKS . '::' . 'redirection_type', 'select_data' => "301,302", 'minmax' => '50px, 1fr', 'td' => 'redirection_type'],
+            ['type' => '', 'slug' => Tables::BROKEN_LINKS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
         $table = Tables::getTable(Tables::BROKEN_LINKS);
@@ -85,7 +86,7 @@ class Tonics404HandlerController
             if ($this->deleteMultiple($entityBag)) {
                 response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
-                response()->onError(500);
+                response()->onError(500, 'Error Occur Deleting Records');
             }
         } elseif ($this->getDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
@@ -157,37 +158,7 @@ class Tonics404HandlerController
      */
     protected function deleteMultiple($entityBag): bool
     {
-        try {
-            $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-            if (property_exists($jsonValues, 'value')){
-                $jsonValues = json_decode($jsonValues->value);
-                $deleteItems = $this->getDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
-                # Remove
-                foreach ($jsonValues as $jsonKey => $jsonValue){
-                    foreach ($deleteItems as $deleteItemKey => $deleteItem){
-                        if (isset($deleteItem->from)){
-                            if ($jsonValue->from === $deleteItem->from && $jsonValue->date === $deleteItem->date_added){
-                                unset($jsonValues[$jsonKey]);
-                                unset($deleteItems[$deleteItemKey]);
-                                break;
-                            }
-                        }
-                    }
-                }
-                # Update JSON VALUES
-                $jsonValues = array_values($jsonValues);
-                $table = Tables::getTable(Tables::GLOBAL);
-                db()->Update($table)
-                    ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
-                    ->WhereEquals('`key`', 'url_redirections')
-                    ->FetchFirst();
-                return true;
-            }
-        }catch (\Exception $exception){
-            // Log..
-
-        }
-        return false;
+        return $this->getFieldData()->dataTableDeleteMultiple('id', Tables::getTable(Tables::BROKEN_LINKS), $entityBag);
     }
 
     protected function updateMultiple($entityBag)
