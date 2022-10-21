@@ -95,7 +95,7 @@ class Tonics404HandlerController
             if ($this->updateMultiple($entityBag)) {
                 response()->onSuccess([], "Records Updated", more: AbstractDataLayer::DataTableEventTypeUpdate);
             } else {
-                response()->onError(500);
+                response()->onError(500, 'Error Occur Updating Records');
             }
         }
 
@@ -161,41 +161,19 @@ class Tonics404HandlerController
         return $this->getFieldData()->dataTableDeleteMultiple('id', Tables::getTable(Tables::BROKEN_LINKS), $entityBag);
     }
 
-    protected function updateMultiple($entityBag)
+    /**
+     * @param $entityBag
+     * @return bool
+     * @throws \Exception
+     */
+    protected function updateMultiple($entityBag): bool
     {
-        try {
-            $updateItems = $this->getDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
-            $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-            if (property_exists($jsonValues, 'value')){
-                $jsonValues = json_decode($jsonValues->value);
-
-                # Update
-                foreach ($jsonValues as $jsonValue){
-                    foreach ($updateItems as $updateItemKey => $updateItem){
-                        if (isset($updateItem->from)){
-                            if ($jsonValue->from === $updateItem->from && $jsonValue->date === $updateItem->date_added){
-                                $jsonValue->to = $updateItem->to;
-                                $jsonValue->redirection_type = $updateItem->type ?? 301;
-                                unset($updateItems[$updateItemKey]);
-                                break;
-                            }
-                        }
-                    }
-                }
-                # Update JSON VALUES
-                $jsonValues = array_values($jsonValues);
-                $table = Tables::getTable(Tables::GLOBAL);
-                db()->Update($table)
-                    ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
-                    ->WhereEquals('`key`', 'url_redirections')
-                    ->FetchFirst();
-                return true;
-            }
-        } catch (\Exception $exception){
-            // Log..
-        }
-
-        return false;
+        $rulesUpdate = [
+            'id' => ['numeric'],
+            'updated_at' => ['required', 'string'],
+            'redirection_type' => ['required', 'numeric'],
+        ];
+        return $this->getFieldData()->dataTableUpdateMultiple('id', Tables::getTable(Tables::BROKEN_LINKS), $entityBag, $rulesUpdate);
     }
 
     /**
