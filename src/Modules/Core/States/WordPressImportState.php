@@ -393,59 +393,19 @@ class WordPressImportState extends SimpleState
                 if ($result instanceof OnPostCreate){
                     if (!empty($postCatParents)){
                         $lastCat = isset($postCatParents[array_key_last($postCatParents)]) ? $postCatParents[array_key_last($postCatParents)]->path. '/' : '';
-                        // 'old' url is the key, and the value is where to redirect to...
-                        $this->urlRedirections[ "/{$lastCat}$postSlug"] = "/posts/{$result->getSlugID()}/$postSlug";
+                        $fromURL = "/{$lastCat}$postSlug";
+                        $toURL = "/posts/{$result->getSlugID()}/$postSlug";
+                        db()->InsertOnDuplicate(
+                            Tables::getTable(Tables::BROKEN_LINKS),
+                            [
+                                'from' => $fromURL,
+                                'to'   => $toURL,
+                            ],
+                            ['to']
+                        );
                     }
                 }
             }
-        }
-
-        try {
-            $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-            if (!is_object($jsonValues)){
-                $jsonValues = (object)[
-                    'value' => null
-                ];
-            }
-            if (property_exists($jsonValues, 'value')){
-                $jsonValues = json_decode($jsonValues->value);
-                if (!is_array($jsonValues)){ $jsonValues = []; }
-
-                # Remove The Old From
-                foreach ($jsonValues as $jsonKey => $jsonValue){
-                    if (isset($this->urlRedirections[$jsonValue->from])){
-                        unset($jsonValues[$jsonKey]);
-                    }
-                }
-
-                # Push New to jsonValues
-                foreach ($this->urlRedirections as $from => $to){
-                    $from = filter_var($from, FILTER_SANITIZE_URL);
-                    $from = rtrim($from, '/');
-                    $settings = [
-                        'from' => $from,
-                        'to'   => $to,
-                        'date' => helper()->date(),
-                        'redirection_type' => 301
-                    ];
-                    $jsonValues[] = (object)$settings;
-                }
-
-                # Update JSON VALUES
-                $jsonValues = array_values($jsonValues);
-                $table = Tables::getTable(Tables::GLOBAL);
-
-                db(true)->insertOnDuplicate(
-                    $table,
-                    [
-                        'key' => 'url_redirections',
-                        'value' => json_encode($jsonValues, JSON_UNESCAPED_SLASHES)
-                    ],
-                    ['value']
-                );
-            }
-        }catch (\Exception $exception){
-            // Log..
         }
 
         return $this->switchState(self::PhaseDone, self::NEXT);

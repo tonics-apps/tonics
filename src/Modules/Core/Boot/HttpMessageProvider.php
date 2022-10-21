@@ -46,19 +46,14 @@ class HttpMessageProvider implements ServiceProvider
              if ($redirect_to === false){
                  if (AppConfig::canLog404()){
                      $reURL = url()->getRequestURL();
-                     $urlRedirection = [
-                         'from' => $reURL,
-                         'to'   => null,
-                         'date' => helper()->date(),
-                         'redirection_type' => 301
-                     ];
-                     $urlRedirection = json_encode($urlRedirection, JSON_UNESCAPED_SLASHES);
-                     $table = Tables::getTable(Tables::GLOBAL);
                      try {
-                         db()->Update($table)
-                             ->Set('value', db()->JsonArrayAppend('value', ['$' => $urlRedirection]))
-                             ->WhereEquals('`key`', 'url_redirections')
-                             ->FetchFirst();
+                         db()->Insert(
+                             Tables::getTable(Tables::BROKEN_LINKS),
+                             [
+                                 'from' => $reURL,
+                                 'to'   => null,
+                             ]
+                         );
                      }catch (\Exception $exception){
                          // Log..
                      }
@@ -84,21 +79,12 @@ class HttpMessageProvider implements ServiceProvider
     public function tryURLRedirection():object|bool
     {
         try {
-            $table = Tables::getTable(Tables::GLOBAL);
-            $result = db()->row(<<<SQL
-SELECT redirect_to, redirection_type 
-FROM $table tg, JSON_TABLE(tg.value, '$[*]' 
-  columns(
-   from_url  varchar(500) path '$.from', 
-   redirect_to  varchar(500) path '$.to',
-   redirection_type int(4) path '$.redirection_type' ) 
-) as jt WHERE tg.`key` = 'url_redirections' AND from_url = ?;
-SQL, url()->getRequestURL());
-
+            $table = Tables::getTable(Tables::BROKEN_LINKS);
+            $result = db()->Select('*')->From($table)->WhereEquals(table()->pickTable($table, ['from']), url()->getRequestURL())->FetchFirst();
             if (is_object($result)){
                 return $result;
             }
-        } catch (\Exception){
+        } catch (\Exception $exception){
             // Log..
         }
 

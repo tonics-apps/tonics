@@ -50,6 +50,7 @@ final class Tables
 
         self::COMMENT_USER_TYPE => [ 'comment_usertype_id', 'comment_usertype_name'],
         self::COMMENTS => [ 'id', 'fk_comment_usertype_id', 'comment_id', 'comment_parent_id', 'comment_body', 'comment_status', 'comment_others', 'ip_bin', 'ip_to_text', 'agent', 'created_at', 'updated_at'],
+        self::BROKEN_LINKS => [ 'id', 'from', 'to', 'redirection_type', 'others','created_at', 'updated_at'],
     ];
 
     const ARTISTS = 'artists';
@@ -73,6 +74,7 @@ final class Tables
     const PURCHASES = 'purchases';
     const SESSIONS = 'sessions';
     const GLOBAL = 'global';
+    const BROKEN_LINKS = 'broken_links';
 
     const TRACK_LIKES = 'track_likes';
     const TRACKS = 'tracks';

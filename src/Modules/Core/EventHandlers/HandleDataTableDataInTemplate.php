@@ -32,7 +32,7 @@ class HandleDataTableDataInTemplate implements HandlerInterface
                     if (is_array($dtRows)){
                         $dtRows = (object)$dtRows;
                     }
-                    if (property_exists($dtRows, $header['td'])){
+                    if (is_object($dtRows) && property_exists($dtRows, $header['td'])){
                         $data = $dtRows->{$header['td']};
                         $dataFrag .=<<<HTML
 <td tabindex="-1" data-td="{$header['td']}">$data</td>

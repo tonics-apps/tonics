@@ -11,11 +11,11 @@
 namespace App\Apps\Tonics404Handler\Controller;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class Tonics404HandlerController
 {
@@ -40,23 +40,22 @@ class Tonics404HandlerController
     public function index()
     {
         $dataTableHeaders = [
-            ['type' => '', 'title' => 'From', 'slug' => 'from', 'minmax' => '200px, 1fr', 'td' => 'from_url'],
-            ['type' => 'text', 'title' => 'To', 'slug' => 'to', 'minmax' => '150px, 1fr', 'td' => 'to_url'],
+            ['type' => '', 'title' => 'From', 'slug' => 'from', 'minmax' => '200px, 1fr', 'td' => 'from'],
+            ['type' => 'text', 'title' => 'To', 'slug' => 'to', 'minmax' => '150px, 1fr', 'td' => 'to'],
             ['type' => 'select', 'title' => 'Type', 'slug' => 'type', 'select_data' => "301,302", 'minmax' => '50px, 1fr', 'td' => 'redirection_type'],
-            ['type' => '', 'slug' => 'date_added', 'title' => 'Date Added', 'minmax' => '150px, 1fr', 'td' => 'date_added'],
+            ['type' => '', 'slug' => 'date_added', 'title' => 'Date Added', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $table = Tables::getTable(Tables::GLOBAL);
-        $data = db()->run(<<<SQL
-SELECT from_url, to_url, date_added, redirection_type 
-FROM $table tg, json_table(tg.value, '$[*]' 
-  columns(
-   from_url  varchar(500) path '$.from', 
-   to_url  varchar(500) path '$.to',
-   date_added timestamp path '$.date',
-   redirection_type int(4) path '$.redirection_type' ) 
-) as jt WHERE tg.`key` = 'url_redirections' ORDER BY date_added DESC;
-SQL);
+        $table = Tables::getTable(Tables::BROKEN_LINKS);
+        $data = db()->Select('*')
+            ->From($table)
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('`from`', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
             [self::TONICS404HANDLER_FIELD_SLUG],
@@ -65,9 +64,7 @@ SQL);
         view('Apps::Tonics404Handler/Views/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
-                'paginateData' => [
-                    'data' => $data
-                ],
+                'paginateData' =>  $data ?? [],
                 'dataTableType' => 'Tonics404Handler_VIEW',
             ],
             'FieldItems' => $fieldItems,

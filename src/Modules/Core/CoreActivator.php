@@ -122,6 +122,7 @@ class CoreActivator implements ExtensionConfig
                 Tables::getTable(Tables::SESSIONS) => Tables::$TABLES[Tables::SESSIONS],
                 Tables::getTable(Tables::GLOBAL) => Tables::$TABLES[Tables::GLOBAL],
                 Tables::getTable(Tables::USERS) => Tables::$TABLES[Tables::USERS],
+                Tables::getTable(Tables::BROKEN_LINKS) => Tables::$TABLES[Tables::BROKEN_LINKS],
             ];
     }
 
