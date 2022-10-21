@@ -59,7 +59,6 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
                     ['to']
                 );
             } catch (\Exception $exception){
-                dd($exception);
                 // Log..
             }
 
