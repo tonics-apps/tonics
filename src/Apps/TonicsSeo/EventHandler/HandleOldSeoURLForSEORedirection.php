@@ -39,45 +39,27 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
             }
             $canonical = $canonical['path'];
 
-            try {
-                $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-                if (property_exists($jsonValues, 'value')){
-                    $jsonValues = json_decode($jsonValues->value);
-                    if (!is_array($jsonValues)){
-                        $jsonValues = [];
-                    }
-
-                    # Remove The Old Canonical
-                    foreach ($jsonValues as $jsonKey => $jsonValue){
-                        if ($jsonValue->to === $canonical){
-                            unset($jsonValues[$jsonKey]);
-                        }
-                    }
-
-                    # Push New to jsonValues
-                    foreach ($oldURLS as $oldURL){
-                        $oldURL = filter_var($oldURL, FILTER_SANITIZE_URL);
-                        $oldURL = rtrim($oldURL, '/');
-                        if (!empty($oldURL)){
-                            $settings = [
-                                'from' => $oldURL,
-                                'to'   => $canonical,
-                                'date' => helper()->date(),
-                                'redirection_type' => 301
-                            ];
-                            $jsonValues[] = (object)$settings;
-                        }
-                    }
-
-                    # Update JSON VALUES
-                    $jsonValues = array_values($jsonValues);
-                    $table = Tables::getTable(Tables::GLOBAL);
-                    db()->Update($table)
-                        ->Set('value', json_encode($jsonValues, JSON_UNESCAPED_SLASHES))
-                        ->WhereEquals('`key`', 'url_redirections')
-                        ->FetchFirst();
+            $toInsert = [];
+            foreach ($oldURLS as $oldURL){
+                $oldURL = filter_var($oldURL, FILTER_SANITIZE_URL);
+                $oldURL = rtrim($oldURL, '/');
+                if (!empty($oldURL)){
+                    $settings = [
+                        'from' => $oldURL,
+                        'to'   => $canonical,
+                    ];
+                    $toInsert[] = $settings;
                 }
-            }catch (\Exception $exception){
+            }
+
+            try {
+                db()->InsertOnDuplicate(
+                    Tables::getTable(Tables::BROKEN_LINKS),
+                    $toInsert,
+                    ['to']
+                );
+            } catch (\Exception $exception){
+                dd($exception);
                 // Log..
             }
 
