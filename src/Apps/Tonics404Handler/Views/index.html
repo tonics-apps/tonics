@@ -1,9 +1,9 @@
-[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/field")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/in_main_form_and_filter", "Modules::Core/Views/Templates/extends/field")]]
 
 [[hook_into('Core::in_head_title')Tonics 404 Handler Index]]
 [[hook_into('Core::in_main_header_title')Tonics 404 Handler ]]
 
-[[reset_hook('Core::main_form_and_filter')]]
+[[reset_hook('Core::in_main_form_and_filter_status')]]
 
 [[hook_into('Core::before_footer')
     [[_use("script:variables")]]

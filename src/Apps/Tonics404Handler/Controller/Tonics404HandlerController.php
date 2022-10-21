@@ -107,70 +107,32 @@ class Tonics404HandlerController
                 $toInsert = [];
                 $fromName = 'tonics404handler_404_url';
                 $redirectToName = 'tonics404handler_redirect_to';
-                $redirectTypeName = 'tonics404handler_redirect_type';
                 foreach ($fieldsItems as $fieldsItem){
                     if (isset($fieldsItem->_children)){
                         $settings = [
                             'from' => '',
                             'to'   => '',
-                            'date' => helper()->date(),
-                            'redirection_type' => 301
                         ];
                         foreach ($fieldsItem->_children as $child){
                             if (isset($child->field_data)){
                                 if ($child->field_input_name === $fromName){ $settings['from'] = $child->field_data[$fromName]; }
                                 if ($child->field_input_name === $redirectToName){ $settings['to'] = $child->field_data[$redirectToName]; }
-                                if ($child->field_input_name === $redirectTypeName){ $settings['redirection_type'] = (int)$child->field_data[$redirectTypeName]; }
                             }
                         }
-                        $toInsert[] = (object)$settings;
+                        $toInsert[] = $settings;
                     }
                 }
 
                 try {
-                    $jsonValues = db()->Select('*')->From(Tables::getTable(Tables::GLOBAL))->WhereEquals('`key`', 'url_redirections')->FetchFirst();
-                    if (!is_object($jsonValues)){
-                        $jsonValues = (object)[
-                            'value' => null
-                        ];
-                    }
+                    db()->InsertOnDuplicate(
+                        Tables::getTable(Tables::BROKEN_LINKS),
+                        $toInsert,
+                        ['to']
+                    );
 
-                    if (is_object($jsonValues) && property_exists($jsonValues, 'value')) {
-                        $jsonValues = json_decode($jsonValues->value);
-                        if (!is_array($jsonValues)){$jsonValues = [];}
-
-                        foreach ($jsonValues as $jsonKey => $jsonValue){
-                            foreach ($toInsert as $insertKey => $insert){
-                                if ($jsonValue->from === $insert->from){
-                                    $jsonValues[$jsonKey] = $insert;
-                                    unset($toInsert[$insertKey]);
-                                    break;
-                                }
-                            }
-                        }
-
-                        # Push New to jsonValues
-                        foreach ($toInsert as $insert){
-                            if (!empty($insert->from)){
-                                $jsonValues[] = $insert;
-                            }
-                        }
-
-                        # Update JSON VALUES
-                        $jsonValues = array_values($jsonValues);
-                        $table = Tables::getTable(Tables::GLOBAL);
-                        db(true)->insertOnDuplicate(
-                            $table,
-                            [
-                                'key' => 'url_redirections',
-                                'value' => json_encode($jsonValues, JSON_UNESCAPED_SLASHES)
-                            ],
-                            ['value']
-                        );
-                        session()->flash(['Redirect Added or Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-                        redirect(route('tonics404Handler.settings'));
-                    }
-                }catch (\Exception $exception){
+                    session()->flash(['Redirect Added or Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+                    redirect(route('tonics404Handler.settings'));
+                } catch (\Exception $exception){
                     // log..
                 }
 
