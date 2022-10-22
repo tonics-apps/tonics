@@ -4588,6 +4588,59 @@ class DataTabledEditorSelect extends DataTableEditorAbstract {
     }
 }
 
+class DataTabledEditorSelectMultiple extends DataTableEditorAbstract {
+
+    editorName() {
+        return 'select';
+    }
+
+    openEditor() {
+        if (this.hasTdElement) {
+            let tdValue = this.tdElement.innerText?.split(',');
+            let selectData = this.dataTable.thElement.dataset.select_data.split(',');
+            let selectOption = '';
+            selectData.forEach(option => {
+                let selected = '';
+                for (let i in tdValue) {
+                    let item = tdValue[i];
+                    if (item === option) {
+                        selected = 'selected';
+                        break;
+                    }
+                }
+                selectOption += `<option ${selected} title="${option}" value="${option}">${option}</option>`
+            });
+            selectOption = "<select multiple class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
+            this.tdElement.innerHTML = selectOption;
+        }
+    }
+
+    closeEditor() {
+        let inputValue = this.tdElement.querySelector('select')?.value;
+        let selectOptions = this.tdElement.querySelector('select')?.options;
+        let allSelectedValue = [];
+        if (selectOptions){
+            for (let k = 0; k < selectOptions.length; k++) {
+                let option = selectOptions[k];
+                if (option.selected){
+                    allSelectedValue.push(option.value || option.text);
+                }
+            }
+            inputValue = allSelectedValue.join(',');
+        }
+
+        if (this.tdElement.querySelector('select')) {
+            this.tdElement.querySelector('select')?.remove();
+            this.tdElement.innerHTML = inputValue;
+            this.editorElement = null;
+        }
+    }
+
+    editorValidation() {
+
+    }
+}
+
 class DataTableEditorTextArea extends DataTableEditorAbstract {
 
     editorName() {
@@ -4929,6 +4982,7 @@ window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
 window.TonicsDataTable.Editors.set('TEXT_AREA', DataTableEditorTextArea);
 window.TonicsDataTable.Editors.set('NUMBER', DataTabledEditorNumber);
 window.TonicsDataTable.Editors.set('SELECT', DataTabledEditorSelect);
+window.TonicsDataTable.Editors.set('SELECT_MULTIPLE', DataTabledEditorSelectMultiple);
 window.TonicsDataTable.Editors.set('DATE', DataTabledEditorDate);
 window.TonicsDataTable.Editors.set('DATE_TIME_LOCAL', DataTabledEditorDateLocal);
 window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);

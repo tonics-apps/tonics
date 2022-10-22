@@ -43,9 +43,9 @@ class HttpMessageProvider implements ServiceProvider
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception | \Throwable $e) {
              $redirect_to = $this->tryURLRedirection();
+            $reURL = url()->getRequestURL();
              if ($redirect_to === false){
                  if (AppConfig::canLog404()){
-                     $reURL = url()->getRequestURL();
                      try {
                          db()->Insert(
                              Tables::getTable(Tables::BROKEN_LINKS),
@@ -60,8 +60,25 @@ class HttpMessageProvider implements ServiceProvider
                  }
 
              } else {
-                 if (isset($redirect_to->redirect_to) && !empty($redirect_to->redirect_to)){
-                     redirect($redirect_to->redirect_to, $redirect_to->redirection_type);
+                 if (isset($redirect_to->to) && !empty($redirect_to->to)){
+                     redirect($redirect_to->to, $redirect_to->redirection_type);
+                 } else {
+                     if (!empty($reURL)){
+                         $hit = $redirect_to->hit ?? 1;
+                         try {
+                             db()->FastUpdate(
+                                 Tables::getTable(Tables::BROKEN_LINKS),
+                                 [
+                                     '`from`' => $reURL,
+                                     '`to`'   => null,
+                                     '`hit`'   => ++$hit,
+                                 ],
+                                 db()->WhereEquals('`from`', $reURL)
+                             );
+                         } catch (\Exception $exception){
+                             // Log..
+                         }
+                     }
                  }
              }
 

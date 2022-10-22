@@ -41,10 +41,11 @@ class Tonics404HandlerController
     {
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::BROKEN_LINKS . '::' . 'id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'id'],
-            ['type' => '', 'title' => 'From', 'slug' => Tables::BROKEN_LINKS . '::' . 'from', 'minmax' => '200px, 1fr', 'td' => 'from'],
+            ['type' => '', 'title' => 'From', 'slug' => Tables::BROKEN_LINKS . '::' . 'from', 'minmax' => '350px, 1fr', 'td' => 'from'],
             ['type' => 'text', 'title' => 'To', 'slug' => Tables::BROKEN_LINKS . '::' . 'to', 'minmax' => '150px, 1fr', 'td' => 'to'],
+            ['type' => '', 'title' => 'Hit', 'minmax' => '100px, 1fr', 'td' => 'hit'],
             ['type' => 'select', 'title' => 'Redirection Type', 'slug' => Tables::BROKEN_LINKS . '::' . 'redirection_type', 'select_data' => "301,302", 'minmax' => '50px, 1fr', 'td' => 'redirection_type'],
-            ['type' => '', 'slug' => Tables::BROKEN_LINKS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+            ['type' => '', 'slug' => Tables::BROKEN_LINKS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '100px, 1fr', 'td' => 'updated_at'],
         ];
 
         $table = Tables::getTable(Tables::BROKEN_LINKS);
@@ -56,7 +57,8 @@ class Tonics404HandlerController
             })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
                 $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+            })->OrderByDesc(table()->pickTable($table, ['hit']))->OrderByDesc(table()->pickTable($table, ['updated_at']))
+            ->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
             [self::TONICS404HANDLER_FIELD_SLUG],
