@@ -69,12 +69,12 @@ class PostsController
             ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'post_id'],
             ['type' => 'text', 'slug' => Tables::POSTS . '::' . 'post_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'post_title'],
             ['type' => 'TONICS_MEDIA_FEATURE_LINK', 'slug' => Tables::POSTS . '::' . 'image_url', 'title' => 'Image', 'minmax' => '150px, 1fr', 'td' => 'image_url'],
-            ['type' => 'select_multiple', 'slug' => Tables::POST_CATEGORIES . '::' . 'fk_cat_ids', 'title' => 'Category', 'select_data' => "$categoriesSelectDataAttribute", 'minmax' => '300px, 1fr', 'td' => 'fk_cat_ids'],
+            ['type' => 'select_multiple', 'slug' => Tables::POST_CATEGORIES . '::' . 'fk_cat_id', 'title' => 'Category', 'select_data' => "$categoriesSelectDataAttribute", 'minmax' => '300px, 1fr', 'td' => 'fk_cat_id'],
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
         $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at', 'image_url']])
-            . ', GROUP_CONCAT(CONCAT(cat_id, "::", cat_slug ) ) as fk_cat_ids'
+            . ', GROUP_CONCAT(CONCAT(cat_id, "::", cat_slug ) ) as fk_cat_id'
             . ', CONCAT("/admin/posts/", post_slug, "/edit") as _edit_link, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
 
         $postData = db()->Select($tblCol)
@@ -390,11 +390,20 @@ class PostsController
                     $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
 
                     if ($tblCol[1] === 'fk_cat_id') {
-                        $value = explode('::', $value);
-                        if (key_exists(0, $value)) {
-                            $colForEvent[$tblCol[1]] = $value[0];
-                        } else {
-                            return false;
+                        $categories = explode(',', $value);
+                        foreach ($categories as $category){
+                            $category = explode('::', $category);
+                            if (key_exists(0, $category) && !empty($category[0])) {
+                                $colForEvent['fk_cat_id'][] = $category[0];
+                            }
+                        }
+
+                        // Set to Default Category If Empty
+                        if (empty($colForEvent['fk_cat_id'])){
+                            $findDefault = $this->postData->selectWithConditionFromCategory(['cat_slug', 'cat_id'], "cat_slug = ?", ['default-category']);
+                            if (is_object($findDefault) && isset($findDefault->cat_id)) {
+                                $colForEvent['fk_cat_id'] = [$findDefault->cat_id];
+                            }
                         }
                     } else {
                         $colForEvent[$tblCol[1]] = $value;

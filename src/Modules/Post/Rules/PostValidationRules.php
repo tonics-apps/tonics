@@ -109,7 +109,7 @@ trait PostValidationRules
             'post_id' => ['numeric'],
             'post_title' => ['required', 'string'],
             'updated_at' => ['required', 'string'],
-            'fk_cat_id' => ['numeric'],
+            'fk_cat_id' => ['required', 'array'],
         ];
     }
 
