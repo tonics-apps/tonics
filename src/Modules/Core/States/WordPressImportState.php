@@ -288,13 +288,17 @@ class WordPressImportState extends SimpleState
         $noNameID = 1;
         $currentUserID = UserData::getCurrentUserID() ??  1;
         db()->run("SET SQL_MODE='ALLOW_INVALID_DATES';");
-        foreach ($this->xmlObject->channel->item as $post){
-            if ($post->xpath('wp:post_type')[0]->__toString() === 'attachment'){
+
+        # Build Attachment
+        foreach ($this->xmlObject->channel->item as $post) {
+            if ($post->xpath('wp:post_type')[0]->__toString() === 'attachment') {
                 $namespaces = $post->getNameSpaces(true);
                 $attachment[$post->children($namespaces['wp'])->post_id->__toString()] =
                     $post->children($namespaces['wp'])->attachment_url->__toString();
             }
+        }
 
+        foreach ($this->xmlObject->channel->item as $post){
             if ($post->xpath('wp:post_type')[0]->__toString() === 'post'){
                 $namespaces = $post->getNameSpaces(true);
                 $xmlContent = $post->children($namespaces['content']);
@@ -334,7 +338,7 @@ class WordPressImportState extends SimpleState
                 }
                 $postStatus = ($post->children($namespaces['wp'])->status->__toString() === 'publish') ? 1: 0;
                 ## The tab (\t) is a marker should in case we wanna reconsume at the beginning,
-                ## meaning it would avoid our of index array in the characters
+                ## meaning it would avoid out of index array in the characters
                 $content = "\t" . trim($xmlContent->encoded->__toString());
 
                 if(!empty($content)){
