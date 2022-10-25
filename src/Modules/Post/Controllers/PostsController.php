@@ -283,7 +283,6 @@ class PostsController
             $post->fk_cat_id = explode(',', $post->fk_cat_id);
         }
 
-
         $fieldSettings = json_decode($post->field_settings, true);
         $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
         if (empty($fieldSettings)) {
