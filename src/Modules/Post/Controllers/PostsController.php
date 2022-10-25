@@ -261,14 +261,31 @@ class PostsController
      */
     public function edit(string $slug)
     {
-        $post = db()->Select('*')->From($this->getPostData()->getPostTable())->WhereEquals('post_slug', $slug)->FetchFirst();
+        $postTbl = Tables::getTable(Tables::POSTS);
+        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+        $CatTbl = Tables::getTable(Tables::CATEGORIES);
+        $tblCol = table()->pickTableExcept($postTbl, [])
+            . ', GROUP_CONCAT(CONCAT(cat_id) ) as fk_cat_id'
+            . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
+
+        $post = db()->Select($tblCol)
+            ->From($postCatTbl)
+            ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+            ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+            ->WhereEquals('post_slug', $slug)
+            ->GroupBy('post_id')->FetchFirst();
+
         if (!is_object($post)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
+        if (isset($post->fk_cat_id)){
+            $post->fk_cat_id = explode(',', $post->fk_cat_id);
+        }
+
+
         $fieldSettings = json_decode($post->field_settings, true);
         $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
-
         if (empty($fieldSettings)) {
             $fieldSettings = (array)$post;
         } else {

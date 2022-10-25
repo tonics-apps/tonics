@@ -42,8 +42,8 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
-        $tonicsAmazonAffiliate = new TonicsAmazonAffiliateController();
-        dd($tonicsAmazonAffiliate);
+       // $tonicsAmazonAffiliate = new TonicsAmazonAffiliateController();
+        //dd($tonicsAmazonAffiliate);
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception | \Throwable $e) {
