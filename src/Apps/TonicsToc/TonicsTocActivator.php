@@ -193,8 +193,15 @@ JSON;
         $this->fieldData = $fieldData;
     }
 
+    /**
+     * @return void
+     * @throws \Exception
+     */
     public function onDelete(): void
     {
-        // TODO: Implement onDelete() method.
+        $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
+        $tb = $this->fieldData->getFieldTable();
+        db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
     }
+
 }
