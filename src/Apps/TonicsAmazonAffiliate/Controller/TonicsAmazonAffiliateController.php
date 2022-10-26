@@ -124,7 +124,7 @@ class TonicsAmazonAffiliateController
             if ($getItemsResponse->getItemsResult() !== null) {
                 if ($getItemsResponse->getItemsResult()->getItems() !== null) {
                     $responseList = $this->parseResponse($getItemsResponse->getItemsResult()->getItems());
-                    dd($responseList, $itemIds);
+                     dd($responseList, $itemIds);
 
                     foreach ($itemIds as $itemId) {
                         echo 'Printing information about the itemId: ', $itemId, PHP_EOL;
