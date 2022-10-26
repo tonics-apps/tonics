@@ -20,5 +20,6 @@ class TonicsAmazonAffiliateFieldSelection implements HandlerInterface
     {
         /** @var $event OnEditorFieldSelection */
         $event->addField('Product Box', 'app-tonicsamazonaffiliate-product-box', category: 'Tonics Amazon Affiliate');
+        $event->addField('Product Field Individual', 'app-tonicsamazonaffiliate-product-individually', category: 'Tonics Amazon Affiliate');
     }
 }

@@ -28,7 +28,7 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
 
     public function name(): string
     {
-        return 'Tonics Amazon Affiliate Product Box';
+        return 'Tonics Amazon Affiliate Product Individually';
     }
 
     public function canPreSaveFieldLogic(): bool
