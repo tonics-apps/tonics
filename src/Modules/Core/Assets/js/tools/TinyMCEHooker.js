@@ -63,6 +63,8 @@ function addTiny(editorID) {
         fieldSelectionManager = 'tonics-fieldselectionmanager';
     }
 
+    let onClick = '';
+
     return tinymce.init({
         // add support for image lazy loading
         extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]," +
@@ -84,6 +86,28 @@ function addTiny(editorID) {
         content_css: content_css,
         body_class: "entry-content",
         remove_trailing_brs: true,
+        paste_preprocess: function (plugin, args) {
+            if (onClick?.target){
+                let input = onClick.target, tagName = input.tagName;
+                if (tagName.toLowerCase() === 'input'){
+                    console.log(tinymce.activeEditor.selection.getNode());
+                   // tinymce.activeEditor.execCommand('mceInsertContent', false, args.content);
+                    /*let content = input.value += args.content;
+                    input.value = content;
+                    input.setAttribute('value',content);*/
+                    // replace copied text with empty string
+                    args.content = '';
+                }
+
+                if (tagName.toLowerCase() === 'textarea'){
+                    input.innerHTML = args.content;
+                    input.value = args.content;
+                    // replace copied text with empty string
+                    args.content = '';
+                }
+                onClick = '';
+            }
+        },
         setup: function (editor) {
             if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
             if (!window.TonicsScript.hasOwnProperty('tinymce')){ window.TonicsScript.tinymce = [] }
@@ -100,6 +124,7 @@ function addTiny(editorID) {
                 }
                 editor.getBody().addEventListener('click', (e) => {
                     let target = e.target;
+                    onClick = e;
                     if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
                         if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){

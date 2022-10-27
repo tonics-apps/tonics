@@ -13,7 +13,7 @@
 <body class="body-sticky-footer bg:gray-two">
 [[_use("default-inline-svg")]]
 
-<main id="main"  class="flex:one no-text-highlight" tabindex="-1" data-container_for_selection="true">
+<main id="main"  class="flex:one no-text-highlight owl" tabindex="-1" data-container_for_selection="true">
     [[b('body.main.header-text')Field Selection Manager ]]
     [[func('body.main.header', 'body.main.header-text')]]
     <section id="tonicsFieldForFieldSelectionManager" style="margin: 0 auto; background: #f2f2f5; min-width: unset; width: unset; max-width: 95em;" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
@@ -37,12 +37,24 @@
         </ul>
         ]]
     </section>
+
+    <section class="field-builder-items">
+        <div class="admin-post-widget">
+            <ul class="field-menu-ul width:100% menu-arranger list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap align-items:center">
+            </ul>
+        </div>
+    </section>
 </main>
 
 <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
-    <button name="delete" class="choose-field-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+    <button class="choose-field-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
                     margin-top:0 cursor:pointer button:box-shadow-variant-2">
         Choose Field(s)
+    </button>
+
+    <button name="delete" class="insert-field-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                    margin-top:0 cursor:pointer button:box-shadow-variant-2">
+        Insert Field(s)
     </button>
 </div>
 

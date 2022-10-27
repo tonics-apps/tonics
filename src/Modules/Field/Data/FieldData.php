@@ -427,8 +427,8 @@ HTML;
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
             $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);
-            $fieldItems = $this->wrapFieldsForPostEditor($this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag());
-            helper()->onSuccess(str_replace('width:100%', '', $fieldItems));
+            // $fieldItems = $this->wrapFieldsForPostEditor($this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag());
+            helper()->onSuccess($this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag());
         }
     }
 
@@ -738,8 +738,8 @@ SQL;
      * but also to build its field_options.
      *
      * The $fieldItems is expected to be a decoded field from the POST REQUEST
-     * @param array $fieldSlugIDS
      * @param array $fieldItems
+     * @param array $slugIDS
      * @return array
      * @throws \Exception
      */

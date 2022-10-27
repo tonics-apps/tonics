@@ -196,8 +196,11 @@ if (menuArranger){
 
 
 // save menu builder
-let saveAllMenu = document.querySelector('.tonics-save-changes'),
-    saveMenuChangesForm = document.getElementById('saveMenuWidgetBuilderItems');
+if (typeof saveAllMenu === 'undefined') {
+    var saveAllMenu = document.querySelector('.tonics-save-changes');
+}
+
+let saveMenuChangesForm = document.getElementById('saveMenuWidgetBuilderItems');
 if(saveAllMenu && saveMenuChangesForm){
     saveAllMenu.addEventListener('click', function (e) {
         e.preventDefault();

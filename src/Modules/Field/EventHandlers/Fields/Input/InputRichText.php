@@ -176,7 +176,7 @@ FORM;
 <div class="form-group margin-top:0">
 $error
      <label class="menu-settings-handle-name screen-reader-text" for="fieldName-$changeID">$fieldName</label>
-         <textarea autofocus $readOnly $required id="" name="$inputName" class="tinyMCEBodyArea menu-name color:black border-width:default border:black widgetSettings" 
+         <textarea $readOnly $required id="" name="$inputName" class="tinyMCEBodyArea menu-name color:black border-width:default border:black widgetSettings" 
          placeholder="$placeholder">$defaultValue</textarea>
 </div>
 FORM;

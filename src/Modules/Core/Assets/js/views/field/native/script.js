@@ -1,6 +1,11 @@
 
-let menuArranger = document.querySelector('.menu-arranger');
-let tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+if (typeof menuArranger === 'undefined') {
+    var menuArranger = document.querySelector('.menu-arranger');
+}
+
+if (typeof tonicsFieldSaveChangesButton === 'undefined') {
+    var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+}
 
 let repeaterParent = '.menu-arranger',
     repeaterDraggable, repeaterChild = '[data-slug="modular_rowcolumnrepeater"]';
@@ -33,10 +38,16 @@ class CollateFieldItemsOnFieldsEditorsSubmit {
     editorsForm = null;
     /** @type OnSubmitFieldEditorsFormEvent */
     fieldSubmitEvObj = null;
-    constructor(event) {
-        this.fieldSubmitEvObj = event;
+    constructor(event = null) {
+        this.handle(event);
+    }
+
+    handle(event = null) {
         this.draggable = document.querySelectorAll('.field-builder-items');
-        event.addHiddenInputToForm(event.editorsForm, '_fieldDetails', JSON.stringify(this.setListDataArray()));
+        if (event){
+            this.fieldSubmitEvObj = event;
+            event.addHiddenInputToForm(event.editorsForm, '_fieldDetails', JSON.stringify(this.setListDataArray()));
+        }
     }
 
     setListDataArray() {

@@ -12,6 +12,7 @@ if (typeof siteTimeZone === "undefined") {
 }
 
 let chooseMenuFields = document.querySelector('.choose-field-button');
+let InsertFieldsButton = document.querySelector('.insert-field-button');
 if (chooseMenuFields) {
     chooseMenuFields.addEventListener('click', (e) => {
         let selectedFields = document.querySelectorAll('[data-selected="true"]'),
@@ -28,14 +29,25 @@ if (chooseMenuFields) {
             new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
                 if (data) {
                     data = JSON.parse(data);
-                    window.parent.postMessage({
-                        mceAction: 'execCommand',
-                        cmd: 'tonics:FieldSelectedData',
-                        value: data.data
-                    }, siteURL);
+                    let fieldMenuUl = document.querySelector('.field-menu-ul');
+                    if (fieldMenuUl){
+                        fieldMenuUl.innerHTML = data.data;
+                    }
                 }
             });
         }
+    });
+}
+
+if (InsertFieldsButton){
+    InsertFieldsButton.addEventListener('click', (e) => {
+        let collateFieldObj = new CollateFieldItemsOnFieldsEditorsSubmit();
+        collateFieldObj.fieldSubmitEvObj = new OnSubmitFieldEditorsFormEvent();
+        window.parent.postMessage({
+                       mceAction: 'execCommand',
+                       cmd: 'tonics:FieldSelectedData',
+                       value: collateFieldObj.setListDataArray()
+                   }, siteURL);
     });
 }
 

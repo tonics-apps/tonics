@@ -181,7 +181,10 @@ window.TonicsEvent.EventConfig = EventsConfig;
  * and/or sell copies of this program without written permission to me.
  */
 
-let tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+if (typeof tonicsFieldSaveChangesButton === 'undefined') {
+    var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+}
+
 if (tonicsFieldSaveChangesButton) {
     tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
         e.preventDefault();
@@ -197,8 +200,10 @@ class OnSubmitFieldEditorsFormEvent {
 
     editorsForm = null;
 
-    constructor(e) {
-        this.editorsForm = document.getElementById('EditorsForm');
+    constructor(e = null) {
+        if (e){
+            this.editorsForm = document.getElementById('EditorsForm');
+        }
     }
 
     addHiddenInputToForm(form, key, value) {
