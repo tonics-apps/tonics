@@ -53,7 +53,7 @@ trait Routes
                 }, alias: 'items');
 
                 // for post editors
-                $route->get('/selection-manager', [FieldControllerItems::class, 'fieldSelectionManager']);
+                $route->match(['post', 'get'], '/selection-manager', [FieldControllerItems::class, 'fieldSelectionManager']);
                 $route->post('/field-preview', [FieldControllerItems::class, 'fieldPreview']);
             });
 

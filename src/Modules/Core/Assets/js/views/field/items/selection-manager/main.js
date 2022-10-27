@@ -1,4 +1,3 @@
-
 if (typeof tonicsFileManagerURL === "undefined") {
     window.tonicsFileManagerURL = window.parent.tonicsFileManagerURL;
 }
@@ -10,6 +9,12 @@ if (typeof siteURL === "undefined") {
 if (typeof siteTimeZone === "undefined") {
     window.siteTimeZone = window.parent.siteTimeZone;
 }
+
+window.parent.postMessage({
+    mceAction: 'execCommand',
+    cmd: 'tonics:OpenedFieldSelectionManager',
+    value: ''
+}, siteURL);
 
 let chooseMenuFields = document.querySelector('.choose-field-button');
 let InsertFieldsButton = document.querySelector('.insert-field-button');
@@ -30,7 +35,7 @@ if (chooseMenuFields) {
                 if (data) {
                     data = JSON.parse(data);
                     let fieldMenuUl = document.querySelector('.field-menu-ul');
-                    if (fieldMenuUl){
+                    if (fieldMenuUl) {
                         fieldMenuUl.innerHTML = data.data;
                     }
                 }
@@ -39,17 +44,49 @@ if (chooseMenuFields) {
     });
 }
 
-if (InsertFieldsButton){
+if (InsertFieldsButton) {
     InsertFieldsButton.addEventListener('click', (e) => {
         let collateFieldObj = new CollateFieldItemsOnFieldsEditorsSubmit();
         collateFieldObj.fieldSubmitEvObj = new OnSubmitFieldEditorsFormEvent();
-        window.parent.postMessage({
-                       mceAction: 'execCommand',
-                       cmd: 'tonics:FieldSelectedData',
-                       value: collateFieldObj.setListDataArray()
-                   }, siteURL);
+
+        let url = window.location.href + "?action=pushFieldItemsToCollated";
+        let defaultHeader = {
+            'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`,
+             action: 'wrapCollatedFieldItems',
+        };
+        new XHRApi(defaultHeader).Post(url, JSON.stringify(collateFieldObj.setListDataArray()), function (err, data) {
+            if (data) {
+                data = JSON.parse(data);
+                window.parent.postMessage({
+                    mceAction: 'execCommand',
+                    cmd: 'tonics:FieldSelectedData',
+                    value: data.data
+                }, siteURL);
+            }
+        });
     });
 }
+
+window.addEventListener('message', (e) => {
+    var data = e.data;
+    if (e.origin !== siteURL) {
+        return;
+    }
+    if (data.type === 'tonics:FieldSelectedData' && data.message !== null){
+        let message = data.message;
+        let url = window.location.href + "?action=pushFieldItemsToCollated";
+        let defaultHeader = {
+            'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`,
+            action: 'unwrapCollatedFieldItems',
+        };
+        new XHRApi(defaultHeader).Post(url, message, function (err, data) {
+            if (data) {
+                data = JSON.parse(data);
+                let fieldFrag = data.data;
+            }
+        });
+    }
+});
 
 if (parent.tinymce && parent.tinymce.activeEditor) {
     window.tinymce = parent.tinymce;
@@ -66,7 +103,7 @@ if (parent.tinymce && parent.tinymce.activeEditor) {
             .closeOnClickOutSide(false)
             .run();
     } catch (e) {
-     //   console.log("Can't set MenuToggle: menu-widget or menu-arranger");
+        //   console.log("Can't set MenuToggle: menu-widget or menu-arranger");
     }
 }
 

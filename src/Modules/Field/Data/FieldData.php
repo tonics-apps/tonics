@@ -427,9 +427,20 @@ HTML;
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
             $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);
-            // $fieldItems = $this->wrapFieldsForPostEditor($this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag());
             helper()->onSuccess($this->generateFieldWithFieldSlug($fieldSlugs, [])->getHTMLFrag());
         }
+
+        if (url()->getHeaderByKey('action') === 'wrapCollatedFieldItems') {
+            $fieldFrag = $this->wrapFieldsForPostEditor(request()->getEntityBody());
+            helper()->onSuccess($fieldFrag);
+        }
+
+        if (url()->getHeaderByKey('action') === 'unwrapCollatedFieldItems') {
+            dd(request()->getEntityBody());
+            $fieldFrag = $this->wrapFieldsForPostEditor(request()->getEntityBody());
+            helper()->onSuccess($fieldFrag);
+        }
+
     }
 
     /**
@@ -442,13 +453,9 @@ HTML;
         return <<<HTML
 <section contenteditable="false" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
       <input contenteditable="true" type="radio" id="$id-fields" name="$uniqueRadioName" checked>
-      <label class="fields-label" contenteditable="true" style="cursor: pointer; caret-color: transparent;" for="$id-fields">Fields</label>
+      <label class="fields-label fieldsEdit" contenteditable="true" style="cursor: pointer; caret-color: transparent;" for="$id-fields">Edit</label>
       
-     <div class="tonicsFieldWrapper" contenteditable="true">
-        <ul class="field-menu-ul menu-arranger tonics-field-items-unique list:style:none d:flex align-content:flex-start flex-wrap:wrap flex-d:column flex-gap">
-            $data
-        </ul>
-     </div>
+      <textarea style="display: none;" class="tonicsFieldWrapper">$data</textarea>
      
      <input contenteditable="true" type="radio" id="$id-preview" name="$uniqueRadioName">
       <label contenteditable="true" class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$id-preview">Preview</label>
