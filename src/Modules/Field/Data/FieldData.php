@@ -436,9 +436,13 @@ HTML;
         }
 
         if (url()->getHeaderByKey('action') === 'unwrapCollatedFieldItems') {
-            dd(request()->getEntityBody());
-            $fieldFrag = $this->wrapFieldsForPostEditor(request()->getEntityBody());
-            helper()->onSuccess($fieldFrag);
+            if (helper()->isJSON(request()->getEntityBody())){
+                $fieldItems = json_decode(request()->getEntityBody());
+                $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
+                $htmlFrag = $this->getUsersFormFrag($fieldCategories);
+                helper()->onSuccess($htmlFrag);
+            }
+            helper()->onError(400, 'An Error Occurred Build Field Items');
         }
 
     }
@@ -767,12 +771,9 @@ SQL;
             return $field;
         });
 
-
-
         if (!empty($slugIDS)){
             $fieldSlugIDS = $slugIDS;
             $fieldSlugIDS = array_combine($slugIDS, $slugIDS);
-
         }
 
         $fieldTable = $this->getFieldTable();

@@ -49,7 +49,7 @@ if (InsertFieldsButton) {
         let collateFieldObj = new CollateFieldItemsOnFieldsEditorsSubmit();
         collateFieldObj.fieldSubmitEvObj = new OnSubmitFieldEditorsFormEvent();
 
-        let url = window.location.href + "?action=pushFieldItemsToCollated";
+        let url = window.location.href + "?action=wrapCollatedFieldItems";
         let defaultHeader = {
             'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`,
              action: 'wrapCollatedFieldItems',
@@ -74,7 +74,7 @@ window.addEventListener('message', (e) => {
     }
     if (data.type === 'tonics:FieldSelectedData' && data.message !== null){
         let message = data.message;
-        let url = window.location.href + "?action=pushFieldItemsToCollated";
+        let url = window.location.href + "?action=unwrapCollatedFieldItems";
         let defaultHeader = {
             'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`,
             action: 'unwrapCollatedFieldItems',
@@ -82,7 +82,10 @@ window.addEventListener('message', (e) => {
         new XHRApi(defaultHeader).Post(url, message, function (err, data) {
             if (data) {
                 data = JSON.parse(data);
-                let fieldFrag = data.data;
+                let fieldMenuUl = document.querySelector('.field-menu-ul');
+                if (fieldMenuUl) {
+                    fieldMenuUl.innerHTML = data.data;
+                }
             }
         });
     }
