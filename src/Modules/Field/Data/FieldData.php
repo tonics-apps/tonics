@@ -534,6 +534,7 @@ HTML;
 
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
+            dd(json_decode(request()->getEntityBody()));
             if (helper()->isJSON(request()->getEntityBody())) {
                 $fieldItems = json_decode(request()->getEntityBody());
                 $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
