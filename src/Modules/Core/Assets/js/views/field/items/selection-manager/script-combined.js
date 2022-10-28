@@ -688,6 +688,10 @@ var XHRApi = class {
   }
 };
 __name(XHRApi, "XHRApi");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window["TonicsScript"] = {};
+}
+window["TonicsScript"].XHRApi = (headers = {}) => new XHRApi(headers);
 export {
   XHRApi
 };

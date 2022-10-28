@@ -18,5 +18,7 @@ interface FieldTemplateFileInterface
 
     public function name(): string;
 
+    public function fieldSlug(): string;
+
     public function canPreSaveFieldLogic(): bool;
 }

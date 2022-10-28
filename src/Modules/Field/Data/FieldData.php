@@ -534,8 +534,20 @@ HTML;
 
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
-            $preview = json_decode(url()->getEntityBody());
-            $fieldTableSlugsInEditor = (isset($preview->fieldTableSlugsInEditor)) ? $preview->fieldTableSlugsInEditor : '';
+            if (helper()->isJSON(request()->getEntityBody())) {
+                $fieldItems = json_decode(request()->getEntityBody());
+                $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
+                $fieldHandlers = event()->getHandler()->getEventHandlers(new FieldTemplateFile());
+            }
+            dd($fieldHandlers);
+            $previewFrag = '';
+            $fieldPostDataInEditor = (isset($preview->fieldPostDataInEditor)) ? $preview->fieldPostDataInEditor : null;
+            $postDataInstance = json_decode($fieldPostDataInEditor, true) ?? [];
+            addToGlobalVariable('Data', $postDataInstance);
+            foreach ($fieldItemsByMainFieldSlug as $fields) {
+                $previewFrag .= $onFieldUserForm->getViewFrag($fields);
+            }
+            helper()->onSuccess($previewFrag);
         }
 
         if (!$fieldTableSlugsInEditor) {
@@ -564,18 +576,6 @@ SQL;
                 $fieldItem->field_options = $fieldOption;
                 $fieldItemsByMainFieldSlug[$fieldItem->main_field_slug][] = $fieldItem;
             }
-        }
-
-        # PREVIEW MODE
-        if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
-            $previewFrag = '';
-            $fieldPostDataInEditor = (isset($preview->fieldPostDataInEditor)) ? $preview->fieldPostDataInEditor : null;
-            $postDataInstance = json_decode($fieldPostDataInEditor, true) ?? [];
-            addToGlobalVariable('Data', $postDataInstance);
-            foreach ($fieldItemsByMainFieldSlug as $fields) {
-                $previewFrag .= $onFieldUserForm->getViewFrag($fields);
-            }
-            helper()->onSuccess($previewFrag);
         }
 
         if (isset($fieldSettings[$contentKey])) {

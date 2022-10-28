@@ -284,7 +284,7 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
+        // $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
         if (empty($fieldSettings)) {
             $fieldSettings = (array)$post;
         } else {

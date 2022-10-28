@@ -29,6 +29,11 @@ class TonicsTocFieldHandler implements FieldTemplateFileInterface
         return $this->getTocResult();
     }
 
+    public function fieldSlug(): string
+    {
+        return 'app-tonicstoc';
+    }
+
     public function name(): string
     {
         return 'Tonics Table Of Content';

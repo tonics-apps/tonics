@@ -1047,6 +1047,10 @@ var XHRApi = class {
   }
 };
 __name(XHRApi, "XHRApi");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window["TonicsScript"] = {};
+}
+window["TonicsScript"].XHRApi = (headers = {}) => new XHRApi(headers);
 export {
   XHRApi
 };
@@ -4228,19 +4232,16 @@ function addTiny(editorID) {
                     if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
                         if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
-                            let postData = getPostData(tabContainer);
-                            const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(postData, target);
+                            let tonicsFieldWrapper = tabContainer.querySelector('.tonicsFieldWrapper');
+                            let jsonValue = tonicsFieldWrapper.value;
+                            const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(jsonValue, target);
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
-                            let dataToSend = {
-                                fieldPostDataInEditor: JSON.stringify(OnBeforeTonicsFieldPreview.getPostData()),
-                                fieldTableSlugsInEditor: JSON.stringify(getFieldSlugsTable(tabContainer)),
-                            };
                             let url = "/admin/tools/field/field-preview";
                             let defaultHeader = {
                                 'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
                             };
-                            new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
+                            new XHRApi({...defaultHeader}).Post(url, OnBeforeTonicsFieldPreview.getPostData(), function (err, data) {
                                 if (data) {
                                     data = JSON.parse(data);
                                     if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
@@ -4249,15 +4250,6 @@ function addTiny(editorID) {
                                     }
                                 }
                             });
-                        }
-                    }
-
-                    if (target.classList.contains('fieldsDelete')) {
-                        let tabContainer = target.closest('.tabs');
-                        if (tabContainer) {
-                            promptToast("Field deletion might be irreversible", "Delete Field", () => {
-                                tabContainer.remove();
-                            })
                         }
                     }
                 });

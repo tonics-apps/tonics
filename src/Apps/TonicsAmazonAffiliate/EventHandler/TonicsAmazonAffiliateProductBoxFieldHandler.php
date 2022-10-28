@@ -36,4 +36,8 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
         return true;
     }
 
+    public function fieldSlug(): string
+    {
+        // TODO: Implement fieldSlug() method.
+    }
 }

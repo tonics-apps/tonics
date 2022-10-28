@@ -36,4 +36,8 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
         return true;
     }
 
+    public function fieldSlug(): string
+    {
+        return  'app-tonicsamazonaffiliate-product-individually';
+    }
 }
