@@ -192,6 +192,7 @@ if (tonicsFieldSaveChangesButton) {
         let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
         eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
         let fieldsEditorsForm = document.getElementById('EditorsForm');
+        return;
         fieldsEditorsForm.submit();
     });
 }
@@ -4396,11 +4397,12 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                         self.fieldSubmitEvObj.getInputData(inputs, postData);
                     });
 
-                    const OnBeforeTonicsFieldSubmit = new OnBeforeTonicsFieldSubmitEvent(postData, node);
+                    let tonicsFieldWrapper = node.querySelector('.tonicsFieldWrapper');
+                    let jsonValue = tonicsFieldWrapper.value;
+                    const OnBeforeTonicsFieldSubmit = new OnBeforeTonicsFieldSubmitEvent(jsonValue, node);
                     let eventDispatcher = window.TonicsEvent.EventDispatcher;
                     eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnBeforeTonicsFieldSubmitEvent);
                     nodesData[key] = {
-                        fieldTableSlug: fieldTableSlug,
                         raw: false,
                         postData: OnBeforeTonicsFieldSubmit.getPostData(),
                     };
@@ -4414,25 +4416,15 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                 }
             });
 
+            console.log(nodesData);
+
             event.addHiddenInputToForm(event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
-            event.addHiddenInputToForm(event.editorsForm, 'fieldTableSlugsInEditor', JSON.stringify(getFieldSlugsTable()));
         }
     }
 }
 
 if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnSubmitFieldEditorsFormEvent.push(...[CollatePostContentFieldItemsOnFieldsEditorsSubmit]);
-}
-
-function getFieldSlugsTable(el = null) {
-    if (el === null){
-        el = tinymce.activeEditor.getBody();
-    }
-    let fieldTables = {};
-    el.querySelectorAll('input[name="main_field_slug"]').forEach((table) => {
-        fieldTables[table.value] =table.value;
-    });
-    return fieldTables;
 }
 
 class OnBeforeTonicsFieldPreviewEvent {

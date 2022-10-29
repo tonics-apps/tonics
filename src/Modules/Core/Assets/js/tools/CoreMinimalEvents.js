@@ -18,6 +18,7 @@ if (tonicsFieldSaveChangesButton) {
         let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
         eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
         let fieldsEditorsForm = document.getElementById('EditorsForm');
+        return;
         fieldsEditorsForm.submit();
     });
 }

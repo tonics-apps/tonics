@@ -528,10 +528,6 @@ HTML;
     public function unwrapFieldContent(&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
     {
         $onFieldUserForm = new OnFieldFormHelper([], $this);
-        addToGlobalVariable(FieldConfig::fieldSettingsID(), $fieldSettings);
-
-        $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'] ?? null;
-
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
 
@@ -557,38 +553,12 @@ HTML;
             }
         }
 
-        if (!$fieldTableSlugsInEditor) {
-            return;
-        }
-
-        $fieldTableSlugs = json_decode($fieldTableSlugsInEditor, true);
-        $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
-        $fieldItemsByMainFieldSlug = [];
-        if (is_array($fieldTableSlugs) && !empty($fieldTableSlugs)) {
-            $fieldTableSlugs = array_values($fieldTableSlugs);
-            $questionMarks = helper()->returnRequiredQuestionMarks($fieldTableSlugs);
-            $fieldTable = $this->getFieldTable();
-            $fieldItemsTable = $this->getFieldItemsTable();
-            $cols = $this->getFieldAndFieldItemsCols();
-
-            $sql = <<<SQL
-SELECT $cols FROM $fieldItemsTable 
-JOIN $fieldTable ON $fieldTable.field_id = $fieldItemsTable.fk_field_id
-WHERE $fieldTable.field_slug IN ($questionMarks)
-ORDER BY id;
-SQL;
-            $fieldItems = db()->run($sql, ...$fieldTableSlugs);
-            foreach ($fieldItems as $fieldItem) {
-                $fieldOption = json_decode($fieldItem->field_options);
-                $fieldItem->field_options = $fieldOption;
-                $fieldItemsByMainFieldSlug[$fieldItem->main_field_slug][] = $fieldItem;
-            }
-        }
 
         if (isset($fieldSettings[$contentKey])) {
             // fake getFieldItems action header
             url()->addToHeader('HTTP_ACTION', 'getFieldItems');
             $postContent = json_decode($fieldSettings[$contentKey], true);
+            dd($postContent);
             if (is_array($postContent)) {
                 $fieldSettings[$contentKey] = '';
                 foreach ($postContent as $field) {
