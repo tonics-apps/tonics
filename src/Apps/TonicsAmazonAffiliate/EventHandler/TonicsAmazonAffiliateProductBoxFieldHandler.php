@@ -23,7 +23,8 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
      */
     public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
     {
-        dd($fields, getPostData());
+        return '';
+       // dd($fields, getPostData());
     }
 
     public function name(): string
