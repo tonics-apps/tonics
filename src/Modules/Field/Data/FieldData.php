@@ -450,21 +450,23 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function wrapFieldsForPostEditor(string $data): string
+    public function wrapFieldsForPostEditor(string $data, string $preview = ''): string
     {
         $id = helper()->randomString(10);
         $uniqueRadioName = helper()->randomString(5);
         return <<<HTML
 <section contenteditable="false" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
-      <input contenteditable="true" type="radio" id="$id-fields" name="$uniqueRadioName" checked>
+
+    <input contenteditable="true" type="radio" id="$id-preview" name="$uniqueRadioName" checked>
+          <label contenteditable="true" class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$id-preview">Preview</label>
+          <div class="fieldsPreviewContent" contenteditable="true">
+             $preview
+          </div>
+      
+      <input contenteditable="true" type="radio" id="$id-fields" name="$uniqueRadioName">
       <label class="fields-label fieldsEdit" contenteditable="true" style="cursor: pointer; caret-color: transparent;" for="$id-fields">Edit</label>
       
       <textarea style="display: none;" class="tonicsFieldWrapper">$data</textarea>
-     
-     <input contenteditable="true" type="radio" id="$id-preview" name="$uniqueRadioName">
-      <label contenteditable="true" class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$id-preview">Preview</label>
-      <div class="fieldsPreviewContent" contenteditable="true">
-      </div>
       
       <input contenteditable="true" type="radio" id="$id-delete" name="$uniqueRadioName">
       <label contenteditable="true" class="fieldsDelete color:white border-width:default border:black" style="background: black !important; cursor: pointer; caret-color: transparent;" for="$id-delete">
@@ -527,28 +529,13 @@ HTML;
      */
     public function unwrapFieldContent(&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
     {
-        $onFieldUserForm = new OnFieldFormHelper([], $this);
-        $onFieldMetaBox = new OnFieldMetaBox();
-        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
 
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
             if (helper()->isJSON(request()->getEntityBody())) {
                 $entityBody = json_decode(request()->getEntityBody());
                 if (isset($entityBody->postData) && helper()->isJSON($entityBody->postData)){
-                    $fieldItems = json_decode($entityBody->postData);
-                    $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
-                    $fieldHandlers = event()->getHandler()->getEventHandlers(new FieldTemplateFile());
-
-                    $previewFrag = '';
-                    foreach ($fieldHandlers as $fieldHandler){
-                        /** @var $fieldHandler FieldTemplateFileInterface  */
-                        if (isset($fieldCategories[$fieldHandler->fieldSlug()])){
-                            $fields = $fieldCategories[$fieldHandler->fieldSlug()];
-                            $previewFrag .= $fieldHandler->handleFieldLogic($onFieldMetaBox, $fields);
-                        }
-                    }
-                    helper()->onSuccess($previewFrag);
+                    helper()->onSuccess($this->previewFragForFieldHandler($entityBody->postData));
                 }
             }
         }
@@ -558,45 +545,65 @@ HTML;
             // fake getFieldItems action header
             url()->addToHeader('HTTP_ACTION', 'getFieldItems');
             $postContent = json_decode($fieldSettings[$contentKey], true);
-            dd($postContent);
+
             if (is_array($postContent)) {
                 $fieldSettings[$contentKey] = '';
                 foreach ($postContent as $field) {
-                    if (isset($field['fieldTableSlug']) && isset($fieldItemsByMainFieldSlug[$field['fieldTableSlug']])) {
-                        # Instance of each postData
-                        addToGlobalVariable('Data', $field['postData'] ?? []);
-                        if ($mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE) {
-                            $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($onFieldUserForm->getUsersFormFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]));
+                    if ($field['raw'] === false && $mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE) {
+                       $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($field['postData'], $this->previewFragForFieldHandler($field['postData']));
+                    } else {
+                        if (isset($field['content'])) {
+                            $fieldSettings[$contentKey] .= $field['content'];
                         }
-
-                        #
-                        # We Check If There is a FieldHandler in the PostData (meaning the logic should be handled there), if there is,
-                        # we validate it. and pass it for handling...
-                        #
-                        # If there is no FieldHandler in the PostData, then we pass it to getViewFrag (this might be slow if you have multiple fields),
-                        # so it is not recommended...
-                        #
-                        if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE) {
-                            if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null) {
-                                $fieldSettings[$contentKey] .= $this->handleWithFieldHandler($fieldHandler, getPostData());
-                            } else {
-                                $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]);
-                            }
-                        }
-
-
                     }
-                    if (isset($field['content'])) {
-                        $fieldSettings[$contentKey] .= $field['content'];
+
+                    #
+                    # We Check If There is a FieldHandler in the PostData (meaning the logic should be handled there), if there is,
+                    # we validate it. and pass it for handling...
+                    #
+                    # If there is no FieldHandler in the PostData, then we pass it to getViewFrag (this might be slow if you have multiple fields),
+                    # so it is not recommended...
+                    #
+                    if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE) {
+                        if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null) {
+                       //     $fieldSettings[$contentKey] .= $this->handleWithFieldHandler($fieldHandler, getPostData());
+                        } else {
+                        //    $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]);
+                        }
                     }
                 }
             }
         }
 
-        // restore old postData;
-        addToGlobalVariable('Data', $oldPostData);
+        // this is of questionable character, I think it is useless at this point, would investigate later
         // remove fake header action
         url()->removeFromHeader('HTTP_ACTION');
+    }
+
+    /**
+     * @param string $postData
+     * @return string
+     * @throws \Exception
+     */
+    public function previewFragForFieldHandler(string $postData): string
+    {
+        $onFieldMetaBox = new OnFieldMetaBox();
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+
+        $fieldItems = json_decode($postData);
+        $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
+        $fieldHandlers = event()->getHandler()->getEventHandlers(new FieldTemplateFile());
+
+        $previewFrag = '';
+        foreach ($fieldHandlers as $fieldHandler){
+            /** @var $fieldHandler FieldTemplateFileInterface  */
+            if (isset($fieldCategories[$fieldHandler->fieldSlug()])){
+                $fields = $fieldCategories[$fieldHandler->fieldSlug()];
+                $previewFrag .= $fieldHandler->handleFieldLogic($onFieldMetaBox, $fields);
+            }
+        }
+
+        return $previewFrag;
     }
 
     /**

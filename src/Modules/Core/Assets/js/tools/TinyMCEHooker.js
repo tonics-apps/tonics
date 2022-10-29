@@ -289,8 +289,6 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                 }
             });
 
-            console.log(nodesData);
-
             event.addHiddenInputToForm(event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
         }
     }

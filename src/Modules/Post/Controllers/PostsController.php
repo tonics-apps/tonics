@@ -284,12 +284,12 @@ class PostsController
         }
 
         $fieldSettings = json_decode($post->field_settings, true);
-        // $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
         if (empty($fieldSettings)) {
             $fieldSettings = (array)$post;
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$post];
         }
+        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
 
         event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
@@ -300,8 +300,7 @@ class PostsController
 
         if (isset($fieldSettings['_fieldDetails'])){
             addToGlobalVariable('Data', $fieldSettings);
-            $fieldCategories = $this->getFieldData()
-                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+            $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $fieldSettings);

@@ -192,7 +192,6 @@ if (tonicsFieldSaveChangesButton) {
         let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
         eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
         let fieldsEditorsForm = document.getElementById('EditorsForm');
-        return;
         fieldsEditorsForm.submit();
     });
 }
@@ -5163,8 +5162,6 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                     nodesData[key] = {content: previousContent + node.outerHTML, raw: true};
                 }
             });
-
-            console.log(nodesData);
 
             event.addHiddenInputToForm(event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
         }
