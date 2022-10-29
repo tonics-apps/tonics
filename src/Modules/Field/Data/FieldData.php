@@ -517,8 +517,7 @@ HTML;
     }
 
     const UNWRAP_FIELD_CONTENT_PREVIEW_MODE = 1;
-    const UNWRAP_FIELD_CONTENT_EDITOR_MODE = 2;
-    const UNWRAP_FIELD_CONTENT_FRONTEND_MODE = 3;
+    const UNWRAP_FIELD_CONTENT_FRONTEND_MODE = 2;
 
     /**
      * @param $fieldSettings
@@ -549,18 +548,18 @@ HTML;
             if (is_array($postContent)) {
                 $fieldSettings[$contentKey] = '';
                 foreach ($postContent as $field) {
+
                     #
                     # We Check If There is a FieldHandler in the PostData (meaning the logic should be handled there), if there is,
                     # we validate it. and pass it for handling...
                     #
-                    # If there is no FieldHandler in the PostData, then we pass it to getViewFrag (this might be slow if you have multiple fields),
-                    # so it is not recommended...
-                    #
                     if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE) {
-                        if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null) {
-                       //     $fieldSettings[$contentKey] .= $this->handleWithFieldHandler($fieldHandler, getPostData());
+                        if ($field['raw'] === false) {
+                            $fieldSettings[$contentKey] .= $this->previewFragForFieldHandler($field['postData']);
                         } else {
-                        //    $fieldSettings[$contentKey] .= $onFieldUserForm->getViewFrag($fieldItemsByMainFieldSlug[$field['fieldTableSlug']]);
+                            if (isset($field['content'])) {
+                                $fieldSettings[$contentKey] .= $field['content'];
+                            }
                         }
                     }
                 }
@@ -606,18 +605,6 @@ HTML;
     public function handleWithFieldHandler(FieldTemplateFileInterface $fieldHandler, $data): string
     {
         return $fieldHandler->handleFieldLogic(fields: $data);
-    }
-
-    /**
-     * @param $fieldSettings
-     * @param string $contentKey
-     * @return mixed
-     * @throws \Exception
-     */
-    public function handleEditorMode($fieldSettings, string $contentKey)
-    {
-        $this->unwrapFieldContent($fieldSettings, FieldData::UNWRAP_FIELD_CONTENT_EDITOR_MODE, $contentKey);
-        return $fieldSettings;
     }
 
     /**

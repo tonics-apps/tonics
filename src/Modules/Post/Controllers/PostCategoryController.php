@@ -197,8 +197,6 @@ class PostCategoryController
         }
 
         $fieldSettings = json_decode($category->field_settings, true);
-        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'cat_content');
-
         if (empty($fieldSettings)){
             $fieldSettings = (array)$category;
         } else {

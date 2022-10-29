@@ -217,7 +217,6 @@ class TracksController extends Controller
         $this->getTrackData()->licenseMetaBox($onTrackCreate);
 
         $fieldSettings = json_decode($track->field_settings, true);
-        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'track_content');
         if (empty($fieldSettings)){
             $fieldSettings = (array)$track;
         } else {
