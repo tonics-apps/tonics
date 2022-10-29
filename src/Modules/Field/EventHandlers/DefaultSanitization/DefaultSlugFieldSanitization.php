@@ -30,9 +30,12 @@ class DefaultSlugFieldSanitization implements HandlerInterface, FieldValueSaniti
     }
 
     /**
+     * @param $value
+     * @param $data
+     * @return string
      * @throws \Exception
      */
-    public function sanitize($value): mixed
+    public function sanitize($value): string
     {
        return helper()->slug($value);
     }

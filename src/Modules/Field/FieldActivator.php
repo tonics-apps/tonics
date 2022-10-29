@@ -16,6 +16,7 @@ use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\EventHandlers\DefaultSanitization\DefaultSlugFieldSanitization;
 use App\Modules\Field\EventHandlers\DefaultSanitization\PageSlugFieldSanitization;
+use App\Modules\Field\EventHandlers\DefaultSanitization\PostContentEditorFieldSanitization;
 use App\Modules\Field\EventHandlers\FieldMenus;
 use App\Modules\Field\EventHandlers\Fields\Input\InputChoices;
 use App\Modules\Field\EventHandlers\Fields\Input\InputColor;
@@ -134,7 +135,8 @@ class FieldActivator implements ExtensionConfig
 
             OnAddFieldSanitization::class => [
                 PageSlugFieldSanitization::class,
-                DefaultSlugFieldSanitization::class
+                DefaultSlugFieldSanitization::class,
+                PostContentEditorFieldSanitization::class,
             ]
         ];
     }

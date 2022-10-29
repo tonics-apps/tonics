@@ -549,14 +549,6 @@ HTML;
             if (is_array($postContent)) {
                 $fieldSettings[$contentKey] = '';
                 foreach ($postContent as $field) {
-                    if ($field['raw'] === false && $mode === self::UNWRAP_FIELD_CONTENT_EDITOR_MODE) {
-                       $fieldSettings[$contentKey] .= $this->wrapFieldsForPostEditor($field['postData'], $this->previewFragForFieldHandler($field['postData']));
-                    } else {
-                        if (isset($field['content'])) {
-                            $fieldSettings[$contentKey] .= $field['content'];
-                        }
-                    }
-
                     #
                     # We Check If There is a FieldHandler in the PostData (meaning the logic should be handled there), if there is,
                     # we validate it. and pass it for handling...

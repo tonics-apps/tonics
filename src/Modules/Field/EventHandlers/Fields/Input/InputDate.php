@@ -195,7 +195,7 @@ FORM;
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
         if (!empty($fieldSanitization)){
-            $defaultValue = $event->sanitize($fieldSanitization, $defaultValue);
+            $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
 
         $defaultValue = str_replace(' ', 'T', $defaultValue);

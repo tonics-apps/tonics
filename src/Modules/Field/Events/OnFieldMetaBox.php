@@ -11,6 +11,7 @@
 namespace App\Modules\Field\Events;
 
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\EventHandlers\DefaultSanitization\DefaultSanitizationAbstract;
 use App\Modules\Field\Interfaces\FieldValueSanitizationInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsValidation\Validation;
@@ -573,12 +574,14 @@ HTML;
      * @param $sanitizationName
      * @param $sanitizationValue
      * @return mixed
+     * @throws \Exception
      */
-    public function sanitize($sanitizationName, $sanitizationValue): mixed
+    public function sanitize($sanitizationName, $sanitizationValue, $data): mixed
     {
         foreach ($this->fieldSanitization->getFieldsSanitization() as $fieldSanitizationName => $fieldSanitizationObject) {
             if ($sanitizationName === $fieldSanitizationName){
-                /** @var FieldValueSanitizationInterface $fieldSanitizationObject */
+                /** @var FieldValueSanitizationInterface|DefaultSanitizationAbstract $fieldSanitizationObject */
+                $fieldSanitizationObject->setEvent($this)->setData($data);
                 $sanitizationValue = $fieldSanitizationObject->sanitize($sanitizationValue);
             }
         }

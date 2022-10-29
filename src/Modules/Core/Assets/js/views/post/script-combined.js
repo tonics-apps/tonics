@@ -4346,10 +4346,7 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                     if (nodesData.hasOwnProperty(key) &&  window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                         ++key;
                     }
-                    let fieldTableSlug = node.querySelector('input[name="main_field_slug"]');
-                    if (fieldTableSlug){
-                        fieldTableSlug = fieldTableSlug.value;
-                    }
+
                     let postData = {};
                     let elements = node.querySelectorAll('input, textarea, select');
                     elements.forEach((inputs) => {

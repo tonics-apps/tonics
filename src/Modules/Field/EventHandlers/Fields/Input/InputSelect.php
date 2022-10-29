@@ -138,7 +138,7 @@ FORM;
                 }
 
                 if (!empty($fieldSanitization)){
-                    $value = $event->sanitize($fieldSanitization, $value);
+                    $value = $event->sanitize($fieldSanitization, $value, $data);
                 }
 
                 $selected = 'selected';

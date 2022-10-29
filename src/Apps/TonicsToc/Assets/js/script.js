@@ -249,7 +249,10 @@ function handleTonicsToc(event, target) {
         for (const i in fields) {
             let field = fields[i];
             if (field.hasOwnProperty('main_field_slug') && field.main_field_slug === 'app-tonicstoc'){
-                field.field_options = JSON.parse(field.field_options);
+                console.log(JSON.parse(JSON.stringify(field)));
+                if (!field.field_options?.tableOfContentData){
+                    field.field_options = JSON.parse(field.field_options);
+                }
                 field.field_options.tableOfContentData = {
                     'headersFound': headersFound,
                     'tree': Tree

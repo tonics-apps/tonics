@@ -33,10 +33,11 @@ class PageSlugFieldSanitization implements HandlerInterface, FieldValueSanitizat
 
     /**
      * @param $value
-     * @return mixed
+     * @param $data
+     * @return string|array
      * @throws \Exception
      */
-    public function sanitize($value): mixed
+    public function sanitize($value): string|array
     {
         return helper()->slugForPage($value);
     }

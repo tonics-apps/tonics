@@ -138,7 +138,7 @@ FORM;
         }
 
         if (!empty($fieldSanitization)){
-            $defaultValue = $event->sanitize($fieldSanitization, $defaultValue);
+            $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
 
         $frag .= <<<FORM

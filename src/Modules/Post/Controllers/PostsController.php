@@ -289,7 +289,6 @@ class PostsController
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$post];
         }
-        $fieldSettings = $this->getFieldData()->handleEditorMode($fieldSettings, 'post_content');
 
         event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
