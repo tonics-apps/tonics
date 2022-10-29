@@ -21,9 +21,9 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
     /**
      * @throws \Exception
      */
-    public function handleFieldLogic(OnFieldMetaBox $event = null, $data = null): string
+    public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
     {
-        dd($data, getPostData());
+        dd($fields, getPostData());
     }
 
     public function name(): string
@@ -38,6 +38,6 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
 
     public function fieldSlug(): string
     {
-        // TODO: Implement fieldSlug() method.
+        return  'app-tonicsamazonaffiliate-product-box';
     }
 }

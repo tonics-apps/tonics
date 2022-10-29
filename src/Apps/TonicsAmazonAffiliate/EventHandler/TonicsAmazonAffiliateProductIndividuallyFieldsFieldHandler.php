@@ -21,9 +21,9 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
     /**
      * @throws \Exception
      */
-    public function handleFieldLogic(OnFieldMetaBox $event = null, $data = null): string
+    public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
     {
-        dd($data, getPostData());
+        dd($fields, getPostData());
     }
 
     public function name(): string

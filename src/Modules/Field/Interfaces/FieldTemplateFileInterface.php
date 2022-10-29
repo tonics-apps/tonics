@@ -14,7 +14,7 @@ use App\Modules\Field\Events\OnFieldMetaBox;
 
 interface FieldTemplateFileInterface
 {
-    public function handleFieldLogic(OnFieldMetaBox $event = null, $data = null): string;
+    public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string;
 
     public function name(): string;
 

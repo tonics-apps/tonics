@@ -21,12 +21,12 @@ class TonicsTocFieldHandler implements FieldTemplateFileInterface
     /**
      * @throws \Exception
      */
-    public function handleFieldLogic(OnFieldMetaBox $event = null, $data = null): string
+    public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
     {
-        if (FieldConfig::hasPreSavedFieldData()){
-            return FieldConfig::getPreSavedFieldData();
+        if (isset($fields[0]) && $fields[0]->main_field_slug === 'app-tonicstoc'){
+            return $this->getTocResult($fields[0]?->field_data);
         }
-        return $this->getTocResult();
+        return '';
     }
 
     public function fieldSlug(): string
@@ -47,15 +47,15 @@ class TonicsTocFieldHandler implements FieldTemplateFileInterface
     /**
      * @throws \Exception
      */
-    public function getTocResult(): string
+    public function getTocResult($fieldData): string
     {
         $settings = TonicsTocController::getSettingsData();
         $result = '';
-        if (isset(getPostData()['tableOfContentData'])){
-            if (getPostData()['tableOfContentData']['headersFound'] >= $settings['toc_trigger']){
-                $settings['toc_label'] = (empty(getPostData()['toc_label'])) ? $settings['toc_label'] : getPostData()['toc_label'];
-                foreach(getPostData()['tableOfContentData']['tree'] as $item){
-                    $result .= $item['data'];
+        if (isset($fieldData['tableOfContentData'])){
+            if ($fieldData['tableOfContentData']->headersFound >= $settings['toc_trigger']){
+                $settings['toc_label'] = (empty($fieldData['toc_label'])) ? $settings['toc_label'] : $fieldData['toc_label'];
+                foreach($fieldData['tableOfContentData']->tree as $item){
+                    $result .= $item->data;
                 }
             }
         }

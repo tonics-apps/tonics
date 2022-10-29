@@ -532,23 +532,29 @@ HTML;
 
         $fieldTableSlugsInEditor = $fieldSettings['fieldTableSlugsInEditor'] ?? null;
 
+        $onFieldMetaBox = new OnFieldMetaBox();
+        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
-            dd(json_decode(request()->getEntityBody()));
             if (helper()->isJSON(request()->getEntityBody())) {
-                $fieldItems = json_decode(request()->getEntityBody());
-                $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
-                $fieldHandlers = event()->getHandler()->getEventHandlers(new FieldTemplateFile());
+                $entityBody = json_decode(request()->getEntityBody());
+                if (isset($entityBody->postData) && helper()->isJSON($entityBody->postData)){
+                    $fieldItems = json_decode($entityBody->postData);
+                    $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
+                    $fieldHandlers = event()->getHandler()->getEventHandlers(new FieldTemplateFile());
+
+                    $previewFrag = '';
+                    foreach ($fieldHandlers as $fieldHandler){
+                        /** @var $fieldHandler FieldTemplateFileInterface  */
+                        if (isset($fieldCategories[$fieldHandler->fieldSlug()])){
+                            $fields = $fieldCategories[$fieldHandler->fieldSlug()];
+                            $previewFrag .= $fieldHandler->handleFieldLogic($onFieldMetaBox, $fields);
+                        }
+                    }
+                    helper()->onSuccess($previewFrag);
+                }
             }
-            dd($fieldHandlers);
-            $previewFrag = '';
-            $fieldPostDataInEditor = (isset($preview->fieldPostDataInEditor)) ? $preview->fieldPostDataInEditor : null;
-            $postDataInstance = json_decode($fieldPostDataInEditor, true) ?? [];
-            addToGlobalVariable('Data', $postDataInstance);
-            foreach ($fieldItemsByMainFieldSlug as $fields) {
-                $previewFrag .= $onFieldUserForm->getViewFrag($fields);
-            }
-            helper()->onSuccess($previewFrag);
         }
 
         if (!$fieldTableSlugsInEditor) {
@@ -630,7 +636,7 @@ SQL;
      */
     public function handleWithFieldHandler(FieldTemplateFileInterface $fieldHandler, $data): string
     {
-        return $fieldHandler->handleFieldLogic(data: $data);
+        return $fieldHandler->handleFieldLogic(fields: $data);
     }
 
     /**
@@ -864,7 +870,11 @@ SQL;
             $match = false;
             $doneKey = [];
             foreach ($userFieldItems as $userFieldKey => $userFieldItem) {
-                $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
+                if (isset($userFieldItem->field_data)){
+                    $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
+                } else {
+                    $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash ?? $userFieldItem->field_options['field_slug_unique_hash'];
+                }
 
                 # Skip Sorted $userFieldItem
                 if (key_exists($userFieldKey, $doneKey)) {
@@ -873,9 +883,11 @@ SQL;
 
                 if ($originalFieldSlugHash === $userFieldSlugHash) {
                     $doneKey[$userFieldKey] = $userFieldKey;
+                    $fieldData = null;
+                    $fieldData = $userFieldItem->field_data ?? $userFieldItem->field_options;
                     $userFieldItem->field_options = json_decode(json_encode($originalFieldItem->field_options));
                     $userFieldItem->field_options->{"_field"} = $userFieldItem;
-                    $userFieldItem->field_data = (array)$userFieldItem->field_data;
+                    $userFieldItem->field_data = (array)$fieldData;
                     $sorted[] = $userFieldItem;
                     $match = true;
                     // For Nested Children

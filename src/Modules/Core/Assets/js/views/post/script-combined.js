@@ -4194,17 +4194,16 @@ function addTiny(editorID) {
                         if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
                             let tonicsFieldWrapper = tabContainer.querySelector('.tonicsFieldWrapper');
                             let jsonValue = tonicsFieldWrapper.value;
-                            const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent({}, target);
+                            const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(jsonValue, target);
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
-                            let dataToSend = {
-                                fieldPostDataInEditor: OnBeforeTonicsFieldPreview.getPostData(),
-                                fieldCollated: jsonValue,
-                            };
                             let url = "/admin/tools/field/field-preview";
                             let defaultHeader = {
                                 'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
                             };
+                            let dataToSend = {
+                                'postData': OnBeforeTonicsFieldPreview.getPostData()
+                            }
                             new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
                                 if (data) {
                                     data = JSON.parse(data);
