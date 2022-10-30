@@ -459,7 +459,7 @@ HTML;
 
     <input contenteditable="true" type="radio" id="$id-preview" name="$uniqueRadioName" checked>
           <label contenteditable="true" class="fieldsPreview" style="cursor: pointer; caret-color: transparent;" for="$id-preview">Preview</label>
-          <div class="fieldsPreviewContent" contenteditable="true">
+          <div class="fieldsPreviewContent position:relative d:flex" contenteditable="true">
              $preview
           </div>
       

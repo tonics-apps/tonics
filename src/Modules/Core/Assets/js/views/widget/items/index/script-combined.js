@@ -3987,6 +3987,7 @@ function addTiny(editorID) {
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
                             let url = "/admin/tools/field/field-preview";
+                            target.nextElementSibling.innerHTML = '<span class="loading-animation"></span>';
                             let defaultHeader = {
                                 'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
                             };

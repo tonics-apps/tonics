@@ -10,6 +10,7 @@
 
 namespace App\Apps\TonicsAmazonAffiliate\EventHandler;
 
+use App\Apps\TonicsAmazonAffiliate\Controller\TonicsAmazonAffiliateController;
 use App\Apps\TonicsToc\Controller\TonicsTocController;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -39,7 +40,59 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
                 }
             }
 
+            /** @var TonicsAmazonAffiliateController $tonicsAmazonAffiliateController */
+            $tonicsAmazonAffiliateController = container()->get(TonicsAmazonAffiliateController::class);
+            if (!empty($asin)){
+                $fieldType = strtoupper(trim($fieldType));
+                $asin = explode(',', $asin);
+                foreach ($asin as $key => $value){
+                    $asin[$key] = trim($value);
+                }
+                $itemIds = $asin;
+                $responseList = $tonicsAmazonAffiliateController->searchAmazonByASIN($asin);
+                dd($responseList, $tonicsAmazonAffiliateController::getSettingsData(), $asin);
+
+                $fieldData = [
+                    'TITLE' => [],
+                    'DESCRIPTION' => [],
+                    'IMAGE' => [],
+                    'PRICE' => [],
+                    'BUTTON' => [],
+                    'LAST UPDATE' => [],
+                ];
+
+                if (is_array($responseList)){
+                    foreach ($itemIds as $itemId) {
+                        $item = $responseList[$itemId];
+                        if ($item !== null) {
+                            if ($item->getASIN()) {
+                                echo 'ASIN: ', $item->getASIN(), PHP_EOL;
+                            }
+                            if ($item->getItemInfo() !== null && $item->getItemInfo()->getTitle() !== null
+                                && $item->getItemInfo()->getTitle()->getDisplayValue() !== null) {
+                                echo 'Title: ', $item->getItemInfo()->getTitle()->getDisplayValue(), PHP_EOL;
+                            }
+                            if ($item->getDetailPageURL() !== null) {
+                                echo 'Detail Page URL: ', $item->getDetailPageURL(), PHP_EOL;
+                            }
+                            if ($item->getOffers() !== null and
+                                $item->getOffers()->getListings() !== null
+                                and $item->getOffers()->getListings()[0]->getPrice() !== null
+                                and $item->getOffers()->getListings()[0]->getPrice()->getDisplayAmount() !== null) {
+                                echo 'Buying price: ', $item->getOffers()->getListings()[0]->getPrice()
+                                    ->getDisplayAmount(), PHP_EOL;
+                            }
+                        } else {
+                            echo "Item not found, check errors", PHP_EOL;
+                        }
+                    }
+                }
+            }
         }
+
+
+
+
         dd($asin, $fieldType);
         return '';
     }

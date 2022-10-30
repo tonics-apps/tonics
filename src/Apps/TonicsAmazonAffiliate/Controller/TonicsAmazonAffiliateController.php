@@ -29,6 +29,7 @@ class TonicsAmazonAffiliateController
     private string $accessKey = '';
     private string $secretKey = '';
     private string $partnerTag = '';
+    private array $settings = [];
 
     const CACHE_KEY = 'TonicsPlugin_TonicsAmazonAffiliateSettings';
 
@@ -40,27 +41,30 @@ class TonicsAmazonAffiliateController
     private ?Configuration $configuration;
     private ?FieldData $fieldData;
 
-    public function __construct(FieldData $fieldData = null)
-    {
-        $this->fieldData = $fieldData;
-        $this->searchAmazonByASIN(['B07XF8XG45']);
-    }
-
     /**
+     * @param FieldData|null $fieldData
      * @param array $settings
-     * @return Configuration|null
      * @throws \Exception
      */
-    public function getAmazonConfiguration(array $settings = []): ?Configuration
+    public function __construct(FieldData $fieldData = null, array $settings = [])
     {
+        $this->fieldData = $fieldData;
         if (empty($settings)){
             $settings = self::getSettingsData();
         }
+        $this->settings = $settings;
+    }
 
-        $this->accessKey = $settings[self::SETTINGS_ACCESS_KEY_INPUT_NAME] ?? '';
-        $this->secretKey = $settings[self::SETTINGS_SECRET_KEY_INPUT_NAME] ?? '';
-        $this->partnerTag = $settings[self::SETTINGS_PARTNER_TAG_INPUT_NAME] ?? '';
-        $region = $settings[self::SETTINGS_REGION_INPUT_NAME] ?? 'USA';
+    /**
+     * @return Configuration|null
+     */
+    public function getAmazonConfiguration(): ?Configuration
+    {
+
+        $this->accessKey = $this->settings[self::SETTINGS_ACCESS_KEY_INPUT_NAME] ?? '';
+        $this->secretKey =  $this->settings[self::SETTINGS_SECRET_KEY_INPUT_NAME] ?? '';
+        $this->partnerTag =  $this->settings[self::SETTINGS_PARTNER_TAG_INPUT_NAME] ?? '';
+        $region =  $this->settings[self::SETTINGS_REGION_INPUT_NAME] ?? 'USA';
         $regionKey = strtoupper(trim($region));
 
         $regionData = [
@@ -200,14 +204,13 @@ class TonicsAmazonAffiliateController
      */
     public function searchAmazonByASIN(array $asinItemIDS)
     {
-        $settings = self::getSettingsData();
         $apiInstance = new DefaultApi(
         /*
          * If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
          * This is optional, `GuzzleHttp\Client` will be used as default.
          */
             new \GuzzleHttp\Client(),
-            $this->getAmazonConfiguration($settings)
+            $this->getAmazonConfiguration()
         );
 
         # Forming the request
