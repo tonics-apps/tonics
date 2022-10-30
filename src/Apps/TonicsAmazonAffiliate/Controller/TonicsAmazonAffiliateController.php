@@ -66,10 +66,90 @@ class TonicsAmazonAffiliateController
         $region = trim($settings[self::SETTINGS_REGION_INPUT_NAME] ?? '');
 
         $regionData = [
+            'Australia' => [
+                'HOST' => 'webservices.amazon.com.au',
+                'REGION' => 'us-west-2',
+            ],
+            'Belgium' => [
+                'HOST' => 'webservices.amazon.com.be',
+                'REGION' => 'eu-west-1',
+            ],
+            'Brazil' => [
+                'HOST' => 'webservices.amazon.com.be',
+                'REGION' => 'eu-west-1',
+            ],
+            'Canada' => [
+                'HOST' => 'webservices.amazon.ca',
+                'REGION' => 'us-east-1',
+            ],
+            'Egypt' => [
+                'HOST' => 'webservices.amazon.eg',
+                'REGION' => 'eu-west-1',
+            ],
+            'France' => [
+                'HOST' => 'webservices.amazon.fr',
+                'REGION' => 'eu-west-1',
+            ],
+            'Germany' => [
+                'HOST' => 'webservices.amazon.de',
+                'REGION' => 'eu-west-1',
+            ],
+            'India' => [
+                'HOST' => 'webservices.amazon.in',
+                'REGION' => 'eu-west-1',
+            ],
+            'Italy' => [
+                'HOST' => 'webservices.amazon.it',
+                'REGION' => 'eu-west-1',
+            ],
+            'Japan' => [
+                'HOST' => 'webservices.amazon.jp',
+                'REGION' => 'us-west-2',
+            ],
+            'Mexico' => [
+                'HOST' => 'webservices.amazon.com.mx',
+                'REGION' => 'us-east-1',
+            ],
+            'Netherlands' => [
+                'HOST' => 'webservices.amazon.nl',
+                'REGION' => 'eu-west-1',
+            ],
+            'Poland' => [
+                'HOST' => 'webservices.amazon.pl',
+                'REGION' => 'eu-west-1',
+            ],
+            'Singapore' => [
+                'HOST' => 'webservices.amazon.sg',
+                'REGION' => 'us-west-2',
+            ],
+            'Saudi Arabia' => [
+                'HOST' => 'webservices.amazon.sa',
+                'REGION' => 'eu-west-1',
+            ],
+            'Spain' => [
+                'HOST' => 'webservices.amazon.sa',
+                'REGION' => 'eu-west-1',
+            ],
+            'Sweden' => [
+                'HOST' => 'webservices.amazon.se',
+                'REGION' => 'eu-west-1',
+            ],
+            'Turkey' => [
+                'HOST' => 'webservices.amazon.tr',
+                'REGION' => 'eu-west-1',
+            ],
+            'UAE' => [
+                'HOST' => 'webservices.amazon.ae',
+                'REGION' => 'eu-west-1',
+            ],
+            'UK' => [
+                'HOST' => 'webservices.amazon.co.uk',
+                'REGION' => 'eu-west-1',
+            ],
             'USA' => [
-                'HOST' => '',
-                'REGION' => '',
-            ]
+                'HOST' => 'webservices.amazon.com',
+                'REGION' => 'us-east-1',
+            ],
         ];
 
         $this->configuration = new Configuration();
