@@ -1,0 +1,12 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field",)]]
+
+[[hook_into('in_head_title') TonicsAmazonAffiliate Settings Page ]]
+[[hook_into('in_main_header_title') TonicsAmazonAffiliate Settings Page ]]
+
+[[hook_into('form_action')/admin/tools/apps/tonics_amazon_affiliate/settings]]
+
+[[hook_into('Core::before_footer')
+  [[_use("script:variables")]]
+  [[_use("script:core")]]
+  [[_use("session:delete-artifacts")]]
+]]
