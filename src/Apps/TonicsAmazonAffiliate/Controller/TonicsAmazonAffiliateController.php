@@ -43,98 +43,91 @@ class TonicsAmazonAffiliateController
     public function __construct(FieldData $fieldData = null)
     {
         $this->fieldData = $fieldData;
-
-        # Please add your partner tag (store/tracking id) here
-        $partnerTag = $this->partnerTag;
-
-        /*
-         * PAAPI host and region to which you want to send request
-         * For more details refer:
-         * https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html#host-and-region
-         */
-        $this->configuration->setHost('webservices.amazon.com');
-        $this->configuration->setRegion('us-east-1');
     }
 
+    /**
+     * @return Configuration|null
+     * @throws \Exception
+     */
     public function getAmazonConfiguration()
     {
-
         $settings = self::getSettingsData();
         $this->accessKey = $settings[self::SETTINGS_ACCESS_KEY_INPUT_NAME] ?? '';
         $this->secretKey = $settings[self::SETTINGS_SECRET_KEY_INPUT_NAME] ?? '';
         $this->partnerTag = $settings[self::SETTINGS_PARTNER_TAG_INPUT_NAME] ?? '';
-        $region = trim($settings[self::SETTINGS_REGION_INPUT_NAME] ?? '');
+        $region = $settings[self::SETTINGS_REGION_INPUT_NAME] ?? 'USA';
+        $regionKey = strtoupper(trim($region));
 
         $regionData = [
-            'Australia' => [
+            'AUSTRALIA' => [
                 'HOST' => 'webservices.amazon.com.au',
                 'REGION' => 'us-west-2',
             ],
-            'Belgium' => [
+            'BELGIUM' => [
                 'HOST' => 'webservices.amazon.com.be',
                 'REGION' => 'eu-west-1',
             ],
-            'Brazil' => [
+            'BRAZIL' => [
                 'HOST' => 'webservices.amazon.com.be',
                 'REGION' => 'eu-west-1',
             ],
-            'Canada' => [
+            'CANADA' => [
                 'HOST' => 'webservices.amazon.ca',
                 'REGION' => 'us-east-1',
             ],
-            'Egypt' => [
+            'EGYPT' => [
                 'HOST' => 'webservices.amazon.eg',
                 'REGION' => 'eu-west-1',
             ],
-            'France' => [
+            'FRANCE' => [
                 'HOST' => 'webservices.amazon.fr',
                 'REGION' => 'eu-west-1',
             ],
-            'Germany' => [
+            'GERMANY' => [
                 'HOST' => 'webservices.amazon.de',
                 'REGION' => 'eu-west-1',
             ],
-            'India' => [
+            'INDIA' => [
                 'HOST' => 'webservices.amazon.in',
                 'REGION' => 'eu-west-1',
             ],
-            'Italy' => [
+            'ITALY' => [
                 'HOST' => 'webservices.amazon.it',
                 'REGION' => 'eu-west-1',
             ],
-            'Japan' => [
+            'JAPAN' => [
                 'HOST' => 'webservices.amazon.jp',
                 'REGION' => 'us-west-2',
             ],
-            'Mexico' => [
+            'MEXICO' => [
                 'HOST' => 'webservices.amazon.com.mx',
                 'REGION' => 'us-east-1',
             ],
-            'Netherlands' => [
+            'NETHERLANDS' => [
                 'HOST' => 'webservices.amazon.nl',
                 'REGION' => 'eu-west-1',
             ],
-            'Poland' => [
+            'POLAND' => [
                 'HOST' => 'webservices.amazon.pl',
                 'REGION' => 'eu-west-1',
             ],
-            'Singapore' => [
+            'SINGAPORE' => [
                 'HOST' => 'webservices.amazon.sg',
                 'REGION' => 'us-west-2',
             ],
-            'Saudi Arabia' => [
+            'SAUDI ARABIA' => [
                 'HOST' => 'webservices.amazon.sa',
                 'REGION' => 'eu-west-1',
             ],
-            'Spain' => [
+            'SPAIN' => [
                 'HOST' => 'webservices.amazon.sa',
                 'REGION' => 'eu-west-1',
             ],
-            'Sweden' => [
+            'SWEDEN' => [
                 'HOST' => 'webservices.amazon.se',
                 'REGION' => 'eu-west-1',
             ],
-            'Turkey' => [
+            'TURKEY' => [
                 'HOST' => 'webservices.amazon.tr',
                 'REGION' => 'eu-west-1',
             ],
@@ -151,6 +144,7 @@ class TonicsAmazonAffiliateController
                 'REGION' => 'us-east-1',
             ],
         ];
+        $region = $regionData[$regionKey] ?? $regionData['USA'];
 
         $this->configuration = new Configuration();
 
@@ -161,6 +155,11 @@ class TonicsAmazonAffiliateController
         $this->configuration->setAccessKey($this->accessKey);
         # Please add your secret key here
         $this->configuration->setSecretKey($this->secretKey);
+
+        $this->configuration->setHost($region['HOST']);
+        $this->configuration->setRegion($region['REGION']);
+
+        return $this->configuration;
     }
 
     /**
