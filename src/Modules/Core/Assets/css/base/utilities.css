@@ -307,6 +307,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     background-color: #f7f7f7;
 }
 
+.bg\:amazon-orange {
+    background: linear-gradient(180deg,#f7dfa5,#f0c14b) repeat scroll 0 0 transparent;
+}
+
 .bg\:gray-two {
     background: #f2f2f5;
     background-color: #f2f2f5;

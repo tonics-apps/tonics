@@ -23,8 +23,25 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
      */
     public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
     {
+        $asin = '';
+        $fieldType = '';
+        if (isset($fields[0]->_children)){
+            $tonicsAmazonAffiliateProductIndividualAsin = 'tonicsAmazonAffiliateProductIndividual_asin';
+            $tonicsAmazonAffiliateProductIndividualFieldType = 'tonicsAmazonAffiliateProductIndividual_fieldType';
+
+            foreach ($fields[0]->_children as $child){
+                if ($child->field_input_name === $tonicsAmazonAffiliateProductIndividualAsin){
+                    $asin = $child->field_data[$tonicsAmazonAffiliateProductIndividualAsin] ?? '';
+                }
+
+                if ($child->field_input_name === $tonicsAmazonAffiliateProductIndividualFieldType){
+                    $fieldType = $child->field_data[$tonicsAmazonAffiliateProductIndividualFieldType] ?? '';
+                }
+            }
+
+        }
+        dd($asin, $fieldType);
         return '';
-       // dd($fields, getPostData());
     }
 
     public function name(): string
