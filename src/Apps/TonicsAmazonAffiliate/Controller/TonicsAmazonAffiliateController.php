@@ -43,15 +43,20 @@ class TonicsAmazonAffiliateController
     public function __construct(FieldData $fieldData = null)
     {
         $this->fieldData = $fieldData;
+        $this->searchAmazonByASIN(['B07XF8XG45']);
     }
 
     /**
+     * @param array $settings
      * @return Configuration|null
      * @throws \Exception
      */
-    public function getAmazonConfiguration()
+    public function getAmazonConfiguration(array $settings = []): ?Configuration
     {
-        $settings = self::getSettingsData();
+        if (empty($settings)){
+            $settings = self::getSettingsData();
+        }
+
         $this->accessKey = $settings[self::SETTINGS_ACCESS_KEY_INPUT_NAME] ?? '';
         $this->secretKey = $settings[self::SETTINGS_SECRET_KEY_INPUT_NAME] ?? '';
         $this->partnerTag = $settings[self::SETTINGS_PARTNER_TAG_INPUT_NAME] ?? '';
@@ -161,6 +166,97 @@ class TonicsAmazonAffiliateController
 
         return $this->configuration;
     }
+
+    protected function getAmazonResourceParameter(): array
+    {
+        /*
+         * Choose resources you want from GetItemsResource enum
+         * For more details, refer: https://webservices.amazon.com/paapi5/documentation/get-items.html#resources-parameter
+         */
+        return [
+            GetItemsResource::ITEM_INFOTITLE,
+            GetItemsResource::ITEM_INFOBY_LINE_INFO,
+            GetItemsResource::ITEM_INFOFEATURES,
+            GetItemsResource::ITEM_INFOPRODUCT_INFO,
+            GetItemsResource::ITEM_INFOTECHNICAL_INFO,
+            GetItemsResource::OFFERSLISTINGSDELIVERY_INFOIS_AMAZON_FULFILLED,
+            GetItemsResource::OFFERSLISTINGSDELIVERY_INFOIS_PRIME_ELIGIBLE,
+            GetItemsResource::OFFERSLISTINGSPRICE,
+            GetItemsResource::OFFERSLISTINGSPROMOTIONS,
+            GetItemsResource::OFFERSLISTINGSSAVING_BASIS,
+            GetItemsResource::CUSTOMER_REVIEWSCOUNT,
+            GetItemsResource::CUSTOMER_REVIEWSSTAR_RATING,
+            GetItemsResource::IMAGESPRIMARYLARGE,
+            GetItemsResource::IMAGESPRIMARYMEDIUM,
+            GetItemsResource::IMAGESPRIMARYSMALL,
+            GetItemsResource::IMAGESVARIANTSLARGE,
+            GetItemsResource::IMAGESVARIANTSMEDIUM,
+            GetItemsResource::IMAGESVARIANTSSMALL,
+        ];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function searchAmazonByASIN(array $asinItemIDS)
+    {
+        $settings = self::getSettingsData();
+        $apiInstance = new DefaultApi(
+        /*
+         * If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+         * This is optional, `GuzzleHttp\Client` will be used as default.
+         */
+            new \GuzzleHttp\Client(),
+            $this->getAmazonConfiguration($settings)
+        );
+
+        # Forming the request
+        $getItemsRequest = new GetItemsRequest();
+        $getItemsRequest->setItemIds($asinItemIDS);
+        $getItemsRequest->setPartnerTag($this->partnerTag);
+        $getItemsRequest->setPartnerType(PartnerType::ASSOCIATES);
+        $getItemsRequest->setResources($this->getAmazonResourceParameter());
+
+        # Validating request
+        $invalidPropertyList = @$getItemsRequest->listInvalidProperties();
+        $length = count($invalidPropertyList);
+        if ($length > 0) {
+            // Log..
+//            echo "Error forming the request", PHP_EOL;
+//            foreach ($invalidPropertyList as $invalidProperty) {
+//                echo $invalidProperty, PHP_EOL;
+//            }
+            return null;
+        }
+
+        # Sending the request
+        try {
+            $getItemsResponse = @$apiInstance->getItems($getItemsRequest);
+            # Parsing the response
+            if ($getItemsResponse->getItemsResult() !== null) {
+                if ($getItemsResponse->getItemsResult()->getItems() !== null) {
+                    return $this->parseResponse($getItemsResponse->getItemsResult()->getItems());
+                }
+            }
+            if ($getItemsResponse->getErrors() !== null) {
+                // Error Code and Error Message
+                // $getItemsResponse->getErrors()[0]->getCode()
+                // $getItemsResponse->getErrors()[0]->getMessage()
+                // Log..
+                return null;
+            }
+        } catch (ApiException $exception) {
+            // Error Code and Error Message
+            // Log..
+        } catch (\Exception $exception) {
+            // Error Regular PHP Exception
+            // Log..
+        }
+
+        return null;
+    }
+
+
 
     /**
      * @throws \Exception
