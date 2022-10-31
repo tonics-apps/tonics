@@ -26,6 +26,7 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
     {
         $asin = '';
         $fieldType = '';
+        $fieldData = [];
         if (isset($fields[0]->_children)){
             $tonicsAmazonAffiliateProductIndividualAsin = 'tonicsAmazonAffiliateProductIndividual_asin';
             $tonicsAmazonAffiliateProductIndividualFieldType = 'tonicsAmazonAffiliateProductIndividual_fieldType';
@@ -44,7 +45,6 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
             $tonicsAmazonAffiliateController = container()->get(TonicsAmazonAffiliateController::class);
             $TAATable = TonicsAmazonAffiliateActivator::tableName();
             $asin = trim($asin);
-            $fieldData = [];
             if (!empty($asin)){
                 $fieldType = strtoupper(trim($fieldType));
                 $itemIds = [$asin];

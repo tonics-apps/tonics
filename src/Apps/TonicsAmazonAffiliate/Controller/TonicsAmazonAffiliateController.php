@@ -299,7 +299,7 @@ IMG;
                         $descriptionFrag .= "<li>" . $descriptionItem . "</li>";
                     }
                 }
-                $descriptionFrag = "<ul>" . $descriptionFrag . "</ul>";
+                $descriptionFrag = "<ul class='owl' style='list-style: disc; margin-left: unset;'>" . $descriptionFrag . "</ul>";
 
                 $fieldData = [
                     'TITLE' => $title,

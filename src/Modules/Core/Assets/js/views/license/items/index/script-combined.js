@@ -4162,8 +4162,15 @@ function hookTinyMCE() {
                 }
             }
         }));
+
         // Start observing the target node for configured mutations
-        tinyDialogObserver.observe(document.querySelector('main'), {attributes: false, childList: true, subtree: true});
+        tinyDialogObserver.observe(document.querySelector('body'), {attributes: false, childList: true, subtree: true});
+
+        try {
+            // ..
+        } catch (e) {
+
+        }
     }
 }
 
