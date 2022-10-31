@@ -14,6 +14,7 @@ use Amazon\ProductAdvertisingAPI\v1\ApiException;
 use Amazon\ProductAdvertisingAPI\v1\com\amazon\paapi5\v1\api\DefaultApi;
 use Amazon\ProductAdvertisingAPI\v1\com\amazon\paapi5\v1\GetItemsRequest;
 use Amazon\ProductAdvertisingAPI\v1\com\amazon\paapi5\v1\GetItemsResource;
+use Amazon\ProductAdvertisingAPI\v1\com\amazon\paapi5\v1\Item;
 use Amazon\ProductAdvertisingAPI\v1\com\amazon\paapi5\v1\PartnerType;
 use Amazon\ProductAdvertisingAPI\v1\com\amazon\paapi5\v1\ProductAdvertisingAPIClientException;
 use Amazon\ProductAdvertisingAPI\v1\Configuration;
@@ -257,6 +258,64 @@ class TonicsAmazonAffiliateController
         }
 
         return null;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function collateItems(array $items)
+    {
+        $collateResult = [];
+        $settings = self::getSettingsData();
+        $getOnAmazon = $settings['tonicsAmazonAffiliateSettings_buttonText'] ?? '';
+        foreach ($items as $item) {
+            if ($item instanceof Item){
+                $title = $item->getItemInfo()?->getTitle()?->getDisplayValue();
+                $imageURL = $item->getImages()?->getPrimary()?->getLarge()->getURL();
+                $height = $item->getImages()?->getPrimary()?->getLarge()->getHeight();
+                $width = $item->getImages()?->getPrimary()?->getLarge()->getWidth();
+                $imageSrc = '';
+                $button = '';
+                $detailPageURL = $item?->getDetailPageURL();
+                if (!empty($detailPageURL)){
+                    $button = <<<BUTTON
+<a class="text-align:center bg:transparent border:none bg:amazon-orange color:black border-width:default border:black padding:small
+                    margin-top:0 cursor:pointer button:box-shadow-variant-1" href="$detailPageURL" title="$getOnAmazon" 
+                    target="_blank" rel="nofollow noopener sponsored">$getOnAmazon</a>
+BUTTON;
+                }
+
+                if (!empty($imageURL)){
+                    $imageSrc = <<<IMG
+<img src="$imageURL"
+alt="$title" title="$title" width="$width" height="$height" loading="lazy" decoding="async">
+IMG;
+                }
+
+                $descriptionItems = $item->getItemInfo()?->getFeatures()?->getDisplayValues();
+                $descriptionFrag = '';
+                if (is_array($descriptionItems)){
+                    foreach ($descriptionItems as $descriptionItem){
+                        $descriptionFrag .= "<li>" . $descriptionItem . "</li>";
+                    }
+                }
+                $descriptionFrag = "<ul>" . $descriptionFrag . "</ul>";
+
+                $fieldData = [
+                    'TITLE' => $title,
+                    'DESCRIPTION' => $descriptionFrag,
+                    'IMAGE' => $imageSrc,
+                    'PRICE' => $item->getOffers()?->getListings()[0]->getPrice()->getDisplayAmount(),
+                    'BUTTON' => $button,
+                    'URL' => $detailPageURL,
+                    'LAST UPDATE' => $asinDataFromDB->updated_at ?? helper()->date(),
+                ];
+
+                $collateResult[$item->getASIN()] = $fieldData;
+            }
+        }
+
+        return $collateResult;
     }
 
 

@@ -42,16 +42,13 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
 
             /** @var TonicsAmazonAffiliateController $tonicsAmazonAffiliateController */
             $tonicsAmazonAffiliateController = container()->get(TonicsAmazonAffiliateController::class);
-            $settings = $tonicsAmazonAffiliateController::getSettingsData();
-            $getOnAmazon = $settings['tonicsAmazonAffiliateSettings_buttonText'] ?? '';
-
             $TAATable = TonicsAmazonAffiliateActivator::tableName();
             $asin = trim($asin);
+            $fieldData = [];
             if (!empty($asin)){
                 $fieldType = strtoupper(trim($fieldType));
                 $itemIds = [$asin];
                 $asinDataFromDB = db()->Select('*')->From($TAATable)->WhereEquals('asin', $asin)->FetchFirst();
-                $item = null;
                 if(empty($asinDataFromDB)){
                     $responseList = $tonicsAmazonAffiliateController->searchAmazonByASIN($itemIds);
                     if (isset($responseList[$asin])){
@@ -63,61 +60,16 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
 
                             ], ['others']);
                         $item = $responseList[$asin];
+                        $fieldData = $tonicsAmazonAffiliateController->collateItems([$item]);
                     }
                 } else {
                     $item = unserialize(json_decode($asinDataFromDB->others)->serialized);
-                }
-
-                if ($item instanceof Item){
-                    $title = $item->getItemInfo()?->getTitle()?->getDisplayValue();
-                    $imageURL = $item->getImages()?->getPrimary()?->getLarge()->getURL();
-                    $height = $item->getImages()?->getPrimary()?->getLarge()->getHeight();
-                    $width = $item->getImages()?->getPrimary()?->getLarge()->getWidth();
-                    $imageSrc = '';
-                    $button = '';
-                    $detailPageURL = $item?->getDetailPageURL();
-                    if (!empty($detailPageURL)){
-                        $button = <<<BUTTON
-<a class="text-align:center bg:transparent border:none bg:amazon-orange color:black border-width:default border:black padding:small
-                    margin-top:0 cursor:pointer button:box-shadow-variant-1" href="$detailPageURL" title="$getOnAmazon" 
-                    target="_blank" rel="nofollow noopener sponsored">$getOnAmazon</a>
-BUTTON;
-                    }
-
-                    if (!empty($imageURL)){
-                        $imageSrc = <<<IMG
-<img src="$imageURL"
-alt="$title" title="$title" width="$width" height="$height" loading="lazy" decoding="async">
-IMG;
-                    }
-
-                    $descriptionItems = $item->getItemInfo()?->getFeatures()?->getDisplayValues();
-                    $descriptionFrag = '';
-                    if (is_array($descriptionItems)){
-                        foreach ($descriptionItems as $descriptionItem){
-                            $descriptionFrag .= "<li>" . $descriptionItem . "</li>";
-                        }
-                    }
-                    $descriptionFrag = "<ul>" . $descriptionFrag . "</ul>";
-
-                    $fieldData = [
-                        'TITLE' => $title,
-                        'DESCRIPTION' => $descriptionFrag,
-                        'IMAGE' => $imageSrc,
-                        'PRICE' => $item->getOffers()?->getListings()[0]->getPrice()->getDisplayAmount(),
-                        'BUTTON' => $button,
-                        'URL' => $detailPageURL,
-                        'LAST UPDATE' => null,
-                    ];
-
-                    return $fieldData[$fieldType] ?? '';
-                } else {
-                    return '';
+                    $fieldData = $tonicsAmazonAffiliateController->collateItems([$item]);
                 }
             }
         }
 
-        return '';
+        return $fieldData[$asin][$fieldType] ?? '';
     }
 
     public function name(): string
