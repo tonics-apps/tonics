@@ -10,10 +10,9 @@
 
 namespace App\Apps\TonicsAmazonAffiliate\EventHandler;
 
+use Amazon\ProductAdvertisingAPI\v1\com\amazon\paapi5\v1\Item;
 use App\Apps\TonicsAmazonAffiliate\Controller\TonicsAmazonAffiliateController;
 use App\Apps\TonicsAmazonAffiliate\TonicsAmazonAffiliateActivator;
-use App\Apps\TonicsToc\Controller\TonicsTocController;
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 
@@ -43,17 +42,12 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
 
             /** @var TonicsAmazonAffiliateController $tonicsAmazonAffiliateController */
             $tonicsAmazonAffiliateController = container()->get(TonicsAmazonAffiliateController::class);
+            $settings = $tonicsAmazonAffiliateController::getSettingsData();
+            $getOnAmazon = $settings['tonicsAmazonAffiliateSettings_buttonText'] ?? '';
+
             $TAATable = TonicsAmazonAffiliateActivator::tableName();
             $asin = trim($asin);
             if (!empty($asin)){
-                $fieldData = [
-                    'TITLE' => null,
-                    'DESCRIPTION' => null,
-                    'IMAGE' => null,
-                    'PRICE' => null,
-                    'BUTTON' => null,
-                    'LAST UPDATE' => null,
-                ];
                 $fieldType = strtoupper(trim($fieldType));
                 $itemIds = [$asin];
                 $asinDataFromDB = db()->Select('*')->From($TAATable)->WhereEquals('asin', $asin)->FetchFirst();
@@ -74,41 +68,55 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
                     $item = unserialize(json_decode($asinDataFromDB->others)->serialized);
                 }
 
-                dd($item);
+                if ($item instanceof Item){
+                    $title = $item->getItemInfo()?->getTitle()?->getDisplayValue();
+                    $imageURL = $item->getImages()?->getPrimary()?->getLarge()->getURL();
+                    $height = $item->getImages()?->getPrimary()?->getLarge()->getHeight();
+                    $width = $item->getImages()?->getPrimary()?->getLarge()->getWidth();
+                    $imageSrc = '';
+                    $button = '';
+                    $detailPageURL = $item?->getDetailPageURL();
+                    if (!empty($detailPageURL)){
+                        $button = <<<BUTTON
+<a class="text-align:center bg:transparent border:none bg:amazon-orange color:black border-width:default border:black padding:small
+                    margin-top:0 cursor:pointer button:box-shadow-variant-1" href="$detailPageURL" title="$getOnAmazon" 
+                    target="_blank" rel="nofollow noopener sponsored">$getOnAmazon</a>
+BUTTON;
+                    }
 
-                if (is_array($responseList)){
-                    foreach ($itemIds as $itemId) {
-                        $item = $responseList[$itemId];
-                        if ($item !== null) {
-                            if ($item->getASIN()) {
-                                echo 'ASIN: ', $item->getASIN(), PHP_EOL;
-                            }
-                            if ($item->getItemInfo() !== null && $item->getItemInfo()->getTitle() !== null
-                                && $item->getItemInfo()->getTitle()->getDisplayValue() !== null) {
-                                echo 'Title: ', $item->getItemInfo()->getTitle()->getDisplayValue(), PHP_EOL;
-                            }
-                            if ($item->getDetailPageURL() !== null) {
-                                echo 'Detail Page URL: ', $item->getDetailPageURL(), PHP_EOL;
-                            }
-                            if ($item->getOffers() !== null and
-                                $item->getOffers()->getListings() !== null
-                                and $item->getOffers()->getListings()[0]->getPrice() !== null
-                                and $item->getOffers()->getListings()[0]->getPrice()->getDisplayAmount() !== null) {
-                                echo 'Buying price: ', $item->getOffers()->getListings()[0]->getPrice()
-                                    ->getDisplayAmount(), PHP_EOL;
-                            }
-                        } else {
-                            echo "Item not found, check errors", PHP_EOL;
+                    if (!empty($imageURL)){
+                        $imageSrc = <<<IMG
+<img src="$imageURL"
+alt="$title" title="$title" width="$width" height="$height" loading="lazy" decoding="async">
+IMG;
+                    }
+
+                    $descriptionItems = $item->getItemInfo()?->getFeatures()?->getDisplayValues();
+                    $descriptionFrag = '';
+                    if (is_array($descriptionItems)){
+                        foreach ($descriptionItems as $descriptionItem){
+                            $descriptionFrag .= "<li>" . $descriptionItem . "</li>";
                         }
                     }
+                    $descriptionFrag = "<ul>" . $descriptionFrag . "</ul>";
+
+                    $fieldData = [
+                        'TITLE' => $title,
+                        'DESCRIPTION' => $descriptionFrag,
+                        'IMAGE' => $imageSrc,
+                        'PRICE' => $item->getOffers()?->getListings()[0]->getPrice()->getDisplayAmount(),
+                        'BUTTON' => $button,
+                        'URL' => $detailPageURL,
+                        'LAST UPDATE' => null,
+                    ];
+
+                    return $fieldData[$fieldType] ?? '';
+                } else {
+                    return '';
                 }
             }
         }
 
-
-
-
-        dd($asin, $fieldType);
         return '';
     }
 
