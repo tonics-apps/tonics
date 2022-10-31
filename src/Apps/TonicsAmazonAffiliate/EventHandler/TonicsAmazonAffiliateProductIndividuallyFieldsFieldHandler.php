@@ -11,6 +11,7 @@
 namespace App\Apps\TonicsAmazonAffiliate\EventHandler;
 
 use App\Apps\TonicsAmazonAffiliate\Controller\TonicsAmazonAffiliateController;
+use App\Apps\TonicsAmazonAffiliate\TonicsAmazonAffiliateActivator;
 use App\Apps\TonicsToc\Controller\TonicsTocController;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -42,24 +43,38 @@ class TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler implements Fiel
 
             /** @var TonicsAmazonAffiliateController $tonicsAmazonAffiliateController */
             $tonicsAmazonAffiliateController = container()->get(TonicsAmazonAffiliateController::class);
+            $TAATable = TonicsAmazonAffiliateActivator::tableName();
+            $asin = trim($asin);
             if (!empty($asin)){
-                $fieldType = strtoupper(trim($fieldType));
-                $asin = explode(',', $asin);
-                foreach ($asin as $key => $value){
-                    $asin[$key] = trim($value);
-                }
-                $itemIds = $asin;
-                $responseList = $tonicsAmazonAffiliateController->searchAmazonByASIN($asin);
-                dd($responseList, $tonicsAmazonAffiliateController::getSettingsData(), $asin);
-
                 $fieldData = [
-                    'TITLE' => [],
-                    'DESCRIPTION' => [],
-                    'IMAGE' => [],
-                    'PRICE' => [],
-                    'BUTTON' => [],
-                    'LAST UPDATE' => [],
+                    'TITLE' => null,
+                    'DESCRIPTION' => null,
+                    'IMAGE' => null,
+                    'PRICE' => null,
+                    'BUTTON' => null,
+                    'LAST UPDATE' => null,
                 ];
+                $fieldType = strtoupper(trim($fieldType));
+                $itemIds = [$asin];
+                $asinDataFromDB = db()->Select('*')->From($TAATable)->WhereEquals('asin', $asin)->FetchFirst();
+                $item = null;
+                if(empty($asinDataFromDB)){
+                    $responseList = $tonicsAmazonAffiliateController->searchAmazonByASIN($itemIds);
+                    if (isset($responseList[$asin])){
+                        $serialize = serialize($responseList[$asin]);
+                        db()->InsertOnDuplicate($TAATable,
+                            [
+                                'asin' => $asin,
+                                'others' => json_encode(['serialized' => $serialize])
+
+                            ], ['others']);
+                        $item = $responseList[$asin];
+                    }
+                } else {
+                    $item = unserialize(json_decode($asinDataFromDB->others)->serialized);
+                }
+
+                dd($item);
 
                 if (is_array($responseList)){
                     foreach ($itemIds as $itemId) {
