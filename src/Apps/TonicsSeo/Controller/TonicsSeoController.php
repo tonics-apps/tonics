@@ -18,6 +18,7 @@ use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Helper\FieldHelpers;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -37,19 +38,25 @@ class TonicsSeoController
      */
     public function edit(): void
     {
-        $settings = $this->getSettingsData();
-        if (!isset($settings['app_tonicsseo_robots_txt'])){ $settings['app_tonicsseo_robots_txt'] = '';}
-        if (isset($settings['app_tonicsseo_robots_txt']) && empty($settings['app_tonicsseo_robots_txt'])){
-            $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
+        $fieldSettings = $this->getSettingsData();
+        if (!isset($fieldSettings['app_tonicsseo_robots_txt'])){ $fieldSettings['app_tonicsseo_robots_txt'] = '';}
+        if (isset($fieldSettings['app_tonicsseo_robots_txt']) && empty($fieldSettings['app_tonicsseo_robots_txt'])){
+            $fieldSettings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
         }
 
-        $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
-            ['app-tonicsseo-settings'],
-            $settings
-        )->getHTMLFrag();
+        if (isset($fieldSettings['_fieldDetails'])){
+            addToGlobalVariable('Data', $fieldSettings);
+            $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
+        } else {
+            $htmlFrag = $this->getFieldData()->generateFieldWithFieldSlug(
+                ['app-tonicsseo-settings'],
+                $fieldSettings
+            )->getHTMLFrag();
+        }
 
         view('Apps::TonicsSeo/Views/settings', [
-                'FieldItems' => $fieldItems,
+                'FieldItems' => $htmlFrag,
             ]
         );
     }
@@ -73,6 +80,73 @@ class TonicsSeoController
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
             redirect(route('tonicsSeo.settings'));
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function rssHomePage()
+    {
+        $settings = self::getSettingsData();
+        if (isset($settings['_fieldDetails'])){
+            $fieldDetails = json_decode($settings['_fieldDetails']);
+            $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field){
+                if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
+                    $fieldOption = json_decode($field->field_options);
+                    $field->field_options = $fieldOption;
+                }
+                return $field;
+            });
+
+            $app_tonicsseo_rss_settings_parent = 'app_tonicsseo_rss_settings_parent';
+            $app_tonicsseo_rss_settings_logo = 'app_tonicsseo_rss_settings_logo';
+            $app_tonicsseo_rss_settings_description = 'app_tonicsseo_rss_settings_description';
+            $app_tonicsseo_rss_settings_language = 'app_tonicsseo_rss_settings_language';
+            $app_tonicsseo_rss_settings_postQueryBuilder = 'app_tonicsseo_rss_settings_postQueryBuilder';
+
+            $rssSettingsData = [
+                'Logo' => null,
+                'Description' => null,
+                'Language' => null,
+                'Query' => [],
+            ];
+
+            foreach ($fieldDetails[0]->_children as $field){
+                if (isset($field->field_options)){
+                    if ($field->field_input_name === $app_tonicsseo_rss_settings_parent && isset($field->_children)){
+                        foreach ($field->_children as $child){
+
+                            if ($child->field_input_name === $app_tonicsseo_rss_settings_logo){
+                                $rssSettingsData['Logo'] = $child->field_options->app_tonicsseo_rss_settings_logo;
+                            }
+
+                            if ($child->field_input_name === $app_tonicsseo_rss_settings_description){
+                                $rssSettingsData['Description'] = $child->field_options->app_tonicsseo_rss_settings_description;
+                            }
+
+                            if ($child->field_input_name === $app_tonicsseo_rss_settings_language){
+                                $rssSettingsData['Language'] = $child->field_options->app_tonicsseo_rss_settings_language;
+                            }
+
+                            if ($child->field_input_name === $app_tonicsseo_rss_settings_postQueryBuilder){
+                                if (isset($child->_children[0]->_children)){
+                                    $rssSettingsData['Query'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children);
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            dd($fieldDetails, $rssSettingsData);
+        }
+        dd('checkMate');
+    }
+
+    public function rssPostCategory(string $categoryName)
+    {
+
     }
 
     private function getDefaultRobots()

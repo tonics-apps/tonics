@@ -14,7 +14,7 @@ use App\Modules\Field\Events\OnAddFieldSanitization;
 use App\Modules\Field\Interfaces\FieldValueSanitizationInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class PageSlugFieldSanitization implements HandlerInterface, FieldValueSanitizationInterface
+class PageSlugFieldSanitization extends DefaultSanitizationAbstract implements HandlerInterface, FieldValueSanitizationInterface
 {
 
     /**
@@ -33,7 +33,6 @@ class PageSlugFieldSanitization implements HandlerInterface, FieldValueSanitizat
 
     /**
      * @param $value
-     * @param $data
      * @return string|array
      * @throws \Exception
      */
