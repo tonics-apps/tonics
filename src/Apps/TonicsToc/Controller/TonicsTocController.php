@@ -77,7 +77,7 @@ class TonicsTocController
                 'toc_trigger' => 2,
                 'toc_label' => 'Table of Contents',
                 'toc_label_tag' => 'div',
-                'toc_class' => 'tonics-tic',
+                'toc_class' => 'tonics-toc width:100% padding:default color:black bg:white-one border-width:default border:black position:relative',
             ];
         }
         return $settings;
