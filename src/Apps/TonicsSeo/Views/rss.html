@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>[[v('rssData.Title')]]</title>
+    <description>[[v('rssData.Title')]]</description>
+    <link>[[v('rssData.RequestURL')]]</link>
+    <language>[[v('rssData.Language')]]</language>
+    <generator>TonicsSeo https://tonics.app</generator>
+    <image>
+      <url>[[v('rssData.Logo')]]</url>
+      <title>[[v('rssData.Title')]]</title>
+      <link>[[v('rssData.RequestURL')]]</link>
+      [[-
+      <width>42</width>
+      <height>39</height>
+      -]]
+    </image>
+
+    [[each("rssQueryData in rssData.Query.data")
+      <item>
+        <title>[[v('rssQueryData.post_title')]]</title>
+        <description>[[v('rssQueryData.post_description')]]</description>
+        <link>[[v('App_Config.SiteURL')]][[v('rssQueryData._preview_link')]]</link>
+        <pubDate>Thu, 27 May 2021 06:59:59 -0400</pubDate>
+      </item>
+    ]]
+
+  </channel>
+
+</rss>

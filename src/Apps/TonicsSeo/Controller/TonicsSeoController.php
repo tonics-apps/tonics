@@ -87,13 +87,15 @@ class TonicsSeoController
      */
     public function rssHomePage()
     {
+        $settings = self::getSettingsData();
         $rssSettingsData = [
-            'Logo' => null,
+            'Title' => $settings['app_tonicsseo_site_title'] ?? null,
             'Description' => null,
+            'Logo' => null,
+            'RequestURL' => AppConfig::getAppUrl(),
             'Language' => null,
             'Query' => [],
         ];
-        $settings = self::getSettingsData();
         if (isset($settings['_fieldDetails'])){
             $fieldDetails = json_decode($settings['_fieldDetails']);
             $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field){
@@ -141,6 +143,11 @@ class TonicsSeoController
             }
         }
 
+       // dd($rssSettingsData, $settings);
+
+        view('Apps::TonicsSeo/Views/rss', [
+            'rssData' => $rssSettingsData,
+        ]);
 
     }
 

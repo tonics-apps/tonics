@@ -230,6 +230,7 @@ function view(string $viewname, array|stdClass $data = [], int $condition = Toni
 {
 
     $data = [...$data, ...getGlobalVariableData()];
+    dd($data);
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
     return $view->render($viewname, $condition);
 }
