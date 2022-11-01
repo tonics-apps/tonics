@@ -294,6 +294,7 @@ IMG;
 
                 $descriptionItems = $item->getItemInfo()?->getFeatures()?->getDisplayValues();
                 $descriptionFrag = '';
+
                 if (is_array($descriptionItems)){
                     foreach ($descriptionItems as $descriptionItem){
                         $descriptionFrag .= "<li>" . $descriptionItem . "</li>";
