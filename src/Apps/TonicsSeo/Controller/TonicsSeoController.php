@@ -87,6 +87,12 @@ class TonicsSeoController
      */
     public function rssHomePage()
     {
+        $rssSettingsData = [
+            'Logo' => null,
+            'Description' => null,
+            'Language' => null,
+            'Query' => [],
+        ];
         $settings = self::getSettingsData();
         if (isset($settings['_fieldDetails'])){
             $fieldDetails = json_decode($settings['_fieldDetails']);
@@ -104,44 +110,38 @@ class TonicsSeoController
             $app_tonicsseo_rss_settings_language = 'app_tonicsseo_rss_settings_language';
             $app_tonicsseo_rss_settings_postQueryBuilder = 'app_tonicsseo_rss_settings_postQueryBuilder';
 
-            $rssSettingsData = [
-                'Logo' => null,
-                'Description' => null,
-                'Language' => null,
-                'Query' => [],
-            ];
+            if (isset($fieldDetails[0]->_children)){
+                foreach ($fieldDetails[0]->_children as $field){
+                    if (isset($field->field_options)){
+                        if ($field->field_input_name === $app_tonicsseo_rss_settings_parent && isset($field->_children)){
+                            foreach ($field->_children as $child){
 
-            foreach ($fieldDetails[0]->_children as $field){
-                if (isset($field->field_options)){
-                    if ($field->field_input_name === $app_tonicsseo_rss_settings_parent && isset($field->_children)){
-                        foreach ($field->_children as $child){
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_logo){
+                                    $rssSettingsData['Logo'] = $child->field_options->app_tonicsseo_rss_settings_logo;
+                                }
 
-                            if ($child->field_input_name === $app_tonicsseo_rss_settings_logo){
-                                $rssSettingsData['Logo'] = $child->field_options->app_tonicsseo_rss_settings_logo;
-                            }
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_description){
+                                    $rssSettingsData['Description'] = $child->field_options->app_tonicsseo_rss_settings_description;
+                                }
 
-                            if ($child->field_input_name === $app_tonicsseo_rss_settings_description){
-                                $rssSettingsData['Description'] = $child->field_options->app_tonicsseo_rss_settings_description;
-                            }
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_language){
+                                    $rssSettingsData['Language'] = $child->field_options->app_tonicsseo_rss_settings_language;
+                                }
 
-                            if ($child->field_input_name === $app_tonicsseo_rss_settings_language){
-                                $rssSettingsData['Language'] = $child->field_options->app_tonicsseo_rss_settings_language;
-                            }
-
-                            if ($child->field_input_name === $app_tonicsseo_rss_settings_postQueryBuilder){
-                                if (isset($child->_children[0]->_children)){
-                                    $rssSettingsData['Query'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children);
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_postQueryBuilder){
+                                    if (isset($child->_children[0]->_children)){
+                                        $rssSettingsData['Query'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children);
+                                    }
                                 }
                             }
-                        }
 
+                        }
                     }
                 }
             }
-
-            dd($fieldDetails, $rssSettingsData);
         }
-        dd('checkMate');
+
+
     }
 
     public function rssPostCategory(string $categoryName)
