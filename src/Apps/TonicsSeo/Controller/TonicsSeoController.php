@@ -17,6 +17,8 @@ use App\Modules\Core\Events\Tools\Sitemap\AbstractSitemapInterface;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
+use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Helper\FieldHelpers;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
@@ -127,7 +129,7 @@ class TonicsSeoController
                                 }
 
                                 if ($child->field_input_name === $app_tonicsseo_rss_settings_language){
-                                    $rssSettingsData['Language'] = $child->field_options->app_tonicsseo_rss_settings_language;
+                                    $rssSettingsData['Language'] = trim($child->field_options->app_tonicsseo_rss_settings_language);
                                 }
 
                                 if ($child->field_input_name === $app_tonicsseo_rss_settings_postQueryBuilder){
@@ -143,7 +145,7 @@ class TonicsSeoController
             }
         }
 
-       // dd($rssSettingsData, $settings);
+        response()->header("content-type: text/xml; charset=UTF-8");
 
         view('Apps::TonicsSeo/Views/rss', [
             'rssData' => $rssSettingsData,
@@ -151,9 +153,55 @@ class TonicsSeoController
 
     }
 
+    /**
+     * @param string $categoryName
+     * @return void
+     * @throws \Exception
+     */
     public function rssPostCategory(string $categoryName)
     {
+        $postTbl = Tables::getTable(Tables::POSTS);
+        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+        $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
+        $categoryData = db()
+            ->Select('*, JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.seo_description")) as cat_description')
+            ->From($CatTbl)->WhereEquals('cat_slug', $categoryName)->FetchFirst();
+
+        if ($categoryData){
+            $settings = self::getSettingsData();
+            $rssSettingsData = [
+                'Title' => $settings['app_tonicsseo_site_title'] ?? null,
+                'Description' => $categoryData->cat_description,
+                'Logo' => $settings['app_tonicsseo_rss_settings_logo'] ?? null,
+                'RequestURL' => AppConfig::getAppUrl(),
+                'Language' => $settings['app_tonicsseo_rss_settings_language'] ?? 'en',
+                'Query' => [],
+            ];
+
+            $postFieldSettings = $postTbl . '.field_settings';
+            $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'created_at', 'updated_at', 'image_url']])
+                . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
+                . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description"
+                . ", DATE_FORMAT($postTbl.created_at, '%a, %d %b %Y %T') as rssPubDate";
+
+            $rssSettingsData['Query'] = db()->Select($tblCol)
+                ->From($postCatTbl)
+                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                ->WhereEquals('post_status', 1)
+                ->Where("$postTbl.created_at", '<=', helper()->date())
+                ->WhereIn('cat_id', $categoryData->cat_id)->GroupBy('post_id')
+                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate();
+
+            response()->header("content-type: text/xml; charset=UTF-8");
+
+            view('Apps::TonicsSeo/Views/rss', [
+                'rssData' => $rssSettingsData,
+            ]);
+        }
+
+        SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, 'RSS Feed Not Found');
     }
 
     private function getDefaultRobots()
