@@ -7,13 +7,14 @@ use App\Apps\TonicsToc\EventHandler\TonicsTocFieldHandler;
 use App\Apps\TonicsToc\EventHandler\TonicsTocFieldSelection;
 use App\Apps\TonicsToc\Route\Routes;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnEditorFieldSelection;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class TonicsTocActivator implements ExtensionConfig
+class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
 {
     use Routes;
 
@@ -74,7 +75,7 @@ class TonicsTocActivator implements ExtensionConfig
      */
     public function onInstall(): void
     {
-        $this->fieldData->importFieldItems($this->getFieldItemsToImport());
+        $this->fieldData->importFieldItems($this->fieldItems());
     }
 
     /**
@@ -89,7 +90,7 @@ class TonicsTocActivator implements ExtensionConfig
         return;
     }
 
-    public function getFieldItemsToImport(): array
+    public function fieldItems(): array
     {
         $json =<<<'JSON'
 [
@@ -98,14 +99,7 @@ class TonicsTocActivator implements ExtensionConfig
     "field_name": "input_text",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"65d9zpp703k0000000000\",\"fieldName\":\"TOC Label\",\"inputName\":\"toc_label\",\"textType\":\"text\",\"defaultValue\":\"Table of Content\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
-  },
-  {
-    "fk_field_id": "App TonicsToc",
-    "field_name": "modular_fieldfilehandler",
-    "field_id": 2,
-    "field_parent_id": null,
-    "field_options": "{\"field_slug\":\"modular_fieldfilehandler\",\"field_slug_unique_hash\":\"3plfkeao23u0000000000\",\"fieldName\":\"FieldFileHandler\",\"templateFile\":\"App\\\\Apps\\\\TonicsToc\\\\EventHandler\\\\TonicsTocFieldHandler\",\"hideInUserEditForm\":\"1\",\"postEditor\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"65d9zpp703k0000000000\",\"field_input_name\":\"toc_label\",\"fieldName\":\"TOC Label\",\"inputName\":\"toc_label\",\"textType\":\"text\",\"defaultValue\":\"Table of Content\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
   },
   {
     "fk_field_id": "App TonicsToc Settings",
@@ -203,5 +197,4 @@ JSON;
         $tb = $this->fieldData->getFieldTable();
         db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
     }
-
 }
