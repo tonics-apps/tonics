@@ -14,12 +14,13 @@ use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
 use App\Apps\NinetySeven\EventHandler\HandlePages;
 use App\Apps\NinetySeven\Route\Routes;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Page\Events\BeforePageView;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class NinetySevenActivator implements ExtensionConfig
+class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
 {
     use Routes;
 
@@ -75,7 +76,7 @@ class NinetySevenActivator implements ExtensionConfig
      */
     public function onInstall(): void
     {
-        $this->fieldData->importFieldItems($this->getFieldItemsToImport());
+        $this->fieldData->importFieldItems($this->fieldItems());
     }
 
     /**
@@ -113,7 +114,7 @@ class NinetySevenActivator implements ExtensionConfig
         // TODO: Implement onUpdate() method.
     }
 
-    public function getFieldItemsToImport(): array
+    public function fieldItems(): array
     {
         $json =<<<'JSON'
 [
@@ -241,7 +242,7 @@ class NinetySevenActivator implements ExtensionConfig
     "field_name": "input_rich-text",
     "field_id": 8,
     "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> © 2022 Devsrealm |        <a href=\\\"https://devsrealm.com/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> \\u00a9 2022 Devsrealm |        <a href=\\\"https://devsrealm.com/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
   }
 ]
 JSON;
