@@ -21,6 +21,7 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Helper\FieldHelpers;
+use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -198,7 +199,7 @@ class TonicsSeoController
                 'rssData' => $rssSettingsData,
             ]);
         } else {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, 'RSS Feed Not Found');
+            throw new URLNotFound('RSS Feed Not Found', SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
         }
     }
 
