@@ -14,6 +14,7 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Commands\Scheduler\ScheduleManager;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\EventHandlers\DefaultEditorsAsset;
 use App\Modules\Core\EventHandlers\Fields\Tools\Sitemap;
@@ -34,6 +35,7 @@ use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Routes\Routes;
+use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -126,9 +128,12 @@ class CoreActivator implements ExtensionConfig
             ];
     }
 
+    /**
+     * @throws \Exception
+     */
     public function onInstall(): void
     {
-        // TODO: Implement onInstall() method.
+        (new FieldData())->importFieldItems(FieldConfig::DefaultFieldItems());
     }
 
     public function onUninstall(): void
