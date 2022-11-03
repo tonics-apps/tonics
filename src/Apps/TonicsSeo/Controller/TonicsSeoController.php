@@ -146,7 +146,6 @@ class TonicsSeoController
         }
 
         response()->header("content-type: text/xml; charset=UTF-8");
-
         view('Apps::TonicsSeo/Views/rss', [
             'rssData' => $rssSettingsData,
         ]);
@@ -176,11 +175,10 @@ class TonicsSeoController
                 'Logo' => $settings['app_tonicsseo_rss_settings_logo'] ?? null,
                 'RequestURL' => AppConfig::getAppUrl(),
                 'Language' => $settings['app_tonicsseo_rss_settings_language'] ?? 'en',
-                'Query' => [],
             ];
 
             $postFieldSettings = $postTbl . '.field_settings';
-            $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'created_at', 'updated_at', 'image_url']])
+            $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'slug_id', 'created_at', 'updated_at', 'image_url']])
                 . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
                 . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description"
                 . ", DATE_FORMAT($postTbl.created_at, '%a, %d %b %Y %T') as rssPubDate";
@@ -199,9 +197,9 @@ class TonicsSeoController
             view('Apps::TonicsSeo/Views/rss', [
                 'rssData' => $rssSettingsData,
             ]);
+        } else {
+            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, 'RSS Feed Not Found');
         }
-
-        SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, 'RSS Feed Not Found');
     }
 
     private function getDefaultRobots()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-
+    <atom:link href="[[v('URL.FULL_URL')]]" rel="self" type="application/rss+xml" />
     [[if("v[rssData.Title]")
       <title>[[v('rssData.Title')]]</title>
     ]]
@@ -34,7 +34,8 @@
         <title>[[v('rssQueryData.post_title')]]</title>
         <description>[[v('rssQueryData.post_description')]]</description>
         <link>[[v('App_Config.SiteURL')]][[v('rssQueryData._preview_link')]]</link>
-        <pubDate>[[v('rssQueryData.rssPubDate')]] [[v('App_Config.APP_TIME_ZONE_OFFSET')]]</pubDate>
+        <guid isPermaLink="false">[[v('rssQueryData.slug_id')]]</guid>
+        <pubDate>[[v('rssQueryData.rssPubDate')]] [[string_str_replace(':', '', 'v[App_Config.APP_TIME_ZONE_OFFSET]')]]</pubDate>
       </item>
     ]]
   </channel>

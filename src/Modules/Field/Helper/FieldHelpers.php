@@ -28,7 +28,7 @@ class FieldHelpers
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
         $postFieldSettings = $postTbl . '.field_settings';
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'created_at', 'updated_at', 'image_url']])
+        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'slug_id', 'post_slug', 'field_settings', 'created_at', 'updated_at', 'image_url']])
             . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
             . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description"
             . ", DATE_FORMAT($postTbl.created_at, '%a, %d %b %Y %T') as rssPubDate";
