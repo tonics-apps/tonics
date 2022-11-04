@@ -32,7 +32,6 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
         $htmlFrag = '';
         $fieldData = [];
         if (isset($fields[0]->_children)) {
-            // dd($fields[0]->_children);
             $tonicsAmazonAffiliateProductBoxAsin = 'tonicsAmazonAffiliateProductBox_asin';
             $tonicsAmazonAffiliateProductBoxTitle = 'tonicsAmazonAffiliateProductBox_title';
             $tonicsAmazonAffiliateProductBoxDescription = 'tonicsAmazonAffiliateProductBox_description';
