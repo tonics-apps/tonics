@@ -10,7 +10,6 @@
 
 namespace App\Modules\Core\Boot;
 
-use App\Apps\TonicsAmazonAffiliate\Controller\TonicsAmazonAffiliateController;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\SimpleState;
@@ -19,6 +18,7 @@ use App\Modules\Media\FileManager\LocalDriver;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
+use Embera\Embera;
 
 /**
  * Class HttpMessageProvider
@@ -42,8 +42,6 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
-        //$tonicsAmazonAffiliate = new TonicsAmazonAffiliateController();
-       // dd($tonicsAmazonAffiliate);
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception | \Throwable $e) {

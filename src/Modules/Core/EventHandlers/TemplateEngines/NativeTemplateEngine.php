@@ -48,7 +48,8 @@ class NativeTemplateEngine implements HandlerInterface
     {
         /** @var $event TonicsTemplateEngines */
         ## Tonics View
-        $templateLoader = new TonicsTemplateFileLoader('html');
+        $s = DIRECTORY_SEPARATOR;
+        $templateLoader = new TonicsTemplateFileLoader('html', [AppConfig::getModulesPath() . "${s}Core${s}Library${s}Composer"]);
         $templateLoader->resolveTemplateFiles(AppConfig::getModulesPath());
         $templateLoader->resolveTemplateFiles(AppConfig::getAppsPath());
         $settings = [
