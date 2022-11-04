@@ -16,7 +16,6 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\JobSystem\Job;
-use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;

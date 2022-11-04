@@ -52,6 +52,8 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     }
 
     /**
+     * @param AbstractSchedulerInterface $scheduleObject
+     * @return void
      * @throws \Exception
      */
     public function enqueue(AbstractSchedulerInterface $scheduleObject): void
