@@ -5,6 +5,10 @@
 
 [[reset_hook('Core::in_main_form_and_filter_status')]]
 
+[[hook_into('Core::in_after_last_data_table_menu')
+    [[_use('Core::data_table_menu_reset_fields')]]
+]]
+
 [[hook_into('Core::before_footer')
     [[_use("script:variables")]]
     [[_use("script:post-index")]]
