@@ -10,7 +10,6 @@
 
 namespace App\Modules\Field\EventHandlers\DefaultFieldHandlers;
 
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 use Embera\Embera;
@@ -19,7 +18,9 @@ class TonicsOEmbedFieldHandler implements FieldTemplateFileInterface
 {
 
     /**
-     * @throws \Exception
+     * @param OnFieldMetaBox|null $event
+     * @param $fields
+     * @return string
      */
     public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
     {

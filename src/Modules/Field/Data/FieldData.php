@@ -548,7 +548,6 @@ HTML;
             if (is_array($postContent)) {
                 $fieldSettings[$contentKey] = '';
                 foreach ($postContent as $field) {
-
                     #
                     # We Check If There is a FieldHandler in the PostData (meaning the logic should be handled there), if there is,
                     # we validate it. and pass it for handling...
@@ -556,7 +555,7 @@ HTML;
                     if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE) {
                         if ($field['raw'] === false) {
                             $postData = is_string($field['postData']) ? $field['postData'] : '';
-                            $fieldSettings[$contentKey] .= $this->previewFragForFieldHandler($postData);
+                            $fieldSettings[$contentKey] .= $this->previewFragForFieldHandler($postData, $field);
                         } else {
                             if (isset($field['content'])) {
                                 $fieldSettings[$contentKey] .= $field['content'];
@@ -574,10 +573,11 @@ HTML;
 
     /**
      * @param string $postData
+     * @param array $field
      * @return string
      * @throws \Exception
      */
-    public function previewFragForFieldHandler(string $postData): string
+    public function previewFragForFieldHandler(string $postData, array $field = []): string
     {
         $previewFrag = '';
         $onFieldMetaBox = new OnFieldMetaBox();
@@ -594,7 +594,11 @@ HTML;
             /** @var $fieldHandler FieldTemplateFileInterface  */
             if (isset($fieldCategories[$fieldHandler->fieldSlug()])){
                 $fields = $fieldCategories[$fieldHandler->fieldSlug()];
-                $previewFrag .= $fieldHandler->handleFieldLogic($onFieldMetaBox, $fields);
+                if ($fieldHandler->canPreSaveFieldLogic() && isset($field['previewFrag'])){
+                    $previewFrag .= $field['previewFrag'];
+                } else {
+                    $previewFrag .= $fieldHandler->handleFieldLogic($onFieldMetaBox, $fields);
+                }
             }
         }
 
@@ -617,35 +621,17 @@ HTML;
      * @return array|mixed
      * @throws \Exception
      */
-    public function preSavePostEditorFieldItems(&$fieldSettings, $contentKey)
+    public function preSavePostEditorFieldItems(&$fieldSettings, $contentKey): mixed
     {
-        # In case it is being used else where
-        $oldPostData = AppConfig::initLoaderMinimal()::getGlobalVariableData('Data');
-        $oldFieldSettings = FieldConfig::getFieldSettings();
-        addToGlobalVariable(FieldConfig::fieldSettingsID(), $fieldSettings);
-
         if (isset($fieldSettings[$contentKey]) && is_array($postEditorsContent = json_decode($fieldSettings[$contentKey], true))) {
-            addToGlobalVariable(FieldConfig::postEditorFieldsContentID(), $postEditorsContent);
             foreach ($postEditorsContent as &$field) {
-                addToGlobalVariable('Data', $field['postData'] ?? []);
-                if (isset($field['postData']['FieldHandler']) && ($fieldHandler = event()->getHandler()->getHandlerInEvent(FieldTemplateFile::class, $field['postData']['FieldHandler'])) !== null) {
-                    if ($fieldHandler instanceof FieldTemplateFileInterface && $fieldHandler->canPreSaveFieldLogic()) {
-                        $field['postData'][FieldConfig::fieldPreSavedDataID()] = $this->handleWithFieldHandler($fieldHandler, getPostData());
-                    }
+                if ($field['raw'] === false) {
+                    $postData = is_string($field['postData']) ? $field['postData'] : '';
+                    $field['previewFrag'] = $this->previewFragForFieldHandler($postData);
                 }
             }
-
-            $fieldSettings = FieldConfig::getFieldSettings();
             $fieldSettings[$contentKey] = json_encode($postEditorsContent);
         }
-
-        // restore old postData;
-        addToGlobalVariable('Data', $oldPostData);
-        addToGlobalVariable(FieldConfig::fieldSettingsID(), $oldFieldSettings);
-
-        // clear the following as they are useless at this point
-        InitLoaderMinimal::removeFromGlobalVariable(FieldConfig::fieldSettingsID());
-        InitLoaderMinimal::removeFromGlobalVariable(FieldConfig::postEditorFieldsContentID());
 
         return $fieldSettings;
     }

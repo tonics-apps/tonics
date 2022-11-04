@@ -118,23 +118,13 @@ function addTiny(editorID) {
                             const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(jsonValue, target);
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
-                            let url = "/admin/tools/field/field-preview";
                             target.nextElementSibling.innerHTML = '<span class="loading-animation"></span>';
-                            let defaultHeader = {
-                                'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
-                            };
-                            let dataToSend = {
-                                'postData': OnBeforeTonicsFieldPreview.getPostData()
-                            }
-                            new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
-                                if (data) {
-                                    data = JSON.parse(data);
-                                    if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
-                                        target.nextElementSibling.innerHTML = '';
-                                        target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
-                                    }
+                            fieldPreviewFromPostData(OnBeforeTonicsFieldPreview.getPostData(), function (data) {
+                                if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
+                                    target.nextElementSibling.innerHTML = '';
+                                    target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
                                 }
-                            });
+                            })
                         }
                     }
                 });
@@ -220,6 +210,28 @@ function addTiny(editorID) {
     });
 }
 
+function fieldPreviewFromPostData(postData, onSuccess = null, onError = null) {
+    let url = "/admin/tools/field/field-preview";
+    let defaultHeader = {
+        'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+    };
+    let dataToSend = {
+        'postData': postData
+    }
+   new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
+        if (data) {
+            data = JSON.parse(data);
+            if (onSuccess) {
+                onSuccess(data);
+            }
+        } else {
+            if (onError) {
+                onError();
+            }
+        }
+    });
+}
+
 function getPostData(fieldSettingsEl) {
     let widgetSettings = {};
     let elements = fieldSettingsEl.querySelectorAll('input, textarea, select');
@@ -257,8 +269,14 @@ function getPostData(fieldSettingsEl) {
 class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
     /** @type OnSubmitFieldEditorsFormEvent */
     fieldSubmitEvObj = null;
+    event = null;
     constructor(event) {
+        this.event = event;
         this.fieldSubmitEvObj = event;
+        this.handleTinymceChildNodes();
+    }
+
+   handleTinymceChildNodes() {
         let self = this;
         if (tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             let nodesData = {}, key = 0;
@@ -280,9 +298,11 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                     const OnBeforeTonicsFieldSubmit = new OnBeforeTonicsFieldSubmitEvent(jsonValue, node);
                     let eventDispatcher = window.TonicsEvent.EventDispatcher;
                     eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnBeforeTonicsFieldSubmitEvent);
+                    let postDataFromBeforeTonicsFieldSubmit = OnBeforeTonicsFieldSubmit.getPostData();
                     nodesData[key] = {
                         raw: false,
-                        postData: OnBeforeTonicsFieldSubmit.getPostData(),
+                        postData: postDataFromBeforeTonicsFieldSubmit,
+                        // previewFrag: node.querySelector('.fieldsPreviewContent')?.innerHTML
                     };
                 } else {
                     if (nodesData.hasOwnProperty(key) && nodesData[key].raw === false) {
@@ -294,7 +314,7 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                 }
             });
 
-            event.addHiddenInputToForm(event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
+            self.event.addHiddenInputToForm(self.event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
         }
     }
 }
