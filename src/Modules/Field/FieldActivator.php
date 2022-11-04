@@ -14,6 +14,8 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\EventHandlers\Field\CacheFieldIDItems;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\EventHandlers\DefaultFieldHandlers\TonicsDefaultFieldsSelection;
+use App\Modules\Field\EventHandlers\DefaultFieldHandlers\TonicsOEmbedFieldHandler;
 use App\Modules\Field\EventHandlers\DefaultSanitization\DefaultSlugFieldSanitization;
 use App\Modules\Field\EventHandlers\DefaultSanitization\PageSlugFieldSanitization;
 use App\Modules\Field\EventHandlers\DefaultSanitization\PostContentEditorFieldSanitization;
@@ -117,9 +119,11 @@ class FieldActivator implements ExtensionConfig
             ],
 
             OnEditorFieldSelection::class => [
+                TonicsDefaultFieldsSelection::class
             ],
 
             FieldTemplateFile::class => [
+                TonicsOEmbedFieldHandler::class
             ],
 
             OnFieldCreate::class => [
