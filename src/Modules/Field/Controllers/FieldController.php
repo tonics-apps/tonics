@@ -220,7 +220,7 @@ class FieldController
             // Log..
         }
 
-        session()->flash(['Error Occurred Resetting Field Items'], type: Session::SessionCategories_FlashMessageError);
+        session()->flash(['Error Occurred Resetting Field Items']);
         redirect(route('fields.index'));
     }
 

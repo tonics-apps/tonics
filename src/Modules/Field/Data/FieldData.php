@@ -578,14 +578,17 @@ HTML;
      */
     public function previewFragForFieldHandler(string $postData): string
     {
+        $previewFrag = '';
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
 
         $fieldItems = json_decode($postData);
+        if (!is_array($fieldItems)){
+            return $previewFrag;
+        }
         $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
         $fieldHandlers = event()->getHandler()->getEventHandlers(new FieldTemplateFile());
 
-        $previewFrag = '';
         foreach ($fieldHandlers as $fieldHandler){
             /** @var $fieldHandler FieldTemplateFileInterface  */
             if (isset($fieldCategories[$fieldHandler->fieldSlug()])){

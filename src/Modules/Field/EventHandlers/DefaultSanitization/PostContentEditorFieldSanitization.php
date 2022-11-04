@@ -47,7 +47,8 @@ class PostContentEditorFieldSanitization extends DefaultSanitizationAbstract imp
                 $fieldData = $this->getEvent()->getFieldData();
                 foreach ($postContent as $field) {
                     if ($field['raw'] === false) {
-                      $newValue .= $fieldData->wrapFieldsForPostEditor($field['postData'], $fieldData->previewFragForFieldHandler($field['postData']));
+                        $postData = (is_string($field['postData'])) ? $field['postData'] : '';
+                        $newValue .= $fieldData->wrapFieldsForPostEditor($postData, $fieldData->previewFragForFieldHandler($postData));
                     } else {
                         if (isset($field['content'])) {
                             $newValue .= $field['content'];
