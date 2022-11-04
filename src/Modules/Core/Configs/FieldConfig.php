@@ -553,6 +553,41 @@ class FieldConfig
     "field_id": 6,
     "field_parent_id": 4,
     "field_options": "{\"field_slug\":\"post_postcategoryselect\",\"post_postcategoryselect_cell\":\"1\",\"field_slug_unique_hash\":\"cemz102yrg0000000000\",\"field_input_name\":\"post_query_builder_Category\",\"fieldName\":\"Choose Category\",\"inputName\":\"post_query_builder_Category\",\"multipleSelect\":\"1\"}"
+  },
+  {
+    "fk_field_id": "oEmbed",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"3w0qwk0r6o00000000000\",\"field_input_name\":\"\",\"fieldName\":\"OEmbed\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"2fr 1fr\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "oEmbed",
+    "field_name": "input_text",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2c1i7nzwzhhc000000000\",\"field_input_name\":\"OEmbed_url\",\"fieldName\":\"URL\",\"inputName\":\"OEmbed_url\",\"textType\":\"url\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter URL\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "oEmbed",
+    "field_name": "input_select",
+    "field_id": 3,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"jdlj4o5tyag000000000\",\"field_input_name\":\"OEmbed_responsive\",\"fieldName\":\"Responsive\",\"inputName\":\"OEmbed_responsive\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+  },
+  {
+    "fk_field_id": "oEmbed",
+    "field_name": "input_text",
+    "field_id": 4,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"33mogqqpskw0000000000\",\"field_input_name\":\"OEmbed_width\",\"fieldName\":\"Width (Optional\",\"inputName\":\"OEmbed_width\",\"textType\":\"number\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"OEmbed Width (Optional)\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "oEmbed",
+    "field_name": "input_text",
+    "field_id": 5,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"4p1qor96y600000000000\",\"field_input_name\":\"OEmbed_height\",\"fieldName\":\"Height (Optional)\",\"inputName\":\"OEmbed_height\",\"textType\":\"number\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"OEmbed Height (Optional)\",\"readOnly\":\"0\",\"required\":\"0\"}"
   }
 ]
 JSON;
