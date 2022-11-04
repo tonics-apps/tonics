@@ -555,7 +555,8 @@ HTML;
                     #
                     if ($mode === self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE) {
                         if ($field['raw'] === false) {
-                            $fieldSettings[$contentKey] .= $this->previewFragForFieldHandler($field['postData']);
+                            $postData = is_string($field['postData']) ? $field['postData'] : '';
+                            $fieldSettings[$contentKey] .= $this->previewFragForFieldHandler($postData);
                         } else {
                             if (isset($field['content'])) {
                                 $fieldSettings[$contentKey] .= $field['content'];
