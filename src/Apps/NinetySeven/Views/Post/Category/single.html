@@ -30,7 +30,9 @@
                 ]]
             </ul>
         </div>
-        <div class="category-sidebar margin-top:0">[[_use('Widget::Sidebar')]]</div>
+        [[if("v[Widget_sidebar_widget.Data]")
+            <div class="category-sidebar margin-top:0">[[_use('Widget::Sidebar')]]</div>
+        ]]
     </div>
 
     [[_use('pagination')]]

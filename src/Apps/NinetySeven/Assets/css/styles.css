@@ -1310,7 +1310,8 @@ article.entry-content {
     .tonics-category {
         grid-template-columns: repeat(4,1fr);
         grid-template-areas:
-        "category-title category-desc category-desc ..."
-        "category-article category-article category-article category-sidebar";
+                "category-title category-title category-title category-sidebar"
+                "category-desc category-desc category-desc category-sidebar"
+                "category-article category-article category-article category-sidebar";
     }
 }
