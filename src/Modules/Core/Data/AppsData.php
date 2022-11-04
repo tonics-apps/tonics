@@ -84,7 +84,7 @@ FORM;
             $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
 
             $data['update_frag'] = <<<HTML
-<div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
+<div class="form-group d:flex flex-gap:small flex-wrap:wrap">
             $installedFrag
             $settingsFrag
 </div>
@@ -119,7 +119,7 @@ FORM;
             }
 
             $data['update_frag'] = <<<HTML
-<div style="height: 45px;" class="form-group d:flex flex-gap:small flex-wrap:wrap">
+<div class="form-group d:flex flex-gap:small flex-wrap:wrap">
 <button style="opacity: 50%" class="bg:pure-white color:black border:none border-width:default border:black padding:tiny
         margin-top:0 cursor:pointer pointer-events:none">Installed
 </button>
