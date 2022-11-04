@@ -44,6 +44,9 @@ trait Routes
                 $route->match(['post', 'delete'], ':field/delete', [FieldController::class, 'delete']);
                 $route->match(['post', 'delete'], 'delete/multiple', [FieldController::class, 'deleteMultiple'], alias: 'deleteMultiple');
 
+                // for resetting field items
+                $route->get('/reset-field-items', [FieldController::class, 'fieldResetItems'],  alias: 'fieldResetItems');
+
                         #---------------------------------
                     # field ITEMS RESOURCES...
                 #---------------------------------
@@ -57,7 +60,7 @@ trait Routes
                 $route->post('/field-preview', [FieldControllerItems::class, 'fieldPreview']);
             });
 
-        },AuthConfig::getAuthRequestInterceptor([FieldAccess::class]), alias: 'fields');
+        }, AuthConfig::getAuthRequestInterceptor([FieldAccess::class]), alias: 'fields');
 
         return $route;
     }

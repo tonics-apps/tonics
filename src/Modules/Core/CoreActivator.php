@@ -11,6 +11,7 @@
 namespace App\Modules\Core;
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Commands\Scheduler\ScheduleManager;
@@ -39,7 +40,7 @@ use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsRouterSystem\Route;
 
-class CoreActivator implements ExtensionConfig
+class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
 {
     use Routes;
 
@@ -169,5 +170,10 @@ class CoreActivator implements ExtensionConfig
     public function onDelete(): void
     {
         // TODO: Implement onDelete() method.
+    }
+
+    function fieldItems(): array
+    {
+        return FieldConfig::DefaultFieldItems();
     }
 }

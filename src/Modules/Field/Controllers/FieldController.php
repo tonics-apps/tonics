@@ -10,6 +10,9 @@
 
 namespace App\Modules\Field\Controllers;
 
+use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
+use App\Modules\Comment\CommentActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
@@ -196,6 +199,29 @@ class FieldController
     public function deleteMultiple($entityBag): bool
     {
         return $this->getFieldData()->dataTableDeleteMultiple('field_id', Tables::getTable(Tables::FIELD), $entityBag);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function fieldResetItems(): void
+    {
+        $modules = [...helper()->getModuleActivators([ExtensionConfig::class, FieldItemsExtensionConfig::class]),
+            ...helper()->getModuleActivators([ExtensionConfig::class, FieldItemsExtensionConfig::class], helper()->getAllAppsDirectory())];
+
+        /** @var FieldItemsExtensionConfig&ExtensionConfig $module */
+        try {
+            foreach ($modules as $module){
+                $module->onInstall();
+            }
+            session()->flash(['Field Items Reset Successful'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('fields.index'));
+        } catch (\Exception){
+            // Log..
+        }
+
+        session()->flash(['Error Occurred Resetting Field Items'], type: Session::SessionCategories_FlashMessageError);
+        redirect(route('fields.index'));
     }
 
     /**

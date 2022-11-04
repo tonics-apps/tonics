@@ -10,6 +10,7 @@
 
 namespace App\Modules\Comment;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsRouterSystem\Route;
 

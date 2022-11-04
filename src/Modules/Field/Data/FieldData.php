@@ -512,7 +512,7 @@ HTML;
             db()->commit();
         } catch (\Exception $exception) {
             // log...
-            var_dump($exception->getMessage(), $exception->getTraceAsString());
+            // var_dump($exception->getMessage(), $exception->getTraceAsString());
         }
     }
 
