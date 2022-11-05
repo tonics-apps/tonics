@@ -10,10 +10,14 @@
 
 namespace App\Modules\Field\EventHandlers\DefaultFieldHandlers;
 
-use App\Modules\Core\Library\SchedulerSystem\Scheduler;
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
 use Embera\Embera;
+use Embera\Provider\ProviderAdapter;
+use Embera\Provider\ProviderInterface;
+use Embera\ProviderCollection\DefaultProviderCollection;
+use Embera\Url;
 
 class TonicsOEmbedFieldHandler implements FieldTemplateFileInterface
 {
@@ -64,8 +68,13 @@ class TonicsOEmbedFieldHandler implements FieldTemplateFileInterface
                 'responsive' => $responsive,
                 'fake_responses' => Embera::DISABLE_FAKE_RESPONSES,
             ];
+            $host = parse_url(AppConfig::getAppUrl(), PHP_URL_HOST);
+            $collection = new DefaultProviderCollection();
+            if (!empty($host)){
+                $collection->addProvider("$host", TonicsOEmbedProvider::class);
+            }
 
-            $ember = new Embera($config);
+            $ember = new Embera($config, $collection);
             $url = filter_var($url, FILTER_SANITIZE_URL);
             // Never Use the autoEmbed, can cause xss
             $embedFrag = $ember->getUrlData($url);
@@ -88,5 +97,54 @@ class TonicsOEmbedFieldHandler implements FieldTemplateFileInterface
     public function canPreSaveFieldLogic(): bool
     {
         return true;
+    }
+}
+
+class TonicsOEmbedProvider extends ProviderAdapter implements ProviderInterface
+{
+    /** inline {@inheritdoc} */
+    protected $httpsSupport = true;
+
+    /** inline {@inheritdoc} */
+    protected $responsiveSupport = true;
+
+    public function validateUrl(Url $url): bool
+    {
+        $urlPaths = parse_url((string) $url, PHP_URL_PATH);
+        if (str_starts_with($urlPaths, '/posts')){
+            return true;
+        }
+        // we can check other paths, e.g /tracks, /genres, we omit it for now...
+        return false;
+    }
+
+    public function getEndpoint(): string
+    {
+        return AppConfig::getAppUrl() . '/services/oembed?format=json';
+    }
+
+    public function modifyResponse(array $response = []): array
+    {
+        return $response;
+    }
+
+    public function getFakeResponse(): array
+    {
+        return [];
+    }
+
+    public function normalizeUrl(Url $url): Url
+    {
+        $url->convertToHttps();
+        $url->removeQueryString();
+        return $url;
+    }
+
+    public static function getHosts(): array
+    {
+        return
+            [
+                parse_url(AppConfig::getAppUrl(), PHP_URL_HOST)
+            ];
     }
 }

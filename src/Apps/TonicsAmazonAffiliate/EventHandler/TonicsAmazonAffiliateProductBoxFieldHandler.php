@@ -88,8 +88,7 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
 
                     if ($type === 'VERTICAL') {
                         $htmlFrag = <<<HTML
-<ul style="list-style:none;">
-    <li tabindex="0" class="owl width:100% padding:default color:black bg:white-one border-width:default border:black position:relative">
+    <div tabindex="0" class="owl width:100% padding:default color:black bg:white-one border-width:default border:black position:relative">
               <div style="border-top-right-radius: 10px;" class="bg:pure-black color:white padding:small tonics-amazon-affiliate-title">$title</div>
                 <div class="tonics-amazon-affiliate-image">
         <a href="{$fieldData['URL']}" target="_top">
@@ -106,13 +105,12 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
             </div>
             {$fieldData['BUTTON']}
         </div>
-    </li>
-</ul>
+    </div>
 HTML;
                     } elseif ($type === 'HORIZONTAL') {
                         $htmlFrag = <<<HTML
-<ul style="list-style:none;">
-<style>
+    <div tabindex="0" class="owl tonics-amazon-affiliate-list width:100% padding:default color:black bg:white-one border-width:default border:black position:relative">
+    <style>
 
     @media (min-width: 1200px) {
       .tonics-amazon-affiliate-list {
@@ -141,7 +139,6 @@ HTML;
         grid-area: taf-footer;
     }
 </style>
-    <li tabindex="0" class="owl tonics-amazon-affiliate-list width:100% padding:default color:black bg:white-one border-width:default border:black position:relative">
               <div style="border-top-right-radius: 10px;" class="bg:pure-black color:white padding:small tonics-amazon-affiliate-title">$title</div>
                 <div class="tonics-amazon-affiliate-image">
         <a href="{$fieldData['URL']}" target="_top">
@@ -158,8 +155,7 @@ HTML;
             </div>
             {$fieldData['BUTTON']}
         </div>
-    </li>
-</ul>
+    </div>
 HTML;
                     }
                 }
@@ -178,7 +174,7 @@ HTML;
 
     public function canPreSaveFieldLogic(): bool
     {
-        return true;
+        return false;
     }
 
     public function fieldSlug(): string

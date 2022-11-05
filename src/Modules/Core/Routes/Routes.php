@@ -19,6 +19,7 @@ use App\Modules\Core\Controllers\DashboardController;
 use App\Modules\Core\Controllers\ImportExport\ImportController;
 use App\Modules\Core\Controllers\Installer;
 use App\Modules\Core\Controllers\AppsController;
+use App\Modules\Core\Controllers\OEmbedController;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CoreAccess;
 use App\Modules\Core\RequestInterceptor\InstallerChecker;
@@ -135,6 +136,10 @@ trait Routes
             $route->get(':module-name', [AppsController::class, 'serveModuleAsset']);
         });
 
+                #---------------------------------
+            # OEMBED ROUTE
+        #---------------------------------
+        $route->get('/services/oembed', [OEmbedController::class, 'OEmbed']);
         return $route;
     }
 

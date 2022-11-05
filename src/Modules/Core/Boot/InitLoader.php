@@ -64,7 +64,6 @@ class InitLoader
      */
     public function BootDaBoot()
     {
-
         if (AppConfig::isMaintenanceMode()){
             die("Temporarily down for schedule maintenance, check back in few minutes");
         }
