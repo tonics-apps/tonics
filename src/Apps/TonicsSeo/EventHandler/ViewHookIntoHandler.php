@@ -80,7 +80,8 @@ HTML;
     {
         $meta = '';
         $seoSettings = TonicsSeoController::getSettingsData();
-
+        $inHead = $seoSettings['app_tonicsseo_in_head'] ?? "";
+        $meta .= $inHead . "\n";
         $siteTitle = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title'] ?? "");
         $separator = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_separator'] ?? "");
         $titlePositionIsLeft = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_location'] ?? "") === 'left';
@@ -111,17 +112,17 @@ SEO;
 SEO;
 
 
-        $seoIndexing = $tonicsView->accessArrayWithSeparator('Data.seo_indexing') === '1';
-        $seoFollow = $tonicsView->accessArrayWithSeparator('Data.seo_following') === '1';
+        $seoNoIndex = $tonicsView->accessArrayWithSeparator('Data.seo_indexing') === '0';
+        $seoNoFollow = $tonicsView->accessArrayWithSeparator('Data.seo_following') === '0';
 
-        if ($seoIndexing){
+        if ($seoNoIndex){
             $meta .=<<<SEO
 <meta name="robots" content="noindex" />
 
 SEO;
         }
 
-        if ($seoFollow){
+        if ($seoNoFollow){
             $meta .=<<<SEO
 <meta name="robots" content="nofollow" />
 

@@ -55,8 +55,8 @@ class PostContentEditorFieldSanitization extends DefaultSanitizationAbstract imp
                         }
                     }
                 }
+                $value = $newValue;
             }
-            $value = $newValue;
         }
 
         return $value;

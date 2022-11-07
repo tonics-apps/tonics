@@ -272,7 +272,6 @@ class AppsSystem extends SimpleState
                     # is app
                     if (str_starts_with($appDirPath, AppConfig::getAppsPath())){
                         $appUpdate = new UpdateMechanismState();
-
                         $appUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['app'])->setAction('update')
                             ->runStates(false);
                         if ($appUpdate->getStateResult() === SimpleState::ERROR){

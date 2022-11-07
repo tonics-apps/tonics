@@ -211,12 +211,13 @@ class FieldController
 
         /** @var FieldItemsExtensionConfig&ExtensionConfig $module */
         try {
+            apcu_clear_cache();
             foreach ($modules as $module){
                 $module->onInstall();
             }
             session()->flash(['Field Items Reset Successful'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('fields.index'));
-        } catch (\Exception){
+        } catch (\Exception $exception){
             // Log..
         }
 

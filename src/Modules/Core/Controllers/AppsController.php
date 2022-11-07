@@ -48,12 +48,12 @@ class AppsController
     {
 
         $dataTableHeaders = [
-            ['type' => '', 'title' => 'Name', 'slug' => 'name', 'minmax' => '150px, .6fr', 'td' => 'name'],
+            ['type' => '', 'title' => 'Name', 'slug' => 'name', 'minmax' => '150px, 1fr', 'td' => 'name'],
             ['type' => '', 'title' => 'Description', 'slug' => 'description', 'minmax' => '300px, 1.6fr', 'td' => 'description'],
-            ['type' => '', 'title' => 'Type', 'slug' => 'type', 'minmax' => '50px, 1fr', 'td' => 'type'],
-            ['type' => '', 'title' => 'Actions', 'minmax' => '50px, 1fr', 'td' => 'update_frag'],
-            ['type' => '', 'title' => 'Update Available', 'minmax' => '35px, .7fr', 'td' => 'update_available'],
-            ['type' => '', 'title' => 'Version', 'minmax' => '35px, .7fr', 'td' => 'version'],
+            ['type' => '', 'title' => 'Type', 'slug' => 'type', 'minmax' => '150px, 1fr', 'td' => 'type'],
+            ['type' => '', 'title' => 'Actions', 'minmax' => '150px, 1fr', 'td' => 'update_frag'],
+            ['type' => '', 'title' => 'Update Available', 'minmax' => '100px, .7fr', 'td' => 'update_available'],
+            ['type' => '', 'title' => 'Version', 'minmax' => '100px, .7fr', 'td' => 'version'],
         ];
 
         view('Modules::Core/Views/App/index', [

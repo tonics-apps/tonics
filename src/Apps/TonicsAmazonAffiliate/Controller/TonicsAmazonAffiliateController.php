@@ -270,10 +270,10 @@ class TonicsAmazonAffiliateController
         $getOnAmazon = $settings['tonicsAmazonAffiliateSettings_buttonText'] ?? '';
         foreach ($items as $item) {
             if ($item instanceof Item){
-                $title = $item->getItemInfo()?->getTitle()?->getDisplayValue();
+                $title = helper()->htmlSpecChar($item->getItemInfo()?->getTitle()?->getDisplayValue());
                 $imageURL = $item->getImages()?->getPrimary()?->getLarge()->getURL();
-                $height = $item->getImages()?->getPrimary()?->getLarge()->getHeight();
-                $width = $item->getImages()?->getPrimary()?->getLarge()->getWidth();
+                $height = (int)$item->getImages()?->getPrimary()?->getLarge()->getHeight();
+                $width = (int)$item->getImages()?->getPrimary()?->getLarge()->getWidth();
                 $imageSrc = '';
                 $button = '';
                 $detailPageURL = $item?->getDetailPageURL();
@@ -297,7 +297,7 @@ IMG;
 
                 if (is_array($descriptionItems)){
                     foreach ($descriptionItems as $descriptionItem){
-                        $descriptionFrag .= "<li>" . $descriptionItem . "</li>";
+                        $descriptionFrag .= "<li>" . helper()->htmlSpecChar($descriptionItem) . "</li>";
                     }
                 }
                 $descriptionFrag = "<ul class='owl' style='list-style: disc; margin-left: unset;'>" . $descriptionFrag . "</ul>";

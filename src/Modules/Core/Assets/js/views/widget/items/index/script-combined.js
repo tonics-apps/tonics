@@ -3928,6 +3928,8 @@ let previousTinyPositionBeforeFullScreenStateChange = null,
     currentEditedInputInTonicsFieldTab = null;
 
 function addTiny(editorID) {
+    let fieldUniqueSlug = '';
+    fieldUniqueSlug = document.querySelector(editorID)?.dataset?.field_unique_slug;
     let tinyAssets = document.querySelector('template.tiny-mce-assets'),
         content_css = '',
         tinyJSAssets = null, tinyCSSAssets = null;
@@ -3957,8 +3959,11 @@ function addTiny(editorID) {
         plugins: [
             'advlist', 'tonics-drivemanager', fieldSelectionManager, 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
             'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'media', 'table', 'help', 'wordcount',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount', 'autosave'
         ],
+        autosave_ask_before_unload: true,
+        autosave_prefix: 'tonics-tinymce-autosave-{path}{query}-' + fieldUniqueSlug + '-',
+        autosave_interval: '5s',
         // fullscreen_native: true,
         toolbar: `undo redo | tonics-drivemanager ${fieldSelectionManager} link image media | ` +
             'bold italic backcolor | alignleft aligncenter ' +
