@@ -9,6 +9,7 @@
  */
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Data\UserData;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
@@ -228,7 +229,6 @@ function getGlobalVariableData()
  */
 function view(string $viewname, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
-
     $data = [...$data, ...getGlobalVariableData()];
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
     return $view->render($viewname, $condition);

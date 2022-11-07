@@ -12,6 +12,7 @@ namespace App\Modules\Core\Boot;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
@@ -85,6 +86,10 @@ class InitLoaderMinimal
             'isProduction' => AppConfig::isProduction(),
             'SERVE_APP_PATH' => DriveConfig::serveAppFilePath(),
             'SERVE_MODULE_PATH' => DriveConfig::serveModuleFilePath()
+        ]);
+
+        self::addToGlobalVariable('Auth', [
+            'Logged_In' => !empty(UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))
         ]);
 
         url()->reset();

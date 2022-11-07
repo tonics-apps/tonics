@@ -80,8 +80,15 @@ HTML;
     {
         $meta = '';
         $seoSettings = TonicsSeoController::getSettingsData();
+        $isUserLoggedIn = $tonicsView->accessArrayWithSeparator('Auth.Logged_In');
         $inHead = $seoSettings['app_tonicsseo_in_head'] ?? "";
-        $meta .= $inHead . "\n";
+        $disableInjection = $seoSettings['app_tonicsseo_disable_injection_logged_in'] ?? "";
+        if ($isUserLoggedIn === false){
+            $meta .= $inHead . "\n";
+        }elseif ($isUserLoggedIn === true && $disableInjection === '0'){
+            $meta .= $inHead . "\n";
+        }
+
         $siteTitle = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title'] ?? "");
         $separator = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_separator'] ?? "");
         $titlePositionIsLeft = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_location'] ?? "") === 'left';

@@ -337,6 +337,10 @@ class UpdateMechanismState extends SimpleState
                 $folderName = $module['folder_name'];
                 $sep = DIRECTORY_SEPARATOR;
 
+                if ($tonicsHelper->fileExists($tempPath . $sep . $name)){
+                    $tonicsHelper->forceDeleteFile($tempPath . $sep . $name);
+                }
+
                 $createFromURLResult = $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
                 if ($createFromURLResult === false) {
                     $error = "An Error Occurred Downloading {$module['download_url']}";
