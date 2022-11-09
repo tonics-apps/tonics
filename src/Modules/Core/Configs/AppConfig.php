@@ -249,7 +249,7 @@ class AppConfig
 
     public static function getAppCacheKey(): string
     {
-        return 'initLoader_' . env('APP_NAME', 'Tonics');
+        return 'initLoader_' . env('APP_KEY', 'Tonics');
     }
 
     public static function getAppEnv(): string

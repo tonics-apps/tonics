@@ -45,7 +45,7 @@ window.addEventListener('message', (e) => {
     if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:MediaLink') {
         if (audioDemoInput) {
             if (audioDemoInputName) {
-                audioDemoInputName.value = data.value;
+                audioDemoInputName.value = data.value.replace(siteURL, '');
             }
             audioDemoInput.classList.add('d:none');
             removeAudioDemo.classList.remove('d:none');
