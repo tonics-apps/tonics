@@ -63,6 +63,7 @@ class PostsController
         $postTbl = Tables::getTable(Tables::POSTS);
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
+        $userTable = Tables::getTable(Tables::USERS);
 
         $categoriesSelectDataAttribute = rtrim($categoriesSelectDataAttribute, ',');
         $dataTableHeaders = [
@@ -73,14 +74,11 @@ class PostsController
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at', 'image_url']])
-            . ', GROUP_CONCAT(CONCAT(cat_id, "::", cat_slug ) ) as fk_cat_id'
-            . ', CONCAT("/admin/posts/", post_slug, "/edit") as _edit_link, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
-
-        $postData = db()->Select($tblCol)
+        $postData = db()->Select(PostData::getPostTableJoiningRelatedColumns())
             ->From($postCatTbl)
             ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
             ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($postTbl, ['user_id']))
             ->when(url()->hasParamAndValue('status'),
                 function (TonicsQuery $db) {
                     $db->WhereEquals('post_status', url()->getParam('status'));

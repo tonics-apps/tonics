@@ -693,8 +693,8 @@ HTML;
         $fieldSettings = json_decode($post[$fieldSettingsKey], true);
         $this->unwrapFieldContent($fieldSettings);
         $post = [...$fieldSettings, ...$post];
-        $date = new \DateTime($post['published_time']);
-        $post['created_at_words'] = strtoupper($date->format('j M, Y'));
+        $post['created_at_words'] = strtoupper((new \DateTime($post['created_at']))->format('j M, Y'));
+        $post['updated_at_words'] = strtoupper((new \DateTime($post['updated_at']))->format('j M, Y'));
     }
 
     /**

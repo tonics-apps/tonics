@@ -1,10 +1,35 @@
 [[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
 
 [[hook_into('in_head')
-    <meta property="author" content="[[v('Data.user_name')]]">
+<meta property="author" content="[[v('Data.user_name')]]">
     [[if('v[Data.image_url]')
-        <meta property="og:image" content='[[v("Data.image_url")]]'>
+<meta property="og:image" content='[[v("Data.image_url")]]'>
     ]]
+
+    [[- JSON-LD BREADCRUMB -]]
+    [[if('v[Data.categories]')
+<script type="application/ld+json">
+   [[[ [ ]]]
+        [[each('_postBreadCrumbCats in Data.categories')
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [[[ [ ]]]
+                    [[each('_postBreadCrumbCat in _postBreadCrumbCats')
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": "[[v('_postBreadCrumbCat.cat_name')]]",
+                            "item": "[[v('App_Config.SiteURL')]]/categories/[[v('_postBreadCrumbCat.slug_id')]]/[[v('_postBreadCrumbCat.cat_slug')]]"
+                        }[[if('v[_postBreadCrumbCat_loop.last] === bool[false]'),]]
+                    ]]
+                [[[ ] ]]]
+            }[[if('v[_postBreadCrumbCats_loop.last] === bool[false]'),]]
+        ]]
+    [[[ ] ]]]
+</script>
+    ]]
+
 ]]
 
 [[hook_into('in_main')

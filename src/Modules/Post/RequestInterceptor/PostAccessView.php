@@ -55,8 +55,7 @@ class PostAccessView
         }
 
         if (key_exists('post_status', $post)) {
-            $postCreatedAtTimeStamp = strtotime($post['published_time']);
-            if ($post['post_status'] === 1 && $post['cat_status'] === 1 && time() >= $postCreatedAtTimeStamp) {
+            if ($post['post_status'] === 1) {
                 $this->post = $post; return;
             }
 

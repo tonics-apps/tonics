@@ -1,7 +1,7 @@
 [[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
 
 [[hook_into('in_head')
-    <meta property="og:type" content="website">
+<meta property="og:type" content="website">
 ]]
 [[hook_into('in_head_title')[[v('Data.seo_title .. Data.page_title')]] ]]
 [[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.page_title")]] ]]

@@ -113,17 +113,23 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
             $loopVariable = [];
         }
 
+        $lastKey = array_key_last($loopVariable ?? []);
         foreach ($loopVariable ?? [] as $key => $loop) {
             $eachOutput .= $content;
 
             $view->addToVariableData($loopName, $loop);
-            $view->addToVariableData('_loop', [
+
+            $loopInfo = [
+                'first' => $iteration === 0,
+                'last' => $key === $lastKey,
                 'iteration' => $iteration + 1,
                 'index' => $iteration,
                 'key' => $key,
-            ]);
-            $n = 0;
+            ];
+            $view->addToVariableData('_loop', $loopInfo);
+            $view->addToVariableData($loopName.'_loop', $loopInfo);
 
+            $n = 0;
             foreach ($tag->getChildrenRecursive($tag) as $node) {
                 $mode = $view->getModeRendererHandler($node->getTagName());
 

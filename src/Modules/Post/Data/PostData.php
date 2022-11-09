@@ -11,10 +11,12 @@
 namespace App\Modules\Post\Data;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Post\Events\OnPostCategoryDefaultField;
 use App\Modules\Post\Events\OnPostDefaultField;
@@ -294,11 +296,11 @@ CAT;
         }
         return db()->run("
         WITH RECURSIVE child_to_parent AS 
-	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_name, CAST(cat_slug AS VARCHAR (255))
+	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_status, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
       FROM $categoryTable WHERE $where
       UNION ALL
-      SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
+      SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_status, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
       FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.cat_id = cp.cat_parent_id
       ) 
      SELECT * FROM child_to_parent;
@@ -324,37 +326,34 @@ CAT;
             return [];
         }
 
-        $sql = <<<SQL
-SELECT *, 
-       $postTable.created_at as 'published_time', 
-       $postTable.updated_at as 'modified_time', 
-       $postTable.field_settings as 'field_settings', 
-       $postTable.slug_id as post_slug_id, 
-       $categoryTable.slug_id as cat_slug_id
-    FROM $postToCatTable 
-    JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id
-    JOIN $userTable ON $userTable.user_id = $postTable.user_id
-    JOIN $categoryTable ON $postToCatTable.fk_cat_id = $categoryTable.cat_id
-WHERE $postTable.$column = ?
-SQL;
+        $postData = db()->Select(PostData::getPostTableJoiningRelatedColumns())
+            ->From($postToCatTable)
+            ->Join($postTable, table()->pickTable($postTable, ['post_id']), table()->pickTable($postToCatTable, ['fk_post_id']))
+            ->Join($categoryTable, table()->pickTable($categoryTable, ['cat_id']), table()->pickTable($postToCatTable, ['fk_cat_id']))
+            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($postTable, ['user_id']))
+            // ->WhereEquals('post_status', 1)
+            ->WhereEquals('cat_status', 1)
+            ->WhereEquals(table()->pickTable($postTable, [$column]), $ID)
+            ->Where(table()->pickTable($postTable, ['created_at']), '<=', helper()->date())
+            ->FetchFirst();
 
-        $stmt = db()->getPdo()->prepare($sql);
-        $stmt->execute([$ID]);
-        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if (empty($data)){
+        if (empty($postData) || $postData?->post_status === null){
             return [];
         }
 
-        if(isset($data['user_password'])){
-            unset($data['user_password']);
+
+        if (isset($postData->fk_cat_id)) {
+            $categories = explode(',', $postData->fk_cat_id);
+            foreach ($categories as $category){
+                $category = explode('::', $category);
+                if (count($category) === 2){
+                    $reverseCategory = array_reverse($this->getPostCategoryParents($category[0]));
+                    $postData->categories[] = $reverseCategory;
+                }
+            }
         }
 
-        if (isset($data['cat_id'])) {
-            $data['categories'] = $this->getPostCategoryParents($data['cat_id']);
-        }
-
-        return $data;
+        return (array)$postData;
     }
 
     /**
@@ -445,6 +444,21 @@ SQL, ...$parameter);
     }
 
     /**
+     * @throws \Exception
+     */
+    public static function getPostTableJoiningRelatedColumns(): string
+    {
+        return  table()->pick(
+                [
+                    Tables::getTable(Tables::POSTS) => ['post_id', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
+                    Tables::getTable(Tables::USERS) => ['user_name', 'email']
+                ]
+            )
+            . ', GROUP_CONCAT(CONCAT(cat_id, "::", cat_slug ) ) as fk_cat_id'
+            . ', CONCAT("/admin/posts/", post_slug, "/edit") as _edit_link, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
+    }
+
+    /**
      * @return string
      */
     public function getPostPaginationColumns(): string
@@ -462,18 +476,6 @@ SQL, ...$parameter);
         CONCAT_WS( "/", "/categories", slug_id, cat_slug ) AS `_link`, `cat_name` AS `_name`, `cat_id` AS `_id`';
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function getCategoriesPaginationData(): ?object
-    {
-        $settings = [
-            'query_name' => 'cat_query',
-            'page_name' => 'cat_page',
-            'per_page_name' => 'cat_per_page',
-        ];
-        return $this->generatePaginationData($this->getCategoryPaginationColumns(), 'cat_name', $this->getCategoryTable(), 200, $settings);
-    }
 
     public function categoryCheckBoxListing(array $categories, $selected = [], string $inputName = 'cat[]', string $type = 'radio'): string
     {
@@ -502,75 +504,6 @@ HTML;
 HTML;
         }
         return $htmlFrag;
-    }
-
-    /**
-     * @param array|\stdClass $children
-     * @return object|null
-     * @throws \Exception
-     */
-    public function generatePostDataFromPostQueryBuilderField(array|\stdClass $children): ?object
-    {
-        $postTbl = Tables::getTable(Tables::POSTS);
-        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-        $CatTbl = Tables::getTable(Tables::CATEGORIES);
-
-        $postFieldSettings = $postTbl . '.field_settings';
-        $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'updated_at', 'image_url']])
-            . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
-            . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
-
-        $db = db()->Select($tblCol)
-            ->From($postCatTbl)
-            ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-            ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-            ->WhereEquals('post_status', 1)
-            ->Where("$postTbl.created_at", '<=', helper()->date());
-
-        $perPage = AppConfig::getAppPaginationMax();
-        $orderBy = 'asc';
-        $operator = 'IN';
-
-        foreach ($children as $child){
-
-                if (isset($child->post_query_builder_orderBy)){
-                    $orderBy = $child->post_query_builder_orderBy;
-                }
-
-                if (isset($child->post_query_builder_perPost)){
-                    $perPage = (int)$child->post_query_builder_perPost;
-                }
-
-                // for Category
-                if (isset($child->field_slug) && isset($child->inputName) && $child->inputName === 'post_query_builder_CategoryIn'){
-                    if (isset($child->_children)){
-                        foreach ($child->_children as $catChild){
-                            if (isset($catChild->categoryOperator)){
-                                $operator = $catChild->categoryOperator;
-                            }
-                            if (isset($catChild->{"post_query_builder_Category[]"})){
-                                switch ($operator){
-                                    case 'IN':
-                                        $db->WhereIn('cat_id', $catChild->{"post_query_builder_Category[]"});
-                                        break;
-                                    case 'NOT IN':
-                                        $db->WhereNotIn('cat_id', $catChild->{"post_query_builder_Category[]"});
-                                        break;
-                                    default:
-                                        $db->WhereIn('cat_id', $catChild->{"post_query_builder_Category[]"});
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        return $db->when($orderBy === 'asc', function (TonicsQuery $db) use ($postTbl) {
-            $db->OrderByAsc(table()->pickTable($postTbl, ['updated_at']));
-        }, function (TonicsQuery $db) use ($postTbl) {
-            $db->OrderByDesc(table()->pickTable($postTbl, ['updated_at']));
-        })->SimplePaginate($perPage);
-
     }
 
     /**
