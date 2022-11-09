@@ -228,7 +228,7 @@ ROBOT;
 
         $sitemapTypeEvent->setSitemap(helper()->mergeKeyIntersection($includeSitemaps, $sitemapTypeEvent->getSitemap()));
 
-      //  response()->header("content-type: text/xml; charset=UTF-8");
+        response()->header("content-type: text/xml; charset=UTF-8");
 
         $sitemapIndexes = [];
         $typeNameFromParam = strtolower(url()->getParam('type', ''));

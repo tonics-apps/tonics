@@ -41,7 +41,7 @@ class PostCategorySitemap extends AbstractSitemapInterface implements HandlerInt
                 $table = Tables::getTable(Tables::CATEGORIES);
                 return db()->run(<<<SQL
 SELECT CONCAT_WS( '/', '/categories', slug_id, cat_slug ) AS `_link`, updated_at as '_lastmod'
-FROM $table WHERE cat_status = 1 AND NOW() >= created_at ORDER BY updated_at LIMIT ? OFFSET ? 
+FROM $table WHERE cat_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());
         return $data->data;
