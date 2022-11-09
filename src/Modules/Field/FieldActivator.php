@@ -31,6 +31,7 @@ use App\Modules\Field\EventHandlers\Fields\Media\MediaAudio;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaFileManager;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaImage;
 use App\Modules\Field\EventHandlers\Fields\Menu\Menu;
+use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelectionDropper;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumnRepeater;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldFileHandler;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelection;
@@ -109,6 +110,7 @@ class FieldActivator implements ExtensionConfig
                 RowColumn::class,
                 RowColumnRepeater::class,
                 FieldSelection::class,
+                FieldSelectionDropper::class,
                 FieldFileHandler::class,
 
                 # Menu
