@@ -18,7 +18,7 @@
                     [[each('_postBreadCrumbCat in _postBreadCrumbCats')
                         {
                             "@type": "ListItem",
-                            "position": 1,
+                            "position": [[v('_postBreadCrumbCat_loop.iteration')]],
                             "name": "[[v('_postBreadCrumbCat.cat_name')]]",
                             "item": "[[v('App_Config.SiteURL')]]/categories/[[v('_postBreadCrumbCat.slug_id')]]/[[v('_postBreadCrumbCat.cat_slug')]]"
                         }[[if('v[_postBreadCrumbCat_loop.last] === bool[false]'),]]
