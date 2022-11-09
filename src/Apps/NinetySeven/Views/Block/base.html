@@ -78,25 +78,37 @@
   <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
     [[if('v[Data.categories]')
     <nav>
-      <ul style="gap: 5px; font-size: 85%;" class="d:flex flex-wrap:wrap justify-content:center list:style:none">
-        [[each("cat in Data.categories")
-        <style>
-          .box {
-            display: flex;
-            flex-direction: row;
-            padding: 5px clamp(20px, 2vw, 25px);
-            align-items: center;
-            border-radius: 5px;
-            text-decoration: none;
-          }
-        </style>
-        <li class="menu-block">
-          <a href="/categories/[[v('cat.slug_id')]]/[[v('cat.cat_slug')]]" class="box flex-gap:small color:black border-width:default border:black" title="[[v('cat.cat_name')]]">
-            <div class="text:no-wrap">[[v('cat.cat_name')]]</div>
-          </a>
-        </li>
+      <style>
+        .box {
+          display: flex;
+          flex-direction: row;
+          padding: 5px clamp(20px, 2vw, 25px);
+          align-items: center;
+          border-radius: 5px;
+          text-decoration: none;
+        }
+      </style>
+      [[each('_postBreadCrumbCats in Data.categories')
+      <ol style="margin-bottom: 1em; gap: 0.5em;" class="tonics-breadcrumb d:flex flex-wrap:wrap justify-content:center list:style:none">
+        [[each('_postBreadCrumbCat in _postBreadCrumbCats')
+          <li class="tonics-breadcrumb-item">
+            <a href="/categories/[[v('_postBreadCrumbCat.slug_id')]]/[[v('_postBreadCrumbCat.cat_slug')]]"
+               class="box flex-gap:small color:black border-width:default border:black text-underline" title="[[v('_postBreadCrumbCat.cat_name')]]">
+              <div class="text:no-wrap">[[v('_postBreadCrumbCat.cat_name')]]</div>
+            </a>
+          </li>
+
+          [[if('v[_postBreadCrumbCat_loop.last] === bool[false]')
+          <li class="tonics-breadcrumb-item">
+            <div class="box flex-gap:small color:black border-width:default border:black" title="is a parent of »">
+              <div class="text:no-wrap">»</div>
+            </div>
+          </li>
+          ]]
+
         ]]
-      </ul>
+      </ol>
+      ]]
     </nav>
     ]]
     <div class="by-line-and-date d:flex justify-content:center flex-gap:small">
