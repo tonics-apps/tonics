@@ -5324,10 +5324,11 @@ window.addEventListener('message', (e) => {
     let data = e.data;
     if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:ImageLink') {
         if (featuredImageWithSRC && featuredImageInput) {
+            let imageLink = data.value.replace(siteURL, '');
             if (featuredImageInputName) {
-                featuredImageInputName.value = data.value.replace(siteURL, '');
+                featuredImageInputName.value = imageLink;
             }
-            featuredImageWithSRC.value = data.value.replace(siteURL, '');
+            featuredImageWithSRC.src = imageLink;
             featuredImageInput.classList.add('d:none');
             removeFeaturedImage.classList.remove('d:none');
             windowInstance.close();

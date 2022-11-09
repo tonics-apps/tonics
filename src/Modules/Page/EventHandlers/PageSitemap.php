@@ -11,7 +11,6 @@
 namespace App\Modules\Page\EventHandlers;
 
 use App\Modules\Core\Events\Tools\Sitemap\AbstractSitemapInterface;
-use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -42,7 +41,7 @@ class PageSitemap extends AbstractSitemapInterface implements HandlerInterface
                 $table = Tables::getTable(Tables::PAGES);
                 return db()->run(<<<SQL
 SELECT page_slug AS `_link`, updated_at as '_lastmod'
-FROM $table WHERE page_status = 1 AND NOW() >= created_at ORDER BY created_at LIMIT ? OFFSET ? 
+FROM $table WHERE page_status = 1 AND NOW() >= created_at ORDER BY updated_at LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());
         return $data->data;

@@ -10,6 +10,7 @@
 
 namespace App\Modules\Post\EventHandlers;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\Tools\Sitemap\AbstractSitemapInterface;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
@@ -39,11 +40,12 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
             tableRows: $this->getDataCount(),
             callback: function ($perPage, $offset){
                 $table = Tables::getTable(Tables::POSTS);
+                $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
                 return db()->run(<<<SQL
-SELECT CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'
-FROM $table WHERE post_status = 1 AND NOW() >= created_at ORDER BY created_at LIMIT ? OFFSET ? 
+SELECT $select FROM $table WHERE post_status = 1 AND NOW() >= created_at ORDER BY updated_at LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());
+
         return $data->data;
     }
 }
