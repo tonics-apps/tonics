@@ -88,10 +88,12 @@ class PostAccessView
         }
 
         if (key_exists('cat_status', $category)) {
+            $category['categories'][] = array_reverse($this->postData->getPostCategoryParents($category['cat_parent_id'] ?? ''));
             $catCreatedAtTimeStamp = strtotime($category['created_at']);
             if ($category['cat_status'] === 1 && time() >= $catCreatedAtTimeStamp) {
                 $this->category = $category; return;
             }
+
             ## Else, category is in draft, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
             if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {

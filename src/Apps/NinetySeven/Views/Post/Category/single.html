@@ -3,7 +3,10 @@
 [[hook_into('in_main')
 <section>
     <div class="tonics-category padding:default owl">
-        <div class="category-title"><h1>[[v('Data.cat_name')]]</h1></div>
+        <div class="category-title flex-d:column">
+            <h1>[[v('Data.cat_name')]]</h1>
+            [[_use('Post::Breadcrumb')]]
+        </div>
         <div class="category-desc owl">[[_v('Data.cat_content')]]</div>
         <div id="sfc" class="category-article">
             <ul class="top-best-list">
