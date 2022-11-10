@@ -171,13 +171,13 @@ HTML;
                 $sortedFieldWalkerItems = $originalFieldItems;
             }
 
-            $defaultFieldSlugFrag = ''; // clear default
             foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
                 if (isset($sortedFieldWalkerItem->_children)) {
                     $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
                 }
-                $defaultFieldSlugFrag .= $event->getUsersForm($sortedFieldWalkerItem->field_options->field_slug, $sortedFieldWalkerItem->field_options);
             }
+            $fieldCategories = [$defaultFieldSlug => $sortedFieldWalkerItems];
+            $defaultFieldSlugFrag = $event->getFieldData()->getUsersFormFrag($fieldCategories);
         }
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);

@@ -4893,8 +4893,7 @@ if (fieldMenuUL) {
                     fieldSlug: JSON.stringify([selectedFieldSlugValue])
                 }
                 if (fieldMenuULFieldSelectionDropperMap.has(selectedFieldSlugValue)) {
-                    tonicsFieldSelectionDropperUL.outerHTML = fieldMenuULFieldSelectionDropperMap.get(selectedFieldSlugValue).outerHTML;
-                  //  tonicsFieldSelectionDropperUL.replaceWith(fieldMenuULFieldSelectionDropperMap.get(selectedFieldSlugValue));
+                    tonicsFieldSelectionDropperUL.replaceWith(fieldMenuULFieldSelectionDropperMap.get(selectedFieldSlugValue));
                 } else {
                     let url = "/admin/tools/field/get-field-items" + "?action=getFieldItems";
                     new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
