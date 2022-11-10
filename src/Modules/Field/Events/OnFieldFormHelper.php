@@ -52,6 +52,7 @@ class OnFieldFormHelper implements EventInterface
      */
     public function generateHTMLFrags($sortedFieldItems, array $postData = []): string
     {
+        $oldPostData = getPostData();
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
         $htmlFrag = '';
 
@@ -59,6 +60,8 @@ class OnFieldFormHelper implements EventInterface
         foreach ($sortedFieldItems as $fieldBox) {
             $htmlFrag .= $this->getUsersFormFrag($fieldBox, $postData);
         }
+        // restore oldPostData
+        AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $oldPostData);
         return $htmlFrag;
     }
 
