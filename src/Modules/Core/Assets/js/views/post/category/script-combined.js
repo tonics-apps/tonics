@@ -3864,8 +3864,6 @@ scripts.forEach((script) => {
     loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
 
-console.log('Hello From INDEX.JS')
-
 let draggable = document.getElementsByClassName('draggable'),
     parent = '.menu-arranger',
     fieldChild = `.menu-arranger-li`,
@@ -3963,12 +3961,83 @@ function handleFieldSelection() {
 
 // delete menu or widget
 if (fieldMenuUL) {
+   let fieldMenuULFieldSelectionDropperMap = new Map();
     fieldMenuUL.addEventListener('click', (e) => {
         let el = e.target;
         if (el.classList.contains('delete-menu-arrange-item')) {
             let arranger = el.closest('.draggable');
             if (arranger) {
                 arranger.remove();
+            }
+        }
+
+        if (el.classList.contains('tonics-field-selection-dropper-select')) {
+            let selectedFieldSlugValue = el.value;
+            if (selectedFieldSlugValue){
+                let tonicsFieldSelectionDropperUL = el?.closest('.tonics-field-selection-dropper-form-group').querySelector('.tonics-field-selection-dropper-ul');
+                let mainFieldSlug = el?.closest('.tonics-field-selection-dropper-form-group').querySelector(`input[name="main_field_slug"]`);
+                if (mainFieldSlug.value === selectedFieldSlugValue){
+                    fieldMenuULFieldSelectionDropperMap.set(selectedFieldSlugValue, tonicsFieldSelectionDropperUL.cloneNode(true));
+                    console.log(fieldMenuULFieldSelectionDropperMap);
+                }
+            }
+        }
+    });
+
+    fieldMenuUL.addEventListener('change', (e) => {
+        let el = e.target;
+        // PERSIST INPUT CHANGES, SHOULD BE REPLACE WITH AN HELPER FUNCTION
+        let input = e.target, tagName = input.tagName;
+        if (tagName.toLowerCase() === 'input'){
+            input.setAttribute('value', input.value);
+            if (input.type === 'checkbox'){
+                (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+            }
+
+            if(input.type === 'radio'){
+                let parentRadio = input.parentElement;
+                if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0){
+                    parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
+                        radio.removeAttribute('checked');
+                    });
+                }
+                (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+            }
+        }
+        if (tagName.toLowerCase() === 'textarea'){
+            let text = input.value;
+            input.innerHTML = text;
+            input.value = text;
+        }
+        if (tagName.toLowerCase() === 'select'){
+            input.options[input.selectedIndex].selected = 'selected';
+            input.options[input.selectedIndex].setAttribute('selected', 'selected');
+        }
+        if (el.classList.contains('tonics-field-selection-dropper-select')) {
+            let selectedFieldSlug = el.options[el.selectedIndex];
+            el.options[el.selectedIndex].selected = 'selected';
+            el.options[el.selectedIndex].setAttribute('selected', 'selected');
+            if (selectedFieldSlug.value){
+                let selectedFieldSlugValue = selectedFieldSlug.value;
+                let tonicsFieldSelectionDropperUL = el?.closest('.tonics-field-selection-dropper-form-group').querySelector('.tonics-field-selection-dropper-ul');
+                let slug = {
+                    action: 'getFieldItems',
+                    fieldSlug: JSON.stringify([selectedFieldSlugValue])
+                }
+                if (fieldMenuULFieldSelectionDropperMap.has(selectedFieldSlugValue)) {
+                    tonicsFieldSelectionDropperUL.outerHTML = fieldMenuULFieldSelectionDropperMap.get(selectedFieldSlugValue).outerHTML;
+                  //  tonicsFieldSelectionDropperUL.replaceWith(fieldMenuULFieldSelectionDropperMap.get(selectedFieldSlugValue));
+                } else {
+                    let url = "/admin/tools/field/get-field-items" + "?action=getFieldItems";
+                    new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
+                        if (data) {
+                            data = JSON.parse(data);
+                            if (tonicsFieldSelectionDropperUL){
+                                tonicsFieldSelectionDropperUL.innerHTML = data.data;
+                            }
+                        }
+                    });
+                }
             }
         }
     });

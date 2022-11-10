@@ -184,14 +184,14 @@ HTML;
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$data->field_slug}_$changeID";
 
         $frag .= <<<HTML
-<div class="form-group margin-top:0 owl">
+<div class="form-group tonics-field-selection-dropper-form-group margin-top:0 owl">
      <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">Choose Field
-     <select name="$inputName" class="default-selector mg-b-plus-1 tonics-field-selection-dropper" id="fieldSlug-$changeID">
+     <select name="$inputName" class="default-selector mg-b-plus-1 tonics-field-selection-dropper-select" id="fieldSlug-$changeID">
         $fieldSelectionFrag
      </select>
     </label>
     <div class="tonics-field-selection-dropper-container">
-        <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="1" class="row-col-item-user margin-top:0 owl">
+        <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="1" class="tonics-field-selection-dropper-ul row-col-item-user margin-top:0 owl">
                 $defaultFieldSlugFrag
          </ul>
     </div>
