@@ -4732,6 +4732,8 @@ scripts.forEach((script) => {
     loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
 
+console.log('Hello From INDEX.JS')
+
 let draggable = document.getElementsByClassName('draggable'),
     parent = '.menu-arranger',
     fieldChild = `.menu-arranger-li`,
@@ -4816,7 +4818,7 @@ function handleFieldSelection() {
                 action: 'getFieldItems',
                 fieldSlug: JSON.stringify(checkedSlug)
             }
-            let url = window.location.href + "?action=getFieldItems";
+            let url = "/admin/tools/field/get-field-items" + "?action=getFieldItems";
             new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
                 if (data) {
                     data = JSON.parse(data);

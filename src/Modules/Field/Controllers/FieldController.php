@@ -226,6 +226,14 @@ class FieldController
     }
 
     /**
+     * @throws \Exception
+     */
+    public function getFieldItemsAPI(): void
+    {
+        $this->fieldData->getFieldItemsAPI();
+    }
+
+    /**
      * @return FieldData
      */
     public function getFieldData(): FieldData

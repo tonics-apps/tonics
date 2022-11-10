@@ -46,6 +46,7 @@ trait Routes
 
                 // for resetting field items
                 $route->get('/reset-field-items', [FieldController::class, 'fieldResetItems'],  alias: 'fieldResetItems');
+                $route->get('/get-field-items', [FieldController::class, 'getFieldItemsAPI'],  alias: 'getFieldItemsAPI');
 
                         #---------------------------------
                     # field ITEMS RESOURCES...
