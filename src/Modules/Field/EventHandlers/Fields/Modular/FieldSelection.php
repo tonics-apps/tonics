@@ -129,10 +129,9 @@ FORM;
 
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlug}_$changeID";
 
-        $fieldData = new FieldData();
-        $fieldTable = $fieldData->getFieldTable();
-        $fieldItemsTable = $fieldData->getFieldItemsTable();
-        $fieldAndFieldItemsCols = $fieldData->getFieldAndFieldItemsCols();
+        $fieldTable = $event->getFieldData()->getFieldTable();
+        $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
+        $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
 
         if ($expandField === '1') {
             $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
@@ -148,7 +147,7 @@ FORM;
             // Sort and Arrange OriginalFieldItems
             $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
             if (isset($data->_field->_children)){
-                $sortedFieldWalkerItems = $fieldData->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+                $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
             } else {
                 $sortedFieldWalkerItems = $originalFieldItems;
             }

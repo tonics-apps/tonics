@@ -130,14 +130,14 @@ FORM;
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
 
-        $fieldSelectionFrag = '';
+        $fieldSelectionFrag = ''; $defaultFieldSlugFrag = '';
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug";
             if (isset($fieldSlug[$field->field_slug])){
                 $fieldSelected = '';
                 if ($uniqueSlug === $defaultFieldSlug){
                     $fieldSelected = 'selected';
-                    $defaultFieldSlug = $event->getFieldData()->generateFieldWithFieldSlug(
+                    $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
                         [$uniqueSlug],
                         []
                     )->getHTMLFrag();
@@ -148,19 +148,51 @@ HTML;
             }
         }
 
+        if (isset($data->_field->_children)){
+            $fieldTable = $event->getFieldData()->getFieldTable();
+            $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
+            $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
+
+            $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
+                ->From($fieldItemsTable)
+                ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
+
+            foreach ($originalFieldItems as $originalFieldItem){
+                $fieldOption = json_decode($originalFieldItem->field_options);
+                $originalFieldItem->field_options = $fieldOption;
+            }
+
+            // Sort and Arrange OriginalFieldItems
+            $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
+            if (isset($data->_field->_children)){
+                $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+            } else {
+                $sortedFieldWalkerItems = $originalFieldItems;
+            }
+
+            $defaultFieldSlugFrag = ''; // clear default
+            foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
+                if (isset($sortedFieldWalkerItem->_children)) {
+                    $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
+                }
+                $defaultFieldSlugFrag .= $event->getUsersForm($sortedFieldWalkerItem->field_options->field_slug, $sortedFieldWalkerItem->field_options);
+            }
+        }
+
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$data->field_slug}_$changeID";
 
         $frag .= <<<HTML
 <div class="form-group margin-top:0 owl">
      <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">Choose Field
-     <select name="$inputName" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
+     <select name="$inputName" class="default-selector mg-b-plus-1 tonics-field-selection-dropper" id="fieldSlug-$changeID">
         $fieldSelectionFrag
      </select>
     </label>
-    <div class="tonics-field-selection-dropper">
+    <div class="tonics-field-selection-dropper-container">
         <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="1" class="row-col-item-user margin-top:0 owl">
-                $defaultFieldSlug
+                $defaultFieldSlugFrag
          </ul>
     </div>
 </div>
