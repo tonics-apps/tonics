@@ -122,17 +122,20 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
         $fieldSlug = array_combine($data?->fieldSlug ?? [], $data?->fieldSlug ?? []);
+
+        $defaultFieldSlug = (empty($keyValue)) ? $data?->defaultFieldSlug : $keyValue;
 
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
 
-        $fieldSelectionFrag = ''; $defaultFieldSlug = '';
+        $fieldSelectionFrag = '';
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug";
             if (isset($fieldSlug[$field->field_slug])){
                 $fieldSelected = '';
-                if ($uniqueSlug === $data?->defaultFieldSlug){
+                if ($uniqueSlug === $defaultFieldSlug){
                     $fieldSelected = 'selected';
                     $defaultFieldSlug = $event->getFieldData()->generateFieldWithFieldSlug(
                         [$uniqueSlug],
