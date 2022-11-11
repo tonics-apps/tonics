@@ -41,17 +41,19 @@ class PostAccessView
      */
     public function handlePost(): void
     {
-        $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $post = (array)$this->getPostData()->getPostByUniqueID($ID);
+        $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
+        $postSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
+        $post = (array)$this->getPostData()->getPostByUniqueID($uniqueSlugID);
 
         # if empty we can check with the post_slug and do a redirection
         if (empty($post)){
-            $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
-            $post = (array)$this->getPostData()->getPostByUniqueID($ID, 'post_slug');
-            if (isset($post['post_slug_id'])){
-                $redirectTo = "/posts/{$post['post_slug_id']}/$ID";
-                redirect($redirectTo, 302);
+            $post = (array)$this->getPostData()->getPostByUniqueID($postSlug, 'post_slug');
+            if (isset($post['slug_id'])){
+                redirect("/posts/{$post['slug_id']}/$postSlug", 302);
             }
+        # if postSlug is not equals to $post['post_slug'], do a redirection to the correct one
+        } elseif (isset($post['post_slug']) && $post['post_slug'] !== $postSlug){
+            redirect("/posts/{$post['slug_id']}/{$post['post_slug']}", 302);
         }
 
         if (key_exists('post_status', $post)) {

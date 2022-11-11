@@ -450,7 +450,7 @@ SQL, ...$parameter);
     {
         return  table()->pick(
                 [
-                    Tables::getTable(Tables::POSTS) => ['post_id', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
+                    Tables::getTable(Tables::POSTS) => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
                     Tables::getTable(Tables::USERS) => ['user_name', 'email']
                 ]
             )
