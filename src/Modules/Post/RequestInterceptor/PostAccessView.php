@@ -21,6 +21,7 @@ use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnPostDefaultField;
+use App\Modules\Post\Helper\PostRedirection;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use JetBrains\PhpStorm\NoReturn;
@@ -36,7 +37,6 @@ class PostAccessView
     }
 
     /**
-     * @inheritDoc
      * @throws \Exception
      */
     public function handlePost(): void
@@ -49,11 +49,11 @@ class PostAccessView
         if (empty($post)){
             $post = (array)$this->getPostData()->getPostByUniqueID($postSlug, 'post_slug');
             if (isset($post['slug_id'])){
-                redirect("/posts/{$post['slug_id']}/$postSlug", 302);
+                redirect(PostRedirection::getPostAbsoluteURLPath($post), 302);
             }
         # if postSlug is not equals to $post['post_slug'], do a redirection to the correct one
         } elseif (isset($post['post_slug']) && $post['post_slug'] !== $postSlug){
-            redirect("/posts/{$post['slug_id']}/{$post['post_slug']}", 302);
+            redirect(PostRedirection::getPostAbsoluteURLPath($post), 302);
         }
 
         if (key_exists('post_status', $post)) {
@@ -74,19 +74,21 @@ class PostAccessView
     /**
      * @throws \Exception
      */
-    public function handleCategory()
+    public function handleCategory(): void
     {
-        $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$ID]);
+        $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
+        $catSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
+        $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$uniqueSlugID]);
 
         # if empty we can check with the cat_slug and do a redirection
         if (empty($category)){
-            $ID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
-            $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$ID]);
+            $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$catSlug]);
             if (isset($category['slug_id'])){
-                $redirectTo = "/categories/{$category['slug_id']}/$ID";
-                redirect($redirectTo, 302);
+                redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
             }
+        # if catSlug is not equals to $category['cat_slug'], do a redirection to the correct one
+        } elseif (isset($category['cat_slug']) && $category['cat_slug'] !== $catSlug){
+            redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
         }
 
         if (key_exists('cat_status', $category)) {

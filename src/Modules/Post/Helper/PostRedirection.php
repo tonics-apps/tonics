@@ -56,7 +56,7 @@ class PostRedirection extends SimpleState
             $post = $this->getPostData()
                 ->selectWithConditionFromPost(['*'], "slug_id = ?", [$this->getPostID()]);
             if (isset($post->slug_id) && isset($post->post_slug)){
-                $this->intendedPostURL = "/posts/$post->slug_id/$post->post_slug";
+                $this->intendedPostURL = PostRedirection::getPostAbsoluteURLPath((array)$post);
                 return self::DONE;
             }
         } catch (\Exception){
@@ -72,7 +72,7 @@ class PostRedirection extends SimpleState
             $post = $this->getPostData()
                 ->selectWithConditionFromPost(['*'], "post_slug = ?", [$this->getPostID()]);
             if (isset($post->slug_id) && isset($post->post_slug)){
-                $this->intendedPostURL = "/posts/$post->slug_id/$post->post_slug";
+                $this->intendedPostURL = PostRedirection::getPostAbsoluteURLPath((array)$post);
                 return self::DONE;
             }
         } catch (\Exception){
@@ -129,5 +129,27 @@ class PostRedirection extends SimpleState
     {
         $this->request = $request;
         return $this;
+    }
+
+    /**
+     * @param array $post
+     * @return string
+     */
+    public static function getPostAbsoluteURLPath(array $post): string
+    {
+        if (isset($post['slug_id']) && isset($post['post_slug'])){
+            return "/posts/{$post['slug_id']}/{$post['post_slug']}";
+        }
+
+        return '';
+    }
+
+    public static function getCategoryAbsoluteURLPath(array $category): string
+    {
+        if (isset($category['slug_id']) && isset($category['cat_slug'])){
+            return "/categories/{$category['slug_id']}/{$category['cat_slug']}";
+        }
+
+        return '';
     }
 }
