@@ -24,6 +24,7 @@ use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnBeforePostSave;
 use App\Modules\Post\Events\OnPostCreate;
 use App\Modules\Post\Events\OnPostUpdate;
+use App\Modules\Post\Helper\PostRedirection;
 use App\Modules\Post\Rules\PostValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
@@ -455,14 +456,14 @@ class PostsController
                 $post = $this->getPostData()
                     ->selectWithConditionFromPost(['*'], "slug_id = ?", [$slugID]);
                 if (isset($post->slug_id) && isset($post->post_slug)) {
-                    return "/posts/$post->slug_id/$post->post_slug";
+                     return PostRedirection::getPostAbsoluteURLPath((array)$post);
                 }
                 return false;
             }, onSlugState: function ($slug) {
             $post = $this->getPostData()
                 ->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
             if (isset($post->slug_id) && isset($post->post_slug)) {
-                return "/posts/$post->slug_id/$post->post_slug";
+                return PostRedirection::getPostAbsoluteURLPath((array)$post);
             }
             return false;
         });

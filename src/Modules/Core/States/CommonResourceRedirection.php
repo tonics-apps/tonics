@@ -83,7 +83,7 @@ class CommonResourceRedirection extends SimpleState
             return $this->switchState(self::OnStringIDState, self::NEXT);
 
         } catch (\Exception){
-            ## Okay, if postID contains a dash, then we guess wrong, it is probably a post_slug
+            ## Okay, if postID contains a dash, then we guess wrong, it is probably a literal post_slug
             if (str_contains('-', $this->getSlugID())){
                 return $this->switchState(self::OnStringIDState, self::NEXT);
             }
