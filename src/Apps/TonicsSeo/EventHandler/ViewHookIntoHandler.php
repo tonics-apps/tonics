@@ -11,6 +11,7 @@
 namespace App\Apps\TonicsSeo\EventHandler;
 
 use App\Apps\TonicsSeo\Controller\TonicsSeoController;
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
@@ -180,13 +181,12 @@ SEO;
 
         $canonicalUrl = $tonicsView->accessArrayWithSeparator('Data.seo_canonical_url');
         $canonicalUrl = helper()->htmlSpecChar($canonicalUrl);
+        $canonicalUrl = empty($canonicalUrl) ? AppConfig::getAppUrl() . $tonicsView->accessArrayWithSeparator('Data._preview_link') : $canonicalUrl;
 
-        if ($canonicalUrl){
-            $meta .=<<<SEO
+        $meta .=<<<SEO
 <link rel="canonical" href="$canonicalUrl" />
 
 SEO;
-        }
 
         return $meta;
     }

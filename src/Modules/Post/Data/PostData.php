@@ -448,14 +448,15 @@ SQL, ...$parameter);
      */
     public static function getPostTableJoiningRelatedColumns(): string
     {
+        $postTable = Tables::getTable(Tables::POSTS);
         return  table()->pick(
                 [
-                    Tables::getTable(Tables::POSTS) => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
+                    $postTable => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
                     Tables::getTable(Tables::USERS) => ['user_name', 'email']
                 ]
             )
             . ', GROUP_CONCAT(CONCAT(cat_id, "::", cat_slug ) ) as fk_cat_id'
-            . ', CONCAT("/admin/posts/", post_slug, "/edit") as _edit_link, CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
+            . ", CONCAT('/admin/posts/', post_slug, '/edit') as _edit_link, CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _preview_link ";
     }
 
     /**

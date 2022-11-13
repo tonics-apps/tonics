@@ -147,7 +147,7 @@ class PostAccessView
             try {
                 $postFieldSettings = $postTbl . '.field_settings';
                 $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
-                    . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link '
+                    . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
                     . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
                 $postData = db()->Select($tblCol)
                     ->From($postCatTbl)
@@ -157,9 +157,8 @@ class PostAccessView
                     ->WhereEquals('cat_id', $category['cat_id'])
                     ->Where("$postTbl.created_at", '<=', helper()->date())
                     ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
-
                 $postData = ['PostData' => $postData];
-            }catch (\Exception $exception){
+            } catch (\Exception $exception){
                 // log..
             }
 
