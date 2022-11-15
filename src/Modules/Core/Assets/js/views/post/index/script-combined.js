@@ -4198,7 +4198,7 @@ class DataTable {
                 let tdData = {};
                 for (let i = 0; i < edit.cells.length; i++) {
                     if (headers[i]){
-                        tdData[headers[i]] = edit.cells[i].innerHTML;
+                        tdData[headers[i]] = edit.cells[i].innerText;
                     }
                 }
                 saveTo.push(tdData);
