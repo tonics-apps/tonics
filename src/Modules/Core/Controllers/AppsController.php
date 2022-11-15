@@ -17,6 +17,7 @@ use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\CoreActivator;
 use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\States\AppsSystem;
 use App\Modules\Core\States\UpdateMechanismState;
@@ -276,21 +277,30 @@ class AppsController
     #[NoReturn] public function upload(): void
     {
         $url = route('apps.index');
-        $message = 'An Error Occurred While Uploading App: Go Back';
-        if (input()->fromPost()->has('plugin_url')){
+        $message = 'An Error Occurred While Uploading App';
+        if (input()->fromPost()->hasValue('plugin_url')){
+            $pluginURL = input()->fromPost()->retrieve('plugin_url');
             InitLoader::setEventStreamAsHTML(true);
             helper()->addEventStreamHeader(1000000, 'text/html');
 
-            $appSystem = new AppsSystem();
-            $appSystem->setPluginURL(input()->fromPost()->retrieve('plugin_url'));
-            $appSystem->setCurrentState(AppsSystem::OnAppUploadState);
-            $appSystem->runStates(false);
-
-            InitLoader::setEventStreamAsHTML(false);
-            if ($appSystem->getStateResult() === SimpleState::DONE){
-                $message = $appSystem->getSucessMessage();
+            try {
+                $appSystem = new AppsSystem();
+                $appSystem->setPluginURL($pluginURL);
+                $appSystem->setCurrentState(AppsSystem::OnAppUploadState);
+                $appSystem->runStates(false);
+                InitLoader::setEventStreamAsHTML(false);
+                if ($appSystem->getStateResult() === SimpleState::DONE){
+                    $message = $appSystem->getSucessMessage();
+                    session()->flash([$message], type: Session::SessionCategories_FlashMessageSuccess);
+                } else {
+                    $message = $message . ': Go Back';
+                }
+            }catch (\Throwable $exception){
+                // Log..
             }
+
         }
+        session()->flash([$message]);
         $this->appsData->handleAppRedirection($url, $message);
     }
 

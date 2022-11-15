@@ -4159,7 +4159,7 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
 
    handleTinymceChildNodes() {
         let self = this;
-        if (tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
+        if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
             bodyNode.forEach((node) => {
