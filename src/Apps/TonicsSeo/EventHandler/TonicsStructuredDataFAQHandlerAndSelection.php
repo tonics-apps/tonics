@@ -29,6 +29,7 @@ class TonicsStructuredDataFAQHandlerAndSelection implements FieldTemplateFileInt
      */
     public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
     {
+        $faqPlain = '';
         $structuredData = isset(getGlobalVariableData()['Structured_Data']) ? getGlobalVariableData()['Structured_Data'] : null;
         if (key_exists('FAQ', $structuredData)) {
             foreach ($fields as $field) {
@@ -39,6 +40,12 @@ class TonicsStructuredDataFAQHandlerAndSelection implements FieldTemplateFileInt
                 $answer = (isset($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer']))
                     ? helper()->htmlSpecChar($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer'])
                     : null;
+
+                $faqPlain .=<<<FAQPLAIN
+<h2>$question</h2>
+<p>$answer</p>
+FAQPLAIN;
+
 
                 $structuredData['FAQ'][] = <<<FAQ_SCHEMA
 {
@@ -54,8 +61,7 @@ FAQ_SCHEMA;
         }
 
         addToGlobalVariable('Structured_Data', $structuredData);
-        return '';
-        // return 'FAQ Placeholder';
+        return '<div>' . $faqPlain . '</div>';
     }
 
     public function name(): string
