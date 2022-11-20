@@ -196,10 +196,10 @@ class PagesController
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
+            addToGlobalVariable('Data', $page);
         }
 
         view('Modules::Page/Views/edit', [
-            'Data' => $page,
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
             'FieldItems' => $htmlFrag
         ]);

@@ -2,7 +2,7 @@
 <link rel="stylesheet" type="text/css" href="[[v('Assets.css')]]">
 
 [[- JSON-LD BREADCRUMB -]]
-[[if('v[Data.categories]')
+[[if('v[Data.categories.0]') [[- Check if at least one cat is not empty -]]
 <script type="application/ld+json">
   [[[ [ ]]]
     [[each('_postBreadCrumbCats in Data.categories')

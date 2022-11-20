@@ -280,6 +280,9 @@ class AppsController
         $message = 'An Error Occurred While Uploading App';
         if (input()->fromPost()->hasValue('plugin_url')){
             $pluginURL = input()->fromPost()->retrieve('plugin_url');
+            if (parse_url($pluginURL, PHP_URL_HOST) === null){
+                $pluginURL = AppConfig::getAppUrl() . input()->fromPost()->retrieve('plugin_url');
+            }
             InitLoader::setEventStreamAsHTML(true);
             helper()->addEventStreamHeader(1000000, 'text/html');
 

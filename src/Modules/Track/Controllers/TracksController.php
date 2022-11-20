@@ -230,12 +230,12 @@ class TracksController extends Controller
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $htmlFrag = $this->getFieldData()->generateFieldWithFieldSlug($this->getOnTrackDefaultField()->getFieldSlug(), $fieldSettings)->getHTMLFrag();
+            addToGlobalVariable('Data', $onTrackCreate->getAllToArray());
         }
 
         view('Modules::Track/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
-            'Data' => $onTrackCreate->getAllToArray(),
             'FieldItems' => $htmlFrag
         ]);
     }

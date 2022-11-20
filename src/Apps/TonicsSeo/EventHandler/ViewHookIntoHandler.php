@@ -91,6 +91,7 @@ HTML;
         }
 
         $siteTitle = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title'] ?? "");
+        $siteFavicon = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_favicon'] ?? "");
         $separator = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_separator'] ?? "");
         $titlePositionIsLeft = helper()->htmlSpecChar($seoSettings['app_tonicsseo_site_title_location'] ?? "") === 'left';
 
@@ -107,6 +108,13 @@ SEO;
         } else {
             $meta .=<<<SEO
 <title>$seoTitle $separator $siteTitle </title>
+
+SEO;
+        }
+
+        if ($siteFavicon){
+            $meta .=<<<SEO
+<link rel="icon" href="$siteFavicon">
 
 SEO;
         }

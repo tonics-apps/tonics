@@ -303,12 +303,12 @@ class PostsController
         } else {
             $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
+            addToGlobalVariable('Data', $post);
         }
 
         view('Modules::Post/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
-            'Data' => $post,
             'FieldItems' => $htmlFrag,
         ]);
     }

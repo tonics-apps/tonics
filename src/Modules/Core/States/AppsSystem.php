@@ -346,7 +346,7 @@ class AppsSystem extends SimpleState
                     $appName = helper()->getFileName($appTempPath);
                     $copyResult = helper()->copyFolder($appTempPath, AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . $appName);
                     if ($copyResult === true) {
-                        $this->setSucessMessage("[$appName] Uploaded: Go To App List Page");
+                        $this->setSucessMessage("[$appName] Uploaded: Go To App List Page, Ignore if on App Page");
                         return self::DONE;
                     }
                 }

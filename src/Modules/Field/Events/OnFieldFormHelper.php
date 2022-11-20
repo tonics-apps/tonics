@@ -54,8 +54,8 @@ class OnFieldFormHelper implements EventInterface
     {
         $oldPostData = getPostData();
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
-        $htmlFrag = '';
 
+        $htmlFrag = '';
         $sortedFieldItems = $this->generateTreeForSortedFieldItems($sortedFieldItems);
         foreach ($sortedFieldItems as $fieldBox) {
             $htmlFrag .= $this->getUsersFormFrag($fieldBox, $postData);

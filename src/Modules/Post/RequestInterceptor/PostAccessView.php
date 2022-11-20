@@ -91,6 +91,7 @@ class PostAccessView
             redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
         }
 
+
         if (key_exists('cat_status', $category)) {
             $category['categories'][] = array_reverse($this->postData->getPostCategoryParents($category['cat_parent_id'] ?? ''));
             $catCreatedAtTimeStamp = strtotime($category['created_at']);

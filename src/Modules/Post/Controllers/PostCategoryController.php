@@ -212,10 +212,10 @@ class PostCategoryController
         } else {
             $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
+            addToGlobalVariable('Data', $category);
         }
 
         view('Modules::Post/Views/Category/edit', [
-            'Data' => $category,
             'FieldItems' => $htmlFrag,
         ]);
     }
