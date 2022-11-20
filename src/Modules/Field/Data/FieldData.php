@@ -528,6 +528,19 @@ HTML;
      */
     public function unwrapFieldContent(&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
     {
+        #
+        # For _FieldDetails Which is The Sorted Result of All FieldItems
+        #
+        if (isset($fieldSettings['_fieldDetails']) && is_array($fieldDetails = json_decode($fieldSettings['_fieldDetails']))) {
+            $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field) {
+                if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
+                    $fieldOption = json_decode($field->field_options);
+                    $field->field_options = $fieldOption;
+                }
+                return $field;
+            });
+            $fieldSettings['_fieldDetails'] = $fieldDetails;
+        }
 
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {

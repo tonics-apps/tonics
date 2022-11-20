@@ -38,6 +38,10 @@ class ViewHookIntoHandler implements HandlerInterface
             return $this->searchEngineOptimization($tonicsView);
         });
 
+        $event->hookInto('in_head', function (TonicsView $tonicsView){
+            return $this->structuredData($tonicsView);
+        });
+
     }
 
     /**
@@ -195,6 +199,86 @@ SEO;
 <link rel="canonical" href="$canonicalUrl" />
 
 SEO;
+
+        return $meta;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function structuredData(TonicsView $tonicsView)
+    {
+        $meta = '';
+
+        $fieldItems = $tonicsView->accessArrayWithSeparator('Data._fieldDetails');
+        if (is_array($fieldItems)){
+            $seoStructureData = 'seo_structured_data';
+            $appTonicsseoStructuredDataFaqContainer = 'app-tonicsseo-structured-data-faq';
+            $appTonicsseoStructuredDataFaqSchemaData = [];
+
+
+            foreach ($fieldItems as $fieldItem){
+                if (isset($fieldItem->main_field_slug) && $fieldItem->main_field_slug === 'seo-settings' && $fieldItem->_children){
+                    foreach ($fieldItem->_children as $child) {
+                        if ($child->field_input_name === $seoStructureData) {
+                            foreach ($child->_children ?? [] as $structuredChild){
+
+                                # Handle Collation of FAQ Structured Data
+                                if (isset($structuredChild->main_field_slug) && $structuredChild->main_field_slug === $appTonicsseoStructuredDataFaqContainer){
+                                    $question = (isset($structuredChild->_children[0]->field_options->app_tonics_seo_structured_data_faq_question))
+                                        ? helper()->htmlSpecChar($structuredChild->_children[0]->field_options->app_tonics_seo_structured_data_faq_question)
+                                        : null;
+
+                                    $answer = (isset($structuredChild->_children[1]->field_options->app_tonics_seo_structured_data_faq_answer))
+                                        ? helper()->htmlSpecChar($structuredChild->_children[1]->field_options->app_tonics_seo_structured_data_faq_answer)
+                                        : null;
+
+                                    if ($question && $answer){
+                                        $appTonicsseoStructuredDataFaqSchemaData[] = <<<FAQ_SCHEMA
+{
+        "@type": "Question",
+        "name": "$question",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "$answer"
+        }
+      }
+FAQ_SCHEMA;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            # Handle FAQ Structured Data Fragment
+            if (!empty($appTonicsseoStructuredDataFaqSchemaData)){
+                $faqSchemaFrag = <<<SchemaFAQ
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+SchemaFAQ;
+                $lastKey = array_key_last($appTonicsseoStructuredDataFaqSchemaData);
+                foreach ($appTonicsseoStructuredDataFaqSchemaData as $key => $faqSchema){
+                    if ($lastKey === $key){
+                        $faqSchemaFrag .= $faqSchema;
+                    } else {
+                        $faqSchemaFrag .= $faqSchema . ',';
+                    }
+                }
+
+                $faqSchemaFrag .= <<<ShemaFAQ
+]
+    }
+    </script>
+ShemaFAQ;
+                $meta .= $faqSchemaFrag . "\n";
+            }
+        }
 
         return $meta;
     }

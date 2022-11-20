@@ -118,11 +118,12 @@ class PostAccessView
         if (!empty($post)){
             $this->getFieldData()->unwrapForPost($post);
             $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
-
             event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
             # We are only interested in the hidden slug
             $slugs = $this->getPostData()->getOnPostDefaultField()->getHiddenFieldSlug();
+            # MoreData can't use the _fieldDetails here
+            unset($moreData['_fieldDetails']);
             # Cache Post Data
             $onFieldUserForm->handleFrontEnd($slugs, [...$post, ...$moreData]);
             view($postView);
@@ -174,6 +175,9 @@ class PostAccessView
             event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
             $slugs = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
 
+            # MoreData can't use the _fieldDetails here
+            # MoreData can't use the _fieldDetails here
+            unset($moreData['_fieldDetails']);
             $dataBundle = [...$category, ...$moreData, ...$postData];
             $onFieldUserForm->handleFrontEnd($slugs, $dataBundle);
             view($postView, $dataBundle);
