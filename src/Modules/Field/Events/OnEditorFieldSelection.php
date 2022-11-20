@@ -19,6 +19,7 @@ class OnEditorFieldSelection implements EventInterface
 
     const CATEGORY_TOOL = 'Tool';
     const CATEGORY_GENERAL = 'General';
+    const CATEGORY_StructuredData = 'Structured Data';
 
     /**
      * @inheritDoc

@@ -206,7 +206,7 @@ SEO;
     /**
      * @throws \Exception
      */
-    private function structuredData(TonicsView $tonicsView)
+    private function structuredData(TonicsView $tonicsView): string
     {
         $meta = '';
 
@@ -256,11 +256,11 @@ FAQ_SCHEMA;
             # Handle FAQ Structured Data Fragment
             if (!empty($appTonicsseoStructuredDataFaqSchemaData)){
                 $faqSchemaFrag = <<<SchemaFAQ
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
 SchemaFAQ;
                 $lastKey = array_key_last($appTonicsseoStructuredDataFaqSchemaData);
                 foreach ($appTonicsseoStructuredDataFaqSchemaData as $key => $faqSchema){
@@ -274,9 +274,10 @@ SchemaFAQ;
                 $faqSchemaFrag .= <<<ShemaFAQ
 ]
     }
-    </script>
+</script>
+
 ShemaFAQ;
-                $meta .= $faqSchemaFrag . "\n";
+                $meta .= $faqSchemaFrag;
             }
         }
 

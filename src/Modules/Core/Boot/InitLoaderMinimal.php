@@ -100,11 +100,11 @@ class InitLoaderMinimal
             'REFERER' => url()->getReferer()
         ]);
 
-        # contains the pagination limit and offset, it would be populated from the queryModeHandler render method
-        self::addToGlobalVariable('QUERY_MODE', [
-            'LIMIT' => 0,
-            'OFFSET' => 0
+        # Push Structured Data That Relies on the Post Editor Here
+        self::addToGlobalVariable('Structured_Data', [
+            'FAQ' => []
         ]);
+
     }
 
     /**
