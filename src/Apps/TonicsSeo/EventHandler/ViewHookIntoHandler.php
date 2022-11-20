@@ -222,7 +222,6 @@ SEO;
                     foreach ($fieldItem->_children as $child) {
                         if ($child->field_input_name === $seoStructureData) {
                             foreach ($child->_children ?? [] as $structuredChild){
-
                                 # Handle Collation of FAQ Structured Data
                                 if (isset($structuredChild->main_field_slug) && $structuredChild->main_field_slug === $appTonicsseoStructuredDataFaqContainer){
                                     $question = (isset($structuredChild->_children[0]->field_options->app_tonics_seo_structured_data_faq_question))
@@ -254,31 +253,8 @@ FAQ_SCHEMA;
             }
 
             # Handle FAQ Structured Data Fragment
-            if (!empty($appTonicsseoStructuredDataFaqSchemaData)){
-                $faqSchemaFrag = <<<SchemaFAQ
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-SchemaFAQ;
-                $lastKey = array_key_last($appTonicsseoStructuredDataFaqSchemaData);
-                foreach ($appTonicsseoStructuredDataFaqSchemaData as $key => $faqSchema){
-                    if ($lastKey === $key){
-                        $faqSchemaFrag .= $faqSchema;
-                    } else {
-                        $faqSchemaFrag .= $faqSchema . ',';
-                    }
-                }
-
-                $faqSchemaFrag .= <<<ShemaFAQ
-]
-    }
-</script>
-
-ShemaFAQ;
-                $meta .= $faqSchemaFrag;
-            }
+            $FaqStructuredData = [...$appTonicsseoStructuredDataFaqSchemaData, ...$tonicsView->accessArrayWithSeparator('Structured_Data.FAQ') ?: []];
+            $meta .= TonicsStructuredDataFAQHandlerAndSelection::handleStructuredData($FaqStructuredData);
         }
 
         return $meta;
