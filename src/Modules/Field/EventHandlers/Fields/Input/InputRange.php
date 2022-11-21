@@ -115,10 +115,10 @@ FORM;
     public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Text';
-        $maxChar = (isset($data->maxChar)) ? "maxlength=" . $data->maxChar . '"' : '';
-        $step = (isset($data->step)) ? "step=" . $data->step . '"' : '';
-        $min = (isset($data->min)) ? "min=" . $data->min . '"' : '';
-        $max= (isset($data->max)) ? "max=" . $data->max . '"' : '';
+        $maxChar = (isset($data->maxChar)) ? "maxlength='$data->maxChar'" : '';
+        $step = (isset($data->step)) ? "step='$data->step'" : '';
+        $min = (isset($data->min)) ? "min='$data->min'"  : '';
+        $max= (isset($data->max)) ? "max='$data->max'"  : '';
         $textType = 'range';
 
         $keyValue =  $event->getKeyValueInData($data, $data->inputName);
@@ -144,9 +144,9 @@ FORM;
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
 $error
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">$fieldName
-            <input id="fieldName-$changeID" $min $max $step  name="$inputName" type="$textType" $maxChar
-            class="menu-name color:black border-width:default border:black placeholder-color:gray"
+     <label class="menu-settings-handle-name d:flex align-items:center flex-gap:small" for="fieldName-$changeID">$fieldName
+            <input style="width: unset; transform: unset;" id="fieldName-$changeID" $min $max $step  name="$inputName" type="$textType" $maxChar
+            class="menu-name color:black placeholder-color:gray volume-slider"
             value="$defaultValue">
     </label>
 </div>

@@ -175,13 +175,8 @@ SEO;
 SEO;
         }
 
-        $publishedTime = $tonicsView->accessArrayWithSeparator('Data.published_time') ?: $tonicsView->accessArrayWithSeparator('Data.created_at');
-        $publishedTime = str_replace(' ', 'T', $publishedTime) . $tonicsView->accessArrayWithSeparator('App_Config.APP_TIME_ZONE_OFFSET');
-        $publishedTime = helper()->htmlSpecChar($publishedTime);
-
-        $createdTime = $tonicsView->accessArrayWithSeparator('Data.modified_time') ?: $tonicsView->accessArrayWithSeparator('Data.updated_at');
-        $createdTime = str_replace(' ', 'T', $createdTime). $tonicsView->accessArrayWithSeparator('App_Config.APP_TIME_ZONE_OFFSET');
-        $createdTime = helper()->htmlSpecChar($createdTime);
+        $publishedTime = $this->seoTime($tonicsView, $tonicsView->accessArrayWithSeparator('Data.published_time') ?: $tonicsView->accessArrayWithSeparator('Data.created_at'));
+        $createdTime = $this->seoTime($tonicsView, $tonicsView->accessArrayWithSeparator('Data.modified_time') ?: $tonicsView->accessArrayWithSeparator('Data.updated_at'));
 
         if ($ogURL){
             $meta .=<<<SEO
@@ -215,25 +210,36 @@ SEO;
             $seoStructureData = 'seo_structured_data';
             $appTonicsseoStructuredDataFaqContainer = 'app-tonicsseo-structured-data-faq';
             $appTonicsseoStructuredDataFaqSchemaData = [];
-
+            $appTonicsseoStructuredDataArticleContainer = 'app-tonicsseo-structured-data-article';
+            $appTonicsseoStructuredDataArticleData = [
+                'headline' => $tonicsView->accessArrayWithSeparator('Data.seo_title'),
+                'datePublished' => $this->seoTime($tonicsView, $tonicsView->accessArrayWithSeparator('Data.published_time') ?: $tonicsView->accessArrayWithSeparator('Data.created_at')),
+                'dateModified' => $this->seoTime($tonicsView, $tonicsView->accessArrayWithSeparator('Data.modified_time') ?: $tonicsView->accessArrayWithSeparator('Data.updated_at')),
+                'images' => [],
+                'authors' => [
+                    $tonicsView->accessArrayWithSeparator('Data.user_name')
+                ],
+            ];
 
             foreach ($fieldItems as $fieldItem){
                 if (isset($fieldItem->main_field_slug) && $fieldItem->main_field_slug === 'seo-settings' && $fieldItem->_children){
                     foreach ($fieldItem->_children as $child) {
                         if ($child->field_input_name === $seoStructureData) {
                             foreach ($child->_children ?? [] as $structuredChild){
-                                # Handle Collation of FAQ Structured Data
-                                if (isset($structuredChild->main_field_slug) && $structuredChild->main_field_slug === $appTonicsseoStructuredDataFaqContainer){
-                                    $question = (isset($structuredChild->_children[0]->field_options->app_tonics_seo_structured_data_faq_question))
-                                        ? helper()->htmlSpecChar($structuredChild->_children[0]->field_options->app_tonics_seo_structured_data_faq_question)
-                                        : null;
 
-                                    $answer = (isset($structuredChild->_children[1]->field_options->app_tonics_seo_structured_data_faq_answer))
-                                        ? helper()->htmlSpecChar($structuredChild->_children[1]->field_options->app_tonics_seo_structured_data_faq_answer)
-                                        : null;
+                                if (isset($structuredChild->main_field_slug)){
+                                    # Handle Collation of FAQ Structured Data
+                                    if ($structuredChild->main_field_slug === $appTonicsseoStructuredDataFaqContainer){
+                                        $question = (isset($structuredChild->_children[0]->field_options->app_tonics_seo_structured_data_faq_question))
+                                            ? helper()->htmlSpecChar($structuredChild->_children[0]->field_options->app_tonics_seo_structured_data_faq_question)
+                                            : null;
 
-                                    if ($question && $answer){
-                                        $appTonicsseoStructuredDataFaqSchemaData[] = <<<FAQ_SCHEMA
+                                        $answer = (isset($structuredChild->_children[1]->field_options->app_tonics_seo_structured_data_faq_answer))
+                                            ? helper()->htmlSpecChar($structuredChild->_children[1]->field_options->app_tonics_seo_structured_data_faq_answer)
+                                            : null;
+
+                                        if ($question && $answer){
+                                            $appTonicsseoStructuredDataFaqSchemaData[] = <<<FAQ_SCHEMA
 {
         "@type": "Question",
         "name": "$question",
@@ -243,6 +249,36 @@ SEO;
         }
       }
 FAQ_SCHEMA;
+                                        }
+                                    }
+
+                                    # Handle Collation of Article Structured Data
+                                    if ($structuredChild->main_field_slug === $appTonicsseoStructuredDataArticleContainer){
+                                        $structuredDataArticleTypeFieldName = 'app_tonics_seo_structured_data_article_article_type';
+                                        $structuredDataArticleHeadlineFieldName = 'app_tonics_seo_structured_data_article_headline';
+                                        $structuredDataArticleImagesFieldName = 'app_tonics_seo_structured_data_article_image_repeater';
+                                        $structuredDataArticleAuthorsFieldName = 'app_tonics_seo_structured_data_article_author_repeater';
+
+                                        foreach ($structuredChild->_children as $articleField){
+
+                                            if ($articleField->field_input_name === $structuredDataArticleTypeFieldName){
+                                                $appTonicsseoStructuredDataArticleData['type'] = $articleField->field_options->{$structuredDataArticleTypeFieldName};
+                                            }
+
+                                            if ($articleField->field_input_name === $structuredDataArticleHeadlineFieldName){
+                                                if (!empty($articleField->field_options->{$structuredDataArticleHeadlineFieldName})){
+                                                    $appTonicsseoStructuredDataArticleData['headline'] = $articleField->field_options->{$structuredDataArticleHeadlineFieldName};
+                                                }
+                                            }
+
+                                            if ($articleField->field_input_name === $structuredDataArticleImagesFieldName){
+                                                if (isset($articleField->_children[0]->field_options->app_tonics_seo_structured_data_article_image)){
+                                                    $appTonicsseoStructuredDataArticleData['images'][]
+                                                        = AppConfig::getAppUrl() . $articleField->_children[0]->field_options->app_tonics_seo_structured_data_article_image;
+                                                }
+
+                                            }
+                                        }
                                     }
                                 }
 
@@ -255,8 +291,97 @@ FAQ_SCHEMA;
             # Handle FAQ Structured Data Fragment
             $FaqStructuredData = [...$appTonicsseoStructuredDataFaqSchemaData, ...$tonicsView->accessArrayWithSeparator('Structured_Data.FAQ') ?: []];
             $meta .= TonicsStructuredDataFAQHandlerAndSelection::handleStructuredData($FaqStructuredData);
+
+            # Handle Article Structured Data Fragment
+            if (isset($appTonicsseoStructuredDataArticleData['authors'][0]) && isset($appTonicsseoStructuredDataArticleData['images'][0])){
+                $type = trim($appTonicsseoStructuredDataArticleData['type']);
+                $meta .= <<<ArticleStructuredData
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "{$type}",
+    "headline": "{$appTonicsseoStructuredDataArticleData['headline']}",
+    "datePublished": "{$appTonicsseoStructuredDataArticleData['datePublished']}",
+    "dateModified": "{$appTonicsseoStructuredDataArticleData['dateModified']}",
+
+ArticleStructuredData;
+
+                # For Images
+                $firstKey = array_key_first($appTonicsseoStructuredDataArticleData['images']);
+                $lastKey = array_key_last($appTonicsseoStructuredDataArticleData['images']);
+                foreach ($appTonicsseoStructuredDataArticleData['images'] as $key => $image){
+                    if ($firstKey === $key){
+                        $meta .= <<<ArticleStructuredData
+    "image": [
+
+ArticleStructuredData;
+                    }
+                    if ($lastKey === $key){
+                        $meta .= <<<ArticleStructuredData
+        "$image"
+        ],
+        
+ArticleStructuredData;
+                    } else {
+                        $meta .= <<<ArticleStructuredData
+        "$image",
+
+ArticleStructuredData;
+                    }
+                }
+
+                # For Authors
+                $firstKey = array_key_first($appTonicsseoStructuredDataArticleData['authors']);
+                $lastKey = array_key_last($appTonicsseoStructuredDataArticleData['authors']);
+                $authorURLForNow = AppConfig::getAppUrl();
+                foreach ($appTonicsseoStructuredDataArticleData['authors'] as $key => $author){
+                    if ($firstKey === $key){
+                        $meta .= <<<ArticleStructuredData
+     "author": [
+
+ArticleStructuredData;
+                    }
+                    if ($lastKey === $key){
+                        $meta .= <<<ArticleStructuredData
+        {
+          "@type": "Person",
+          "name": "$author",
+          "url": "$authorURLForNow"
+        }]
+}
+ArticleStructuredData;
+                    } else {
+                        $meta .= <<<ArticleStructuredData
+        {
+          "@type": "Person",
+          "name": "$author",
+          "url": "$authorURLForNow"
+        },
+
+ArticleStructuredData;
+                    }
+                }
+
+                # Close Script
+                $meta .= <<<ArticleStructuredData
+</script>
+ArticleStructuredData;
+            }
+
         }
 
         return $meta;
+    }
+
+    /**
+     * @param $tonicsView
+     * @param $time
+     * @return string
+     * @throws \Exception
+     */
+    private function seoTime($tonicsView, $time): string
+    {
+        $createdTime = str_replace(' ', 'T', $time). $tonicsView->accessArrayWithSeparator('App_Config.APP_TIME_ZONE_OFFSET');
+        return helper()->htmlSpecChar($createdTime);
     }
 }

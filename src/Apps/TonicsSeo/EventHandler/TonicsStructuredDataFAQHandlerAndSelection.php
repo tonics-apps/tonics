@@ -42,8 +42,8 @@ class TonicsStructuredDataFAQHandlerAndSelection implements FieldTemplateFileInt
                     : null;
 
                 $faqPlain .=<<<FAQPLAIN
-<h2>$question</h2>
-<p>$answer</p>
+<h2 class="tonics-structured-data-faq-question">$question</h2>
+<p class="tonics-structured-data-faq-answer">$answer</p>
 FAQPLAIN;
 
 
@@ -61,7 +61,7 @@ FAQ_SCHEMA;
         }
 
         addToGlobalVariable('Structured_Data', $structuredData);
-        return '<div>' . $faqPlain . '</div>';
+        return '<div class="tonics-structured-data-faq">' . $faqPlain . '</div>';
     }
 
     public function name(): string

@@ -39,6 +39,7 @@ use App\Modules\Field\EventHandlers\Fields\Modular\RowColumn;
 use App\Modules\Field\EventHandlers\Fields\Post\PostAuthorSelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategorySelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostRecent;
+use App\Modules\Field\EventHandlers\Fields\Tools\Currency;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtist;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtistSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackGenre;
@@ -118,6 +119,9 @@ class FieldActivator implements ExtensionConfig
 
                 # Widget
                 Widget::class,
+
+                # Tools
+                Currency::class
             ],
 
             OnEditorFieldSelection::class => [
