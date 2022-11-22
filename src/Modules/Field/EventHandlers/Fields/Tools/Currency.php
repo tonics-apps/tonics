@@ -15,6 +15,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class Currency implements HandlerInterface
 {
+    private array $backTrace = [];
 
     public function handleEvent(object $event): void
     {
@@ -70,12 +71,10 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Currency';
         $keyValue =  $event->getKeyValueInData($data, $data->inputName);
-
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-
         $frag .= <<<Frag
 <div class="form-group margin-top:0">
     <select id="{$fieldName}_$changeID" name="$inputName" class="default-selector">

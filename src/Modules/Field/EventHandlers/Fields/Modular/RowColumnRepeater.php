@@ -17,6 +17,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class RowColumnRepeater implements HandlerInterface
 {
+    const FieldSlug = 'modular_rowcolumnrepeater';
 
     private array $repeaterButton = [];
     private bool $isRoot = false;

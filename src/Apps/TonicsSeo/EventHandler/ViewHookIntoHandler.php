@@ -220,6 +220,18 @@ SEO;
                     $tonicsView->accessArrayWithSeparator('Data.user_name')
                 ],
             ];
+            $appTonicsseoStructuredDataProductReviewContainer = 'app-tonicsseo-structured-data-product-review';
+            $appTonicsseoStructuredDataProductReviewData = [
+                'name' => $tonicsView->accessArrayWithSeparator('Data.seo_title'),
+                'description' => $tonicsView->accessArrayWithSeparator('Data.seo_title'),
+                'positiveNotes' => [],
+                'negativeNotes' => [],
+                'authors' => $tonicsView->accessArrayWithSeparator('Data.user_name'),
+                'aggregate' => [
+                    'ratingValue' => null,
+                    'reviewCount' => null,
+                ],
+            ];
 
             foreach ($fieldItems as $fieldItem){
                 if (isset($fieldItem->main_field_slug) && $fieldItem->main_field_slug === 'seo-settings' && $fieldItem->_children){
@@ -277,6 +289,53 @@ FAQ_SCHEMA;
                                                         = AppConfig::getAppUrl() . $articleField->_children[0]->field_options->app_tonics_seo_structured_data_article_image;
                                                 }
 
+                                            }
+                                        }
+                                    }
+
+                                    # Handle Collation of Product Review Data
+                                    if ($structuredChild->main_field_slug === $appTonicsseoStructuredDataProductReviewContainer){
+                                        $structuredDataProductReviewTypeFieldName = 'app_tonics_seo_structured_data_product_review_name';
+                                        $structuredDataProductReviewTypeFieldDescription = 'app_tonics_seo_structured_data_product_review_desc';
+                                        $structuredDataProductReviewTypeFieldPositiveContainer = 'app_tonics_seo_structured_data_product_review_positiveNoteContainer';
+                                        $structuredDataProductReviewTypeFieldNegativeContainer = 'app_tonics_seo_structured_data_product_review_negativeNoteContainer';
+                                        $structuredDataProductReviewTypeFieldAuthor = 'app_tonics_seo_structured_data_product_review_author';
+                                        $structuredDataProductReviewTypeFieldAggregateRatingContainer = 'app_tonics_seo_structured_data_product_review_aggregateRatingContainer';
+
+                                        foreach ($structuredChild->_children as $productReviewField){
+                                            if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldName){
+                                                $appTonicsseoStructuredDataProductReviewData['name'] = $productReviewField->field_options->{$structuredDataProductReviewTypeFieldName};
+                                            }
+                                            if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldDescription){
+                                                $appTonicsseoStructuredDataProductReviewData['name'] = $productReviewField->field_options->{$structuredDataProductReviewTypeFieldDescription};
+                                            }
+                                            if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldPositiveContainer){
+                                                if (isset($productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_positiveNote)){
+                                                    $appTonicsseoStructuredDataProductReviewData['positiveNotes'][]
+                                                        = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_positiveNote;
+                                                }
+                                            }
+                                            if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldNegativeContainer){
+                                                if (isset($productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_negativeNote)){
+                                                    $appTonicsseoStructuredDataProductReviewData['negativeNotes'][]
+                                                        = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_negativeNote;
+                                                }
+                                            }
+                                            if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldAggregateRatingContainer){
+                                                $appTonicsseoStructuredDataProductReviewAggregateTypeRatingValue = 'app_tonics_seo_structured_data_product_review_rating_value';
+                                                $appTonicsseoStructuredDataProductReviewAggregateTypeReviewCount = 'app_tonics_seo_structured_data_product_review_review_count';
+                                                if (isset($productReviewField->_children)){
+                                                    foreach ($productReviewField->_children as $aggregateChild){
+                                                        if ($aggregateChild->field_input_name === $appTonicsseoStructuredDataProductReviewAggregateTypeRatingValue){
+                                                            $appTonicsseoStructuredDataProductReviewData['aggregate']['ratingValue']
+                                                                = $aggregateChild->field_options->{$appTonicsseoStructuredDataProductReviewAggregateTypeRatingValue};
+                                                        }
+                                                        if ($aggregateChild->field_input_name === $appTonicsseoStructuredDataProductReviewAggregateTypeReviewCount){
+                                                            $appTonicsseoStructuredDataProductReviewData['aggregate']['reviewCount']
+                                                                = $aggregateChild->field_options->{$appTonicsseoStructuredDataProductReviewAggregateTypeReviewCount};
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }

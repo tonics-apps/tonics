@@ -17,6 +17,11 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsValidation\Validation;
 use stdClass;
 
+/**
+ * Note: Sometimes the `$data` in userForm would come with no `$data->_field->field_data`, this is because some Field are trying to
+ * generate empty fragment, and an example of such field is the FieldSelectionDropper, so, when there is no _field_data that is
+ * the reason. (I have investigated, and it looks like it is a bug, the $data should always contain _field_data)
+ */
 class OnFieldMetaBox implements EventInterface
 {
 

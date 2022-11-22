@@ -16,6 +16,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class RowColumn implements HandlerInterface
 {
+    const FieldSlug = 'modular_rowcolumn';
 
     /**
      * @inheritDoc
@@ -254,10 +255,10 @@ HTML; $first = false;
 <input tabindex="0" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
 <label tabindex="0" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
 HTML;
-                            if ($child->field_name === 'modular_rowcolumnrepeater'){
+                            if ($child->field_name === RowColumnRepeater::FieldSlug){
                                 $frag .= '<ul>' . $event->getUsersForm($child->field_name, $child->field_options ?? null) . '</ul>';
                             } else {
-                                $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                              $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                             }
                         }
                     }

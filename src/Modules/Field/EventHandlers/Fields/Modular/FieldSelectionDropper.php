@@ -18,6 +18,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class FieldSelectionDropper implements HandlerInterface
 {
+    const FieldSlug = 'modular_fieldselectiondropper';
 
     /**
      * @inheritDoc
@@ -199,7 +200,6 @@ HTML;
 HTML;
 
         $frag .= $event->_bottomHTMLWrapper();
-
         return $frag;
     }
 
