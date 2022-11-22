@@ -226,7 +226,7 @@ SEO;
                 'description' => $tonicsView->accessArrayWithSeparator('Data.seo_title'),
                 'positiveNotes' => [],
                 'negativeNotes' => [],
-                'authors' => $tonicsView->accessArrayWithSeparator('Data.user_name'),
+                'author' => $tonicsView->accessArrayWithSeparator('Data.user_name'),
                 'aggregate' => [
                     'ratingValue' => null,
                     'reviewCount' => null,
@@ -352,7 +352,7 @@ FAQ_SCHEMA;
             $meta .= TonicsStructuredDataFAQHandlerAndSelection::handleStructuredData($FaqStructuredData);
 
             # Handle Article Structured Data Fragment
-            if (isset($appTonicsseoStructuredDataArticleData['authors'][0]) && isset($appTonicsseoStructuredDataArticleData['images'][0])){
+            if (!empty($appTonicsseoStructuredDataArticleData['authors'][0]) && isset($appTonicsseoStructuredDataArticleData['images'][0])){
                 $type = trim($appTonicsseoStructuredDataArticleData['type']);
                 $meta .= <<<ArticleStructuredData
 <script type="application/ld+json">
@@ -427,6 +427,99 @@ ArticleStructuredData;
 ArticleStructuredData;
             }
 
+            # Handle Product Review Structured Data Fragment
+            if (!empty($appTonicsseoStructuredDataProductReviewData['aggregate']['ratingValue'])){
+                $meta .= <<<ProductReviewStructuredData
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{$appTonicsseoStructuredDataProductReviewData['name']}",
+    "description": "{$appTonicsseoStructuredDataProductReviewData['description']}",
+    "review": {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "{$appTonicsseoStructuredDataProductReviewData['author']}"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "{$appTonicsseoStructuredDataProductReviewData['aggregate']['ratingValue']}",
+        "reviewCount": "{$appTonicsseoStructuredDataProductReviewData['aggregate']['reviewCount']}"
+      },
+ProductReviewStructuredData;
+
+                $positiveNoteFrag = '';
+                if (!empty($appTonicsseoStructuredDataProductReviewData['positiveNotes'])){
+                    $positiveNoteFrag .= <<<Note
+
+      "positiveNotes": {
+            "@type": "ItemList",
+            "itemListElement": [
+Note;
+
+                    $lastKey = array_key_last($appTonicsseoStructuredDataProductReviewData['positiveNotes']);
+                    foreach ($appTonicsseoStructuredDataProductReviewData['positiveNotes'] as $key => $positiveNote){
+                        $position = $key + 1;
+                        $positiveNoteFrag .= <<<Note
+
+            {
+                "@type": "ListItem",
+                "position": $position,
+                "name": "$positiveNote"
+            }
+Note;
+                        if ($lastKey !== $key){
+                            $positiveNoteFrag .= ',';
+                        } else {
+                            $positiveNoteFrag .= <<<Note
+]
+          },
+Note;
+                        }
+                    }
+                }
+
+
+                $negativeNoteFrag = '';
+                if (!empty($appTonicsseoStructuredDataProductReviewData['negativeNotes'])){
+                    $negativeNoteFrag .= <<<Note
+"negativeNotes": {
+            "@type": "ItemList",
+            "itemListElement": [
+Note;
+                    $lastKey = array_key_last($appTonicsseoStructuredDataProductReviewData['negativeNotes']);
+                    foreach ($appTonicsseoStructuredDataProductReviewData['negativeNotes'] as $key => $positiveNote){
+                        $position = $key + 1;
+                        $negativeNoteFrag .= <<<Note
+
+            {
+                "@type": "ListItem",
+                "position": $position,
+                "name": "$positiveNote"
+            }
+Note;
+                        if ($lastKey !== $key){
+                            $negativeNoteFrag .= ',';
+                        } else {
+                            $negativeNoteFrag .= <<<Note
+]
+          }
+Note;
+                        }
+                    }
+                }
+
+                $meta .= <<<ProductReviewStructuredData
+        $positiveNoteFrag
+        $negativeNoteFrag
+    }
+</script>
+ProductReviewStructuredData;
+
+
+            }
         }
 
         return $meta;
