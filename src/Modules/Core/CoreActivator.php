@@ -148,7 +148,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "Core",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1668517671',
+            "version" => '1-O-Ola.1669161971',
             "stable" => 0,
             "description" => "The Core Module",
             "info_url" => '',

@@ -489,7 +489,7 @@ class FieldConfig
     "field_name": "modular_fieldselectiondropper",
     "field_id": 11,
     "field_parent_id": 1,
-    "field_options": "{\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"5\",\"field_slug_unique_hash\":\"1mxkpikxb8ww000000000\",\"field_input_name\":\"seo_structured_data\",\"fieldName\":\"Structured Data\",\"inputName\":\"seo_structured_data\",\"fieldSlug\":[\"app-tonicsseo-structured-data-article\",\"app-tonicsseo-structured-data-faq\",\"app-tonicsseo-structured-data-logo\",\"app-tonicsseo-structured-data-product\"],\"defaultFieldSlug\":\"app-tonicsseo-structured-data-article\",\"hideInUserEditForm\":\"0\"}"
+    "field_options": "{\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"5\",\"field_slug_unique_hash\":\"1mxkpikxb8ww000000000\",\"field_input_name\":\"seo_structured_data\",\"fieldName\":\"Structured Data\",\"inputName\":\"seo_structured_data\",\"fieldSlug\":[\"app-tonicsseo-structured-data-product-review\",\"app-tonicsseo-structured-data-article\",\"app-tonicsseo-structured-data-faq\"],\"defaultFieldSlug\":\"app-tonicsseo-structured-data-article\",\"hideInUserEditForm\":\"0\"}"
   },
   {
     "fk_field_id": "Site Header",
