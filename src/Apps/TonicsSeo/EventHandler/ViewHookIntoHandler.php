@@ -285,11 +285,19 @@ FAQ_SCHEMA;
 
                                             if ($articleField->field_input_name === $structuredDataArticleImagesFieldName){
                                                 if (isset($articleField->_children[0]->field_options->app_tonics_seo_structured_data_article_image)){
-                                                    $appTonicsseoStructuredDataArticleData['images'][]
-                                                        = AppConfig::getAppUrl() . $articleField->_children[0]->field_options->app_tonics_seo_structured_data_article_image;
+                                                    $imageURL = $articleField->_children[0]->field_options->app_tonics_seo_structured_data_article_image;
+                                                    if (!empty($imageURL)){
+                                                        $appTonicsseoStructuredDataArticleData['images'][]
+                                                            = AppConfig::getAppUrl() . $articleField->_children[0]->field_options->app_tonics_seo_structured_data_article_image;
+                                                    }
                                                 }
 
                                             }
+                                        }
+
+                                        if (empty($appTonicsseoStructuredDataArticleData['images']) && !empty($tonicsView->accessArrayWithSeparator('Data.image_url'))){
+                                            $appTonicsseoStructuredDataArticleData['images'][] =
+                                                AppConfig::getAppUrl() . $tonicsView->accessArrayWithSeparator('Data.image_url');
                                         }
                                     }
 
@@ -311,14 +319,20 @@ FAQ_SCHEMA;
                                             }
                                             if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldPositiveContainer){
                                                 if (isset($productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_positiveNote)){
-                                                    $appTonicsseoStructuredDataProductReviewData['positiveNotes'][]
-                                                        = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_positiveNote;
+                                                    $note = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_positiveNote;
+                                                    if (!empty($note)){
+                                                        $appTonicsseoStructuredDataProductReviewData['positiveNotes'][]
+                                                            = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_positiveNote;
+                                                    }
                                                 }
                                             }
                                             if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldNegativeContainer){
                                                 if (isset($productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_negativeNote)){
-                                                    $appTonicsseoStructuredDataProductReviewData['negativeNotes'][]
-                                                        = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_negativeNote;
+                                                    $note = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_negativeNote;
+                                                    if (!empty($note)){
+                                                        $appTonicsseoStructuredDataProductReviewData['negativeNotes'][]
+                                                            = $productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_negativeNote;
+                                                    }
                                                 }
                                             }
                                             if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldAggregateRatingContainer){
@@ -447,13 +461,13 @@ ArticleStructuredData;
         "@type": "AggregateRating",
         "ratingValue": "{$appTonicsseoStructuredDataProductReviewData['aggregate']['ratingValue']}",
         "reviewCount": "{$appTonicsseoStructuredDataProductReviewData['aggregate']['reviewCount']}"
-      },
+      }
 ProductReviewStructuredData;
 
                 $positiveNoteFrag = '';
                 if (!empty($appTonicsseoStructuredDataProductReviewData['positiveNotes'])){
                     $positiveNoteFrag .= <<<Note
-
+,
       "positiveNotes": {
             "@type": "ItemList",
             "itemListElement": [
@@ -475,7 +489,7 @@ Note;
                         } else {
                             $positiveNoteFrag .= <<<Note
 ]
-          },
+          }
 Note;
                         }
                     }
@@ -485,6 +499,7 @@ Note;
                 $negativeNoteFrag = '';
                 if (!empty($appTonicsseoStructuredDataProductReviewData['negativeNotes'])){
                     $negativeNoteFrag .= <<<Note
+,
 "negativeNotes": {
             "@type": "ItemList",
             "itemListElement": [
