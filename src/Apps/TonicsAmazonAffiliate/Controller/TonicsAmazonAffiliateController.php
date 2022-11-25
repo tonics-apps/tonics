@@ -271,9 +271,9 @@ class TonicsAmazonAffiliateController
         foreach ($items as $item) {
             if ($item instanceof Item){
                 $title = helper()->htmlSpecChar($item->getItemInfo()?->getTitle()?->getDisplayValue());
-                $imageURL = $item->getImages()?->getPrimary()?->getLarge()->getURL();
-                $height = (int)$item->getImages()?->getPrimary()?->getLarge()->getHeight();
-                $width = (int)$item->getImages()?->getPrimary()?->getLarge()->getWidth();
+                $imageURL = $item->getImages()?->getPrimary()?->getLarge()?->getURL();
+                $height = (int)$item->getImages()?->getPrimary()?->getLarge()?->getHeight();
+                $width = (int)$item->getImages()?->getPrimary()?->getLarge()?->getWidth();
                 $imageSrc = '';
                 $button = '';
                 $detailPageURL = $item?->getDetailPageURL();
@@ -306,7 +306,7 @@ IMG;
                     'TITLE' => $title,
                     'DESCRIPTION' => $descriptionFrag,
                     'IMAGE' => $imageSrc,
-                    'PRICE' => $item->getOffers()?->getListings()[0]->getPrice()->getDisplayAmount(),
+                    'PRICE' => $item->getOffers()?->getListings()[0]?->getPrice()?->getDisplayAmount(),
                     'BUTTON' => $button,
                     'URL' => $detailPageURL,
                     'LAST UPDATE' => $asinDataFromDB->updated_at ?? helper()->date(),

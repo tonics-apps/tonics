@@ -181,18 +181,25 @@ class TracksController extends Controller
             redirect(route('tracks.create'));
         }
 
+        # Storing db reference is the only way I got tx to work
+        # this could be as a result of pass db() around in event handlers
+        $db = db();
         try {
+            $db->beginTransaction();
             $track = $this->getTrackData()->createTrack(['token']);
             $trackReturning = db()->insertReturning($this->getTrackData()->getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
             $onTrackCreate = new OnTrackCreate($trackReturning, $this->getTrackData());
+            event()->dispatch($onTrackCreate);
+            $db->commit();
+
+            session()->flash(['Track Created'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('tracks.edit', ['track' => $onTrackCreate->getTrackSlug()]));
         } catch (Exception $exception){
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
+            // Log..
+            $db->rollBack();
+            session()->flash(['An Error Occurred, Creating Track'], input()->fromPost()->all());
             redirect(route('tracks.create'));
         }
-
-        event()->dispatch($onTrackCreate);
-        session()->flash(['Track Created'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tracks.edit', ['track' => $onTrackCreate->getTrackSlug()]));
     }
 
     /**

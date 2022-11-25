@@ -45,7 +45,7 @@ class HandleNewTrackSlugIDGeneration implements HandlerInterface
          */
         $slugGen = $event->getTrackID() . random_int(PHP_INT_MIN, PHP_INT_MAX). hrtime(true);
         $slugGen = hash('xxh3', $slugGen);
-        $trackToUpdate = $event->getTrackData()->createTrack(['track_slug']);
+        $trackToUpdate = $event->getTrackData()->createTrack(['track_slug'], false);
         $trackToUpdate['slug_id'] = $slugGen;
         db()->FastUpdate($event->getTrackData()->getTrackTable(), $trackToUpdate, db()->Where('track_id', '=', $event->getTrackID()));
     }

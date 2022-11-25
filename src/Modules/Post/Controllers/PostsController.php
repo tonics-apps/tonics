@@ -181,28 +181,28 @@ class PostsController
             redirect(route('posts.create'));
         }
 
-        $post = $this->postData->createPost(['token']);
-
+        # Storing db reference is the only way I got tx to work
+        # this could be as a result of pass db() around in event handlers
+        $db = db();
         try {
-            db()->beginTransaction();
+            $db->beginTransaction();
+            $post = $this->postData->createPost(['token']);
             $onBeforePostSave = new OnBeforePostSave($post);
             event()->dispatch($onBeforePostSave);
             $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
-
             if (is_object($postReturning)) {
                 $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
             }
 
             $onPostCreate = new OnPostCreate($postReturning, $this->postData);
             event()->dispatch($onPostCreate);
-
-            db()->commit();
+            $db->commit();
 
             session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
         } catch (\Exception $exception) {
             // log..
-            db()->rollBack();
+            $db->rollBack();
             session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
             redirect(route('posts.create'));
         }
@@ -217,8 +217,9 @@ class PostsController
     public function storeFromImport(array $postData): bool|object
     {
         $previousPOSTGlobal = $_POST;
+        $db = db();
         try {
-            db()->beginTransaction();
+            $db->beginTransaction();
             foreach ($postData as $k => $cat) {
                 $_POST[$k] = $cat;
             }
@@ -243,10 +244,10 @@ class PostsController
             event()->dispatch($onPostCreate);
             $_POST = $previousPOSTGlobal;
 
-            db()->commit();
+            $db->commit();
             return $onPostCreate;
         } catch (\Exception $e) {
-            db()->rollBack();
+            $db->rollBack();
             helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');
             return false;
         }
@@ -326,12 +327,13 @@ class PostsController
             redirect(route('posts.edit', [$slug]));
         }
 
+        $db = db();
+        $db->beginTransaction();
         $postToUpdate = $this->postData->createPost(['token']);
-        $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
-        event()->dispatch(new OnBeforePostSave($postToUpdate));
 
         try {
-            db()->beginTransaction();
+            $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
+            event()->dispatch(new OnBeforePostSave($postToUpdate));
             db()->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
 
             $postToUpdate['fk_cat_id'] = input()->fromPost()->retrieve('fk_cat_id', '');
@@ -339,7 +341,7 @@ class PostsController
             $onPostUpdate = new OnPostUpdate((object)$postToUpdate, $this->postData);
             event()->dispatch($onPostUpdate);
 
-            db()->commit();
+            $db->commit();
 
             # For Fields
             $slug = $postToUpdate['post_slug'];
@@ -351,7 +353,7 @@ class PostsController
             redirect(route('posts.edit', ['post' => $slug]));
 
         } catch (\Exception $exception) {
-            db()->rollBack();
+            $db->rollBack();
             // log..
             session()->flash(['Error Occur Updating Post'], $postToUpdate);
             redirect(route('posts.edit', ['post' => $slug]));

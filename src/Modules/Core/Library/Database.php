@@ -56,7 +56,6 @@ class Database
             # Sync Users TimeZone with Database
             $offset = date('P');
             $q->Q()->Set('time_zone', $offset)->FetchFirst();
-
             # Set Up Tables
             $modules = helper()->getModuleActivators([ExtensionConfig::class]);
             $apps = helper()->getModuleActivators([ExtensionConfig::class], helper()->getAllAppsDirectory());

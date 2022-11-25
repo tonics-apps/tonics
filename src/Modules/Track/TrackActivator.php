@@ -122,7 +122,7 @@ class TrackActivator implements ExtensionConfig
             "name" => "Track",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1654594213',
+            "version" => '1-O-Ola.1669360847',
             "description" => "The Track Module",
             "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-track-module/releases/latest",

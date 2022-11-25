@@ -144,14 +144,26 @@ class PostCategoryController
             redirect(route('posts.category.create'));
         }
 
-        $category = $this->postData->createCategory();
-        $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
+        # Storing db reference is the only way I got tx to work
+        # this could be as a result of pass db() around in event handlers
+        $db = db();
+        try {
+            $db->beginTransaction();
+            $category = $this->postData->createCategory();
+            $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
+            $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
+            event()->dispatch($onPostCategoryCreate);
+            $db->commit();
 
-        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
-        event()->dispatch($onPostCategoryCreate);
+            session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('posts.category.edit', ['category' => $onPostCategoryCreate->getCatSlug()]));
+        }catch (Exception $exception){
+            // Log..
+            $db->rollBack();
+            session()->flash(['An Error Occurred, Creating Post Category'], input()->fromPost()->all());
+            redirect(route('posts.category.create'));
+        }
 
-        session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('posts.category.edit', ['category' => $onPostCategoryCreate->getCatSlug()]));
     }
 
     /**

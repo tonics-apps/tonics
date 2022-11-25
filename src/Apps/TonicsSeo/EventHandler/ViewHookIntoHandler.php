@@ -300,7 +300,6 @@ FAQ_SCHEMA;
                                                 AppConfig::getAppUrl() . $tonicsView->accessArrayWithSeparator('Data.image_url');
                                         }
                                     }
-
                                     # Handle Collation of Product Review Data
                                     if ($structuredChild->main_field_slug === $appTonicsseoStructuredDataProductReviewContainer){
                                         $structuredDataProductReviewTypeFieldName = 'app_tonics_seo_structured_data_product_review_name';

@@ -334,120 +334,6 @@ HTML;
         return $htmlFrag;
     }
 
-
-    /**
-     * @param $licenses
-     * @return string
-     * @throws \Exception
-     */
-    public function adminLicenseListing($licenses): string
-    {
-        $csrfToken = session()->getCSRFToken();
-        $htmlFrag = ''; $urlPrefix = "/admin/tools/license";
-        foreach ($licenses as $k => $license) {
-            $htmlFrag .= <<<HTML
-    <li 
-    data-list_id="$k" data-id="$license->license_id"  
-    data-license_id="$license->license_id" 
-    data-license_slug="$license->license_slug" 
-    data-license_name="$license->license_name"
-    data-db_click_link="$urlPrefix/$license->license_slug/edit"
-    tabindex="0" 
-    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-        <fieldset class="padding:default width:100% box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$license->license_name</legend>
-            <div class="admin-widget-information owl width:100%">
-            <div class="text-on-admin-util text-highlight">$license->license_name</div>
-         
-                <div class="form-group d:flex flex-gap:small">
-                     <a href="$urlPrefix/$license->license_slug/edit" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
-                        
-                         <a href="$urlPrefix/items/$license->license_slug/builder" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Builder</a>
-                   
-                   <form method="post" class="d:contents" action="$urlPrefix/$license->license_slug/delete">
-                    <input type="hidden" name="token" value="$csrfToken" >
-                       <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete</button>
-                    </form>
-                </div>
-                
-            </div>
-        </fieldset>
-    </li>
-HTML;
-        }
-
-        return $htmlFrag;
-    }
-
-    /**
-     * @param $tracks
-     * @param int|null $status
-     * @return string
-     * @throws \Exception
-     */
-    public function adminTrackListing($tracks, int|null $status = 1): string
-    {
-        $csrfToken = session()->getCSRFToken();
-        $htmlFrag = ''; $urlPrefix = "/admin/tracks";
-        foreach ($tracks as $k => $track) {
-            if ($track->track_status === $status || $status === null) {
-                if ($track->track_status === -1) {
-                    $otherFrag = <<<HTML
-<form method="post" class="d:contents" action="$urlPrefix/$track->track_slug/delete">
-   <input type="hidden" name="token" value="$csrfToken">
-       <button data-click-onconfirmdelete="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Delete
-        </button>
-</form>
-HTML;
-                } else {
-                    $otherFrag = <<<HTML
-<form method="post" class="d:contents" action="$urlPrefix/$track->track_slug/trash">
-   <input type="hidden" name="token" value="$csrfToken" >
-       <button data-click-onconfirmtrash="true" type="button" class="listing-button bg:pure-black color:white border:none border-width:default border:black padding:gentle
-        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Trash
-        </button>
-</form>
-HTML;
-                }
-                $htmlFrag .= <<<HTML
-    <li 
-    data-list_id="$k" data-id="$track->track_id"  
-    data-track_id="$track->track_id" 
-    data-track_slug="$track->track_slug" 
-    data-track_title="$track->track_title"
-    data-fk_genre_id="$track->fk_genre_id"
-    data-fk_artist_id="$track->fk_artist_id"
-    data-fk_license_id="$track->fk_license_id"
-    data-db_click_link="$urlPrefix/$track->track_slug/edit"
-    tabindex="0" 
-    class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
-        <fieldset class="padding:default width:100% box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$track->track_title</legend>
-            <div class="admin-widget-information owl width:100%">
-            <div class="text-on-admin-util text-highlight">$track->track_title</div>
-         
-                <div class="form-group d:flex flex-gap:small">
-                     <a href="$urlPrefix/$track->track_slug/edit" class="listing-button text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">Edit</a>
-
-                   $otherFrag
-                </div>
-                
-            </div>
-        </fieldset>
-    </li>
-HTML;
-
-            }
-        }
-
-        return $htmlFrag;
-    }
-
     public function getLicenseItemsListing($licenses): string
     {
         $frag = '';
@@ -558,7 +444,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function createTrack(array $ignore = []): array
+    public function createTrack(array $ignore = [], bool $prepareFieldSettings = true): array
     {
         $slug = $this->generateUniqueSlug($this->getTrackTable(),
             'track_slug', helper()->slug(input()->fromPost()->retrieve('track_slug')));
@@ -586,7 +472,11 @@ HTML;
             }
         }
 
-        return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($track, 'track_title', 'track_content');
+        if ($prepareFieldSettings){
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($track, 'track_title', 'track_content');
+        }
+
+        return $track;
     }
 
     /**

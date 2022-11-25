@@ -181,7 +181,7 @@ CAT;
     /**
      * @throws \Exception
      */
-    public function createCategory(array $ignore = []): array
+    public function createCategory(array $ignore = [], bool $prepareFieldSettings = true): array
     {
         $slug = $this->generateUniqueSlug($this->getCategoryTable(),
             'cat_slug',
@@ -219,13 +219,17 @@ CAT;
             }
         }
 
-        return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($category, 'cat_name', 'cat_content');
+        if ($prepareFieldSettings){
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($category, 'cat_name', 'cat_content');
+        }
+
+        return $category;
     }
 
     /**
      * @throws \Exception
      */
-    public function createPost(array $ignore = []): array
+    public function createPost(array $ignore = [], bool $prepareFieldSettings = true): array
     {
         $slug = $this->generateUniqueSlug($this->getPostTable(),
             'post_slug', helper()->slug(input()->fromPost()->retrieve('post_slug')));
@@ -255,7 +259,11 @@ CAT;
             }
         }
 
-        return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($post);
+        if ($prepareFieldSettings){
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($post);
+        }
+
+        return $post;
     }
 
     /**

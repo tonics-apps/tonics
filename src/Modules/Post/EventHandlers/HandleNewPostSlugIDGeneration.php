@@ -22,14 +22,15 @@ class HandleNewPostSlugIDGeneration implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        ## The iteration should only go once, but in a unlikely case that a collision occur, we try force updating the slugID until we max out 10 iterations
+        ## The iteration should only go once, but in an unlikely case that a collision occur, we try force updating the slugID until we max out 10 iterations
         ## but it should never happen even if you have 10Million posts
         $iterations = 10;
         for ($i = 0; $i < $iterations; ++$i) {
             try {
                 $this->updateSlugID($event);
                 break;
-            } catch (\Exception){
+            } catch (\Exception $exception){
+                // Log..
                 // Collision occur message
             }
         }
@@ -45,7 +46,7 @@ class HandleNewPostSlugIDGeneration implements HandlerInterface
          */
         $slugGen = $event->getPostID() . random_int(PHP_INT_MIN, PHP_INT_MAX). hrtime(true);
         $slugGen = hash('xxh3', $slugGen);
-        $postToUpdate = $event->getPostData()->createPost(['post_slug']);
+        $postToUpdate = $event->getPostData()->createPost(['post_slug'], false);
         $postToUpdate['slug_id'] = $slugGen;
         db()->FastUpdate($event->getPostData()->getPostTable(), $postToUpdate, db()->Where('post_id', '=', $event->getPostID()));
         $event->getPost()->slug_id = $slugGen;
