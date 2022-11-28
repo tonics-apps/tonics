@@ -314,7 +314,7 @@ FAQ_SCHEMA;
                                                 $appTonicsseoStructuredDataProductReviewData['name'] = $productReviewField->field_options->{$structuredDataProductReviewTypeFieldName};
                                             }
                                             if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldDescription){
-                                                $appTonicsseoStructuredDataProductReviewData['name'] = $productReviewField->field_options->{$structuredDataProductReviewTypeFieldDescription};
+                                                $appTonicsseoStructuredDataProductReviewData['description'] = $productReviewField->field_options->{$structuredDataProductReviewTypeFieldDescription};
                                             }
                                             if ($productReviewField->field_input_name === $structuredDataProductReviewTypeFieldPositiveContainer){
                                                 if (isset($productReviewField->_children[0]->field_options->app_tonics_seo_structured_data_product_review_positiveNote)){
@@ -366,13 +366,14 @@ FAQ_SCHEMA;
 
             # Handle Article Structured Data Fragment
             if (!empty($appTonicsseoStructuredDataArticleData['authors'][0]) && isset($appTonicsseoStructuredDataArticleData['images'][0])){
+                $headline = helper()->htmlSpecChar($appTonicsseoStructuredDataArticleData['headline']);
                 $type = trim($appTonicsseoStructuredDataArticleData['type']);
                 $meta .= <<<ArticleStructuredData
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
-    "@type": "{$type}",
-    "headline": "{$appTonicsseoStructuredDataArticleData['headline']}",
+    "@type": "$type",
+    "headline": "$headline",
     "datePublished": "{$appTonicsseoStructuredDataArticleData['datePublished']}",
     "dateModified": "{$appTonicsseoStructuredDataArticleData['dateModified']}",
 
@@ -442,13 +443,15 @@ ArticleStructuredData;
 
             # Handle Product Review Structured Data Fragment
             if (!empty($appTonicsseoStructuredDataProductReviewData['aggregate']['ratingValue'])){
+                $name = helper()->htmlSpecChar($appTonicsseoStructuredDataProductReviewData['name']);
+                $desc = helper()->htmlSpecChar($appTonicsseoStructuredDataProductReviewData['description']);
                 $meta .= <<<ProductReviewStructuredData
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": "{$appTonicsseoStructuredDataProductReviewData['name']}",
-    "description": "{$appTonicsseoStructuredDataProductReviewData['description']}",
+    "name": "$name",
+    "description": "$desc",
     "review": {
         "@type": "Review",
         "author": {
@@ -473,14 +476,15 @@ ProductReviewStructuredData;
 Note;
 
                     $lastKey = array_key_last($appTonicsseoStructuredDataProductReviewData['positiveNotes']);
-                    foreach ($appTonicsseoStructuredDataProductReviewData['positiveNotes'] as $key => $positiveNote){
+                    foreach ($appTonicsseoStructuredDataProductReviewData['positiveNotes'] as $key => $note){
+                        $note = helper()->htmlSpecChar($note);
                         $position = $key + 1;
                         $positiveNoteFrag .= <<<Note
 
             {
                 "@type": "ListItem",
                 "position": $position,
-                "name": "$positiveNote"
+                "name": "$note"
             }
 Note;
                         if ($lastKey !== $key){
@@ -504,14 +508,15 @@ Note;
             "itemListElement": [
 Note;
                     $lastKey = array_key_last($appTonicsseoStructuredDataProductReviewData['negativeNotes']);
-                    foreach ($appTonicsseoStructuredDataProductReviewData['negativeNotes'] as $key => $positiveNote){
+                    foreach ($appTonicsseoStructuredDataProductReviewData['negativeNotes'] as $key => $note){
+                        $note = helper()->htmlSpecChar($note);
                         $position = $key + 1;
                         $negativeNoteFrag .= <<<Note
 
             {
                 "@type": "ListItem",
                 "position": $position,
-                "name": "$positiveNote"
+                "name": "$note"
             }
 Note;
                         if ($lastKey !== $key){

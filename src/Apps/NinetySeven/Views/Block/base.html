@@ -160,7 +160,7 @@
   <figure class="featured-image full-bleed">
     <div class="post-thumbnail">
       [[if("v[Data.image_url] !== block[empty]")
-      <img width="2000" height="1200"
+      <img [[- width="2000" height="1200" -]]
            loading="lazy"
            decoding="async"
            src="[[v('Data.image_url')]]"

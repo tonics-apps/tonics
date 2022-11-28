@@ -37,9 +37,12 @@ class TonicsStructuredDataFAQHandlerAndSelection implements FieldTemplateFileInt
                     ? helper()->htmlSpecChar($field->_children[0]->field_data['app_tonics_seo_structured_data_faq_question'])
                     : null;
 
-                $answer = (isset($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer']))
-                    ? helper()->htmlSpecChar($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer'])
-                    : null;
+                $answer = null;
+                if (isset($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer'])){
+                    $answer = nl2br($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer']);
+                    $answer = helper()->htmlSpecChar($answer);
+                    $answer  = str_replace(['&lt;br /&gt;'], ['<br />'], $answer);
+                }
 
                 $faqPlain .=<<<FAQPLAIN
 <h2 class="tonics-structured-data-faq-question">$question</h2>
@@ -61,7 +64,7 @@ FAQ_SCHEMA;
         }
 
         addToGlobalVariable('Structured_Data', $structuredData);
-        return '<div class="tonics-structured-data-faq">' . $faqPlain . '</div>';
+        return '<div class="tonics-structured-data-faq owl">' . $faqPlain . '</div>';
     }
 
     public function name(): string
