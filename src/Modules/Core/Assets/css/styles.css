@@ -173,7 +173,6 @@ pre {
     border-right-width: 5px;
     border-bottom-style: double;
     border-bottom-width: 5px;
-    overscroll-behavior-y: contain;
     scroll-snap-type: y proximity;
 }
 

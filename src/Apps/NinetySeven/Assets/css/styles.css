@@ -207,7 +207,6 @@ pre {
     overflow: auto;
     margin: 0 auto;
     padding: 1.5em;
-    overscroll-behavior-y: contain;
     scroll-snap-type: y proximity;
     width: 90%;
     white-space: pre-wrap;
