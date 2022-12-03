@@ -151,15 +151,24 @@ class PostAccessView
                 $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
                     . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
                     . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
+
+                $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($category['cat_id']);
+                $catIDS = [];
+                foreach ($catIDSResult as $catID){
+                    $catIDS[] = $catID->cat_id;
+                }
+
                 $postData = db()->Select($tblCol)
                     ->From($postCatTbl)
                     ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
                     ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
                     ->WhereEquals('post_status', 1)
-                    ->WhereEquals('cat_id', $category['cat_id'])
+                    ->WhereIn('cat_id', $catIDS)
                     ->Where("$postTbl.created_at", '<=', helper()->date())
                     ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
+
                 $postData = ['PostData' => $postData];
+
             } catch (\Exception $exception){
                 // log..
             }

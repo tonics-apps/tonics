@@ -74,6 +74,57 @@ class PostData extends AbstractDataLayer
     }
 
     /**
+     * @param string|int $idSlug
+     * @return array|bool
+     * @throws \Exception
+     */
+    public function getChildCategoriesOfParent(string|int $idSlug): bool|array
+    {
+        $categoryTable = $this->getCategoryTable();
+
+        $where = "cat_slug = ?";
+        if (is_numeric($idSlug)) {
+            $where = "cat_id = ?";
+        }
+
+        return db()->run("
+        WITH RECURSIVE cat_recursive AS 
+	( SELECT cat_id, cat_parent_id, cat_slug, cat_name, CAST(cat_slug AS VARCHAR (255))
+            AS path
+      FROM {$categoryTable} WHERE $where
+      UNION ALL
+      SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs.cat_name, CONCAT(path, '/' , tcs.cat_slug)
+      FROM cat_recursive as fr JOIN {$categoryTable} as tcs ON fr.cat_id = tcs.cat_parent_id
+      ) 
+     SELECT * FROM cat_recursive;
+        ", $idSlug);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getPostCategoryParents(string|int $idSlug)
+    {
+        $categoryTable = $this->getCategoryTable();
+
+        $where = "cat_slug = ?";
+        if (is_numeric($idSlug)) {
+            $where = "cat_id = ?";
+        }
+        return db()->run("
+        WITH RECURSIVE child_to_parent AS 
+	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_status, cat_name, CAST(cat_slug AS VARCHAR (255))
+            AS path
+      FROM $categoryTable WHERE $where
+      UNION ALL
+      SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_status, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
+      FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.cat_id = cp.cat_parent_id
+      ) 
+     SELECT * FROM child_to_parent;
+        ", $idSlug);
+    }
+
+    /**
      * @param null $currentCatData
      * @return string
      * @throws \Exception
@@ -288,31 +339,6 @@ CAT;
         }
 
         return db()->insertReturning($table, $data, $return, $primaryKey);
-    }
-
-
-    /**
-     * @throws \Exception
-     */
-    public function getPostCategoryParents(string|int $idSlug)
-    {
-        $categoryTable = $this->getCategoryTable();
-
-        $where = "cat_slug = ?";
-        if (is_numeric($idSlug)) {
-            $where = "cat_id = ?";
-        }
-        return db()->run("
-        WITH RECURSIVE child_to_parent AS 
-	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_status, cat_name, CAST(cat_slug AS VARCHAR (255))
-            AS path
-      FROM $categoryTable WHERE $where
-      UNION ALL
-      SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_status, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
-      FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.cat_id = cp.cat_parent_id
-      ) 
-     SELECT * FROM child_to_parent;
-        ", $idSlug);
     }
 
     /**

@@ -215,6 +215,17 @@ ROBOT;
     }
 
     /**
+     * @return void
+     * @throws \Exception
+     */
+    public function ads(): void
+    {
+        response()->header("content-type: text/plain; charset=UTF-8");
+        $settings = self::getSettingsData();
+        echo $settings['app_tonicsseo_ads_txt'] ?? '';
+    }
+
+    /**
      * @throws \Exception
      */
     #[NoReturn] public function sitemap(): void
