@@ -158,8 +158,6 @@ class PostAccessView
                     $catIDS[] = $catID->cat_id;
                 }
 
-                dd($catIDSResult);
-
                 $postData = db()->Select($tblCol)
                     ->From($postCatTbl)
                     ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
@@ -169,10 +167,9 @@ class PostAccessView
                     ->Where("$postTbl.created_at", '<=', helper()->date())
                     ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
 
-                $postData = ['PostData' => $postData];
+                $postData = ['PostData' => $postData, 'CategoryData' => $catIDSResult];
 
             } catch (\Exception $exception){
-                dd($exception);
                 // log..
             }
 

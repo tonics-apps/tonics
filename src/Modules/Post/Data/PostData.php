@@ -89,11 +89,14 @@ class PostData extends AbstractDataLayer
 
         return db()->run("
         WITH RECURSIVE cat_recursive AS 
-	( SELECT cat_id, cat_parent_id, cat_slug, cat_name, CAST(cat_slug AS VARCHAR (255))
-            AS path
+	( SELECT cat_id, cat_parent_id, cat_slug, cat_name, slug_id, field_settings, 
+	        JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.seo_description')) AS _description,
+            CAST(cat_slug AS VARCHAR (255)) AS path
       FROM {$categoryTable} WHERE $where
       UNION ALL
-      SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs.cat_name, CONCAT(path, '/' , tcs.cat_slug)
+      SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs.cat_name, tcs.slug_id, tcs.field_settings,
+      JSON_UNQUOTE(JSON_EXTRACT(tcs.field_settings, '$.seo_description')) AS _description,
+      CONCAT(path, '/' , tcs.cat_slug)
       FROM cat_recursive as fr JOIN {$categoryTable} as tcs ON fr.cat_id = tcs.cat_parent_id
       ) 
      SELECT * FROM cat_recursive;
