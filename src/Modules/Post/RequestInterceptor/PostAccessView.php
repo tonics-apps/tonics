@@ -158,6 +158,8 @@ class PostAccessView
                     $catIDS[] = $catID->cat_id;
                 }
 
+                dd($catIDSResult);
+
                 $postData = db()->Select($tblCol)
                     ->From($postCatTbl)
                     ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
@@ -170,6 +172,7 @@ class PostAccessView
                 $postData = ['PostData' => $postData];
 
             } catch (\Exception $exception){
+                dd($exception);
                 // log..
             }
 
