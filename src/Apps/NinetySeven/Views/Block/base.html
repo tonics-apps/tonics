@@ -178,6 +178,7 @@
   </article>
   [[_use('Widget::Sidebar')]]
 </section>
+[[_use('Post::RelatedPosts')]]
 ]]
 
 [[b('Widget::Sidebar')
@@ -195,5 +196,32 @@
       </ul>
     </div>
   </aside>
+  ]]
+]]
+
+[[b('Post::RelatedPosts')
+  [[if("v[Data.related_post.data]")
+    <section class="padding:default">
+      <div class="category-title flex-d:column">
+        <h2>Related Post(s)</h2>
+        <ul class="top-best-list padding:default">
+          [[each("_related_post in Data.related_post.data")
+            <li tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer position:relative justify-content:flex-start border-width:default border:black color:black">
+            <div class="width:100% d:flex flex-d:column height:100%">
+              <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
+                <h3 class="margin-left:0">[[v('_related_post.post_title')]]</h3>
+                <p style="max-width:unset;">[[v('_related_post.post_description')]]</p>
+              </div>
+              <div class="form-group d:flex flex-gap:small padding:default ">
+                <a title="[[v('_related_post.post_title')]]" href="[[v('_related_post._preview_link')]]"
+                   class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default
+                                            margin-top:0 cursor:pointer">Read More</a>
+              </div>
+            </div>
+          </li>
+          ]]
+        </ul>
+      </div>
+    </section>
   ]]
 ]]

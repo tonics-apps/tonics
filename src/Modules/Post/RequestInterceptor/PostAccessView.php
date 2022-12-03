@@ -116,6 +116,30 @@ class PostAccessView
     {
         $post = $this->post;
         if (!empty($post)){
+            list($catID, $catSlug) = explode('::', $post['fk_cat_id']);
+
+            # GET CORRESPONDING POST IN CATEGORY
+            $postTbl = Tables::getTable(Tables::POSTS);
+            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+            $CatTbl = Tables::getTable(Tables::CATEGORIES);
+
+            $postFieldSettings = $postTbl . '.field_settings';
+            $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
+                . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
+                . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
+
+            $relatedPost = db()->Select($tblCol)
+                ->From($postCatTbl)
+                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                ->WhereEquals('post_status', 1)
+                ->WhereIn('cat_id', $catID)
+                ->WhereNotIn('post_id', $post['post_id'])
+                ->Where("$postTbl.created_at", '<=', helper()->date())
+                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(6);
+
+            $post['related_post'] = $relatedPost;
+
             $this->getFieldData()->unwrapForPost($post);
             $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
             event()->dispatch($this->getPostData()->getOnPostDefaultField());
