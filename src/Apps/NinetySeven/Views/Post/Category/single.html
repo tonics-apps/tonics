@@ -40,4 +40,32 @@
 
     [[_use('pagination')]]
 </section>
+
+    [[if("v[Data.CategoryData.0]")
+        <section>
+    <div class="category-title flex-d:column">
+        <h2>Sub Categories</h2>
+        <ul class="top-best-list padding:default">
+            [[each("_sub_category in Data.CategoryData")
+                [[if("v[_sub_category_loop.iteration] !== e[1]")
+                <li tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer position:relative justify-content:flex-start border-width:default border:black color:black">
+                    <div class="width:100% d:flex flex-d:column height:100%">
+                        <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
+                            <h3 class="margin-left:0">[[v('_sub_category.cat_name')]]</h3>
+                            <p style="max-width:unset;">[[v('_sub_category._description')]]</p>
+                        </div>
+                        <div class="form-group d:flex flex-gap:small padding:default ">
+                            <a title="[[v('_sub_category.cat_name')]]" href="/categories/[[v('_sub_category.slug_id')]]/[[v('_sub_category.cat_slug')]]"
+                               class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default
+                                        margin-top:0 cursor:pointer">Visit Category</a>
+                        </div>
+                    </div>
+                </li>
+                ]]
+            ]]
+        </ul>
+    </div>
+</section>
+    ]]
+
 ]]
