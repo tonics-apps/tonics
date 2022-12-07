@@ -75,7 +75,7 @@ class MenuControllerItems extends Controller
         # Stage One: Extract The menuDetails...
         try {
             $menuDetails = json_decode(input()->fromPost()->retrieve('menuDetails'), true);
-            $validator = $this->getValidator()->make($menuDetails, $this->menuItemsStoreRule());
+            $validator = $this->getValidator()->make($menuDetails ?? [], $this->menuItemsStoreRule());
         }catch (\Exception){
             session()->flash(['An Error Occurred Extracting Menu Data'], []);
             redirect(route('menus.items.index', ['menu' => $menuSlug]));

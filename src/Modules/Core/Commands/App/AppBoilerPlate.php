@@ -15,7 +15,7 @@ use App\Modules\Core\Library\ConsoleColor;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
 /**
- * To create a new app boilerplate, run: php bin/console --app=app_name --type
+ * To create a new app boilerplate, run: `php bin/console --app=app_name --type`
  *
  * --type can contain the app category (e.g App, Theme, Module, Tool, etc) or leave it empty
  */

@@ -37,6 +37,8 @@ class MigrateAll extends DatabaseMigrationAbstract implements ConsoleCommand
     {
         $helper = helper();
         $migrationFiles = $helper->getAllModuleMigrations();
+        $appMigrationFiles = $helper->getAllModuleMigrations($helper->getAllAppsDirectory());
+        $migrationFiles = [...$migrationFiles, ...$appMigrationFiles];
         foreach ($migrationFiles as $migrationFile) {
             $class = $helper->getFullClassName(file_get_contents($migrationFile));
             # This would reference the dbName in the migration table

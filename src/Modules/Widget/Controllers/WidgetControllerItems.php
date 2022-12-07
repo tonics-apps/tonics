@@ -71,7 +71,7 @@ class WidgetControllerItems extends Controller
         # Stage One: Extract The menuWidgetDetails...
         try {
             $menuDetails = json_decode(input()->fromPost()->retrieve('menuWidgetDetails'), true);
-            $validator = $this->getValidator()->make($menuDetails, $this->menuWidgetItemsStoreRule());
+            $validator = $this->getValidator()->make($menuDetails ?? [], $this->menuWidgetItemsStoreRule());
         }catch (\Exception){
             session()->flash(['An Error Occurred Extracting Menu Widget Data'], []);
             redirect(route('widgets.items.index', ['menu' => $menuWidgetSlug]));

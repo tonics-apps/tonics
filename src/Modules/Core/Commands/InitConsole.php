@@ -11,6 +11,8 @@
 namespace App\Modules\Core\Commands;
 
 use App\Modules\Core\Commands\App\AppBoilerPlate;
+use App\Modules\Core\Commands\App\AppMakeMigration;
+use App\Modules\Core\Commands\App\AppMigrate;
 use App\Modules\Core\Commands\Environmental\SetEnvironmentalPepper;
 use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Commands\Module\MigrateAll;
@@ -59,6 +61,8 @@ class InitConsole
                     AutoUpdate::class,
                     // For Apps
                     AppBoilerPlate::class,
+                    AppMakeMigration::class,
+                    AppMigrate::class
                 ])
             );
         } catch (ReflectionException $e) {

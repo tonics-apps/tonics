@@ -14,7 +14,7 @@ use App\Modules\Core\Library\ConsoleColor;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
 /**
- * TO CREATE A CONSOLE BOILER-PATE,  RUN: php bin/console --module=core --make:console=console_name
+ * TO CREATE A CONSOLE BOILER-PATE,  RUN: php bin/console --module=Core --make:console=console_name
  *
  * Class ModuleMakeConsole
  * @package App\Commands\Module
@@ -38,7 +38,7 @@ use ConsoleColor;
      */
     public function run(array $commandOptions): void
     {
-        $s = DIRECTORY_SEPARATOR; $module = ucfirst(strtolower($commandOptions['--module']));
+        $s = DIRECTORY_SEPARATOR; $module = $commandOptions['--module'];
         if ($moduleDir = helper()->findModuleDirectory($commandOptions['--module'])) {
             $consoleTemplate = APP_ROOT . "{$s}src{$s}Modules{$s}Core{$s}Commands{$s}Module{$s}Template{$s}ConsoleExample.txt";
             if (helper()->copyConsoleTemplate(

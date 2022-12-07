@@ -21,6 +21,7 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Helper\FieldHelpers;
+use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use JetBrains\PhpStorm\NoReturn;
@@ -30,10 +31,12 @@ class TonicsSeoController
     private ?FieldData $fieldData;
 
     const CACHE_KEY = 'TonicsPlugin_TonicsSEOSettings';
+    private ?PostData $postData;
 
-    public function __construct(FieldData $fieldData = null)
+    public function __construct(FieldData $fieldData = null, PostData $postData = null)
     {
         $this->fieldData = $fieldData;
+        $this->postData = $postData;
     }
 
     /**
@@ -184,14 +187,20 @@ class TonicsSeoController
                 . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description"
                 . ", DATE_FORMAT($postTbl.created_at, '%a, %d %b %Y %T') as rssPubDate";
 
+            $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($categoryData->cat_id);
+            $catIDS = [];
+            foreach ($catIDSResult as $catID){
+                $catIDS[] = $catID->cat_id;
+            }
+
             $rssSettingsData['Query'] = db()->Select($tblCol)
                 ->From($postCatTbl)
                 ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
                 ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
                 ->WhereEquals('post_status', 1)
                 ->Where("$postTbl.created_at", '<=', helper()->date())
-                ->WhereIn('cat_id', $categoryData->cat_id)->GroupBy('post_id')
-                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate();
+                ->WhereIn('cat_id', $catIDS)->GroupBy('post_id')
+                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(30);
 
             response()->header("content-type: text/xml; charset=UTF-8");
 
@@ -345,5 +354,21 @@ ROBOT;
     public function setFieldData(?FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
+    }
+
+    /**
+     * @return PostData|null
+     */
+    public function getPostData(): ?PostData
+    {
+        return $this->postData;
+    }
+
+    /**
+     * @param PostData|null $postData
+     */
+    public function setPostData(?PostData $postData): void
+    {
+        $this->postData = $postData;
     }
 }

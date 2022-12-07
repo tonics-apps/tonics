@@ -8,26 +8,26 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Core\Commands\Module;
+namespace App\Modules\Core\Commands\App;
 
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\Database;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
 /**
- * TO CREATE A MIGRATION BOILER-PATE,  RUN: `php bin/console --module=Page --make:migration=migration_name`
+ * TO CREATE A MIGRATION BOILER-PATE,  RUN: `php bin/console --app=page --make:migration=migration_name`
  *
  * Class ModuleMakeMigration
  * @package App\Commands\Module
  */
-class ModuleMakeMigration implements ConsoleCommand
+class AppMakeMigration implements ConsoleCommand
 {
     use ConsoleColor;
 
     public function required(): array
     {
         return [
-            "--module",
+            "--app",
             "--make:migration"
         ];
     }
@@ -38,15 +38,15 @@ class ModuleMakeMigration implements ConsoleCommand
      */
     public function run(array $commandOptions): void
     {
-        $s = DIRECTORY_SEPARATOR; $module = $commandOptions['--module'];
-        if ($moduleDir = helper()->findModuleDirectory($module)) {
-            $migrationTemplate = APP_ROOT . "{$s}src{$s}Modules{$s}Core{$s}Commands{$s}Module{$s}Template{$s}MigrationExample.txt";
+        $s = DIRECTORY_SEPARATOR; $appName = $commandOptions['--app'];
+        if ($appDirectory = helper()->findAppDirectory($appName)) {
+            $migrationTemplate = APP_ROOT . "{$s}src{$s}Modules{$s}Core{$s}Commands{$s}Module{$s}Template{$s}AppMigrationExample.txt";
             if ($copiedFile = helper()->copyMigrationTemplate(
                 $migrationTemplate,
                 migrationName: $commandOptions['--make:migration'],
-                moduleDir: $moduleDir,
-                moduleName: $module)) {
-                $this->successMessage("Migration Successfully Created Under '$module' Migration Directory With Name $copiedFile");
+                moduleDir: $appDirectory,
+                moduleName: $appName)) {
+                $this->successMessage("App Migration Successfully Created Under '$appName' Migration Directory With Name $copiedFile");
             } else {
                 $this->errorMessage("Couldn't Create Migration");
             }
