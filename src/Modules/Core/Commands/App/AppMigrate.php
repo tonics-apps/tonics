@@ -43,7 +43,6 @@ class AppMigrate extends DatabaseMigrationAbstract implements ConsoleCommand
         $moduleDir = helper()->findAppDirectory($module) . "{$s}Database{$s}Migrations";
         if ($migrationFiles = helper()->findFilesWithExtension(['php'], $moduleDir)) {
             $migrationFiles = helper()->sortMigrationFiles($migrationFiles);
-            dd($migrationFiles);
             foreach ($migrationFiles as $migrationFile) {
                 $class = helper()->getFullClassName(file_get_contents($migrationFile));
                 # This would reference the dbName in the migration table

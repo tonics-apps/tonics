@@ -153,4 +153,20 @@ trait ConsoleColor
     {
         return $this->passes;
     }
+
+    /**
+     * @return bool
+     */
+    public function isCLI(): bool
+    {
+        return $this->isCLI;
+    }
+
+    /**
+     * @param bool $isCLI
+     */
+    public function setIsCLI(bool $isCLI): void
+    {
+        $this->isCLI = $isCLI;
+    }
 }
