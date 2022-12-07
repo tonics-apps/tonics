@@ -11,10 +11,20 @@
 namespace App\Apps\TonicsCoupon\Data;
 
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
-use App\Modules\Core\Library\Tables;
+use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\CustomClasses\UniqueSlug;
+use App\Modules\Field\Data\FieldData;
 
-class CouponData extends \App\Modules\Core\Library\AbstractDataLayer
+class CouponData extends AbstractDataLayer
 {
+    use UniqueSlug;
+    
+    private ?FieldData $fieldData;
+
+    public function __construct(FieldData $fieldData = null)
+    {
+        $this->fieldData = $fieldData;
+    }
     /**
      * @return mixed
      * @throws \Exception
@@ -108,13 +118,142 @@ CAT;
 
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function createCouponType(array $ignore = [], bool $prepareFieldSettings = true): array
+    {
+        $slug = $this->generateUniqueSlug($this->getCouponTypeTable(),
+            'coupon_type_slug',
+            helper()->slug(input()->fromPost()->retrieve('coupon_type_slug')));
 
+        $couponType = [];
+        $couponTypeCols = array_flip($this->getCouponTypeColumns());
+        if (input()->fromPost()->hasValue('coupon_type_parent_id')) {
+            $couponType['coupon_type_parent_id'] = input()->fromPost()->retrieve('coupon_type_parent_id');
+        }
 
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $couponTypeCols) && input()->fromPost()->has($inputKey)) {
+                if ($inputKey === 'coupon_type_parent_id' && empty($inputValue)) {
+                    $couponType[$inputKey] = null;
+                    continue;
+                }
+
+                if ($inputKey === 'created_at') {
+                    $couponType[$inputKey] = helper()->date(datetime: $inputValue);
+                    continue;
+                }
+
+                if ($inputKey === 'coupon_type_slug') {
+                    $couponType[$inputKey] = $slug;
+                    continue;
+                }
+                $couponType[$inputKey] = $inputValue;
+            }
+        }
+
+        $ignores = array_diff_key($ignore, $couponType);
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
+                unset($couponType[$v]);
+            }
+        }
+
+        if ($prepareFieldSettings){
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($couponType, 'coupon_type_name', 'coupon_type_content');
+        }
+
+        return $couponType;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function createPost(array $ignore = [], bool $prepareFieldSettings = true): array
+    {
+        $slug = $this->generateUniqueSlug($this->getCouponTable(),
+            'coupon_slug', helper()->slug(input()->fromPost()->retrieve('coupon_slug')));
+
+        $coupon = [];
+        $postColumns = array_flip($this->getCouponColumns());
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
+
+                if ($inputKey === 'created_at') {
+                    $coupon[$inputKey] = helper()->date(datetime: $inputValue);
+                    continue;
+                }
+
+                if ($inputKey === 'coupon_slug') {
+                    $coupon[$inputKey] = $slug;
+                    continue;
+                }
+                $coupon[$inputKey] = $inputValue;
+            }
+        }
+
+        $ignores = array_diff_key($ignore, $coupon);
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
+                unset($coupon[$v]);
+            }
+        }
+
+        if ($prepareFieldSettings){
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($coupon, 'coupon_name', 'coupon_content');
+        }
+
+        return $coupon;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCouponTable(): string
+    {
+        return TonicsCouponActivator::couponTableName();
+    }
+    
     /**
      * @return string
      */
     public function getCouponTypeTable(): string
     {
         return TonicsCouponActivator::couponTypeTableName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCouponToTypeTable(): string
+    {
+        return TonicsCouponActivator::couponToTypeTableName();
+    }
+
+    public function getCouponTypeColumns(): array
+    {
+        return TonicsCouponActivator::$TABLES[TonicsCouponActivator::COUPON_TYPE];
+    }
+
+    public function getCouponColumns(): array
+    {
+        return TonicsCouponActivator::$TABLES[TonicsCouponActivator::COUPON];
+    }
+
+    /**
+     * @return FieldData|null
+     */
+    public function getFieldData(): ?FieldData
+    {
+        return $this->fieldData;
+    }
+
+    /**
+     * @param FieldData|null $fieldData
+     */
+    public function setFieldData(?FieldData $fieldData): void
+    {
+        $this->fieldData = $fieldData;
     }
 }

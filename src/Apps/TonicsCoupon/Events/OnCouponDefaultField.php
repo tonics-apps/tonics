@@ -8,12 +8,12 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Post\Events;
+namespace App\Apps\TonicsCoupon\Events;
 
-use App\Modules\Post\Events\AbstractClasses\PostDataAccessor;
+use App\Modules\Core\Library\DefaultFieldEventAbstract;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
-class OnPostCreate extends PostDataAccessor implements EventInterface
+class OnCouponDefaultField extends DefaultFieldEventAbstract implements EventInterface
 {
 
 }

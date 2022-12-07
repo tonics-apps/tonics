@@ -12,7 +12,6 @@ namespace App\Apps\TonicsCoupon\EventHandlers\Fields;
 
 use App\Apps\TonicsCoupon\Data\CouponData;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class CouponTypeSelect implements HandlerInterface
@@ -118,7 +117,6 @@ FORM;
         $categories = $couponData->getCouponTypeHTMLSelect($inputData ?: null);
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
     <select style="$height" id="categories" data-widget-select-category="true" $multipleAttr name="$selectName" class="default-selector">

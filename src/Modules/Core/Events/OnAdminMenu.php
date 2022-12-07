@@ -136,6 +136,20 @@ class OnAdminMenu implements EventInterface
         return $htmlFrag;
     }
 
+    public function getLastMenuID(): int
+    {
+        $adminMenus = $this->getMenuSettings();
+        // sort the menu by the id
+        usort($adminMenus, function ($id1, $id2) {
+            return $id1->id <=> $id2->id;
+        });
+        if(isset($adminMenus[array_key_last($adminMenus)]->id)){
+            return $adminMenus[array_key_last($adminMenus)]->id;
+        }
+
+        return 1;
+    }
+
     protected function getMenuHTMLFragment($menu, $depth = 0): string
     {
         $htmlFrag = <<<MENU
