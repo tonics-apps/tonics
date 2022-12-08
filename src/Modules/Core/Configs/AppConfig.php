@@ -11,6 +11,7 @@
 namespace App\Modules\Core\Configs;
 
 
+use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Boot\InitLoaderMinimal;
@@ -86,9 +87,20 @@ class AppConfig
                     /** @var $app ExtensionConfig */
                     if ($app->enabled()) {
                         $app->route($router->getRoute());
-                        ## The array_intersect_key checks if the apps event array has something in common with the module event($events),
-                        # so, I just recursively merge only the intersection (using recursive merging because you might have several events in your modules).
-                        $events = array_merge_recursive($events, array_intersect_key($app->events(), $events));
+                        $appEvents = $app->events();
+                        foreach ($appEvents as $appEvent => $appEventHandler) {
+                            #
+                            # if the apps event array has something in common with the module event($events)
+                            # we Merger 'em, else, we create a new event.
+                            #
+                            if (key_exists($appEvent, $events)) {
+                                $moduleEventHandler = $events[$appEvent];
+                                $moduleEventHandler = [...$moduleEventHandler, ...$appEventHandler];
+                                $events[$appEvent] = $moduleEventHandler;
+                            } else {
+                                $events[$appEvent] = $appEventHandler;
+                            }
+                        }
                     }
                 }
 
@@ -171,7 +183,7 @@ class AppConfig
      */
     public static function autoResolvePageRoutes(string $controller, Route $route): Route
     {
-        if (helper()->isCLI()){
+        if (helper()->isCLI()) {
             return $route;
         }
 
@@ -182,12 +194,12 @@ class AppConfig
                 if ($page->page_status === 1) {
                     # If url has not been chosen or is not a reserved path
                     $foundURLNode = $route->getRouteTreeGenerator()->findURL($page->page_slug);
-                    if ($foundURLNode->getFoundURLNode() === null || empty($foundURLNode->getFoundURLNode()->getSettings())){
+                    if ($foundURLNode->getFoundURLNode() === null || empty($foundURLNode->getFoundURLNode()->getSettings())) {
                         $route->get($page->page_slug, [$controller, 'viewPage'], moreSettings: $page);
                     }
                 }
             }
-        }catch (Exception){
+        } catch (Exception) {
             // log..
         }
 
@@ -312,15 +324,15 @@ class AppConfig
 
     private static function handleAutoUpdateReturn($update): array|bool
     {
-        if ($update === '0'){
+        if ($update === '0') {
             return false;
         }
 
-        if ($update === '1'){
+        if ($update === '1') {
             return true;
         }
         $updates = explode(',', $update);
-        if (is_array($updates) && !empty($updates)){
+        if (is_array($updates) && !empty($updates)) {
             return $updates;
         }
         return false;
@@ -334,7 +346,7 @@ class AppConfig
     {
         $globalTable = Tables::getTable(Tables::GLOBAL);
         $updates = db(true)->row("SELECT * FROM $globalTable WHERE `key` = 'updates'");
-        if (isset($updates->value) && !empty($updates->value)){
+        if (isset($updates->value) && !empty($updates->value)) {
             return json_decode($updates->value, true);
         }
         return [];
@@ -442,7 +454,7 @@ class AppConfig
 
     public static function isAppNameSpace(string|object $object_or_class): bool
     {
-        if (is_object($object_or_class)){
+        if (is_object($object_or_class)) {
             $object_or_class = $object_or_class::class;
         }
         $moduleNameSpace = 'App\Apps';
