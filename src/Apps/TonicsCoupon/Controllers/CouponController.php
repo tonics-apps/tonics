@@ -13,6 +13,7 @@ namespace App\Apps\TonicsCoupon\Controllers;
 use App\Apps\TonicsCoupon\Data\CouponData;
 use App\Apps\TonicsCoupon\Events\OnBeforeCouponSave;
 use App\Apps\TonicsCoupon\Events\OnCouponCreate;
+use App\Apps\TonicsCoupon\Events\OnCouponUpdate;
 use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
@@ -280,7 +281,7 @@ class CouponController
     #[NoReturn] public function update(string $slug)
     {
         $this->couponData->setDefaultCouponTypeIfNotSet();
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->couponUpdateRule());
         if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tonicsCoupon.edit', [$slug]));
@@ -293,11 +294,11 @@ class CouponController
         try {
             $postToUpdate['coupon_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_slug'));
             event()->dispatch(new OnBeforePostSave($postToUpdate));
-            db()->FastUpdate($this->couponData->getPostTable(), $postToUpdate, db()->Where('coupon_slug', '=', $slug));
+            db()->FastUpdate($this->couponData->getCouponTable(), $postToUpdate, db()->Where('coupon_slug', '=', $slug));
 
             $postToUpdate['fk_coupon_type_id'] = input()->fromPost()->retrieve('fk_coupon_type_id', '');
             $postToUpdate['coupon_id'] = input()->fromPost()->retrieve('coupon_id', '');
-            $onPostUpdate = new OnPostUpdate((object)$postToUpdate, $this->couponData);
+            $onPostUpdate = new OnCouponUpdate((object)$postToUpdate, $this->couponData);
             event()->dispatch($onPostUpdate);
 
             $db->commit();
@@ -305,17 +306,17 @@ class CouponController
             # For Fields
             $slug = $postToUpdate['coupon_slug'];
             if (input()->fromPost()->has('_fieldErrorEmitted') === true){
-                session()->flash(['Post Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+                session()->flash(['Coupon Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
             } else {
-                session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+                session()->flash(['Coupon Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             }
             redirect(route('tonicsCoupon.edit', ['post' => $slug]));
 
         } catch (\Exception $exception) {
             $db->rollBack();
             // log..
-            session()->flash(['Error Occur Updating Post'], $postToUpdate);
-            redirect(route('tonicsCoupon.edit', ['post' => $slug]));
+            session()->flash(['Error Occur Updating Coupon'], $postToUpdate);
+            redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
         }
     }
 
