@@ -16,6 +16,7 @@ use App\Apps\TonicsCoupon\Events\OnCouponTypeDefaultField;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 
 class CouponData extends AbstractDataLayer
@@ -138,6 +139,35 @@ CAT;
 
         return $catSelectFrag;
 
+    }
+
+    public function couponTypeCheckBoxListing(array $couponTypes, $selected = [], string $inputName = 'coupon_type[]', string $type = 'radio'): string
+    {
+        $htmlFrag = '';
+        $type = ($type !== 'radio') ? 'checkbox' : 'radio';
+        $selected = array_combine($selected, $selected);
+
+        foreach ($couponTypes as $couponType) {
+            $id = 'coupon_type' . $couponType->coupon_type_id . '_' . $couponType->coupon_type_slug;
+            if (key_exists($couponType->coupon_type_id, $selected)) {
+                $htmlFrag .= <<<HTML
+<li class="menu-item">
+    <input type="$type"
+    id="$id" checked="checked" name="$inputName" value="$couponType->coupon_type_id">
+    <label for="$id">$couponType->coupon_type_name</label>
+</li>
+HTML;
+                continue;
+            }
+            $htmlFrag .= <<<HTML
+<li class="menu-item">
+    <input type="$type"
+    id="$id" name="$inputName" value="{$couponType->coupon_type_id}">
+    <label for="$id">{$couponType->coupon_type_name}</label>
+</li>
+HTML;
+        }
+        return $htmlFrag;
     }
 
     /**
@@ -308,6 +338,22 @@ CAT;
     public function getCouponTypeColumns(): array
     {
         return TonicsCouponActivator::$TABLES[TonicsCouponActivator::COUPON_TYPE];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getCouponTableJoiningRelatedColumns(): string
+    {
+        $couponTableName = TonicsCouponActivator::couponTableName();
+        return  table()->pick(
+                [
+                    $couponTableName => ['coupon_id', 'slug_id', 'coupon_name', 'coupon_slug', 'coupon_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
+                    Tables::getTable(Tables::USERS) => ['user_name', 'email']
+                ]
+            )
+            . ', GROUP_CONCAT(CONCAT(coupon_type_id, "::", coupon_type_slug ) ) as fk_coupon_type_id'
+            . ", CONCAT('/admin/tonics_coupon/', coupon_slug, '/edit') as _edit_link, CONCAT_WS('/', '/coupon', $couponTableName.slug_id, coupon_slug) as _preview_link ";
     }
 
     public function getCouponColumns(): array
