@@ -74,8 +74,10 @@ class CouponController
             ['type' => '', 'slug' => TonicsCouponActivator::COUPON . '::' . 'coupon_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'coupon_id'],
             ['type' => 'text', 'slug' => TonicsCouponActivator::COUPON . '::' . 'coupon_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'coupon_name'],
             ['type' => 'TONICS_MEDIA_FEATURE_LINK', 'slug' => TonicsCouponActivator::COUPON . '::' . 'image_url', 'title' => 'Image', 'minmax' => '150px, 1fr', 'td' => 'image_url'],
-            ['type' => 'select_multiple', 'slug' => TonicsCouponActivator::COUPON_TO_TYPE . '::' . 'fk_coupon_type_id', 'title' => 'Category', 'select_data' => "$categoriesSelectDataAttribute", 'minmax' => '300px, 1fr', 'td' => 'fk_coupon_type_id'],
-            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+            ['type' => 'select_multiple', 'slug' => TonicsCouponActivator::COUPON_TO_TYPE . '::' . 'fk_coupon_type_id', 'title' => 'Category', 'select_data' => "$categoriesSelectDataAttribute", 'minmax' => '200px, 1fr', 'td' => 'fk_coupon_type_id'],
+            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'created_at', 'title' => 'Created', 'minmax' => '50px, .7fr', 'td' => 'created_at'],
+            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'updated_at', 'title' => 'Updated', 'minmax' => '50px, .7fr', 'td' => 'updated_at'],
+            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'expired_at', 'title' => 'Expired', 'minmax' => '50px, .7fr', 'td' => 'expired_at'],
         ];
 
         $couponData = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())

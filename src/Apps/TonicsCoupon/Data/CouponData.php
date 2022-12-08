@@ -348,7 +348,7 @@ HTML;
         $couponTableName = TonicsCouponActivator::couponTableName();
         return  table()->pick(
                 [
-                    $couponTableName => ['coupon_id', 'slug_id', 'coupon_name', 'coupon_slug', 'coupon_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
+                    $couponTableName => ['coupon_id', 'slug_id', 'coupon_name', 'coupon_slug', 'coupon_status', 'field_settings', 'created_at', 'expired_at', 'updated_at', 'image_url'],
                     Tables::getTable(Tables::USERS) => ['user_name', 'email']
                 ]
             )
