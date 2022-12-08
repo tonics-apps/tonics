@@ -10,10 +10,10 @@
 
 namespace App\Apps\TonicsCoupon\EventHandlers;
 
-use App\Apps\TonicsCoupon\Events\OnCouponUpdate;
+use App\Apps\TonicsCoupon\Events\OnCouponCreate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class HandleUpdateCouponToCouponTypeMapping implements HandlerInterface
+class HandleNewCouponToCouponTypeMapping implements HandlerInterface
 {
 
     /**
@@ -22,10 +22,10 @@ class HandleUpdateCouponToCouponTypeMapping implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        /**
-         * @var OnCouponUpdate $event
-         */
 
+        /**
+         * @var OnCouponCreate $event
+         */
         $toInsert = [];
         foreach ($event->getCouponTypeIDS() as $couponTypeID){
             $toInsert[] = [
@@ -35,7 +35,6 @@ class HandleUpdateCouponToCouponTypeMapping implements HandlerInterface
         }
 
         $table = $event->getCouponData()->getCouponToTypeTable();
-        db()->FastDelete($table, db()->WhereIn('fk_coupon_id', $event->getCouponID()));
         db()->Insert($table, $toInsert);
     }
 }

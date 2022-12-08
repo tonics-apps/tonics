@@ -146,19 +146,20 @@ class CouponController
      */
     public function create()
     {
-        dd('This is just me');
-        event()->dispatch($this->getCouponData()->getOnPostDefaultField());
+        event()->dispatch($this->getCouponData()->getOnCouponDefaultField());
 
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
             $oldFormInput = [];
         }
 
-        view('Modules::Post/Views/create', [
+        dd($this->getCouponData()->getOnCouponDefaultField(), event()->getHandler());
+
+        view('Apps::TonicsCoupon/Views/create', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
             'FieldItems' => $this->getFieldData()
-                ->generateFieldWithFieldSlug($this->getCouponData()->getOnPostDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+                ->generateFieldWithFieldSlug($this->getCouponData()->getOnCouponDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
         ]);
     }
 
@@ -207,51 +208,6 @@ class CouponController
             $db->rollBack();
             session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
             redirect(route('posts.create'));
-        }
-
-    }
-
-    /**
-     * @param array $postData
-     * @return bool|object
-     * @throws \Exception
-     */
-    public function storeFromImport(array $postData): bool|object
-    {
-        $previousPOSTGlobal = $_POST;
-        $db = db();
-        try {
-            $db->beginTransaction();
-            foreach ($postData as $k => $cat) {
-                $_POST[$k] = $cat;
-            }
-            $this->couponData->setDefaultPostCategoryIfNotSet();
-            if (isset($_POST['fk_cat_id']) && !is_array($_POST['fk_cat_id'])){
-                $_POST['fk_cat_id'] = [$_POST['fk_cat_id']];
-            }
-
-            $validator = $this->getValidator()->make($_POST, $this->postStoreRule());
-            if ($validator->fails()) {
-                helper()->sendMsg('PostsController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
-                return false;
-            }
-
-            $post = $this->couponData->createPost(['token']);
-            $postReturning = $this->couponData->insertForPost($post, PostData::Post_INT, $this->couponData->getPostColumns());
-            if (is_object($postReturning)) {
-                $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
-            }
-
-            $onPostCreate = new OnPostCreate($postReturning, $this->couponData);
-            event()->dispatch($onPostCreate);
-            $_POST = $previousPOSTGlobal;
-
-            $db->commit();
-            return $onPostCreate;
-        } catch (\Exception $e) {
-            $db->rollBack();
-            helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');
-            return false;
         }
 
     }
@@ -476,9 +432,9 @@ class CouponController
     }
 
     /**
-     * @return PostData
+     * @return CouponData
      */
-    public function getCouponData(): PostData
+    public function getCouponData(): CouponData
     {
         return $this->couponData;
     }

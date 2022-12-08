@@ -1,0 +1,18 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
+[[import("Apps::TonicsCoupon/Views/Block/CouponBlock")]]
+
+[[hook_into('Core::in_head_title')Coupon Edit]]
+[[hook_into('Core::in_main_header_title')Edit Coupon]]
+
+[[hook_into('Core::form_action')[[func('Coupon::route::posts.update', 'Coupon::route::slug')]]]]
+
+[[hook_into('Core::before_form_section')
+<input type="hidden" name="coupon_id" value="[[v('Data.coupon_id')]]">
+]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:post")]]
+    [[_use("script:tinymce")]]
+    [[_use("session:delete-artifacts")]]
+]]

@@ -10,10 +10,10 @@
 
 namespace App\Apps\TonicsCoupon\EventHandlers;
 
-use App\Apps\TonicsCoupon\Events\OnCouponDefaultField;
+use App\Modules\Post\Events\OnPostCategoryDefaultField;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class DefaultCouponFieldHandler implements HandlerInterface
+class DefaultCouponTypeFieldHandler implements HandlerInterface
 {
 
     /**
@@ -21,9 +21,10 @@ class DefaultCouponFieldHandler implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        /** @var $event OnCouponDefaultField */
-        $event->addDefaultField('app-tonicscoupon-coupon-page')->addDefaultField('seo-settings')
+        /** @var $event OnPostCategoryDefaultField */
+        $event->addDefaultField('app-tonicscoupon-coupon-type-page')->addDefaultField('seo-settings')
             ->addDefaultField('site-header', true)
-            ->addDefaultField('site-footer', true);
+            ->addDefaultField('site-footer', true)
+            ->addDefaultField('sidebar-widget', true);
     }
 }

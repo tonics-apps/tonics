@@ -126,7 +126,7 @@ class AppConfig
      * Sets the minimal essential dependencies to keep the app running,
      * this should be resolve first and should be light
      * @param bool $failSilently
-     * @return \App\Modules\Core\Boot\InitLoaderMinimal
+     * @return InitLoaderMinimal
      * @throws Exception
      */
     public static function initLoaderMinimal(bool $failSilently = false): InitLoaderMinimal

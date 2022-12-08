@@ -10,6 +10,8 @@
 
 namespace App\Apps\TonicsCoupon\Data;
 
+use App\Apps\TonicsCoupon\Events\OnCouponDefaultField;
+use App\Apps\TonicsCoupon\Events\OnCouponTypeDefaultField;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
@@ -20,10 +22,14 @@ class CouponData extends AbstractDataLayer
     use UniqueSlug;
     
     private ?FieldData $fieldData;
+    private ?OnCouponDefaultField $onCouponDefaultField;
+    private ?OnCouponTypeDefaultField $onCouponTypeDefaultField;
 
-    public function __construct(FieldData $fieldData = null)
+    public function __construct(FieldData $fieldData = null, OnCouponDefaultField $onCouponDefaultField = null, OnCouponTypeDefaultField $onCouponTypeDefaultField = null)
     {
         $this->fieldData = $fieldData;
+        $this->onCouponDefaultField = $onCouponDefaultField;
+        $this->onCouponTypeDefaultField = $onCouponTypeDefaultField;
     }
     /**
      * @return mixed
@@ -255,5 +261,37 @@ CAT;
     public function setFieldData(?FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
+    }
+
+    /**
+     * @return OnCouponDefaultField|null
+     */
+    public function getOnCouponDefaultField(): ?OnCouponDefaultField
+    {
+        return $this->onCouponDefaultField;
+    }
+
+    /**
+     * @param OnCouponDefaultField|null $onCouponDefaultField
+     */
+    public function setOnCouponDefaultField(?OnCouponDefaultField $onCouponDefaultField): void
+    {
+        $this->onCouponDefaultField = $onCouponDefaultField;
+    }
+
+    /**
+     * @return OnCouponTypeDefaultField|null
+     */
+    public function getOnCouponTypeDefaultField(): ?OnCouponTypeDefaultField
+    {
+        return $this->onCouponTypeDefaultField;
+    }
+
+    /**
+     * @param OnCouponTypeDefaultField|null $onCouponTypeDefaultField
+     */
+    public function setOnCouponTypeDefaultField(?OnCouponTypeDefaultField $onCouponTypeDefaultField): void
+    {
+        $this->onCouponTypeDefaultField = $onCouponTypeDefaultField;
     }
 }

@@ -10,7 +10,9 @@
 
 namespace App\Apps\TonicsCoupon\Controllers;
 
+use App\Apps\TonicsCoupon\Data\CouponData;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
@@ -29,13 +31,15 @@ use JetBrains\PhpStorm\NoReturn;
 
 class CouponTypeController
 {
-    private PostData $postData;
+    private CouponData $couponData;
+    private UserData $userData;
 
     use Validator, PostValidationRules, UniqueSlug;
 
-    public function __construct(PostData $postData)
+    public function __construct(CouponData $couponData, UserData $userData)
     {
-        $this->postData = $postData;
+        $this->couponData = $couponData;
+        $this->userData = $userData;
     }
 
     /**
@@ -86,7 +90,7 @@ class CouponTypeController
     public function dataTable(): void
     {
         $entityBag = null;
-        if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+        if ($this->getCouponData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
@@ -95,7 +99,7 @@ class CouponTypeController
             } else {
                 response()->onError(500);
             }
-        } elseif ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+        } elseif ($this->getCouponData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
@@ -112,7 +116,7 @@ class CouponTypeController
      */
     public function create()
     {
-        event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
+        event()->dispatch($this->getCouponData()->getOnPostCategoryDefaultField());
 
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
@@ -120,8 +124,8 @@ class CouponTypeController
         }
 
         view('Modules::Post/Views/Category/create', [
-            'Categories' => $this->getPostData()->getCategoryHTMLSelect(),
-            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+            'Categories' => $this->getCouponData()->getCategoryHTMLSelect(),
+            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getCouponData()->getOnPostCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
         ]);
     }
 
@@ -149,9 +153,9 @@ class CouponTypeController
         $db = db();
         try {
             $db->beginTransaction();
-            $category = $this->postData->createCategory();
-            $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
-            $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
+            $category = $this->couponData->createCategory();
+            $categoryReturning = $this->couponData->insertForPost($category, PostData::Category_INT);
+            $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->couponData);
             event()->dispatch($onPostCategoryCreate);
             $db->commit();
 
@@ -182,14 +186,14 @@ class CouponTypeController
             foreach ($categoryData as $k => $cat){
                 $_POST[$k] = $cat;
             }
-            $category = $this->postData->createCategory();
-            $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
+            $category = $this->couponData->createCategory();
+            $categoryReturning = $this->couponData->insertForPost($category, PostData::Category_INT);
 
         }catch (\Exception $e){
             helper()->sendMsg('PostCategoryController::storeFromImport()', $e->getMessage(), 'issue');
             return false;
         }
-        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
+        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->couponData);
         event()->dispatch($onPostCategoryCreate);
         $_POST = $previousPOSTGlobal;
         return $onPostCategoryCreate;
@@ -202,7 +206,7 @@ class CouponTypeController
      */
     public function edit(string $slug): void
     {
-        $category = $this->postData->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
+        $category = $this->couponData->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
 
         if (!is_object($category)){
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -215,14 +219,14 @@ class CouponTypeController
             $fieldSettings = [...$fieldSettings, ...(array)$category];
         }
 
-        event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
+        event()->dispatch($this->getCouponData()->getOnPostCategoryDefaultField());
         if (isset($fieldSettings['_fieldDetails'])){
             addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
-            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
+            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getCouponData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
             addToGlobalVariable('Data', $category);
         }
@@ -243,10 +247,10 @@ class CouponTypeController
             redirect(route('posts.category.edit', [$slug]));
         }
 
-        $categoryToUpdate = $this->postData->createCategory();
+        $categoryToUpdate = $this->couponData->createCategory();
         $categoryToUpdate['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_slug'));
 
-        db()->FastUpdate($this->postData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
+        db()->FastUpdate($this->couponData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
         $slug = $categoryToUpdate['cat_slug'];
 
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
@@ -264,7 +268,7 @@ class CouponTypeController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getPostData()->dataTableUpdateMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
+        return $this->getCouponData()->dataTableUpdateMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
     }
 
     /**
@@ -273,7 +277,7 @@ class CouponTypeController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getPostData()->dataTableDeleteMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag);
+        return $this->getCouponData()->dataTableDeleteMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag);
     }
 
     /**
@@ -284,7 +288,7 @@ class CouponTypeController
     public function delete(string $slug): void
     {
         try {
-            $this->getPostData()->deleteWithCondition(whereCondition: "cat_slug = ?", parameter: [$slug], table: $this->getPostData()->getCategoryTable());
+            $this->getCouponData()->deleteWithCondition(whereCondition: "cat_slug = ?", parameter: [$slug], table: $this->getCouponData()->getCategoryTable());
             session()->flash(['Category Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.category.index'));
         } catch (\Exception $e){
@@ -305,14 +309,14 @@ class CouponTypeController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID){
-                $category = $this->getPostData()
+                $category = $this->getCouponData()
                     ->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugID]);
                 if (isset($category->slug_id) && isset($category->cat_slug)){
                     return "/categories/$category->slug_id/$category->cat_slug";
                 }
                 return false;
             }, onSlugState: function ($slug){
-            $category = $this->getPostData()
+            $category = $this->getCouponData()
                 ->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
             if (isset($category->slug_id) && isset($category->cat_slug)){
                 return "/categories/$category->slug_id/$category->cat_slug";
@@ -324,11 +328,11 @@ class CouponTypeController
     }
 
     /**
-     * @return PostData
+     * @return CouponData
      */
-    public function getPostData(): PostData
+    public function getCouponData(): CouponData
     {
-        return $this->postData;
+        return $this->couponData;
     }
 
     /**
@@ -336,7 +340,15 @@ class CouponTypeController
      */
     public function getFieldData(): ?FieldData
     {
-        return $this->getPostData()->getFieldData();
+        return $this->getCouponData()->getFieldData();
+    }
+
+    /**
+     * @return UserData
+     */
+    public function getUserData(): UserData
+    {
+        return $this->userData;
     }
 
 }

@@ -1,0 +1,25 @@
+[[- --------
+COUPON ROUTES
+-------- -]]
+
+[[b('Coupon::route::posts.create')[[url('tonics_coupon.create')]]]]
+[[b('Coupon::route::posts.edit')[[url('tonics_coupon.edit')]]]]
+[[b('Coupon::route::posts.store')/admin/tonics_coupon/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Coupon::route::posts.update')/admin/posts/[[arg('1')]]/update]]
+[[b('Coupon::route::slug')[[v('Data.coupon_slug')]]]]
+
+[[- Pass a delete slug arg to arg('1') -]]
+[[b('Coupon::route::posts.delete')/admin/tonics_coupon/[[arg('1')]]]]
+
+[[b('Coupon::route::posts.trashMultiple')]]
+
+[[- -----------------
+COUPON TYPE ROUTES
+----------------- -]]
+[[b('Coupon::Type::route::posts.store')/admin/tonics_coupon/type/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Coupon::Type::route::posts.update')/admin/tonics_coupon/type/[[arg('1')]]/update]]
+[[b('Coupon::Type::route::slug')[[v('Data.coupon_type_slug')]]]]

@@ -1,0 +1,14 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
+[[import("Apps::TonicsCoupon/Views/Block/CouponBlock")]]
+
+[[hook_into('Core::in_head_title')Coupon Create]]
+[[hook_into('Core::in_main_header_title')Add New Coupon]]
+
+[[hook_into('Core::form_action')[[use('Post::route::posts.store')]]]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:post")]]
+    [[_use("script:tinymce")]]
+    [[_use("session:delete-artifacts")]]
+]]
