@@ -223,32 +223,30 @@ class CouponController
         $couponToCouponTypeTable = $this->getCouponData()->getCouponToTypeTable();
         $couponTypeTable = $this->getCouponData()->getCouponTypeTable();
 
-        dd($slug, $couponTable);
-
         $tblCol = table()->pickTableExcept($couponTable, [])
             . ', GROUP_CONCAT(CONCAT(coupon_type_id) ) as fk_coupon_type_id'
-            . ', CONcoupon_type_WS("/", "/posts", coupon_slug) as _preview_link ';
+            . ', CONCAT_WS("/", "/coupon", coupon_slug) as _preview_link ';
 
-        $post = db()->Select($tblCol)
+        $coupon = db()->Select($tblCol)
             ->From($couponToCouponTypeTable)
             ->Join($couponTable, table()->pickTable($couponTable, ['coupon_id']), table()->pickTable($couponToCouponTypeTable, ['fk_coupon_id']))
             ->Join($couponTypeTable, table()->pickTable($couponTypeTable, ['coupon_type_id']), table()->pickTable($couponToCouponTypeTable, ['fk_coupon_type_id']))
             ->WhereEquals('coupon_slug', $slug)
             ->GroupBy('coupon_id')->FetchFirst();
 
-        if (!is_object($post)) {
+        if (!is_object($coupon)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
-        if (isset($post->fk_coupon_type_id)){
-            $post->fk_coupon_type_id = explode(',', $post->fk_coupon_type_id);
+        if (isset($coupon->fk_coupon_type_id)){
+            $coupon->fk_coupon_type_id = explode(',', $coupon->fk_coupon_type_id);
         }
 
-        $fieldSettings = json_decode($post->field_settings, true);
+        $fieldSettings = json_decode($coupon->field_settings, true);
         if (empty($fieldSettings)) {
-            $fieldSettings = (array)$post;
+            $fieldSettings = (array)$coupon;
         } else {
-            $fieldSettings = [...$fieldSettings, ...(array)$post];
+            $fieldSettings = [...$fieldSettings, ...(array)$coupon];
         }
 
         event()->dispatch($this->getCouponData()->getOnCouponDefaultField());
@@ -265,7 +263,7 @@ class CouponController
         } else {
             $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getCouponData()->getOnCouponDefaultField()->getFieldSlug(), $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
-            addToGlobalVariable('Data', $post);
+            addToGlobalVariable('Data', $coupon);
         }
 
         view('Apps::TonicsCoupon/Views/edit', [
