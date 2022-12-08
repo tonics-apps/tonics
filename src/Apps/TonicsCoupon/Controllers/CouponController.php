@@ -289,33 +289,33 @@ class CouponController
 
         $db = db();
         $db->beginTransaction();
-        $postToUpdate = $this->couponData->createCoupon(['token']);
+        $updateChanges = $this->couponData->createCoupon(['token']);
 
         try {
-            $postToUpdate['coupon_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_slug'));
-            event()->dispatch(new OnBeforePostSave($postToUpdate));
-            db()->FastUpdate($this->couponData->getCouponTable(), $postToUpdate, db()->Where('coupon_slug', '=', $slug));
+            $updateChanges['coupon_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_slug'));
+            event()->dispatch(new OnBeforePostSave($updateChanges));
+            db()->FastUpdate($this->couponData->getCouponTable(), $updateChanges, db()->Where('coupon_slug', '=', $slug));
 
-            $postToUpdate['fk_coupon_type_id'] = input()->fromPost()->retrieve('fk_coupon_type_id', '');
-            $postToUpdate['coupon_id'] = input()->fromPost()->retrieve('coupon_id', '');
-            $onPostUpdate = new OnCouponUpdate((object)$postToUpdate, $this->couponData);
+            $updateChanges['fk_coupon_type_id'] = input()->fromPost()->retrieve('fk_coupon_type_id', '');
+            $updateChanges['coupon_id'] = input()->fromPost()->retrieve('coupon_id', '');
+            $onPostUpdate = new OnCouponUpdate((object)$updateChanges, $this->couponData);
             event()->dispatch($onPostUpdate);
 
             $db->commit();
 
             # For Fields
-            $slug = $postToUpdate['coupon_slug'];
+            $slug = $updateChanges['coupon_slug'];
             if (input()->fromPost()->has('_fieldErrorEmitted') === true){
                 session()->flash(['Coupon Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
             } else {
                 session()->flash(['Coupon Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             }
-            redirect(route('tonicsCoupon.edit', ['post' => $slug]));
+            redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
 
         } catch (\Exception $exception) {
             $db->rollBack();
             // log..
-            session()->flash(['Error Occur Updating Coupon'], $postToUpdate);
+            session()->flash(['Error Occur Updating Coupon'], $updateChanges);
             redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
         }
     }
