@@ -177,13 +177,21 @@ class OnFieldFormHelper implements EventInterface
             $fieldItems = $db->Select($cols)->From($fieldItemsTable)->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
                 ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('id')->FetchResult();
 
+
             foreach ($fieldItems as $fieldItem) {
                 $fieldOption = json_decode($fieldItem->field_options);
                 $fieldItem->field_options = $fieldOption;
                 $sortedFieldItems[$fieldItem->fk_field_id][] = $fieldItem;
             }
 
-            ksort($sortedFieldItems);
+            $sortedFieldItemsOnPriority = [];
+            foreach ($fieldIDS as $fieldID){
+                if (isset($sortedFieldItems[$fieldID])){
+                    $sortedFieldItemsOnPriority[$fieldID] = $sortedFieldItems[$fieldID];
+                }
+            }
+
+            $sortedFieldItems = $sortedFieldItemsOnPriority;
         }
 
         return $sortedFieldItems;

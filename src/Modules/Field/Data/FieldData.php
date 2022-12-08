@@ -82,13 +82,17 @@ COLUMNS;
     {
         if (!empty($slugs)) {
             # For Field
-            $fields = db()->Select("field_id, field_slug")->From($this->getFieldTable())->WhereIn('field_slug', $slugs)->OrderBy('field_id')->FetchResult();
+            $fields = db()->Select("field_id, field_slug")->From($this->getFieldTable())->WhereIn('field_slug', $slugs)->FetchResult();
             # For Field Items
             $fieldIDS = [];
-            foreach ($fields as $field) {
-                $fieldIDS[] = $field->field_id;
+            foreach ($slugs as $slug){
+                foreach ($fields as $field){
+                    if ($field->field_slug === $slug){
+                        $fieldIDS[] = $field->field_id;
+                        break;
+                    }
+                }
             }
-
             return new OnFieldFormHelper($fieldIDS, $this, $postData);
         }
         return new OnFieldFormHelper([], $this, $postData);

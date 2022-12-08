@@ -153,8 +153,6 @@ class CouponController
             $oldFormInput = [];
         }
 
-        dd($this->getCouponData()->getOnCouponDefaultField(), event()->getHandler());
-
         view('Apps::TonicsCoupon/Views/create', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),

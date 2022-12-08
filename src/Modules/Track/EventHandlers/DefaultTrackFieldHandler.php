@@ -22,6 +22,7 @@ class DefaultTrackFieldHandler implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var $event OnPostDefaultField */
-        $event->addDefaultField('track-page')->addDefaultField('seo-settings');
+        $event->addDefaultField('track-page')
+            ->addDefaultField('seo-settings');
     }
 }
