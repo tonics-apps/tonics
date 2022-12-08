@@ -234,7 +234,7 @@ CAT;
      */
     public function setDefaultCouponTypeIfNotSet()
     {
-        if (input()->fromPost()->hasValue('fk_cat_id') === false) {
+        if (input()->fromPost()->hasValue('fk_coupon_type_id') === false) {
             $findDefault = db()->Select(table()->pickTable($this->getCouponTypeTable(), ['coupon_type_slug', 'coupon_type_id']))
                 ->From($this->getCouponTypeTable())->WhereEquals('coupon_type_slug', 'default-coupon')
                 ->FetchFirst();
@@ -251,7 +251,7 @@ CAT;
             ];
 
             $returning = $this->insertForCoupon($defaultCategory, self::CouponType_INT);
-            $_POST['fk_coupon_type_id'] = $returning->cat_id;
+            $_POST['fk_coupon_type_id'] = [$returning->coupon_type_id];
             $couponTypeCreate = new OnCouponTypeCreate($returning, $this);
             event()->dispatch($couponTypeCreate);
         }

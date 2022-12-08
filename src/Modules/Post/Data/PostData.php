@@ -474,7 +474,7 @@ SQL, ...$parameter);
             ];
 
             $returning = $this->insertForPost($defaultCategory, self::Category_INT);
-            $_POST['fk_cat_id'] = $returning->cat_id;
+            $_POST['fk_cat_id'] = [$returning->cat_id];
             $categoryCreate = new OnPostCategoryCreate($returning, $this);
             event()->dispatch($categoryCreate);
         }
