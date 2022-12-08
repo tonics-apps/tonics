@@ -175,7 +175,7 @@ class CouponController
             $_POST['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_title'));
         }
 
-        $this->couponData->setDefaultPostCategoryIfNotSet();
+        $this->couponData->setDefaultCouponTypeIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postStoreRule());
         if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
@@ -276,7 +276,7 @@ class CouponController
      */
     #[NoReturn] public function update(string $slug)
     {
-        $this->couponData->setDefaultPostCategoryIfNotSet();
+        $this->couponData->setDefaultCouponTypeIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
         if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());

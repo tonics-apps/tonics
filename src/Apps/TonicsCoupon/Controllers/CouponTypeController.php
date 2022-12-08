@@ -116,16 +116,16 @@ class CouponTypeController
      */
     public function create()
     {
-        event()->dispatch($this->getCouponData()->getOnPostCategoryDefaultField());
+        event()->dispatch($this->getCouponData()->getOnCouponTypeDefaultField());
 
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
             $oldFormInput = [];
         }
 
-        view('Modules::Post/Views/Category/create', [
-            'Categories' => $this->getCouponData()->getCategoryHTMLSelect(),
-            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getCouponData()->getOnPostCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+        view('Apps::TonicsCoupon/Views/CouponType/create', [
+            'Categories' => $this->getCouponData()->getCouponTypeHTMLSelect(),
+            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getCouponData()->getOnCouponTypeDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
         ]);
     }
 

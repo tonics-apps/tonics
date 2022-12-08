@@ -323,7 +323,7 @@ CAT;
     /**
      * @throws \Exception
      */
-    public function insertForPost(array $data, int $type = PostData::Post_INT, array $return = []): bool|\stdClass
+    public function insertForPost(array $data, int $type = self::Post_INT, array $return = []): bool|\stdClass
     {
         if (!key_exists($type, self::$POST_TABLES)) {
             throw new \Exception("Invalid Post Table Type");
@@ -335,9 +335,9 @@ CAT;
 
         $table = Tables::getTable(self::$POST_TABLES[$type]);
         $primaryKey = 'post_id';
-        if ($type === PostData::Category_INT){
+        if ($type === self::Category_INT){
             $primaryKey = 'cat_id';
-        } elseif ($type === PostData::PostCategory_INT){
+        } elseif ($type === self::PostCategory_INT){
             $primaryKey = 'id';
         }
 
@@ -475,8 +475,8 @@ SQL, ...$parameter);
 
             $returning = $this->insertForPost($defaultCategory, self::Category_INT);
             $_POST['fk_cat_id'] = $returning->cat_id;
-            $onPostCategoryCreate = new OnPostCategoryCreate($returning, $this);
-            event()->dispatch($onPostCategoryCreate);
+            $categoryCreate = new OnPostCategoryCreate($returning, $this);
+            event()->dispatch($categoryCreate);
         }
     }
 

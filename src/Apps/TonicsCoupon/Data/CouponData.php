@@ -11,16 +11,33 @@
 namespace App\Apps\TonicsCoupon\Data;
 
 use App\Apps\TonicsCoupon\Events\OnCouponDefaultField;
+use App\Apps\TonicsCoupon\Events\OnCouponTypeCreate;
 use App\Apps\TonicsCoupon\Events\OnCouponTypeDefaultField;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 
 class CouponData extends AbstractDataLayer
 {
     use UniqueSlug;
-    
+
+    const Coupon_INT = 1;
+    const CouponType_INT = 2;
+    const CouponToCouponType_INT = 3;
+
+    const Coupon_STRING = 'coupon';
+    const CouponType_STRING = 'coupon_type';
+    const CouponToCouponType_STRING = 'coupon_to_type';
+
+    static array $COUPON_TABLES = [
+        self::Coupon_INT => self::Coupon_STRING,
+        self::CouponType_INT => self::CouponType_STRING,
+        self::CouponToCouponType_INT => self::CouponToCouponType_STRING,
+    ];
+
+
     private ?FieldData $fieldData;
     private ?OnCouponDefaultField $onCouponDefaultField;
     private ?OnCouponTypeDefaultField $onCouponTypeDefaultField;
@@ -211,6 +228,57 @@ CAT;
         }
 
         return $coupon;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function setDefaultCouponTypeIfNotSet()
+    {
+        if (input()->fromPost()->hasValue('fk_cat_id') === false) {
+            $findDefault = db()->Select(table()->pickTable($this->getCouponTypeTable(), ['coupon_type_slug', 'coupon_type_id']))
+                ->From($this->getCouponTypeTable())->WhereEquals('coupon_type_slug', 'default-coupon')
+                ->FetchFirst();
+            if (isset($findDefault->coupon_type_id)) {
+                $_POST['fk_coupon_type_id'] = [$findDefault->coupon_type_id];
+                return;
+            }
+
+            $defaultCategory = [
+                'coupon_type_name' => 'Default Coupon',
+                'coupon_type_slug' => 'default-coupon',
+                'coupon_type_status' => 1,
+            ];
+
+            $returning = $this->insertForCoupon($defaultCategory, self::CouponType_INT);
+            $_POST['fk_coupon_type_id'] = $returning->cat_id;
+            $couponTypeCreate = new OnCouponTypeCreate($returning, $this);
+            event()->dispatch($couponTypeCreate);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function insertForCoupon(array $data, int $type = self::Coupon_INT, array $return = []): bool|\stdClass
+    {
+        if (!key_exists($type, self::$COUPON_TABLES)) {
+            throw new \Exception("Invalid Coupon Table Type");
+        }
+
+        if (empty($return)) {
+            $return = $this->getCouponColumns();
+        }
+
+        $table = Tables::getTable(self::$COUPON_TABLES[$type]);
+        $primaryKey = 'coupon_id';
+        if ($type === self::CouponType_INT){
+            $primaryKey = 'coupon_type_id';
+        } elseif ($type === self::CouponToCouponType_INT){
+            $primaryKey = 'id';
+        }
+
+        return db()->insertReturning($table, $data, $return, $primaryKey);
     }
 
     /**
