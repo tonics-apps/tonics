@@ -136,7 +136,6 @@ class InitLoaderMinimal
     public static function getDatabase(bool $newConnection = false): TonicsQuery
     {
         if ($newConnection){
-
             self::$db = (new Database())->createNewDatabaseInstance();
         }
 

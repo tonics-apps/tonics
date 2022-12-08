@@ -10,7 +10,7 @@
 
 namespace App\Apps\TonicsCoupon\Rules;
 
-use App\Modules\Core\Library\Tables;
+use App\Apps\TonicsCoupon\TonicsCouponActivator;
 
 trait CouponValidationRules
 {
@@ -20,12 +20,12 @@ trait CouponValidationRules
      */
     public function couponTypeStoreRule(): array
     {
-        $catSlugUnique = Tables::getTable(Tables::CATEGORIES) .':coupon_type_slug';
+        $couponTypeSlugUnique = TonicsCouponActivator::couponTypeTableName() .':coupon_type_slug';
         return [
             'coupon_type_name' => ['required', 'string'],
             'coupon_type_content' => ['string'],
             'coupon_type_slug' => ['required', 'string', 'unique' => [
-                $catSlugUnique => input()->fromPost()->retrieve('coupon_type_slug', '')]
+                $couponTypeSlugUnique => input()->fromPost()->retrieve('coupon_type_slug', '')]
             ],
             'created_at' => ['required', 'string'],
         ];
@@ -36,12 +36,12 @@ trait CouponValidationRules
      */
     public function couponTypeUpdateRule(): array
     {
-        $catSlugUnique = Tables::getTable(Tables::CATEGORIES) .':coupon_type_slug:coupon_type_id';
+        $couponTypeSlugUnique = TonicsCouponActivator::couponTypeTableName()  .':coupon_type_slug:coupon_type_id';
         return [
             'coupon_type_name' => ['required', 'string'],
             'coupon_type_content' => ['string'],
             'coupon_type_slug' => ['required', 'string', 'unique' => [
-                $catSlugUnique => input()->fromPost()->retrieve('coupon_type_id', '')]
+                $couponTypeSlugUnique => input()->fromPost()->retrieve('coupon_type_id', '')]
             ],
             'created_at' => ['required', 'string'],
         ];
@@ -64,11 +64,11 @@ trait CouponValidationRules
      */
     public function couponStoreRule(): array
     {
-        $postSlugUnique = Tables::getTable(Tables::POSTS) .':coupon_slug';
+        $couponSlugUnique = TonicsCouponActivator::couponTableName() .':coupon_slug';
         return [
             'coupon_name' => ['required', 'string'],
             'coupon_slug' => ['required', 'string', 'unique' => [
-                    $postSlugUnique => input()->fromPost()->retrieve('coupon_slug', '')]
+                    $couponSlugUnique => input()->fromPost()->retrieve('coupon_slug', '')]
             ],
             'coupon_content' => ['string'],
             'coupon_status' => ['required', 'numeric'],
@@ -84,12 +84,12 @@ trait CouponValidationRules
      */
     public function couponUpdateRule(): array
     {
-        $postSlugUnique = Tables::getTable(Tables::POSTS) .':coupon_slug:coupon_id';
+        $couponSlugUnique = TonicsCouponActivator::couponTableName() .':coupon_slug:coupon_id';
         return [
             'coupon_name' => ['required', 'string'],
             'coupon_slug' => ['required', 'string',
                 'unique' => [
-                    $postSlugUnique => input()->fromPost()->retrieve('coupon_id', '')]
+                    $couponSlugUnique => input()->fromPost()->retrieve('coupon_id', '')]
             ],
             'coupon_content' => ['string'],
             'coupon_status' => ['required', 'numeric'],
