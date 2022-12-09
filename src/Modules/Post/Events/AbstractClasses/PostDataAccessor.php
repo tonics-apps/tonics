@@ -20,10 +20,10 @@ abstract class PostDataAccessor
     public function __construct(\stdClass $post, PostData $postData = null)
     {
         $this->post = $post;
-        if (property_exists($post, 'created_at')){
+        if (isset($post->created_at)){
             $this->post->created_at = $this->getCatCreatedAt();
         }
-        if (property_exists($post, 'updated_at')){
+        if (isset($post->updated_at)){
             $this->post->updated_at = $this->getCatUpdatedAt();
         }
 

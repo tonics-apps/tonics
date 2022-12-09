@@ -1,8 +1,8 @@
 [[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
 [[import("Apps::TonicsCoupon/Views/Block/CouponBlock")]]
 
-[[hook_into('Core::in_head_title')Add New Coupon]]
-[[hook_into('Core::in_main_header_title')Add New Coupon]]
+[[hook_into('Core::in_head_title')Add New Coupon Type]]
+[[hook_into('Core::in_main_header_title')Add New Coupon Type]]
 
 [[hook_into('Core::form_action')[[use('Coupon::Type::route::posts.store')]]]]
 

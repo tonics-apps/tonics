@@ -20,16 +20,15 @@ abstract class CouponDataAccessor
     public function __construct(\stdClass $coupon, CouponData $couponData = null)
     {
         $this->coupon = $coupon;
-        if (property_exists($coupon, 'created_at')){
+        if (isset($coupon->created_at)){
             $this->coupon->created_at = $this->getCouponTypeCreatedAt();
         }
-        if (property_exists($coupon, 'updated_at')){
+        if (isset($coupon->updated_at)){
             $this->coupon->updated_at = $this->getCouponTypeUpdatedAt();
         }
-        if (property_exists($coupon, 'expired_at')){
+        if (isset($coupon->expired_at)){
             $this->coupon->expired_at = $this->getCouponTypeExpiredAt();
         }
-
         if ($couponData){
             $this->couponData = $couponData;
         }

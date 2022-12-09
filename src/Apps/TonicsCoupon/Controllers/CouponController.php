@@ -177,6 +177,10 @@ class CouponController
             $_POST['created_at'] = helper()->date();
         }
 
+        if (input()->fromPost()->hasValue('expired_at') === false) {
+            unset($_POST['expired_at']);
+        }
+
         if (input()->fromPost()->hasValue('coupon_slug') === false) {
             $_POST['coupon_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_name'));
         }
@@ -285,6 +289,11 @@ class CouponController
     {
         $this->couponData->setDefaultCouponTypeIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->couponUpdateRule());
+
+        if (input()->fromPost()->hasValue('expired_at') === false) {
+            unset($_POST['expired_at']);
+        }
+
         if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tonicsCoupon.edit', [$slug]));
@@ -340,7 +349,7 @@ class CouponController
                 }
             }
 
-            db()->FastDelete(Tables::getTable(TonicsCouponActivator::COUPON), db()->WhereIn('coupon_id', $toDelete));
+            db()->FastDelete(TonicsCouponActivator::couponTableName(), db()->WhereIn('coupon_id', $toDelete));
             return true;
         } catch (\Exception $exception) {
             // log..
