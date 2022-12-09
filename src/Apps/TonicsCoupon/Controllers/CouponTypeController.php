@@ -12,6 +12,7 @@ namespace App\Apps\TonicsCoupon\Controllers;
 
 use App\Apps\TonicsCoupon\Data\CouponData;
 use App\Apps\TonicsCoupon\Events\OnCouponTypeCreate;
+use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
@@ -23,10 +24,6 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Post\Data\PostData;
-use App\Modules\Post\Events\OnPostCategoryCreate;
-use App\Modules\Post\Events\OnPostCategoryDefaultField;
-use App\Modules\Post\Rules\PostValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
@@ -36,7 +33,7 @@ class CouponTypeController
     private CouponData $couponData;
     private UserData $userData;
 
-    use Validator, PostValidationRules, UniqueSlug;
+    use Validator, CouponValidationRules, UniqueSlug;
 
     public function __construct(CouponData $couponData, UserData $userData)
     {
@@ -144,7 +141,7 @@ class CouponTypeController
             $_POST['coupon_type_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_type_name'));
         }
 
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryStoreRule());
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->couponTypeStoreRule());
         if ($validator->fails()){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tonicsCoupon.Type.create'));
@@ -155,9 +152,9 @@ class CouponTypeController
         $db = db();
         try {
             $db->beginTransaction();
-            $category = $this->couponData->createCouponType();
-            $categoryReturning = $this->couponData->insertForCoupon($category, CouponData::CouponType_INT);
-            $onCouponTypeCreate = new OnCouponTypeCreate($categoryReturning, $this->couponData);
+            $couponType = $this->couponData->createCouponType();
+            $couponTypeReturning = $this->couponData->insertForCoupon($couponType, CouponData::CouponType_INT);
+            $onCouponTypeCreate = new OnCouponTypeCreate($couponTypeReturning, $this->couponData);
             event()->dispatch($onCouponTypeCreate);
             $db->commit();
 
@@ -213,7 +210,7 @@ class CouponTypeController
      */
     #[NoReturn] public function update(string $slug): void
     {
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryUpdateRule());
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->couponTypeUpdateRule());
         if ($validator->fails()){
             session()->flash($validator->getErrors());
             redirect(route('tonicsCoupon.Type.edit', [$slug]));
@@ -240,7 +237,7 @@ class CouponTypeController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getCouponData()->dataTableUpdateMultiple('coupon_type_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
+        return $this->getCouponData()->dataTableUpdateMultiple('coupon_type_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->couponTypeUpdateMultipleRule());
     }
 
     /**
@@ -260,7 +257,7 @@ class CouponTypeController
     public function delete(string $slug): void
     {
         try {
-            $this->getCouponData()->deleteWithCondition(whereCondition: "coupon_type_slug = ?", parameter: [$slug], table: $this->getCouponData()->getCategoryTable());
+            $this->getCouponData()->deleteWithCondition(whereCondition: "coupon_type_slug = ?", parameter: [$slug], table: $this->getCouponData()->getCouponTypeTable());
             session()->flash(['Category Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tonicsCoupon.Type.index'));
         } catch (\Exception $e){
