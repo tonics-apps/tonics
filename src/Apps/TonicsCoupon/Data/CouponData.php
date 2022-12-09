@@ -265,9 +265,7 @@ HTML;
     public function setDefaultCouponTypeIfNotSet()
     {
         if (input()->fromPost()->hasValue('fk_coupon_type_id') === false) {
-            $findDefault = db()->Select(table()->pickTable($this->getCouponTypeTable(), ['coupon_type_slug', 'coupon_type_id']))
-                ->From($this->getCouponTypeTable())->WhereEquals('coupon_type_slug', 'default-coupon')
-                ->FetchFirst();
+            $findDefault = $this->findDefaultCouponType();
 
             if (isset($findDefault->coupon_type_id)) {
                 $_POST['fk_coupon_type_id'] = [$findDefault->coupon_type_id];
@@ -285,6 +283,16 @@ HTML;
             $couponTypeCreate = new OnCouponTypeCreate($returning, $this);
             event()->dispatch($couponTypeCreate);
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function findDefaultCouponType()
+    {
+        return db()->Select(table()->pickTable($this->getCouponTypeTable(), ['coupon_type_slug', 'coupon_type_id']))
+            ->From($this->getCouponTypeTable())->WhereEquals('coupon_type_slug', 'default-coupon')
+            ->FetchFirst();
     }
 
     /**

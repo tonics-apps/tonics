@@ -17,6 +17,7 @@ use App\Apps\TonicsCoupon\Events\OnCouponUpdate;
 use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
@@ -362,19 +363,23 @@ class CouponController
      */
     protected function updateMultiple($entityBag)
     {
-        $postTable = Tables::getTable(TonicsCouponActivator::COUPON);
+        $couponTable = TonicsCouponActivator::couponTableName();
         try {
             $updateItems = $this->getCouponData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
             db()->beginTransaction();
             foreach ($updateItems as $updateItem) {
                 $db = db();
-                $postUpdate = [];
+                $updateChanges = [];
                 $colForEvent = [];
                 foreach ($updateItem as $col => $value) {
                     $tblCol = $this->getCouponData()->validateTableColumnForDataTable($col);
-
+                    $tableName = DatabaseConfig::getPrefix() . $tblCol[0];
                     # We get the column (this also validates the table)
-                    $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
+                    $setCol = table()->getColumn(table()->getTable($tableName), $tblCol[1]);
+
+                    if ($tblCol[1] === 'expired_at' && empty($value)) {
+                        continue;
+                    }
 
                     if ($tblCol[1] === 'fk_coupon_type_id') {
                         $categories = explode(',', $value);
@@ -387,27 +392,27 @@ class CouponController
 
                         // Set to Default Category If Empty
                         if (empty($colForEvent['fk_coupon_type_id'])) {
-                            $findDefault = $this->couponData->selectWithConditionFromCategory(['coupon_type_slug', 'coupon_type_id'], "coupon_type_slug = ?", ['default-category']);
-                            if (is_object($findDefault) && isset($findDefault->coupon_type_id)) {
+                            $findDefault = $this->couponData->findDefaultCouponType();
+                            if (isset($findDefault->coupon_type_id)) {
                                 $colForEvent['fk_coupon_type_id'] = [$findDefault->coupon_type_id];
                             }
                         }
                     } else {
                         $colForEvent[$tblCol[1]] = $value;
-                        $postUpdate[$setCol] = $value;
+                        $updateChanges[$setCol] = $value;
                     }
                 }
 
                 # Validate The col and type
-                $validator = $this->getValidator()->make($colForEvent, $this->postUpdateMultipleRule());
+                $validator = $this->getValidator()->make($colForEvent, $this->couponUpdateMultipleRule());
                 if ($validator->fails()) {
                     throw new \Exception("DataTable::Validation Error {$validator->errorsAsString()}");
                 }
 
-                $postID = $postUpdate[table()->getColumn($postTable, 'coupon_id')];
-                $db->FastUpdate($this->couponData->getPostTable(), $postUpdate, db()->Where('coupon_id', '=', $postID));
+                $couponID = $updateChanges[table()->getColumn($couponTable, 'coupon_id')];
+                $db->FastUpdate($this->couponData->getCouponTable(), $updateChanges, db()->Where('coupon_id', '=', $couponID));
 
-                $onPostUpdate = new OnPostUpdate((object)$colForEvent, $this->couponData);
+                $onPostUpdate = new OnCouponUpdate((object)$colForEvent, $this->couponData);
                 event()->dispatch($onPostUpdate);
             }
             db()->commit();
