@@ -11,6 +11,8 @@
 namespace App\Apps\TonicsCoupon\Controllers;
 
 use App\Apps\TonicsCoupon\Data\CouponData;
+use App\Apps\TonicsCoupon\Events\OnCouponTypeCreate;
+use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
@@ -47,33 +49,33 @@ class CouponTypeController
      */
     public function index()
     {
-        $table = Tables::getTable(Tables::CATEGORIES);
+        $table = TonicsCouponActivator::couponTypeTableName();
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::CATEGORIES . '::' . 'cat_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'cat_id'],
-            ['type' => 'text', 'slug' => Tables::CATEGORIES . '::' . 'cat_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'cat_name'],
-            ['type' => 'date_time_local', 'slug' => Tables::CATEGORIES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+            ['type' => '', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'coupon_type_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'coupon_type_id'],
+            ['type' => 'text', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'coupon_type_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'coupon_type_name'],
+            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/posts/category/", cat_slug, "/edit" ) as _edit_link, CONCAT("/categories/", cat_slug) as _preview_link';
+        $tblCol = '*, CONCAT("/admin/tonics_coupon/type/", coupon_type_slug, "/edit" ) as _edit_link, CONCAT("/coupon_type/", coupon_type_slug) as _preview_link';
 
         $data = db()->Select($tblCol)
             ->From($table)
             ->when(url()->hasParamAndValue('status'),
                 function (TonicsQuery $db) {
-                    $db->WhereEquals('cat_status', url()->getParam('status'));
+                    $db->WhereEquals('coupon_type_status', url()->getParam('status'));
                 },
                 function (TonicsQuery $db) {
-                    $db->WhereEquals('cat_status', 1);
+                    $db->WhereEquals('coupon_type_status', 1);
 
                 })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('cat_name', url()->getParam('query'));
+                $db->WhereLike('coupon_type_name', url()->getParam('query'));
 
             })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
                 $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
             })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
-        view('Modules::Post/Views/Category/index', [
+        view('Apps::TonicsCoupon/Views/CouponType/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
                 'paginateData' => $data ?? [],
@@ -138,14 +140,14 @@ class CouponTypeController
             $_POST['created_at'] = helper()->date();
         }
 
-        if (input()->fromPost()->hasValue('cat_slug') === false){
-            $_POST['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_name'));
+        if (input()->fromPost()->hasValue('coupon_type_slug') === false){
+            $_POST['coupon_type_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_type_name'));
         }
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryStoreRule());
         if ($validator->fails()){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('posts.category.create'));
+            redirect(route('tonicsCoupon.Type.create'));
         }
 
         # Storing db reference is the only way I got tx to work
@@ -153,50 +155,20 @@ class CouponTypeController
         $db = db();
         try {
             $db->beginTransaction();
-            $category = $this->couponData->createCategory();
-            $categoryReturning = $this->couponData->insertForPost($category, PostData::Category_INT);
-            $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->couponData);
-            event()->dispatch($onPostCategoryCreate);
+            $category = $this->couponData->createCouponType();
+            $categoryReturning = $this->couponData->insertForCoupon($category, CouponData::CouponType_INT);
+            $onCouponTypeCreate = new OnCouponTypeCreate($categoryReturning, $this->couponData);
+            event()->dispatch($onCouponTypeCreate);
             $db->commit();
 
-            session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('posts.category.edit', ['category' => $onPostCategoryCreate->getCatSlug()]));
+            session()->flash(['Coupon Type Created'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('tonicsCoupon.Type.edit', ['couponType' => $onCouponTypeCreate->getCouponTypeSlug()]));
         }catch (Exception $exception){
             // Log..
             $db->rollBack();
-            session()->flash(['An Error Occurred, Creating Post Category'], input()->fromPost()->all());
-            redirect(route('posts.category.create'));
+            session()->flash(['An Error Occurred, Creating Coupon Type'], input()->fromPost()->all());
+            redirect(route('tonicsCoupon.Type.create'));
         }
-
-    }
-
-    /**
-     * @throws \ReflectionException
-     * @throws Exception
-     */
-    public function storeFromImport(array $categoryData): bool|object
-    {
-        $previousPOSTGlobal = $_POST;
-        $validator = $this->getValidator()->make($categoryData, $this->postCategoryStoreRule());
-        try {
-            if ($validator->fails()){
-                helper()->sendMsg('PostCategoryController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
-                return false;
-            }
-            foreach ($categoryData as $k => $cat){
-                $_POST[$k] = $cat;
-            }
-            $category = $this->couponData->createCategory();
-            $categoryReturning = $this->couponData->insertForPost($category, PostData::Category_INT);
-
-        }catch (\Exception $e){
-            helper()->sendMsg('PostCategoryController::storeFromImport()', $e->getMessage(), 'issue');
-            return false;
-        }
-        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->couponData);
-        event()->dispatch($onPostCategoryCreate);
-        $_POST = $previousPOSTGlobal;
-        return $onPostCategoryCreate;
 
     }
 
@@ -206,32 +178,32 @@ class CouponTypeController
      */
     public function edit(string $slug): void
     {
-        $category = $this->couponData->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
+        $couponType = db()->Select('*')->From(TonicsCouponActivator::couponTypeTableName())->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
 
-        if (!is_object($category)){
+        if (!is_object($couponType)){
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
-        $fieldSettings = json_decode($category->field_settings, true);
+        $fieldSettings = json_decode($couponType->field_settings, true);
         if (empty($fieldSettings)){
-            $fieldSettings = (array)$category;
+            $fieldSettings = (array)$couponType;
         } else {
-            $fieldSettings = [...$fieldSettings, ...(array)$category];
+            $fieldSettings = [...$fieldSettings, ...(array)$couponType];
         }
 
-        event()->dispatch($this->getCouponData()->getOnPostCategoryDefaultField());
+        event()->dispatch($this->getCouponData()->getOnCouponTypeDefaultField());
         if (isset($fieldSettings['_fieldDetails'])){
             addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
-            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getCouponData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
+            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getCouponData()->getOnCouponTypeDefaultField()->getFieldSlug(), $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
-            addToGlobalVariable('Data', $category);
+            addToGlobalVariable('Data', $couponType);
         }
 
-        view('Modules::Post/Views/Category/edit', [
+        view('Apps::TonicsCoupon/Views/CouponType/edit', [
             'FieldItems' => $htmlFrag,
         ]);
     }
@@ -244,21 +216,21 @@ class CouponTypeController
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryUpdateRule());
         if ($validator->fails()){
             session()->flash($validator->getErrors());
-            redirect(route('posts.category.edit', [$slug]));
+            redirect(route('tonicsCoupon.Type.edit', [$slug]));
         }
 
-        $categoryToUpdate = $this->couponData->createCategory();
-        $categoryToUpdate['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_slug'));
+        $updateChanges = $this->couponData->createCouponType();
+        $updateChanges['coupon_type_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_type_slug'));
 
-        db()->FastUpdate($this->couponData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
-        $slug = $categoryToUpdate['cat_slug'];
+        db()->FastUpdate($this->couponData->getCouponTypeTable(), $updateChanges, db()->Where('coupon_type_slug', '=', $slug));
+        $slug = $updateChanges['coupon_type_slug'];
 
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
-            session()->flash(['Post Category Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+            session()->flash(['Coupon Type Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
         } else {
-            session()->flash(['Post Category Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            session()->flash(['Coupon Type Updated'], type: Session::SessionCategories_FlashMessageSuccess);
         }
-        redirect(route('posts.category.edit', ['category' => $slug]));
+        redirect(route('tonicsCoupon.Type.edit', ['couponType' => $slug]));
     }
 
     /**
@@ -268,7 +240,7 @@ class CouponTypeController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getCouponData()->dataTableUpdateMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
+        return $this->getCouponData()->dataTableUpdateMultiple('coupon_type_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
     }
 
     /**
@@ -277,7 +249,7 @@ class CouponTypeController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getCouponData()->dataTableDeleteMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag);
+        return $this->getCouponData()->dataTableDeleteMultiple('coupon_type_id', Tables::getTable(Tables::CATEGORIES), $entityBag);
     }
 
     /**
@@ -288,9 +260,9 @@ class CouponTypeController
     public function delete(string $slug): void
     {
         try {
-            $this->getCouponData()->deleteWithCondition(whereCondition: "cat_slug = ?", parameter: [$slug], table: $this->getCouponData()->getCategoryTable());
+            $this->getCouponData()->deleteWithCondition(whereCondition: "coupon_type_slug = ?", parameter: [$slug], table: $this->getCouponData()->getCategoryTable());
             session()->flash(['Category Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('posts.category.index'));
+            redirect(route('tonicsCoupon.Type.index'));
         } catch (\Exception $e){
             $errorCode = $e->getCode();
             switch ($errorCode){
@@ -311,15 +283,15 @@ class CouponTypeController
             onSlugIDState: function ($slugID){
                 $category = $this->getCouponData()
                     ->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugID]);
-                if (isset($category->slug_id) && isset($category->cat_slug)){
-                    return "/categories/$category->slug_id/$category->cat_slug";
+                if (isset($category->slug_id) && isset($category->coupon_type_slug)){
+                    return "/categories/$category->slug_id/$category->coupon_type_slug";
                 }
                 return false;
             }, onSlugState: function ($slug){
             $category = $this->getCouponData()
-                ->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
-            if (isset($category->slug_id) && isset($category->cat_slug)){
-                return "/categories/$category->slug_id/$category->cat_slug";
+                ->selectWithConditionFromCategory(['*'], "coupon_type_slug = ?", [$slug]);
+            if (isset($category->slug_id) && isset($category->coupon_type_slug)){
+                return "/categories/$category->slug_id/$category->coupon_type_slug";
             }
             return false;
         });
