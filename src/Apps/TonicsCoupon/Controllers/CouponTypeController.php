@@ -50,7 +50,8 @@ class CouponTypeController
         $dataTableHeaders = [
             ['type' => '', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'coupon_type_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'coupon_type_id'],
             ['type' => 'text', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'coupon_type_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'coupon_type_name'],
-            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'created_at', 'title' => 'Created', 'minmax' => '50px, .8fr', 'td' => 'created_at'],
+            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'updated_at', 'title' => 'Updated', 'minmax' => '50px, .8fr', 'td' => 'updated_at'],
         ];
 
         $tblCol = '*, CONCAT("/admin/tonics_coupon/type/", coupon_type_slug, "/edit" ) as _edit_link, CONCAT("/coupon_type/", coupon_type_slug) as _preview_link';
@@ -237,7 +238,7 @@ class CouponTypeController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getCouponData()->dataTableUpdateMultiple('coupon_type_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->couponTypeUpdateMultipleRule());
+        return $this->getCouponData()->dataTableUpdateMultiple('coupon_type_id', TonicsCouponActivator::couponTypeTableName(), $entityBag, $this->couponTypeUpdateMultipleRule());
     }
 
     /**
@@ -246,7 +247,7 @@ class CouponTypeController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getCouponData()->dataTableDeleteMultiple('coupon_type_id', Tables::getTable(Tables::CATEGORIES), $entityBag);
+        return $this->getCouponData()->dataTableDeleteMultiple('coupon_type_id', TonicsCouponActivator::couponTypeTableName(), $entityBag);
     }
 
     /**

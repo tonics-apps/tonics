@@ -406,9 +406,9 @@ SQL, ...$parameter);
                 $colForEvent = [];
                 foreach ($updateItem as $col => $value) {
                     $tblCol = $this->validateTableColumnForDataTable($col);
-
+                    $tableName = DatabaseConfig::getPrefix() . $tblCol[0];
                     # We get the column (this also validates the table)
-                    $setCol = table()->getColumn(Tables::getTable($tblCol[0]), $tblCol[1]);
+                    $setCol = table()->getColumn(table()->getTable($tableName), $tblCol[1]);
 
                     $colForEvent[$tblCol[1]] = $value;
                     $updateChanges[$setCol] = $value;
