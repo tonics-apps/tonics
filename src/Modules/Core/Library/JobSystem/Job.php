@@ -31,6 +31,7 @@ class Job
     private object|null $transporter = null;
 
     const JobStatus_Queued = 'queued';
+    const JobStatus_InProgress = 'in_progress';
     const JobStatus_Processed = 'processed';
     const JobStatus_Failed = 'failed';
 

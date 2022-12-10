@@ -106,7 +106,12 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
             foreach ($jobs as $job) {
                 try {
                     $this->infoMessage("Running job $job->job_group_name with an id of $job->job_id");
+                    # Job In_Progress
+                    $update = ['job_status' => Job::JobStatus_InProgress];
+                    $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+
                     $this->handleIndividualJob($job);
+
                     $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
                     $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
                 } catch (\Throwable $exception) {
