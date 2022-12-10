@@ -43,6 +43,10 @@ class CoreMenus implements HandlerInterface
                     ->addMenu(OnAdminMenu::AppsMenuID + 1, 'Force Update Check', helper()->getIcon('more-horizontal', 'icon:admin'), route('apps.discover_updates'), parent:  OnAdminMenu::AppsMenuID)
                     ->addMenu(OnAdminMenu::AppsMenuID + 2, 'Upload App', helper()->getIcon('upload', 'icon:admin'), route('apps.uploadForm'), parent:  OnAdminMenu::AppsMenuID)
 
+                ->addMenu( OnAdminMenu::JobsMenuID, 'Job Manager', helper()->getIcon('jobs', 'icon:admin'), route('jobs.jobsIndex'), parent:  OnAdminMenu::ToolsMenuID)
+                ->addMenu(OnAdminMenu::JobsMenuID + 1, 'Jobs', helper()->getIcon('jobs', 'icon:admin'), route('jobs.jobsIndex'), parent:  OnAdminMenu::JobsMenuID)
+                ->addMenu(OnAdminMenu::JobsMenuID + 2, 'Jobs Scheduler', helper()->getIcon('schedule', 'icon:admin'), route('jobs.jobsSchedulerIndex'), parent:  OnAdminMenu::JobsMenuID)
+
                 ->if(UserData::canAccess(Roles::CAN_ACCESS_TRACK, $event->userRole()), function ($event) {
                     return $event->addMenu(OnAdminMenu::LicenseMenuID, 'License', helper()->getIcon('license','icon:admin'), route('licenses.create'), parent:  OnAdminMenu::TrackMenuID)
                         ->addMenu(OnAdminMenu::LicenseMenuID + 1, 'New License', helper()->getIcon('plus', 'icon:admin'), route('licenses.create'), parent: OnAdminMenu::LicenseMenuID)

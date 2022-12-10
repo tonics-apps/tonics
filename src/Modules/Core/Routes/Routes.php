@@ -19,6 +19,7 @@ use App\Modules\Core\Controllers\DashboardController;
 use App\Modules\Core\Controllers\ImportExport\ImportController;
 use App\Modules\Core\Controllers\Installer;
 use App\Modules\Core\Controllers\AppsController;
+use App\Modules\Core\Controllers\JobManagerController;
 use App\Modules\Core\Controllers\OEmbedController;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\CoreAccess;
@@ -94,15 +95,28 @@ trait Routes
             # THEME, PLUGINS AND IMPORT
         #---------------------------------
         $route->group('/admin/tools/', function (Route $route) {
-            $route->group('/imports', function (Route $route) {
-                $route->get('', [ImportController::class, 'index'], alias: 'index');
-                $route->match(['get', 'post'], 'wordpress', [ImportController::class, 'wordpress'], alias: 'wordpress');
-                $route->match(['get'], 'wordpress-events', [ImportController::class, 'wordpressEvent'], alias: 'wordpressEvent');
-                $route->match(['get', 'post'],'beatstars', [ImportController::class, 'beatstars'], alias: 'beatstars');
-                $route->match(['get', 'post'],'airbit', [ImportController::class, 'airbit'], alias: 'airbit');
-            }, [CoreAccess::class], alias: 'imports');
 
-                    #---------------------------------
+
+            $route->group('', function (Route $route) {
+
+
+                $route->group('/imports', function (Route $route) {
+                    $route->get('', [ImportController::class, 'index'], alias: 'index');
+                    $route->match(['get', 'post'], 'wordpress', [ImportController::class, 'wordpress'], alias: 'wordpress');
+                    $route->match(['get'], 'wordpress-events', [ImportController::class, 'wordpressEvent'], alias: 'wordpressEvent');
+                    $route->match(['get', 'post'],'beatstars', [ImportController::class, 'beatstars'], alias: 'beatstars');
+                    $route->match(['get', 'post'],'airbit', [ImportController::class, 'airbit'], alias: 'airbit');
+                }, [CoreAccess::class], alias: 'imports');
+
+                $route->group('/job_manager', function (Route $route) {
+                    $route->get('jobs', [JobManagerController::class, 'jobsIndex'], alias: 'jobsIndex');
+                    $route->get('jobs_scheduler', [JobManagerController::class, 'jobsSchedulerIndex'], alias: 'jobsSchedulerIndex');
+                }, [CoreAccess::class], alias: 'jobs');
+
+
+            }, [CoreAccess::class]);
+
+            #---------------------------------
                 # Apps Routes...
             #---------------------------------
             $route->group('/apps', function (Route $route) {
