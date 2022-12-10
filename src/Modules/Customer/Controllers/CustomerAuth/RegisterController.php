@@ -114,8 +114,8 @@ class RegisterController extends Controller
                 redirect(route('customer.verifyEmailForm'));
             }
 
-            db()->update($this->getUsersData()->getCustomersTable(), ['email_verified_at' => helper()->date(), 'role' => Roles::CUSTOMER()], ['email' => $data->email]);
-
+            $db = db();
+            $db->FastUpdate($this->getUsersData()->getCustomersTable(), ['email_verified_at' => helper()->date(), 'role' => Roles::CUSTOMER()], $db->Q()->WhereEquals('email',$data->email));
            // $this->getUsersData()->validateCustomer();
 
             // login user and redirect to customer dashboard

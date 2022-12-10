@@ -13,16 +13,13 @@ namespace App\Modules\Core\EventHandlers\JobTransporter;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddJobTransporter;
 use App\Modules\Core\Library\ConsoleColor;
-use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
-use App\Modules\Core\Library\JobSystem\JobException;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
-use ParagonIE\EasyDB\EasyDB;
 
 class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterface
 {
@@ -111,11 +108,11 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
                     $this->infoMessage("Running job $job->job_group_name with an id of $job->job_id");
                     $this->handleIndividualJob($job);
                     $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
-                    $db->update($this->getTable(), $update, ['job_id' => $job->job_id]);
+                    $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
                 } catch (\Throwable $exception) {
                     $update = ['job_status' => Job::JobStatus_Failed];
                     $this->infoMessage("Job $job->job_group_name failed, with an id of $job->job_id");
-                    $db->update($table, $update, ['job_id' => $job->job_id]);
+                    $db->FastUpdate($table, $update, $db->Q()->WhereEquals('job_id', $job->job_id));
                     $this->errorMessage($exception->getMessage());
                 }
             }
