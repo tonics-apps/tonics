@@ -13,7 +13,7 @@ use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 
 class AbstractJobInterface
 {
-    private string $jobGroupName = '';
+    private string $jobName = '';
     private string $jobStatus = Job::JobStatus_Queued;
     private int $priority = Scheduler::PRIORITY_MEDIUM;
     private mixed $data = null;
@@ -21,18 +21,18 @@ class AbstractJobInterface
     /**
      * @return string
      */
-    public function getJobGroupName(): string
+    public function getJobName(): string
     {
-        return $this->jobGroupName;
+        return $this->jobName;
     }
 
     /**
-     * @param string $jobGroupName
+     * @param string $jobName
      * @return AbstractJobInterface
      */
-    public function setJobGroupName(string $jobGroupName): AbstractJobInterface
+    public function setJobName(string $jobName): AbstractJobInterface
     {
-        $this->jobGroupName = $jobGroupName;
+        $this->jobName = $jobName;
         return $this;
     }
 

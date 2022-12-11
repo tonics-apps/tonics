@@ -68,7 +68,7 @@ class ForgotPasswordController extends Controller
                 session()->append(Session::SessionCategories_PasswordReset, $forgotPasswordData);
 
                 $userAdminForgotPasswordJob = new UserAdminForgotPasswordEmail();
-                $userAdminForgotPasswordJob->setJobGroupName('UserAdminForgotPasswordEmail');
+                $userAdminForgotPasswordJob->setJobName('UserAdminForgotPasswordEmail');
                 $userAdminForgotPasswordJob->setData($forgotPasswordData);
                 job()->enqueue($userAdminForgotPasswordJob);
 

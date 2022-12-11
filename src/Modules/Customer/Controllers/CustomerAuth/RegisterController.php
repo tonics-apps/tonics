@@ -155,7 +155,7 @@ class RegisterController extends Controller
     #[NoReturn] private function sendNewRegistrationJob($data)
     {
         $customerVerificationCodeJob = new CustomerRegistrationVerificationCodeEmail();
-        $customerVerificationCodeJob->setJobGroupName('CustomerRegistrationVerificationCodeEmail');
+        $customerVerificationCodeJob->setJobName('CustomerRegistrationVerificationCodeEmail');
         $customerVerificationCodeJob->setData($data);
         job()->enqueue($customerVerificationCodeJob);
 

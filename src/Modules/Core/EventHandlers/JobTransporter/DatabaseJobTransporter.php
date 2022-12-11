@@ -62,7 +62,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     public function getToInsert(AbstractJobInterface $jobEvent): array
     {
         return [
-            'job_group_name' => $jobEvent->getJobGroupName(),
+            'job_name' => $jobEvent->getJobName(),
             'job_status' => Job::JobStatus_Queued,
             'job_priority' => $jobEvent->getPriority(),
             'job_data' => json_encode([
