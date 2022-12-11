@@ -1,10 +1,9 @@
 [[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field",)]]
 
-[[hook_into('in_head_title') TonicsSEO Settings Page ]]
-[[hook_into('in_main_header_title') TonicsSEO Settings Page ]]
+[[hook_into('Core::in_head_title') TonicsSEO Settings Page ]]
+[[hook_into('Core::in_main_header_title') TonicsSEO Settings Page ]]
 
 [[hook_into('form_action')/admin/tools/apps/tonics_seo/settings]]
-
 
 [[hook_into('Core::before_footer')
   [[_use("script:variables")]]

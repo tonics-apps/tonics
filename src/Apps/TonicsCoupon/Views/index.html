@@ -5,13 +5,22 @@
 [[hook_into('Core::in_main_header_title')Coupon]]
 
 [[hook_into('Core::after_in_main_form_and_filter_date')
-    <div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
+<div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
     <div class="menu-box-checkbox-items max-height:300px overflow:auto">Choose Categories (All By Default)
         <ul class="menu-box-radiobox-items list:style:none">
             [[_v('DefaultCategoriesMetaBox')]]
         </ul>
     </div>
 </div>
+]]
+
+[[hook_into('Core::data_table_menu')
+<li class="menu-item">
+    <a href="[[url('tonicsCoupon.importCouponItems')]]" class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:black bg:white-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2">
+        <span>Import Coupon(s)</span>
+    </a>
+</li>
 ]]
 
 [[hook_into('Core::before_footer')

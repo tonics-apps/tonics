@@ -96,7 +96,27 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
                 continue;
             }
             $db->beginTransaction();
-            $jobs = $db->run("SELECT * FROM $table WHERE job_status = ? ORDER BY job_priority DESC LIMIT ? FOR UPDATE", Job::JobStatus_Queued, $limit);
+
+            /**
+             * This query first selects all rows from the jobs table where the job_status is 'queued'.
+             * It then uses a subquery to select all job_parent_id values from the jobs table that are not NULL.
+             *
+             * This effectively gets a list of all job_id values for jobs that have child jobs.
+             * The outer query then filters out any jobs whose job_id is in the list of job_parent_id values, effectively excluding any jobs that have child jobs.
+             *
+             * This approach can be efficient because it avoids using a subquery in the WHERE clause, which can potentially be slow.
+             *
+             * Instead, it uses the NOT IN operator, which can be optimized by the database engine to use an efficient index lookup, maybe.
+             */
+            $jobs = $db->run(<<<SQL
+SELECT * 
+FROM $table
+WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
+ORDER BY `job_priority` DESC
+LIMIT 10
+FOR UPDATE
+SQL, Job::JobStatus_Queued, $limit);
+
             if (empty($jobs)){
                 $db->commit();
                 # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
@@ -105,7 +125,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
             }
             foreach ($jobs as $job) {
                 try {
-                    $this->infoMessage("Running job $job->job_group_name with an id of $job->job_id");
+                    $this->infoMessage("Running job $job->job_name with an id of $job->job_id");
                     # Job In_Progress
                     $update = ['job_status' => Job::JobStatus_InProgress];
                     $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
@@ -116,7 +136,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
                     $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
                 } catch (\Throwable $exception) {
                     $update = ['job_status' => Job::JobStatus_Failed];
-                    $this->infoMessage("Job $job->job_group_name failed, with an id of $job->job_id");
+                    $this->infoMessage("Job $job->job_name failed, with an id of $job->job_id");
                     $db->FastUpdate($table, $update, $db->Q()->WhereEquals('job_id', $job->job_id));
                     $this->errorMessage($exception->getMessage());
                 }

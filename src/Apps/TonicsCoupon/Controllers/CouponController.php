@@ -424,6 +424,29 @@ class CouponController
         }
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function importCouponItems()
+    {
+        $htmlFrag = $this->getFieldData()->generateFieldWithFieldSlug(
+            ['app-tonicscoupon-coupon-page-import-settings'],
+            []
+        )->getHTMLFrag();
+
+        view('Apps::TonicsCoupon/Views/import_index', [
+            'FieldItems' => $htmlFrag,
+        ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function importCouponItemsStore()
+    {
+        dd(input()->fromPost()->all());
+    }
+
 
     /**
      * @throws \Exception

@@ -101,6 +101,7 @@ class WordPressImportState extends SimpleState
                 helper()->sendMsg(self::getCurrentState(), "Failed To Create WordPress Import Directory", 'issue');
                 return self::ERROR;
             }
+            
             try {
                 $this->getLocalDriver()
                     ->insertFileToDBReturning(
