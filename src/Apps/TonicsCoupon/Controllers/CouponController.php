@@ -18,6 +18,7 @@ use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DatabaseConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
@@ -27,13 +28,12 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Post\Data\PostData;
+use App\Modules\Media\FileManager\LocalDriver;
 use App\Modules\Post\Events\OnBeforePostSave;
-use App\Modules\Post\Events\OnPostCreate;
-use App\Modules\Post\Events\OnPostUpdate;
 use App\Modules\Post\Helper\PostRedirection;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
+use JsonMachine\Items;
 
 class CouponController
 {
@@ -424,15 +424,24 @@ class CouponController
         }
     }
 
+    const CACHE_KEY = 'TonicsPlugin_TonicsCouponSettings';
+
     /**
      * @throws \Exception
      */
     public function importCouponItems()
     {
-        $htmlFrag = $this->getFieldData()->generateFieldWithFieldSlug(
-            ['app-tonicscoupon-coupon-page-import-settings'],
-            []
-        )->getHTMLFrag();
+        $fieldSettings = $this->getSettingsData();
+        if (isset($fieldSettings['_fieldDetails'])){
+            addToGlobalVariable('Data', $fieldSettings);
+            $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
+        } else {
+            $htmlFrag = $this->getFieldData()->generateFieldWithFieldSlug(
+                ['app-tonicscoupon-coupon-page-import-settings'],
+                $fieldSettings
+            )->getHTMLFrag();
+        }
 
         view('Apps::TonicsCoupon/Views/import_index', [
             'FieldItems' => $htmlFrag,
@@ -444,10 +453,42 @@ class CouponController
      */
     public function importCouponItemsStore()
     {
-        dd(input()->fromPost()->all());
+        FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
+
+        $urlUniqueID = explode('/', input()->fromPost()->retrieve('app_tonicscoupon_coupon_page_import_file_URL'));
+        $urlUniqueID = end($urlUniqueID);
+        $localDriver = new LocalDriver();
+        $fileInfo = $localDriver->getInfoOfUniqueID($urlUniqueID);
+
+        if ($fileInfo === null){
+            session()->flash(['File Invalid, Ensure File is Json and is Locally Stored'], input()->fromPost()->all());
+            redirect(route('tonicsCoupon.importCouponItems'));
+        }
+
+        dd($fileInfo);
+        $items = Items::fromFile($file);
+        foreach ($items as $name => $data) {
+            dd($name, $data, input()->fromPost()->all());
+        }
     }
 
+    public static function getCacheKey(): string
+    {
+        return AppConfig::getAppCacheKey() . self::CACHE_KEY;
+    }
 
+    /**
+     * @throws \Exception
+     */
+    public static function getSettingsData()
+    {
+        $settings = apcu_fetch(self::getCacheKey());
+        if ($settings === false){
+            $settings = FieldConfig::loadPluginSettings(self::getCacheKey());
+        }
+
+        return $settings ?? [];
+    }
     /**
      * @throws \Exception
      */

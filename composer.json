@@ -38,7 +38,8 @@
     "devsrealm/tonics-helpers": "*",
     "devsrealm/tonics-query-builder": "*",
     "genkgo/mail": "dev-master",
-    "mpratt/embera": "~2.0"
+    "mpratt/embera": "~2.0",
+    "halaxa/json-machine": "dev-master"
   },
   "repositories": [
     {
