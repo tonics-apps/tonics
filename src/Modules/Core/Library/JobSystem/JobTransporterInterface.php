@@ -21,8 +21,12 @@ interface JobTransporterInterface
     /**
      * Enqueue an event that is readily dispatch when called
      * @param AbstractJobInterface $jobEvent
+     * @param callable|null $beforeEnqueue
+     * Callback before job is enqueued, this might also return possible `toInsert`
+     * @param callable|null $afterEnqueue
+     * Callback after job is enqueued, this might return what is enqueued
      */
-    public function enqueue(AbstractJobInterface $jobEvent): void;
+    public function enqueue(AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void;
 
     /**
      * If true, the transporter would dispatch the event immediately

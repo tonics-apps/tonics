@@ -20,12 +20,11 @@ use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
 use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterface
 {
     use ConsoleColor;
-
-    private static MyPDO|null $db = null;
 
     /**
      * @inheritDoc
@@ -50,9 +49,20 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
      * @inheritDoc
      * @throws \Exception
      */
-    public function enqueue(AbstractJobInterface $jobEvent): void
+    public function enqueue(AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
     {
-        db()->insert($this->getTable(), $this->getToInsert($jobEvent));
+        $toInsert = $this->getToInsert($jobEvent);
+        if ($beforeEnqueue){
+            $beforeEnqueue($toInsert);
+        }
+
+        if ($afterEnqueue){
+            $returning = db(true)->InsertReturning($this->getTable(), $toInsert, Tables::$TABLES[Tables::JOBS], 'job_id');
+            $afterEnqueue($returning);
+        } else {
+            db(true)->insert($this->getTable(), $toInsert);
+        }
+
     }
 
     /**
@@ -63,7 +73,8 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     {
         return [
             'job_name' => $jobEvent->getJobName(),
-            'job_status' => Job::JobStatus_Queued,
+            'job_parent_id' => $jobEvent->getJobParentID(),
+            'job_status' => $jobEvent->getJobStatus(),
             'job_priority' => $jobEvent->getPriority(),
             'job_data' => json_encode([
                     'data' => $jobEvent->getData(),
@@ -111,7 +122,6 @@ FROM $table
 WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
 ORDER BY `job_priority` DESC
 LIMIT ?
-FOR UPDATE
 SQL, Job::JobStatus_Queued, $limit);
 
             if (empty($jobs)){

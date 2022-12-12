@@ -59,9 +59,9 @@ class Job
         }
     }
 
-    public function enqueue(AbstractJobInterface $jobEvent): void
+    public function enqueue(AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
     {
-        $this->transporter->enqueue($jobEvent);
+        $this->transporter->enqueue($jobEvent, $beforeEnqueue, $afterEnqueue);
         if ($this->transporter->isStatic()){
             $this->runJob();
         }
@@ -76,7 +76,7 @@ class Job
      * @return object
      * @throws \Exception
      */
-    private function getTransporter(): EventDispatcherInterface&JobTransporterInterface
+    public function getTransporter(): object
     {
         return $this->transporter;
     }

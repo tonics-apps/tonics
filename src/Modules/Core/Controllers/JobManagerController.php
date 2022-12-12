@@ -68,7 +68,7 @@ class JobManagerController
             ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                 $db->WhereLike('p.job_name', url()->getParam('query'));
             })
-            ->GroupBy('p.job_name')
+            ->GroupBy('p.job_name')->GroupBy('p.job_id')
             ->OrderByDesc('p.job_priority')->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
         view('Modules::Core/Views/JobsManager/jobs_index', [

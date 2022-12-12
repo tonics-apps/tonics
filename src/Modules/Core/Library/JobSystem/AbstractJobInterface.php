@@ -14,6 +14,7 @@ use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 class AbstractJobInterface
 {
     private string $jobName = '';
+    private ?int $jobParentID = null;
     private string $jobStatus = Job::JobStatus_Queued;
     private int $priority = Scheduler::PRIORITY_MEDIUM;
     private mixed $data = null;
@@ -88,6 +89,22 @@ class AbstractJobInterface
     {
         $this->data = $data;
         return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getJobParentID(): ?int
+    {
+        return $this->jobParentID;
+    }
+
+    /**
+     * @param int|null $jobParentID
+     */
+    public function setJobParentID(?int $jobParentID): void
+    {
+        $this->jobParentID = $jobParentID;
     }
 
 }

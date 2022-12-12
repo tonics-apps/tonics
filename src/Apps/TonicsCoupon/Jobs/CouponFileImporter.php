@@ -10,7 +10,9 @@
 
 namespace App\Apps\TonicsCoupon\Jobs;
 
+use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
+use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use JsonMachine\Items;
 
@@ -22,19 +24,38 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
      */
     public function handle(): void
     {
-        $couponJsonFilePath = null;
         if (isset($this->getData()->fullFilePath) && helper()->fileExists($this->getData()->fullFilePath)){
             $couponJsonFilePath = $this->getData()->fullFilePath;
             $this->handleFileImporting($couponJsonFilePath);
         }
-        dd($couponJsonFilePath, $this->getData());
     }
 
-    protected function handleFileImporting(string $filePath)
+    /**
+     * @param string $filePath
+     * @return void
+     * @throws \Exception
+     */
+    protected function handleFileImporting(string $filePath): void
     {
-        $items = Items::fromFile($filePath);
-        foreach ($items as $item) {
-            dd($item);
+        $couponItemImport = new CouponItemImport();
+        $couponItemImport->setJobName('CouponItemImport');
+        $couponItemImport->setJobStatus(Job::JobStatus_InProgress);
+        $job = \job();
+        $parentData = null;
+        $job->enqueue($couponItemImport,
+            afterEnqueue: function ($enqueueData) use (&$parentData) {
+                $parentData = $enqueueData;
+            });
+
+        if ($parentData){
+            $items = Items::fromFile($filePath);
+            foreach ($items as $item) {
+                $couponItemImport->setJobName('CouponItemImport_Child');
+                $couponItemImport->setJobStatus(Job::JobStatus_Queued);
+                $couponItemImport->setJobParentID($parentData->job_id);
+                $couponItemImport->setData($item);
+                $job->enqueue($couponItemImport);
+            }
         }
     }
 }
