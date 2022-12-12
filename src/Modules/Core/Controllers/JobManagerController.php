@@ -11,13 +11,63 @@
 namespace App\Modules\Core\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class JobManagerController
 {
+    /**
+     * @throws \Exception
+     */
     public function jobsIndex()
     {
+        $table = Tables::getTable(Tables::JOBS);
+        $dataTableHeaders = [
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'job_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'parent_id'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'job_name', 'title' => 'Name', 'minmax' => '150px, 1.6fr', 'td' => 'parent_name'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'job_status', 'title' => 'Status', 'minmax' => '50px, .5fr', 'td' => 'job_status'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'total_child_jobs', 'title' => 'Child Jobs', 'minmax' => '50px, .5fr', 'td' => 'total_child_jobs'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'completed_child_jobs', 'title' => 'Processed Child Jobs', 'minmax' => '80px, 1fr', 'td' => 'completed_child_jobs'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'created_at', 'title' => 'Created At', 'minmax' => '100px, 1fr', 'td' => 'created_at'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'time_completed', 'title' => 'Completed At', 'minmax' => '100px, 1fr', 'td' => 'time_completed'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'overall_progress', 'title' => 'Progress', 'minmax' => '50px, .5fr', 'td' => 'overall_progress'],
+        ];
+
+        /**
+         * The CASE expression in the SELECT clause is used to calculate the overall progress of each parent job.
+         * If the parent job has no child jobs, the overall progress is 100.
+         * If the parent job has child jobs, the overall progress is the percentage of child jobs that have a job_status of 'processed'.
+         *
+         * The WHERE clause filters the rows in the tonics_jobs table to only include the parent jobs that have no parent job.
+         * The GROUP BY clause groups the rows by the job_name column, so that the COUNT and SUM aggregate functions are calculated for each parent job.
+         */
+        $select = "p.job_id as parent_id, p.job_name AS parent_name, p.job_status, p.created_at, p.time_completed, p.job_priority,
+        COUNT(j.job_id) AS total_child_jobs,
+        SUM(j.job_status = 'processed') AS completed_child_jobs, 
+        CASE
+            WHEN COUNT(j.job_id) = 0 THEN 100
+            ELSE ROUND((SUM(j.job_status = 'processed') / COUNT(*)) * 100)
+        END AS overall_progress";
+
+        $db = db();
+        $data = $db->Select($select)
+            ->From("$table p")
+            ->LeftJoin("$table j", 'j.job_parent_id', 'p.job_id')
+            ->WhereNull('p.job_parent_id')
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('p.job_name', url()->getParam('query'));
+            })
+            ->GroupBy('p.job_name')
+            ->OrderByDesc('p.job_priority')->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+
+        view('Modules::Core/Views/JobsManager/jobs_index', [
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => $data ?? []
+            ],
+            'SiteURL' => AppConfig::getAppUrl(),
+        ]);
 
     }
 

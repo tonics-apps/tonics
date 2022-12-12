@@ -8,7 +8,7 @@
         <tr>
             [[add_hook('Core::before_data_table_header')]]
             [[each("dtHeader in DataTable.headers")
-                <th [[each("dtHeaderKeyValue in dtHeader") data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"]]>
+                <th title="[[v('dtHeader.title')]]" [[each("dtHeaderKeyValue in dtHeader") data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"]]>
                     [[v('dtHeader.title')]]
                 </th>
             ]]
