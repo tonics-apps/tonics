@@ -36,8 +36,8 @@ class JobManagerController
 
         /**
          * The CASE expression in the SELECT clause is used to calculate the overall progress of each parent job.
-         * If the parent job has no child jobs, the overall progress is 100.
-         * If the parent job has child jobs, the overall progress is the percentage of child jobs that have a job_status of 'processed'.
+         * If the parent job has no child jobs  and its job_status is 'processed', the overall progress is 100.
+         * If the parent job has child jobs or its job_status is not 'processed', the overall progress will be calculated using the percentage of completed child jobs.
          *
          * The WHERE clause filters the rows in the tonics_jobs table to only include the parent jobs that have no parent job.
          * The GROUP BY clause groups the rows by the job_name column, so that the COUNT and SUM aggregate functions are calculated for each parent job.
@@ -46,7 +46,7 @@ class JobManagerController
         COUNT(j.job_id) AS total_child_jobs,
         SUM(j.job_status = 'processed') AS completed_child_jobs, 
         CASE
-            WHEN COUNT(j.job_id) = 0 THEN 100
+            WHEN COUNT(j.job_id) = 0 AND p.job_status = 'processed' THEN 100
             ELSE ROUND((SUM(j.job_status = 'processed') / COUNT(*)) * 100)
         END AS overall_progress";
 

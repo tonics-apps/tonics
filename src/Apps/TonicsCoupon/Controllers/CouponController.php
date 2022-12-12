@@ -14,6 +14,7 @@ use App\Apps\TonicsCoupon\Data\CouponData;
 use App\Apps\TonicsCoupon\Events\OnBeforeCouponSave;
 use App\Apps\TonicsCoupon\Events\OnCouponCreate;
 use App\Apps\TonicsCoupon\Events\OnCouponUpdate;
+use App\Apps\TonicsCoupon\Jobs\CouponFileImporter;
 use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
@@ -451,7 +452,7 @@ class CouponController
     /**
      * @throws \Exception
      */
-    public function importCouponItemsStore()
+    #[NoReturn] public function importCouponItemsStore()
     {
         FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
 
@@ -465,11 +466,13 @@ class CouponController
             redirect(route('tonicsCoupon.importCouponItems'));
         }
 
-        dd($fileInfo);
-        $items = Items::fromFile($file);
-        foreach ($items as $name => $data) {
-            dd($name, $data, input()->fromPost()->all());
-        }
+        $couponFileImporter = new CouponFileImporter();
+        $couponFileImporter->setJobName('CouponFileImporter');
+        $couponFileImporter->setData($fileInfo);
+        job()->enqueue($couponFileImporter);
+
+        session()->flash(['CouponFileImporter Job Enqueued, Check Job Lists For Progress'], type: Session::SessionCategories_FlashMessageSuccess);
+        redirect(route('tonicsCoupon.index'));
     }
 
     public static function getCacheKey(): string
