@@ -14,6 +14,7 @@ use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
+use JsonMachine\Exception\InvalidArgumentException;
 use JsonMachine\Items;
 
 class CouponFileImporter extends AbstractJobInterface implements JobHandlerInterface
@@ -24,18 +25,23 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
      */
     public function handle(): void
     {
-        if (isset($this->getData()->fullFilePath) && helper()->fileExists($this->getData()->fullFilePath)){
-            $couponJsonFilePath = $this->getData()->fullFilePath;
-            $this->handleFileImporting($couponJsonFilePath);
+        if(isset($this->getData()->fileInfo) && isset($this->getData()->settings)){
+            $dataFileInfo = $this->getData()->fileInfo;
+            if (isset($dataFileInfo->fullFilePath) && helper()->fileExists($dataFileInfo->fullFilePath)){
+                $couponJsonFilePath = $dataFileInfo->fullFilePath;
+                $this->handleFileImporting($couponJsonFilePath, $this->getData()->settings);
+            }
         }
+
     }
 
     /**
      * @param string $filePath
+     * @param $settings
      * @return void
-     * @throws \Exception
+     * @throws InvalidArgumentException
      */
-    protected function handleFileImporting(string $filePath): void
+    protected function handleFileImporting(string $filePath, $settings): void
     {
         $couponItemImport = new CouponItemImport();
         $couponItemImport->setJobName('CouponItemImport');
@@ -46,6 +52,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
             afterEnqueue: function ($enqueueData) use (&$parentData) {
                 $parentData = $enqueueData;
             });
+
 
         if ($parentData){
             $items = Items::fromFile($filePath);

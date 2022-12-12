@@ -468,7 +468,7 @@ class CouponController
 
         $couponFileImporter = new CouponFileImporter();
         $couponFileImporter->setJobName('CouponFileImporter');
-        $couponFileImporter->setData($fileInfo);
+        $couponFileImporter->setData(['fileInfo' => $fileInfo, 'settings' => $_POST]);
         job()->enqueue($couponFileImporter);
 
         session()->flash(['CouponFileImporter Job Enqueued, Check Job Lists For Progress'], type: Session::SessionCategories_FlashMessageSuccess);
