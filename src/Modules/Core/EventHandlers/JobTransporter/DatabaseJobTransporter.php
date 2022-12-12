@@ -104,16 +104,13 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
              * This effectively gets a list of all job_id values for jobs that have child jobs.
              * The outer query then filters out any jobs whose job_id is in the list of job_parent_id values, effectively excluding any jobs that have child jobs.
              *
-             * This approach can be efficient because it avoids using a subquery in the WHERE clause, which can potentially be slow.
-             *
-             * Instead, it uses the NOT IN operator, which can be optimized by the database engine to use an efficient index lookup, maybe.
              */
             $jobs = $db->run(<<<SQL
 SELECT * 
 FROM $table
 WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
 ORDER BY `job_priority` DESC
-LIMIT 10
+LIMIT ?
 FOR UPDATE
 SQL, Job::JobStatus_Queued, $limit);
 
@@ -123,6 +120,7 @@ SQL, Job::JobStatus_Queued, $limit);
                 usleep(100000);
                 continue;
             }
+
             foreach ($jobs as $job) {
                 try {
                     $this->infoMessage("Running job $job->job_name with an id of $job->job_id");

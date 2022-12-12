@@ -12,12 +12,29 @@ namespace App\Apps\TonicsCoupon\Jobs;
 
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
+use JsonMachine\Items;
 
 class CouponFileImporter extends AbstractJobInterface implements JobHandlerInterface
 {
 
+    /**
+     * @throws \Exception
+     */
     public function handle(): void
     {
-        // TODO: Implement handle() method.
+        $couponJsonFilePath = null;
+        if (isset($this->getData()->fullFilePath) && helper()->fileExists($this->getData()->fullFilePath)){
+            $couponJsonFilePath = $this->getData()->fullFilePath;
+            $this->handleFileImporting($couponJsonFilePath);
+        }
+        dd($couponJsonFilePath, $this->getData());
+    }
+
+    protected function handleFileImporting(string $filePath)
+    {
+        $items = Items::fromFile($filePath);
+        foreach ($items as $item) {
+            dd($item);
+        }
     }
 }

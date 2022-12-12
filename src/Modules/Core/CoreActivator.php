@@ -59,7 +59,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     {
         return [
             OnStartUpCLI::class => [
-                ScheduleManager::class,
+              //  ScheduleManager::class,
                 JobManager::class,
             ],
 
