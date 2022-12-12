@@ -55,16 +55,16 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
                 $parentData = $enqueueData;
             });
 
-        $couponNameField = '';
-        $couponLabelField = '';
-        $couponContentField = '';
-        $couponStatusField = '';
-        $couponCreatedAtField = '';
-        $couponExpiredAtField = '';
-        $couponImageURLField = '';
-        $couponTypeField = '';
-        $couponTypeDefaultToField = '';
-        $couponStatusDefaultToField = '';
+        $couponNameField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponName'] ?? 'coupon_name';
+        $couponLabelField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponLabel'] ?? 'coupon_label';
+        $couponContentField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponContent'] ?? 'coupon_content';
+        $couponStatusField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponStatus'] ?? 'coupon_status';
+        $couponStatusDefaultToField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponStatusDefaultTo'] ?? 0;
+        $couponCreatedAtField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponCreatedDate'] ?? 'created_at';
+        $couponExpiredAtField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponExpiredDate'] ?? 'expired_at';
+        $couponImageURLField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponImageURL'] ?? 'image_url';
+        $couponTypeField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponType'] ?? 'coupon_type';
+        $couponTypeDefaultToField = $settings['app_tonicscoupon_coupon_page_import_mapField_couponTypeDefaultTo'] ?? null;
 
         if ($parentData){
             $items = Items::fromFile($filePath);
