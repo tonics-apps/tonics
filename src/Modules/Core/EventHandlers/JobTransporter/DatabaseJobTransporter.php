@@ -106,7 +106,6 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
                 usleep(5000000); # Sleep for 5 seconds
                 continue;
             }
-            $db->beginTransaction();
 
             /**
              * This query first selects all rows from the jobs table where the job_status is 'queued'.
@@ -122,10 +121,10 @@ FROM $table
 WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
 ORDER BY `job_priority` DESC
 LIMIT ?
+FOR UPDATE SKIP LOCKED
 SQL, Job::JobStatus_Queued, $limit);
 
             if (empty($jobs)){
-                $db->commit();
                 # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
                 usleep(100000);
                 continue;
@@ -149,7 +148,6 @@ SQL, Job::JobStatus_Queued, $limit);
                     $this->errorMessage($exception->getMessage());
                 }
             }
-            $db->commit();
         }
     }
 

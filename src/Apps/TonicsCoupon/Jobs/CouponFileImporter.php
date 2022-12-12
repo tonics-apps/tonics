@@ -10,7 +10,6 @@
 
 namespace App\Apps\TonicsCoupon\Jobs;
 
-use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
@@ -30,9 +29,11 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
             if (isset($dataFileInfo->fullFilePath) && helper()->fileExists($dataFileInfo->fullFilePath)){
                 $couponJsonFilePath = $dataFileInfo->fullFilePath;
                 $this->handleFileImporting($couponJsonFilePath, $this->getData()->settings);
+                return;
             }
         }
 
+        throw new \Exception("No FileInfo or Settings Property Found in CouponFileImporter Data");
     }
 
     /**
@@ -40,6 +41,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
      * @param $settings
      * @return void
      * @throws InvalidArgumentException
+     * @throws \Exception
      */
     protected function handleFileImporting(string $filePath, $settings): void
     {
@@ -52,7 +54,6 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
             afterEnqueue: function ($enqueueData) use (&$parentData) {
                 $parentData = $enqueueData;
             });
-
 
         if ($parentData){
             $items = Items::fromFile($filePath);
