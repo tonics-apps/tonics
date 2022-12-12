@@ -109,8 +109,17 @@ trait Routes
                 }, [CoreAccess::class], alias: 'imports');
 
                 $route->group('/job_manager', function (Route $route) {
-                    $route->get('jobs', [JobManagerController::class, 'jobsIndex'], alias: 'jobsIndex');
-                    $route->get('jobs_scheduler', [JobManagerController::class, 'jobsSchedulerIndex'], alias: 'jobsSchedulerIndex');
+
+                    $route->group('jobs', function (Route $route){
+                        $route->post('', [JobManagerController::class, 'jobDataTable'],  alias: 'jobDataTable');
+                        $route->get('', [JobManagerController::class, 'jobsIndex'], alias: 'jobsIndex');
+                    });
+
+                    $route->group('jobs_scheduler', function (Route $route){
+                        $route->post('', [JobManagerController::class, 'jobSchedulerDataTable'],  alias: 'jobSchedulerDataTable');
+                        $route->get('', [JobManagerController::class, 'jobsSchedulerIndex'], alias: 'jobsSchedulerIndex');
+                    });
+
                 }, [CoreAccess::class], alias: 'jobs');
 
 

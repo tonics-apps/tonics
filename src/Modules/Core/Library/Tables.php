@@ -45,7 +45,7 @@ final class Tables
 
         self::SCHEDULER => [ 'schedule_id', 'schedule_name', 'schedule_parent_name', 'schedule_priority', 'schedule_data', 'schedule_parallel', 'schedule_ticks', 'schedule_ticks_max', 'schedule_every', 'schedule_next_run', 'created_at', 'updated_at'],
 
-        self::JOBS => [ 'job_id', 'job_group_name', 'job_status', 'job_priority', 'job_data', 'created_at', 'updated_at', 'time_completed'],
+        self::JOBS => [ 'job_id', 'job_name', 'job_status', 'job_priority', 'job_data', 'created_at', 'updated_at', 'time_completed'],
 
         self::COMMENT_USER_TYPE => [ 'comment_usertype_id', 'comment_usertype_name'],
         self::COMMENTS => [ 'id', 'fk_comment_usertype_id', 'comment_id', 'comment_parent_id', 'comment_body', 'comment_status', 'comment_others', 'ip_bin', 'ip_to_text', 'agent', 'created_at', 'updated_at'],

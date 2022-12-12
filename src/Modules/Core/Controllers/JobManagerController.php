@@ -11,12 +11,22 @@
 namespace App\Modules\Core\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Library\JobSystem\Job;
+use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class JobManagerController
 {
+    private AbstractDataLayer $dataLayer;
+
+    /**
+     * @param AbstractDataLayer $dataLayer
+     */
+    public function __construct(AbstractDataLayer $dataLayer)
+    {
+        $this->dataLayer = $dataLayer;
+    }
+
     /**
      * @throws \Exception
      */
@@ -74,6 +84,50 @@ class JobManagerController
     /**
      * @throws \Exception
      */
+    public function jobDataTable(): void
+    {
+        $entityBag = null;
+        if ($this->getDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->jobDeleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        }
+    }
+
+    /**
+     * @param $entityBag
+     * @return bool|int
+     */
+    protected function jobDeleteMultiple($entityBag): bool|int
+    {
+        $toDelete = [];
+        try {
+            $deleteItems = $this->getDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
+            foreach ($deleteItems as $deleteItem) {
+                foreach ($deleteItem as $col => $value) {
+                    $tblCol = $this->getDataLayer()->validateTableColumnForDataTable($col, ['job_id']);
+                    if ($tblCol[1] === 'job_id') {
+                        $toDelete[] = $value;
+                    }
+                }
+            }
+
+            db()->FastDelete(Tables::getTable(Tables::JOBS), db()->WhereIn('job_id', $toDelete));
+            return true;
+        } catch (\Exception $exception) {
+            // log..
+            return false;
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function jobsSchedulerIndex()
     {
         $table = Tables::getTable(Tables::SCHEDULER);
@@ -100,5 +154,13 @@ class JobManagerController
             ],
             'SiteURL' => AppConfig::getAppUrl(),
         ]);
+    }
+
+    /**
+     * @return AbstractDataLayer
+     */
+    public function getDataLayer(): AbstractDataLayer
+    {
+        return $this->dataLayer;
     }
 }
