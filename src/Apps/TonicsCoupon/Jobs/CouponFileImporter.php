@@ -55,6 +55,17 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
                 $parentData = $enqueueData;
             });
 
+        $couponNameField = '';
+        $couponLabelField = '';
+        $couponContentField = '';
+        $couponStatusField = '';
+        $couponCreatedAtField = '';
+        $couponExpiredAtField = '';
+        $couponImageURLField = '';
+        $couponTypeField = '';
+        $couponTypeDefaultToField = '';
+        $couponStatusDefaultToField = '';
+
         if ($parentData){
             $items = Items::fromFile($filePath);
             foreach ($items as $item) {
