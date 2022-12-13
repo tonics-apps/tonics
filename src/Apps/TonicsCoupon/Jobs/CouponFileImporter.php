@@ -10,6 +10,7 @@
 
 namespace App\Apps\TonicsCoupon\Jobs;
 
+use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
@@ -67,7 +68,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
         $couponTypeDefaultToField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponTypeDefaultTo ?? null;
 
         $helper = helper();
-
+        $db = db();
         if ($parentData){
             $items = Items::fromFile($filePath);
             foreach ($items as $item) {
@@ -76,41 +77,47 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
                 $couponItemImport->setJobParentID($parentData->job_id);
                 $newItem = [];
                 if (isset($item->{$couponNameField})){
-                    $newItem[$couponNameField] = $item->{$couponNameField};
+                    $newItem['coupon_name'] = $item->{$couponNameField};
                     $newItem['coupon_slug'] = $helper->slug($item->{$couponNameField});
 
                     if (isset($item->{$couponLabelField})){
-                        $newItem[$couponLabelField] = $item->{$couponLabelField};
+                        $newItem['coupon_label'] = $item->{$couponLabelField};
                     }
                     if (isset($item->{$couponContentField})){
-                        $newItem[$couponContentField] = $item->{$couponContentField};
+                        $newItem['coupon_content'] = $item->{$couponContentField};
                     }
                     if (isset($item->{$couponStatusField})){
-                        $newItem[$couponStatusField] = $item->{$couponStatusField};
+                        $newItem['coupon_status'] = $item->{$couponStatusField};
                     } else {
                         $newItem['coupon_status'] = $couponStatusDefaultToField;
                     }
 
                     if (isset($item->{$couponCreatedAtField})){
-                        $newItem[$couponCreatedAtField] = $item->{$couponCreatedAtField};
+                        $newItem['created_at'] = $item->{$couponCreatedAtField};
+                    } else {
+                        $newItem['created_at'] = helper()->date();
                     }
 
                     if (isset($item->{$couponExpiredAtField})){
-                        $newItem[$couponExpiredAtField] = $item->{$couponExpiredAtField};
+                        $newItem['expired_at'] = $item->{$couponExpiredAtField};
                     }
 
                     if (isset($item->{$couponImageURLField})){
-                        $newItem[$couponImageURLField] = $item->{$couponImageURLField};
+                        $newItem['image_url'] = $item->{$couponImageURLField};
                     }
 
                     if (isset($item->{$couponTypeField})){
                         $newItem[$couponTypeField] = $item->{$couponTypeField};
-                        $newItem['typeDefaultTo'] = $couponTypeDefaultToField;
+                        $fkCouponTypeID = db()->Select('coupon_type_id')->From(TonicsCouponActivator::couponTypeTableName())
+                            ->WhereEquals('coupon_type_slug', $item->{$couponTypeField})
+                            ->OrWhereEquals('coupon_type_name', $item->{$couponTypeField})
+                            ->FetchFirst();
+                        if (isset($fkCouponTypeID->coupon_type_id)){
+                            $newItem['fk_coupon_type_id'] = $fkCouponTypeID->coupon_type_id;
+                        }
                     } else {
                         $newItem['fk_coupon_type_id'] = $couponTypeDefaultToField;
                     }
-
-                    dd($newItem);
 
                     $couponItemImport->setData($newItem);
                     $job->enqueue($couponItemImport);
