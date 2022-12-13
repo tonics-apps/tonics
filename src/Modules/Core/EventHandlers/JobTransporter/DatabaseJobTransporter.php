@@ -145,7 +145,7 @@ SQL, Job::JobStatus_Queued, $limit);
                     $update = ['job_status' => Job::JobStatus_Failed];
                     $this->infoMessage("Job $job->job_name failed, with an id of $job->job_id");
                     $db->FastUpdate($table, $update, $db->Q()->WhereEquals('job_id', $job->job_id));
-                    $this->errorMessage($exception->getMessage());
+                    $this->errorMessage($exception->getMessage() . $exception->getTraceAsString());
                 }
             }
         }
