@@ -121,7 +121,7 @@ FROM $table
 WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
 ORDER BY `job_priority` DESC
 LIMIT ?
-FOR UPDATE SKIP LOCKED
+FOR UPDATE
 SQL, Job::JobStatus_Queued, $limit);
 
             if (empty($jobs)){
@@ -141,9 +141,10 @@ SQL, Job::JobStatus_Queued, $limit);
 
                     $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
                     $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+                    $this->infoMessage("Completed job $job->job_name with an id of $job->job_id");
                 } catch (\Throwable $exception) {
                     $update = ['job_status' => Job::JobStatus_Failed];
-                    $this->infoMessage("Job $job->job_name failed, with an id of $job->job_id");
+                    $this->errorMessage("Job $job->job_name failed, with an id of $job->job_id");
                     $db->FastUpdate($table, $update, $db->Q()->WhereEquals('job_id', $job->job_id));
                     $this->errorMessage($exception->getMessage() . $exception->getTraceAsString());
                 }

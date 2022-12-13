@@ -46,7 +46,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
      */
     protected function handleFileImporting(string $filePath, $settings): void
     {
-        $couponItemImport = new CouponItemImport();
+        $couponItemImport = container()->get(CouponItemImport::class);
         $couponItemImport->setJobName('CouponItemImport');
         $couponItemImport->setJobStatus(Job::JobStatus_InProgress);
         $job = \job();
@@ -66,9 +66,9 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
         $couponImageURLField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponImageURL ?? 'image_url';
         $couponTypeField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponType ?? 'coupon_type';
         $couponTypeDefaultToField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponTypeDefaultTo ?? null;
+        $couponTypeUserID = $settings->app_tonicscoupon_coupon_page_import_mapField_couponTypeUserID ?? null;
 
         $helper = helper();
-        $db = db();
         if ($parentData){
             $items = Items::fromFile($filePath);
             foreach ($items as $item) {
@@ -79,6 +79,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
                 if (isset($item->{$couponNameField})){
                     $newItem['coupon_name'] = $item->{$couponNameField};
                     $newItem['coupon_slug'] = $helper->slug($item->{$couponNameField});
+                    $newItem['user_id'] = $couponTypeUserID;
 
                     if (isset($item->{$couponLabelField})){
                         $newItem['coupon_label'] = $item->{$couponLabelField};

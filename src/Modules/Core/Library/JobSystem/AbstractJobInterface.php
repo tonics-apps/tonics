@@ -82,6 +82,22 @@ class AbstractJobInterface
     }
 
     /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return (array)$this->data;
+    }
+
+    /**
+     * @return object
+     */
+    public function getDataAsObject(): object
+    {
+        return (object)$this->data;
+    }
+
+    /**
      * @param mixed $data
      * @return AbstractJobInterface
      */

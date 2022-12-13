@@ -39,6 +39,7 @@ class JobManagerController
             ['type' => '', 'slug' => Tables::JOBS . '::' . 'job_status', 'title' => 'Status', 'minmax' => '50px, .5fr', 'td' => 'job_status'],
             ['type' => '', 'slug' => Tables::JOBS . '::' . 'total_child_jobs', 'title' => 'Child Jobs', 'minmax' => '50px, .5fr', 'td' => 'total_child_jobs'],
             ['type' => '', 'slug' => Tables::JOBS . '::' . 'completed_child_jobs', 'title' => 'Processed Child Jobs', 'minmax' => '80px, 1fr', 'td' => 'completed_child_jobs'],
+            ['type' => '', 'slug' => Tables::JOBS . '::' . 'failed_child_jobs', 'title' => 'Failed Child Jobs', 'minmax' => '80px, 1fr', 'td' => 'failed_child_jobs'],
             ['type' => '', 'slug' => Tables::JOBS . '::' . 'created_at', 'title' => 'Created At', 'minmax' => '100px, 1fr', 'td' => 'created_at'],
             ['type' => '', 'slug' => Tables::JOBS . '::' . 'time_completed', 'title' => 'Completed At', 'minmax' => '100px, 1fr', 'td' => 'time_completed'],
             ['type' => '', 'slug' => Tables::JOBS . '::' . 'overall_progress', 'title' => 'Progress', 'minmax' => '50px, .5fr', 'td' => 'overall_progress'],
@@ -55,6 +56,7 @@ class JobManagerController
         $select = "p.job_id as parent_id, p.job_name AS parent_name, p.job_status, p.created_at, p.time_completed, p.job_priority,
         COUNT(j.job_id) AS total_child_jobs,
         SUM(j.job_status = 'processed') AS completed_child_jobs, 
+        SUM(j.job_status = 'failed') AS failed_child_jobs,
         CASE
             WHEN COUNT(j.job_id) = 0 AND p.job_status = 'processed' THEN 100
             ELSE ROUND((SUM(j.job_status = 'processed') / COUNT(*)) * 100)

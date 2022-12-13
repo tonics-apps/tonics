@@ -23,7 +23,6 @@ use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
@@ -39,7 +38,7 @@ use JsonMachine\Items;
 
 class CouponController
 {
-    use UniqueSlug, Validator, CouponValidationRules, ConsoleColor;
+    use UniqueSlug, Validator, CouponValidationRules;
 
     private CouponData $couponData;
     private UserData $userData;
@@ -175,7 +174,7 @@ class CouponController
      * Store a newly created resource in storage.
      * @throws \Exception
      */
-    #[NoReturn] public function store(): void
+    public function store(): void
     {
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
@@ -198,7 +197,7 @@ class CouponController
                 redirect(route('tonicsCoupon.create'));
             }
 
-            $this->errorMessage($validator->errorsAsString());
+            throw new \Exception($validator->errorsAsString());
         }
 
         # Storing db reference is the only way I got tx to work
@@ -222,7 +221,6 @@ class CouponController
                 redirect(route('tonicsCoupon.edit', ['coupon' => $onCouponCreate->getCouponSlug()]));
             }
 
-            $this->successMessage('Coupon Created');
         } catch (\Exception $exception) {
             // log..
             $db->rollBack();
@@ -230,8 +228,8 @@ class CouponController
                 session()->flash(['An Error Occurred, Creating Coupon'], input()->fromPost()->all());
                 redirect(route('tonicsCoupon.create'));
             }
-
-            $this->errorMessage($exception->getMessage() . ' ' . $exception->getTraceAsString());
+            # Rethrow in CLI
+            throw $exception;
         }
     }
 
@@ -300,7 +298,7 @@ class CouponController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    #[NoReturn] public function update(string $slug)
+    public function update(string $slug)
     {
         $this->couponData->setDefaultCouponTypeIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->couponUpdateRule());
@@ -310,8 +308,12 @@ class CouponController
         }
 
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('tonicsCoupon.edit', [$slug]));
+            if (!$this->isUserInCLI){
+                session()->flash($validator->getErrors(), input()->fromPost()->all());
+                redirect(route('tonicsCoupon.edit', [$slug]));
+            }
+
+            throw new \Exception($validator->errorsAsString());
         }
 
         $db = db();
@@ -340,8 +342,6 @@ class CouponController
                 }
                 redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
             }
-
-            $this->successMessage('Coupon Updated');
         } catch (\Exception $exception) {
             $db->rollBack();
             // log..
@@ -349,8 +349,8 @@ class CouponController
                 session()->flash(['Error Occur Updating Coupon'], $updateChanges);
                 redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
             }
-
-            $this->errorMessage($exception->getMessage() . ' ' . $exception->getTraceAsString());
+            # Rethrow in CLI
+            throw $exception;
         }
     }
 
@@ -551,6 +551,22 @@ class CouponController
     public function getFieldData(): FieldData
     {
         return $this->getCouponData()->getFieldData();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUserInCLI(): bool
+    {
+        return $this->isUserInCLI;
+    }
+
+    /**
+     * @param bool $isUserInCLI
+     */
+    public function setIsUserInCLI(bool $isUserInCLI): void
+    {
+        $this->isUserInCLI = $isUserInCLI;
     }
 
 }
