@@ -98,7 +98,6 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     public function runJob(): void
     {
         $db = db(true);
-        $limit = AppConfig::getJobLimit();
         $table = $this->getTable();
         while (true) {
             if (AppConfig::isMaintenanceMode()){
@@ -122,7 +121,7 @@ WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table W
 ORDER BY `job_priority` DESC
 LIMIT ?
 FOR UPDATE SKIP LOCKED
-SQL, Job::JobStatus_Queued, $limit);
+SQL, Job::JobStatus_Queued, 1);
 
             if (empty($jobs)){
                 # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things

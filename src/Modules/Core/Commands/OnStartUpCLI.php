@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Commands;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\ConsoleColor;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
@@ -59,7 +60,7 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
                 $command = new $class;
                 $this->infoMessage("Running $class");
                 if ($parallel){
-                    $helper->fork(1, onChild: function () use ($class, $command) {
+                    $helper->fork(AppConfig::getAppCLIForkLimit(), onChild: function () use ($class, $command) {
                         cli_set_process_title("$class");
                         $command->run([]);
                     }, beforeOnChild: function ($pid) use (&$pIDS){
