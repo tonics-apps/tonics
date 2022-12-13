@@ -113,10 +113,10 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
                             ->OrWhereEquals('coupon_type_name', $item->{$couponTypeField})
                             ->FetchFirst();
                         if (isset($fkCouponTypeID->coupon_type_id)){
-                            $newItem['fk_coupon_type_id'] = $fkCouponTypeID->coupon_type_id;
+                            $newItem['fk_coupon_type_id'] = [$fkCouponTypeID->coupon_type_id];
                         }
                     } else {
-                        $newItem['fk_coupon_type_id'] = $couponTypeDefaultToField;
+                        $newItem['fk_coupon_type_id'] = [$couponTypeDefaultToField];
                     }
 
                     $couponItemImport->setData($newItem);

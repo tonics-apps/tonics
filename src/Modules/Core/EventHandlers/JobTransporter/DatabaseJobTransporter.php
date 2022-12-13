@@ -154,13 +154,14 @@ SQL, Job::JobStatus_Queued, $limit);
     /**
      * @param $job
      * @return void
+     * @throws \Exception
      */
     public function handleIndividualJob($job): void
     {
         $jobData = json_decode($job->job_data);
         if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class, true)) {
             /** @var AbstractJobInterface $jobObject */
-            $jobObject = new $jobData->class;
+            $jobObject = container()->get($jobData->class);
             $jobObject->setData($jobData->data ?? []);
             if ($jobObject instanceof JobHandlerInterface) {
                 $jobObject->handle();

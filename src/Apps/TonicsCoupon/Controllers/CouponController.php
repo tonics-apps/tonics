@@ -23,6 +23,7 @@ use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
@@ -38,10 +39,12 @@ use JsonMachine\Items;
 
 class CouponController
 {
-    use UniqueSlug, Validator, CouponValidationRules;
+    use UniqueSlug, Validator, CouponValidationRules, ConsoleColor;
 
     private CouponData $couponData;
     private UserData $userData;
+
+    private bool $isUserInCLI = false;
 
     /**
      * @param CouponData $couponData
@@ -174,7 +177,6 @@ class CouponController
      */
     #[NoReturn] public function store(): void
     {
-
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
         }
@@ -189,13 +191,18 @@ class CouponController
 
         $this->couponData->setDefaultCouponTypeIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->couponStoreRule());
+
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('tonicsCoupon.create'));
+            if (!$this->isUserInCLI){
+                session()->flash($validator->getErrors(), input()->fromPost()->all());
+                redirect(route('tonicsCoupon.create'));
+            }
+
+            $this->errorMessage($validator->errorsAsString());
         }
 
         # Storing db reference is the only way I got tx to work
-        # this could be as a result of pass db() around in event handlers
+        # this could be as a result of passing db() around in event handlers
         $db = db();
         try {
             $db->beginTransaction();
@@ -210,16 +217,22 @@ class CouponController
             $onCouponCreate = new OnCouponCreate($couponReturning, $this->couponData);
             event()->dispatch($onCouponCreate);
             $db->commit();
+            if (!$this->isUserInCLI){
+                session()->flash(['Coupon Created'], type: Session::SessionCategories_FlashMessageSuccess);
+                redirect(route('tonicsCoupon.edit', ['coupon' => $onCouponCreate->getCouponSlug()]));
+            }
 
-            session()->flash(['Coupon Created'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('tonicsCoupon.edit', ['coupon' => $onCouponCreate->getCouponSlug()]));
+            $this->successMessage('Coupon Created');
         } catch (\Exception $exception) {
             // log..
             $db->rollBack();
-            session()->flash(['An Error Occurred, Creating Coupon'], input()->fromPost()->all());
-            redirect(route('tonicsCoupon.create'));
-        }
+            if (!$this->isUserInCLI){
+                session()->flash(['An Error Occurred, Creating Coupon'], input()->fromPost()->all());
+                redirect(route('tonicsCoupon.create'));
+            }
 
+            $this->errorMessage($exception->getMessage() . ' ' . $exception->getTraceAsString());
+        }
     }
 
     /**
@@ -319,18 +332,25 @@ class CouponController
 
             # For Fields
             $slug = $updateChanges['coupon_slug'];
-            if (input()->fromPost()->has('_fieldErrorEmitted') === true) {
-                session()->flash(['Coupon Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
-            } else {
-                session()->flash(['Coupon Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            if (!$this->isUserInCLI){
+                if (input()->fromPost()->has('_fieldErrorEmitted') === true) {
+                    session()->flash(['Coupon Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+                } else {
+                    session()->flash(['Coupon Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+                }
+                redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
             }
-            redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
 
+            $this->successMessage('Coupon Updated');
         } catch (\Exception $exception) {
             $db->rollBack();
             // log..
-            session()->flash(['Error Occur Updating Coupon'], $updateChanges);
-            redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
+            if (!$this->isUserInCLI){
+                session()->flash(['Error Occur Updating Coupon'], $updateChanges);
+                redirect(route('tonicsCoupon.edit', ['coupon' => $slug]));
+            }
+
+            $this->errorMessage($exception->getMessage() . ' ' . $exception->getTraceAsString());
         }
     }
 

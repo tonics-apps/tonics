@@ -10,14 +10,38 @@
 
 namespace App\Apps\TonicsCoupon\Jobs;
 
+use App\Apps\TonicsCoupon\Controllers\CouponController;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 
 class CouponItemImport extends AbstractJobInterface implements JobHandlerInterface
 {
+    private CouponController $couponController;
+
+    public function __construct(CouponController $couponController)
+    {
+        $this->couponController = $couponController;
+    }
 
     public function handle(): void
     {
+        dd($this);
         dd($this->getData());
+    }
+
+    /**
+     * @return CouponController
+     */
+    public function getCouponController(): CouponController
+    {
+        return $this->couponController;
+    }
+
+    /**
+     * @param CouponController $couponController
+     */
+    public function setCouponController(CouponController $couponController): void
+    {
+        $this->couponController = $couponController;
     }
 }
