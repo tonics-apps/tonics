@@ -121,7 +121,7 @@ FROM $table
 WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
 ORDER BY `job_priority` DESC
 LIMIT ?
-FOR UPDATE
+FOR UPDATE SKIP LOCKED
 SQL, Job::JobStatus_Queued, $limit);
 
             if (empty($jobs)){
