@@ -11,10 +11,14 @@
 namespace App\Apps\NinetySeven\EventHandler;
 
 use App\Apps\NinetySeven\Controller\NinetySevenController;
+use App\Apps\TonicsCoupon\Data\CouponData;
+use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Page\Events\BeforePageView;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class HandlePages implements HandlerInterface
 {
@@ -38,6 +42,7 @@ class HandlePages implements HandlerInterface
             case '/'; $this->handleHomePage($event); break;
             case '/categories'; $event->setViewName('Apps::NinetySeven/Views/Page/category-page'); break;
             case '/posts'; $event->setViewName('Apps::NinetySeven/Views/Page/post-page'); break;
+            case '/coupons'; $this->handleCouponPage($event);
         }
     }
 
@@ -147,5 +152,45 @@ class HandlePages implements HandlerInterface
         $fieldSettings['NinetySevenHomePage'] = $ninetySevenHomePage;
         $event->setFieldSettings($fieldSettings);
         $ninetySevenHomePage = null;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function handleCouponPage(BeforePageView $event)
+    {
+        $event->setViewName('Apps::NinetySeven/Views/Page/coupon-page');
+        $fieldSettings = $event->getFieldSettings();
+        $couponTableName = TonicsCouponActivator::couponTableName();
+        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+        $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
+        $userTable = Tables::getTable(Tables::USERS);
+
+        $couponData = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())
+            ->From($couponToTypeTableName)
+            ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+            ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
+            ->when(url()->hasParamAndValue('status'),
+                function (TonicsQuery $db) {
+                    $db->WhereEquals('coupon_status', url()->getParam('status'));
+                },
+                function (TonicsQuery $db) {
+                    $db->WhereEquals('coupon_status', 1);
+
+                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                $db->WhereLike('coupon_name', url()->getParam('query'));
+
+            })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
+                $db->WhereIn('coupon_type_id', url()->getParam('cat'));
+
+            })
+            ->GroupBy('coupon_id')
+            ->OrderByDesc(table()->pickTable($couponTableName, ['expired_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+
+        // dd($couponData);
+
+        $fieldSettings['TonicsCouponData'] = $couponData;
+        $event->setFieldSettings($fieldSettings);
     }
 }

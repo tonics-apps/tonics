@@ -360,6 +360,8 @@ HTML;
                     Tables::getTable(Tables::USERS) => ['user_name', 'email']
                 ]
             )
+            . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.coupon_label')) as coupon_label"
+            . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.coupon_url')) as coupon_out_url"
             . ', GROUP_CONCAT(CONCAT(coupon_type_id, "::", coupon_type_slug ) ) as fk_coupon_type_id'
             . ", CONCAT('/admin/tonics_coupon/', coupon_slug, '/edit') as _edit_link, CONCAT_WS('/', '/coupon', $couponTableName.slug_id, coupon_slug) as _preview_link ";
     }

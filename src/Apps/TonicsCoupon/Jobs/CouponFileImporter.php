@@ -60,6 +60,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
         $couponLabelField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponLabel ?? 'coupon_label';
         $couponContentField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponContent ?? 'coupon_content';
         $couponStatusField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponStatus ?? 'coupon_status';
+        $couponURLField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponURL ?? 'coupon_url';
         $couponStatusDefaultToField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponStatusDefaultTo ?? 0;
         $couponCreatedAtField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponCreatedDate ?? 'created_at';
         $couponExpiredAtField = $settings->app_tonicscoupon_coupon_page_import_mapField_couponExpiredDate ?? 'expired_at';
@@ -92,7 +93,9 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
                     } else {
                         $newItem['coupon_status'] = $couponStatusDefaultToField;
                     }
-
+                    if (isset($item->{$couponURLField})){
+                        $newItem['coupon_url'] = $item->{$couponURLField};
+                    }
                     if (isset($item->{$couponCreatedAtField})){
                         $newItem['created_at'] = $item->{$couponCreatedAtField};
                     } else {

@@ -612,6 +612,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     width: 90%;
 }
 
+.width\:80\% {
+    width: 80%;
+}
+
 .max-width\:300px {
     max-width: 300px;
 }

@@ -480,8 +480,7 @@ fieldset {
 
 /* SEARCH EXPERIENCE */
 .filter-search-admin {
-    background: #f2f2f5;
-    width: clamp(40%, (800px - 100vw) * 1000, 70%);
+    width: clamp(50%, (800px - 100vw) * 1000, 70%);
 }
 
 /*--------------------------------------------------------------
