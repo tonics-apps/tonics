@@ -17,6 +17,11 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class PageTemplateFieldSelection implements HandlerInterface
 {
 
+    /**
+     * @param object $event
+     * @return void
+     * @throws \Exception
+     */
     public function handleEvent(object $event): void
     {
         /** @var $event OnFieldMetaBox */
@@ -29,9 +34,7 @@ class PageTemplateFieldSelection implements HandlerInterface
             }, userForm: function ($data) use ($event) {
             return $this->userForm($event, $data);
         },
-            handleViewProcessing: function ($data) use ($event) {
-                return '';
-            }
+            handleViewProcessing: function () {}
         );
     }
 

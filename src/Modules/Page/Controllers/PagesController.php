@@ -22,6 +22,7 @@ use App\Modules\Page\Data\PageData;
 use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
+use App\Modules\Page\Events\OnPageTemplate;
 use App\Modules\Page\Rules\PageValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
@@ -47,14 +48,24 @@ class PagesController
      */
     public function index(): void
     {
+        $onPageTemplateEvent = new OnPageTemplate();
+        event()->dispatch($onPageTemplateEvent);
+        $templateNames = $onPageTemplateEvent->getTemplateNames();
+        $pageTemplateSelectDataAttribute = '';
+        foreach ($templateNames as $templateName => $templateClass) {
+            $pageTemplateSelectDataAttribute .= $templateName . ',';
+        }
+
         $table = Tables::getTable(Tables::PAGES);
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::PAGES . '::' . 'page_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'page_id'],
             ['type' => 'text', 'slug' => Tables::PAGES . '::' . 'page_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'page_title'],
+            ['type' => 'select', 'slug' => Tables::PAGES . '::' . 'page_template', 'title' => 'Template', 'minmax' => '150px, 1.6fr', 'select_data' => "$pageTemplateSelectDataAttribute", 'td' => 'page_template'],
             ['type' => 'date_time_local', 'slug' => Tables::PAGES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
+        $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link, 
+        JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.page_template")) as page_template';
 
         $data = db()->Select($tblCol)
             ->From($table)
@@ -72,7 +83,6 @@ class PagesController
                 $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
             })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
-
 
         view('Modules::Page/Views/index', [
             'DataTable' => [
