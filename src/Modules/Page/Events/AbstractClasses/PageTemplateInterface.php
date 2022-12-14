@@ -10,6 +10,8 @@
 
 namespace App\Modules\Page\Events\AbstractClasses;
 
+use App\Modules\Page\Events\OnPageTemplate;
+
 interface PageTemplateInterface
 {
     /**
@@ -21,6 +23,6 @@ interface PageTemplateInterface
     /**
      * @return void
      */
-    public function handleTemplate(): void;
+    public function handleTemplate(OnPageTemplate $pageTemplate): void;
 
 }

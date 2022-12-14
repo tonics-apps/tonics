@@ -27,6 +27,7 @@ class CreatePagesTable_2022_01_13_202136 extends Migration {
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `page_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `field_ids` longtext DEFAULT '{}' CHECK (json_valid(`field_ids`)),
+  `page_template` varchar(255) DEFAULT NULL,
   `page_title` varchar(255) NOT NULL,
   `page_slug` varchar(255) NOT NULL,
   `page_status` tinyint(4) NOT NULL DEFAULT 1,  

@@ -15,7 +15,9 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
 class OnPageTemplate implements EventInterface
 {
+    private array $fieldSettings = [];
     private array $templateNames = [];
+    private string $viewName = '';
 
     public function event(): static
     {
@@ -63,5 +65,37 @@ class OnPageTemplate implements EventInterface
     public function setTemplateNames(array $templateNames): void
     {
         $this->templateNames = $templateNames;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFieldSettings(): array
+    {
+        return $this->fieldSettings;
+    }
+
+    /**
+     * @param array $fieldSettings
+     */
+    public function setFieldSettings(array $fieldSettings): void
+    {
+        $this->fieldSettings = $fieldSettings;
+    }
+
+    /**
+     * @return string
+     */
+    public function getViewName(): string
+    {
+        return $this->viewName;
+    }
+
+    /**
+     * @param string $viewName
+     */
+    public function setViewName(string $viewName): void
+    {
+        $this->viewName = $viewName;
     }
 }

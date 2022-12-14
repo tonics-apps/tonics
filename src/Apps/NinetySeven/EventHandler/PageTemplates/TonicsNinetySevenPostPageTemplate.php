@@ -28,7 +28,7 @@ class TonicsNinetySevenPostPageTemplate implements PageTemplateInterface, Handle
         return 'TonicsNinetySeven_PostPageTemplate';
     }
 
-    public function handleTemplate(): void
+    public function handleTemplate(OnPageTemplate $pageTemplate): void
     {
         dd('Handle Post Page');
     }

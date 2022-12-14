@@ -419,6 +419,7 @@ SQL, ...$parameter);
             foreach ($updateItems as $updateItem) {
                 $db = db();
                 $updateChanges = [];
+                $updateChangesNoColPrefix = [];
                 $colForEvent = [];
                 foreach ($updateItem as $col => $value) {
                     $tblCol = $this->validateTableColumnForDataTable($col);
@@ -428,6 +429,7 @@ SQL, ...$parameter);
 
                     $colForEvent[$tblCol[1]] = $value;
                     $updateChanges[$setCol] = $value;
+                    $updateChangesNoColPrefix[$tblCol[1]] = $value;
                 }
 
                 # Validate The col and type
@@ -437,6 +439,14 @@ SQL, ...$parameter);
                 }
 
                 $ID = $updateChanges[table()->getColumn($table, $id)];
+                if (table()->hasColumn($table, 'field_settings')){
+                    $fieldSettings = $db->Select('field_settings')->From($table)->WhereEquals($id, $ID)->FetchFirst();
+                    if (isset($fieldSettings->field_settings)){
+                        $fieldSettings = json_decode($fieldSettings->field_settings, true);
+                        $fieldSettings = [...$fieldSettings, ...$updateChangesNoColPrefix];
+                        $updateChanges[table()->getColumn($table, 'field_settings')] = json_encode($fieldSettings);
+                    }
+                }
                 $db->FastUpdate($table, $updateChanges, db()->Where($id, '=', $ID));
                 if ($onSuccess){
                     $onSuccess($colForEvent, $entityBag);

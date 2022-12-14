@@ -64,8 +64,7 @@ class PagesController
             ['type' => 'date_time_local', 'slug' => Tables::PAGES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link, 
-        JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.page_template")) as page_template';
+        $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
 
         $data = db()->Select($tblCol)
             ->From($table)
@@ -294,16 +293,27 @@ class PagesController
             $fieldSettings = [...$fieldSettings, ...(array)$page];
         }
 
-        $pagePath = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()?->getFullRoutePath();
-        /** @var $beforePageViewEvent BeforePageView */
-        $beforePageViewEvent = event()->dispatch(new BeforePageView($fieldSettings, $pagePath));
+        $onPageTemplateEvent = new OnPageTemplate();
+        $onPageTemplateEvent->setFieldSettings($fieldSettings);
+        event()->dispatch($onPageTemplateEvent);
+        if (isset($fieldSettings['page_template']) && $onPageTemplateEvent->exist($fieldSettings['page_template'])){
+            $pageTemplateObject = $onPageTemplateEvent->getTemplate($fieldSettings['page_template']);
+            $pageTemplateObject->handleTemplate($onPageTemplateEvent);
 
-        $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
-        $fieldSettings = $beforePageViewEvent->getFieldSettings();
-        $fieldSlugs = $this->getFieldSlug($fieldSettings);
-        $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings, $beforePageViewEvent->isCacheData());
+            $fieldSettings = $onPageTemplateEvent->getFieldSettings();
+            $pagePath = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()?->getFullRoutePath();
+            /** @var $beforePageViewEvent BeforePageView */
+            $beforePageViewEvent = event()->dispatch(new BeforePageView($fieldSettings, $pagePath));
+            $fieldSettings = $beforePageViewEvent->getFieldSettings();
 
-        view($beforePageViewEvent->getViewName());
+            $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
+            $fieldSlugs = $this->getFieldSlug($fieldSettings);
+            $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings);
+            view($onPageTemplateEvent->getViewName());
+            return;
+        }
+
+        die('No Valid Page Template');
     }
 
     /**
