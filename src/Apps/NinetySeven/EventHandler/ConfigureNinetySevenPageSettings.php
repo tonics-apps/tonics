@@ -24,20 +24,11 @@ class ConfigureNinetySevenPageSettings implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        addToGlobalVariable('Assets', ['css' => AppConfig::getAppAsset('NinetySeven', 'css/styles.min.css')]);
-
         /** @var $event BeforePageView */
         # Load Some Settings Option From Theme
         $ninetySevenSettings = NinetySevenController::getSettingData();
         unset($ninetySevenSettings['_fieldDetails']);
         $fieldSettings = [...$event->getFieldSettings(), ...$ninetySevenSettings];
         $event->setFieldSettings($fieldSettings);
-
-       /* switch ($event->getPagePath()){
-            case '/'; $this->handleHomePage($event); break;
-            case '/categories'; $event->setViewName('Apps::NinetySeven/Views/Page/category-page'); break;
-            case '/posts'; $event->setViewName('Apps::NinetySeven/Views/Page/post-page'); break;
-            case '/coupons'; $this->handleCouponPage($event);
-        }*/
     }
 }

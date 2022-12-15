@@ -23,3 +23,36 @@ COUPON TYPE ROUTES
 [[- Pass an update slug arg to arg('1') -]]
 [[b('Coupon::Type::route::posts.update')/admin/tonics_coupon/type/[[arg('1')]]/update]]
 [[b('Coupon::Type::route::slug')[[v('Data.coupon_type_slug')]]]]
+
+[[- PAGINATION -]]
+[[b('Coupon::Pagination')
+<div class="d:flex flex-gap justify-content:center padding:default flex-wrap:wrap">
+    [[if("v[Data.TonicsCouponData.prev_page_url]")
+    <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
+       title="Previous" href="[[v('Data.TonicsCouponData.prev_page_url')]]#tonicsCoupon">
+        Previous
+    </a>
+    ]]
+
+    [[if("v[Data.TonicsCouponData]")
+    <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
+        [[each("numberLinks in Data.TonicsCouponData.number_links")
+        <li class="d:flex">
+            <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
+                                    [[if('v[numberLinks.current] === bool[false]') color:black ]]
+                                    [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
+                                    border-width:default border:black padding:default
+                                    margin-top:0 cursor:pointer max-width:200 text-align:center text-underline" href="[[v('numberLinks.link')]]#tonicsCoupon">[[v('numberLinks.number')]]</a>
+        </li>
+        ]]
+    </ul>
+    ]]
+
+    [[if("v[Data.TonicsCouponData.next_page_url]")
+    <a type="submit" class="border:none color:black border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
+       title="Next" href="[[v('Data.PostData.next_page_url')]]#tonicsCoupon">
+        Next
+    </a>
+    ]]
+</div>
+]]

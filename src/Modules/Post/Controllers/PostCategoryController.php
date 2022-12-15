@@ -155,6 +155,7 @@ class PostCategoryController
             event()->dispatch($onPostCategoryCreate);
             $db->commit();
 
+            apcu_clear_cache();
             session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.category.edit', ['category' => $onPostCategoryCreate->getCatSlug()]));
         }catch (Exception $exception){
@@ -249,6 +250,7 @@ class PostCategoryController
         db()->FastUpdate($this->postData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
         $slug = $categoryToUpdate['cat_slug'];
 
+        apcu_clear_cache();
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
             session()->flash(['Post Category Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
         } else {

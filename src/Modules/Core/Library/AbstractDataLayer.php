@@ -388,6 +388,7 @@ SQL, ...$parameter);
             }
 
             db()->FastDelete($table, db()->WhereIn($id, $toDelete));
+            apcu_clear_cache();
             if ($onSuccess){
                 $onSuccess();
             }

@@ -1,0 +1,89 @@
+[[inherit("Apps::NinetySeven/Views/Page/single", "Apps::TonicsCoupon/Views/Block/CouponBlock")]]
+
+[[hook_into('in_main')
+    <section>
+        <div class="tonics-coupon padding:default more-owl">
+            <div class="tonics-coupon-title d:flex flex-d:column">
+                <h1>Exclusivemusicplus Deal Page</h1>
+            </div>
+            <div class="tonics-coupon-search width:100% margin-top:0">
+                <form action="#tonicsCoupon" class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
+                    <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
+                        <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+                        <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-3">
+                            <svg class="icon:admin tonics-filter"><use xlink:href="#tonics-filter"></use></svg>
+                            Filter Options
+                        </button>
+                    </div>
+                    <div class="overflow:auto width:80% filter-container border-width:default border:black color:black padding:small flex-d:column flex-wrap:wrap d:flex flex-gap swing-in-top-fwd">
+                        <div class="form-group d:flex flex-gap align-items:flex-end flex-wrap:wrap">
+                            <label for="sort_by">Sort By<select class="default-selector border-width:default border:black color:black" name="sort_by" id="sort_by">
+                                <option value="0" [[if("v[URL.PARAMS.sort_by] == e[0]")selected]]>Expired Date</option>
+                                <option value="1" [[if("v[URL.PARAMS.sort_by] == e[1]")selected]]>Created Date</option>
+                            </select>
+                            </label>
+                            <label for="order_by">Order By<select class="default-selector border-width:default border:black color:black" name="order_by" id="order_by">
+                                <option value="0" [[if("v[URL.PARAMS.order_by] == e[0]")selected]]>Latest</option>
+                                <option value="1" [[if("v[URL.PARAMS.order_by] == e[1]")selected]]>Oldest</option>
+                            </select>
+                            </label>
+                        </div>
+
+                        <div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
+                            <div class="menu-box-checkbox-items max-height:300px overflow:auto">Choose Types (All By Default)
+                                <ul class="menu-box-radiobox-items list:style:none">
+                                    [[_v('Data.TonicsCouponTypeData')]]
+                                </ul>
+                            </div>
+                        </div>
+                        <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);" class="text-align:center bg:pure-white border:none color:black border-width:default border:black padding:default cursor:pointer button:box-shadow-variant-2">
+                            Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div id="tonicsCoupon" class="tonics-coupon-article">
+                <ul class="tonics-responsive-grid-list">
+                    [[each("_coupon_article in Data.TonicsCouponData.data")
+                        <li tabindex="0" class="tonics-coupon-items border-width:default border:black">
+                        <div class="tonics-coupon-item tonics-coupon-item-image">
+                            [[if('v[_coupon_article.image_url]')
+                            <a href="[[v('_coupon_article._preview_link')]]">
+                                <img src="[[v('_coupon_article.image_url')]]" loading="lazy" alt="[[v('_coupon_article.coupon_name')]]">
+                            </a>
+                            ]]
+                        </div>
+                        <div class="tonics-coupon-item tonics-coupon-item-title">
+                            <div><h3>[[v('_coupon_article.coupon_name')]]</h3></div>
+                            <div class="tonics-coupon-item-title_label">
+                                <h4>[[v('_coupon_article.coupon_label')]]</h4>
+                                [[if('v[_coupon_article.coupon_validity_end]')
+                                    <p>[[v('_coupon_article.coupon_validity_start')]] - [[v('_coupon_article.coupon_validity_end')]]</p>
+                                ]]
+                                [[if('v[_coupon_article.coupon_validity_end] == block[empty]')
+                                    <p>[[v('_coupon_article.coupon_validity_start')]]</p>
+                                ]]
+                            </div>
+                        </div>
+
+                        <div class="tonics-coupon-item tonics-coupon-item-description">
+                            <p style="max-width:unset;">[[v('_coupon_article.seo_description')]]</p>
+                        </div>
+                        <div class="tonics-coupon-item tonics-coupon-item-actions">
+                            [[if('v[_coupon_article.coupon_out_url]')
+                            <a class="text-align:center bg:transparent border:none color:black border-width:default border:black padding:default
+                    margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('_coupon_article.coupon_out_url')]]" title="Get [[v('_coupon_article.coupon_name')]]" target="_blank" rel="nofollow noopener sponsored">Get Deal
+                                <span class="d:inline-block text-decoration:none"> &nbsp; →→</span> </a>
+                            ]]
+
+                            <a class="text-align:center bg:transparent border:none color:black border-width:default border:black padding:default
+                    margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('_coupon_article._preview_link')]]" title="Read More On [[v('_coupon_article.coupon_name')]]">Read More</a></div>
+                    </li>
+                    ]]
+                </ul>
+            </div>
+        </div>
+
+        [[_use('Coupon::Pagination')]]
+    </section>
+]]

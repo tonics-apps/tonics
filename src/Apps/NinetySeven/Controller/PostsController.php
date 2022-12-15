@@ -33,7 +33,6 @@ class PostsController
         $this->postData = $postData;
         $this->postAccessView = $postAccessView;
         $this->fieldData = $fieldData;
-        addToGlobalVariable('Assets', ['css' => AppConfig::getAppAsset('NinetySeven', 'css/styles.min.css')]);
     }
 
     /**

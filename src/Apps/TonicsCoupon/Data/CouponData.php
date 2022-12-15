@@ -360,8 +360,10 @@ HTML;
                     Tables::getTable(Tables::USERS) => ['user_name', 'email']
                 ]
             )
+            . ", DATE_FORMAT($couponTableName.created_at, '%d %M, %Y') AS coupon_validity_start, DATE_FORMAT($couponTableName.expired_at, '%d %M, %Y') AS coupon_validity_end"
             . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.coupon_label')) as coupon_label"
             . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.coupon_url')) as coupon_out_url"
+            . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.seo_description')) as seo_description"
             . ', GROUP_CONCAT(CONCAT(coupon_type_id, "::", coupon_type_slug ) ) as fk_coupon_type_id'
             . ", CONCAT('/admin/tonics_coupon/', coupon_slug, '/edit') as _edit_link, CONCAT_WS('/', '/coupon', $couponTableName.slug_id, coupon_slug) as _preview_link ";
     }

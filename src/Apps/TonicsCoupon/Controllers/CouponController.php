@@ -319,6 +319,9 @@ class CouponController
         $db = db();
         $db->beginTransaction();
         $updateChanges = $this->couponData->createCoupon(['token']);
+        if (!isset($updateChanges['expired_at'])){
+            $updateChanges['expired_at'] = null;
+        }
 
         try {
             $updateChanges['coupon_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_slug'));

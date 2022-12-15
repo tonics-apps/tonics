@@ -199,6 +199,7 @@ class PostsController
             $db->commit();
 
             session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
+            apcu_clear_cache();
             redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
         } catch (\Exception $exception) {
             // log..
@@ -344,6 +345,7 @@ class PostsController
             $db->commit();
 
             # For Fields
+            apcu_clear_cache();
             $slug = $postToUpdate['post_slug'];
             if (input()->fromPost()->has('_fieldErrorEmitted') === true){
                 session()->flash(['Post Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
@@ -378,6 +380,7 @@ class PostsController
             }
 
             db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('post_id', $toDelete));
+            apcu_clear_cache();
             return true;
         } catch (\Exception $exception) {
             // log..
