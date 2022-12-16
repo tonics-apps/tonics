@@ -141,17 +141,19 @@
         <div class="audio-player-queue color:black bg:white-one border-width:default border:black d:none flex-gap flex-d:column height:600px width:320px bg:pure-white color:black padding:default position:absolute right:0 bottom:80px overflow:auto">
             <div class="more-audio-player-control cursor:pointer">
                 [[mFunc('AudioPlayer::IconGenerate')
-                [[arg('class' 'icon:audio color:black')]]
-                [[arg('title' 'Repeat')]]
-                [[arg('attr' 'data-audioplayer_repeat="false"')]]
-                [[bArg('more' 'AudioPlayer::Icon::Repeat')]]
+                    [[arg('class' 'icon:audio color:black')]]
+                    [[arg('title' 'Repeat')]]
+                    [[arg('attr' 'data-audioplayer_repeat="false"')]]
+                    [[arg('more', "block[AudioPlayer::Icon::Repeat]")]]
                 ]]
+
                 [[mFunc('AudioPlayer::IconGenerate')
-                [[arg('class' 'icon:audio color:black')]]
-                [[arg('title' 'Shuffle')]]
-                [[arg('attr' 'data-audioplayer_shuffle="false"')]]
-                [[bArg('more' 'AudioPlayer::Icon::Shuffle')]]
+                    [[arg('class' 'icon:audio color:black')]]
+                    [[arg('title' 'Shuffle')]]
+                    [[arg('attr' 'data-audioplayer_shuffle="false"')]]
+                    [[arg('more', "block[AudioPlayer::Icon::Shuffle]")]]
                 ]]
+
             </div>
             <ol class="audio-player-queue-list d:flex flex-d:column flex-gap:small">
             </ol>
@@ -172,32 +174,32 @@
             </div>
             <div class="cursor:pointer d:flex flex:one">
                 [[mFunc('AudioPlayer::IconGenerate')
-                [[arg('class' 'icon:audio color:white')]]
-                [[arg('title' 'Previous')]]
-                [[arg('attr' 'data-audioplayer_prev="true"')]]
-                [[bArg('more' 'AudioPlayer::Icon::Prev')]]
+                    [[arg('class' 'icon:audio color:white')]]
+                    [[arg('title' 'Previous')]]
+                    [[arg('attr' 'data-audioplayer_prev="true"')]]
+                    [[arg('more' 'block[AudioPlayer::Icon::Prev]')]]
                 ]]
 
                 [[mFunc('AudioPlayer::IconGenerate')
-                [[arg('class' 'global-play icon:audio-x-2 color:white')]]
-                [[arg('title' 'Play')]]
-                [[arg('attr' 'data-audioplayer_play="false"')]]
-                [[bArg('more' 'AudioPlayer::Icon::Play-Pause')]]
+                    [[arg('class' 'global-play icon:audio-x-2 color:white')]]
+                    [[arg('title' 'Play')]]
+                    [[arg('attr' 'data-audioplayer_play="false"')]]
+                    [[arg('more' 'block[AudioPlayer::Icon::Play-Pause]')]]
                 ]]
 
                 [[mFunc('AudioPlayer::IconGenerate')
-                [[arg('class' 'icon:audio color:white')]]
-                [[arg('title' 'Next')]]
-                [[arg('attr' 'data-audioplayer_next="true"')]]
-                [[bArg('more' 'AudioPlayer::Icon::Next')]]
+                    [[arg('class' 'icon:audio color:white')]]
+                    [[arg('title' 'Next')]]
+                    [[arg('attr' 'data-audioplayer_next="true"')]]
+                    [[arg('more' 'block[AudioPlayer::Icon::Next]')]]
                 ]]
             </div>
             <div class="volume-slider-and-more d:flex align-items:center">
                 [[mFunc('AudioPlayer::IconGenerate')
-                [[arg('class' 'dropdown-toggle color:white')]]
-                [[arg('title' 'Queue')]]
-                [[arg('attr' 'aria-expanded="false" aria-label="Expand child menu"')]]
-                [[bArg('more' 'AudioPlayer::Icon::ArrowUp')]]
+                    [[arg('class' 'dropdown-toggle color:white')]]
+                    [[arg('title' 'Queue')]]
+                    [[arg('attr' 'aria-expanded="false" aria-label="Expand child menu"')]]
+                    [[arg('more' 'block[AudioPlayer::Icon::ArrowUp]')]]
                 ]]
                 <label for="volume-slider" class="screen-reader-text"> Volume </label>
                 <input id="volume-slider" title="Volume" type="range" class="volume-slider" min="0" max="1" step="0.1">

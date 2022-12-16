@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`post_id`),
   UNIQUE KEY (`slug_id`),
-  UNIQUE KEY `posts_post_slug_unique` (`post_slug`)
+  UNIQUE KEY `posts_post_slug_unique` (`post_slug`),
+  FULLTEXT KEY `post_fulltext_index` (`post_title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
     }

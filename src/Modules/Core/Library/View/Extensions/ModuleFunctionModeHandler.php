@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Library\View\Extensions;
 
+use App\Modules\Core\Library\View\Extensions\Traits\TonicsTemplateSystemHelper;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateModeError;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
@@ -49,6 +50,8 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  */
 class ModuleFunctionModeHandler extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
+    use TonicsTemplateSystemHelper;
+
     private string $error = '';
 
     public function validate(OnTagToken $tagToken): bool
@@ -59,6 +62,7 @@ class ModuleFunctionModeHandler extends TonicsTemplateViewAbstract implements To
 
     public function stickToContent(OnTagToken $tagToken)
     {
+
         $view = $this->getTonicsView();
         $blockName = $tagToken->getArg()[0];
         $innerMFuncArg = [];
@@ -69,24 +73,12 @@ class ModuleFunctionModeHandler extends TonicsTemplateViewAbstract implements To
                     if (count($child->getArgs()) !== 2){
                         $view->exception(TonicsTemplateModeError::class, ["Invalid Number of Args in Args of ModuleFunction, 2 allowed"]);
                     }
+                    $argValueResolved = $this->resolveArgs('arg', [$child->getArgs()[1]])['arg'];
                     $innerMFuncArg[$blockName][] = [
                         'argType' => 'arg',
                         'key' => $child->getArgs()[0],
-                        'value' => $child->getArgs()[1]
+                        'value' => $argValueResolved
                     ];
-                }
-
-                if ($this->isBlockArg($child->getTagName())){
-                    if (count($child->getArgs()) !== 2){
-                        $view->exception(TonicsTemplateModeError::class, ["Invalid Number of Args in BlockArgs of ModuleFunction, 2 allowed"]);
-                    }
-                    if ($view->getContent()->isBlock($child->getArgs()[1])){
-                        $innerMFuncArg[$blockName][] = [
-                            'argType' => 'bArg',
-                            'key' => $child->getArgs()[0],
-                            'value' => $child->getArgs()[1]
-                        ];
-                    }
                 }
             }
         }
@@ -109,13 +101,8 @@ class ModuleFunctionModeHandler extends TonicsTemplateViewAbstract implements To
         $renderedArgs = [];
         foreach ($args as $arg){
             if (isset($arg['argType'])){
-                if ($this->isArg($arg['argType'])){
-                    $renderedArgs[$arg['key']] = $arg['value'];
-                }
-
-                if ($this->isBlockArg($arg['argType'])){
-                    $renderedArgs[$arg['key']] = $view->renderABlock($arg['value']);
-                }
+                $expanded = $this->expandArgs($arg['value']);
+                $renderedArgs[$arg['key']] = $expanded[0];
             }
         }
 

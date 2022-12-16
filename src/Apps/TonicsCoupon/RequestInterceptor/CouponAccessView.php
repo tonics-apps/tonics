@@ -8,8 +8,10 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Post\RequestInterceptor;
+namespace App\Apps\TonicsCoupon\RequestInterceptor;
 
+use App\Apps\TonicsCoupon\Data\CouponData;
+use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
@@ -26,45 +28,45 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use JetBrains\PhpStorm\NoReturn;
 
-class PostAccessView
+class CouponAccessView
 {
-    private PostData $postData;
-    private array $post = [];
+    private CouponData $couponData;
+    private array $coupon = [];
     private array $category = [];
 
-    public function __construct(PostData $postData){
-        $this->postData = $postData;
+    public function __construct(CouponData $couponData){
+        $this->couponData = $couponData;
     }
 
     /**
      * @throws \Exception
      */
-    public function handlePost(): void
+    public function handleCoupon(): void
     {
         $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $postSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
-        $post = (array)$this->getPostData()->getPostByUniqueID($uniqueSlugID);
+        $couponSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
+        $coupon = (array)$this->getCouponData()->getCouponUniqueID($uniqueSlugID);
 
-        # if empty we can check with the post_slug and do a redirection
-        if (empty($post)){
-            $post = (array)$this->getPostData()->getPostByUniqueID($postSlug, 'post_slug');
-            if (isset($post['slug_id'])){
-                redirect(PostRedirection::getPostAbsoluteURLPath($post), 302);
+        # if empty we can check with the coupon_slug and do a redirection
+        if (empty($coupon)){
+            $coupon = (array)$this->getCouponData()->getCouponUniqueID($couponSlug, 'coupon_slug');
+            if (isset($coupon['slug_id'])){
+                redirect(TonicsCouponActivator::getCouponAbsoluteURLPath($coupon), 302);
             }
-        # if postSlug is not equals to $post['post_slug'], do a redirection to the correct one
-        } elseif (isset($post['post_slug']) && $post['post_slug'] !== $postSlug){
-            redirect(PostRedirection::getPostAbsoluteURLPath($post), 302);
+        # if postSlug is not equals to $post['coupon_slug'], do a redirection to the correct one
+        } elseif (isset($coupon['coupon_slug']) && $coupon['coupon_slug'] !== $couponSlug){
+            redirect(TonicsCouponActivator::getCouponAbsoluteURLPath($coupon), 302);
         }
 
-        if (key_exists('post_status', $post)) {
-            if ($post['post_status'] === 1) {
-                $this->post = $post; return;
+        if (key_exists('coupon_status', $coupon)) {
+            if ($coupon['coupon_status'] === 1) {
+                $this->coupon = $coupon; return;
             }
 
             ## Else, post is in draft or trash or in the future, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
             if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {
-                $this->post = $post; return;
+                $this->coupon = $coupon; return;
             }
         }
 
@@ -78,11 +80,11 @@ class PostAccessView
     {
         $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $catSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
-        $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$uniqueSlugID]);
+        $category = (array)$this->getCouponData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$uniqueSlugID]);
 
         # if empty we can check with the cat_slug and do a redirection
         if (empty($category)){
-            $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$catSlug]);
+            $category = (array)$this->getCouponData()->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$catSlug]);
             if (isset($category['slug_id'])){
                 redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
             }
@@ -93,7 +95,7 @@ class PostAccessView
 
 
         if (key_exists('cat_status', $category)) {
-            $category['categories'][] = array_reverse($this->postData->getPostCategoryParents($category['cat_parent_id'] ?? ''));
+            $category['categories'][] = array_reverse($this->couponData->getPostCategoryParents($category['cat_parent_id'] ?? ''));
             $catCreatedAtTimeStamp = strtotime($category['created_at']);
             if ($category['cat_status'] === 1 && time() >= $catCreatedAtTimeStamp) {
                 $this->category = $category; return;
@@ -114,48 +116,44 @@ class PostAccessView
      */
     #[NoReturn] public function showPost(string $postView, $moreData = []): void
     {
-        $post = $this->post;
-        if (!empty($post)){
-            $catID = [];
-            foreach ($post['categories'] as $categories){
-                foreach ($categories as $category){
-                    $catID[] = $category->cat_id;
+        $coupon = $this->coupon;
+        if (!empty($coupon)){
+            $typeID = [];
+            foreach ($coupon['couponTypes'] as $couponTypes){
+                foreach ($couponTypes as $couponType){
+                    $typeID[] = $couponType->coupon_type_id;
                 }
             }
 
-            # GET CORRESPONDING POST IN CATEGORY
-            $postTbl = Tables::getTable(Tables::POSTS);
-            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-            $CatTbl = Tables::getTable(Tables::CATEGORIES);
+            $couponTableName = TonicsCouponActivator::couponTableName();
+            $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+            $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
+            $userTable = Tables::getTable(Tables::USERS);
 
-            $postFieldSettings = $postTbl . '.field_settings';
-            $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
-                . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
-                . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
+            $relatedCoupon = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())
+                ->From($couponToTypeTableName)
+                ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+                ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+                ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
+                ->addRawString("WHERE MATCH(coupon_name) AGAINST(?)")->addParam($coupon['coupon_name'])->setLastEmittedType('WHERE')
+                ->WhereEquals('coupon_status', 1)
+                ->WhereIn('coupon_type_id', $typeID)
+                ->WhereNotIn('coupon_id', $coupon['coupon_id'])
+                ->Where("$couponTableName.created_at", '<=', helper()->date())
+                ->OrderByDesc(table()->pickTable($couponTableName, ['updated_at']))->SimplePaginate(6);
 
-            $relatedPost = db()->Select($tblCol)
-                ->From($postCatTbl)
-                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-                ->addRawString("WHERE MATCH(post_title) AGAINST(?)")->addParam($post['post_title'])->setLastEmittedType('WHERE')
-                ->WhereEquals('post_status', 1)
-                ->WhereIn('cat_id', $catID)
-                ->WhereNotIn('post_id', $post['post_id'])
-                ->Where("$postTbl.created_at", '<=', helper()->date())
-                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(6);
+            $coupon['related_coupon'] = $relatedCoupon;
+            $this->getCouponData()->unwrapForCoupon($coupon);
 
-            $post['related_post'] = $relatedPost;
-
-            $this->getFieldData()->unwrapForPost($post);
             $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
-            event()->dispatch($this->getPostData()->getOnPostDefaultField());
+            event()->dispatch($this->getCouponData()->getOnCouponDefaultField());
 
             # We are only interested in the hidden slug
-            $slugs = $this->getPostData()->getOnPostDefaultField()->getHiddenFieldSlug();
+            $slugs = $this->getCouponData()->getOnCouponDefaultField()->getHiddenFieldSlug();
             # MoreData can't use the _fieldDetails here
             unset($moreData['_fieldDetails']);
             # Cache Post Data
-            $onFieldUserForm->handleFrontEnd($slugs, [...$post, ...$moreData]);
+            $onFieldUserForm->handleFrontEnd($slugs, [...$coupon, ...$moreData]);
             view($postView);
         }
 
@@ -182,7 +180,7 @@ class PostAccessView
                     . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
                     . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
 
-                $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($category['cat_id']);
+                $catIDSResult = $this->getCouponData()->getChildCategoriesOfParent($category['cat_id']);
                 $catIDS = [];
                 foreach ($catIDSResult as $catID){
                     $catIDS[] = $catID->cat_id;
@@ -211,7 +209,7 @@ class PostAccessView
             $category['created_at_words'] = strtoupper($date->format('j M, Y'));
             $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
 
-            event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
+            event()->dispatch($this->getCouponData()->getOnPostCategoryDefaultField());
             $slugs = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
 
             # MoreData can't use the _fieldDetails here
@@ -226,19 +224,19 @@ class PostAccessView
     }
 
     /**
-     * @return PostData
+     * @return CouponData
      */
-    public function getPostData(): PostData
+    public function getCouponData(): CouponData
     {
-        return $this->postData;
+        return $this->couponData;
     }
 
     /**
-     * @param PostData $postData
+     * @param CouponData $couponData
      */
-    public function setPostData(PostData $postData): void
+    public function setCouponData(CouponData $couponData): void
     {
-        $this->postData = $postData;
+        $this->couponData = $couponData;
     }
 
     /**
@@ -246,6 +244,6 @@ class PostAccessView
      */
     public function getFieldData(): FieldData
     {
-        return $this->getPostData()->getFieldData();
+        return $this->getCouponData()->getFieldData();
     }
 }

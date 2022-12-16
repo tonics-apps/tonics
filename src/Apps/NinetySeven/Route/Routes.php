@@ -31,6 +31,7 @@ trait Routes
             $route->get('ninety_seven/settings', [NinetySevenController::class, 'edit'], alias: 'ninetySeven.settings');
             $route->post('ninety_seven/settings', [NinetySevenController::class, 'update']);
         }, AuthConfig::getAuthRequestInterceptor());
+
         return $route;
     }
 }

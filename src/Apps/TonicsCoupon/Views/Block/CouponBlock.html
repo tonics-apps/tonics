@@ -56,3 +56,78 @@ COUPON TYPE ROUTES
     ]]
 </div>
 ]]
+
+[[b('Coupon::CouponItems')
+    <li tabindex="0" class="tonics-coupon-items border-width:default border:black">
+    <div class="tonics-coupon-item tonics-coupon-item-image">
+        [[if('v[_coupon_article.image_url]')
+        <a href="[[v('_coupon_article._preview_link')]]">
+            <img src="[[v('_coupon_article.image_url')]]" loading="lazy" alt="[[v('_coupon_article.coupon_name')]]">
+        </a>
+        ]]
+    </div>
+    <div class="tonics-coupon-item tonics-coupon-item-title">
+        <div><h3>[[v('_coupon_article.coupon_name')]]</h3></div>
+        <div class="tonics-coupon-item-title_label">
+            <h4>[[v('_coupon_article.coupon_label')]]</h4>
+            [[if('v[_coupon_article.coupon_validity_end]')
+            <p>[[v('_coupon_article.coupon_validity_start')]] - [[v('_coupon_article.coupon_validity_end')]]</p>
+            ]]
+            [[if('v[_coupon_article.coupon_validity_end] == block[empty]')
+            <p>[[v('_coupon_article.coupon_validity_start')]]</p>
+            ]]
+        </div>
+    </div>
+
+    <div class="tonics-coupon-item tonics-coupon-item-description">
+        <p style="max-width:unset;">[[v('_coupon_article.seo_description')]]</p>
+    </div>
+    <div class="tonics-coupon-item tonics-coupon-item-actions">
+        [[if('v[_coupon_article.coupon_out_url]')
+        <a class="text-align:center bg:transparent border:none color:black border-width:default border:black padding:default
+                    margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('_coupon_article.coupon_out_url')]]" title="Get [[v('_coupon_article.coupon_name')]]" target="_blank" rel="nofollow noopener sponsored">Get Deal
+            <span class="d:inline-block text-decoration:none"> &nbsp; →→</span> </a>
+        ]]
+
+        <a class="text-align:center bg:transparent border:none color:black border-width:default border:black padding:default
+                    margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('_coupon_article._preview_link')]]" title="Read More On [[v('_coupon_article.coupon_name')]]">Read More</a></div>
+</li>
+]]
+
+[[b('Coupon::BreadCrumb')
+    [[if('v[Data.couponTypes]')
+    <nav>
+        <style>
+            .box {
+                display: flex;
+                flex-direction: row;
+                padding: 5px clamp(20px, 2vw, 25px);
+                align-items: center;
+                border-radius: 5px;
+                text-decoration: none;
+            }
+        </style>
+        [[each('_postBreadCrumbTypes in Data.couponTypes')
+        <ol style="margin-bottom: 1em; gap: 0.5em;" class="tonics-breadcrumb d:flex flex-wrap:wrap justify-content:center list:style:none">
+            [[each('_postBreadCrumbType in _postBreadCrumbTypes')
+            <li class="tonics-breadcrumb-item">
+                <a href="/coupon/[[v('_postBreadCrumbType.slug_id')]]/[[v('_postBreadCrumbType.coupon_type_slug')]]"
+                   class="box flex-gap:small color:black border-width:default border:black text-underline" title="[[v('_postBreadCrumbType.coupon_type_name')]]">
+                    <div class="text:no-wrap">[[v('_postBreadCrumbType.coupon_type_name')]]</div>
+                </a>
+            </li>
+    
+            [[if('v[_postBreadCrumbType_loop.last] === bool[false]')
+            <li class="tonics-breadcrumb-item">
+                <div class="box flex-gap:small color:black border-width:default border:black" title="is a parent of »">
+                    <div class="text:no-wrap">»»</div>
+                </div>
+            </li>
+            ]]
+    
+            ]]
+        </ol>
+        ]]
+    </nav>
+    ]]
+]]

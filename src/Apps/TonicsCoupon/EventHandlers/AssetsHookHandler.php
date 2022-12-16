@@ -10,6 +10,7 @@
 
 namespace App\Apps\TonicsCoupon\EventHandlers;
 
+use App\Apps\TonicsCoupon\Controllers\CouponSettingsController;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
@@ -27,10 +28,23 @@ class AssetsHookHandler implements HandlerInterface
             $tonicCouponTemplates = [
                 'TonicsCoupon_DefaultPageTemplate' => 'TonicsCoupon_DefaultPageTemplate',
             ];
+
+            $couponRootPath = CouponSettingsController::getTonicsCouponRootPath();
+            $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+
+            $css = AppConfig::getAppAsset('TonicsCoupon', 'css/styles.min.css');
+            $css = "<link rel='stylesheet' type='text/css' href='$css'>" . "\n";
             if (isset($page->page_template) && isset($tonicCouponTemplates[$page->page_template])){
-                $css = AppConfig::getAppAsset('TonicsCoupon', 'css/styles.min.css');
-                return "<link rel='stylesheet' type='text/css' href='$css'>" . "\n";
+                return $css;
             }
+
+            if (isset($foundURL->getSettings()['GET']['url'][1])){
+                $rootName = $foundURL->getSettings()['GET']['url'][1];
+                if ($rootName === $couponRootPath || $rootName === $couponTypeRootPath){
+                    return $css;
+                }
+            }
+
             return '';
         });
 

@@ -1,0 +1,85 @@
+[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base", "Apps::TonicsCoupon/Views/Block/CouponBlock")]]
+
+[[hook_into('in_head')
+<meta property="author" content="[[v('Data.user_name')]]">
+[[if('v[Data.image_url]')
+<meta property="og:image" content='[[v("Data.image_url")]]'>
+]]
+]]
+
+[[hook_into('in_main')
+<article class="owl" id="slug_id_[[v('Data.slug_id')]]">
+    <header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
+    <h1 class="entry-title"> [[v('Data.coupon_name')]]</h1>
+    <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
+      [[_use('Coupon::BreadCrumb')]]
+      <div class="by-line-and-date d:flex justify-content:center flex-gap:small">
+        [[if('v[Data.user_name]')
+        <div class="by-line d:flex align-items:center flex-gap:small">
+                    <span class="posted-by">
+                        By [[v('Data.user_name')]]
+                    </span>
+        </div>
+        |
+        ]]
+        <div class="date-published d:flex align-items:center flex-gap:small">
+                <span class="date">
+                    On [[v('Data.coupon_validity_start')]]
+                </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+    <section class="content-body padding:default tonics-coupon-body bg:pure-white">
+        <aside class="tonics-coupon-aside">
+            <div id="tonicsCoupon" class="tonics-coupon-article position:sticky top:0">
+                <ul class="tonics-responsive-grid-list">
+                    <li tabindex="0" class="tonics-coupon-items border-width:default border:black">
+                        <div class="tonics-coupon-item tonics-coupon-item-image">
+                            [[if('v[Data.image_url]')
+                            <a href="[[v('Data.coupon_out_url')]]">
+                                <img src="[[v('Data.image_url')]]" loading="lazy" alt="[[v('Data.coupon_name')]]">
+                            </a>
+                            ]]
+                        </div>
+                        <div class="tonics-coupon-item tonics-coupon-item-title">
+                            <div class="tonics-coupon-item-title_label">
+                                <h3>[[v('Data.coupon_label')]]</h3>
+                                [[if('v[Data.coupon_validity_end]')
+                                <p>[[v('Data.coupon_validity_start')]] - [[v('Data.coupon_validity_end')]]</p>
+                                ]]
+                                [[if('v[Data.coupon_validity_end] == block[empty]')
+                                <p>[[v('Data.coupon_validity_start')]]</p>
+                                ]]
+                            </div>
+                        </div>
+                        <div class="tonics-coupon-item tonics-coupon-item-actions">
+                            <a class="text-align:center bg:transparent border:none color:black border-width:default border:black padding:default
+                    margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('Data.coupon_out_url')]]" title="Get [[v('Data.coupon_name')]] " target="_blank" rel="nofollow noopener sponsored">Get Deal
+                                <span class="d:inline-block text-decoration:none"> &nbsp; →→</span> </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        <article class="owl tonics-coupon-content">
+            [[_v('Data.coupon_content')]]
+        </article>
+    </section>
+
+    [[if("v[Data.related_coupon.data]")
+    <section class="padding:default">
+        <div class="category-title flex-d:column">
+            <h2>Related Coupon(s)</h2>
+            <ul class="tonics-responsive-grid-list">
+                [[each("_coupon_article in Data.related_coupon.data")
+                    [[_useC("Coupon::CouponItems")]]
+                ]]
+            </ul>
+        </div>
+    </section>
+    ]]
+
+</article>
+]]

@@ -10,6 +10,7 @@
 
 namespace App\Apps\TonicsCoupon\Data;
 
+use App\Apps\TonicsCoupon\Controllers\CouponSettingsController;
 use App\Apps\TonicsCoupon\Events\OnCouponDefaultField;
 use App\Apps\TonicsCoupon\Events\OnCouponTypeCreate;
 use App\Apps\TonicsCoupon\Events\OnCouponTypeDefaultField;
@@ -222,6 +223,78 @@ HTML;
     /**
      * @throws \Exception
      */
+    public function getPostCategoryParents(string|int $idSlug)
+    {
+        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+
+        $where = "coupon_type_slug = ?";
+        if (is_numeric($idSlug)) {
+            $where = "coupon_type_id = ?";
+        }
+        return db()->run("
+        WITH RECURSIVE child_to_parent AS 
+	( SELECT coupon_type_id, coupon_type_parent_id, slug_id, coupon_type_slug, coupon_type_status, coupon_type_name, CAST(coupon_type_slug AS VARCHAR (255))
+            AS path
+      FROM $couponTypeTableName WHERE $where
+      UNION ALL
+      SELECT fr.coupon_type_id, fr.coupon_type_parent_id, fr.slug_id, fr.coupon_type_slug, fr.coupon_type_status, fr.coupon_type_name, CONCAT(fr.coupon_type_slug, '/', path)
+      FROM $couponTypeTableName as fr INNER JOIN child_to_parent as cp ON fr.coupon_type_id = cp.coupon_type_parent_id
+      ) 
+     SELECT * FROM child_to_parent;
+        ", $idSlug);
+    }
+
+    /**
+     * You should get an array
+     * @param $ID
+     * @param string $column
+     * @return array|mixed
+     * @throws \Exception
+     */
+    public function getCouponUniqueID($ID, string $column = 'slug_id'): mixed
+    {
+        $userTable = Tables::getTable(Tables::USERS);
+        $couponTableName = TonicsCouponActivator::couponTableName();
+        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+        $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
+
+        # verify coupon column
+        if (!table()->hasColumn($couponTableName, $column)){
+            return [];
+        }
+
+        $couponData = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())
+            ->From($couponToTypeTableName)
+            ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+            ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
+            ->WhereEquals('coupon_type_status', 1)
+            ->WhereEquals(table()->pickTable($couponTableName, [$column]), $ID)
+            ->Where(table()->pickTable($couponTableName, ['created_at']), '<=', helper()->date())
+            ->FetchFirst();
+
+        if (empty($couponData) || $couponData?->coupon_status === null){
+            return [];
+        }
+
+        if (isset($couponData->fk_coupon_type_id)) {
+            $couponTypes = explode(',', $couponData->fk_coupon_type_id);
+            foreach ($couponTypes as $couponType){
+                $couponType = explode('::', $couponType);
+                if (count($couponType) === 2){
+                    $reverseCategory = array_reverse($this->getPostCategoryParents($couponType[0]));
+                    $couponData->couponTypes[] = $reverseCategory;
+                }
+            }
+        }
+
+        return (array)$couponData;
+    }
+
+
+    /**
+     * @throws \Exception
+     */
     public function createCoupon(array $ignore = [], bool $prepareFieldSettings = true): array
     {
         $slug = $this->generateUniqueSlug($this->getCouponTable(),
@@ -353,6 +426,7 @@ HTML;
      */
     public static function getCouponTableJoiningRelatedColumns(): string
     {
+        $couponRootPath = CouponSettingsController::getTonicsCouponRootPath();
         $couponTableName = TonicsCouponActivator::couponTableName();
         return  table()->pick(
                 [
@@ -365,7 +439,20 @@ HTML;
             . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.coupon_url')) as coupon_out_url"
             . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.seo_description')) as seo_description"
             . ', GROUP_CONCAT(CONCAT(coupon_type_id, "::", coupon_type_slug ) ) as fk_coupon_type_id'
-            . ", CONCAT('/admin/tonics_coupon/', coupon_slug, '/edit') as _edit_link, CONCAT_WS('/', '/coupon', $couponTableName.slug_id, coupon_slug) as _preview_link ";
+            . ", CONCAT('/admin/tonics_coupon/', coupon_slug, '/edit') as _edit_link, CONCAT_WS('/', '/$couponRootPath', $couponTableName.slug_id, coupon_slug) as _preview_link ";
+    }
+
+    /**
+     * @param $coupon
+     * @param string $fieldSettingsKey
+     * @return void
+     * @throws \Exception
+     */
+    public function unwrapForCoupon(&$coupon, string $fieldSettingsKey = 'field_settings'): void
+    {
+        $fieldSettings = json_decode($coupon[$fieldSettingsKey], true);
+        $this->getFieldData()->unwrapFieldContent($fieldSettings, contentKey: 'coupon_content');
+        $coupon = [...$fieldSettings, ...$coupon];
     }
 
     public function getCouponColumns(): array

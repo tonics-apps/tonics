@@ -53,9 +53,8 @@ class CouponTypeController
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'created_at', 'title' => 'Created', 'minmax' => '50px, .8fr', 'td' => 'created_at'],
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'updated_at', 'title' => 'Updated', 'minmax' => '50px, .8fr', 'td' => 'updated_at'],
         ];
-
-        $tblCol = '*, CONCAT("/admin/tonics_coupon/type/", coupon_type_slug, "/edit" ) as _edit_link, CONCAT("/coupon_type/", coupon_type_slug) as _preview_link';
-
+        $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+        $tblCol = "*, CONCAT('/admin/tonics_coupon/type/', coupon_type_slug, '/edit' ) as _edit_link, CONCAT('/$couponTypeRootPath/', coupon_type_slug) as _preview_link";
         $data = db()->Select($tblCol)
             ->From($table)
             ->when(url()->hasParamAndValue('status'),

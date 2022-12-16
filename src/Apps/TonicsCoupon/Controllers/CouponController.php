@@ -10,11 +10,13 @@
 
 namespace App\Apps\TonicsCoupon\Controllers;
 
+use App\Apps\NinetySeven\Controller\NinetySevenController;
 use App\Apps\TonicsCoupon\Data\CouponData;
 use App\Apps\TonicsCoupon\Events\OnBeforeCouponSave;
 use App\Apps\TonicsCoupon\Events\OnCouponCreate;
 use App\Apps\TonicsCoupon\Events\OnCouponUpdate;
 use App\Apps\TonicsCoupon\Jobs\CouponFileImporter;
+use App\Apps\TonicsCoupon\RequestInterceptor\CouponAccessView;
 use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
@@ -522,22 +524,32 @@ class CouponController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
-                $post = $this->getCouponData()
-                    ->selectWithConditionFromPost(['*'], "slug_id = ?", [$slugID]);
-                if (isset($post->slug_id) && isset($post->coupon_slug)) {
-                    return PostRedirection::getPostAbsoluteURLPath((array)$post);
+                $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTableName())
+                    ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                if (isset($coupon->slug_id) && isset($coupon->coupon_slug)) {
+                    return TonicsCouponActivator::getCouponAbsoluteURLPath((array)$coupon);
                 }
                 return false;
             }, onSlugState: function ($slug) {
-            $post = $this->getCouponData()
-                ->selectWithConditionFromPost(['*'], "coupon_slug = ?", [$slug]);
-            if (isset($post->slug_id) && isset($post->coupon_slug)) {
-                return PostRedirection::getPostAbsoluteURLPath((array)$post);
+            $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTableName())
+                ->WhereEquals('coupon_slug', $slug)->FetchFirst();
+            if (isset($coupon->slug_id) && isset($coupon->coupon_slug)) {
+                return TonicsCouponActivator::getCouponAbsoluteURLPath((array)$coupon);
             }
             return false;
         });
 
         $redirection->runStates();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function singleCoupon()
+    {
+        $couponAccessView = new CouponAccessView($this->getCouponData());
+        $couponAccessView->handleCoupon();
+        $couponAccessView->showPost('Apps::TonicsCoupon/Views/FrontPage/coupon-single', NinetySevenController::getSettingData());
     }
 
     /**

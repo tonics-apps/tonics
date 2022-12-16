@@ -31,7 +31,6 @@ trait Routes
 
         $route->get('posts/:id/', [PostsController::class, 'redirect']);
         $route->get('categories/:id/', [PostCategoryController::class, 'redirect']);
-        // $route->get('posts/:slug-id/:post', [PostsController::class, 'redirect']);
 
         ## For WEB
         $route->group('/admin/posts', function (Route $route){
