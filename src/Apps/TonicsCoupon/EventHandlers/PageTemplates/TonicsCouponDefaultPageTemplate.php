@@ -55,7 +55,8 @@ class TonicsCouponDefaultPageTemplate implements PageTemplateInterface, HandlerI
                 function (TonicsQuery $db) {
                     $db->WhereEquals('coupon_status', 1);
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                })
+            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                 $db->WhereLike('coupon_name', url()->getParam('query'));
 
             })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
@@ -64,7 +65,8 @@ class TonicsCouponDefaultPageTemplate implements PageTemplateInterface, HandlerI
             })->when(url()->hasParamAndValue('coupon_type'), function (TonicsQuery $db) {
                 $db->WhereIn('coupon_type_id', url()->getParam('coupon_type'));
             })
-            ->GroupBy('coupon_id')->when(url()->hasParamAndValue('order_by'), function (TonicsQuery $db) use ($couponTableName) {
+            ->GroupBy('coupon_id')
+            ->when(url()->hasParamAndValue('order_by'), function (TonicsQuery $db) use ($couponTableName) {
                 $orderIsDesc = true;
                 if (url()->getParam('order_by') === '1'){
                     $orderIsDesc = false;

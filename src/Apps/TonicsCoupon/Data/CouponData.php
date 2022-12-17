@@ -221,12 +221,42 @@ HTML;
     }
 
     /**
+     * @param string|int $idSlug
+     * @return array|bool
      * @throws \Exception
      */
-    public function getPostCategoryParents(string|int $idSlug)
+    public function getChildCouponTypesOfParent(string|int $idSlug): bool|array
     {
         $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
 
+        $where = "coupon_type_slug = ?";
+        if (is_numeric($idSlug)) {
+            $where = "coupon_type_id = ?";
+        }
+        $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+        return db()->run("
+        WITH RECURSIVE coupon_type_recursive AS 
+	( SELECT coupon_type_id, coupon_type_parent_id, coupon_type_slug, coupon_type_name, slug_id, field_settings, 
+	        JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.seo_description')) AS _description,
+            CAST(coupon_type_slug AS VARCHAR (255)) AS path
+      FROM {$couponTypeTableName} WHERE $where
+      UNION ALL
+      SELECT tcs.coupon_type_id, tcs.coupon_type_parent_id, tcs.coupon_type_slug, tcs.coupon_type_name, tcs.slug_id, tcs.field_settings,
+      JSON_UNQUOTE(JSON_EXTRACT(tcs.field_settings, '$.seo_description')) AS _description,
+      CONCAT(path, '/' , tcs.coupon_type_slug)
+      FROM coupon_type_recursive as fr JOIN {$couponTypeTableName} as tcs ON fr.coupon_type_id = tcs.coupon_type_parent_id
+      ) 
+     SELECT *, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link FROM coupon_type_recursive;
+        ", $idSlug);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getCouponTypesParent(string|int $idSlug)
+    {
+        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+        $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
         $where = "coupon_type_slug = ?";
         if (is_numeric($idSlug)) {
             $where = "coupon_type_id = ?";
@@ -240,7 +270,7 @@ HTML;
       SELECT fr.coupon_type_id, fr.coupon_type_parent_id, fr.slug_id, fr.coupon_type_slug, fr.coupon_type_status, fr.coupon_type_name, CONCAT(fr.coupon_type_slug, '/', path)
       FROM $couponTypeTableName as fr INNER JOIN child_to_parent as cp ON fr.coupon_type_id = cp.coupon_type_parent_id
       ) 
-     SELECT * FROM child_to_parent;
+     SELECT *, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link FROM child_to_parent;
         ", $idSlug);
     }
 
@@ -282,7 +312,7 @@ HTML;
             foreach ($couponTypes as $couponType){
                 $couponType = explode('::', $couponType);
                 if (count($couponType) === 2){
-                    $reverseCategory = array_reverse($this->getPostCategoryParents($couponType[0]));
+                    $reverseCategory = array_reverse($this->getCouponTypesParent($couponType[0]));
                     $couponData->couponTypes[] = $reverseCategory;
                 }
             }

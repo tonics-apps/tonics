@@ -182,16 +182,16 @@ h5 {
 }
 
 p {
-    --font-min: 1rem;
+    --font-min: 1.1rem;
     --font-pref-val: 2vw;
-    --font-max: 1.1rem;
+    --font-max: 1.2rem;
     line-height: 1.5;
 }
 
 li {
-    --font-min: 1rem;
+    --font-min: 1.1rem;
     --font-pref-val: 2vw;
-    --font-max: 1.1rem;
+    --font-max: 1.2rem;
     line-height: 1.5;
 }
 

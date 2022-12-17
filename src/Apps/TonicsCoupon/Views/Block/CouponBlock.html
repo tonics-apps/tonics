@@ -94,6 +94,34 @@ COUPON TYPE ROUTES
 </li>
 ]]
 
+[[hook_into('in_head')
+
+[[- JSON-LD BREADCRUMB -]]
+[[if('v[Data.couponTypes.0]') [[- Check if at least one cat is not empty -]]
+    <script type="application/ld+json">
+    [[[ [ ]]]
+        [[each('_postBreadCrumbTypes in Data.couponTypes')
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [[[ [ ]]]
+                    [[each('_postBreadCrumbType in _postBreadCrumbTypes')
+                        {
+                            "@type": "ListItem",
+                            "position": [[v('_postBreadCrumbType_loop.iteration')]],
+                            "name": "[[v('_postBreadCrumbType.coupon_type_name')]]",
+                            "item": "[[v('App_Config.SiteURL')]][[v('_postBreadCrumbType._preview_link')]]"
+                        }[[if('v[_postBreadCrumbType_loop.last] === bool[false]'),]]
+                    ]]
+                    [[[ ] ]]]
+            }[[if('v[_postBreadCrumbType_loop.last] === bool[false]'),]]
+        ]]
+        [[[ ] ]]]
+</script>
+]]
+
+]]
+
 [[b('Coupon::BreadCrumb')
     [[if('v[Data.couponTypes]')
     <nav>
@@ -111,7 +139,7 @@ COUPON TYPE ROUTES
         <ol style="margin-bottom: 1em; gap: 0.5em;" class="tonics-breadcrumb d:flex flex-wrap:wrap justify-content:center list:style:none">
             [[each('_postBreadCrumbType in _postBreadCrumbTypes')
             <li class="tonics-breadcrumb-item">
-                <a href="/coupon/[[v('_postBreadCrumbType.slug_id')]]/[[v('_postBreadCrumbType.coupon_type_slug')]]"
+                <a href="[[v('_postBreadCrumbType._preview_link')]]"
                    class="box flex-gap:small color:black border-width:default border:black text-underline" title="[[v('_postBreadCrumbType.coupon_type_name')]]">
                     <div class="text:no-wrap">[[v('_postBreadCrumbType.coupon_type_name')]]</div>
                 </a>

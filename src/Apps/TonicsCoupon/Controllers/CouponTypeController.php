@@ -10,8 +10,10 @@
 
 namespace App\Apps\TonicsCoupon\Controllers;
 
+use App\Apps\NinetySeven\Controller\NinetySevenController;
 use App\Apps\TonicsCoupon\Data\CouponData;
 use App\Apps\TonicsCoupon\Events\OnCouponTypeCreate;
+use App\Apps\TonicsCoupon\RequestInterceptor\CouponAccessView;
 use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Configs\AppConfig;
@@ -20,7 +22,6 @@ use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
@@ -54,7 +55,7 @@ class CouponTypeController
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'updated_at', 'title' => 'Updated', 'minmax' => '50px, .8fr', 'td' => 'updated_at'],
         ];
         $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
-        $tblCol = "*, CONCAT('/admin/tonics_coupon/type/', coupon_type_slug, '/edit' ) as _edit_link, CONCAT('/$couponTypeRootPath/', coupon_type_slug) as _preview_link";
+        $tblCol = "*, CONCAT('/admin/tonics_coupon/type/', coupon_type_slug, '/edit' ) as _edit_link, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link";
         $data = db()->Select($tblCol)
             ->From($table)
             ->when(url()->hasParamAndValue('status'),
@@ -277,23 +278,33 @@ class CouponTypeController
     #[NoReturn] public function redirect($id): void
     {
         $redirection = new CommonResourceRedirection(
-            onSlugIDState: function ($slugID){
-                $category = $this->getCouponData()
-                    ->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugID]);
-                if (isset($category->slug_id) && isset($category->coupon_type_slug)){
-                    return "/categories/$category->slug_id/$category->coupon_type_slug";
+            onSlugIDState: function ($slugID) {
+                $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTypeTableName())
+                    ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                if (isset($coupon->slug_id) && isset($coupon->coupon_type_slug)) {
+                    return TonicsCouponActivator::getCouponTypeAbsoluteURLPath((array)$coupon);
                 }
                 return false;
-            }, onSlugState: function ($slug){
-            $category = $this->getCouponData()
-                ->selectWithConditionFromCategory(['*'], "coupon_type_slug = ?", [$slug]);
-            if (isset($category->slug_id) && isset($category->coupon_type_slug)){
-                return "/categories/$category->slug_id/$category->coupon_type_slug";
+            }, onSlugState: function ($slug) {
+            $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTypeTableName())
+                ->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
+            if (isset($coupon->slug_id) && isset($coupon->coupon_type_slug)) {
+                return TonicsCouponActivator::getCouponTypeAbsoluteURLPath((array)$coupon);
             }
             return false;
         });
 
         $redirection->runStates();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function singleCouponType()
+    {
+        $couponAccessView = new CouponAccessView($this->getCouponData());
+        $couponAccessView->handleCouponTypes();
+        $couponAccessView->showCouponType('Apps::TonicsCoupon/Views/FrontPage/coupon-type-single', NinetySevenController::getSettingData());
     }
 
     /**

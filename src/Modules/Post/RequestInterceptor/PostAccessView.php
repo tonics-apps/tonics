@@ -212,9 +212,8 @@ class PostAccessView
             $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
 
             event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
-            $slugs = event()->dispatch(new OnPostDefaultField())->getHiddenFieldSlug();
+            $slugs = $this->getPostData()->getOnPostCategoryDefaultField()->getHiddenFieldSlug();
 
-            # MoreData can't use the _fieldDetails here
             # MoreData can't use the _fieldDetails here
             unset($moreData['_fieldDetails']);
             $dataBundle = [...$category, ...$moreData, ...$postData];
