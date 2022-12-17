@@ -51,6 +51,14 @@ class ViewHookIntoHandler implements HandlerInterface
             return AppConfig::getAppUrl() . $currentImageInLoop;
         });
 
+        $event->hookInto('rss_in_image_url', function (TonicsView $tonicsView){
+            $currentImageInLoop = $tonicsView->accessArrayWithSeparator('rssQueryData._image');
+            if (str_starts_with($currentImageInLoop, 'http')){
+                return $currentImageInLoop;
+            }
+            return AppConfig::getAppUrl() . $currentImageInLoop;
+        });
+
     }
 
     /**

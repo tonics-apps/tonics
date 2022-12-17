@@ -31,11 +31,17 @@
     </image>
     [[each("rssQueryData in rssData.Query.data")
       <item>
-        <title>[[v('rssQueryData.post_title')]]</title>
-        <description>[[v('rssQueryData.post_description')]]</description>
+        <title>[[v('rssQueryData._title')]]</title>
+        <description>[[v('rssQueryData._description')]]</description>
         <link>[[v('App_Config.SiteURL')]][[v('rssQueryData._preview_link')]]</link>
         <guid isPermaLink="false">[[v('rssQueryData.slug_id')]]</guid>
         <pubDate>[[v('rssQueryData.rssPubDate')]] [[string_str_replace(':', '', 'v[App_Config.APP_TIME_ZONE_OFFSET]')]]</pubDate>
+        [[if('v[rssQueryData._image]')
+        <image>
+          <title>[[v('rssQueryData._title')]]</title>
+          <url>[[add_hook('rss_in_image_url')]]</url>
+        </image>
+        ]]
       </item>
     ]]
   </channel>

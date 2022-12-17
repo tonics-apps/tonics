@@ -16,16 +16,19 @@ use App\Apps\TonicsCoupon\Events\OnCouponTypeCreate;
 use App\Apps\TonicsCoupon\RequestInterceptor\CouponAccessView;
 use App\Apps\TonicsCoupon\Rules\CouponValidationRules;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
+use App\Apps\TonicsSeo\Controller\TonicsSeoController;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
+use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -305,6 +308,63 @@ class CouponTypeController
         $couponAccessView = new CouponAccessView($this->getCouponData());
         $couponAccessView->handleCouponTypes();
         $couponAccessView->showCouponType('Apps::TonicsCoupon/Views/FrontPage/coupon-type-single', NinetySevenController::getSettingData());
+    }
+
+    /**
+     * @param string $couponTypeName
+     * @return void
+     * @throws \Exception
+     */
+    public function rssCouponType(string $couponTypeName)
+    {
+        $couponTableName = TonicsCouponActivator::couponTableName();
+        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+        $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
+
+        $couponTypeData = db()
+            ->Select('*, JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.seo_description")) as coupon_type_description')
+            ->From($couponTypeTableName)->WhereEquals('coupon_type_slug', $couponTypeName)->FetchFirst();
+
+        if ($couponTypeData){
+            $settings = TonicsSeoController::getSettingsData();
+            $rssSettingsData = [
+                'Title' => $settings['app_tonicsseo_site_title'] ?? null,
+                'Description' => $couponTypeData->coupon_type_description,
+                'Logo' => $settings['app_tonicsseo_rss_settings_logo'] ?? null,
+                'RequestURL' => AppConfig::getAppUrl(),
+                'Language' => $settings['app_tonicsseo_rss_settings_language'] ?? 'en',
+            ];
+
+            $postFieldSettings = $couponTableName . '.field_settings';
+            $tblCol = table()->pick([$couponTableName => ['coupon_id', 'coupon_name', 'coupon_slug', 'field_settings', 'slug_id', 'created_at', 'updated_at', 'image_url']])
+                . ", $couponTableName.coupon_name as _title, $couponTableName.image_url as _image "
+                . ', CONCAT(coupon_type_id, "::", coupon_type_slug ) as fk_coupon_type_id, CONCAT_WS("/", "/posts", coupon_slug) as _preview_link '
+                . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as _description"
+                . ", DATE_FORMAT($couponTableName.created_at, '%a, %d %b %Y %T') as rssPubDate";
+
+            $couponTypeIDSResult = $this->getCouponData()->getChildCouponTypesOfParent($couponTypeData->coupon_type_id);
+            $couponTypeIDS = [];
+            foreach ($couponTypeIDSResult as $couponTypeItem){
+                $couponTypeIDS[] = $couponTypeItem->coupon_type_id;
+            }
+
+            $rssSettingsData['Query'] = db()->Select($tblCol)
+                ->From($couponToTypeTableName)
+                ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+                ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+                ->WhereEquals('coupon_status', 1)
+                ->Where("$couponTableName.created_at", '<=', helper()->date())
+                ->WhereIn('coupon_type_id', $couponTypeIDS)->GroupBy('coupon_id')
+                ->OrderByDesc(table()->pickTable($couponTableName, ['updated_at']))->SimplePaginate(50);
+
+            response()->header("content-type: text/xml; charset=UTF-8");
+
+            view('Apps::TonicsSeo/Views/rss', [
+                'rssData' => $rssSettingsData,
+            ]);
+        } else {
+            throw new URLNotFound('RSS Feed Not Found', SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
+        }
     }
 
     /**

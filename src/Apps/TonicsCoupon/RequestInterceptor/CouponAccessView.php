@@ -168,10 +168,6 @@ class CouponAccessView
         $couponType = $this->couponType;
         if (!empty($couponType)){
 
-            # GET CORRESPONDING POST IN CATEGORY
-            $postTbl = Tables::getTable(Tables::POSTS);
-            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-            $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
             $couponTableName = TonicsCouponActivator::couponTableName();
             $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
