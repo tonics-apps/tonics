@@ -59,7 +59,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     {
         return [
             OnStartUpCLI::class => [
-                // ScheduleManager::class,
+                ScheduleManager::class,
                 JobManager::class,
             ],
 
@@ -150,7 +150,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "Core",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1669161971',
+            "version" => '1-O-Ola.1671269391',
             "stable" => 0,
             "description" => "The Core Module",
             "info_url" => '',
