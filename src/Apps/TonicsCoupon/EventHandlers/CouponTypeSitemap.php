@@ -8,13 +8,15 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Post\EventHandlers;
+namespace App\Apps\TonicsCoupon\EventHandlers;
 
+use App\Apps\TonicsCoupon\Controllers\CouponSettingsController;
+use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Modules\Core\Events\Tools\Sitemap\AbstractSitemapInterface;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
+class CouponTypeSitemap extends AbstractSitemapInterface implements HandlerInterface
 {
     /**
      * @throws \Exception
@@ -22,8 +24,8 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
     public function getDataCount(): ?int
     {
         if (is_null($this->dataCount)){
-            $table = Tables::getTable(Tables::POSTS);
-            $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE post_status = 1 AND NOW() >= created_at");
+            $table = TonicsCouponActivator::couponTypeTableName();
+            $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE coupon_type_status = 1 AND NOW() >= created_at");
             $this->setDataCount((isset($result->count)) ? (int)$result->count : 0);
         }
 
@@ -38,13 +40,13 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
         $data = db()->paginate(
             tableRows: $this->getDataCount(),
             callback: function ($perPage, $offset){
-                $table = Tables::getTable(Tables::POSTS);
-                $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
+                $table = TonicsCouponActivator::couponTypeTableName();
+                $root = CouponSettingsController::getTonicsCouponTypeRootPath();
                 return db()->run(<<<SQL
-SELECT $select FROM $table WHERE post_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
+SELECT CONCAT_WS( '/', '/$root', slug_id, coupon_type_slug ) AS `_link`, updated_at as '_lastmod'
+FROM $table WHERE coupon_type_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());
-
         return $data->data;
     }
 }

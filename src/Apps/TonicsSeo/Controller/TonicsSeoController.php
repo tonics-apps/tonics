@@ -16,14 +16,12 @@ use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Events\Tools\Sitemap\AbstractSitemapInterface;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 use JetBrains\PhpStorm\NoReturn;
 
 class TonicsSeoController

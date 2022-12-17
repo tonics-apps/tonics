@@ -90,6 +90,15 @@ class StringFunctions extends TonicsTemplateViewAbstract implements TonicsModeIn
             'string_chop' => ['min_arg' => 1, 'max_arg' => 2, 'name' => 'chop', 'handle' => function ($args) {
                 return rtrim($args[0], $args[1] ?? " \t\n\r\0\x0B");
             }],
+            'string_contain' => ['min_arg' => 2, 'max_arg' => 2, 'name' => 'contain', 'handle' => function ($args) {
+                return str_contains($args[0], $args[1]);
+            }],
+            'string_str_starts_with' => ['min_arg' => 2, 'max_arg' => 2, 'name' => 'str_starts_with', 'handle' => function ($args) {
+                return str_starts_with($args[0], $args[1]);
+            }],
+            'string_str_ends_with' => ['min_arg' => 2, 'max_arg' => 2, 'name' => 'str_ends_with', 'handle' => function ($args) {
+                return str_ends_with($args[0], $args[1]);
+            }],
             'string_html_entity_decode' => ['min_arg' => 1, 'max_arg' => 3, 'name' => 'html_entity_decode', 'handle' => function ($args) use ($htmlFlag) {
                 $flag = (isset($htmlFlag[$args[1]])) ? $htmlFlag[$args[1]] : ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401;
                 return html_entity_decode($args[0], $flag, $args[2] ?? 'ISO-8859-1');

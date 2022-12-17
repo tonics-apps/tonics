@@ -42,6 +42,15 @@ class ViewHookIntoHandler implements HandlerInterface
             return $this->structuredData($tonicsView);
         });
 
+        $event->hookInto('sitemap_in_image_loc', function (TonicsView $tonicsView){
+            $currentImageInLoop = $tonicsView->accessArrayWithSeparator('sitemap._image');
+            if (str_starts_with($currentImageInLoop, 'http')){
+                return $currentImageInLoop;
+            }
+
+            return AppConfig::getAppUrl() . $currentImageInLoop;
+        });
+
     }
 
     /**
