@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\EventHandlers;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Library\Authentication\Roles;
@@ -29,6 +30,10 @@ class HookIntoAdminMenuTree implements HandlerInterface
         $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView){
             try {
                 if (UserData::canAccess(Roles::CAN_ACCESS_CORE, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
+                    $adminCacheClearRoute = route('admin.cache.clear');
+                    if (!empty($adminCacheClearRoute)){
+                        $adminCacheClearRoute = $adminCacheClearRoute . "?token=" . AppConfig::getAppKey();
+                    }
                     $token = session()->getCSRFToken();
                     $logout = route('admin.logout');
                     return <<<HTML
@@ -58,6 +63,12 @@ class HookIntoAdminMenuTree implements HandlerInterface
                             <span class="text:paragraph-fluid-one text:no-wrap">Logout</span>
                         </button>
                     </form>
+                </li>
+                <li class="menu-block" data-menu-depth="1">
+                    <a href="$adminCacheClearRoute" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
+                        <svg class="icon:admin dashboard"> <use xlink:href="#tonics-trash-can"></use></svg>
+                        <div class="text:paragraph-fluid-one text:no-wrap">Clear Cache</div>
+                    </a>
                 </li>
             </ul>
         </li>

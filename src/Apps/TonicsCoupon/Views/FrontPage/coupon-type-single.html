@@ -20,8 +20,9 @@
                     <div class="overflow:auto width:80% filter-container border-width:default border:black color:black padding:small flex-d:column flex-wrap:wrap d:flex flex-gap swing-in-top-fwd">
                         <div class="form-group d:flex flex-gap align-items:flex-end flex-wrap:wrap">
                             <label for="sort_by">Sort By<select class="default-selector border-width:default border:black color:black" name="sort_by" id="sort_by">
-                                <option value="0" [[if("v[URL.PARAMS.sort_by] == e[0]")selected]]>Expired Date</option>
-                                <option value="1" [[if("v[URL.PARAMS.sort_by] == e[1]")selected]]>Created Date</option>
+                                <option value="0" [[if("v[URL.PARAMS.sort_by] == e[0]")selected]]>Started Date</option>
+                                <option value="1" [[if("v[URL.PARAMS.sort_by] == e[1]")selected]]>Expired Date</option>
+                                <option value="2" [[if("v[URL.PARAMS.sort_by] == e[2]")selected]]>Created Date</option>
                             </select>
                             </label>
                             <label for="order_by">Order By<select class="default-selector border-width:default border:black color:black" name="order_by" id="order_by">

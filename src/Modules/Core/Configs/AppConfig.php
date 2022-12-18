@@ -264,6 +264,11 @@ class AppConfig
         return 'initLoader_' . env('APP_KEY', 'Tonics');
     }
 
+    public static function getAppKey(): string
+    {
+        return env('APP_KEY', 'Tonics');
+    }
+
     public static function getAppEnv(): string
     {
         return env('APP_ENV', 'production');

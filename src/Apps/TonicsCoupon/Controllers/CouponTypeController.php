@@ -335,10 +335,11 @@ class CouponTypeController
                 'Language' => $settings['app_tonicsseo_rss_settings_language'] ?? 'en',
             ];
 
+            $couponRootPath = CouponSettingsController::getTonicsCouponRootPath();
             $postFieldSettings = $couponTableName . '.field_settings';
             $tblCol = table()->pick([$couponTableName => ['coupon_id', 'coupon_name', 'coupon_slug', 'field_settings', 'slug_id', 'created_at', 'updated_at', 'image_url']])
                 . ", $couponTableName.coupon_name as _title, $couponTableName.image_url as _image "
-                . ', CONCAT(coupon_type_id, "::", coupon_type_slug ) as fk_coupon_type_id, CONCAT_WS("/", "/posts", coupon_slug) as _preview_link '
+                . ", CONCAT(coupon_type_id, '::', coupon_type_slug ) as fk_coupon_type_id, CONCAT_WS('/', '/$couponRootPath', $couponTableName.slug_id, coupon_slug) as _preview_link "
                 . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as _description"
                 . ", DATE_FORMAT($couponTableName.created_at, '%a, %d %b %Y %T') as rssPubDate";
 

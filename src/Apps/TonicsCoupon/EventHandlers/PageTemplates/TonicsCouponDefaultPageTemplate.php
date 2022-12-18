@@ -71,8 +71,11 @@ class TonicsCouponDefaultPageTemplate implements PageTemplateInterface, HandlerI
                 if (url()->getParam('order_by') === '1'){
                     $orderIsDesc = false;
                 }
-                $sort_by = 'expired_at';
+                $sort_by = 'started_at';
                 if (url()->getParam('sort_by') === '1'){
+                    $sort_by = 'expired_at';
+                }
+                if (url()->getParam('sort_by') === '2'){
                     $sort_by = 'created_at';
                 }
                 if ($orderIsDesc){

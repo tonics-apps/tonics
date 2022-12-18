@@ -415,6 +415,13 @@ class FieldConfig
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1pyxksvf39b4000000000\",\"field_input_name\":\"page_title\",\"fieldName\":\"Page Title\",\"inputName\":\"page_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Page Title\",\"readOnly\":\"0\",\"required\":\"1\"}"
   },
   {
+    "fk_field_id": "Default Page Field",
+    "field_name": "page_pagetemplateselection",
+    "field_id": 5,
+    "field_parent_id": 1,
+    "field_options": "{\"field_slug\":\"page_pagetemplateselection\",\"page_pagetemplateselection_cell\":\"1\",\"field_slug_unique_hash\":\"54cw77g52yc0000000000\",\"field_input_name\":\"page_template\",\"fieldName\":\"Page Template\",\"inputName\":\"page_template\"}"
+  },
+  {
     "fk_field_id": "SEO Settings",
     "field_name": "modular_rowcolumn",
     "field_id": 1,

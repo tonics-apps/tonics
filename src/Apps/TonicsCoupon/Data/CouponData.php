@@ -460,11 +460,11 @@ HTML;
         $couponTableName = TonicsCouponActivator::couponTableName();
         return  table()->pick(
                 [
-                    $couponTableName => ['coupon_id', 'slug_id', 'coupon_name', 'coupon_slug', 'coupon_status', 'field_settings', 'created_at', 'expired_at', 'updated_at', 'image_url'],
+                    $couponTableName => ['coupon_id', 'slug_id', 'coupon_name', 'coupon_slug', 'coupon_status', 'field_settings', 'created_at', 'started_at', 'expired_at', 'updated_at', 'image_url'],
                     Tables::getTable(Tables::USERS) => ['user_name', 'email']
                 ]
             )
-            . ", DATE_FORMAT($couponTableName.created_at, '%d %M, %Y') AS coupon_validity_start, DATE_FORMAT($couponTableName.expired_at, '%d %M, %Y') AS coupon_validity_end"
+            . ", DATE_FORMAT($couponTableName.started_at, '%d %M, %Y') AS coupon_validity_start, DATE_FORMAT($couponTableName.expired_at, '%d %M, %Y') AS coupon_validity_end"
             . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.coupon_label')) as coupon_label"
             . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.coupon_url')) as coupon_out_url"
             . ", JSON_UNQUOTE(JSON_EXTRACT($couponTableName.field_settings, '$.seo_description')) as seo_description"

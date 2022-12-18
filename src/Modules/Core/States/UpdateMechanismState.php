@@ -160,7 +160,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         # Discover Applications Releases...
-        $appsActivators = $tonicsHelper->getAppsActivator([ExtensionConfig::class]);
+        $appsActivators = $tonicsHelper->getAppsActivator([ExtensionConfig::class], installed: false);
         helper()->sendMsg(self::getCurrentState(), "Discovering Apps Update URLS");
         $this->discover('app', $appsActivators);
     }

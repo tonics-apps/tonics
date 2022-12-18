@@ -108,7 +108,6 @@ trait CouponValidationRules
         return [
             'coupon_id' => ['numeric'],
             'coupon_name' => ['required', 'string'],
-            'updated_at' => ['required', 'string'],
             'fk_coupon_type_id' => ['required', 'array'],
         ];
     }

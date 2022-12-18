@@ -61,9 +61,9 @@ trait Routes
                     # Cache Clearing...
                 #---------------------------------
                 $route->group('/cache', function (Route $route){
-                    $route->get('clear', [CacheController::class, 'clear']);
+                    $route->get('clear', [CacheController::class, 'clear'], alias: 'clear');
                     $route->get('warm-template', [CacheController::class, 'warmTemplateCache']);
-                });
+                }, alias: 'cache');
 
                         #---------------------------------
                     # Authentication Routes...

@@ -82,7 +82,7 @@ class CouponController
             ['type' => 'TONICS_MEDIA_FEATURE_LINK', 'slug' => TonicsCouponActivator::COUPON . '::' . 'image_url', 'title' => 'Image', 'minmax' => '150px, 1fr', 'td' => 'image_url'],
             ['type' => 'select_multiple', 'slug' => TonicsCouponActivator::COUPON_TO_TYPE . '::' . 'fk_coupon_type_id', 'title' => 'Category', 'select_data' => "$categoriesSelectDataAttribute", 'minmax' => '200px, 1fr', 'td' => 'fk_coupon_type_id'],
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'created_at', 'title' => 'Created', 'minmax' => '50px, .7fr', 'td' => 'created_at'],
-            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'updated_at', 'title' => 'Updated', 'minmax' => '50px, .7fr', 'td' => 'updated_at'],
+            ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'started_at', 'title' => 'Start', 'minmax' => '50px, .7fr', 'td' => 'started_at'],
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'expired_at', 'title' => 'Expired', 'minmax' => '50px, .7fr', 'td' => 'expired_at'],
         ];
 
@@ -180,6 +180,10 @@ class CouponController
     {
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
+        }
+
+        if (input()->fromPost()->hasValue('started_at') === false) {
+            unset($_POST['started_at']);
         }
 
         if (input()->fromPost()->hasValue('expired_at') === false) {
@@ -309,6 +313,10 @@ class CouponController
             unset($_POST['expired_at']);
         }
 
+        if (input()->fromPost()->hasValue('started_at') === false) {
+            unset($_POST['started_at']);
+        }
+
         if ($validator->fails()) {
             if (!$this->isUserInCLI){
                 session()->flash($validator->getErrors(), input()->fromPost()->all());
@@ -321,6 +329,9 @@ class CouponController
         $db = db();
         $db->beginTransaction();
         $updateChanges = $this->couponData->createCoupon(['token']);
+        if (!isset($updateChanges['started_at'])){
+            $updateChanges['started_at'] = null;
+        }
         if (!isset($updateChanges['expired_at'])){
             $updateChanges['expired_at'] = null;
         }
