@@ -23,11 +23,9 @@ use App\Modules\Post\EventHandlers\HandleNewCategorySlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostSlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostToCategoryMapping;
 use App\Modules\Post\EventHandlers\HandleUpdatePostToCategoryMapping;
-use App\Modules\Post\EventHandlers\CouponTypeSitemap;
 use App\Modules\Post\EventHandlers\PostCategorySitemap;
 use App\Modules\Post\EventHandlers\PostMenuMetaBox;
 use App\Modules\Post\EventHandlers\PostMenus;
-use App\Modules\Post\EventHandlers\CouponSitemap;
 use App\Modules\Post\EventHandlers\PostSitemap;
 use App\Modules\Post\Events\OnBeforePostSave;
 use App\Modules\Post\Events\OnPostCategoryCreate;
@@ -137,7 +135,7 @@ class PostActivator implements ExtensionConfig
             "name" => "Post",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1671269391',
+            "version" => '1-O-Ola.1671424944',
             "description" => "The Post Module",
             "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-post-module/releases/latest",

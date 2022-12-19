@@ -21,14 +21,14 @@ class TrackSitemap extends AbstractSitemapInterface implements HandlerInterface
     /**
      * @throws \Exception
      */
-    public function getDataCount(): ?int
+    public function getSitemapDataCount(): ?int
     {
         $table = Tables::getTable(Tables::TRACKS);
         $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE track_status = 1 AND NOW() >= created_at");
         return (isset($result->count)) ? $result->count : 0;
     }
 
-    public function getData(): array
+    public function getSitemapData(): array
     {
         $trackData = new TrackData();
     }

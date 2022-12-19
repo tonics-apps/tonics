@@ -7,7 +7,7 @@
     [[each("sitemap in sitemapData")
         <url>
             <loc>[[v('App_Config.SiteURL')]][[v('sitemap._link')]]</loc>
-            [[if('v[sitemap._lastmod]')<lastmod>[[string_str_replace(' ', 'T', 'v[sitemap._lastmod]')]][[v('App_Config.APP_TIME_ZONE_OFFSET')]]</lastmod>]]
+            [[if('v[sitemap._lastmod]')<lastmod>[[v('sitemap._lastmod')]]</lastmod>]]
             [[if('v[sitemap._image]')
             <image:image>
                 <image:loc>[[add_hook('sitemap_in_image_loc')]]</image:loc>

@@ -263,8 +263,8 @@ ROBOT;
             }
 
             # Sitemap Index for page type
-            if ($sitemapHandlerObject->getDataCount() > $sitemapPerPage){
-                $count = $sitemapHandlerObject->getDataCount();
+            if ($sitemapHandlerObject->getSitemapDataCount() > $sitemapPerPage){
+                $count = $sitemapHandlerObject->getSitemapDataCount();
                 # Total Pages we can paginate through
                 $totalPages = (int)ceil($count / $sitemapPerPage);
                 for ($i = 1; $i <= $totalPages; ++$i){
@@ -275,6 +275,57 @@ ROBOT;
             }
 
             $this->sitemapEntry($sitemapHandlerObject);
+        } else {
+            foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue){
+                $indexURL = url()->getFullURL() . '?type=' .$sitemapName;
+                $sitemapIndexes[] = $indexURL;
+            }
+            $this->sitemapIndex($sitemapIndexes);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] public function sitemapNews(): void
+    {
+        /** @var OnAddSitemap $sitemapTypeEvent */
+        $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
+
+        $includeSitemaps = self::getSettingsData()['app_tonicsseo_sitemap_handlers'] ?? [];
+        $includeSitemaps = array_combine($includeSitemaps, $includeSitemaps);
+        $includeSitemaps = array_change_key_case($includeSitemaps);
+
+        $sitemapTypeEvent->setSitemap(helper()->mergeKeyIntersection($includeSitemaps, $sitemapTypeEvent->getSitemap()));
+
+        response()->header("content-type: text/xml; charset=UTF-8");
+
+        $sitemapIndexes = [];
+        $typeNameFromParam = strtolower(url()->getParam('type', ''));
+        if (url()->hasParam('type') && key_exists($typeNameFromParam, $includeSitemaps)){
+            /** @var AbstractSitemapInterface $sitemapHandlerObject */
+            $sitemapHandlerObject = $sitemapTypeEvent->getSitemap()[$typeNameFromParam];
+            $sitemapPerPage = (isset(self::getSettingsData()['app_tonicsseo_sitemap_per_page'])) ? (int)self::getSettingsData()['app_tonicsseo_sitemap_per_page'] : 1000;
+            $sitemapHandlerObject->setLimit($sitemapPerPage);
+
+            # If it includes a page param, then get the sitemap data
+            if (url()->hasParam('page')){
+                $this->sitemapNewsEntry($sitemapHandlerObject);
+            }
+
+            # Sitemap Index for page type
+            if ($sitemapHandlerObject->getSitemapNewsDataCount() > $sitemapPerPage){
+                $count = $sitemapHandlerObject->getSitemapNewsDataCount();
+                # Total Pages we can paginate through
+                $totalPages = (int)ceil($count / $sitemapPerPage);
+                for ($i = 1; $i <= $totalPages; ++$i){
+                    $indexURL = AppConfig::getAppUrl(). url()->appendQueryString("page=" . $i)->getRequestURLWithQueryString();
+                    $sitemapIndexes[] = $indexURL;
+                }
+                $this->sitemapIndex($sitemapIndexes);
+            }
+
+            $this->sitemapNewsEntry($sitemapHandlerObject);
         } else {
             foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue){
                 $indexURL = url()->getFullURL() . '?type=' .$sitemapName;
@@ -301,7 +352,20 @@ ROBOT;
     #[NoReturn] private function sitemapEntry($sitemapHandlerObject): void
     {
         view('Apps::TonicsSeo/Views/sitemap_entries', [
-            'sitemapData' => $sitemapHandlerObject->getData(),
+            'sitemapData' => $sitemapHandlerObject->getSitemapData(),
+            'seoSettings' => self::getSettingsData()
+        ]);
+        exit();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    #[NoReturn] private function sitemapNewsEntry($sitemapHandlerObject): void
+    {
+        view('Apps::TonicsSeo/Views/sitemap_news_entries', [
+            'sitemapData' => $sitemapHandlerObject->getSitemapNewsData(),
+            'seoSettings' => self::getSettingsData()
         ]);
         exit();
     }

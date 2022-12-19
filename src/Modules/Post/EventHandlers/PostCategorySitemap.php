@@ -19,7 +19,7 @@ class PostCategorySitemap extends AbstractSitemapInterface implements HandlerInt
     /**
      * @throws \Exception
      */
-    public function getDataCount(): ?int
+    public function getSitemapDataCount(): ?int
     {
         if (is_null($this->dataCount)){
             $table = Tables::getTable(Tables::CATEGORIES);
@@ -33,14 +33,14 @@ class PostCategorySitemap extends AbstractSitemapInterface implements HandlerInt
     /**
      * @throws \Exception
      */
-    public function getData(): array
+    public function getSitemapData(): array
     {
         $data = db()->paginate(
-            tableRows: $this->getDataCount(),
+            tableRows: $this->getSitemapDataCount(),
             callback: function ($perPage, $offset){
                 $table = Tables::getTable(Tables::CATEGORIES);
                 return db()->run(<<<SQL
-SELECT CONCAT_WS( '/', '/categories', slug_id, cat_slug ) AS `_link`, updated_at as '_lastmod'
+SELECT CONCAT_WS( '/', '/categories', slug_id, cat_slug ) AS `_link`, DATE_FORMAT(updated_at, '%Y-%m-%d') as '_lastmod'
 FROM $table WHERE cat_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());

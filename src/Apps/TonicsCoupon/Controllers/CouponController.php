@@ -418,6 +418,10 @@ class CouponController
                         continue;
                     }
 
+                    if ($tblCol[1] === 'started_at' && empty($value)) {
+                        continue;
+                    }
+
                     if ($tblCol[1] === 'fk_coupon_type_id') {
                         $categories = explode(',', $value);
                         foreach ($categories as $category) {

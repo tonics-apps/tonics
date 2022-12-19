@@ -21,7 +21,7 @@ class CouponTypeSitemap extends AbstractSitemapInterface implements HandlerInter
     /**
      * @throws \Exception
      */
-    public function getDataCount(): ?int
+    public function getSitemapDataCount(): ?int
     {
         if (is_null($this->dataCount)){
             $table = TonicsCouponActivator::couponTypeTableName();
@@ -35,10 +35,10 @@ class CouponTypeSitemap extends AbstractSitemapInterface implements HandlerInter
     /**
      * @throws \Exception
      */
-    public function getData(): array
+    public function getSitemapData(): array
     {
         $data = db()->paginate(
-            tableRows: $this->getDataCount(),
+            tableRows: $this->getSitemapDataCount(),
             callback: function ($perPage, $offset){
                 $table = TonicsCouponActivator::couponTypeTableName();
                 $root = CouponSettingsController::getTonicsCouponTypeRootPath();

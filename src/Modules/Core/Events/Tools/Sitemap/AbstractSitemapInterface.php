@@ -46,10 +46,19 @@ abstract class AbstractSitemapInterface
     /**
      * @return int|null
      */
-    public function getDataCount(): ?int
+    public function getSitemapDataCount(): ?int
     {
         return $this->dataCount;
     }
+
+    /**
+     * @return int|null
+     */
+    public function getSitemapNewsDataCount(): ?int
+    {
+        return $this->dataCount;
+    }
+
 
     /**
      * @param int|null $dataCount
@@ -64,7 +73,15 @@ abstract class AbstractSitemapInterface
     /**
      * @return array
      */
-    public function getData(): array
+    public function getSitemapData(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSitemapNewsData(): array
     {
         return $this->data;
     }
