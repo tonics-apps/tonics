@@ -356,7 +356,7 @@ class CouponTypeController
                 ->WhereEquals('coupon_status', 1)
                 ->Where("$couponTableName.created_at", '<=', helper()->date())
                 ->WhereIn('coupon_type_id', $couponTypeIDS)->GroupBy('coupon_id')
-                ->OrderByDesc(table()->pickTable($couponTableName, ['updated_at']))->SimplePaginate(50);
+                ->OrderByDesc(table()->pickTable($couponTableName, ['created_at']))->SimplePaginate(50);
 
             response()->header("content-type: text/xml; charset=UTF-8");
 
