@@ -136,7 +136,7 @@ class TonicsSeoController
 
                                 if ($child->field_input_name === $app_tonicsseo_rss_settings_postQueryBuilder){
                                     if (isset($child->_children[0]->_children)){
-                                        $rssSettingsData['Query'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children);
+                                        $rssSettingsData['Query'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children, 'created_at');
                                     }
                                 }
                             }

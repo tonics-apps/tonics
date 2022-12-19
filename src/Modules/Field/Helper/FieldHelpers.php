@@ -18,10 +18,11 @@ class FieldHelpers
 {
     /**
      * @param $childrenFieldItems
+     * @param string $orderByName
      * @return object|null
      * @throws \Exception
      */
-    public static function postDataFromPostQueryBuilderField($childrenFieldItems): ?object
+    public static function postDataFromPostQueryBuilderField($childrenFieldItems, string $orderByName = 'updated_at'): ?object
     {
         $postTbl = Tables::getTable(Tables::POSTS);
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
@@ -29,7 +30,7 @@ class FieldHelpers
 
         $postFieldSettings = $postTbl . '.field_settings';
         $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'slug_id', 'post_slug', 'field_settings', 'created_at', 'updated_at', 'image_url']])
-            . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
+            . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link, post_title as _title '
             . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description"
             . ", DATE_FORMAT($postTbl.updated_at, '%a, %d %b %Y %T') as rssPubDate";
 
@@ -83,10 +84,10 @@ class FieldHelpers
             }
         }
 
-        return $db->when($orderBy === 'asc', function (TonicsQuery $db) use ($postTbl) {
-            $db->OrderByAsc(table()->pickTable($postTbl, ['updated_at']));
-        }, function (TonicsQuery $db) use ($postTbl) {
-            $db->OrderByDesc(table()->pickTable($postTbl, ['updated_at']));
+        return $db->when($orderBy === 'asc', function (TonicsQuery $db) use ($orderByName, $postTbl) {
+            $db->OrderByAsc(table()->pickTable($postTbl, [$orderByName]));
+        }, function (TonicsQuery $db) use ($orderByName, $postTbl) {
+            $db->OrderByDesc(table()->pickTable($postTbl, [$orderByName]));
         })->SimplePaginate($perPage);
     }
 }

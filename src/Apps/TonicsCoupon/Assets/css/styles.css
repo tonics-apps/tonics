@@ -1,0 +1,83 @@
+.tonics-coupon-items {
+    -webkit-box-shadow: 0 18px 40px 0px #0a00002b;
+    position: relative;
+}
+
+.tonics-coupon-items {
+    display: grid;
+    grid-template-areas:
+        "tci-image"
+        "tci-title"
+        "tci-description"
+        "tci-actions";
+}
+
+.tonics-coupon-item:not(.tonics-coupon-item-image) {
+    padding: 1.2em;
+}
+
+.tonics-coupon-item-image {
+    grid-area: tci-image;
+}
+
+.tonics-coupon-item-title {
+    grid-area: tci-title;
+}
+
+.tonics-coupon-item-description {
+    grid-area: tci-description;
+}
+
+.tonics-coupon-item-actions {
+    grid-area: tci-actions;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.tonics-coupon-body {
+    display: grid;
+    grid-template-areas:
+        "tc-aside"
+        "tc-content";
+    gap: 1em;
+    position: relative;
+}
+
+.tonics-coupon-content {
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.tonics-coupon-content {
+    grid-area: tc-content;
+}
+
+.tonics-coupon-content>* {
+    padding-left: clamp(2rem,2.5vw,4rem);
+    padding-right: clamp(2rem,2.5vw,4rem);
+}
+
+.tonics-coupon-content>ol, .tonics-coupon-content>ul {
+    margin-left: clamp(1rem,5.5vw,3rem);
+}
+
+.tonics-coupon-content>ol>li, .tonics-coupon-content>ul>li, .main-header, h1, h2, h3, h4, h5, h6, p {
+    font-size: max(var(--font-min),min(var(--font-pref-val),var(--font-max)));
+    font-weight: 400;
+    -webkit-hyphens: manual;
+    -ms-hyphens: manual;
+    hyphens: manual;
+    margin: auto;
+    overflow-wrap: break-word;
+}
+
+.tonics-coupon-aside {
+    grid-area: tc-aside;
+}
+
+@media (min-width: 1200px) {
+    .tonics-coupon-body {
+        grid-template-areas: "tc-aside tc-aside tc-content";
+    }
+}
