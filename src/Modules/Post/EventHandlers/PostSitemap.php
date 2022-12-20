@@ -57,7 +57,7 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
             tableRows: $this->getSitemapDataCount(),
             callback: function ($perPage, $offset){
                 $table = Tables::getTable(Tables::POSTS);
-                $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', DATE_FORMAT(updated_at, '%Y-%m-%d') as '_lastmod'";
+                $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
                 return db()->run(<<<SQL
 SELECT $select FROM $table WHERE post_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
