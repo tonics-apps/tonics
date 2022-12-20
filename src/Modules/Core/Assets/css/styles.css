@@ -902,8 +902,9 @@ BEAT-PLAYER STICKY BOTTOM STYLES
 
 .audio-player-global-container {
     margin-top: auto;
-    box-shadow: 5px 0 15px 0 rgb(37 44 97 / 15%), 0 2px 4px 0 rgb(93 100 148 / 20%);
     text-align: center;
+    background: linear-gradient(rgba(0,0,0,0.5) 0%, #000 100%);
+    backdrop-filter: blur(5px);
 }
 
 div#meta-container {
@@ -930,6 +931,11 @@ div#meta-container {
 }
 [data-audioplayer_shuffle="false"] .shuffle-on {
     display: none;
+}
+
+[data-audioplayer_globalart] .main-album-art {
+    width: 56px;
+    height: 56px;
 }
 
 /* VOLUME RANGE STYLE */
@@ -1030,24 +1036,37 @@ input.volume-slider::-ms-track {
     outline: none;
 }
 
-
 .time-progress .progress-container input[type=range]::-webkit-slider-thumb {
+    visibility: hidden;
     box-shadow: 0 0 0 #000000, 0 0 0 #0d0d0d;
     cursor: pointer;
     -webkit-appearance: none;
+}
+
+.time-progress:hover .progress-container input[type=range]::-webkit-slider-thumb {
+    visibility: visible;
 }
 
 .time-progress .progress-container input[type=range]::-moz-range-thumb {
     box-shadow: 0 0 0 #000000, 0 0 0 #0d0d0d;
     cursor: pointer;
     -webkit-appearance: none;
+    visibility: hidden;
 }
 
+.time-progress:hover .progress-container input[type=range]::-moz-range-thumb {
+    visibility: visible;
+}
 
 .time-progress .progress-container input[type=range]::-ms-thumb {
     box-shadow: 0 0 0 #000000, 0 0 0 #0d0d0d;
     cursor: pointer;
     -webkit-appearance: none;
+    visibility: hidden;
+}
+
+.time-progress .progress-container input[type=range]::-ms-thumb {
+    visibility: visible;
 }
 
 /*--------------------------------------------------------------

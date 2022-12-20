@@ -5043,6 +5043,15 @@ if (document.querySelector('.audio-player')){
         .closeOnClickOutSide(false)
         .run();
 
+    new MenuToggle('.audio-player', new Query())
+        .settings('.audio-player-global-container', '.dropdown-toggle', '.audio-player-marker-data')
+        .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
+        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+        .stopPropagation(false)
+        .closeOnClickOutSide(false)
+        .run();
+
     new MenuToggle('.audio-player-queue', new Query())
         .settings('.track-in-queue', '.dropdown-toggle', '.track-license')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])

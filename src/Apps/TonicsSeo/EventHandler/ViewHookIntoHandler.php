@@ -313,8 +313,14 @@ FAQ_SCHEMA;
                                         }
 
                                         if (empty($appTonicsseoStructuredDataArticleData['images']) && !empty($tonicsView->accessArrayWithSeparator('Data.image_url'))){
-                                            $appTonicsseoStructuredDataArticleData['images'][] =
-                                                AppConfig::getAppUrl() . $tonicsView->accessArrayWithSeparator('Data.image_url');
+                                            $accessedImage = $tonicsView->accessArrayWithSeparator('Data.image_url');
+                                            if (parse_url($accessedImage, PHP_URL_HOST) === null){
+                                                $appTonicsseoStructuredDataArticleData['images'][] =
+                                                    AppConfig::getAppUrl() . $tonicsView->accessArrayWithSeparator('Data.image_url');
+                                            } else {
+                                                $appTonicsseoStructuredDataArticleData['images'][] =
+                                                    $tonicsView->accessArrayWithSeparator('Data.image_url');
+                                            }
                                         }
                                     }
                                     # Handle Collation of Product Review Data
@@ -400,6 +406,7 @@ ArticleStructuredData;
                 $firstKey = array_key_first($appTonicsseoStructuredDataArticleData['images']);
                 $lastKey = array_key_last($appTonicsseoStructuredDataArticleData['images']);
                 foreach ($appTonicsseoStructuredDataArticleData['images'] as $key => $image){
+
                     if ($firstKey === $key){
                         $meta .= <<<ArticleStructuredData
     "image": [
