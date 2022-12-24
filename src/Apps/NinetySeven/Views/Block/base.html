@@ -140,7 +140,7 @@
   <h1 class="entry-title"> [[v('Data.post_title .. Data.cat_name')]]</h1>
   <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
     [[_use('Post::Breadcrumb')]]
-    <div class="by-line-and-date d:flex justify-content:center flex-gap:small">
+    <div class="by-line-and-date d:flex justify-content:center flex-gap:small flex-wrap:wrap">
       [[if('v[Data.user_name]')
       <div class="by-line d:flex align-items:center flex-gap:small">
                     <span class="posted-by">
@@ -151,7 +151,13 @@
       ]]
       <div class="date-published d:flex align-items:center flex-gap:small">
                 <span class="date">
-                    On [[v('Data.created_at_words')]]
+                    Published: [[v('Data.created_at_words')]]
+                </span>
+      </div>
+      |
+      <div class="date-published d:flex align-items:center flex-gap:small">
+                <span class="date">
+                    Updated: [[v('Data.updated_at_words')]]
                 </span>
       </div>
     </div>

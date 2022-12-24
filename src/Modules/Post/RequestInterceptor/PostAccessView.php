@@ -60,12 +60,6 @@ class PostAccessView
             if ($post['post_status'] === 1) {
                 $this->post = $post; return;
             }
-
-            ## Else, post is in draft or trash or in the future, check if user is logged in and has a read access
-            $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
-            if (Roles::RoleHasPermission($role, Roles::CAN_READ)) {
-                $this->post = $post; return;
-            }
         }
 
         throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);

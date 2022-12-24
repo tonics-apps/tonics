@@ -3934,7 +3934,7 @@ export class AudioPlayer {
         if (this.progressContainer) {
             this.songSlider = this.progressContainer.querySelector('.song-slider');
         }
-        this.userIsSeeking = false;
+        this.userIsSeekingSongSlider = false;
         if (document.querySelector('.audio-player-queue')){
             this.originalTracksInQueueBeforeShuffle = document.querySelector('.audio-player-queue').innerHTML;
         }
@@ -3993,11 +3993,54 @@ export class AudioPlayer {
         let self = this;
         let audioPlayerGlobalContainer = self.getAudioPlayerGlobalContainer();
         if (audioPlayerGlobalContainer) {
+
+            let tonics_audio_seeking = false, tonics_audio_holdTimeout;
+            document.addEventListener('mousedown', (e) => {
+                let el = e.target, self = this;
+                // forward seeking
+                if (el.dataset.hasOwnProperty('audioplayer_next')) {
+                    tonics_audio_holdTimeout = setTimeout(() => {
+                        tonics_audio_seeking = true;
+                        seekForward();
+                    }, 600); // Start seeking after the button has been held down for 0.6 seconds
+                }
+
+                // backward seeking
+                if (el.dataset.hasOwnProperty('audioplayer_prev')) {
+                    tonics_audio_holdTimeout = setTimeout(() => {
+                        tonics_audio_seeking = true;
+                        seekBackward();
+                    }, 600);  // Start seeking after the button has been held down for 0.6 seconds
+                }
+            });
+
+            function seekForward() {
+                if (tonics_audio_seeking) {
+                    self.currentHowl.seek(self.currentHowl.seek() + 1);  // Seek forward 1 second
+                    setTimeout(seekForward, 100);  // Call this function again in 100 milliseconds
+                }
+            }
+
+            function seekBackward() {
+                if (tonics_audio_seeking) {
+                    const currentSeek = self.currentHowl.seek();  // Get the current seek position
+                    const newSeek = currentSeek - 1;  // Calculate the new seek position
+                    if (newSeek >= 0) {  // Only seek if the new seek position is greater than or equal to 0
+                        self.currentHowl.seek(newSeek);  // Seek backward 1 second
+                    }
+                    setTimeout(seekBackward, 100);  // Call this function again in 100 milliseconds
+                }
+            }
+
+            function removeSeeking() {
+                tonics_audio_seeking = false;
+                clearTimeout(tonics_audio_holdTimeout);
+            }
+
             document.addEventListener('click', (e) => {
                 let el = e.target;
                 // toggle play
                 if (el.dataset.hasOwnProperty('audioplayer_play')) {
-
                     // play;
                     if(el.dataset.audioplayer_play === 'false') {
                         el.dataset.audioplayer_play = 'true'
@@ -4031,17 +4074,20 @@ export class AudioPlayer {
 
                 // next
                 if (el.dataset.hasOwnProperty('audioplayer_next')) {
-                    if (el.dataset.audioplayer_next === 'true') {
+                    if (tonics_audio_seeking === false && el.dataset.audioplayer_next === 'true') {
                         this.next();
                     }
                 }
 
                 // prev
                 if (el.dataset.hasOwnProperty('audioplayer_prev')) {
-                    if (el.dataset.audioplayer_prev === 'true') {
+                    if (tonics_audio_seeking === false  && el.dataset.audioplayer_prev === 'true') {
                         this.prev();
                     }
                 }
+
+                // Remove any possible seeking
+                removeSeeking();
 
                 // repeat
                 if (el.dataset.hasOwnProperty('audioplayer_repeat')){
@@ -4327,7 +4373,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let el = e.target;
         let self = this;
         if (el.classList.contains('song-slider')) {
-            self.userIsSeeking = true;
+            self.userIsSeekingSongSlider = true;
         }
     }
 
@@ -4335,7 +4381,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let el = e.target;
         let self = this;
         if (el.classList.contains('song-slider')) {
-            self.userIsSeeking = false;
+            self.userIsSeekingSongSlider = false;
             self.seek(el.value);
         }
     }
@@ -4488,7 +4534,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             let seek = howl.seek() || 0;
             let progress = seek / howl.duration() * 100 || 0;
             progress = Math.round(progress);
-            if (self.userIsSeeking === false) {
+            if (self.userIsSeekingSongSlider === false) {
                 self.songSlider.value = progress;
             }
             requestAnimationFrame(this.step.bind(self));
@@ -4568,8 +4614,8 @@ if (document.querySelector('.audio-player')){
         .closeOnClickOutSide(false)
         .run();
 
-    new MenuToggle('.audio-player', new Query())
-        .settings('.audio-player-global-container', '.dropdown-toggle', '.audio-player-marker-data')
+    new MenuToggle('.time-progress', new Query())
+        .settings('.time-progress-marker', '.marker-dropdown-toggle', '.audio-player-marker-data')
         .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
         .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])

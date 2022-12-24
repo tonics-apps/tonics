@@ -15,10 +15,14 @@ use App\Apps\TonicsCoupon\Events\OnCouponDefaultField;
 use App\Apps\TonicsCoupon\Events\OnCouponTypeCreate;
 use App\Apps\TonicsCoupon\Events\OnCouponTypeDefaultField;
 use App\Apps\TonicsCoupon\TonicsCouponActivator;
+use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\Authentication\Roles;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CouponData extends AbstractDataLayer
 {
@@ -293,6 +297,9 @@ HTML;
             return [];
         }
 
+        # Role ACCESS Key
+        $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
+
         $couponData = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())
             ->From($couponToTypeTableName)
             ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
@@ -300,7 +307,10 @@ HTML;
             ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
             ->WhereEquals('coupon_type_status', 1)
             ->WhereEquals(table()->pickTable($couponTableName, [$column]), $ID)
-            ->Where(table()->pickTable($couponTableName, ['created_at']), '<=', helper()->date())
+            # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
+            ->when(Roles::RoleHasPermission($role, Roles::CAN_READ) === false, function (TonicsQuery $db) use ($couponTableName) {
+                $db->Where(table()->pickTable($couponTableName, ['created_at']), '<=', helper()->date());
+            })
             ->FetchFirst();
 
         if (empty($couponData) || $couponData?->coupon_status === null){

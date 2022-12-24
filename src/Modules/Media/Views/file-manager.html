@@ -161,8 +161,9 @@
         <div class="time-progress">
             <div class="progress-container">
                 <input type="range" step="1" value="0" class="song-slider" min="0" max="100">
-                <div style="left: 25%; background: #ff9800;" class="marker z-index:time-progress-marker">
-                    <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-gap flex-d:column bg:pure-white padding:default position:absolute right:0 overflow:auto swing-in-top-fwd d:flex">
+                <div style="left: 25%; background: #c98828;" class="marker time-progress-marker z-index:time-progress-marker">
+                    <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-gap flex-d:column bg:pure-white
+                    padding:default position:absolute right:0 overflow:auto d:none">
                         <div class="more-audio-player-control cursor:pointer">
                             <button type="button" title="Repeat" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black" data-audioplayer_repeat="false">
 
@@ -197,14 +198,15 @@
                             </li>
                         </ol>
                     </div>
-                    <button type="button" title="Track Marker" class="border:none act-like-button bg:transparent cursor:pointer dropdown-toggle color:white" aria-expanded="false" aria-label="Expand child menu">
+                    <button type="button" title="Track Marker" class="border:none act-like-button bg:transparent cursor:pointer marker-dropdown-toggle color:white" aria-expanded="false" aria-label="Expand child menu">
                         <svg class="icon:audio tonics-widget cursor:pointer act-like-button">
                             <use class="svgUse" xlink:href="#tonics-arrow-up"></use>
                         </svg>
                     </button>
                 </div>
-                <div style="left: 55%; background: #ff9800;" class="marker z-index:time-progress-marker">
-                    <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-gap flex-d:column bg:pure-white padding:default position:absolute right:0 overflow:auto swing-in-top-fwd d:flex">
+                <div style="left: 75%; background: #c98828;" class="marker time-progress-marker z-index:time-progress-marker">
+                    <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-gap flex-d:column bg:pure-white
+                    padding:default position:absolute right:0 overflow:auto d:none">
                         <div class="more-audio-player-control cursor:pointer">
                             <button type="button" title="Repeat" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black" data-audioplayer_repeat="false">
 
@@ -239,43 +241,11 @@
                             </li>
                         </ol>
                     </div>
-                </div>
-                <div style="left: 75%; background: #ff9800;" class="marker z-index:time-progress-marker">
-                    <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-gap flex-d:column bg:pure-white padding:default position:absolute right:0 overflow:auto swing-in-top-fwd d:flex">
-                        <div class="more-audio-player-control cursor:pointer">
-                            <button type="button" title="Repeat" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black" data-audioplayer_repeat="false">
-
-                                <svg class="repeat-on icon:audio tonics-widget pointer-events:none">
-                                    <use class="svgUse" xlink:href="#tonics-repeat-on"></use>
-                                </svg>
-                                <svg class="repeat-off icon:audio tonics-widget pointer-events:none">
-                                    <use class="svgUse" xlink:href="#tonics-repeat-off"></use>
-                                </svg>
-
-                            </button>
-                        </div>
-                        <ol class="audio-player-queue-list d:flex flex-d:column flex-gap:small">
-                            <li tabindex="0" class="color:black cursor:move draggable bg:white-one border-width:default border:black position:relative">
-                                <div class="d:flex align-items:center flex-gap:small">
-                                    <div title="3._ferola_x_dotzee.mp3" class="cursor:text text:no-wrap width:80px text-overflow:ellipsis">3._ferola_x_dotzee.mp3</div>
-
-                                </div>
-
-                                <button type="button" title="Play" data-tonics-audioplayer-track="" data-trackloaded="true" data-audioplayer_songurl="https://cringe.com/serve_file_path_987654321/28bfdb339ef7c9179b49b3576593edcf781a3c7dc8903ca3120767e0734efb55" data-audioplayer_title="3._ferola_x_dotzee.mp3" data-audioplayer_image="" data-audioplayer_format="mp3" data-audioplayer_play="false" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:black">
-                                    <svg class="audio-play icon:audio tonics-widget pointer-events:none">
-                                        <use class="svgUse" xlink:href="#tonics-audio-play"></use>
-                                    </svg>
-                                    <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
-                                        <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
-                                    </svg>
-                                </button>
-
-                                <ul class="cursor:pointer track-license d:none z-index:audio-sticky-footer:license-in-queue flex-d:column width:100% position:absolute flex-gap left:0 top:46px color:black bg:white-one border-width:default border:black">
-
-                                </ul>
-                            </li>
-                        </ol>
-                    </div>
+                    <button type="button" title="Track Marker" class="border:none act-like-button bg:transparent cursor:pointer marker-dropdown-toggle color:white" aria-expanded="false" aria-label="Expand child menu">
+                        <svg class="icon:audio tonics-widget cursor:pointer act-like-button">
+                            <use class="svgUse" xlink:href="#tonics-arrow-up"></use>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>

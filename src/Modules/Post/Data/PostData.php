@@ -12,7 +12,10 @@ namespace App\Modules\Post\Data;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
+use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
+use App\Modules\Core\Library\Authentication\Roles;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
@@ -363,6 +366,9 @@ CAT;
             return [];
         }
 
+        # Role ACCESS Key
+        $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
+
         $postData = db()->Select(PostData::getPostTableJoiningRelatedColumns())
             ->From($postToCatTable)
             ->Join($postTable, table()->pickTable($postTable, ['post_id']), table()->pickTable($postToCatTable, ['fk_post_id']))
@@ -371,7 +377,10 @@ CAT;
             // ->WhereEquals('post_status', 1)
             ->WhereEquals('cat_status', 1)
             ->WhereEquals(table()->pickTable($postTable, [$column]), $ID)
-            ->Where(table()->pickTable($postTable, ['created_at']), '<=', helper()->date())
+            # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
+            ->when(Roles::RoleHasPermission($role, Roles::CAN_READ) === false, function (TonicsQuery $db) use ($postTable) {
+                $db->Where(table()->pickTable($postTable, ['created_at']), '<=', helper()->date());
+            })
             ->FetchFirst();
 
         if (empty($postData) || $postData?->post_status === null){

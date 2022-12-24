@@ -1,4 +1,12 @@
 <?php
+/*
+ * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
 
 namespace App\Apps\TonicsCoupon;
 
@@ -183,7 +191,7 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
             "name" => "TonicsCoupon",
             "type" => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1671573467',
+            "version" => '1-O-app.1671787231',
             "description" => "This is TonicsCoupon",
             "info_url" => '',
             "settings_page" => route('tonicsCoupon.settings'), // can be null or a route name

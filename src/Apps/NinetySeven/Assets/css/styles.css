@@ -1202,14 +1202,17 @@ article.entry-content {
     TONICS PLUGIN
 ************************/
 
-.tonics-toc-ul {
+.tonics-toc ul > :first-child {
     counter-reset: tonicsTocCounter;
+}
+
+.tonics-toc-ul {
     list-style-type: none;
 }
 
 .tonics-toc-ul li::before {
     counter-increment: tonicsTocCounter;
-    content: counters(tonicsTocCounter, ".") " ";
+    content: counters(tonicsTocCounter, ".") ". ";
 }
 
 .tonics-toc-ul li {

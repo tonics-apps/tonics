@@ -1045,7 +1045,7 @@ input.volume-slider::-ms-track {
     height: 5px;
     cursor: pointer;
     background-color: inherit;
-    accent-color: #70748b;
+    accent-color: #000000;
     outline: none;
 }
 
@@ -1099,17 +1099,12 @@ input.volume-slider::-ms-track {
     justify-content: center;
 }
 
-.time-progress .marker:hover .audio-player-marker-data {
+.time-progress .marker .audio-player-marker-data {
     height: 210px;
     width: 250px;
     right: 0;
     top: -210px;
-    display: block;
 }
-.time-progress .marker .audio-player-marker-data {
-    display: none;
-}
-
 
 .tonics-fm-body {
     min-height: 100vh;
