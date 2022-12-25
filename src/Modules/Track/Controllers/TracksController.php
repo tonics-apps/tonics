@@ -182,6 +182,7 @@ class TracksController extends Controller
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.create'));
         }
+
         dd($_POST, $urlDownloadCombine);
 
         # Storing db reference is the only way I got tx to work
