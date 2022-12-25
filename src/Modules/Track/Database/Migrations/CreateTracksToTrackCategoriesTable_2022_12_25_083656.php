@@ -8,7 +8,7 @@ namespace App\Modules\Track\Database\Migrations;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 
-class CreateTracksToGenresTable_2022_12_25_074624 extends Migration {
+class CreateTracksToTrackCategoriesTable_2022_12_25_083656 extends Migration {
 
     /**
      * @throws \Exception
@@ -16,33 +16,38 @@ class CreateTracksToGenresTable_2022_12_25_074624 extends Migration {
     public function up()
     {
         $trackTable = Tables::getTable(Tables::TRACKS);
-        $genreTable = Tables::getTable(Tables::GENRES);
-        
+        $genreTable = Tables::getTable(Tables::TRACK_CATEGORIES);
+
         $this->getDB()->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `fk_genre_id` int(10) unsigned NOT NULL,
+  `fk_track_cat_id` int(10) unsigned NOT NULL,
   `fk_track_id` int(10) unsigned NOT NULL,
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `track_genre_fk_genre_id_foreign` (`fk_genre_id`),
-  KEY `track_genre_fk_track_id_foreign` (`fk_track_id`),
-  CONSTRAINT `=track_genre_fk_genre_id_foreign` FOREIGN KEY (`fk_genre_id`) REFERENCES `$genreTable` (`genre_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `=track_genre_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$trackTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `track_track_cat_fk_track_cat_id_foreign` (`fk_track_cat_id`),
+  KEY `track_track_cat_fk_track_id_foreign` (`fk_track_id`),
+  CONSTRAINT `track_track_cat_fk_track_cat_id_foreign` FOREIGN KEY (`fk_track_cat_id`) REFERENCES `$genreTable` (`track_cat_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `track_track_cat_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$trackTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
     }
 
+
     /**
+     * Reverse the migrations.
+     *
+     * @return void
      * @throws \Exception
      */
-    public function down()
+    public function down(): void
     {
         $this->dropTable($this->tableName());
     }
 
     private function tableName(): string
     {
-        return Tables::getTable(Tables::TRACK_GENRES);
+        return Tables::getTable(Tables::TRACK_TO_TRACK_CATEGORIES);
     }
 }

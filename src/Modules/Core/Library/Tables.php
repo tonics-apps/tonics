@@ -32,8 +32,12 @@ final class Tables
         self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
         self::SESSIONS => ['id', 'session_id', 'session_data', 'updated_at'],
         self::GLOBAL => ['id', 'key', 'value', 'created_at', 'updated_at'],
+
         self::TRACK_LIKES => ['id', 'fk_customer_id', 'fk_track_id', 'is_like', 'created_at', 'updated_at'],
         self::TRACKS => ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'track_title', 'track_plays', 'track_bpm', 'track_status', 'license_attr_id_link', 'field_settings', 'fk_genre_id', 'fk_artist_id', 'fk_license_id', 'created_at', 'updated_at'],
+        self::TRACK_GENRES => ['id', 'fk_genre_id', 'fk_track_id', 'created_at', 'updated_at'],
+        self::TRACK_CATEGORIES => ['cat_id', 'cat_parent_id', 'slug_id', 'cat_name', 'cat_slug', 'cat_status', 'field_settings', 'created_at', 'updated_at'],
+
         self::USERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'role', 'settings', 'created_at', 'updated_at'],
         self::CUSTOMERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'is_guest', 'role', 'settings', 'created_at', 'updated_at'],
         self::WIDGET_ITEMS => ['id', 'fk_widget_id', 'wgt_id', 'wgt_name', 'wgt_options', 'created_at', 'updated_at'],
@@ -75,6 +79,11 @@ final class Tables
 
     const TRACK_LIKES = 'track_likes';
     const TRACKS = 'tracks';
+    const TRACK_GENRES = 'track_genres';
+    // could have named this categories but the post is already using that, so, track_categories means one thing a track category
+    // and not track that links to category that is what track_to_track_categories is for
+    const TRACK_CATEGORIES = 'track_categories';
+    const TRACK_TO_TRACK_CATEGORIES = 'track_to_track_categories';
     const PURCHASE_TRACKS = 'purchase_tracks';
 
     const USERS = 'user';

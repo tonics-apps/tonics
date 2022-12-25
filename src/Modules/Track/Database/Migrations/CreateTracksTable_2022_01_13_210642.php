@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS {$this->tableName()} (
   `track_status` tinyint(4) NOT NULL DEFAULT 0,
   `license_attr_id_link` longtext NOT NULL DEFAULT '$licenseAttrJSON' CHECK (json_valid(`license_attr_id_link`)),
   `field_settings` longtext DEFAULT '{}' CHECK (json_valid(`field_settings`)),
-  `fk_genre_id` int(10) unsigned NOT NULL,
   `fk_artist_id` int(10) unsigned NOT NULL,
   `fk_license_id` int(10) unsigned NOT NULL,
   `created_at` timestamp DEFAULT current_timestamp(),
@@ -54,11 +53,9 @@ CREATE TABLE IF NOT EXISTS {$this->tableName()} (
   PRIMARY KEY (`track_id`),
   UNIQUE KEY (`slug_id`),
   UNIQUE KEY `bt_tracks_track_slug_unique` (`track_slug`),
-  KEY `bt_tracks_fk_genre_id_foreign` (`fk_genre_id`),
   KEY `bt_tracks_fk_artist_id_foreign` (`fk_artist_id`),
   KEY `bt_tracks_fk_license_id_foreign` (`fk_license_id`),
   CONSTRAINT `bt_tracks_fk_artist_id_foreign` FOREIGN KEY (`fk_artist_id`) REFERENCES `$artistTable` (`artist_id`) ON UPDATE CASCADE,
-  CONSTRAINT `bt_tracks_fk_genre_id_foreign` FOREIGN KEY (`fk_genre_id`) REFERENCES `$genreTable` (`genre_id`) ON UPDATE CASCADE,
   CONSTRAINT `bt_tracks_fk_license_id_foreign` FOREIGN KEY (`fk_license_id`) REFERENCES `$licenseTable` (`license_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
     }
