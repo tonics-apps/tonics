@@ -14,6 +14,7 @@ use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Track\Events\OnTrackCategoryDefaultField;
 use App\Modules\Track\Events\OnTrackCreate;
 use App\Modules\Track\Events\OnTrackDefaultField;
 
@@ -22,10 +23,12 @@ class TrackData extends AbstractDataLayer
 
     private ?OnTrackDefaultField $onTrackDefaultField;
     private ?FieldData $fieldData;
+    private ?OnTrackCategoryDefaultField $onTrackCategoryDefaultField;
 
-    public function __construct(OnTrackDefaultField $onTrackDefaultField = null, FieldData $fieldData = null)
+    public function __construct(OnTrackDefaultField $onTrackDefaultField = null, OnTrackCategoryDefaultField $onTrackCategoryDefaultField = null, FieldData $fieldData = null)
     {
         $this->onTrackDefaultField = $onTrackDefaultField;
+        $this->onTrackCategoryDefaultField = $onTrackCategoryDefaultField;
         $this->fieldData = $fieldData;
     }
 
@@ -50,6 +53,22 @@ class TrackData extends AbstractDataLayer
     {
         return Tables::getTable(Tables::LICENSES);
     }
+
+    public function getTrackCategoryTable(): string
+    {
+        return Tables::getTable(Tables::TRACK_CATEGORIES);
+    }
+
+    public function getTrackTracksCategoryTable(): string
+    {
+        return Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
+    }
+
+    public function getTrackCategoryColumns(): array
+    {
+        return Tables::$TABLES[Tables::TRACK_CATEGORIES];
+    }
+
 
     public function getLicenseColumns(): array
     {
@@ -82,9 +101,9 @@ class TrackData extends AbstractDataLayer
         `genre_id`, `genre_name`, `genre_name` AS `track_genre`, `genre_slug`,
         `artist_id`, `artist_name`, `artist_name` AS `track_artist`, `artist_slug`, `artist_bio`, $artistTable.image_url AS `artist_image`,
         license_id, license_name, license_slug, license_status, license_attr, license_attr AS track_licenses,
-        CONCAT_WS( '/', '/tracks', slug_id, track_slug ) AS `track_link`,
-        CONCAT_WS( '/', '/artist', artist_slug ) AS `track_artist_link`,
-        CONCAT_WS( '/', '/genres', genre_slug ) AS `track_genre_link`
+        CONCAT( '/', '/tracks', slug_id, track_slug ) AS `track_link`,
+        CONCAT( '/', '/artist', artist_slug ) AS `track_artist_link`,
+        CONCAT( '/', '/genres', genre_slug ) AS `track_genre_link`
         ";
     }
 
@@ -94,13 +113,13 @@ class TrackData extends AbstractDataLayer
     public function getTrackPaginationColumns(): string
     {
         return '`track_id`, `slug_id`, `track_slug`, `track_title`, `track_status`,
-        CONCAT_WS( "/", "tracks", slug_id, track_slug ) AS `_link`, `track_title` AS `_name`, `track_id` AS `_id`';
+        CONCAT( "/", "tracks", slug_id, track_slug ) AS `_link`, `track_title` AS `_name`, `track_id` AS `_id`';
     }
 
     public function getGenrePaginationColumn(): string
     {
         return '`genre_id`, `genre_name`, `genre_slug`, `genre_description`, `created_at`, `updated_at`,
-        CONCAT_WS( "", "/genre/", genre_slug ) AS `_link`, `genre_name` AS `_name`, `genre_id` AS `_id`';
+        CONCAT( "", "/genre/", genre_slug ) AS `_link`, `genre_name` AS `_name`, `genre_id` AS `_id`';
     }
 
 
@@ -602,6 +621,146 @@ HTML;
     }
 
     /**
+     * @throws \Exception
+     */
+    public function createCategory(array $ignore = [], bool $prepareFieldSettings = true): array
+    {
+        $slug = $this->generateUniqueSlug($this->getTrackCategoryTable(),
+            'track_cat_slug',
+            helper()->slug(input()->fromPost()->retrieve('track_cat_slug')));
+
+        $category = [];
+        $categoryCols = array_flip($this->getTrackCategoryColumns());
+        if (input()->fromPost()->hasValue('track_cat_parent_id')) {
+            $category['track_cat_parent_id'] = input()->fromPost()->retrieve('track_cat_parent_id');
+        }
+
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $categoryCols) && input()->fromPost()->has($inputKey)) {
+                if ($inputKey === 'track_cat_parent_id' && empty($inputValue)) {
+                    $category[$inputKey] = null;
+                    continue;
+                }
+
+                if ($inputKey === 'created_at') {
+                    $category[$inputKey] = helper()->date(datetime: $inputValue);
+                    continue;
+                }
+                if ($inputKey === 'track_cat_slug') {
+                    $category[$inputKey] = $slug;
+                    continue;
+                }
+                $category[$inputKey] = $inputValue;
+            }
+        }
+
+        $ignores = array_diff_key($ignore, $category);
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
+                unset($category[$v]);
+            }
+        }
+
+        if ($prepareFieldSettings){
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($category, 'track_cat_name', 'track_cat_content');
+        }
+
+        return $category;
+    }
+
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getCategory(): mixed
+    {
+        $categoryTable = $this->getTrackCategoryTable();
+        return db()->run("
+        WITH RECURSIVE track_cat_recursive AS 
+	( SELECT track_cat_id, track_cat_parent_id, track_cat_slug, track_cat_name, CAST(track_cat_slug AS VARCHAR (255))
+            AS path
+      FROM $categoryTable WHERE track_cat_parent_id IS NULL
+      UNION ALL
+      SELECT tcs.track_cat_id, tcs.track_cat_parent_id, tcs.track_cat_slug, tcs.track_cat_name, CONCAT(path, '/' , tcs.track_cat_slug)
+      FROM track_cat_recursive as fr JOIN $categoryTable as tcs ON fr.track_cat_id = tcs.track_cat_parent_id
+      ) 
+     SELECT * FROM track_cat_recursive;
+        ");
+    }
+
+    /**
+     * @param null $currentCatData
+     * @return string
+     * @throws \Exception
+     */
+    public function getCategoryHTMLSelect($currentCatData = null): string
+    {
+        $categories = helper()->generateTree(['parent_id' => 'track_cat_parent_id', 'id' => 'track_cat_id'], $this->getCategory());
+        $catSelectFrag = '';
+        if (count($categories) > 0) {
+            foreach ($categories as $category) {
+                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($category, $currentCatData);
+            }
+        }
+
+        return $catSelectFrag;
+    }
+
+    /**
+     * @param $category
+     * @param null $currentCatIDS
+     * @return string
+     * @throws \Exception
+     */
+    private function getCategoryHTMLSelectFragments($category, $currentCatIDS = null): string
+    {
+        $currentCatIDS = (is_object($currentCatIDS) && property_exists($currentCatIDS, 'track_cat_parent_id')) ? $currentCatIDS->track_cat_parent_id : $currentCatIDS;
+
+        if (!is_array($currentCatIDS)){
+            $currentCatIDS = [$currentCatIDS];
+        }
+
+        $catSelectFrag = '';
+        $catID = $category->track_cat_id;
+        if ($category->depth === 0) {
+            $catSelectFrag .= <<<CAT
+    <option data-is-parent="yes" data-depth="$category->depth"
+            data-slug="$category->track_cat_slug" data-path="/$category->path/" value="$catID"
+CAT;
+            foreach ($currentCatIDS as $currentCatID){
+                if ($currentCatID == $category->track_cat_id) {
+                    $catSelectFrag .= 'selected';
+                }
+            }
+
+            $catSelectFrag .= ">" . $category->track_cat_name;
+        } else {
+            $catSelectFrag .= <<<CAT
+    <option data-slug="$category->track_cat_slug" data-depth="$category->depth" data-path="/$category->path/"
+            value="$catID"
+CAT;
+            foreach ($currentCatIDS as $currentCatID){
+                if ($currentCatID == $category->track_cat_id) {
+                    $catSelectFrag .= 'selected';
+                }
+            }
+
+            $catSelectFrag .= ">" . str_repeat("&nbsp;&nbsp;&nbsp;", $category->depth + 1);
+            $catSelectFrag .= $category->track_cat_name;
+        }
+        $catSelectFrag .= "</option>";
+
+        if (isset($category->_children)) {
+            foreach ($category->_children as $catChildren) {
+                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($catChildren, $currentCatIDS);
+            }
+        }
+
+        return $catSelectFrag;
+
+    }
+
+    /**
      * @return OnTrackDefaultField|null
      */
     public function getOnTrackDefaultField(): ?OnTrackDefaultField
@@ -631,6 +790,22 @@ HTML;
     public function setFieldData(?FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
+    }
+
+    /**
+     * @return OnTrackCategoryDefaultField|null
+     */
+    public function getOnTrackCategoryDefaultField(): ?OnTrackCategoryDefaultField
+    {
+        return $this->onTrackCategoryDefaultField;
+    }
+
+    /**
+     * @param OnTrackCategoryDefaultField|null $onTrackCategoryDefaultField
+     */
+    public function setOnTrackCategoryDefaultField(?OnTrackCategoryDefaultField $onTrackCategoryDefaultField): void
+    {
+        $this->onTrackCategoryDefaultField = $onTrackCategoryDefaultField;
     }
 
 }

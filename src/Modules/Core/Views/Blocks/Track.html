@@ -16,6 +16,15 @@ TRACK ROUTES
 
 [[b('Track::route::posts.trashMultiple')]]
 
+[[- -----------------
+TRACKS CATEGORY ROUTES
+----------------- -]]
+[[b('Track::Category::route::posts.store')/admin/tracks/category/store]]
+
+[[- Pass an update slug arg to arg('1') -]]
+[[b('Track::Category::route::posts.update')/admin/tracks/category/[[arg('1')]]/update]]
+[[b('Track::Category::route::slug')[[v('Data.track_cat_slug')]]]]
+
 [[- --SEARCH FORM-- -]]
 [[b('Track::form::search')
 

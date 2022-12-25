@@ -11,14 +11,12 @@
 namespace App\Modules\Track\Routes;
 
 use App\Modules\Core\Configs\AuthConfig;
-use App\Modules\Core\RequestInterceptor\Authenticated;
-use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\PreProcessFieldDetails;
-use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Track\Controllers\Artist\ArtistController;
 use App\Modules\Track\Controllers\Genre\GenreController;
 use App\Modules\Track\Controllers\License\LicenseController;
 use App\Modules\Track\Controllers\License\LicenseControllerItems;
+use App\Modules\Track\Controllers\TrackCategoryController;
 use App\Modules\Track\Controllers\TracksController;
 use App\Modules\Track\RequestInterceptor\TrackAccess;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -52,6 +50,22 @@ trait Routes
                 $route->post( ':track/trash', [TracksController::class, 'trash'], alias: 'trash');
                 $route->match(['post', 'delete'], ':track/delete', [TracksController::class, 'delete'], alias: 'delete');
                 $route->match(['post', 'delete'], 'delete/multiple', [TracksController::class, 'deleteMultiple'], alias: 'deleteMultiple');
+
+                        #---------------------------------
+                    # TRACK CATEGORIES...
+                #---------------------------------
+                $route->group('/category', function (Route $route){
+                    $route->get('', [TrackCategoryController::class, 'index'], alias: 'index');
+                    $route->post('', [TrackCategoryController::class, 'dataTable'], alias: 'dataTables');
+
+                    $route->get(':category/edit', [TrackCategoryController::class, 'edit'], alias: 'edit');
+                    $route->get('create', [TrackCategoryController::class, 'create'], alias: 'create');
+                    $route->post('store', [TrackCategoryController::class, 'store'], [PreProcessFieldDetails::class]);
+                    $route->post(':category/trash', [TrackCategoryController::class, 'trash']);
+                    $route->post( '/trash/multiple', [TrackCategoryController::class, 'trashMultiple'], alias: 'trashMultiple');
+                    $route->match(['post', 'put', 'patch'], ':category/update', [TrackCategoryController::class, 'update'], [PreProcessFieldDetails::class]);
+                    $route->match(['post', 'delete'], ':category/delete', [TrackCategoryController::class, 'delete']);
+                }, alias: 'category');
 
             }, alias: 'tracks');
 

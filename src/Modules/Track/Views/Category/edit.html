@@ -1,0 +1,18 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
+[[import("Modules::Core/Views/Blocks/Track")]]
+
+[[hook_into('Core::in_head_title')Edit Track Category]]
+[[hook_into('Core::in_main_header_title')Edit Track Category]]
+
+[[hook_into('Core::form_action')[[func('Track::Category::route::posts.update', 'Track::Category::route::slug')]]]]
+
+[[hook_into('Core::before_form_section')
+<input type="hidden" name="track_cat_id" value="[[v('Data.track_cat_id')]]">
+]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:tinymce")]]
+    [[_use("script:post-category")]]
+    [[_use("session:delete-artifacts")]]
+]]

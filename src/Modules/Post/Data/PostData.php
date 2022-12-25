@@ -67,10 +67,10 @@ class PostData extends AbstractDataLayer
         WITH RECURSIVE cat_recursive AS 
 	( SELECT cat_id, cat_parent_id, cat_slug, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
-      FROM {$categoryTable} WHERE cat_parent_id IS NULL
+      FROM $categoryTable WHERE cat_parent_id IS NULL
       UNION ALL
       SELECT tcs.cat_id, tcs.cat_parent_id, tcs.cat_slug, tcs.cat_name, CONCAT(path, '/' , tcs.cat_slug)
-      FROM cat_recursive as fr JOIN {$categoryTable} as tcs ON fr.cat_id = tcs.cat_parent_id
+      FROM cat_recursive as fr JOIN $categoryTable as tcs ON fr.cat_id = tcs.cat_parent_id
       ) 
      SELECT * FROM cat_recursive;
         ");

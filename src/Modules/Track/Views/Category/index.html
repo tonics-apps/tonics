@@ -1,0 +1,12 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
+[[import("Modules::Core/Views/Blocks/Track")]]
+
+[[hook_into('Core::in_head_title')Tracks Category Index]]
+[[hook_into('Core::in_main_header_title')Tracks Category]]
+
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:post-index")]]
+    [[_use("session:delete-artifacts")]]
+]]

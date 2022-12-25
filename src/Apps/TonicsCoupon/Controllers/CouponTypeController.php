@@ -254,28 +254,6 @@ class CouponTypeController
     }
 
     /**
-     * @param string $slug
-     * @return void
-     * @throws Exception
-     */
-    public function delete(string $slug): void
-    {
-        try {
-            $this->getCouponData()->deleteWithCondition(whereCondition: "coupon_type_slug = ?", parameter: [$slug], table: $this->getCouponData()->getCouponTypeTable());
-            session()->flash(['Category Deleted'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('tonicsCoupon.Type.index'));
-        } catch (\Exception $e){
-            $errorCode = $e->getCode();
-            switch ($errorCode){
-                default:
-                    session()->flash(['Failed To Delete Category']);
-                    break;
-            }
-            redirect(route('Category'));
-        }
-    }
-
-    /**
      * @throws \Exception
      */
     #[NoReturn] public function redirect($id): void

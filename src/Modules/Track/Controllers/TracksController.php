@@ -156,6 +156,7 @@ class TracksController extends Controller
      */
     #[NoReturn] public function store()
     {
+
         if (input()->fromPost()->hasValue('created_at') === false){
             $_POST['created_at'] = helper()->date();
         }
@@ -168,6 +169,7 @@ class TracksController extends Controller
         if (input()->fromPost()->hasValue('url_download') && input()->fromPost()->hasValue('unique_id')){
             $urlDownloadCombine = array_combine(input()->fromPost()->retrieve('unique_id'), input()->fromPost()->retrieve('url_download'));
         }
+
         $_POST['license_attr_id_link'] = json_encode($urlDownloadCombine);
         $getValidator = $this->getValidator();
         $getValidator->changeErrorMessage([
@@ -180,6 +182,7 @@ class TracksController extends Controller
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.create'));
         }
+        dd($_POST, $urlDownloadCombine);
 
         # Storing db reference is the only way I got tx to work
         # this could be as a result of pass db() around in event handlers

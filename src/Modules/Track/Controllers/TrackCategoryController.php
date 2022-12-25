@@ -8,7 +8,7 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Post\Controllers;
+namespace App\Modules\Track\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
@@ -19,23 +19,23 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnPostCategoryCreate;
-use App\Modules\Post\Events\OnPostCategoryDefaultField;
-use App\Modules\Post\Rules\PostValidationRules;
+use App\Modules\Track\Data\TrackData;
+use App\Modules\Track\Events\OnTrackCategoryCreate;
+use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 
-class PostCategoryController
+class TrackCategoryController
 {
-    private PostData $postData;
+    private TrackData $trackData;
 
-    use Validator, PostValidationRules, UniqueSlug;
+    use Validator, TrackValidationRules, UniqueSlug;
 
-    public function __construct(PostData $postData)
+    public function __construct(TrackData $trackData)
     {
-        $this->postData = $postData;
+        $this->trackData = $trackData;
     }
 
     /**
@@ -43,33 +43,33 @@ class PostCategoryController
      */
     public function index()
     {
-        $table = Tables::getTable(Tables::CATEGORIES);
+        $table = Tables::getTable(Tables::TRACK_CATEGORIES);
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::CATEGORIES . '::' . 'cat_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'cat_id'],
-            ['type' => 'text', 'slug' => Tables::CATEGORIES . '::' . 'cat_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'cat_name'],
-            ['type' => 'date_time_local', 'slug' => Tables::CATEGORIES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
+            ['type' => '', 'slug' => Tables::TRACK_CATEGORIES . '::' . 'track_cat_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'track_cat_id'],
+            ['type' => 'text', 'slug' => Tables::TRACK_CATEGORIES . '::' . 'track_cat_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'track_cat_name'],
+            ['type' => 'date_time_local', 'slug' => Tables::TRACK_CATEGORIES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/posts/category/", cat_slug, "/edit" ) as _edit_link, CONCAT("/categories/", cat_slug) as _preview_link';
+        $tblCol = '*, CONCAT("/admin/tracks/category/", track_cat_slug, "/edit" ) as _edit_link, CONCAT("/track_categories/", track_cat_slug) as _preview_link';
 
         $data = db()->Select($tblCol)
             ->From($table)
             ->when(url()->hasParamAndValue('status'),
                 function (TonicsQuery $db) {
-                    $db->WhereEquals('cat_status', url()->getParam('status'));
+                    $db->WhereEquals('track_cat_status', url()->getParam('status'));
                 },
                 function (TonicsQuery $db) {
-                    $db->WhereEquals('cat_status', 1);
+                    $db->WhereEquals('track_cat_status', 1);
 
                 })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('cat_name', url()->getParam('query'));
+                $db->WhereLike('track_cat_name', url()->getParam('query'));
 
             })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
                 $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
             })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
-        view('Modules::Post/Views/Category/index', [
+        view('Modules::Track/Views/Category/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
                 'paginateData' => $data ?? [],
@@ -86,7 +86,7 @@ class PostCategoryController
     public function dataTable(): void
     {
         $entityBag = null;
-        if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+        if ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
@@ -95,7 +95,7 @@ class PostCategoryController
             } else {
                 response()->onError(500);
             }
-        } elseif ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+        } elseif ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
@@ -112,16 +112,16 @@ class PostCategoryController
      */
     public function create()
     {
-        event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
+        event()->dispatch($this->getTrackData()->getOnTrackCategoryDefaultField());
 
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
             $oldFormInput = [];
         }
 
-        view('Modules::Post/Views/Category/create', [
-            'Categories' => $this->getPostData()->getCategoryHTMLSelect(),
-            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+        view('Modules::Track/Views/Category/create', [
+            'Categories' => $this->getTrackData()->getCategoryHTMLSelect(),
+            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getTrackData()->getOnTrackCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
         ]);
     }
 
@@ -134,14 +134,14 @@ class PostCategoryController
             $_POST['created_at'] = helper()->date();
         }
 
-        if (input()->fromPost()->hasValue('cat_slug') === false){
-            $_POST['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_name'));
+        if (input()->fromPost()->hasValue('track_cat_slug') === false){
+            $_POST['track_cat_slug'] = helper()->slug(input()->fromPost()->retrieve('track_cat_name'));
         }
 
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryStoreRule());
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->trackCategoryStoreRule());
         if ($validator->fails()){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('posts.category.create'));
+            redirect(route('tracks.category.create'));
         }
 
         # Storing db reference is the only way I got tx to work
@@ -149,51 +149,22 @@ class PostCategoryController
         $db = db();
         try {
             $db->beginTransaction();
-            $category = $this->postData->createCategory();
-            $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
-            $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
-            event()->dispatch($onPostCategoryCreate);
+            $category = $this->trackData->createCategory();
+            $td = $this->getTrackData();
+            $categoryReturning = db()->insertReturning($td->getTrackCategoryTable(), $category, $td->getTrackCategoryColumns(), 'track_cat_id');
+            $onTrackCategoryCreate = new OnTrackCategoryCreate($categoryReturning, $td);
+            event()->dispatch($onTrackCategoryCreate);
             $db->commit();
 
             apcu_clear_cache();
-            session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('posts.category.edit', ['category' => $onPostCategoryCreate->getCatSlug()]));
+            session()->flash(['Track Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('tracks.category.edit', ['category' => $onTrackCategoryCreate->getCatSlug()]));
         }catch (Exception $exception){
             // Log..
             $db->rollBack();
-            session()->flash(['An Error Occurred, Creating Post Category'], input()->fromPost()->all());
-            redirect(route('posts.category.create'));
+            session()->flash(['An Error Occurred, Creating Track Category'], input()->fromPost()->all());
+            redirect(route('tracks.category.create'));
         }
-
-    }
-
-    /**
-     * @throws \ReflectionException
-     * @throws Exception
-     */
-    public function storeFromImport(array $categoryData): bool|object
-    {
-        $previousPOSTGlobal = $_POST;
-        $validator = $this->getValidator()->make($categoryData, $this->postCategoryStoreRule());
-        try {
-            if ($validator->fails()){
-                helper()->sendMsg('PostCategoryController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
-                return false;
-            }
-            foreach ($categoryData as $k => $cat){
-                $_POST[$k] = $cat;
-            }
-            $category = $this->postData->createCategory();
-            $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
-
-        }catch (\Exception $e){
-            helper()->sendMsg('PostCategoryController::storeFromImport()', $e->getMessage(), 'issue');
-            return false;
-        }
-        $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
-        event()->dispatch($onPostCategoryCreate);
-        $_POST = $previousPOSTGlobal;
-        return $onPostCategoryCreate;
 
     }
 
@@ -203,7 +174,7 @@ class PostCategoryController
      */
     public function edit(string $slug): void
     {
-        $category = $this->postData->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
+        $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
 
         if (!is_object($category)){
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -216,19 +187,19 @@ class PostCategoryController
             $fieldSettings = [...$fieldSettings, ...(array)$category];
         }
 
-        event()->dispatch($this->getPostData()->getOnPostCategoryDefaultField());
+        event()->dispatch($this->getTrackData()->getOnTrackCategoryDefaultField());
         if (isset($fieldSettings['_fieldDetails'])){
             addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
-            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostCategoryDefaultField()->getFieldSlug(), $fieldSettings);
+            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getTrackData()->getOnTrackCategoryDefaultField()->getFieldSlug(), $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
             addToGlobalVariable('Data', $category);
         }
 
-        view('Modules::Post/Views/Category/edit', [
+        view('Modules::Track/Views/Category/edit', [
             'FieldItems' => $htmlFrag,
         ]);
     }
@@ -238,25 +209,25 @@ class PostCategoryController
      */
     #[NoReturn] public function update(string $slug): void
     {
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postCategoryUpdateRule());
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->trackCategoryUpdateRule());
         if ($validator->fails()){
             session()->flash($validator->getErrors());
-            redirect(route('posts.category.edit', [$slug]));
+            redirect(route('tracks.category.edit', [$slug]));
         }
 
-        $categoryToUpdate = $this->postData->createCategory();
-        $categoryToUpdate['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_slug'));
+        $categoryToUpdate = $this->trackData->createCategory();
+        $categoryToUpdate['track_cat_slug'] = helper()->slug(input()->fromPost()->retrieve('track_cat_slug'));
 
-        db()->FastUpdate($this->postData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
-        $slug = $categoryToUpdate['cat_slug'];
+        db()->FastUpdate($this->trackData->getTrackCategoryTable(), $categoryToUpdate, db()->Where('track_cat_slug', '=', $slug));
+        $slug = $categoryToUpdate['track_cat_slug'];
 
         apcu_clear_cache();
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
             session()->flash(['Post Category Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
         } else {
-            session()->flash(['Post Category Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            session()->flash(['Track Category Updated'], type: Session::SessionCategories_FlashMessageSuccess);
         }
-        redirect(route('posts.category.edit', ['category' => $slug]));
+        redirect(route('tracks.category.edit', ['category' => $slug]));
     }
 
     /**
@@ -266,7 +237,7 @@ class PostCategoryController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getPostData()->dataTableUpdateMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
+        return $this->getTrackData()->dataTableUpdateMultiple('track_cat_id', Tables::getTable(Tables::TRACK_CATEGORIES), $entityBag, $this->trackCategoryUpdateMultipleRule());
     }
 
     /**
@@ -275,7 +246,7 @@ class PostCategoryController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getPostData()->dataTableDeleteMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag);
+        return $this->getTrackData()->dataTableDeleteMultiple('track_cat_id', Tables::getTable(Tables::TRACK_CATEGORIES), $entityBag);
     }
 
     /**
@@ -285,17 +256,17 @@ class PostCategoryController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID){
-                $category = $this->getPostData()
+                $category = $this->getTrackData()
                     ->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugID]);
-                if (isset($category->slug_id) && isset($category->cat_slug)){
-                    return "/categories/$category->slug_id/$category->cat_slug";
+                if (isset($category->slug_id) && isset($category->track_cat_slug)){
+                    return "/categories/$category->slug_id/$category->track_cat_slug";
                 }
                 return false;
             }, onSlugState: function ($slug){
-            $category = $this->getPostData()
-                ->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
-            if (isset($category->slug_id) && isset($category->cat_slug)){
-                return "/categories/$category->slug_id/$category->cat_slug";
+            $category = $this->getTrackData()
+                ->selectWithConditionFromCategory(['*'], "track_cat_slug = ?", [$slug]);
+            if (isset($category->slug_id) && isset($category->track_cat_slug)){
+                return "/categories/$category->slug_id/$category->track_cat_slug";
             }
             return false;
         });
@@ -304,11 +275,11 @@ class PostCategoryController
     }
 
     /**
-     * @return PostData
+     * @return TrackData
      */
-    public function getPostData(): PostData
+    public function getTrackData(): TrackData
     {
-        return $this->postData;
+        return $this->trackData;
     }
 
     /**
@@ -316,7 +287,7 @@ class PostCategoryController
      */
     public function getFieldData(): ?FieldData
     {
-        return $this->getPostData()->getFieldData();
+        return $this->getTrackData()->getFieldData();
     }
 
 }

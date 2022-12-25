@@ -160,7 +160,7 @@ trait TrackValidationRules
             'track_slug' => ['required', 'string', 'unique' => [
                 $slugUnique => input()->fromPost()->retrieve('track_slug', '')]
             ],
-            'fk_genre_id' => ['required', 'numeric'],
+            'fk_genre_id' => ['required', 'array'],
             'fk_license_id' => ['required', 'numeric'],
             'fk_artist_id' => ['required', 'numeric'],
             'created_at' => ['required', 'string'],
@@ -200,6 +200,50 @@ trait TrackValidationRules
         return [
             'track_id' => ['numeric'],
             'track_title' => ['required', 'string'],
+            'updated_at' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function trackCategoryStoreRule(): array
+    {
+        $catSlugUnique = Tables::getTable(Tables::TRACK_CATEGORIES) .':track_cat_slug';
+        return [
+            'track_cat_name' => ['required', 'string'],
+            'track_cat_content' => ['string'],
+            'track_cat_slug' => ['required', 'string', 'unique' => [
+                $catSlugUnique => input()->fromPost()->retrieve('track_cat_slug', '')]
+            ],
+            'created_at' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function trackCategoryUpdateRule(): array
+    {
+        $catSlugUnique = Tables::getTable(Tables::CATEGORIES) .':track_cat_slug:track_cat_id';
+        return [
+            'track_cat_name' => ['required', 'string'],
+            'track_cat_content' => ['string'],
+            'track_cat_slug' => ['required', 'string', 'unique' => [
+                $catSlugUnique => input()->fromPost()->retrieve('track_cat_id', '')]
+            ],
+            'created_at' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function trackCategoryUpdateMultipleRule(): array
+    {
+        return [
+            'track_cat_id' => ['numeric'],
+            'track_cat_name' => ['required', 'string'],
             'updated_at' => ['required', 'string'],
         ];
     }

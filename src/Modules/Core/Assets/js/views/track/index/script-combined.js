@@ -5125,18 +5125,15 @@ if (trackMainContainer) {
     });
 
     // For SEARCH
-    let searchMenuBoxItem = document.querySelectorAll('.menu-box-item-search'),
-        searchBoxInitials = [];
-
-    searchMenuBoxItem.forEach(((value, key) => {
-        searchBoxInitials[value.dataset.menuboxname] = value.parentElement.cloneNode(true);
-    }));
-
+    let searchBoxInitials = [];
     trackMainContainer.addEventListener('keydown', (e) => {
         let el = e.target;
         if (el.classList.contains('menu-box-item-search')) {
             let value = el;
             if (e.code === 'Enter') {
+                // clone the loaded checkboxes, or radios
+                searchBoxInitials[el.dataset.menuboxname] = el.parentElement.cloneNode(true);
+
                 e.preventDefault();
                 let searchInputValue = value.value;
                 searchInputValue = searchInputValue.trim();
@@ -5182,9 +5179,7 @@ if (trackMainContainer) {
                     // Add each selected checkbox element to the beginning of the innerHTML, if it is not already present
                     for (let i = 0; i < selectedCheckboxes.length; i++) {
                         let selectCheckboxValue = selectedCheckboxes[i].value;
-                        console.log(selectCheckboxValue);
                         let checkbox = searchBoxInitials[value.dataset.menuboxname].querySelector(`input[type="checkbox"][value="${selectCheckboxValue}"]`);
-
                         if (!checkbox){
                             newInnerHTML += selectedCheckboxes[i].parentElement.outerHTML;
                         } else if (checkbox && !checkbox.checked){
