@@ -244,6 +244,18 @@ class PostCategoryController
             redirect(route('posts.category.edit', [$slug]));
         }
 
+        if (input()->fromPost()->hasValue('cat_parent_id') && input()->fromPost()->hasValue('cat_id')){
+            $catParentID = input()->fromPost()->retrieve('cat_parent_id');
+            $catID = input()->fromPost()->retrieve('cat_id');
+            $category = db()->Select('*')->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $slug)->FetchFirst();
+            // Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
+            if ($catParentID === $catID){
+                $_POST['cat_parent_id'] = $category->cat_parent_id;
+                // Log..
+                // Error Message is: Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
+            }
+        }
+
         $categoryToUpdate = $this->postData->createCategory();
         $categoryToUpdate['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_slug'));
 
