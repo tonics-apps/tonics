@@ -19,7 +19,6 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Rules\TrackValidationRules;
@@ -256,17 +255,15 @@ class TrackCategoryController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID){
-                $category = $this->getTrackData()
-                    ->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugID]);
+                $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('slug_id', $slugID)->FetchFirst();
                 if (isset($category->slug_id) && isset($category->track_cat_slug)){
-                    return "/categories/$category->slug_id/$category->track_cat_slug";
+                    return "/track_categories/$category->slug_id/$category->track_cat_slug";
                 }
                 return false;
             }, onSlugState: function ($slug){
-            $category = $this->getTrackData()
-                ->selectWithConditionFromCategory(['*'], "track_cat_slug = ?", [$slug]);
+            $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
             if (isset($category->slug_id) && isset($category->track_cat_slug)){
-                return "/categories/$category->slug_id/$category->track_cat_slug";
+                return "/track_categories/$category->slug_id/$category->track_cat_slug";
             }
             return false;
         });
