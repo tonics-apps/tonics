@@ -220,6 +220,18 @@ class CouponTypeController
             redirect(route('tonicsCoupon.Type.edit', [$slug]));
         }
 
+        if (input()->fromPost()->hasValue('coupon_type_parent_id') && input()->fromPost()->hasValue('coupon_type_id')){
+            $trackCatParentID = input()->fromPost()->retrieve('coupon_type_parent_id');
+            $trackCatID = input()->fromPost()->retrieve('coupon_type_id');
+            $category = db()->Select('*')->From($this->getCouponData()->getCouponTypeTable())->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
+            // Coupon Type Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
+            if ($trackCatParentID === $trackCatID){
+                $_POST['coupon_type_parent_id'] = $category->coupon_type_parent_id;
+                // Log..
+                // Error Message is: Coupon Type Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
+            }
+        }
+
         $updateChanges = $this->couponData->createCouponType();
         $updateChanges['coupon_type_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_type_slug'));
 
