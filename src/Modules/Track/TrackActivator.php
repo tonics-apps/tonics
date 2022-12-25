@@ -102,7 +102,10 @@ class TrackActivator implements ExtensionConfig
                 Tables::getTable(Tables::PURCHASE_TRACKS) => Tables::$TABLES[Tables::PURCHASE_TRACKS],
                 Tables::getTable(Tables::TRACKS) => Tables::$TABLES[Tables::TRACKS],
                 Tables::getTable(Tables::TRACK_LIKES) => Tables::$TABLES[Tables::TRACK_LIKES],
-                Tables::getTable(Tables::WISH_LIST) => Tables::$TABLES[Tables::WISH_LIST],
+                Tables::getTable(Tables::TRACK_WISH_LIST) => Tables::$TABLES[Tables::TRACK_WISH_LIST],
+                Tables::getTable(Tables::TRACK_CATEGORIES) => Tables::$TABLES[Tables::TRACK_CATEGORIES],
+                Tables::getTable(Tables::TRACK_TRACK_CATEGORIES) => Tables::$TABLES[Tables::TRACK_TRACK_CATEGORIES],
+                Tables::getTable(Tables::TRACK_GENRES) => Tables::$TABLES[Tables::TRACK_GENRES],
             ];
     }
 

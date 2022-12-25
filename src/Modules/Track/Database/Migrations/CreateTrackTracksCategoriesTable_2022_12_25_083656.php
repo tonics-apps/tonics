@@ -8,7 +8,7 @@ namespace App\Modules\Track\Database\Migrations;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 
-class CreateTracksToTrackCategoriesTable_2022_12_25_083656 extends Migration {
+class CreateTrackTracksCategoriesTable_2022_12_25_083656 extends Migration {
 
     /**
      * @throws \Exception
@@ -48,6 +48,6 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
 
     private function tableName(): string
     {
-        return Tables::getTable(Tables::TRACK_TO_TRACK_CATEGORIES);
+        return Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
     }
 }
