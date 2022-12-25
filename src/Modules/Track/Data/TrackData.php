@@ -14,6 +14,8 @@ use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Post\Events\OnPostCategoryCreate;
+use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryDefaultField;
 use App\Modules\Track\Events\OnTrackCreate;
 use App\Modules\Track\Events\OnTrackDefaultField;
@@ -62,6 +64,11 @@ class TrackData extends AbstractDataLayer
     public function getTrackTracksCategoryTable(): string
     {
         return Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
+    }
+
+    public function getTrackToGenreTable(): string
+    {
+        return Tables::getTable(Tables::TRACK_GENRES);
     }
 
     public function getTrackCategoryColumns(): array
@@ -619,6 +626,43 @@ HTML;
             }
         }
     }
+    
+    /**
+     * @throws \Exception
+     */
+    public function setDefaultTrackCategoryIfNotSet()
+    {
+        if (input()->fromPost()->hasValue('fk_track_cat_id') === false) {
+            $findDefault = $this->findDefaultTrackCategory();
+
+            if (isset($findDefault->track_cat_id)) {
+                $_POST['fk_track_cat_id'] = [$findDefault->track_cat_id];
+                return;
+            }
+
+            $defaultCategory = [
+                'track_cat_name' => 'Default Track Category',
+                'track_cat_slug' => 'default-track-category',
+                'track_cat_status' => 1,
+            ];
+
+            $returning = db()->insertReturning($this->getTrackCategoryTable(), $defaultCategory, $this->getTrackCategoryColumns(), 'track_cat_id');
+            $_POST['fk_track_cat_id'] = [$returning->track_cat_id];
+            $onTrackCategoryCreate = new OnTrackCategoryCreate($returning, $this);
+            event()->dispatch($onTrackCategoryCreate);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function findDefaultTrackCategory()
+    {
+        return db()->Select(table()->pickTable($this->getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
+            ->From($this->getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-coupon')
+            ->FetchFirst();
+    }
+    
 
     /**
      * @throws \Exception

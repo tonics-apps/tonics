@@ -21,6 +21,8 @@ use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
 use App\Modules\Track\EventHandlers\GenreMenuMetaBox;
 use App\Modules\Track\EventHandlers\HandleNewTrackCategorySlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
+use App\Modules\Track\EventHandlers\HandleNewTrackToGenreMapping;
+use App\Modules\Track\EventHandlers\HandleNewTrackToTrackCategoryMapping;
 use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
 use App\Modules\Track\EventHandlers\TrackMenus;
 use App\Modules\Track\EventHandlers\TrackSitemap;
@@ -52,7 +54,9 @@ class TrackActivator implements ExtensionConfig
     {
         return [
             OnTrackCreate::class => [
-                HandleNewTrackSlugIDGeneration::class
+                HandleNewTrackSlugIDGeneration::class,
+                HandleNewTrackToGenreMapping::class,
+                HandleNewTrackToTrackCategoryMapping::class,
             ],
 
             OnArtistCreate::class => [

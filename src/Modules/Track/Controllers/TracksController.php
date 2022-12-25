@@ -164,6 +164,7 @@ class TracksController extends Controller
             $_POST['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_title'));
         }
 
+        $this->getTrackData()->setDefaultTrackCategoryIfNotSet();
         # Meaning The Unique_id is a link to the url_download
         $urlDownloadCombine = [];
         if (input()->fromPost()->hasValue('url_download') && input()->fromPost()->hasValue('unique_id')){
@@ -183,8 +184,6 @@ class TracksController extends Controller
             redirect(route('tracks.create'));
         }
 
-        dd($_POST, $urlDownloadCombine);
-
         # Storing db reference is the only way I got tx to work
         # this could be as a result of pass db() around in event handlers
         $db = db();
@@ -192,6 +191,10 @@ class TracksController extends Controller
             $db->beginTransaction();
             $track = $this->getTrackData()->createTrack(['token']);
             $trackReturning = db()->insertReturning($this->getTrackData()->getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
+            if (is_object($trackReturning)) {
+                $trackReturning->fk_track_cat_id = input()->fromPost()->retrieve('fk_track_cat_id', '');
+                $trackReturning->fk_genre_id = input()->fromPost()->retrieve('fk_genre_id', '');
+            }
             $onTrackCreate = new OnTrackCreate($trackReturning, $this->getTrackData());
             event()->dispatch($onTrackCreate);
             $db->commit();
@@ -257,6 +260,8 @@ class TracksController extends Controller
      */
     #[NoReturn] public function update(string $slug)
     {
+        $this->getTrackData()->setDefaultTrackCategoryIfNotSet();
+
         # Meaning The Unique_id is a link to the url_download
         $urlDownloadCombine = array_combine(input()->fromPost()->retrieve('unique_id'), input()->fromPost()->retrieve('url_download'));
         $_POST['license_attr_id_link'] = json_encode($urlDownloadCombine);

@@ -33,10 +33,8 @@ use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Media\FileManager\LocalDriver;
 use App\Modules\Post\Events\OnBeforePostSave;
-use App\Modules\Post\Helper\PostRedirection;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
-use JsonMachine\Items;
 
 class CouponController
 {

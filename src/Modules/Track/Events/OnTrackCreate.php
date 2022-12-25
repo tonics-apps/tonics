@@ -98,9 +98,22 @@ class OnTrackCreate implements EventInterface
         return (isset($this->track->track_status)) ? $this->track->track_status : '';
     }
 
-    public function getTrackFKGenreID(): string|int
+    public function getTrackFKGenreIDS($name = 'fk_genre_id'): array
     {
-        return (isset($this->track->fk_genre_id)) ? $this->track->fk_genre_id : '';
+        $genreIDS = (property_exists($this->track, $name)) ? $this->track->{$name} : [];
+        if (!is_array($genreIDS) && !empty($genreIDS)){
+            $genreIDS = [$genreIDS];
+        }
+        return $genreIDS;
+    }
+
+    public function getTrackCatIDS($name = 'fk_track_cat_id'): array
+    {
+        $trackCatIDS = (property_exists($this->track, $name)) ? $this->track->{$name} : [];
+        if (!is_array($trackCatIDS) && !empty($trackCatIDS)){
+            $trackCatIDS = [$trackCatIDS];
+        }
+        return $trackCatIDS;
     }
 
     public function getTrackFKArtistID(): string|int
