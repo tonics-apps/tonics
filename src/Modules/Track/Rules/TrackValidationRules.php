@@ -185,7 +185,7 @@ trait TrackValidationRules
             'track_slug' => ['required', 'string', 'unique' => [
                 $slugUnique => input()->fromPost()->retrieve('track_id', '')]
             ],
-            'fk_genre_id' => ['required', 'numeric'],
+            'fk_genre_id' => ['required', 'array'],
             'fk_license_id' => ['required', 'numeric'],
             'fk_artist_id' => ['required', 'numeric'],
             'created_at' => ['required', 'string'],

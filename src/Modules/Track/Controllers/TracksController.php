@@ -216,9 +216,38 @@ class TracksController extends Controller
      */
     public function edit(string $slug)
     {
-        $track = $this->getTrackData()->selectWithConditionFromTrack($this->getTrackData()->getTrackColumnsForAdminCreate(), 'track_slug = ?', [$slug]);
+       // $track = $this->getTrackData()->selectWithConditionFromTrack($this->getTrackData()->getTrackColumnsForAdminCreate(), 'track_slug = ?', [$slug]);
+        $trackTable = Tables::getTable(Tables::TRACKS);
+        $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
+        $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
+        $artistTable = Tables::getTable(Tables::ARTISTS);
+        $licenseTable = Tables::getTable(Tables::LICENSES);
+        $genreTable = Tables::getTable(Tables::GENRES);
+        $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
+
+        $select = "$trackTable.*, $licenseTable.*,
+       GROUP_CONCAT(DISTINCT $genreTable.genre_id) AS `fk_genre_id[]`,
+       GROUP_CONCAT(DISTINCT $trackTracksCategoriesTable.fk_track_cat_id) AS fk_track_cat_id";
+
+        $track = db()->Select($select)->From($trackTable)
+            ->Join($trackGenreTable, "$trackGenreTable.fk_track_id", "$trackTable.track_id")
+            ->Join($genreTable, "$genreTable.genre_id", "$trackGenreTable.fk_genre_id")
+            ->Join($trackTracksCategoriesTable, "$trackTracksCategoriesTable.fk_track_id", "$trackTable.track_id")
+            ->Join($trackCategoriesTable, "$trackCategoriesTable.track_cat_id", "$trackTracksCategoriesTable.fk_track_cat_id")
+            ->Join($licenseTable, "$licenseTable.license_id", "$trackTable.fk_license_id")
+            ->WhereEquals("$trackTable.track_slug", $slug)
+            ->GroupBy("$trackTable.track_id")->FetchFirst();
+
         if (!is_object($track)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+        }
+
+        if (isset($track->{'fk_genre_id[]'})) {
+            $track->{'fk_genre_id[]'} = explode(',', $track->{'fk_genre_id[]'});
+        }
+
+        if (isset($track->fk_track_cat_id)){
+            $track->fk_track_cat_id = explode(',', $track->fk_track_cat_id);
         }
 
         $onTrackCreate = new OnTrackCreate($track, $this->getTrackData());

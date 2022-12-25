@@ -97,23 +97,6 @@ class TrackData extends AbstractDataLayer
         return Tables::$TABLES[Tables::TRACKS];
     }
 
-    public function getAllTrackPageColumns(): string
-    {
-        $trackTable = Tables::getTable(Tables::TRACKS);
-        $artistTable = Tables::getTable(Tables::ARTISTS);
-
-        return "
-        `track_id`, `slug_id` AS `track_slug`, `track_slug`, `track_title`, `track_status`, `track_status`, track_plays, track_bpm `field_settings`,
-        $trackTable.image_url AS `track_image`, `audio_url` AS `track_audio`, 
-        `genre_id`, `genre_name`, `genre_name` AS `track_genre`, `genre_slug`,
-        `artist_id`, `artist_name`, `artist_name` AS `track_artist`, `artist_slug`, `artist_bio`, $artistTable.image_url AS `artist_image`,
-        license_id, license_name, license_slug, license_status, license_attr, license_attr AS track_licenses,
-        CONCAT( '/', '/tracks', slug_id, track_slug ) AS `track_link`,
-        CONCAT( '/', '/artist', artist_slug ) AS `track_artist_link`,
-        CONCAT( '/', '/genres', genre_slug ) AS `track_genre_link`
-        ";
-    }
-
     /**
      * @return string
      */
@@ -127,62 +110,6 @@ class TrackData extends AbstractDataLayer
     {
         return '`genre_id`, `genre_name`, `genre_slug`, `genre_description`, `created_at`, `updated_at`,
         CONCAT( "", "/genre/", genre_slug ) AS `_link`, `genre_name` AS `_name`, `genre_id` AS `_id`';
-    }
-
-
-    public function getTrackColumnsForAdminCreate(): array
-    {
-        $trackTable = Tables::getTable(Tables::TRACKS);
-        $licenseTable = Tables::getTable(Tables::LICENSES);
-
-        return [
-            "track_id", "slug_id", "track_slug", 'audio_url', 'track_title', 'track_status', 'field_settings',
-            "$trackTable.image_url",'license_attr_id_link','fk_genre_id', 'fk_artist_id', 'fk_license_id',
-            "$trackTable.created_at", "$trackTable.updated_at", "$licenseTable.license_attr",
-            "genre_name", "genre_slug",
-        ];
-    }
-
-    /**
-     * Usage:
-     * <br>
-     * `$newUserData->selectWithCondition(['track_id', 'track_content'], "slug_id = ?", ['5475353']));`
-     *
-     * Note: Make sure you use a question-mark(?) in place u want a user input and pass the actual input in the $parameter
-     * @param array $colToSelect
-     * To select all, use ['*']
-     * @param string $whereCondition
-     * @param array $parameter
-     * @return mixed
-     * @throws \Exception
-     */
-    public function selectWithConditionFromTrack(array $colToSelect, string $whereCondition, array $parameter): mixed
-    {
-        $select = helper()->returnColumnsSeparatedByCommas($colToSelect);
-        $trackTable = Tables::getTable(Tables::TRACKS);
-        $artistTable = Tables::getTable(Tables::ARTISTS);
-        $licenseTable = Tables::getTable(Tables::LICENSES);
-        $genreTable = Tables::getTable(Tables::GENRES);
-
-
-        if ($colToSelect === ['*']){
-            return db()->row(<<<SQL
-SELECT * FROM $trackTable
-    JOIN $genreTable ON fk_genre_id = genre_id
-    JOIN $licenseTable  ON license_id = fk_license_id 
-    JOIN $artistTable ON artist_id = fk_artist_id
-WHERE $whereCondition
-SQL, ...$parameter);
-        }
-
-        return db()->row(<<<SQL
-SELECT $select FROM $trackTable
-    JOIN $genreTable ON fk_genre_id = genre_id
-    JOIN $licenseTable  ON license_id = fk_license_id 
-    JOIN $artistTable ON artist_id = fk_artist_id
-WHERE $whereCondition
-SQL, ...$parameter);
-
     }
 
     public function getLicenseURLDownloadListing($licenses, $licenseAttrIDLink = null): string
