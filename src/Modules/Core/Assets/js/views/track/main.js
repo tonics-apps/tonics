@@ -176,8 +176,32 @@ if (trackMainContainer) {
             let searchInputValue = value.value;
             searchInputValue = searchInputValue.trim();
             if (searchInputValue === "") {
-                let parentElement = value.parentElement;
-                parentElement.innerHTML = searchBoxInitials[value.dataset.menuboxname].innerHTML;
+                // Find all the selected checkbox elements
+                let selectedCheckboxes = value.parentElement.querySelectorAll('input[type="checkbox"]:checked');
+                if (selectedCheckboxes.length > 0) {
+                    let newInnerHTML = '';
+                    // Add each selected checkbox element to the beginning of the innerHTML, if it is not already present
+                    for (let i = 0; i < selectedCheckboxes.length; i++) {
+                        let selectCheckboxValue = selectedCheckboxes[i].value;
+                        console.log(selectCheckboxValue);
+                        let checkbox = searchBoxInitials[value.dataset.menuboxname].querySelector(`input[type="checkbox"][value="${selectCheckboxValue}"]`);
+
+                        if (!checkbox){
+                            newInnerHTML += selectedCheckboxes[i].parentElement.outerHTML;
+                        } else if (checkbox && !checkbox.checked){
+                            newInnerHTML += selectedCheckboxes[i].parentElement.outerHTML;
+                        } else {
+                        }
+                    }
+                    let initialElements = searchBoxInitials[value.dataset.menuboxname];
+                    // Find the first li element
+                    let firstLi = initialElements.querySelector('li');
+                    // Insert the newInnerHTML string before the first li element
+                    firstLi.insertAdjacentHTML('beforebegin', newInnerHTML);
+
+                    let parentElement = value.parentElement;
+                    parentElement.innerHTML = initialElements.innerHTML;
+                }
             }
         }
     });

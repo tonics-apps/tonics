@@ -103,13 +103,6 @@ class TrackData extends AbstractDataLayer
         CONCAT_WS( "", "/genre/", genre_slug ) AS `_link`, `genre_name` AS `_name`, `genre_id` AS `_id`';
     }
 
-    public function getTrackStatusHTMLFrag($currentStatus = null): string
-    {
-        $frag = "<option value='0'".  ($currentStatus === 0 ? 'selected' : '') . ">Draft</option>";
-        $frag .= "<option value='1'".  ($currentStatus === 1 ? 'selected' : '') . ">Publish</option>";
-
-        return $frag;
-    }
 
     public function getTrackColumnsForAdminCreate(): array
     {
@@ -231,7 +224,7 @@ HTML;
      * @return string
      * @throws \Exception
      */
-    public function genreCheckBoxListing(array $settings): string
+    public function genreListing(array $settings): string
     {
         # Collate Settings
         $genres = $settings['genres'] ?? [];
@@ -240,55 +233,59 @@ HTML;
         $inputName = $settings['inputName'] ?? 'fk_genre_id';
         $type = $settings['type'] ?? 'radio';
 
-        $htmlFrag = ''; $htmlMoreFrag = ''; $type = ($type !== 'radio') ? 'checkbox' : 'radio';
+        $htmlFrag = ''; $htmlMoreFrag = '';
 
         #
         # RADIO-BOX
         # 
         if(isset($genres->data) && is_array($genres->data) && !empty($genres->data)){
-            if ($showSearch){
-                $htmlFrag =<<<HTML
+
+            if ($type === 'checkbox' || $type === 'radio'){
+                if ($showSearch){
+                    $htmlFrag =<<<HTML
 <input id="genre-search" style="margin-bottom: 1em;"
  data-action ="search" 
- data-query="{$genres->path}&genre_query="
+ data-query="{$genres->path}&input_name=$inputName&type=$type&genre_query="
  data-menuboxname = "genre"
  data-searchvalue =""
+ data-type ="$type"
  class="menu-box-item-search position:sticky top:0" type="search" aria-label="Search Genre and Hit Enter" placeholder="Search Genre &amp; Hit Enter">
 HTML;
-            }
+                }
 
-            if (!empty($selected)){
-                $selectedGenres = db()->Select('*')->From(Tables::getTable(Tables::GENRES))->WhereIn('genre_id', $selected)->FetchResult();
-                $selected = array_combine($selected, $selected);
-                foreach ($selectedGenres as $genre){
-                    $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
-                    $htmlFrag .= <<<HTML
+                if (!empty($selected)){
+                    $selectedGenres = db()->Select('*')->From(Tables::getTable(Tables::GENRES))->WhereIn('genre_id', $selected)->FetchResult();
+                    $selected = array_combine($selected, $selected);
+                    foreach ($selectedGenres as $genre){
+                        $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
+                        $htmlFrag .= <<<HTML
 <li class="menu-item">
     <input type="$type"
     id="$id" checked="checked" name="$inputName" value="$genre->genre_id">
     <label for="$id">$genre->genre_name</label>
 </li>
 HTML;
-                }
-            }
-
-            #
-            # BUILD FRAG
-            #
-            foreach ($genres->data as $genre){
-                $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
-
-                if (key_exists($genre->genre_id, $selected)) {
-                    continue;
+                    }
                 }
 
-                $htmlFrag .= <<<HTML
+                #
+                # BUILD FRAG
+                #
+                foreach ($genres->data as $genre){
+                    $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
+
+                    if (key_exists($genre->genre_id, $selected)) {
+                        continue;
+                    }
+
+                    $htmlFrag .= <<<HTML
 <li class="menu-item">
     <input type="$type"
     id="$id" name="$inputName" value="$genre->genre_id">
     <label for="$id">$genre->genre_name</label>
 </li>
 HTML;
+                }
             }
 
             # MORE BUTTON
@@ -296,14 +293,14 @@ HTML;
                 $htmlMoreFrag = <<<HTML
  <button 
  type="button"
- data-morepageUrl="$genres->next_page_url" 
+ data-morepageUrl="$genres->next_page_url&type=$type&input_name=$inputName" 
  data-menuboxname = "genre"
  data-nextpageid="$genres->next_page"
  data-action = "more"
+ data-type="$type"
  class="border:none bg:white-one border-width:default border:black padding:gentle margin-top:0 cursor:pointer act-like-button more-button">More →</button>
 HTML;
             }
-
         }
 
         return $htmlFrag . $htmlMoreFrag;
@@ -567,12 +564,15 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function genreMetaBox($genre, string $inputName='fk_genre_id', $type = 'radio', $selected = []){
+    public function genreMetaBox($genre, string $inputName='fk_genre_id', $type = 'radio', $selected = [])
+    {
+        $type = url()->getParam('type', $type);
+        $inputName = url()->getParam('input_name', $inputName);
 
         if (url()->getHeaderByKey('menuboxname') === 'genre') {
             if (url()->getHeaderByKey('action') === 'more' || url()->getHeaderByKey('action') === 'search') {
                 $genreSettings = ['genres' => $genre, 'showSearch' => false, 'selected' => $selected, 'type' => $type, 'inputName' => $inputName];
-                $frag = $this->genreCheckBoxListing($genreSettings);
+                $frag = $this->genreListing($genreSettings);
                 helper()->onSuccess($frag);
             }
         }

@@ -92,7 +92,7 @@ class TracksController extends Controller
 
             ],
             'SiteURL' => AppConfig::getAppUrl(),
-            'DefaultGenresMetaBox' => $this->getTrackData()->genreCheckBoxListing($genreSettings),
+            'DefaultGenresMetaBox' => $this->getTrackData()->genreListing($genreSettings),
         ]);
     }
 

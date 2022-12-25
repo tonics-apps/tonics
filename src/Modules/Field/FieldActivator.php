@@ -44,6 +44,7 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackArtist;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtistSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackGenre;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackGenreRadio;
+use App\Modules\Field\EventHandlers\Fields\Track\TrackGenreSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Widget;
 use App\Modules\Field\Events\FieldTemplateFile;
@@ -100,6 +101,7 @@ class FieldActivator implements ExtensionConfig
                 TrackGenre::class,
                 TrackLicenseSelect::class,
                 TrackGenreRadio::class,
+                TrackGenreSelect::class,
                 TrackArtistSelect::class,
 
                 # Media
@@ -189,7 +191,7 @@ class FieldActivator implements ExtensionConfig
             "name" => "Field",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1671438325',
+            "version" => '1-O-Ola.1671952498',
             "stable" => 0,
             "description" => "The Field Module",
             "info_url" => '',
