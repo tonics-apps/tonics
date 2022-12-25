@@ -225,7 +225,7 @@ trait TrackValidationRules
      */
     public function trackCategoryUpdateRule(): array
     {
-        $catSlugUnique = Tables::getTable(Tables::CATEGORIES) .':track_cat_slug:track_cat_id';
+        $catSlugUnique = Tables::getTable(Tables::TRACK_CATEGORIES) .':track_cat_slug:track_cat_id';
         return [
             'track_cat_name' => ['required', 'string'],
             'track_cat_content' => ['string'],

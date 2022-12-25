@@ -35,7 +35,7 @@ final class Tables
         self::TRACK_LIKES => ['id', 'fk_customer_id', 'fk_track_id', 'is_like', 'created_at', 'updated_at'],
         self::TRACKS => ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'track_title', 'track_plays', 'track_bpm', 'track_status', 'license_attr_id_link', 'field_settings', 'fk_artist_id', 'fk_license_id', 'created_at', 'updated_at'],
         self::TRACK_GENRES => ['id', 'fk_genre_id', 'fk_track_id', 'created_at', 'updated_at'],
-        self::TRACK_CATEGORIES => ['cat_id', 'cat_parent_id', 'slug_id', 'cat_name', 'cat_slug', 'cat_status', 'field_settings', 'created_at', 'updated_at'],
+        self::TRACK_CATEGORIES => ['track_cat_id', 'track_cat_parent_id', 'slug_id', 'track_cat_name', 'track_cat_slug', 'track_cat_status', 'field_settings', 'created_at', 'updated_at'],
         self::TRACK_TRACK_CATEGORIES => ['id', 'fk_track_cat_id', 'fk_track_id', 'created_at', 'updated_at'],
         self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
         self::TRACK_WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],

@@ -30,6 +30,10 @@ class TrackMenus implements HandlerInterface
                     ->addMenu(OnAdminMenu::TrackMenuID + 1, 'New Track', helper()->getIcon('plus', 'icon:admin'), route('tracks.create'), parent: OnAdminMenu::TrackMenuID)
                     ->addMenu(OnAdminMenu::TrackMenuID + 2, 'All Tracks', helper()->getIcon('playlist', 'icon:admin'), route('tracks.index'), parent: OnAdminMenu::TrackMenuID)
 
+                ->addMenu(OnAdminMenu::TrackCategoryMenuID, 'Track Category', helper()->getIcon('category', 'icon:admin'), route('tracks.category.create'), parent:  OnAdminMenu::TrackMenuID)
+                ->addMenu(OnAdminMenu::TrackCategoryMenuID + 1, 'New Track Category', helper()->getIcon('plus', 'icon:admin'), route('tracks.category.create'), parent: OnAdminMenu::TrackCategoryMenuID)
+                ->addMenu(OnAdminMenu::TrackCategoryMenuID + 2, 'All Track Categories', helper()->getIcon('category', 'icon:admin'), route('tracks.category.index'), parent: OnAdminMenu::TrackCategoryMenuID)
+
                 ->addMenu(OnAdminMenu::GenreMenuID, 'Genres', helper()->getIcon('archive', 'icon:admin'), route('genres.create'), parent: OnAdminMenu::MediaMenuID)
                     ->addMenu(OnAdminMenu::GenreMenuID + 1, 'New Genre', helper()->getIcon('plus', 'icon:admin'), route('genres.create'), parent: OnAdminMenu::GenreMenuID)
                     ->addMenu(OnAdminMenu::GenreMenuID + 2, 'All Genres', helper()->getIcon('archive', 'icon:admin'), route('genres.index'), parent: OnAdminMenu::GenreMenuID)

@@ -19,12 +19,14 @@ use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Track\EventHandlers\DefaultTrackCategoryFieldHandler;
 use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
 use App\Modules\Track\EventHandlers\GenreMenuMetaBox;
+use App\Modules\Track\EventHandlers\HandleNewTrackCategorySlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
 use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
 use App\Modules\Track\EventHandlers\TrackMenus;
 use App\Modules\Track\EventHandlers\TrackSitemap;
 use App\Modules\Track\Events\OnArtistCreate;
 use App\Modules\Track\Events\OnLicenseCreate;
+use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryDefaultField;
 use App\Modules\Track\Events\OnTrackCreate;
 use App\Modules\Track\Events\OnTrackDefaultField;
@@ -59,6 +61,10 @@ class TrackActivator implements ExtensionConfig
 
             OnLicenseCreate::class => [
 
+            ],
+
+            OnTrackCategoryCreate::class => [
+              HandleNewTrackCategorySlugIDGeneration::class
             ],
 
             OnMenuMetaBox::class => [

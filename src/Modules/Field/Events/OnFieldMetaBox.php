@@ -409,11 +409,9 @@ HTML;
     public function getKeyValueInData($data, string $key, bool $findInGlobalPost = true): mixed
     {
         $value = '';
-        if ($findInGlobalPost && isset(getPostData()[$key])){
+        if ($findInGlobalPost && is_array(getPostData()) && key_exists($key, getPostData())){
             $value = getPostData()[$key];
-        }
-
-        if (empty($value) && isset($data->_field->field_data[$key])){
+        } elseif (isset($data->_field->field_data) && key_exists($key, $data->_field->field_data)) {
             $value = $data->_field->field_data[$key];
         }
 

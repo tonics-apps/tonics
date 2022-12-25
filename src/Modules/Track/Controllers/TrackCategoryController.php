@@ -214,9 +214,20 @@ class TrackCategoryController
             redirect(route('tracks.category.edit', [$slug]));
         }
 
+        if (input()->fromPost()->hasValue('track_cat_parent_id') && input()->fromPost()->hasValue('track_cat_id')){
+            $trackCatParentID = input()->fromPost()->retrieve('track_cat_parent_id');
+            $trackCatID = input()->fromPost()->retrieve('track_cat_id');
+            $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            // Track Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
+            if ($trackCatParentID === $trackCatID){
+                $_POST['track_cat_parent_id'] = $category->track_cat_parent_id;
+                // Log..
+                // Error Message is: Track Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
+            }
+        }
+
         $categoryToUpdate = $this->trackData->createCategory();
         $categoryToUpdate['track_cat_slug'] = helper()->slug(input()->fromPost()->retrieve('track_cat_slug'));
-
         db()->FastUpdate($this->trackData->getTrackCategoryTable(), $categoryToUpdate, db()->Where('track_cat_slug', '=', $slug));
         $slug = $categoryToUpdate['track_cat_slug'];
 

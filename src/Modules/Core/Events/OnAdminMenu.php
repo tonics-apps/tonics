@@ -28,26 +28,30 @@ class OnAdminMenu implements EventInterface
 
     const MediaMenuID = 400;
         const TrackMenuID = 500;
-        const GenreMenuID = 600;
-        const ArtistMenuID = 700;
-        const FileManagerMenuID = 800;
+        const TrackCategoryMenuID = 600;
+        const GenreMenuID = 700;
+        const ArtistMenuID = 800;
+        const FileManagerMenuID = 900;
 
-    const ToolsMenuID = 900;
-        const MenusMenuID = 1000;
-        const WidgetsMenuID = 1100;
-        const FieldMenuID = 1200;
-        const LicenseMenuID = 1300;
+    const ToolsMenuID = 1000;
+        const MenusMenuID = 1100;
+        const WidgetsMenuID = 1200;
+        const FieldMenuID = 1300;
+        const LicenseMenuID = 1400;
 
-    const AppsMenuID = 1400;
-    const JobsMenuID = 1500;
-    const ImportsMenuID = 1600;
-    const SettingsMenuID = 1700;
+    const AppsMenuID = 1500;
+    const JobsMenuID = 1600;
+    const ImportsMenuID = 1700;
+    const SettingsMenuID = 1800;
 
 
     private array $MenuSettings = [];
     private mixed $userRole;
 
 
+    /**
+     * @throws \Exception
+     */
     public function __construct()
     {
         $this->userRole = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
