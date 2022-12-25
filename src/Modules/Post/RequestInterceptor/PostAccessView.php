@@ -43,26 +43,29 @@ class PostAccessView
     {
         $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $postSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
-        $post = (array)$this->getPostData()->getPostByUniqueID($uniqueSlugID);
-
-        # if empty we can check with the post_slug and do a redirection
-        if (empty($post)){
-            $post = (array)$this->getPostData()->getPostByUniqueID($postSlug, 'post_slug');
-            if (isset($post['slug_id'])){
-                redirect(PostRedirection::getPostAbsoluteURLPath($post), 302);
+        $this->getPostData()->getPostByUniqueID($uniqueSlugID, 'slug_id', function ($postData, $role) use ($postSlug) {
+            # if empty we can check with the post_slug and do a redirection
+            if (empty($postData)){
+                $postData = (array)$this->getPostData()->getPostByUniqueID($postSlug, 'post_slug');
+                if (isset($postData['slug_id'])){
+                    redirect(PostRedirection::getPostAbsoluteURLPath($postData), 302);
+                }
+                # if postSlug is not equals to $post['post_slug'], do a redirection to the correct one
+            } elseif (isset($postData['post_slug']) && $postData['post_slug'] !== $postSlug){
+                redirect(PostRedirection::getPostAbsoluteURLPath($postData), 302);
             }
-        # if postSlug is not equals to $post['post_slug'], do a redirection to the correct one
-        } elseif (isset($post['post_slug']) && $post['post_slug'] !== $postSlug){
-            redirect(PostRedirection::getPostAbsoluteURLPath($post), 302);
-        }
 
-        if (key_exists('post_status', $post)) {
-            if ($post['post_status'] === 1) {
-                $this->post = $post; return;
+            if (Roles::RoleHasPermission($role, Roles::CAN_READ) === false){
+                if (key_exists('post_status', $postData)) {
+                    if ($postData['post_status'] === 1) {
+                        $this->post = $postData; return;
+                    }
+                }
+                throw new URLNotFound(SimpleState::ERROR_FORBIDDEN__MESSAGE, SimpleState::ERROR_FORBIDDEN__CODE);
+            } else {
+                $this->post = $postData;
             }
-        }
-
-        throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
+        });
     }
 
     /**
@@ -100,7 +103,7 @@ class PostAccessView
             }
         }
 
-        throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
+        throw new URLNotFound(SimpleState::ERROR_FORBIDDEN__MESSAGE, SimpleState::ERROR_FORBIDDEN__CODE);
     }
 
     /**
@@ -111,9 +114,11 @@ class PostAccessView
         $post = $this->post;
         if (!empty($post)){
             $catID = [];
-            foreach ($post['categories'] as $categories){
-                foreach ($categories as $category){
-                    $catID[] = $category->cat_id;
+            if (isset($post['categories'])){
+                foreach ($post['categories'] as $categories){
+                    foreach ($categories as $category){
+                        $catID[] = $category->cat_id;
+                    }
                 }
             }
 
@@ -127,13 +132,16 @@ class PostAccessView
                 . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
                 . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
 
+
             $relatedPost = db()->Select($tblCol)
                 ->From($postCatTbl)
                 ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
                 ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
                 ->addRawString("WHERE MATCH(post_title) AGAINST(?)")->addParam($post['post_title'])->setLastEmittedType('WHERE')
                 ->WhereEquals('post_status', 1)
-                ->WhereIn('cat_id', $catID)
+                ->when(!empty($catID), function (TonicsQuery $db) use ($catID) {
+                    $db->WhereIn('cat_id', $catID);
+                })
                 ->WhereNotIn('post_id', $post['post_id'])
                 ->Where("$postTbl.created_at", '<=', helper()->date())
                 ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(6);

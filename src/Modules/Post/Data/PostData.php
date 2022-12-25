@@ -348,13 +348,14 @@ CAT;
     }
 
     /**
-     * You should get an array
      * @param $ID
      * @param string $column
-     * @return array|mixed
+     * @param callable|null $onPostData
+     * If there is a callable, you get the postData in array and the role in case you wanna do anything with that
+     * @return array|void
      * @throws \Exception
      */
-    public function getPostByUniqueID($ID, string $column = 'slug_id'): mixed
+    public function getPostByUniqueID($ID, string $column = 'slug_id', callable $onPostData = null)
     {
         $postTable = Tables::getTable(Tables::POSTS);
         $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
@@ -384,9 +385,8 @@ CAT;
             ->FetchFirst();
 
         if (empty($postData) || $postData?->post_status === null){
-            return [];
+            $postData = [];
         }
-
 
         if (isset($postData->fk_cat_id)) {
             $categories = explode(',', $postData->fk_cat_id);
@@ -399,7 +399,13 @@ CAT;
             }
         }
 
-        return (array)$postData;
+        $postData = (array)$postData;
+        if ($onPostData){
+            $onPostData($postData, $role);
+        } else {
+            return $postData;
+        }
+
     }
 
     /**

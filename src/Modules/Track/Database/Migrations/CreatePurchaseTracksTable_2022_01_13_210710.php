@@ -19,8 +19,9 @@ class CreatePurchaseTracksTable_2022_01_13_210710 extends Migration {
      * Run the migrations.
      *
      * @return void
+     * @throws \Exception
      */
-    public function up()
+    public function up(): void
     {
         $purchasesTable = Tables::getTable(Tables::PURCHASES);
         $tracksTable = Tables::getTable(Tables::TRACKS);
@@ -45,8 +46,9 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      * Reverse the migrations.
      *
      * @return void
+     * @throws \Exception
      */
-    public function down()
+    public function down(): void
     {
         $this->dropTable($this->tableName());
     }

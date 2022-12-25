@@ -113,7 +113,6 @@ class PostActivator implements ExtensionConfig
         return
             [
                 Tables::getTable(Tables::CATEGORIES) => Tables::$TABLES[Tables::CATEGORIES],
-                Tables::getTable(Tables::CAT_RELS) => Tables::$TABLES[Tables::CAT_RELS],
                 Tables::getTable(Tables::POSTS) => Tables::$TABLES[Tables::POSTS],
                 Tables::getTable(Tables::POST_CATEGORIES) => Tables::$TABLES[Tables::POST_CATEGORIES],
             ];
@@ -135,7 +134,7 @@ class PostActivator implements ExtensionConfig
             "name" => "Post",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1671787231',
+            "version" => '1-O-Ola.1671952498',
             "description" => "The Post Module",
             "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-post-module/releases/latest",

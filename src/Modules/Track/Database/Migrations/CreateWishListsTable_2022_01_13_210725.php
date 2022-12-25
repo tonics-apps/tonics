@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      * @return void
      * @throws \Exception
      */
-    public function down()
+    public function down(): void
     {
         $this->dropTable($this->tableName());
     }

@@ -45,46 +45,46 @@ class HttpMessageProvider implements ServiceProvider
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception | \Throwable $e) {
-             $redirect_to = $this->tryURLRedirection();
-            $reURL = url()->getRequestURL();
-             if ($redirect_to === false){
-                 if (AppConfig::canLog404()){
-                     try {
-                         db()->Insert(
-                             Tables::getTable(Tables::BROKEN_LINKS),
-                             [
-                                 'from' => $reURL,
-                                 'to'   => null,
-                             ]
-                         );
-                     }catch (\Exception $exception){
-                         // Log..
-                     }
-                 }
-
-             } else {
-                 if (isset($redirect_to->to) && !empty($redirect_to->to)){
-                     redirect($redirect_to->to, $redirect_to->redirection_type);
-                 } else {
-                     if (!empty($reURL)){
-                         $hit = $redirect_to->hit ?? 1;
+             if ($e->getCode() === 404 ){
+                 $redirect_to = $this->tryURLRedirection();
+                 $reURL = url()->getRequestURL();
+                 if ($redirect_to === false){
+                     if (AppConfig::canLog404()){
                          try {
-                             db()->FastUpdate(
+                             db()->Insert(
                                  Tables::getTable(Tables::BROKEN_LINKS),
                                  [
-                                     '`from`' => $reURL,
-                                     '`to`'   => null,
-                                     '`hit`'   => ++$hit,
-                                 ],
-                                 db()->WhereEquals('`from`', $reURL)
+                                     'from' => $reURL,
+                                     'to'   => null,
+                                 ]
                              );
-                         } catch (\Exception $exception){
+                         }catch (\Exception $exception){
                              // Log..
+                         }
+                     }
+                 } else {
+                     if (isset($redirect_to->to) && !empty($redirect_to->to)){
+                         redirect($redirect_to->to, $redirect_to->redirection_type);
+                     } else {
+                         if (!empty($reURL)){
+                             $hit = $redirect_to->hit ?? 1;
+                             try {
+                                 db()->FastUpdate(
+                                     Tables::getTable(Tables::BROKEN_LINKS),
+                                     [
+                                         '`from`' => $reURL,
+                                         '`to`'   => null,
+                                         '`hit`'   => ++$hit,
+                                     ],
+                                     db()->WhereEquals('`from`', $reURL)
+                                 );
+                             } catch (\Exception $exception){
+                                 // Log..
+                             }
                          }
                      }
                  }
              }
-
             if (AppConfig::isProduction()){
                 SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
             } else {
