@@ -29,20 +29,21 @@ final class Tables
         self::POST_CATEGORIES => ['id', 'fk_cat_id', 'fk_post_id', 'created_at', 'updated_at'],
         self::POSTS => ['post_id', 'slug_id', 'user_id', 'image_url', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at'],
         self::PURCHASES => ['purchase_id', 'slug_id', 'fk_customer_id', 'total_price', 'payment_status', '`others`', 'created_at', 'updated_at'],
-        self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
         self::SESSIONS => ['id', 'session_id', 'session_data', 'updated_at'],
         self::GLOBAL => ['id', 'key', 'value', 'created_at', 'updated_at'],
 
         self::TRACK_LIKES => ['id', 'fk_customer_id', 'fk_track_id', 'is_like', 'created_at', 'updated_at'],
-        self::TRACKS => ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'track_title', 'track_plays', 'track_bpm', 'track_status', 'license_attr_id_link', 'field_settings', 'fk_genre_id', 'fk_artist_id', 'fk_license_id', 'created_at', 'updated_at'],
+        self::TRACKS => ['track_id', 'slug_id', 'track_slug', 'image_url', 'audio_url', 'track_title', 'track_plays', 'track_bpm', 'track_status', 'license_attr_id_link', 'field_settings', 'fk_artist_id', 'fk_license_id', 'created_at', 'updated_at'],
         self::TRACK_GENRES => ['id', 'fk_genre_id', 'fk_track_id', 'created_at', 'updated_at'],
         self::TRACK_CATEGORIES => ['cat_id', 'cat_parent_id', 'slug_id', 'cat_name', 'cat_slug', 'cat_status', 'field_settings', 'created_at', 'updated_at'],
+        self::TRACK_TO_TRACK_CATEGORIES => ['id', 'fk_track_cat_id', 'fk_track_id', 'created_at', 'updated_at'],
+        self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
+        self::TRACK_WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
 
         self::USERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'role', 'settings', 'created_at', 'updated_at'],
         self::CUSTOMERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'is_guest', 'role', 'settings', 'created_at', 'updated_at'],
         self::WIDGET_ITEMS => ['id', 'fk_widget_id', 'wgt_id', 'wgt_name', 'wgt_options', 'created_at', 'updated_at'],
         self::WIDGETS => ['widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at'],
-        self::WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
         self::DRIVE_SYSTEM => ['drive_id', 'drive_parent_id', 'drive_unique_id', 'drive_name', 'filename', '`type`', 'status', 'properties', '`security`'],
         self::DRIVE_BLOB_COLLATOR => [ 'id', 'hash_id', 'blob_name', 'blob_chunk_part', 'blob_chunk_size', 'live_blob_chunk_size', 'missing_blob_chunk_byte', 'moreBlobInfo'],
 
@@ -85,13 +86,13 @@ final class Tables
     const TRACK_CATEGORIES = 'track_categories';
     const TRACK_TO_TRACK_CATEGORIES = 'track_to_track_categories';
     const PURCHASE_TRACKS = 'purchase_tracks';
+    const TRACK_WISH_LIST = 'track_wish_list';
 
     const USERS = 'user';
     const CUSTOMERS = 'customer';
 
     const WIDGET_ITEMS = 'widget_items';
     const WIDGETS = 'widgets';
-    const WISH_LIST = 'wish_list';
 
     const SCHEDULER = 'scheduler';
 
