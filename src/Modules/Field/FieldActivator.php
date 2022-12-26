@@ -44,7 +44,6 @@ use App\Modules\Field\EventHandlers\Fields\Track\TrackArtist;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackArtistSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackCategorySelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackGenre;
-use App\Modules\Field\EventHandlers\Fields\Track\TrackGenreRadio;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackGenreSelect;
 use App\Modules\Field\EventHandlers\Fields\Track\TrackLicenseSelect;
 use App\Modules\Field\EventHandlers\Fields\Widget;
@@ -101,7 +100,6 @@ class FieldActivator implements ExtensionConfig
                 TrackArtist::class,
                 TrackGenre::class,
                 TrackLicenseSelect::class,
-               // TrackGenreRadio::class,
                 TrackGenreSelect::class,
                 TrackArtistSelect::class,
                 TrackCategorySelect::class,

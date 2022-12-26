@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   PRIMARY KEY (`id`),
   KEY `track_genre_fk_genre_id_foreign` (`fk_genre_id`),
   KEY `track_genre_fk_track_id_foreign` (`fk_track_id`),
-  CONSTRAINT `=track_genre_fk_genre_id_foreign` FOREIGN KEY (`fk_genre_id`) REFERENCES `$genreTable` (`genre_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `=track_genre_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$trackTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `track_genre_fk_genre_id_foreign` FOREIGN KEY (`fk_genre_id`) REFERENCES `$genreTable` (`genre_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `track_genre_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$trackTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
     }
 

@@ -99,7 +99,6 @@ class TracksController extends Controller
                 'headers' => $dataTableHeaders,
                 'paginateData' => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
-
             ],
             'SiteURL' => AppConfig::getAppUrl(),
             'DefaultGenresMetaBox' => $this->getTrackData()->genreListing($genreSettings),
