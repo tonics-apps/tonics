@@ -21,8 +21,10 @@ use App\Modules\Field\Data\FieldData;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnTrackCreate;
 use App\Modules\Track\Events\OnTrackDefaultField;
+use App\Modules\Track\Events\OnTrackUpdate;
 use App\Modules\Track\Helper\TrackRedirection;
 use App\Modules\Track\Rules\TrackValidationRules;
+use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Exception;
@@ -216,11 +218,9 @@ class TracksController extends Controller
      */
     public function edit(string $slug)
     {
-       // $track = $this->getTrackData()->selectWithConditionFromTrack($this->getTrackData()->getTrackColumnsForAdminCreate(), 'track_slug = ?', [$slug]);
         $trackTable = Tables::getTable(Tables::TRACKS);
         $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
         $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
-        $artistTable = Tables::getTable(Tables::ARTISTS);
         $licenseTable = Tables::getTable(Tables::LICENSES);
         $genreTable = Tables::getTable(Tables::GENRES);
         $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
@@ -306,16 +306,27 @@ class TracksController extends Controller
             redirect(route('tracks.edit', [$slug]));
         }
 
+        $db = db();
+        $db->beginTransaction();
+        $trackToUpdate = $this->getTrackData()->createTrack(['token']);
         try {
-            $track = $this->getTrackData()->createTrack(['token']);
-            $track['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_slug'));
-            db()->FastUpdate($this->getTrackData()->getTrackTable(), $track, db()->Where('track_slug', '=', $slug));
+            $trackToUpdate['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_slug'));
+            db()->FastUpdate($this->getTrackData()->getTrackTable(), $trackToUpdate, db()->Where('track_slug', '=', $slug));
+
+            $trackToUpdate['fk_track_cat_id'] = input()->fromPost()->retrieve('fk_track_cat_id', '');
+            $trackToUpdate['track_id'] = input()->fromPost()->retrieve('track_id', '');
+            $trackToUpdate['fk_genre_id'] = input()->fromPost()->retrieve('fk_genre_id', '');
+            $onTrackToUpdate = new OnTrackUpdate((object)$trackToUpdate, $this->getTrackData());
+            event()->dispatch($onTrackToUpdate);
+
+            $db->commit();
+
         } catch (Exception){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.edit', [$slug]));
         }
 
-        $slug = $track['track_slug'];
+        $slug = $trackToUpdate['track_slug'];
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){
             session()->flash(['Track Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
         } else {

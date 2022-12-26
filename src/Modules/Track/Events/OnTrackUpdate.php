@@ -13,7 +13,7 @@ namespace App\Modules\Track\Events;
 use App\Modules\Track\Events\AbstractClasses\TrackDataAccessor;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
-class OnTrackCreate extends TrackDataAccessor implements EventInterface
+class OnTrackUpdate extends TrackDataAccessor implements EventInterface
 {
 
 }

@@ -23,6 +23,8 @@ use App\Modules\Track\EventHandlers\HandleNewTrackCategorySlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleNewTrackToTrackCategoryMapping;
+use App\Modules\Track\EventHandlers\HandleUpdateTrackToGenreMapping;
+use App\Modules\Track\EventHandlers\HandleUpdateTrackToTrackCategoryMapping;
 use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
 use App\Modules\Track\EventHandlers\TrackMenus;
 use App\Modules\Track\EventHandlers\TrackSitemap;
@@ -32,6 +34,7 @@ use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryDefaultField;
 use App\Modules\Track\Events\OnTrackCreate;
 use App\Modules\Track\Events\OnTrackDefaultField;
+use App\Modules\Track\Events\OnTrackUpdate;
 use App\Modules\Track\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -57,6 +60,11 @@ class TrackActivator implements ExtensionConfig
                 HandleNewTrackSlugIDGeneration::class,
                 HandleNewTrackToGenreMapping::class,
                 HandleNewTrackToTrackCategoryMapping::class,
+            ],
+
+            OnTrackUpdate::class => [
+                HandleUpdateTrackToTrackCategoryMapping::class,
+                HandleUpdateTrackToGenreMapping::class,
             ],
 
             OnArtistCreate::class => [
