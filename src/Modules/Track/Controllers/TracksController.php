@@ -51,22 +51,27 @@ class TracksController extends Controller
         # For Genre Meta Box API
         $this->getTrackData()->genreMetaBox($genres, 'genre[]', 'checkbox', $genreURLParam);
 
-        $trackTbl = Tables::getTable(Tables::TRACKS);
-        $genreTbl = Tables::getTable(Tables::GENRES);
-
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::TRACKS . '::' . 'track_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'track_id'],
             ['type' => 'text', 'slug' => Tables::TRACKS . '::' . 'track_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'track_title'],
             ['type' => 'date_time_local', 'slug' => Tables::TRACKS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = table()->pick([$trackTbl => ['track_id', 'track_title', 'track_slug', 'field_settings', 'updated_at']])
+        $trackTable = Tables::getTable(Tables::TRACKS);
+        $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
+        $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
+        $genreTable = Tables::getTable(Tables::GENRES);
+        $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
+
+        $tblCol = table()->pick([$trackTable => ['track_id', 'track_title', 'track_slug', 'field_settings', 'updated_at']])
             . ', CONCAT("/admin/tracks/", track_slug, "/edit") as _edit_link, CONCAT_WS("/", "/tracks", track_slug) as _preview_link ';
 
-
         $data = db()->Select($tblCol)
-            ->From($trackTbl)
-            ->Join($genreTbl, table()->pickTable($genreTbl, ['genre_id']), table()->pickTable($trackTbl, ['fk_genre_id']))
+            ->From($trackTable)
+            ->Join($trackGenreTable, "$trackGenreTable.fk_track_id", "$trackTable.track_id")
+            ->Join($genreTable, "$genreTable.genre_id", "$trackGenreTable.fk_genre_id")
+            ->Join($trackTracksCategoriesTable, "$trackTracksCategoriesTable.fk_track_id", "$trackTable.track_id")
+            ->Join($trackCategoriesTable, "$trackCategoriesTable.track_cat_id", "$trackTracksCategoriesTable.fk_track_cat_id")
             ->when(url()->hasParamAndValue('status'),
                 function (TonicsQuery $db) {
                     $db->WhereEquals('track_status', url()->getParam('status'));
@@ -80,10 +85,13 @@ class TracksController extends Controller
             })->when(url()->hasParamAndValue('genre'), function (TonicsQuery $db) use ($genreURLParam) {
                 $db->WhereIn('genre_id', $genreURLParam);
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($trackTbl) {
-                $db->WhereBetween(table()->pickTable($trackTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($trackTable) {
+                $db->WhereBetween(table()->pickTable($trackTable, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->OrderByDesc(table()->pickTable($trackTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+            })
+            ->GroupBy("$trackTable.track_id")
+            ->OrderByDesc(table()->pickTable($trackTable, ['updated_at']))
+            ->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
         $genreSettings = ['genres' => $genres, 'selected' => $genreURLParam, 'type' => 'checkbox', 'inputName' => 'genre[]'];
         view('Modules::Track/Views/index', [
