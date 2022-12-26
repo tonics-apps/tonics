@@ -307,7 +307,7 @@ class FieldConfig
     "field_name": "input_rich-text",
     "field_id": 3,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[\"PostContentEditor\"],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"6gdz75f8uqw0000000000\",\"field_input_name\":\"track_content\",\"fieldName\":\"Track Content\",\"inputName\":\"track_content\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[\"PostContentEditor\"],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"6gdz75f8uqw0000000000\",\"field_input_name\":\"track_content\",\"fieldName\":\"Track Content\",\"inputName\":\"track_content\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"You can start writing...\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Track Page",
@@ -353,10 +353,10 @@ class FieldConfig
   },
   {
     "fk_field_id": "Track Page",
-    "field_name": "input_date",
+    "field_name": "input_text",
     "field_id": 10,
     "field_parent_id": 8,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"35geneeemj60000000000\",\"field_input_name\":\"created_at\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1g7wkh8kwlwg000000000\",\"field_input_name\":\"track_bpm\",\"fieldName\":\"BPM\",\"inputName\":\"track_bpm\",\"textType\":\"number\",\"defaultValue\":\"125\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Track BPM\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Track Page",
@@ -367,24 +367,73 @@ class FieldConfig
   },
   {
     "fk_field_id": "Track Page",
-    "field_name": "track_trackgenreradio",
+    "field_name": "input_date",
     "field_id": 12,
+    "field_parent_id": 8,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"35geneeemj60000000000\",\"field_input_name\":\"created_at\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "track_trackgenreselect",
+    "field_id": 13,
     "field_parent_id": 4,
-    "field_options": "{\"field_slug\":\"track_trackgenreradio\",\"track_trackgenreradio_cell\":\"3\",\"field_slug_unique_hash\":\"2n0vd2xqjxq0000000000\",\"field_input_name\":\"fk_genre_id\",\"fieldName\":\"Genre\",\"inputName\":\"fk_genre_id\"}"
+    "field_options": "{\"field_slug\":\"track_trackgenreselect\",\"track_trackgenreselect_cell\":\"3\",\"field_slug_unique_hash\":\"yv63jfn7dxc000000000\",\"field_input_name\":\"fk_genre_id\",\"fieldName\":\"Genre\",\"inputName\":\"fk_genre_id\",\"multipleSelect\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "track_trackcategoryselect",
+    "field_id": 14,
+    "field_parent_id": 4,
+    "field_options": "{\"field_slug\":\"track_trackcategoryselect\",\"track_trackcategoryselect_cell\":\"3\",\"field_slug_unique_hash\":\"6tvcjh7h4qg0000000000\",\"field_input_name\":\"fk_track_cat_id\",\"fieldName\":\"Category\",\"inputName\":\"fk_track_cat_id\",\"multipleSelect\":\"1\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_tracklicenseselect",
-    "field_id": 13,
+    "field_id": 15,
     "field_parent_id": 4,
     "field_options": "{\"field_slug\":\"track_tracklicenseselect\",\"track_tracklicenseselect_cell\":\"3\",\"field_slug_unique_hash\":\"112o1lw7n05s000000000\",\"field_input_name\":\"fk_license_id\",\"fieldName\":\"License\",\"inputName\":\"fk_license_id\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_trackartistselect",
-    "field_id": 14,
+    "field_id": 16,
     "field_parent_id": 4,
     "field_options": "{\"field_slug\":\"track_trackartistselect\",\"track_trackartistselect_cell\":\"4\",\"field_slug_unique_hash\":\"4w48rjsg7de0000000000\",\"field_input_name\":\"fk_artist_id\",\"fieldName\":\"Artist\",\"inputName\":\"fk_artist_id\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "modular_rowcolumn",
+    "field_id": 17,
+    "field_parent_id": 4,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"4\",\"field_slug_unique_hash\":\"7epby7s7kgg000000000\",\"field_input_name\":\"track_markers_container\",\"fieldName\":\"Markers\",\"inputName\":\"track_markers_container\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "modular_rowcolumnrepeater",
+    "field_id": 18,
+    "field_parent_id": 17,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"5edpvzcchag0000000000\",\"field_input_name\":\"track_marker\",\"fieldName\":\"Track Marker\",\"inputName\":\"track_marker\",\"row\":\"1\",\"column\":\"3\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add More Track Marker\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "input_text",
+    "field_id": 19,
+    "field_parent_id": 18,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"42mq39hj2zu0000000000\",\"field_input_name\":\"track_marker_slug_id\",\"fieldName\":\"Track Slug ID\",\"inputName\":\"track_marker_slug_id\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Unique Track Slug ID\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "input_text",
+    "field_id": 20,
+    "field_parent_id": 18,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"5tbithfcyss0000000000\",\"field_input_name\":\"track_marker_start\",\"fieldName\":\"Track Start Position\",\"inputName\":\"track_marker_start\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"i.e 1:35 or 00:1:35\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "input_text",
+    "field_id": 21,
+    "field_parent_id": 18,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"3\",\"field_slug_unique_hash\":\"3848wdbtvgo0000000000\",\"field_input_name\":\"track_marker_end\",\"fieldName\":\"Track End Position\",\"inputName\":\"track_marker_end\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"i.e 4:00 or 00:4:00\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Default Page Field",
@@ -602,6 +651,69 @@ class FieldConfig
     "field_id": 5,
     "field_parent_id": 1,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"4p1qor96y600000000000\",\"field_input_name\":\"OEmbed_height\",\"fieldName\":\"Height (Optional)\",\"inputName\":\"OEmbed_height\",\"textType\":\"number\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"OEmbed Height (Optional)\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[\"PostContentEditor\"],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"59soo7mhdh80000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Category Experience\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "input_text",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5oh1qdx1u3g0000000000\",\"field_input_name\":\"track_cat_name\",\"fieldName\":\"Track Category Title\",\"inputName\":\"track_cat_name\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Title Here\",\"readOnly\":\"0\",\"required\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "input_rich-text",
+    "field_id": 3,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[\"PostContentEditor\"],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"217p13kr50cg000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Category Content\",\"inputName\":\"track_cat_content\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"You can start writing...\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "modular_rowcolumn",
+    "field_id": 4,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4xwgii68v0c0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Category Settings\",\"inputName\":\"\",\"row\":\"2\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "track_trackcategoryselect",
+    "field_id": 5,
+    "field_parent_id": 4,
+    "field_options": "{\"field_slug\":\"track_trackcategoryselect\",\"track_trackcategoryselect_cell\":\"1\",\"field_slug_unique_hash\":\"62kefaada100000000000\",\"field_input_name\":\"track_cat_parent_id\",\"fieldName\":\"Parent Category\",\"inputName\":\"track_cat_parent_id\",\"multipleSelect\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "modular_rowcolumn",
+    "field_id": 6,
+    "field_parent_id": 4,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"2\",\"field_slug_unique_hash\":\"6tlmxxp9fow0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Meta\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "input_text",
+    "field_id": 7,
+    "field_parent_id": 6,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1gow6mdy422o000000000\",\"field_input_name\":\"track_cat_slug\",\"fieldName\":\"Track Category Slug\",\"inputName\":\"track_cat_slug\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Track Category Slug (Optional)\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "input_select",
+    "field_id": 8,
+    "field_parent_id": 6,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"46mw023nprk0000000000\",\"field_input_name\":\"track_cat_status\",\"fieldName\":\"Track Category Status\",\"inputName\":\"track_cat_status\",\"selectData\":\"0:Draft,1:Publish,-1:Trash\",\"defaultValue\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "input_date",
+    "field_id": 9,
+    "field_parent_id": 6,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"2jy8awqg57m0000000000\",\"field_input_name\":\"created_at\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
   }
 ]
 JSON;
