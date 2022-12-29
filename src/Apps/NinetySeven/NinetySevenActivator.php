@@ -13,6 +13,7 @@ namespace App\Apps\NinetySeven;
 use App\Apps\NinetySeven\EventHandler\AssetsHookHandler;
 use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
 use App\Apps\NinetySeven\EventHandler\ConfigureNinetySevenPageSettings;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\TonicsNinetySevenBeatsTonicsThemeFolderHomePageTemplate;
 use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenHomePageTemplate;
 use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenPostPageTemplate;
 use App\Apps\NinetySeven\Route\Routes;
@@ -59,7 +60,8 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
             OnPageTemplate::class => [
                 TonicsNinetySevenHomePageTemplate::class,
-                TonicsNinetySevenPostPageTemplate::class
+                TonicsNinetySevenPostPageTemplate::class,
+                TonicsNinetySevenBeatsTonicsThemeFolderHomePageTemplate::class,
             ],
 
             OnHookIntoTemplate::class => [

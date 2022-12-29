@@ -23,7 +23,7 @@ class AssetsHookHandler implements HandlerInterface
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('in_head_stylesheet', function (TonicsView $tonicsView){
             $ninetySevenCSS = AppConfig::getAppAsset('NinetySeven', 'css/styles.min.css');
-            return "<link rel='stylesheet' type='text/css' href='$ninetySevenCSS'>" . "\n";
+            return "<link rel='preload stylesheet' type='text/css' as='style' href='$ninetySevenCSS'>" . "\n";
         });
 
     }

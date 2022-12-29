@@ -26,12 +26,10 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `track_track_cat_fk_track_cat_id_foreign` (`fk_track_cat_id`),
-  KEY `track_track_cat_fk_track_id_foreign` (`fk_track_id`),
+  KEY `fk_track_id_fk_track_cat_id` (`fk_track_id`,`fk_track_cat_id`),
   CONSTRAINT `track_track_cat_fk_track_cat_id_foreign` FOREIGN KEY (`fk_track_cat_id`) REFERENCES `$genreTable` (`track_cat_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `track_track_cat_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$trackTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-
     }
 
 

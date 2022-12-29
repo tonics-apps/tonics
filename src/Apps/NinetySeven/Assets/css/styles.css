@@ -45,7 +45,7 @@
 /* IBMPlexSans light */
 @font-face {
     font-family: "IBMPlexSans-Light";
-    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.eot");
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.woff2");
     /* IE9 Compat Modes */
     src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Light.woff2") format("woff2");
     /* Modern Browsers */
@@ -57,7 +57,7 @@
 /* IBMPlexSans regular */
 @font-face {
     font-family: "IBMPlexSans-Regular";
-    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.eot");
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.woff2");
     /* IE9 Compat Modes */
     src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Regular.woff2") format("woff2");
     /* Modern Browsers */
@@ -71,7 +71,7 @@
 
 @font-face {
     font-family: "IBMPlexSans-Italic";
-    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.eot");
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.woff2");
     /* IE9 Compat Modes */
     src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Italic.woff2") format("woff2");
     /* Modern Browsers */
@@ -85,7 +85,7 @@
 
 @font-face {
     font-family: "IBMPlexSans-Bold";
-    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.eot");
+    src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.woff2");
     /* IE9 Compat Modes */
     src: url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.otf") format("opentype"), /* Open Type Font */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_app_file_path_987654321/NinetySeven?path=css/fonts/IBMPlexSans-Bold.woff2") format("woff2");
     /* Modern Browsers */
