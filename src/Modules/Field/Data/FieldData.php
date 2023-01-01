@@ -103,9 +103,8 @@ COLUMNS;
      */
     public function getFieldSortedItems(array $slugs = []): array
     {
-        $questionMarks = helper()->returnRequiredQuestionMarks($slugs);
         # For Field
-        $fields = $this->selectWithCondition($this->getFieldTable(), ['field_id'], "field_slug IN ($questionMarks) ORDER BY field_id", $slugs, false);
+        $fields = db()->Select('field_id')->From($this->getFieldTable())->WhereIn('field_slug', $slugs)->OrderBy('field_id')->FetchResult();
         # For Field Items
         $fieldIDS = [];
         foreach ($fields as $field) {
@@ -746,53 +745,55 @@ HTML;
             $fieldSlugIDS = array_combine($slugIDS, $slugIDS);
         }
 
-        $fieldTable = $this->getFieldTable();
-        $fieldItemsTable = $this->getFieldItemsTable();
-        $fieldAndFieldItemsCols = $this->getFieldAndFieldItemsCols();
+        if (!empty($fieldSlugIDS)){
+            $fieldTable = $this->getFieldTable();
+            $fieldItemsTable = $this->getFieldItemsTable();
+            $fieldAndFieldItemsCols = $this->getFieldAndFieldItemsCols();
 
-        $originalFieldIDAndSlugs = db()->Select("field_id, field_slug")->From($fieldTable)
-            ->WhereIn('field_slug', $fieldSlugIDS)->OrderBy('field_id')->FetchResult();
+            $originalFieldIDAndSlugs = db()->Select("field_id, field_slug")->From($fieldTable)
+                ->WhereIn('field_slug', $fieldSlugIDS)->OrderBy('field_id')->FetchResult();
 
-        # For Field Items
-        $fieldIDS = [];
-        $categoriesFromFieldIDAndSlug = [];
-        foreach ($originalFieldIDAndSlugs as $originalFieldIDAndSlug) {
-            if (key_exists($originalFieldIDAndSlug->field_slug, $fieldSlugIDS)) {
-                $fieldIDS[] = $originalFieldIDAndSlug->field_id;
-                $categoriesFromFieldIDAndSlug[$originalFieldIDAndSlug->field_slug] = [];
+            # For Field Items
+            $fieldIDS = [];
+            $categoriesFromFieldIDAndSlug = [];
+            foreach ($originalFieldIDAndSlugs as $originalFieldIDAndSlug) {
+                if (key_exists($originalFieldIDAndSlug->field_slug, $fieldSlugIDS)) {
+                    $fieldIDS[] = $originalFieldIDAndSlug->field_id;
+                    $categoriesFromFieldIDAndSlug[$originalFieldIDAndSlug->field_slug] = [];
+                }
             }
-        }
 
-        $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
-            ->From($fieldItemsTable)
-            ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-            ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
+            $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
+                ->From($fieldItemsTable)
+                ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
 
-        $originalFieldCategories = [];
-        foreach ($originalFieldItems as $originalFieldItem) {
-            if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)) {
-                $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
+            $originalFieldCategories = [];
+            foreach ($originalFieldItems as $originalFieldItem) {
+                if (!key_exists($originalFieldItem->main_field_slug, $originalFieldCategories)) {
+                    $originalFieldCategories[$originalFieldItem->main_field_slug] = [];
+                }
+                $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
+                $fieldOption = json_decode($originalFieldItem->field_options);
+                $originalFieldItem->field_options = $fieldOption;
             }
-            $originalFieldCategories[$originalFieldItem->main_field_slug][] = $originalFieldItem;
-            $fieldOption = json_decode($originalFieldItem->field_options);
-            $originalFieldItem->field_options = $fieldOption;
-        }
 
-        foreach ($fieldItems as $fieldItem) {
-            if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)) {
-                $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
+            foreach ($fieldItems as $fieldItem) {
+                if (isset($fieldItem->main_field_slug) && key_exists($fieldItem->main_field_slug, $categoriesFromFieldIDAndSlug)) {
+                    $fieldCategories[$fieldItem->main_field_slug][] = $fieldItem;
+                }
             }
-        }
 
-        // Sort and Arrange OriginalFieldItems
-        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
-            $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
-        }
+            // Sort and Arrange OriginalFieldItems
+            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
+                $originalFieldCategories[$originalFieldCategoryKey] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldCategory);
+            }
 
-        foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
-            if (isset($fieldCategories[$originalFieldCategoryKey])) {
-                $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
-                $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
+            foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
+                if (isset($fieldCategories[$originalFieldCategoryKey])) {
+                    $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
+                    $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
+                }
             }
         }
 

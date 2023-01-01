@@ -24,7 +24,6 @@ class CreateTracksTable_2022_01_13_210642 extends Migration {
     public function up()
     {
         $artistTable = Tables::getTable(Tables::ARTISTS);
-        $genreTable = Tables::getTable(Tables::GENRES);
         $licenseTable = Tables::getTable(Tables::LICENSES);
 
         // unique_id should be one of licenseAttr License

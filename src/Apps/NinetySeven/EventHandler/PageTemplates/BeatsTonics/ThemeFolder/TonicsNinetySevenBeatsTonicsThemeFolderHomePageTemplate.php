@@ -34,6 +34,8 @@ class TonicsNinetySevenBeatsTonicsThemeFolderHomePageTemplate implements PageTem
      */
     public function handleTemplate(OnPageTemplate $pageTemplate): void
     {
+        $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
+        return;
         dd($pageTemplate, 'This is a test');
         $ninetySevenHomePage = [
             'Featured' => [],

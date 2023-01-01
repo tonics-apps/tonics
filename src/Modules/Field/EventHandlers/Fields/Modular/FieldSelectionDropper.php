@@ -50,6 +50,19 @@ class FieldSelectionDropper implements HandlerInterface
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $fieldSlug = (isset($data->fieldSlug)) ? $data->fieldSlug : [];
+        $expandField = (isset($data->expandField)) ? $data->expandField : '1';
+
+        if ($expandField === '1') {
+            $expandField = <<<HTML
+<option value="0">False</option>
+<option value="1" selected>True</option>
+HTML;
+        } else {
+            $expandField = <<<HTML
+<option value="0" selected>False</option>
+<option value="1">True</option>
+HTML;
+        }
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $table = Tables::getTable(Tables::FIELD);
@@ -81,7 +94,16 @@ HTML;
         }
 
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
-        $moreSettings = $event->generateMoreSettingsFrag($data);
+        $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
+<div class="form-group">
+     <label class="field-settings-handle-name" for="expandField-$changeID">Expand Field
+     <select name="expandField" class="default-selector mg-b-plus-1" id="expandField-$changeID">
+        $expandField
+     </select>
+    </label>
+</div>
+HTML
+        );
 
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
@@ -125,18 +147,19 @@ FORM;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $keyValue =  $event->getKeyValueInData($data, $data->inputName);
         $fieldSlug = array_combine($data?->fieldSlug ?? [], $data?->fieldSlug ?? []);
-
+        $expandField = (isset($data->expandField)) ? $data->expandField : '1';
         $defaultFieldSlug = (empty($keyValue)) ? $data?->defaultFieldSlug : $keyValue;
-
+        $fieldSelectDropperFrag = '';
         $table = Tables::getTable(Tables::FIELD);
         $fields = db()->run("SELECT * FROM $table");
 
-        $fieldSelectionFrag = ''; $defaultFieldSlugFrag = '';
+        $fieldSelectionFrag = '';
+        $defaultFieldSlugFrag = '';
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug";
             if (isset($fieldSlug[$field->field_slug])){
                 $fieldSelected = '';
-                if ($uniqueSlug === $defaultFieldSlug){
+                if ($expandField === '1' && $uniqueSlug === $defaultFieldSlug){
                     $fieldSelected = 'selected';
                     $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
                         [$uniqueSlug],
@@ -149,36 +172,46 @@ HTML;
             }
         }
 
-        if (isset($data->_field->_children)){
-            $fieldTable = $event->getFieldData()->getFieldTable();
-            $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
-            $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
-
-            $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
-                ->From($fieldItemsTable)
-                ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
-
-            foreach ($originalFieldItems as $originalFieldItem){
-                $fieldOption = json_decode($originalFieldItem->field_options);
-                $originalFieldItem->field_options = $fieldOption;
-            }
-
-            // Sort and Arrange OriginalFieldItems
-            $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
+        if ($expandField === '1'){
             if (isset($data->_field->_children)){
-                $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
-            } else {
-                $sortedFieldWalkerItems = $originalFieldItems;
+                $fieldTable = $event->getFieldData()->getFieldTable();
+                $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
+                $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
+
+                $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
+                    ->From($fieldItemsTable)
+                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                    ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
+
+                foreach ($originalFieldItems as $originalFieldItem){
+                    $fieldOption = json_decode($originalFieldItem->field_options);
+                    $originalFieldItem->field_options = $fieldOption;
+                }
+
+                // Sort and Arrange OriginalFieldItems
+                $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
+                if (isset($data->_field->_children)){
+                    $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+                } else {
+                    $sortedFieldWalkerItems = $originalFieldItems;
+                }
+
+                foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
+                    if (isset($sortedFieldWalkerItem->_children)) {
+                        $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
+                    }
+                }
+                $fieldCategories = [$defaultFieldSlug => $sortedFieldWalkerItems];
+                $defaultFieldSlugFrag = $event->getFieldData()->getUsersFormFrag($fieldCategories);
             }
 
-            foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
-                if (isset($sortedFieldWalkerItem->_children)) {
-                    $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
-                }
-            }
-            $fieldCategories = [$defaultFieldSlug => $sortedFieldWalkerItems];
-            $defaultFieldSlugFrag = $event->getFieldData()->getUsersFormFrag($fieldCategories);
+            $fieldSelectDropperFrag = <<<FieldSelectionDropperFrag
+<div class="tonics-field-selection-dropper-container">
+        <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="1" class="tonics-field-selection-dropper-ul row-col-item-user margin-top:0 owl">
+                $defaultFieldSlugFrag
+         </ul>
+    </div>
+FieldSelectionDropperFrag;
         }
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -191,11 +224,7 @@ HTML;
         $fieldSelectionFrag
      </select>
     </label>
-    <div class="tonics-field-selection-dropper-container">
-        <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="1" class="tonics-field-selection-dropper-ul row-col-item-user margin-top:0 owl">
-                $defaultFieldSlugFrag
-         </ul>
-    </div>
+    $fieldSelectDropperFrag
 </div>
 HTML;
 

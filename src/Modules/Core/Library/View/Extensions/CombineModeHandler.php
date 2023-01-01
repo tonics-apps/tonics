@@ -36,13 +36,13 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
 
         $outputFile = array_shift($args);
         $rootPath = AppConfig::getPublicPath();
-        if (str_starts_with($outputFile, 'APP::')){
+        if (str_starts_with(strtoupper($outputFile), 'APP::')){
             $rootPath = AppConfig::getAppsPath();
-        } elseif (str_starts_with($outputFile, 'MODULE::')){
+        } elseif (str_starts_with(strtoupper($outputFile), 'MODULE::')){
             $rootPath = AppConfig::getModulesPath();
         }
 
-        $outputFile = str_replace(['MODULE::', 'APP::'], '', $outputFile);
+        $outputFile = str_ireplace(['MODULE::', 'APP::'], '', $outputFile);
         $finalFile = $rootPath . DIRECTORY_SEPARATOR . trim($outputFile, '/\\');
 
         /** @var BeforeCombineModeOperation $beforeCombineOperationEvent */
@@ -61,13 +61,13 @@ class CombineModeHandler extends TonicsTemplateViewAbstract implements TonicsMod
         foreach ($args as $file) {
 
             $fileRootPath = AppConfig::getPublicPath();
-            if (str_starts_with($file, 'APP::')){
+            if (str_starts_with(strtoupper($file), 'APP::')){
                 $fileRootPath = AppConfig::getAppsPath();
-            } elseif (str_starts_with($file, 'MODULE::')){
+            } elseif (str_starts_with(strtoupper($file), 'MODULE::')){
                 $fileRootPath = AppConfig::getModulesPath();
             }
 
-            $file = str_replace(['MODULE::', 'APP::'], '', $file);
+            $file = str_ireplace(['MODULE::', 'APP::'], '', $file);
 
             // Priority would be given to the combine type, if it doesn't exist, we check the PublicPath
             $fileToAppend = $fileRootPath . DIRECTORY_SEPARATOR . trim($file, '/\\');

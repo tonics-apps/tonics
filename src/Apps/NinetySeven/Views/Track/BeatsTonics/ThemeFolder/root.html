@@ -1,0 +1,241 @@
+[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
+
+[[hook_into('before_footer')
+    [[_use("script:track::theme_folder")]]
+]]
+
+[[hook_into('in_main')
+<style>
+
+    .tonics-files-container {
+        display: grid;
+        gap: 1em;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%,300px),1fr));
+        width: 100%;
+    }
+
+    main#main {
+        background: #000;
+        background: linear-gradient(to bottom, black, rgb(31, 34, 34));
+    }
+
+    .remove-button-styles {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: transparent;
+        border: none;
+    }
+
+    .tonics-fm-link {
+        text-decoration: none;
+        -webkit-transition: -webkit-box-shadow .15s ease,-webkit-transform .15s ease;
+        transition: -webkit-box-shadow .15s ease,-webkit-transform .15s ease;
+        -o-transition: box-shadow .15s ease,transform .15s ease;
+        transition: box-shadow .15s ease,transform .15s ease;
+        transition: box-shadow .15s ease,transform .15s ease,-webkit-box-shadow .15s ease,-webkit-transform .15s ease;
+        will-change: box-shadow,transform;
+    }
+
+    .tonics-fm-link:active {
+        box-shadow: inset -4px 2px 5px #9e9e9e2b;
+        -webkit-transform: translateY(2px);
+        -ms-transform: translateY(2px);
+        transform: translateY(2px);
+    }
+
+    .tonics-file {
+        border-right: 1px solid #a19c9c2e;
+        border-bottom: 1px solid #a19c9c2e;
+    }
+
+    svg.tonics-folder {
+        transform: scale(.8);
+        fill: #ffffff;
+    }
+
+    .tonics-cart-icon {
+        -webkit-transform: scale(0.84);
+        transform: scale(0.84);
+    }
+
+    .tonics-individual-art-image {
+        background-color: black;
+        -webkit-box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+        box-shadow: 7px 10px 28px rgb(103 58 183 / 46%);
+        padding-bottom: 2%;
+        position: relative;
+        width: 200px;
+    }
+</style>
+[[[[
+    <section class="main-tonics-folder-container owl padding:default">
+
+    <div class="search-admin width:100% margin-top:0">
+        <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
+            <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
+                <input type="search" value="" class="filter-search-admin border-none border:white border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+                <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:white border-width:default border:white padding:default cursor:pointer button:box-shadow-variant-3" aria-label="Expand child menu" aria-expanded="false">
+                    <svg class="icon:admin tonics-filter"><use xlink:href="#tonics-filter"></use></svg>
+                    Filter Options
+                </button>
+            </div>
+            <div class="overflow:auto width:80% filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap swing-in-top-fwd d:flex">
+                <div class="form-group d:flex color:white flex-gap align-items:flex-end flex-wrap:wrap">
+                    <label for="track_artist">Choose Artist
+                        <select class="default-selector border-width:default border:white color:black" name="status" id="status">
+                            <option value="1">Larm</option>
+                            <option value="0" selected="">Horlaes</option>
+                            <option value="-1">Ferola</option>
+                        </select>
+                    </label>
+
+                    <label for="page_size">Page Size
+                        <select class="default-selector border-width:default border:white color:black" name="per_page" id="page_size">
+                            <option value="5" selected="">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
+                    <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose Genres (All By Default)
+                        <ul class="menu-box-radiobox-items list:style:none">
+                            <li class="menu-item">
+                                <input type="checkbox" id="sample_one_genre" name="track_genre[]" value="1">
+                                <label for="sample_one_genre">Sample One</label>
+                            </li>
+                            <li class="menu-item">
+                                <input type="checkbox" id="sample_two_genre" name="track_genre[]" value="2">
+                                <label for="sample_two_genre">Sample Two</label>
+                            </li></ul>
+                    </div>
+                </div>
+
+                <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);/* background: inherit; */" class="text-align:center bg:pure-white border:none color:black border-width:default border:blue padding:default cursor:pointer button:box-shadow-variant-2">
+                    Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
+
+
+        <ul class="tonics-files-container list:style:none" data-event-dblclick="true">
+            <li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+                <button class="tonics-fm-link color:white remove-button-styles">
+                    <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                    <div class="tonics-file-filename">
+                        Audio Folder
+                    </div>
+                    <span class="svg-per-file-loading display-none"></span>
+                </button>
+            </li>
+            <li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+                <button class="tonics-fm-link color:white remove-button-styles">
+                    <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                    <div class="tonics-file-filename">
+                        Audio Folder
+                    </div>
+                    <span class="svg-per-file-loading display-none"></span>
+                </button>
+            </li><li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+            <button class="tonics-fm-link color:white remove-button-styles">
+                <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                <div class="tonics-file-filename">
+                    Audio Folder
+                </div>
+                <span class="svg-per-file-loading display-none"></span>
+            </button>
+        </li><li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+            <button class="tonics-fm-link color:white remove-button-styles">
+                <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                <div class="tonics-file-filename">
+                    Audio Folder
+                </div>
+                <span class="svg-per-file-loading display-none"></span>
+            </button>
+        </li><li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+            <button class="tonics-fm-link color:white remove-button-styles">
+                <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                <div class="tonics-file-filename">
+                    Audio Folder
+                </div>
+                <span class="svg-per-file-loading display-none"></span>
+            </button>
+        </li><li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+            <button class="tonics-fm-link color:white remove-button-styles">
+                <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                <div class="tonics-file-filename">
+                    Audio Folder
+                </div>
+                <span class="svg-per-file-loading display-none"></span>
+            </button>
+        </li><li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+            <button class="tonics-fm-link color:white remove-button-styles">
+                <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                <div class="tonics-file-filename">
+                    Audio Folder
+                </div>
+                <span class="svg-per-file-loading display-none"></span>
+            </button>
+        </li><li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+            <a class="tonics-fm-link color:white remove-button-styles" href="#">
+                <img width="200px" height="200px" loading="lazy" src="https://m.media-amazon.com/images/I/419wp110nQL._SX354_SY354_BL0_QL100_.jpg" alt="" class="tonics-individual-art-image">
+                <div class="tonics-file-filename">Horlaes - Never Give Up</div>
+                <span class="svg-per-file-loading display-none"></span>
+            </a>
+
+            <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
+
+                <button type="button" title="Play" data-tonics-audioplayer-track="" data-audioplayer_songurl="https://cringe.com/serve_file_path_987654321/de75013f9dcec815900a1b7c788a1641b08b0491899fae128ced81522265ac31" data-audioplayer_title="burna_boy_type_beats_soul_instrumental_afro_pop_2020.mp3" data-audioplayer_image="" data-audioplayer_format="mp3" data-audioplayer_play="false" data-trackloaded="true" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                    <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+                        <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+                    </svg>
+                    <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+                        <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+                    </svg>
+                </button>
+                <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                    <svg class="icon:audio tonics-cart-icon tonics-widget">
+                        <use class="svgUse" xlink:href="#tonics-cart"></use>
+                    </svg>
+
+                </button>
+            </div>
+
+        </li>
+            <li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
+                <a class="tonics-fm-link color:white remove-button-styles" href="#">
+                    <img width="200px" height="200px" loading="lazy" src="https://i.scdn.co/image/ab67616d00001e0290b19b75c12f7ba92df3cc6f" alt="" class="tonics-individual-art-image">
+                    <div class="tonics-file-filename">Horlaes - Never Give Up</div>
+                    <span class="svg-per-file-loading display-none"></span>
+                </a>
+
+                <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
+
+                    <button type="button" title="Play" data-tonics-audioplayer-track="" data-audioplayer_songurl="https://cringe.com/serve_file_path_987654321/de75013f9dcec815900a1b7c788a1641b08b0491899fae128ced81522265ac31" data-audioplayer_title="burna_boy_type_beats_soul_instrumental_afro_pop_2020.mp3" data-audioplayer_image="" data-audioplayer_format="mp3" data-audioplayer_play="false" data-trackloaded="true" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                        <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+                            <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+                        </svg>
+                        <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+                            <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+                        </svg>
+                    </button>
+                    <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                        <svg class="icon:audio tonics-cart-icon tonics-widget">
+                            <use class="svgUse" xlink:href="#tonics-cart"></use>
+                        </svg>
+
+                    </button>
+                </div>
+
+            </li></ul>
+    </div>
+</section>
+]]]]
+]]
