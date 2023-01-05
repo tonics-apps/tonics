@@ -21,6 +21,7 @@ try {
     // For More Filter Options
     window.TonicsScript.MenuToggle('.form-and-filter',  window.TonicsScript.Query())
         .settings('.form-and-filter', '.more-filter-button-toggle', '.more-filter-container')
+        .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
         .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
         .closeOnClickOutSide(false)

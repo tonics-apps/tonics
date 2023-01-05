@@ -91,7 +91,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
             $mainTrackData = [...$fieldSettingsForMainTrackData, ...(array)$mainTrackData];
 
             # Get Filters of a Certain Category and Its Sub Category
-            $this->handleFilterTrackKeyForCategorySubCategory($mainTrackData, $fieldSettings);
+            $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, $fieldSettings);
             $this->handleFilterTrackArtistKeyForCategorySubCategory($mainTrackData, $fieldSettings);
             $this->handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, $fieldSettings);
 
@@ -109,7 +109,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
     /**
      * @throws \Exception
      */
-    public function handleFilterTrackKeyForCategorySubCategory($mainTrackData, &$fieldSettings)
+    public function handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, &$fieldSettings)
     {
         $trackCatID = $mainTrackData['track_cat_id'];
         $filterOptions = db()->row(<<<FILTER_OPTION
@@ -185,6 +185,8 @@ TRACK_KEY;
             }
 
             $fieldSettings['ThemeFolder_FilterOption_TrackKey'] = $trackKeysFrag;
+            $fieldSettings['ThemeFolder_FilterOption_TrackBPM'] = $this->createCheckboxFilterFragmentFromFieldSettings("track_bpm", $filterOptions);
+            $fieldSettings['ThemeFolder_FilterOption_TrackInstrument'] = $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_instruments", $filterOptions);
         }
     }
 
@@ -316,5 +318,35 @@ LI;
     private function getArtistTable(): string
     {
         return Tables::getTable(Tables::ARTISTS);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function createCheckboxFilterFragmentFromFieldSettings(string $param, $filterOptions): string
+    {
+        $frag = '';
+        if (is_array($filterOptions->{$param})){
+            $frag = <<<TRACK_KEY
+<ul class="menu-box-radiobox-items list:style:none">
+TRACK_KEY;
+            foreach ($filterOptions->{$param} as $filterValue){
+                $checked = '';
+                if (is_array(url()->getParam($param))){
+                    $bpmParam = array_combine(url()->getParam($param), url()->getParam($param));
+                    if (key_exists($filterValue, $bpmParam)){
+                        $checked = 'checked';
+                    }
+                }
+                $frag .= <<<LI
+<li class="menu-item">
+    <input type="checkbox" $checked id="{$param}_$filterValue" name="{$param}[]" value="$filterValue">
+     <label for="{$param}_$filterValue">$filterValue</label>
+ </li>
+LI;
+            }
+            $frag .= '</ul>';
+        }
+        return $frag;
     }
 }
