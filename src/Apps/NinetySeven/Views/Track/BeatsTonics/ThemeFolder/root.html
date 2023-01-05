@@ -7,8 +7,6 @@
         <div class="audio-player-queue color:black bg:white-one border-width:default border:black d:none flex-gap flex-d:column height:600px width:320px bg:pure-white color:black padding:default position:absolute right:0 bottom:80px overflow:auto">
             <div class="more-audio-player-control cursor:pointer">
 
-
-
                 <button type="button" title="Repeat" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black" data-audioplayer_repeat="false">
 
                     <svg class="repeat-on icon:audio tonics-widget pointer-events:none">
@@ -20,12 +18,7 @@
 
                 </button>
 
-
-
-
-
                 <button type="button" title="Shuffle" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black" data-audioplayer_shuffle="false">
-
                     <svg class="shuffle-on icon:audio tonics-widget cursor:pointer pointer-events:none act-like-button">
                         <use class="svgUse" xlink:href="#tonics-shuffle-on"></use>
                     </svg>
@@ -34,16 +27,12 @@
                     </svg>
 
                 </button>
-
-
             </div>
             <ol class="audio-player-queue-list d:flex flex-d:column flex-gap:small">
                 <li tabindex="0" class="color:black cursor:move draggable track-in-queue bg:white-one border-width:default border:black position:relative">
                     <div class="queue-song-info d:flex align-items:center flex-gap:small">
                         <div title="3._ferola_x_dotzee.mp3" class="cursor:text text:no-wrap width:80px text-overflow:ellipsis">3._ferola_x_dotzee.mp3</div>
-
                     </div>
-
                     <button type="button" title="Play" data-tonics-audioplayer-track="" data-trackloaded="" data-audioplayer_songurl="https://cringe.com/serve_file_path_987654321/28bfdb339ef7c9179b49b3576593edcf781a3c7dc8903ca3120767e0734efb55" data-audioplayer_title="3._ferola_x_dotzee.mp3" data-audioplayer_image="" data-audioplayer_format="mp3" data-audioplayer_play="false" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:black">
                         <svg class="audio-play icon:audio tonics-widget pointer-events:none">
                             <use class="svgUse" xlink:href="#tonics-audio-play"></use>
@@ -54,7 +43,6 @@
                     </button>
 
                     <ul class="cursor:pointer track-license d:none z-index:audio-sticky-footer:license-in-queue flex-d:column width:100% position:absolute flex-gap left:0 top:46px color:black bg:white-one border-width:default border:black">
-
                     </ul>
                 </li>
             </ol>
@@ -304,7 +292,7 @@
                     [[_v('Data.ThemeFolder_FilterOption_TrackKey')]]
                 </div>
 
-                <div class="child-menu width:100% flex-d:column flex-gap flex-d:row swing-in-top-fwd d:flex">
+                <div class="child-menu width:100% flex-gap flex-d:row d:flex">
                     [[if("v[Data.ThemeFolder_FilterOption_TrackBPM] !== block[empty]")
                     <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose BPM (All By Default)
                         [[_v('Data.ThemeFolder_FilterOption_TrackBPM')]]
@@ -320,7 +308,7 @@
 
                 <div class="bg:pure-black color:white border-width:default border:white padding:small d:flex flex-gap:small align-items:center" style="width: clamp(25%, (800px - 100vw) * 1000, 100%);">
                     <span class="menu-arranger-text-head">More Options</span>
-                    <button class="dropdown-toggle more-filter-button-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
+                    <button type="button" class="dropdown-toggle more-filter-button-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                         <svg class="icon:admin tonics-arrow-down color:white">
                             <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
                         </svg>
@@ -328,11 +316,13 @@
                 </div>
 
                 <div class="overflow:auto width:80% more-filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap d:none">
-                    <div class="child-menu width:100% flex-d:column swing-in-top-fwd d:flex">
-                        [[if("v[Data.ThemeFolder_FilterOption_TrackInstrument] !== block[empty]")
-                        <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose Instrument (All By Default)
-                            [[_v('Data.ThemeFolder_FilterOption_TrackInstrument')]]
-                        </div>
+                    <div class="child-menu width:100% flex-gap flex-wrap:wrap flex-d:row d:flex">
+                        [[each("_moreFilterType in Data.ThemeFolder_FilterOption_More")
+                            [[if("v[_moreFilterType.frag] !== block[empty]")
+                            <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto"> [[_v('_moreFilterType.label')]]
+                                [[_v('_moreFilterType.frag')]]
+                            </div>
+                            ]]
                         ]]
                     </div>
                 </div>
@@ -340,7 +330,6 @@
                 <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);" class="text-align:center bg:pure-white border:none color:black border-width:default border:blue padding:default cursor:pointer button:box-shadow-variant-2">
                     Filter
                 </button>
-
             </div>
         </form>
     </div>
@@ -360,36 +349,45 @@
             </li>
                 ]]
                 [[if("v[_themeFolderData.is_track] == e[1]")
+                    <li class="d:flex flex-d:column text-align:center tonics-file padding:small"
+                        data-name="[[v('_themeFolderData._name')]]" data-url_page="[[v('_themeFolderData._link')]]">
+                        <a class="tonics-fm-link color:white remove-button-styles" href="[[v('_themeFolderData._link')]]">
+                            <img width="200px" height="200px" loading="lazy"
+                                 src="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" alt="[[v('_themeFolderData._name')]]" class="tonics-individual-art-image">
+                            <div class="tonics-file-filename">[[v('_themeFolderData._name')]]</div>
+                            <span class="svg-per-file-loading display-none"></span>
+                        </a>
 
+                        <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
+
+                            <button type="button" title="Play" data-tonics-audioplayer-track=""
+                                    data-audioplayer_songurl="[[v('_themeFolderData.audio_url')]]"
+                                    data-audioplayer_title="[[v('_themeFolderData._name')]]"
+                                    data-audioplayer_image="" data-audioplayer_format="mp3"
+                                    data-audioplayer_play="false"
+                                    class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                                <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+                                    <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+                                </svg>
+                                <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+                                    <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+                                </svg>
+                            </button>
+                            <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                                <svg class="icon:audio tonics-cart-icon tonics-widget">
+                                    <use class="svgUse" xlink:href="#tonics-cart"></use>
+                                </svg>
+
+                            </button>
+                        </div>
+                    </li>
                 ]]
             ]]
 
             [[-
-            <li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
-            <a class="tonics-fm-link color:white remove-button-styles" href="#">
-                <img width="200px" height="200px" loading="lazy" src="https://m.media-amazon.com/images/I/419wp110nQL._SX354_SY354_BL0_QL100_.jpg" alt="" class="tonics-individual-art-image">
-                <div class="tonics-file-filename">Horlaes - Never Give Up</div>
-                <span class="svg-per-file-loading display-none"></span>
-            </a>
 
-            <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
 
-                <button type="button" title="Play" data-tonics-audioplayer-track="" data-audioplayer_songurl="https://cringe.com/serve_file_path_987654321/de75013f9dcec815900a1b7c788a1641b08b0491899fae128ced81522265ac31" data-audioplayer_title="burna_boy_type_beats_soul_instrumental_afro_pop_2020.mp3" data-audioplayer_image="" data-audioplayer_format="mp3" data-audioplayer_play="false" data-trackloaded="true" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                    <svg class="audio-play icon:audio tonics-widget pointer-events:none">
-                        <use class="svgUse" xlink:href="#tonics-audio-play"></use>
-                    </svg>
-                    <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
-                        <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
-                    </svg>
-                </button>
-                <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                    <svg class="icon:audio tonics-cart-icon tonics-widget">
-                        <use class="svgUse" xlink:href="#tonics-cart"></use>
-                    </svg>
 
-                </button>
-            </div>
-        </li>
             <li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
                 <a class="tonics-fm-link color:white remove-button-styles" href="#">
                     <img width="200px" height="200px" loading="lazy" src="https://i.scdn.co/image/ab67616d00001e0290b19b75c12f7ba92df3cc6f" alt="" class="tonics-individual-art-image">

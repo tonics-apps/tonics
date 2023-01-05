@@ -160,6 +160,7 @@ WHERE ct.track_cat_parent_id = ?
 LIMIT 1;
 FILTER_OPTION, $trackCatID, $trackCatID);
         if (isset($filterOptions->filters) && helper()->isJSON($filterOptions->filters)){
+            $fieldSettings['ThemeFolder_FilterOption_More'] = [];
             $filterOptions = json_decode($filterOptions->filters);
             # Check if Some Key Values are Multidimensional, if so, flatten it
             foreach ($filterOptions as $filterKey => $filterValue){
@@ -184,9 +185,57 @@ TRACK_KEY;
                 $trackKeysFrag .= '</select></label>';
             }
 
+
             $fieldSettings['ThemeFolder_FilterOption_TrackKey'] = $trackKeysFrag;
+            $fieldSettings['ThemeFolderTrackDefaultImage'] = "https://via.placeholder.com/200/FFFFFF/000000?text=Featured+Image+Is+Empty";
             $fieldSettings['ThemeFolder_FilterOption_TrackBPM'] = $this->createCheckboxFilterFragmentFromFieldSettings("track_bpm", $filterOptions);
-            $fieldSettings['ThemeFolder_FilterOption_TrackInstrument'] = $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_instruments", $filterOptions);
+
+            if (isset($mainTrackData['filter_type'])){
+                $filterType = $mainTrackData['filter_type'];
+                $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_mood'] = [
+                    'label' => 'Choose Mood',
+                    'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_mood", $filterOptions),
+                ];
+
+                $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_instruments'] = [
+                    'label' => 'Choose Instrument',
+                    'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_instruments", $filterOptions),
+                ];
+
+                if ($filterType === 'track-default-filter-sample-packs'){
+                    $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_samplePacks_Type'] = [
+                        'label' => 'Choose Sample Type',
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_samplePacks_Type", $filterOptions),
+                    ];
+                }
+
+                if ($filterType === 'track-default-filter-acapella'){
+                    $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_gender'] = [
+                        'label' => 'Choose Gender',
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_gender", $filterOptions),
+                    ];
+
+                    $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_vocalStyle'] = [
+                        'label' => 'Choose Vocal Style',
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_vocalStyle", $filterOptions),
+                    ];
+
+                    $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_emotion'] = [
+                        'label' => 'Choose Emotion',
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_emotion", $filterOptions),
+                    ];
+
+                    $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_scale'] = [
+                        'label' => 'Choose Emotion',
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_scale", $filterOptions),
+                    ];
+
+                    $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_effects'] = [
+                        'label' => 'Choose Emotion',
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_effects", $filterOptions),
+                    ];
+                }
+            }
         }
     }
 
