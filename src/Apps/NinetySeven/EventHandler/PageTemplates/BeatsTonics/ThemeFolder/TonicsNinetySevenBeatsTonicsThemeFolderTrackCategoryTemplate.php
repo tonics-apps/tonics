@@ -216,7 +216,7 @@ ORDER BY a.artist_name;
 SQL, $trackCatID);
 
         $trackArtistsFrag ='';
-        if (is_array($artists)){
+        if (is_array($artists) && !empty($artists)){
             $trackArtistsFrag = <<<TRACK_KEY
 <label for="track_key">Choose Artist
                         <select class="default-selector border-width:default border:white color:black" name="track_artist" id="track_artist">
@@ -258,7 +258,7 @@ ORDER BY num_tracks DESC;
 SQL, $trackCatID);
 
         $trackGenresFrag ='';
-        if (is_array($genres)){
+        if (is_array($genres) && !empty($genres)){
             $trackGenresFrag = <<<TRACK_KEY
 <ul class="menu-box-radiobox-items list:style:none">
 TRACK_KEY;
