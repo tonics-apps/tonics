@@ -21,6 +21,7 @@ use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnTrackCategoryCreate;
+use App\Modules\Track\Helper\TrackRedirection;
 use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
@@ -268,13 +269,13 @@ class TrackCategoryController
             onSlugIDState: function ($slugID){
                 $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('slug_id', $slugID)->FetchFirst();
                 if (isset($category->slug_id) && isset($category->track_cat_slug)){
-                    return "/track_categories/$category->slug_id/$category->track_cat_slug";
+                    return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
                 }
                 return false;
             }, onSlugState: function ($slug){
             $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
             if (isset($category->slug_id) && isset($category->track_cat_slug)){
-                return "/track_categories/$category->slug_id/$category->track_cat_slug";
+                return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
             }
             return false;
         });

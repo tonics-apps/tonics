@@ -179,7 +179,6 @@ FORM;
         $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
         $keyValue =  $event->getKeyValueInData($data, $data->inputName);
         $defaultValue =  $keyValue ?: $defaultValue;
-        $defaultValue = helper()->htmlSpecChar($defaultValue);
 
         $maxChar =  (isset($data->maxChar)) ?  'maxlength="' . $data->maxChar . '"' : '';
         $placeholder =  (isset($data->placeholder)) ? $data->placeholder : '';
@@ -202,6 +201,8 @@ FORM;
         if (!empty($fieldSanitization)){
             $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
+
+        $defaultValue = helper()->htmlSpecChar($defaultValue);
 
         if ($textType === 'textarea') {
             $frag .= <<<FORM

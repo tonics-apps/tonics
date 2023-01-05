@@ -23,6 +23,6 @@ class DashboardController extends Controller
 
     public function table()
     {
-        view('Modules::Core/Views/Dashboard/table');
+     //   view('Modules::Core/Views/Dashboard/table');
     }
 }

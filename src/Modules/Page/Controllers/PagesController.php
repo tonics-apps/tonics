@@ -13,6 +13,7 @@ namespace App\Modules\Page\Controllers;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
@@ -237,7 +238,7 @@ class PagesController
 
         try {
             $pageToUpdate = $this->pageData->createPage(['token']);
-            $pageToUpdate['page_slug'] = helper()->slugForPage(input()->fromPost()->retrieve('page_slug'));
+            $pageToUpdate['page_slug'] = helper()->slugForPage(input()->fromPost()->retrieve('page_slug'), '-');
             db()->FastUpdate($this->pageData->getPageTable(), $pageToUpdate, db()->Where('page_id', '=', $id));
         } catch (Exception) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());

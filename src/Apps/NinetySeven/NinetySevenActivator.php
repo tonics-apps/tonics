@@ -13,7 +13,8 @@ namespace App\Apps\NinetySeven;
 use App\Apps\NinetySeven\EventHandler\AssetsHookHandler;
 use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
 use App\Apps\NinetySeven\EventHandler\ConfigureNinetySevenPageSettings;
-use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\TonicsNinetySevenBeatsTonicsThemeFolderHomePageTemplate;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate;
 use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenHomePageTemplate;
 use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenPostPageTemplate;
 use App\Apps\NinetySeven\Route\Routes;
@@ -61,7 +62,8 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             OnPageTemplate::class => [
                 TonicsNinetySevenHomePageTemplate::class,
                 TonicsNinetySevenPostPageTemplate::class,
-                TonicsNinetySevenBeatsTonicsThemeFolderHomePageTemplate::class,
+                TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate::class,
+                TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate::class,
             ],
 
             OnHookIntoTemplate::class => [
@@ -258,7 +260,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     "field_name": "input_rich-text",
     "field_id": 8,
     "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> \\u00a9 2022 Devsrealm |        <a href=\\\"https://devsrealm.com/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> \\u00a9 2023 Devsrealm |        <a href=\\\"https://tonics.app/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
   }
 ]
 JSON;

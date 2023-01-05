@@ -497,8 +497,8 @@ var MenuToggle = class extends ElementAbstract {
   stopPropagation($bool = true) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.propagate = $bool;
-      return this;
     }
+    return this;
   }
   buttonIcon($add, $remove) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
@@ -642,10 +642,13 @@ var MenuToggle = class extends ElementAbstract {
   }
 };
 __name(MenuToggle, "MenuToggle");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.MenuToggle = ($parentElement, $queryAdapter) => new MenuToggle($parentElement, $queryAdapter);
 export {
   MenuToggle
-};
-var __defProp = Object.defineProperty;
+};var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/Util/Element/Abstract/ElementAbstract.ts
@@ -740,6 +743,10 @@ var Query = class extends ElementAbstract {
   }
 };
 __name(Query, "Query");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.Query = () => new Query();
 export {
   Query
 };

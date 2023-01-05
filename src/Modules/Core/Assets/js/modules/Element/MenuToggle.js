@@ -61,8 +61,8 @@ var MenuToggle = class extends ElementAbstract {
   stopPropagation($bool = true) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.propagate = $bool;
-      return this;
     }
+    return this;
   }
   buttonIcon($add, $remove) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
@@ -206,6 +206,10 @@ var MenuToggle = class extends ElementAbstract {
   }
 };
 __name(MenuToggle, "MenuToggle");
+if (!window.hasOwnProperty("TonicsScript")) {
+  window.TonicsScript = {};
+}
+window.TonicsScript.MenuToggle = ($parentElement, $queryAdapter) => new MenuToggle($parentElement, $queryAdapter);
 export {
   MenuToggle
 };

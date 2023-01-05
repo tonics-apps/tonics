@@ -38,6 +38,6 @@ class PageSlugFieldSanitization extends DefaultSanitizationAbstract implements H
      */
     public function sanitize($value): string|array
     {
-        return helper()->slugForPage($value);
+        return helper()->slugForPage($value, '-');
     }
 }

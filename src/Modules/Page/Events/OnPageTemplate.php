@@ -10,6 +10,7 @@
 
 namespace App\Modules\Page\Events;
 
+use App\Modules\Field\Data\FieldData;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
@@ -97,5 +98,10 @@ class OnPageTemplate implements EventInterface
     public function setViewName(string $viewName): void
     {
         $this->viewName = $viewName;
+    }
+
+    public function getFieldData()
+    {
+        return new FieldData();
     }
 }

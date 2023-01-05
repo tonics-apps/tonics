@@ -10,9 +10,8 @@
 
 namespace App\Modules\Post\Helper;
 
-use App\Modules\Core\Library\SimpleState;
 
-class PostRedirection extends SimpleState
+class PostRedirection
 {
     /**
      * @param array $post

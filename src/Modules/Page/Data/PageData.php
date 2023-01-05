@@ -34,7 +34,7 @@ class PageData extends AbstractDataLayer
     public function createPage(array $ignore = []): array
     {
         $slug = $this->generateUniqueSlug($this->getPageTable(),
-            'page_slug', helper()->slugForPage(input()->fromPost()->retrieve('page_slug')));
+            'page_slug', helper()->slugForPage(input()->fromPost()->retrieve('page_slug'), '-'));
 
         $_POST['field_settings'] = input()->fromPost()->all();
         unset($_POST['field_settings']['token']);

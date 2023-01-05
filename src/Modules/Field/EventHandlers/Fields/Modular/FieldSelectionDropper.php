@@ -159,12 +159,14 @@ FORM;
             $uniqueSlug = "$field->field_slug";
             if (isset($fieldSlug[$field->field_slug])){
                 $fieldSelected = '';
-                if ($expandField === '1' && $uniqueSlug === $defaultFieldSlug){
+                if ($uniqueSlug === $defaultFieldSlug){
                     $fieldSelected = 'selected';
-                    $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
-                        [$uniqueSlug],
-                        []
-                    )->getHTMLFrag();
+                    if ($expandField === '1'){
+                        $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
+                            [$uniqueSlug],
+                            []
+                        )->getHTMLFrag();
+                    }
                 }
                 $fieldSelectionFrag .= <<<HTML
 <option value="$uniqueSlug" $fieldSelected>$field->field_name</option>

@@ -576,8 +576,8 @@ HTML;
     /**
      * @param $sanitizationName
      * @param $sanitizationValue
+     * @param $data
      * @return mixed
-     * @throws \Exception
      */
     public function sanitize($sanitizationName, $sanitizationValue, $data): mixed
     {

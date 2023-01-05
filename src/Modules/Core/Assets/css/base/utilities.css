@@ -966,3 +966,105 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     height: 100%;
     border: 0;
 }
+
+/**
+ * ==============================================
+ * Dot Elastic
+ * Copyright (c) 2018 nzbin From https://nzbin.github.io/three-dots/
+ * ==============================================
+ */
+.dot-elastic {
+    margin: 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    animation: dotElastic 1s infinite linear;
+}
+
+.svg-per-file-loading {
+    position: absolute;
+    align-self: center;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    animation: dotElastic 1s infinite linear;
+}
+
+.dot-elastic::before, .dot-elastic::after, .svg-per-file-loading:before, .svg-per-file-loading:after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    background: inherit;
+    top: 0;
+}
+
+.dot-elastic::before, .svg-per-file-loading:before {
+    left: -15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    animation: dotElasticBefore 1s infinite linear;
+}
+
+.dot-elastic::after, .svg-per-file-loading:after {
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    animation: dotElasticAfter 1s infinite linear;
+}
+
+@keyframes dotElasticBefore {
+    0% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(1, 1.5);
+    }
+    50% {
+        transform: scale(1, 0.67);
+    }
+    75% {
+        transform: scale(1, 1);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
+@keyframes dotElastic {
+    0% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(1, 1);
+    }
+    50% {
+        transform: scale(1, 1.5);
+    }
+    75% {
+        transform: scale(1, 1);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
+@keyframes dotElasticAfter {
+    0% {
+        transform: scale(1, 1);
+    }
+    25% {
+        transform: scale(1, 1);
+    }
+    50% {
+        transform: scale(1, 0.67);
+    }
+    75% {
+        transform: scale(1, 1.5);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}

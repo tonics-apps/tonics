@@ -16,15 +16,16 @@ use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Post\Helper\PostRedirection;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnTrackCreate;
 use App\Modules\Track\Events\OnTrackDefaultField;
 use App\Modules\Track\Events\OnTrackUpdate;
 use App\Modules\Track\Helper\TrackRedirection;
 use App\Modules\Track\Rules\TrackValidationRules;
-use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Exception;
@@ -368,16 +369,24 @@ class TracksController extends Controller
      */
     #[NoReturn] public function redirect($id){
 
-        $trackRedirection = new TrackRedirection($this->getTrackData());
-        $trackRedirection->setCurrentState(TrackRedirection::OnTrackInitialState);
-        $trackRedirection->setRequest(request());
+        $redirection = new CommonResourceRedirection(
+            onSlugIDState: function ($slugID) {
+                $track = db()->Select('*')->From(Tables::getTable(Tables::TRACKS))
+                    ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                if (isset($track->slug_id) && isset($track->post_slug)) {
+                    return TrackRedirection::getTrackAbsoluteURLPath((array)$track);
+                }
+                return false;
+            }, onSlugState: function ($slug) {
+            $track = db()->Select('*')->From(Tables::getTable(Tables::TRACKS))
+                ->WhereEquals('track_slug', $slug)->FetchFirst();
+            if (isset($track->slug_id) && isset($track->post_slug)) {
+                return TrackRedirection::getTrackAbsoluteURLPath((array)$track);
+            }
+            return false;
+        });
 
-        $trackRedirection->runStates(false);
-        if ($trackRedirection->getStateResult() === SimpleState::DONE){
-            redirect($trackRedirection->getIntendedTrackURL());
-        }
-
-        throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
+        $redirection->runStates();
     }
 
 

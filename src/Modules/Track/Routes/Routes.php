@@ -30,6 +30,7 @@ trait Routes
     public function routeWeb(Route $route): Route
     {
         $route->get('tracks/:id/', [TracksController::class, 'redirect']);
+        $route->get('track_categories/:id/', [TrackCategoryController::class, 'redirect']);
 
         $route->group('/admin', function (Route $route) {
 
