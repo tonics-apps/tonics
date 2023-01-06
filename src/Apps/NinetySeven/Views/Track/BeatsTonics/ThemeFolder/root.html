@@ -264,158 +264,132 @@
     .tonics-individual-art-image {
         background-color: black;
         -webkit-box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
-        box-shadow: 7px 10px 28px rgb(103 58 183 / 46%);
+        box-shadow: 2px 2px 16px rgb(173 165 187 / 46%);
         padding-bottom: 2%;
         position: relative;
         width: 200px;
     }
 </style>
     <section class="main-tonics-folder-container owl padding:default">
-
-
-    <div class="search-admin width:100% margin-top:0">
-        <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
-            <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
-                <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-none border:white border-radius:40px" name="query"
-                       aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
-                <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:white border-width:default border:white padding:default cursor:pointer button:box-shadow-variant-3" aria-label="Expand child menu" aria-expanded="false">
-                    <svg class="icon:admin tonics-filter"><use xlink:href="#tonics-filter"></use></svg>
-                    Filter Options
-                </button>
-            </div>
-            <div class="overflow:auto width:80% filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap d:none">
-                <div class="form-group d:flex color:white flex-gap align-items:flex-end flex-wrap:wrap">
-                    [[- For Track Artists -]]
-                    [[_v('Data.ThemeFolder_FilterOption_TrackArtists')]]
-
-                    [[- For Track Keys -]]
-                    [[_v('Data.ThemeFolder_FilterOption_TrackKey')]]
-                </div>
-
-                <div class="child-menu width:100% flex-gap flex-d:row d:flex">
-                    [[if("v[Data.ThemeFolder_FilterOption_TrackBPM] !== block[empty]")
-                    <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose BPM (All By Default)
-                        [[_v('Data.ThemeFolder_FilterOption_TrackBPM')]]
-                    </div>
-                    ]]
-
-                    [[if("v[Data.ThemeFolder_FilterOption_TrackGenres] !== block[empty]")
-                    <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose Genres (All By Default)
-                        [[_v('Data.ThemeFolder_FilterOption_TrackGenres')]]
-                    </div>
-                    ]]
-                </div>
-
-                <div class="bg:pure-black color:white border-width:default border:white padding:small d:flex flex-gap:small align-items:center" style="width: clamp(25%, (800px - 100vw) * 1000, 100%);">
-                    <span class="menu-arranger-text-head">More Options</span>
-                    <button type="button" class="dropdown-toggle more-filter-button-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
-                        <svg class="icon:admin tonics-arrow-down color:white">
-                            <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="overflow:auto width:80% more-filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap d:none">
-                    <div class="child-menu width:100% flex-gap flex-wrap:wrap flex-d:row d:flex">
-                        [[each("_moreFilterType in Data.ThemeFolder_FilterOption_More")
-                            [[if("v[_moreFilterType.frag] !== block[empty]")
-                            <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto"> [[_v('_moreFilterType.label')]]
-                                [[_v('_moreFilterType.frag')]]
-                            </div>
-                            ]]
-                        ]]
-                    </div>
-                </div>
-
-                <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);" class="text-align:center bg:pure-white border:none color:black border-width:default border:blue padding:default cursor:pointer button:box-shadow-variant-2">
-                    Filter
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
-        <ul class="tonics-files-container list:style:none">
-            [[each("_themeFolderData in Data.ThemeFolder.data")
-                [[if("v[_themeFolderData.is_track] == e[0]")
-                    <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
-                <a href="[[v('_themeFolderData._link')]]" data-url_page="[[v('_themeFolderData._link')]]" data-slug_id="[[v('_themeFolderData.slug_id')]]" data-navigo class="tonics-fm-link color:white remove-button-styles">
-                    <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
-                    <div class="tonics-file-filename">
-                        [[v('_themeFolderData._name')]] ([[v('_themeFolderData.num_tracks')]])
-                    </div>
-                    <span style="top: 42%;" class="svg-per-file-loading color:white bg:pure-white d:none"></span>
-                </a>
-            </li>
-                ]]
-                [[if("v[_themeFolderData.is_track] == e[1]")
-                    <li class="d:flex flex-d:column text-align:center tonics-file padding:small"
-                        data-name="[[v('_themeFolderData._name')]]" data-url_page="[[v('_themeFolderData._link')]]">
-                        <a class="tonics-fm-link color:white remove-button-styles" href="[[v('_themeFolderData._link')]]">
-                            <img width="200px" height="200px" loading="lazy"
-                                 src="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" alt="[[v('_themeFolderData._name')]]" class="tonics-individual-art-image">
-                            <div class="tonics-file-filename">[[v('_themeFolderData._name')]]</div>
-                            <span class="svg-per-file-loading display-none"></span>
-                        </a>
-
-                        <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
-
-                            <button type="button" title="Play" data-tonics-audioplayer-track=""
-                                    data-audioplayer_songurl="[[v('_themeFolderData.audio_url')]]"
-                                    data-audioplayer_title="[[v('_themeFolderData._name')]]"
-                                    data-audioplayer_image="" data-audioplayer_format="mp3"
-                                    data-audioplayer_play="false"
-                                    class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                                <svg class="audio-play icon:audio tonics-widget pointer-events:none">
-                                    <use class="svgUse" xlink:href="#tonics-audio-play"></use>
-                                </svg>
-                                <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
-                                    <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
-                                </svg>
-                            </button>
-                            <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                                <svg class="icon:audio tonics-cart-icon tonics-widget">
-                                    <use class="svgUse" xlink:href="#tonics-cart"></use>
-                                </svg>
-
-                            </button>
-                        </div>
-                    </li>
-                ]]
-            ]]
-
-            [[-
-
-
-
-            <li class="d:flex flex-d:column text-align:center tonics-file padding:small" data-list_id="0" data-drive_id="2" data-drive_parent_id="1" data-drive_unique_id="cd7cb3dccd3be5a0fb9638128430fcada8dbdf5b64f1dfba2329713e9e2c4eec" data-filename="Audio Folder" data-file_type="directory" data-size="4096" data-file_path="uploads/Audio Folder" data-time_created="1666121932" data-time_modified="1663331667" data-ext="null" data-selected="false">
-                <a class="tonics-fm-link color:white remove-button-styles" href="#">
-                    <img width="200px" height="200px" loading="lazy" src="https://i.scdn.co/image/ab67616d00001e0290b19b75c12f7ba92df3cc6f" alt="" class="tonics-individual-art-image">
-                    <div class="tonics-file-filename">Horlaes - Never Give Up</div>
-                    <span class="svg-per-file-loading display-none"></span>
-                </a>
-
-                <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
-
-                    <button type="button" title="Play" data-tonics-audioplayer-track="" data-audioplayer_songurl="https://cringe.com/serve_file_path_987654321/de75013f9dcec815900a1b7c788a1641b08b0491899fae128ced81522265ac31" data-audioplayer_title="burna_boy_type_beats_soul_instrumental_afro_pop_2020.mp3" data-audioplayer_image="" data-audioplayer_format="mp3" data-audioplayer_play="false" data-trackloaded="true" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                        <svg class="audio-play icon:audio tonics-widget pointer-events:none">
-                            <use class="svgUse" xlink:href="#tonics-audio-play"></use>
-                        </svg>
-                        <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
-                            <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
-                        </svg>
-                    </button>
-                    <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                        <svg class="icon:audio tonics-cart-icon tonics-widget">
-                            <use class="svgUse" xlink:href="#tonics-cart"></use>
-                        </svg>
-
-                    </button>
-                </div>
-            </li>
-            -]]
-
-        </ul>
-    </div>
+    [[add_hook('tonics_folder_search')]]
+    [[add_hook('tonics_folder_main')]]
 </section>
+]]
+
+[[b('tonics_folder_search')
+<div class="search-admin width:100% margin-top:0">
+    <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
+        <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
+            <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-none border:white border-radius:40px" name="query"
+                   aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+            <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:white border-width:default border:white padding:default cursor:pointer button:box-shadow-variant-3" aria-label="Expand child menu" aria-expanded="false">
+                <svg class="icon:admin tonics-filter"><use xlink:href="#tonics-filter"></use></svg>
+                Filter Options
+            </button>
+        </div>
+        <div class="overflow:auto width:80% filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap d:none">
+            <div class="form-group d:flex color:white flex-gap align-items:flex-end flex-wrap:wrap">
+                [[- For Track Artists -]]
+                [[_v('Data.ThemeFolder_FilterOption_TrackArtists')]]
+
+                [[- For Track Keys -]]
+                [[_v('Data.ThemeFolder_FilterOption_TrackKey')]]
+            </div>
+
+            <div class="child-menu width:100% flex-gap flex-d:row d:flex">
+                [[if("v[Data.ThemeFolder_FilterOption_TrackBPM] !== block[empty]")
+                <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose BPM (All By Default)
+                    [[_v('Data.ThemeFolder_FilterOption_TrackBPM')]]
+                </div>
+                ]]
+
+                [[if("v[Data.ThemeFolder_FilterOption_TrackGenres] !== block[empty]")
+                <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose Genres (All By Default)
+                    [[_v('Data.ThemeFolder_FilterOption_TrackGenres')]]
+                </div>
+                ]]
+            </div>
+
+            <div class="bg:pure-black color:white border-width:default border:white padding:small d:flex flex-gap:small align-items:center" style="width: clamp(25%, (800px - 100vw) * 1000, 100%);">
+                <span class="menu-arranger-text-head">More Options</span>
+                <button type="button" class="dropdown-toggle more-filter-button-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
+                    <svg class="icon:admin tonics-arrow-down color:white">
+                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="overflow:auto width:80% more-filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap d:none">
+                <div class="child-menu width:100% flex-gap flex-wrap:wrap flex-d:row d:flex">
+                    [[each("_moreFilterType in Data.ThemeFolder_FilterOption_More")
+                    [[if("v[_moreFilterType.frag] !== block[empty]")
+                    <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto"> [[_v('_moreFilterType.label')]]
+                        [[_v('_moreFilterType.frag')]]
+                    </div>
+                    ]]
+                    ]]
+                </div>
+            </div>
+
+            <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);" class="text-align:center bg:pure-white border:none color:black border-width:default border:blue padding:default cursor:pointer button:box-shadow-variant-2">
+                Filter
+            </button>
+        </div>
+    </form>
+</div>
+]]
+
+[[b('tonics_folder_main')
+<div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
+    <ul class="tonics-files-container list:style:none">
+        [[each("_themeFolderData in Data.ThemeFolder.data")
+        [[if("v[_themeFolderData.is_track] == e[0]")
+        <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
+            <a href="[[v('_themeFolderData._link')]]" data-url_page="[[v('_themeFolderData._link')]]" data-slug_id="[[v('_themeFolderData.slug_id')]]"
+               data-navigo class="tonics-fm-link color:white remove-button-styles">
+                <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+                <div class="tonics-file-filename">
+                    [[v('_themeFolderData._name')]] ([[v('_themeFolderData.num_tracks')]])
+                </div>
+                <span style="top: 42%;" class="svg-per-file-loading color:white bg:pure-white d:none"></span>
+            </a>
+        </li>
+        ]]
+        [[if("v[_themeFolderData.is_track] == e[1]")
+        <li class="d:flex flex-d:column text-align:center tonics-file padding:small"
+            data-name="[[v('_themeFolderData._name')]]" data-url_page="[[v('_themeFolderData._link')]]">
+            <a class="tonics-fm-link color:white remove-button-styles" href="[[v('_themeFolderData._link')]]">
+                <img width="200px" height="200px" loading="lazy"
+                     src="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" alt="[[v('_themeFolderData._name')]]" class="tonics-individual-art-image">
+                <div class="tonics-file-filename">[[v('_themeFolderData._name')]]</div>
+                <span class="svg-per-file-loading display-none"></span>
+            </a>
+
+            <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
+
+                <button type="button" title="Play" data-tonics-audioplayer-track=""
+                        data-audioplayer_songurl="[[v('_themeFolderData.audio_url')]]"
+                        data-audioplayer_title="[[v('_themeFolderData._name')]]"
+                        data-audioplayer_image="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" data-audioplayer_format="mp3"
+                        data-audioplayer_play="false"
+                        class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                    <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+                        <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+                    </svg>
+                    <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+                        <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+                    </svg>
+                </button>
+                <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                    <svg class="icon:audio tonics-cart-icon tonics-widget">
+                        <use class="svgUse" xlink:href="#tonics-cart"></use>
+                    </svg>
+
+                </button>
+            </div>
+        </li>
+        ]]
+        ]]
+    </ul>
+</div>
 ]]

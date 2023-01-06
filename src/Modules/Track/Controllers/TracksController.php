@@ -200,7 +200,7 @@ class TracksController extends Controller
         try {
             $db->beginTransaction();
             $track = $this->getTrackData()->createTrack(['token']);
-            $trackReturning = db()->insertReturning($this->getTrackData()->getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
+            $trackReturning = db()->insertReturning($this->getTrackData()::getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
             if (is_object($trackReturning)) {
                 $trackReturning->fk_track_cat_id = input()->fromPost()->retrieve('fk_track_cat_id', '');
                 $trackReturning->fk_genre_id = input()->fromPost()->retrieve('fk_genre_id', '');
@@ -226,25 +226,21 @@ class TracksController extends Controller
      */
     public function edit(string $slug)
     {
-        $trackTable = Tables::getTable(Tables::TRACKS);
-        $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
-        $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
-        $licenseTable = Tables::getTable(Tables::LICENSES);
-        $genreTable = Tables::getTable(Tables::GENRES);
-        $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
 
-        $select = "$trackTable.*, $licenseTable.*,
-       GROUP_CONCAT(DISTINCT $genreTable.genre_id) AS `fk_genre_id[]`,
-       GROUP_CONCAT(DISTINCT $trackTracksCategoriesTable.fk_track_cat_id) AS fk_track_cat_id";
+        $trackData = TrackData::class;
 
-        $track = db()->Select($select)->From($trackTable)
-            ->Join($trackGenreTable, "$trackGenreTable.fk_track_id", "$trackTable.track_id")
-            ->Join($genreTable, "$genreTable.genre_id", "$trackGenreTable.fk_genre_id")
-            ->Join($trackTracksCategoriesTable, "$trackTracksCategoriesTable.fk_track_id", "$trackTable.track_id")
-            ->Join($trackCategoriesTable, "$trackCategoriesTable.track_cat_id", "$trackTracksCategoriesTable.fk_track_cat_id")
-            ->Join($licenseTable, "$licenseTable.license_id", "$trackTable.fk_license_id")
-            ->WhereEquals("$trackTable.track_slug", $slug)
-            ->GroupBy("$trackTable.track_id")->FetchFirst();
+        $select = "{$trackData::getTrackTable()}.*, {$trackData::getLicenseTable()}.*,
+       GROUP_CONCAT(DISTINCT {$trackData::getGenreTable()}.genre_id) AS `fk_genre_id[]`,
+       GROUP_CONCAT(DISTINCT {$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id) AS fk_track_cat_id";
+
+        $track = db()->Select($select)->From($trackData::getTrackTable())
+            ->Join($trackData::getTrackToGenreTable(), "{$trackData::getTrackToGenreTable()}.fk_track_id", "{$trackData::getTrackTable()}.track_id")
+            ->Join($trackData::getGenreTable(), "{$trackData::getGenreTable()}.genre_id", "{$trackData::getTrackToGenreTable()}.fk_genre_id")
+            ->Join($trackData::getTrackTracksCategoryTable(), "{$trackData::getTrackTracksCategoryTable()}.fk_track_id", "{$trackData::getTrackTable()}.track_id")
+            ->Join($trackData::getTrackCategoryTable(), "{$trackData::getTrackCategoryTable()}.track_cat_id", "{$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id")
+            ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
+            ->WhereEquals("{$trackData::getTrackTable()}.track_slug", $slug)
+            ->GroupBy("{$trackData::getTrackTable()}.track_id")->FetchFirst();
 
         if (!is_object($track)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -319,7 +315,7 @@ class TracksController extends Controller
         $trackToUpdate = $this->getTrackData()->createTrack(['token']);
         try {
             $trackToUpdate['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_slug'));
-            db()->FastUpdate($this->getTrackData()->getTrackTable(), $trackToUpdate, db()->Where('track_slug', '=', $slug));
+            db()->FastUpdate($this->getTrackData()::getTrackTable(), $trackToUpdate, db()->Where('track_slug', '=', $slug));
 
             $trackToUpdate['fk_track_cat_id'] = input()->fromPost()->retrieve('fk_track_cat_id', '');
             $trackToUpdate['track_id'] = input()->fromPost()->retrieve('track_id', '');

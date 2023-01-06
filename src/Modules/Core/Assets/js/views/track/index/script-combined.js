@@ -5005,68 +5005,6 @@ window.TonicsDataTable.Editors.set('TONICS_MEDIA_FEATURE_LINK', DataTableEditorF
 // boot dataTable
 const dataTable = new DataTable('.dataTable');
 dataTable.boot();
-if (document.querySelector('.audio-player')){
-    let audioPlayer = new AudioPlayer();
-    audioPlayer.run();
-    let parent = '.audio-player-queue-list',
-        widgetChild = `.track-in-queue`,
-        top = false, bottom = false,
-        sensitivity = 0, sensitivityMax = 5;
-    new Draggables(parent)
-        .settings(widgetChild, ['.track-license'], false) // draggable element
-        .onDragDrop(function (element, self) {
-            let elementDropped = self.getDroppedTarget().closest(widgetChild);
-            let elementDragged = self.getDragging().closest(widgetChild);
-            if (elementDropped !== elementDragged && top || bottom){
-                // swap element
-                swapNodes(elementDragged, elementDropped, self.draggingOriginalRect, () => {
-                    audioPlayer.resetQueue();
-                });
-                sensitivity = 0;
-                top = false; bottom = false;
-            }
-        }).onDragTop((element) => {
-        if (sensitivity++ >= sensitivityMax){
-            let dragToTheTop = element.previousElementSibling;
-            if (dragToTheTop && dragToTheTop.classList.contains('track-in-queue')){
-                top = true;
-            }
-        }
-    }).onDragBottom( (element) => {
-        if (sensitivity++ >= sensitivityMax){
-            let dragToTheBottom = element.nextElementSibling;
-            if (dragToTheBottom && dragToTheBottom.classList.contains('track-in-queue')) {
-                bottom = true;
-            }
-        }
-    }).run();
-
-    new MenuToggle('.audio-player', new Query())
-        .settings('.audio-player-global-container', '.dropdown-toggle', '.audio-player-queue')
-        .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .stopPropagation(false)
-        .closeOnClickOutSide(false)
-        .run();
-
-    new MenuToggle('.time-progress', new Query())
-        .settings('.time-progress-marker', '.marker-dropdown-toggle', '.audio-player-marker-data')
-        .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .stopPropagation(false)
-        .closeOnClickOutSide(false)
-        .run();
-
-    new MenuToggle('.audio-player-queue', new Query())
-        .settings('.track-in-queue', '.dropdown-toggle', '.track-license')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .stopPropagation(false)
-        .closeOnClickOutSide(false)
-        .run();
-}
 
 /**
  * @param requestHeaders

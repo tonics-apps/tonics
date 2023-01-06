@@ -118,7 +118,7 @@ class ArtistController
 
         try {
             $artist = $this->getTrackData()->createArtist();
-            $artistReturning = db()->insertReturning($this->getTrackData()->getArtistTable(), $artist, $this->getTrackData()->getArtistColumns(), 'artist_id');
+            $artistReturning = db()->insertReturning($this->getTrackData()::getArtistTable(), $artist, $this->getTrackData()->getArtistColumns(), 'artist_id');
 
             $onArtistCreate = new OnArtistCreate($artistReturning, $this->getTrackData());
             event()->dispatch($onArtistCreate);
@@ -138,7 +138,7 @@ class ArtistController
      */
     public function edit(string $slug): void
     {
-        $artist = $this->getTrackData()->selectWithCondition($this->getTrackData()->getArtistTable(), ['*'], "artist_slug = ?", [$slug]);
+        $artist = $this->getTrackData()->selectWithCondition($this->getTrackData()::getArtistTable(), ['*'], "artist_slug = ?", [$slug]);
         if (!is_object($artist)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
@@ -165,7 +165,7 @@ class ArtistController
             $artistToUpdate = $this->getTrackData()->createArtist();
             $artistToUpdate['artist_slug'] = helper()->slug(input()->fromPost()->retrieve('artist_slug'));
 
-            db()->FastUpdate($this->getTrackData()->getArtistTable(), $artistToUpdate, db()->Where('artist_slug', '=', $slug));
+            db()->FastUpdate($this->getTrackData()::getArtistTable(), $artistToUpdate, db()->Where('artist_slug', '=', $slug));
 
             $slug = $artistToUpdate['artist_slug'];
             session()->flash(['Artist Updated'], type: Session::SessionCategories_FlashMessageSuccess);

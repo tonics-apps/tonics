@@ -36,37 +36,37 @@ class TrackData extends AbstractDataLayer
 
     use UniqueSlug;
 
-    public function getArtistTable(): string
+    public static function getArtistTable(): string
     {
         return Tables::getTable(Tables::ARTISTS);
     }
 
-    public function getGenreTable(): string
+    public static function getGenreTable(): string
     {
         return Tables::getTable(Tables::GENRES);
     }
 
-    public function getTrackTable(): string
+    public static function getTrackTable(): string
     {
         return Tables::getTable(Tables::TRACKS);
     }
 
-    public function getLicenseTable(): string
+    public static function getLicenseTable(): string
     {
         return Tables::getTable(Tables::LICENSES);
     }
 
-    public function getTrackCategoryTable(): string
+    public static function getTrackCategoryTable(): string
     {
         return Tables::getTable(Tables::TRACK_CATEGORIES);
     }
 
-    public function getTrackTracksCategoryTable(): string
+    public static function getTrackTracksCategoryTable(): string
     {
         return Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
     }
 
-    public function getTrackToGenreTable(): string
+    public static function getTrackToGenreTable(): string
     {
         return Tables::getTable(Tables::TRACK_GENRES);
     }
@@ -154,7 +154,7 @@ HTML;
      */
     public function artistSelectListing(int $currentArtistSelectorID = null): string
     {
-        $table = $this->getArtistTable();
+        $table = self::getArtistTable();
         $artists = db()->Select('*')->From($table)->FetchResult();
         $htmlFrag = '';
         foreach ($artists as $artist){
@@ -267,7 +267,7 @@ HTML;
     public function licenseSelectListing(int $currentLicenseID = null): string
     {
         $htmlFrag = '';
-        $table = $this->getLicenseTable();
+        $table = self::getLicenseTable();
         $licenses = db()->run("SELECT * FROM $table");
         foreach ($licenses as $license){
             if ($currentLicenseID === $license->license_id){
@@ -362,7 +362,7 @@ HTML;
      */
     public function createLicense(array $ignore = []): array
     {
-        $slug = $this->generateUniqueSlug($this->getLicenseTable(),
+        $slug = $this->generateUniqueSlug(self::getLicenseTable(),
             'license_slug', helper()->slug(input()->fromPost()->retrieve('license_slug')));
 
         $license = []; $postColumns = array_flip($this->getLicenseColumns());
@@ -396,7 +396,7 @@ HTML;
      */
     public function createTrack(array $ignore = [], bool $prepareFieldSettings = true): array
     {
-        $slug = $this->generateUniqueSlug($this->getTrackTable(),
+        $slug = $this->generateUniqueSlug(self::getTrackTable(),
             'track_slug', helper()->slug(input()->fromPost()->retrieve('track_slug')));
 
         $track = []; $postColumns = array_flip($this->getTrackColumns());
@@ -434,7 +434,7 @@ HTML;
      */
     public function createArtist(array $ignore = []): array
     {
-        $slug = $this->generateUniqueSlug($this->getArtistTable(),
+        $slug = $this->generateUniqueSlug(self::getArtistTable(),
             'artist_slug', helper()->slug(input()->fromPost()->retrieve('artist_slug')));
 
         $artist = []; $postColumns = array_flip($this->getArtistColumns());
@@ -463,7 +463,7 @@ HTML;
      */
     public function createGenre(array $ignore = [])
     {
-        $slug = $this->generateUniqueSlug($this->getGenreTable(),
+        $slug = $this->generateUniqueSlug(self::getGenreTable(),
             'genre_slug', helper()->slug(input()->fromPost()->retrieve('genre_slug')));
 
         $genre = []; $postColumns = array_flip($this->getGenreColumns());
@@ -494,7 +494,7 @@ HTML;
      */
     public function getLicenseID(string $slug): mixed
     {
-        $table = $this->getLicenseTable();
+        $table = self::getLicenseTable();
         return db()->row("SELECT `license_id` FROM $table WHERE `license_slug` = ?", $slug)->license_id ?? null;
     }
 
@@ -511,7 +511,7 @@ HTML;
        return $this->generatePaginationData(
             $this->getGenrePaginationColumn(),
             'genre_name',
-            $this->getGenreTable(), 200, $settings);
+            self::getGenreTable(), 200, $settings);
     }
 
     /**
@@ -544,7 +544,7 @@ HTML;
                 $licenseAttrIDLink = (empty($onTrackCreate->getTrackLicenseAttrToIDLink())) ? null : $onTrackCreate->getTrackLicenseAttrToIDLink();
 
             } else {
-                $licenseAttr = $this->selectWithCondition($this->getLicenseTable(), ['license_attr'], 'license_id = ?', [$licenseID]);
+                $licenseAttr = $this->selectWithCondition(self::getLicenseTable(), ['license_attr'], 'license_id = ?', [$licenseID]);
                 $licenseAttr = json_decode($licenseAttr->license_attr);
             }
 
@@ -573,7 +573,7 @@ HTML;
                 'track_cat_status' => 1,
             ];
 
-            $returning = db()->insertReturning($this->getTrackCategoryTable(), $defaultCategory, $this->getTrackCategoryColumns(), 'track_cat_id');
+            $returning = db()->insertReturning(self::getTrackCategoryTable(), $defaultCategory, $this->getTrackCategoryColumns(), 'track_cat_id');
             $_POST['fk_track_cat_id'] = [$returning->track_cat_id];
             $onTrackCategoryCreate = new OnTrackCategoryCreate($returning, $this);
             event()->dispatch($onTrackCategoryCreate);
@@ -585,8 +585,8 @@ HTML;
      */
     public function findDefaultTrackCategory()
     {
-        return db()->Select(table()->pickTable($this->getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
-            ->From($this->getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-coupon')
+        return db()->Select(table()->pickTable(self::getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
+            ->From(self::getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-coupon')
             ->FetchFirst();
     }
     
@@ -596,7 +596,7 @@ HTML;
      */
     public function createCategory(array $ignore = [], bool $prepareFieldSettings = true): array
     {
-        $slug = $this->generateUniqueSlug($this->getTrackCategoryTable(),
+        $slug = $this->generateUniqueSlug(self::getTrackCategoryTable(),
             'track_cat_slug',
             helper()->slug(input()->fromPost()->retrieve('track_cat_slug')));
 

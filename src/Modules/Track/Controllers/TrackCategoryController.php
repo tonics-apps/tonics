@@ -151,7 +151,7 @@ class TrackCategoryController
             $db->beginTransaction();
             $category = $this->trackData->createCategory();
             $td = $this->getTrackData();
-            $categoryReturning = db()->insertReturning($td->getTrackCategoryTable(), $category, $td->getTrackCategoryColumns(), 'track_cat_id');
+            $categoryReturning = db()->insertReturning($td::getTrackCategoryTable(), $category, $td->getTrackCategoryColumns(), 'track_cat_id');
             $onTrackCategoryCreate = new OnTrackCategoryCreate($categoryReturning, $td);
             event()->dispatch($onTrackCategoryCreate);
             $db->commit();
@@ -174,7 +174,7 @@ class TrackCategoryController
      */
     public function edit(string $slug): void
     {
-        $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+        $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
 
         if (!is_object($category)){
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -218,7 +218,7 @@ class TrackCategoryController
         if (input()->fromPost()->hasValue('track_cat_parent_id') && input()->fromPost()->hasValue('track_cat_id')){
             $trackCatParentID = input()->fromPost()->retrieve('track_cat_parent_id');
             $trackCatID = input()->fromPost()->retrieve('track_cat_id');
-            $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
             // Track Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
             if ($trackCatParentID === $trackCatID){
                 $_POST['track_cat_parent_id'] = $category->track_cat_parent_id;
@@ -229,7 +229,7 @@ class TrackCategoryController
 
         $categoryToUpdate = $this->trackData->createCategory();
         $categoryToUpdate['track_cat_slug'] = helper()->slug(input()->fromPost()->retrieve('track_cat_slug'));
-        db()->FastUpdate($this->trackData->getTrackCategoryTable(), $categoryToUpdate, db()->Where('track_cat_slug', '=', $slug));
+        db()->FastUpdate($this->trackData::getTrackCategoryTable(), $categoryToUpdate, db()->Where('track_cat_slug', '=', $slug));
         $slug = $categoryToUpdate['track_cat_slug'];
 
         apcu_clear_cache();
@@ -267,13 +267,13 @@ class TrackCategoryController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID){
-                $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('slug_id', $slugID)->FetchFirst();
+                $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('slug_id', $slugID)->FetchFirst();
                 if (isset($category->slug_id) && isset($category->track_cat_slug)){
                     return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
                 }
                 return false;
             }, onSlugState: function ($slug){
-            $category = db()->Select('*')->From($this->getTrackData()->getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
             if (isset($category->slug_id) && isset($category->track_cat_slug)){
                 return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
             }

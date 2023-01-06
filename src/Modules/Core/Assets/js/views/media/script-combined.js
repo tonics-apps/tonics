@@ -907,6 +907,7 @@ export class AudioPlayer {
         let self = this;
         let audioPlayerGlobalContainer = self.getAudioPlayerGlobalContainer();
         if (audioPlayerGlobalContainer) {
+            this.onPageReload();
 
             let tonics_audio_seeking = false, tonics_audio_holdTimeout;
             document.addEventListener('mousedown', (e) => {
@@ -1053,6 +1054,43 @@ export class AudioPlayer {
 
             // volume
             document.addEventListener('input', self.volume.bind(self));
+        }
+    }
+
+    onPageReload() {
+        let self = this;
+        const storedVolume = localStorage.getItem('HowlerJSVolume');
+        if (storedVolume) {
+            Howler.volume(parseFloat(storedVolume));
+            const volumeSlider = document.querySelector('.volume-slider');
+            if (volumeSlider){
+                volumeSlider.value = storedVolume;
+            }
+        }
+
+        // Get the current main browser URL
+        const currentURL = window.location.href;
+        console.log(currentURL);
+        // Retrieve the stored position from localStorage
+        let storedData = localStorage.getItem(currentURL);
+        if (storedData) {
+            storedData = JSON.parse(storedData);
+            let groupSongs = null;
+            if (self.audioPlayerSettings.has(storedData.currentGroupID)) {
+                groupSongs = self.audioPlayerSettings.get(storedData.currentGroupID);
+                if (groupSongs.has(storedData.songKey)) {
+                    self.playlistIndex = groupSongs.get(storedData.songKey).songID;
+                    // Load Howl
+                    self.play();
+
+                    // Seek to the stored position once the file is loaded
+                    self.currentHowl.once('load', () => {
+                        let progress = storedData.currentPos /  self.currentHowl.duration() * 100 || 0;
+                        this.songSlider.value = progress;
+                        self.seek(progress);
+                    });
+                }
+            }
         }
     }
 
@@ -1280,6 +1318,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         // volume slider
         if (el.classList.contains('volume-slider')) {
             Howler.volume(el.value);
+            localStorage.setItem('HowlerJSVolume', el.value);
         }
     }
 
@@ -1365,10 +1404,11 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         this.updateGlobalSongProp(self.getSongData().songtitle, self.getSongData().songimage)
     }
 
-    newHowlPlay() {
+    newHowlPlay(onload = null) {
         let self = this,
             songData = self.getSongData();
         return new Howl({
+            preload:true,
             src: [songData.songurl],
             html5: true,
             // this causes the player not to play, a bug in HOWLER JS?
@@ -1390,6 +1430,20 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
                 }
             }
         });
+    }
+
+   storeSongPosition() {
+       // Get the Howl we want to manipulate.
+       let songData = this.getCurrentHowl();
+       let storeKey = window.location.href;
+        // Get the current position of the song in seconds
+        const currentPosition = songData.seek();
+        // Store the current URL and position in localStorage
+        localStorage.setItem(storeKey, JSON.stringify({
+            'currentPos': currentPosition,
+            'songKey': this.playlist[this.playlistIndex],
+            'currentGroupID': this.currentGroupID,
+        }));
     }
 
     prev() {
@@ -1435,9 +1489,11 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 
         // calculate the duration to seek to
         let skipToDuration = songData.duration() * percentage / 100;
-        if (songData.playing()) {
+        if (songData){
             songData.seek(skipToDuration);
         }
+
+       // if (songData.playing()) {}
     }
 
     step() {
@@ -1451,6 +1507,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             if (self.userIsSeekingSongSlider === false) {
                 self.songSlider.value = progress;
             }
+            self.storeSongPosition()
             requestAnimationFrame(this.step.bind(self));
         }
     }
@@ -1483,6 +1540,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         return this.currentHowl;
     }
 }
+
 if (document.querySelector('.audio-player')){
     let audioPlayer = new AudioPlayer();
     audioPlayer.run();
@@ -1490,60 +1548,66 @@ if (document.querySelector('.audio-player')){
         widgetChild = `.track-in-queue`,
         top = false, bottom = false,
         sensitivity = 0, sensitivityMax = 5;
-    new Draggables(parent)
-        .settings(widgetChild, ['.track-license'], false) // draggable element
-        .onDragDrop(function (element, self) {
-            let elementDropped = self.getDroppedTarget().closest(widgetChild);
-            let elementDragged = self.getDragging().closest(widgetChild);
-            if (elementDropped !== elementDragged && top || bottom){
-                // swap element
-                swapNodes(elementDragged, elementDropped, self.draggingOriginalRect, () => {
-                    audioPlayer.resetQueue();
-                });
-                sensitivity = 0;
-                top = false; bottom = false;
+    if (window?.TonicsScript.hasOwnProperty('Draggables')){
+        window.TonicsScript.Draggables(parent)
+            .settings(widgetChild, ['.track-license'], false) // draggable element
+            .onDragDrop(function (element, self) {
+                let elementDropped = self.getDroppedTarget().closest(widgetChild);
+                let elementDragged = self.getDragging().closest(widgetChild);
+                if (elementDropped !== elementDragged && top || bottom){
+                    // swap element
+                    swapNodes(elementDragged, elementDropped, self.draggingOriginalRect, () => {
+                        audioPlayer.resetQueue();
+                    });
+                    sensitivity = 0;
+                    top = false; bottom = false;
+                }
+            }).onDragTop((element) => {
+            if (sensitivity++ >= sensitivityMax){
+                let dragToTheTop = element.previousElementSibling;
+                if (dragToTheTop && dragToTheTop.classList.contains('track-in-queue')){
+                    top = true;
+                }
             }
-        }).onDragTop((element) => {
-        if (sensitivity++ >= sensitivityMax){
-            let dragToTheTop = element.previousElementSibling;
-            if (dragToTheTop && dragToTheTop.classList.contains('track-in-queue')){
-                top = true;
+        }).onDragBottom( (element) => {
+            if (sensitivity++ >= sensitivityMax){
+                let dragToTheBottom = element.nextElementSibling;
+                if (dragToTheBottom && dragToTheBottom.classList.contains('track-in-queue')) {
+                    bottom = true;
+                }
             }
-        }
-    }).onDragBottom( (element) => {
-        if (sensitivity++ >= sensitivityMax){
-            let dragToTheBottom = element.nextElementSibling;
-            if (dragToTheBottom && dragToTheBottom.classList.contains('track-in-queue')) {
-                bottom = true;
-            }
-        }
-    }).run();
+        }).run();
 
-    new MenuToggle('.audio-player', new Query())
-        .settings('.audio-player-global-container', '.dropdown-toggle', '.audio-player-queue')
-        .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .stopPropagation(false)
-        .closeOnClickOutSide(false)
-        .run();
+    }
 
-    new MenuToggle('.time-progress', new Query())
-        .settings('.time-progress-marker', '.marker-dropdown-toggle', '.audio-player-marker-data')
-        .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .stopPropagation(false)
-        .closeOnClickOutSide(false)
-        .run();
+    if (window?.TonicsScript.hasOwnProperty('MenuToggle') && window?.TonicsScript.hasOwnProperty('Query')){
+        window.TonicsScript.MenuToggle('.audio-player', window.TonicsScript.Query())
+            .settings('.audio-player-global-container', '.dropdown-toggle', '.audio-player-queue')
+            .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
+            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+            .stopPropagation(false)
+            .closeOnClickOutSide(false)
+            .run();
 
-    new MenuToggle('.audio-player-queue', new Query())
-        .settings('.track-in-queue', '.dropdown-toggle', '.track-license')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .stopPropagation(false)
-        .closeOnClickOutSide(false)
-        .run();
+        window.TonicsScript.MenuToggle('.time-progress', window.TonicsScript.Query())
+            .settings('.time-progress-marker', '.marker-dropdown-toggle', '.audio-player-marker-data')
+            .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')
+            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+            .stopPropagation(false)
+            .closeOnClickOutSide(false)
+            .run();
+
+        window.TonicsScript.MenuToggle('.audio-player-queue', window.TonicsScript.Query())
+            .settings('.track-in-queue', '.dropdown-toggle', '.track-license')
+            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+            .stopPropagation(false)
+            .closeOnClickOutSide(false)
+            .run();
+    }
+
 }
 
 /**

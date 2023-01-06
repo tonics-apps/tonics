@@ -119,7 +119,7 @@ class LicenseController
 
         try {
             $widget = $this->getTrackData()->createLicense();
-            $insertReturning = db()->insertReturning($this->getTrackData()->getLicenseTable(), $widget, $this->getTrackData()->getLicenseColumns(), 'license_id');
+            $insertReturning = db()->insertReturning($this->getTrackData()::getLicenseTable(), $widget, $this->getTrackData()->getLicenseColumns(), 'license_id');
 
             $onLicenseCreate = new OnLicenseCreate($insertReturning, $this->getTrackData());
             event()->dispatch($onLicenseCreate);
@@ -139,7 +139,7 @@ class LicenseController
      */
     public function edit(string $slug)
     {
-        $menu = $this->getTrackData()->selectWithCondition($this->getTrackData()->getLicenseTable(), ['*'], "license_slug = ?", [$slug]);
+        $menu = $this->getTrackData()->selectWithCondition($this->getTrackData()::getLicenseTable(), ['*'], "license_slug = ?", [$slug]);
         if (!is_object($menu)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
@@ -165,7 +165,7 @@ class LicenseController
         try {
             $licenseToUpdate = $this->getTrackData()->createLicense();
             $licenseToUpdate['license_slug'] = helper()->slug(input()->fromPost()->retrieve('license_slug'));
-            db()->FastUpdate($this->getTrackData()->getLicenseTable(), $licenseToUpdate, db()->Where('license_slug', '=', $slug));
+            db()->FastUpdate($this->getTrackData()::getLicenseTable(), $licenseToUpdate, db()->Where('license_slug', '=', $slug));
 
             $slug = $licenseToUpdate['license_slug'];
             session()->flash(['License Updated'], type: Session::SessionCategories_FlashMessageSuccess);

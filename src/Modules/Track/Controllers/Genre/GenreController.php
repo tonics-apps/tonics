@@ -119,7 +119,7 @@ class GenreController
         try {
             $genre = $this->getTrackData()->createGenre();
             $genre['can_delete'] = 1;
-            $genreReturning = db()->insertReturning($this->getTrackData()->getGenreTable(), $genre, $this->getTrackData()->getGenreColumns(), 'genre_id');
+            $genreReturning = db()->insertReturning($this->getTrackData()::getGenreTable(), $genre, $this->getTrackData()->getGenreColumns(), 'genre_id');
 
             $onGenreCreate = new OnGenreCreate($genreReturning, $this->getTrackData());
             event()->dispatch($onGenreCreate);
@@ -139,7 +139,7 @@ class GenreController
      */
     public function edit(string $slug): void
     {
-        $genre = $this->getTrackData()->selectWithCondition($this->getTrackData()->getGenreTable(), ['*'], "genre_slug = ?", [$slug]);
+        $genre = $this->getTrackData()->selectWithCondition($this->getTrackData()::getGenreTable(), ['*'], "genre_slug = ?", [$slug]);
         if (!is_object($genre)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
@@ -166,7 +166,7 @@ class GenreController
             $genreToUpdate = $this->getTrackData()->createArtist();
             $genreToUpdate['genre_slug'] = helper()->slug(input()->fromPost()->retrieve('genre_slug'));
 
-            db()->FastUpdate($this->getTrackData()->getGenreTable(), $genreToUpdate, db()->Where('genre_slug', '=', $slug));
+            db()->FastUpdate($this->getTrackData()::getGenreTable(), $genreToUpdate, db()->Where('genre_slug', '=', $slug));
 
             $slug = $genreToUpdate['genre_slug'];
             session()->flash(['Genre Updated'], type: Session::SessionCategories_FlashMessageSuccess);

@@ -43,7 +43,7 @@ class LicenseControllerItems
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
-        $licenseData =  $this->getTrackData()->selectWithCondition($this->getTrackData()->getLicenseTable(), ['*'], "license_id = ?", [$licenseID]);
+        $licenseData =  $this->getTrackData()->selectWithCondition($this->getTrackData()::getLicenseTable(), ['*'], "license_id = ?", [$licenseID]);
         $onLicenseCreate = new OnLicenseCreate($licenseData, $this->getTrackData());
 
         view('Modules::Track/Views/License/Items/index', [
@@ -80,7 +80,7 @@ class LicenseControllerItems
             $data = [
                 'license_attr' => json_encode($licenseDetails)
             ];
-            db()->FastUpdate($this->getTrackData()->getLicenseTable(), $data, db()->Where('license_slug', '=', $licenseSlug));
+            db()->FastUpdate($this->getTrackData()::getLicenseTable(), $data, db()->Where('license_slug', '=', $licenseSlug));
             session()->flash(['License Successfully Saved'], $menuDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('licenses.items.index', ['license' => $licenseSlug]));
         }catch (\Exception){
