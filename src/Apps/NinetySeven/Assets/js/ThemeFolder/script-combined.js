@@ -1302,17 +1302,19 @@ if (selectElementsForm){
 
 
 router.on('/track_categories/:slug_id/:track_cat_slug', ({ data, e }) => {
-  //  console.log(data, e); // { slug_id: 'xxx', track_cat_slug: 'save' }
+  // console.log(data, e); // { slug_id: 'xxx', track_cat_slug: 'save' }
 }, {
     before(done, match) {
         let slug_id = match.data?.slug_id
         let el = tonicsFileContainerForAudioPlayer.querySelector(`[data-slug_id="${slug_id}"]`);
+        console.log(el, match);
         if (el){
             let url = el.dataset.url_page;
             el.querySelector('.svg-per-file-loading').classList.remove('d:none');
 
             let defaultHeader = {
                 type: 'track_category',
+                isAPI: true,
             };
 
             if(url){
