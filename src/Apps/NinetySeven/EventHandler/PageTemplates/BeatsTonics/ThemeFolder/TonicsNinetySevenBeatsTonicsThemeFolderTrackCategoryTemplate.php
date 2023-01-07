@@ -48,9 +48,19 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
             ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
 
         if (isset($mainTrackData->slug_id)) {
-           // $isAPI = url()->getHeaderByKey('type') === 'track_category';
+            $isFolder = url()->getHeaderByKey('type') === 'isFolder';
+            $isSearch = url()->getHeaderByKey('type') === 'isSearch';
+
+            // From API
+            if ($isFolder){
+                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/folder_main');
+            } elseif ($isSearch){
+                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/folder_search');
+            } else {
+                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
+            }
+
             $fieldSettings = $pageTemplate->getFieldSettings();
-            $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
             $fieldSettingsForMainTrackData = json_decode($mainTrackData->field_settings, true);
             $pageTemplate->getFieldData()->unwrapFieldContent($fieldSettingsForMainTrackData, contentKey: 'track_cat_content');
             $mainTrackData = [...$fieldSettingsForMainTrackData, ...(array)$mainTrackData];

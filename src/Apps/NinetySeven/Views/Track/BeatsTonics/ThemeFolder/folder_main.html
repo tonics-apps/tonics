@@ -1,0 +1,56 @@
+[[inherit("Modules::Core/Views/Templates/on_hook_into_event")]] [[- Manually Register On Hook Into Event -]]
+
+[[add_hook('tonics_folder_main_from_api')]]
+[[b('tonics_folder_main')
+    <ul class="tonics-files-container list:style:none">
+    [[each("_themeFolderData in Data.ThemeFolder.data")
+    [[if("v[_themeFolderData.is_track] == e[0]")
+    <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
+        <a href="[[v('_themeFolderData._link')]]" data-url_page="[[v('_themeFolderData._link')]]" data-slug_id="[[v('_themeFolderData.slug_id')]]"
+           data-tonics_navigate data-is_track="0" class="tonics-fm-link color:white remove-button-styles">
+            <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+            <div class="tonics-file-filename">
+                [[v('_themeFolderData._name')]] ([[v('_themeFolderData.num_tracks')]])
+            </div>
+            <span style="top: 42%;" class="svg-per-file-loading color:white bg:pure-white d:none"></span>
+        </a>
+    </li>
+    ]]
+    [[if("v[_themeFolderData.is_track] == e[1]")
+    <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
+        <a class="tonics-fm-link color:white remove-button-styles" href="[[v('_themeFolderData._link')]]"
+           data-tonics_navigate data-slug_id="[[v('_themeFolderData.slug_id')]]"
+           data-name="[[v('_themeFolderData._name')]]" data-url_page="[[v('_themeFolderData._link')]]" data-is_track="1">
+            <img width="200px" height="200px" loading="lazy"
+                 src="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" alt="[[v('_themeFolderData._name')]]" class="tonics-individual-art-image">
+            <div class="tonics-file-filename">[[v('_themeFolderData._name')]]</div>
+            <span class="svg-per-file-loading display-none"></span>
+        </a>
+
+        <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
+
+            <button type="button" title="Play" data-tonics-audioplayer-track=""
+                    data-audioplayer_songurl="[[v('_themeFolderData.audio_url')]]"
+                    data-audioplayer_title="[[v('_themeFolderData._name')]]"
+                    data-audioplayer_image="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" data-audioplayer_format="mp3"
+                    data-audioplayer_play="false"
+                    class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+                    <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+                </svg>
+                <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+                    <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+                </svg>
+            </button>
+            <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                <svg class="icon:audio tonics-cart-icon tonics-widget">
+                    <use class="svgUse" xlink:href="#tonics-cart"></use>
+                </svg>
+
+            </button>
+        </div>
+    </li>
+    ]]
+    ]]
+</ul>
+]]

@@ -27,31 +27,27 @@ class ThemeFolderViewHandler implements HandlerInterface
     {
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('tonics_folder_main', function (TonicsView $tonicsView){
-            $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
-            if ($root){
-                $this->handleTrackCategoryForRootQuery($tonicsView);
-            } else {
-                $this->handleTrackCategoryFolderQuery($tonicsView);
+            return $this->handleFolderFragment($tonicsView);
+        });
+
+        $event->hookInto('tonics_folder_main_from_api', function (TonicsView $tonicsView){
+            $isFolder = url()->getHeaderByKey('type') === 'isFolder';
+            if ($isFolder){
+                helper()->onSuccess($this->handleFolderFragment($tonicsView));
             }
-         // dd(url()->getHeaderByKey('isAPI'), url()->getHeaders());
-            return $tonicsView->renderABlock('tonics_folder_main');
+            return '';
         });
 
         $event->hookInto('tonics_folder_search', function (TonicsView $tonicsView){
-            $mainTrackData = $tonicsView->accessArrayWithSeparator('Data.MainTrackData');
-            $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
-            $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
-            if ($root){
-                return '';
-            } else {
-                # Get Filters of a Certain Category and Its Sub Category
-                $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, $fieldSettings);
-                $this->handleFilterTrackArtistKeyForCategorySubCategory($mainTrackData, $fieldSettings);
-                $this->handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, $fieldSettings);
-                $tonicsView->addToVariableData('Data', $fieldSettings);
-            }
+            return $this->handleFolderSearchFragment($tonicsView);
+        });
 
-            return $tonicsView->renderABlock('tonics_folder_search');
+        $event->hookInto('tonics_folder_search_from_api', function (TonicsView $tonicsView){
+            $isSearch = url()->getHeaderByKey('type') === 'isSearch';
+            if ($isSearch){
+                response()->onSuccess($this->handleFolderSearchFragment($tonicsView));
+            }
+            return '';
         });
     }
 
@@ -138,6 +134,45 @@ class ThemeFolderViewHandler implements HandlerInterface
         } catch (\Exception $exception){
             // Log...
         }
+    }
+
+    /**
+     * @param TonicsView $tonicsView
+     * @return string
+     * @throws \Exception
+     */
+    public function handleFolderFragment(TonicsView $tonicsView): string
+    {
+        $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
+        if ($root){
+            $this->handleTrackCategoryForRootQuery($tonicsView);
+        } else {
+            $this->handleTrackCategoryFolderQuery($tonicsView);
+        }
+        return $tonicsView->renderABlock('tonics_folder_main');
+    }
+
+    /**
+     * @param TonicsView $tonicsView
+     * @return string
+     * @throws \Exception
+     */
+    public function handleFolderSearchFragment(TonicsView $tonicsView): string
+    {
+        $mainTrackData = $tonicsView->accessArrayWithSeparator('Data.MainTrackData');
+        $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
+        $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
+        if ($root){
+            return '';
+        } else {
+            # Get Filters of a Certain Category and Its Sub Category
+            $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, $fieldSettings);
+            $this->handleFilterTrackArtistKeyForCategorySubCategory($mainTrackData, $fieldSettings);
+            $this->handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, $fieldSettings);
+            $tonicsView->addToVariableData('Data', $fieldSettings);
+        }
+
+        return $tonicsView->renderABlock('tonics_folder_search');
     }
 
     /**

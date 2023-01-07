@@ -1372,20 +1372,29 @@ function initRouting(containerSelector, navigateCallback = null) {
         if (el.closest('[data-tonics_navigate]')) {
             let element = el.closest('[data-tonics_navigate]');
             let url = element.getAttribute('data-url_page');
+            element.querySelector('.svg-per-file-loading').classList.remove('d:none');
             navigate(url);
         }
     });
 }
 
 // Initialize the routing for the tonics-file-container element
-initRouting('.tonics-files-container', ({ url, type }) => {
-    console.log(`Navigating to ${url} (${type})`);
-});
+initRouting('.main-tonics-folder-container', ({ url, type }) => {
 
-/*
-initRouting('.tonics-files-container', (url) => {
-        console.log('This is before navigation', url)
-    },
-    (url) => {
-        console.log('This is after navigation', url)
-    });*/
+    let defaultHeader = {
+        isAPI: true,
+        type: 'isFolder',
+    };
+
+    if (type === 'after' || type === 'popstate'){
+        window.TonicsScript.XHRApi(defaultHeader).Get(url, function (err, data) {
+            if (data) {
+                let tonicsFolderMain = document.querySelector('.tonics-folder-main');
+                data = JSON.parse(data);
+                if (tonicsFolderMain && data.data){
+                    tonicsFolderMain.innerHTML = data.data;
+                }
+            }
+        });
+    }
+});

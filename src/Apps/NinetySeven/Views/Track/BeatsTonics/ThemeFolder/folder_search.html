@@ -1,0 +1,65 @@
+[[inherit("Modules::Core/Views/Templates/on_hook_into_event")]] [[- Manually Register On Hook Into Event -]]
+
+[[add_hook('tonics_folder_search_from_api')]]
+[[b('tonics_folder_search')
+  <div class="search-admin width:100% margin-top:0">
+  <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
+    <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
+      <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-none border:white border-radius:40px" name="query"
+             aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+      <button type="button" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:white border-width:default border:white padding:default cursor:pointer button:box-shadow-variant-3" aria-label="Expand child menu" aria-expanded="false">
+        <svg class="icon:admin tonics-filter"><use xlink:href="#tonics-filter"></use></svg>
+        Filter Options
+      </button>
+    </div>
+    <div class="overflow:auto width:80% filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap d:none">
+      <div class="form-group d:flex color:white flex-gap align-items:flex-end flex-wrap:wrap">
+        [[- For Track Artists -]]
+        [[_v('Data.ThemeFolder_FilterOption_TrackArtists')]]
+
+        [[- For Track Keys -]]
+        [[_v('Data.ThemeFolder_FilterOption_TrackKey')]]
+      </div>
+
+      <div class="child-menu width:100% flex-gap flex-d:row d:flex">
+        [[if("v[Data.ThemeFolder_FilterOption_TrackBPM] !== block[empty]")
+        <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose BPM (All By Default)
+          [[_v('Data.ThemeFolder_FilterOption_TrackBPM')]]
+        </div>
+        ]]
+
+        [[if("v[Data.ThemeFolder_FilterOption_TrackGenres] !== block[empty]")
+        <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto">Choose Genres (All By Default)
+          [[_v('Data.ThemeFolder_FilterOption_TrackGenres')]]
+        </div>
+        ]]
+      </div>
+
+      <div class="bg:pure-black color:white border-width:default border:white padding:small d:flex flex-gap:small align-items:center" style="width: clamp(25%, (800px - 100vw) * 1000, 100%);">
+        <span class="menu-arranger-text-head">More Options</span>
+        <button type="button" class="dropdown-toggle more-filter-button-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
+          <svg class="icon:admin tonics-arrow-down color:white">
+            <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+          </svg>
+        </button>
+      </div>
+
+      <div class="overflow:auto width:80% more-filter-container border-width:default border:white color:black padding:small flex-d:column flex-wrap:wrap flex-gap d:none">
+        <div class="child-menu width:100% flex-gap flex-wrap:wrap flex-d:row d:flex">
+          [[each("_moreFilterType in Data.ThemeFolder_FilterOption_More")
+          [[if("v[_moreFilterType.frag] !== block[empty]")
+          <div class="menu-box-checkbox-items color:white max-height:300px overflow:auto"> [[_v('_moreFilterType.label')]]
+            [[_v('_moreFilterType.frag')]]
+          </div>
+          ]]
+          ]]
+        </div>
+      </div>
+
+      <button style="width: clamp(25%, (800px - 100vw) * 1000, 100%);" class="text-align:center bg:pure-white border:none color:black border-width:default border:blue padding:default cursor:pointer button:box-shadow-variant-2">
+        Filter
+      </button>
+    </div>
+  </form>
+</div>
+]]
