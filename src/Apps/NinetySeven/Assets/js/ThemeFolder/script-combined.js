@@ -709,7 +709,6 @@ export class AudioPlayer {
 
         // Get the current main browser URL
         const currentURL = window.location.href;
-        console.log(currentURL);
         // Retrieve the stored position from localStorage
         let storedData = localStorage.getItem(currentURL);
         if (storedData) {
@@ -1280,11 +1279,6 @@ try {
     console.error("An Error Occur Setting MenuToggle: Form-Filter")
 }
 
-const router = new Navigo('/');
-router.on('/tracks',  () => {
-    console.log('Navigating To Tracks')
-    // do something
-});
 
 let tonicsFileContainerForAudioPlayer = document.querySelector('.tonics-files-container');
 
@@ -1300,39 +1294,98 @@ if (selectElementsForm){
     });
 }
 
+if (tonicsFileContainerForAudioPlayer){
 
-router.on('/track_categories/:slug_id/:track_cat_slug', ({ data, e }) => {
-  // console.log(data, e); // { slug_id: 'xxx', track_cat_slug: 'save' }
-}, {
-    before(done, match) {
-        let slug_id = match.data?.slug_id
-        let el = tonicsFileContainerForAudioPlayer.querySelector(`[data-slug_id="${slug_id}"]`);
-        console.log(el, match);
-        if (el){
-            let url = el.dataset.url_page;
-            el.querySelector('.svg-per-file-loading').classList.remove('d:none');
+    /*    router.on('/track_categories/:slug_id/:track_cat_slug', ({ data, e }) => {
+            // console.log(data, e); // { slug_id: 'xxx', track_cat_slug: 'save' }
+        }, {
+            before(done, match) {
+                let slug_id = match.data?.slug_id
+                let el = tonicsFileContainerForAudioPlayer.querySelector(`[data-slug_id="${slug_id}"]`);
+                console.log(el, match);
+                if (el){
+                    let url = el.dataset.url_page;
+                    el.querySelector('.svg-per-file-loading').classList.remove('d:none');
 
-            let defaultHeader = {
-                type: 'track_category',
-                isAPI: true,
-            };
+                    let defaultHeader = {
+                        type: 'track_category',
+                        isAPI: true,
+                    };
 
-            if(url){
-                new XHRApi(defaultHeader).Get(url, {}, function (err, data) {
-                    if (data) {
-                        data = JSON.parse(data);
+                    if(url){
+                        new XHRApi(defaultHeader).Get(url, {}, function (err, data) {
+                            if (data) {
+                                data = JSON.parse(data);
+                            }
+                        });
                     }
-                });
+
+                    throw new Error();
+
+                    // Remove The Loader After Receiving The Data From API
+                    el.querySelector('.svg-per-file-loading').classList.add('d:none');
+                    done();
+                }
             }
+        });*/
+}
 
-            throw new Error();
+function initRouting(containerSelector, navigateCallback = null) {
+    const container = document.querySelector(containerSelector);
 
-            // Remove The Loader After Receiving The Data From API
-            el.querySelector('.svg-per-file-loading').classList.add('d:none');
-            done();
+    function callCallback(options) {
+        if (navigateCallback) {
+            navigateCallback(options);
         }
     }
+
+    function navigate(url) {
+        callCallback({ url, type: 'before' });
+        // Push a new history entry with the url
+        window.history.pushState({ 'url': url }, '', url);
+        callCallback({ url, type: 'after' });
+    }
+
+    window.onload = () => {
+        // Perform initialization or setup
+        // without the below, the popstate won't fire if user uses the back button for the first time
+        window.history.replaceState({ url: window.location.pathname }, '', window.location.pathname);
+    };
+
+    // Bind a popstate event listener to enable the back button
+    window.addEventListener('popstate', (event) => {
+        if (event.state) {
+            let url = event.state.url;
+            callCallback({ url, type: 'popstate' });
+            // we only navigate in a pop state if the url is not the same, without doing this, the forward button won't work
+            // because there won't be anywhere to navigate to
+            if (window.location.pathname !== url){
+                navigate(url);
+            }
+        }
+    })
+
+    // Bind a click event listener to the container using event delegation
+    container.addEventListener('click', e => {
+        const el = e.target;
+        e.preventDefault();
+        if (el.closest('[data-tonics_navigate]')) {
+            let element = el.closest('[data-tonics_navigate]');
+            let url = element.getAttribute('data-url_page');
+            navigate(url);
+        }
+    });
+}
+
+// Initialize the routing for the tonics-file-container element
+initRouting('.tonics-files-container', ({ url, type }) => {
+    console.log(`Navigating to ${url} (${type})`);
 });
 
-
-router.resolve();
+/*
+initRouting('.tonics-files-container', (url) => {
+        console.log('This is before navigation', url)
+    },
+    (url) => {
+        console.log('This is after navigation', url)
+    });*/

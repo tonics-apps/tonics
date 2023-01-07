@@ -10,8 +10,6 @@
 
 namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder;
 
-use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;

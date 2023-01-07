@@ -253,7 +253,6 @@ export class AudioPlayer {
 
         // Get the current main browser URL
         const currentURL = window.location.href;
-        console.log(currentURL);
         // Retrieve the stored position from localStorage
         let storedData = localStorage.getItem(currentURL);
         if (storedData) {

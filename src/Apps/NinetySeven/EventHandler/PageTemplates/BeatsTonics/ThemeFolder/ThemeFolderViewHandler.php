@@ -42,7 +42,7 @@ class ThemeFolderViewHandler implements HandlerInterface
             $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
             $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
             if ($root){
-
+                return '';
             } else {
                 # Get Filters of a Certain Category and Its Sub Category
                 $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, $fieldSettings);
