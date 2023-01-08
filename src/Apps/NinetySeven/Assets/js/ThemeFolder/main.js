@@ -105,7 +105,8 @@ initRouting('.main-tonics-folder-container', ({ url, type }) => {
             if (data) {
                 data = JSON.parse(data);
                     if (data.data?.isFolder && tonicsFolderMain && data.data?.fragment){
-                        tonicsFolderMain.innerHTML = data.data.fragment;
+                        tonicsFolderMain.innerHTML = data?.data.fragment;
+                        document.title = data?.data.title;
                         if (tonicsFolderSearch){ tonicsFolderSearch.remove(); }
                         if (beforeFolderSearchLoading){
                             beforeFolderSearchLoading.classList.remove('d:none');

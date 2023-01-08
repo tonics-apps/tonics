@@ -6,7 +6,8 @@
     [[each("_themeFolderData in Data.ThemeFolder.data")
     [[if("v[_themeFolderData.is_track] == e[0]")
     <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
-        <a href="[[v('_themeFolderData._link')]]" data-url_page="[[v('_themeFolderData._link')]]" data-slug_id="[[v('_themeFolderData.slug_id')]]"
+        <a href="[[v('_themeFolderData._link')]]" title="[[v('_themeFolderData._name')]] Folder"
+           data-url_page="[[v('_themeFolderData._link')]]" data-slug_id="[[v('_themeFolderData.slug_id')]]"
            data-tonics_navigate data-is_track="0" class="tonics-fm-link color:white remove-button-styles">
             <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
             <div class="tonics-file-filename">
@@ -19,6 +20,7 @@
     [[if("v[_themeFolderData.is_track] == e[1]")
     <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
         <a class="tonics-fm-link color:white remove-button-styles" href="[[v('_themeFolderData._link')]]"
+           title="[[v('_themeFolderData._name')]]"
            data-tonics_navigate data-slug_id="[[v('_themeFolderData.slug_id')]]"
            data-name="[[v('_themeFolderData._name')]]" data-url_page="[[v('_themeFolderData._link')]]" data-is_track="1">
             <img width="200px" height="200px" loading="lazy"

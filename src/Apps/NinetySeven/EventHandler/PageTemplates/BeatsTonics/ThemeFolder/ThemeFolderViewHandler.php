@@ -12,7 +12,6 @@ namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolde
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -35,6 +34,7 @@ class ThemeFolderViewHandler implements HandlerInterface
             if ($isFolder){
                 $data = [
                     'isFolder' => true,
+                    'title' => $tonicsView->accessArrayWithSeparator('Data.MainTrackData.seo_title'),
                     'fragment' => $this->handleFolderFragment($tonicsView)
                 ];
                 helper()->onSuccess($data);
@@ -381,9 +381,9 @@ TRACK_KEY;
                 $trackArtistsFrag .= " <option $select value='$artist->artist_slug'>$artist->artist_name</option>";
             }
             $trackArtistsFrag .= '</select></label>';
-        }
 
-        $fieldSettings['ThemeFolder_FilterOption_TrackArtists'] = $trackArtistsFrag;
+            $fieldSettings['ThemeFolder_FilterOption_TrackArtists'] = $trackArtistsFrag;
+        }
     }
 
     public function handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, &$fieldSettings)
