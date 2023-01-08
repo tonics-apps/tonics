@@ -48,7 +48,6 @@ if (selectElementsForm){
 
 function initRouting(containerSelector, navigateCallback = null) {
     const container = document.querySelector(containerSelector);
-
     function callCallback(options) {
         if (navigateCallback) {
             navigateCallback(options);
@@ -75,7 +74,11 @@ function initRouting(containerSelector, navigateCallback = null) {
             callCallback({ url, type: 'popstate' });
             // we only navigate in a pop state if the url is not the same, without doing this, the forward button won't work
             // because there won't be anywhere to navigate to
-            if (window.location.pathname !== url){
+
+            // Parse the URL using the URL interface
+            const parsedUrl = new URL(url);
+            // Compare the pathname and search properties of the parsed URL to the window.location object
+            if (window.location.pathname !== parsedUrl.pathname || window.location.search !== parsedUrl.search) {
                 navigate(url);
             }
         }
@@ -84,13 +87,37 @@ function initRouting(containerSelector, navigateCallback = null) {
     // Bind a click event listener to the container using event delegation
     container.addEventListener('click', e => {
         const el = e.target;
-        e.preventDefault();
         if (el.closest('[data-tonics_navigate]')) {
+            e.preventDefault();
             let element = el.closest('[data-tonics_navigate]');
             let url = element.getAttribute('data-url_page');
             element.querySelector('.svg-per-file-loading').classList.remove('d:none');
             navigate(url);
         }
+
+        if (el.closest('.tonics-submit-button') && el.closest('.form-and-filter')) {
+            e.preventDefault();
+            const form = el.closest('.form-and-filter');
+            // Get the form data
+            const formData = new FormData(form);
+            // Construct the query string using the URLSearchParams interface
+            const params = new URLSearchParams();
+            for (const [key, value] of formData) {
+                // Trim the value before adding it to the query string
+                if (value.trim()) {
+                    const trimmedValue = value.trim();
+                    params.set(key, trimmedValue);
+                }
+            }
+            const queryString = params.toString();
+            // if queryString is not empty
+            if (queryString){
+                // Append the query string to the URL
+                const newUrl = window.location.pathname + '?' + queryString;
+                navigate(newUrl);
+            }
+        }
+
     });
 }
 
@@ -107,7 +134,9 @@ initRouting('.main-tonics-folder-container', ({ url, type }) => {
                     if (data.data?.isFolder && tonicsFolderMain && data.data?.fragment){
                         tonicsFolderMain.innerHTML = data?.data.fragment;
                         document.title = data?.data.title;
-                        if (tonicsFolderSearch){ tonicsFolderSearch.remove(); }
+                        if (tonicsFolderSearch){
+                            tonicsFolderSearch.remove();
+                        }
                         if (beforeFolderSearchLoading){
                             beforeFolderSearchLoading.classList.remove('d:none');
                             window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
