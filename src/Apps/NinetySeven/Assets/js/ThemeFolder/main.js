@@ -75,6 +75,12 @@ function initRouting(containerSelector, navigateCallback = null) {
             // we only navigate in a pop state if the url is not the same, without doing this, the forward button won't work
             // because there won't be anywhere to navigate to
 
+            // Check if the URL is a relative URL
+            if (!url.startsWith('http')) {
+                // Convert the relative URL to an absolute URL using the new URL constructor
+                url = new URL(url, window.location.href).href;
+            }
+
             // Parse the URL using the URL interface
             const parsedUrl = new URL(url);
             // Compare the pathname and search properties of the parsed URL to the window.location object
