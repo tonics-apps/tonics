@@ -48,7 +48,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
             ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
 
         if (isset($mainTrackData->slug_id)) {
-            $isFolder = url()->getHeaderByKey('type') === 'isFolder';
+            $isFolder = url()->getHeaderByKey('type') === 'isTonicsNavigation';
             $isSearch = url()->getHeaderByKey('type') === 'isSearch';
 
             // From API

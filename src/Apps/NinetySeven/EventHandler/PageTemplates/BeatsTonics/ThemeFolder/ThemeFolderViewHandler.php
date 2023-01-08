@@ -31,9 +31,13 @@ class ThemeFolderViewHandler implements HandlerInterface
         });
 
         $event->hookInto('tonics_folder_main_from_api', function (TonicsView $tonicsView){
-            $isFolder = url()->getHeaderByKey('type') === 'isFolder';
+            $isFolder = url()->getHeaderByKey('type') === 'isTonicsNavigation';
             if ($isFolder){
-                helper()->onSuccess($this->handleFolderFragment($tonicsView));
+                $data = [
+                    'isFolder' => true,
+                    'fragment' => $this->handleFolderFragment($tonicsView)
+                ];
+                helper()->onSuccess($data);
             }
             return '';
         });
@@ -324,12 +328,12 @@ TRACK_KEY;
                     ];
 
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_scale'] = [
-                        'label' => 'Choose Emotion',
+                        'label' => 'Choose Scale',
                         'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_scale", $filterOptions),
                     ];
 
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_effects'] = [
-                        'label' => 'Choose Emotion',
+                        'label' => 'Choose Effects',
                         'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_effects", $filterOptions),
                     ];
                 }

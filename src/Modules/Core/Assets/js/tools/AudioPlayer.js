@@ -54,31 +54,43 @@ export class AudioPlayer {
         this.mutationObserver();
     }
 
+    mutationHandlerFunc(audioTrack)
+    {
+        let self = this;
+        if (audioTrack && !audioTrack.dataset.hasOwnProperty('trackloaded')) {
+            audioTrack.dataset.trackloaded = 'false';
+            self.resetAudioPlayerSettings();
+            self.originalTracksInQueueBeforeShuffle = document.querySelector('.audio-player-queue').innerHTML;
+            self.resetQueue();
+        }
+    }
+
     mutationObserver(){
         const audioPlayerObserver = new MutationObserver(((mutationsList, observer) => {
             for (const mutation of mutationsList) {
-                // added nodes.
-                let addedNode = mutation.addedNodes[0];
-                if (mutation.addedNodes.length > 0 && addedNode.nodeType === Node.ELEMENT_NODE) {
-                    let audioTrack = addedNode.querySelector('[data-tonics-audioplayer-track]');
-                    if (audioTrack && !audioTrack.dataset.hasOwnProperty('trackloaded')) {
-                        audioTrack.dataset.trackloaded = 'false';
-                        this.resetAudioPlayerSettings();
-                        this.originalTracksInQueueBeforeShuffle = document.querySelector('.audio-player-queue').innerHTML;
-                        this.resetQueue();
-                        return;
+                let foundNode = false;
+                for (let i = 0; i < mutation.addedNodes.length; i++) {
+                    // added nodes.
+                    let addedNode = mutation.addedNodes[i];
+                    if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                        let audioTrack = addedNode.querySelector('[data-tonics-audioplayer-track]');
+                        if (audioTrack) {
+                            // Found the node we are looking for, so break out of the loop
+                            this.mutationHandlerFunc(audioTrack);
+                            foundNode = true;
+                            break;
+                        }
                     }
+                }
+
+                if (foundNode){
+                    return;
                 }
 
                 // for attribute
                 if (mutation.attributeName === "data-tonics-audioplayer-track"){
                     let audioTrack = mutation.target;
-                    if (audioTrack && !audioTrack.dataset.hasOwnProperty('trackloaded')) {
-                        audioTrack.dataset.trackloaded = 'false';
-                        this.resetAudioPlayerSettings();
-                        this.originalTracksInQueueBeforeShuffle = document.querySelector('.audio-player-queue').innerHTML;
-                        this.resetQueue();
-                    }
+                    this.mutationHandlerFunc(audioTrack);
                 }
             }
         }));

@@ -10,7 +10,7 @@
 
 try {
     // For Filter Options
-    window.TonicsScript.MenuToggle('.form-and-filter',  window.TonicsScript.Query())
+    window.TonicsScript.MenuToggle('.main-tonics-folder-container',  window.TonicsScript.Query())
         .settings('.form-and-filter', '.filter-button-toggle', '.filter-container')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
         .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
@@ -19,7 +19,7 @@ try {
         .run();
 
     // For More Filter Options
-    window.TonicsScript.MenuToggle('.form-and-filter',  window.TonicsScript.Query())
+    window.TonicsScript.MenuToggle('.main-tonics-folder-container',  window.TonicsScript.Query())
         .settings('.form-and-filter', '.more-filter-button-toggle', '.more-filter-container')
         .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
@@ -44,42 +44,6 @@ if (selectElementsForm){
             }
         });
     });
-}
-
-if (tonicsFileContainerForAudioPlayer){
-
-    /*    router.on('/track_categories/:slug_id/:track_cat_slug', ({ data, e }) => {
-            // console.log(data, e); // { slug_id: 'xxx', track_cat_slug: 'save' }
-        }, {
-            before(done, match) {
-                let slug_id = match.data?.slug_id
-                let el = tonicsFileContainerForAudioPlayer.querySelector(`[data-slug_id="${slug_id}"]`);
-                console.log(el, match);
-                if (el){
-                    let url = el.dataset.url_page;
-                    el.querySelector('.svg-per-file-loading').classList.remove('d:none');
-
-                    let defaultHeader = {
-                        type: 'track_category',
-                        isAPI: true,
-                    };
-
-                    if(url){
-                        new XHRApi(defaultHeader).Get(url, {}, function (err, data) {
-                            if (data) {
-                                data = JSON.parse(data);
-                            }
-                        });
-                    }
-
-                    throw new Error();
-
-                    // Remove The Loader After Receiving The Data From API
-                    el.querySelector('.svg-per-file-loading').classList.add('d:none');
-                    done();
-                }
-            }
-        });*/
 }
 
 function initRouting(containerSelector, navigateCallback = null) {
@@ -132,20 +96,26 @@ function initRouting(containerSelector, navigateCallback = null) {
 
 // Initialize the routing for the tonics-file-container element
 initRouting('.main-tonics-folder-container', ({ url, type }) => {
-
-    let defaultHeader = {
-        isAPI: true,
-        type: 'isFolder',
-    };
+    let tonicsFolderMain = document.querySelector('.tonics-folder-main');
+    let beforeFolderSearchLoading = document.querySelector('.before-folder-search');
+    let tonicsFolderSearch = document.querySelector('.tonics-folder-search');
 
     if (type === 'after' || type === 'popstate'){
-        window.TonicsScript.XHRApi(defaultHeader).Get(url, function (err, data) {
+        window.TonicsScript.XHRApi({isAPI: true, type: 'isTonicsNavigation'}).Get(url, function (err, data) {
             if (data) {
-                let tonicsFolderMain = document.querySelector('.tonics-folder-main');
                 data = JSON.parse(data);
-                if (tonicsFolderMain && data.data){
-                    tonicsFolderMain.innerHTML = data.data;
-                }
+                    if (data.data?.isFolder && tonicsFolderMain && data.data?.fragment){
+                        tonicsFolderMain.innerHTML = data.data.fragment;
+                        if (tonicsFolderSearch){ tonicsFolderSearch.remove(); }
+                        if (beforeFolderSearchLoading){
+                            beforeFolderSearchLoading.classList.remove('d:none');
+                            window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
+                                data = JSON.parse(data);
+                                beforeFolderSearchLoading.classList.add('d:none');
+                                beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
+                            });
+                        }
+                    }
             }
         });
     }

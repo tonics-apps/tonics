@@ -1,8 +1,10 @@
 [[inherit("Modules::Core/Views/Templates/on_hook_into_event")]] [[- Manually Register On Hook Into Event -]]
 
+[[b('empty')]]
+
 [[add_hook('tonics_folder_search_from_api')]]
 [[b('tonics_folder_search')
-  <div class="search-admin width:100% margin-top:0">
+  <div class="tonics-folder-search width:100% margin-top:0">
   <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
     <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
       <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-none border:white border-radius:40px" name="query"
