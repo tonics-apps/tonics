@@ -1341,7 +1341,6 @@ function initRouting(containerSelector, navigateCallback = null) {
             }
 
             // Parse the URL using the URL interface
-            console.log(url);
             const parsedUrl = new URL(url);
             // Compare the pathname and search properties of the parsed URL to the window.location object
             if (window.location.pathname !== parsedUrl.pathname || window.location.search !== parsedUrl.search) {
@@ -1357,7 +1356,10 @@ function initRouting(containerSelector, navigateCallback = null) {
             e.preventDefault();
             let element = el.closest('[data-tonics_navigate]');
             let url = element.getAttribute('data-url_page');
-            element.querySelector('.svg-per-file-loading').classList.remove('d:none');
+            const loading = element.querySelector('.svg-per-file-loading');
+            if (loading){
+                loading.classList.remove('d:none');
+            }
             navigate(url);
         }
 

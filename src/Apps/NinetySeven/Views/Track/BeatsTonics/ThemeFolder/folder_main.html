@@ -1,5 +1,40 @@
 [[inherit("Modules::Core/Views/Templates/on_hook_into_event")]] [[- Manually Register On Hook Into Event -]]
 
+[[b('TrackPagination')
+    <div class="d:flex flex-gap justify-content:center padding:default flex-wrap:wrap">
+    [[if("v[Data.ThemeFolder.prev_page_url]")
+    <a type="submit" class="border:none color:white border-width:default border:white padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
+       title="Previous" href="[[v('Data.ThemeFolder.prev_page_url')]]#sfc">
+        Previous
+    </a>
+    ]]
+
+    [[if("v[Data.ThemeFolder]")
+    <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
+        [[each("numberLinks in Data.ThemeFolder.number_links")
+        <li class="d:flex">
+
+            <a data-tonics_navigate data-url_page="[[v('numberLinks.link')]]#sfc" title="[[v('numberLinks.current_text')]]" class="d:flex border:none
+                                    [[if('v[numberLinks.current] === bool[false]') color:white ]]
+                                    [[if('v[numberLinks.current] === bool[true]') color:black bg:pure-white ]]
+                                    border-width:default border:white padding:default
+                                    margin-top:0 cursor:pointer max-width:200 text-align:center text-underline" href="[[v('numberLinks.link')]]#sfc">[[v('numberLinks.number')]]
+                <span class="svg-per-file-loading color:white bg:pure-white d:none"></span>
+            </a>
+        </li>
+        ]]
+    </ul>
+    ]]
+
+    [[if("v[Data.ThemeFolder.next_page_url]")
+    <a type="submit" class="border:none color:white border-width:default border:white padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
+       title="Next" href="[[v('Data.ThemeFolder.next_page_url')]]#sfc">
+        Next
+    </a>
+    ]]
+</div>
+]]
+
 [[add_hook('tonics_folder_main_from_api')]]
 [[b('tonics_folder_main')
     <ul class="tonics-files-container list:style:none">
@@ -55,4 +90,6 @@
     ]]
     ]]
 </ul>
+
+[[_use('TrackPagination')]]
 ]]

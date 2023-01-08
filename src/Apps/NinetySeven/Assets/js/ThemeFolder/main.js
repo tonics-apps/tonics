@@ -97,7 +97,10 @@ function initRouting(containerSelector, navigateCallback = null) {
             e.preventDefault();
             let element = el.closest('[data-tonics_navigate]');
             let url = element.getAttribute('data-url_page');
-            element.querySelector('.svg-per-file-loading').classList.remove('d:none');
+            const loading = element.querySelector('.svg-per-file-loading');
+            if (loading){
+                loading.classList.remove('d:none');
+            }
             navigate(url);
         }
 
