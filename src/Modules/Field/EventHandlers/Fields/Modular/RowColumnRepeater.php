@@ -367,6 +367,13 @@ HTML;
                         $interceptChildFrag = $interceptChild($child->field_options, $data);
                     }
 
+                    if (isset($child->field_options)){
+                        // meaning we are gonna skip checking user supplied data in global post data
+                        // if we do not do this, then it means, the input would be same in repeatable fields.
+                        // using double underscore to prefix this as this is a core thing
+                        $child->field_options->__skip_global_post_data = true;
+                    }
+
                     $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($fieldSlug, $child->field_options ?? null) : $interceptChildFrag;
                 }
             }

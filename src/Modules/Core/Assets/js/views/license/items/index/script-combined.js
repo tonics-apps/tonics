@@ -4213,7 +4213,7 @@ function addTiny(editorID) {
         extended_valid_elements: "img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|loading=lazy|decoding=async]," +
             "svg[*],path[*],def[*],script[*],use[*]",
         selector: editorID,
-        height: 900,
+        height: 650,
         menubar: true,
         plugins: [
             'advlist', 'tonics-drivemanager', fieldSelectionManager, 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
