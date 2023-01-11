@@ -1478,14 +1478,24 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         return TonicsHowl;
     }
 
-    getMarkerPercentage(time, audioduration) {
+    getMarkerPercentageAndSeconds(time, duration) {
+        if (!time || !/^\d{1,2}:\d{1,2}(:\d{1,2})?$/.test(time)) {
+            console.error(`Invalid time format: ${time}. Should be in format "00:00" or "00:00:00"`);
+            return;
+        }
         let timeParts = time.split(':');
-        let hours = parseInt(timeParts[0], 10);
-        let minutes = parseInt(timeParts[1], 10);
-        let seconds = parseInt(timeParts[2], 10);
+        let hours = timeParts.length > 2 ? parseInt(timeParts[0], 10) : 0;
+        let minutes = parseInt(timeParts[timeParts.length-2], 10);
+        let seconds = timeParts.length > 2 ? parseInt(timeParts[timeParts.length-1], 10) : parseInt(timeParts[timeParts.length-1], 10);
+
+        console.log(hours, minutes, seconds);
 
         let totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
-        let totalPercentage = (totalSeconds / audioduration) * 100;
+        if(!duration || duration <= 0) {
+            console.error(`audioTrackLength is not defined or is <= 0`);
+            return;
+        }
+        let totalPercentage = (totalSeconds / duration) * 100;
         return {
             percentage: totalPercentage,
             seconds: totalSeconds
@@ -1502,6 +1512,10 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         if (!markerHTML.includes(markerData.percentage)) {
             targetElement.appendChild(markerHTML);
         }
+    }
+
+    handleMarkerUpdating() {
+        console.log(this.getSongData());
     }
 
     storeSongPosition() {

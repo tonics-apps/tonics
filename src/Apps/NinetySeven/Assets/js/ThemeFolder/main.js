@@ -178,8 +178,19 @@ class TonicsAudioPlayHandler {
                         event._songData = songData;
                         if (songData._self && songData?.markers.length > 0){
                             songData.markers.forEach((marker) => {
-                                console.log(marker);
+                                if (marker.track_marker_start){
+                                    const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_start, songData.howl.duration());
+                                    markerPercentageAndSec.text = marker.track_marker_name;
+                                    marker._track_marker_start_info = markerPercentageAndSec;
+                                }
+
+                                if (marker.track_marker_end){
+                                    const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_end, songData.howl.duration());
+                                    markerPercentageAndSec.text = marker.track_marker_name;
+                                    marker._track_marker_end_info = markerPercentageAndSec;
+                                }
                             });
+                            songData._self.handleMarkerUpdating();
                         }
                     }
                 }
