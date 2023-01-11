@@ -369,14 +369,14 @@ class TracksController extends Controller
             onSlugIDState: function ($slugID) {
                 $track = db()->Select('*')->From(Tables::getTable(Tables::TRACKS))
                     ->WhereEquals('slug_id', $slugID)->FetchFirst();
-                if (isset($track->slug_id) && isset($track->post_slug)) {
+                if (isset($track->slug_id) && isset($track->track_slug)) {
                     return TrackRedirection::getTrackAbsoluteURLPath((array)$track);
                 }
                 return false;
             }, onSlugState: function ($slug) {
             $track = db()->Select('*')->From(Tables::getTable(Tables::TRACKS))
                 ->WhereEquals('track_slug', $slug)->FetchFirst();
-            if (isset($track->slug_id) && isset($track->post_slug)) {
+            if (isset($track->slug_id) && isset($track->track_slug)) {
                 return TrackRedirection::getTrackAbsoluteURLPath((array)$track);
             }
             return false;

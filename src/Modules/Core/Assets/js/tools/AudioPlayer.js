@@ -1,4 +1,3 @@
-
 export class AudioPlayer {
 
     audioPlayerSettings = new Map();
@@ -32,7 +31,7 @@ export class AudioPlayer {
             this.songSlider = this.progressContainer.querySelector('.song-slider');
         }
         this.userIsSeekingSongSlider = false;
-        if (document.querySelector('.audio-player-queue')){
+        if (document.querySelector('.audio-player-queue')) {
             this.originalTracksInQueueBeforeShuffle = document.querySelector('.audio-player-queue').innerHTML;
         }
 
@@ -54,8 +53,7 @@ export class AudioPlayer {
         this.mutationObserver();
     }
 
-    mutationHandlerFunc(audioTrack)
-    {
+    mutationHandlerFunc(audioTrack) {
         let self = this;
         if (audioTrack && !audioTrack.dataset.hasOwnProperty('trackloaded')) {
             audioTrack.dataset.trackloaded = 'false';
@@ -65,7 +63,7 @@ export class AudioPlayer {
         }
     }
 
-    mutationObserver(){
+    mutationObserver() {
         const audioPlayerObserver = new MutationObserver(((mutationsList, observer) => {
             for (const mutation of mutationsList) {
                 let foundNode = false;
@@ -83,12 +81,12 @@ export class AudioPlayer {
                     }
                 }
 
-                if (foundNode){
+                if (foundNode) {
                     return;
                 }
 
                 // for attribute
-                if (mutation.attributeName === "data-tonics-audioplayer-track"){
+                if (mutation.attributeName === "data-tonics-audioplayer-track") {
                     let audioTrack = mutation.target;
                     this.mutationHandlerFunc(audioTrack);
                 }
@@ -152,10 +150,10 @@ export class AudioPlayer {
                 // toggle play
                 if (el.dataset.hasOwnProperty('audioplayer_play')) {
                     // play;
-                    if(el.dataset.audioplayer_play === 'false') {
+                    if (el.dataset.audioplayer_play === 'false') {
                         el.dataset.audioplayer_play = 'true'
                         // if it contains a url
-                        if (el.dataset.hasOwnProperty('audioplayer_songurl')){
+                        if (el.dataset.hasOwnProperty('audioplayer_songurl')) {
                             let songURL = el.dataset.audioplayer_songurl;
                             if (el.dataset.hasOwnProperty('audioplayer_groupid')) {
                                 audioPlayerGlobalContainer.dataset.audioplayer_groupid = el.dataset.audioplayer_groupid;
@@ -191,7 +189,7 @@ export class AudioPlayer {
 
                 // prev
                 if (el.dataset.hasOwnProperty('audioplayer_prev')) {
-                    if (tonics_audio_seeking === false  && el.dataset.audioplayer_prev === 'true') {
+                    if (tonics_audio_seeking === false && el.dataset.audioplayer_prev === 'true') {
                         this.prev();
                     }
                 }
@@ -200,8 +198,8 @@ export class AudioPlayer {
                 removeSeeking();
 
                 // repeat
-                if (el.dataset.hasOwnProperty('audioplayer_repeat')){
-                    if (el.dataset.audioplayer_repeat === 'true'){
+                if (el.dataset.hasOwnProperty('audioplayer_repeat')) {
+                    if (el.dataset.audioplayer_repeat === 'true') {
                         self.repeatSong = false;
                         el.dataset.audioplayer_repeat = 'false';
                     } else {
@@ -211,12 +209,12 @@ export class AudioPlayer {
                 }
 
                 // shuffle
-                if (el.dataset.hasOwnProperty('audioplayer_shuffle')){
-                    if (el.dataset.audioplayer_shuffle === 'true'){
+                if (el.dataset.hasOwnProperty('audioplayer_shuffle')) {
+                    if (el.dataset.audioplayer_shuffle === 'true') {
                         el.dataset.audioplayer_shuffle = 'false';
-                        if (document.querySelector('.audio-player-queue') && this.originalTracksInQueueBeforeShuffle){
+                        if (document.querySelector('.audio-player-queue') && this.originalTracksInQueueBeforeShuffle) {
                             document.querySelector('.audio-player-queue').innerHTML = this.originalTracksInQueueBeforeShuffle;
-                            if (this.currentHowl !== null){
+                            if (this.currentHowl !== null) {
                                 let src = self.currentHowl._src;
                                 self.resetQueue();
                                 // self.resetAudioPlayerSettings();
@@ -226,13 +224,13 @@ export class AudioPlayer {
                     } else {
                         el.dataset.audioplayer_shuffle = 'true';
                         let tracksInQueue = document.querySelectorAll('.track-in-queue');
-                        if (tracksInQueue){
+                        if (tracksInQueue) {
                             for (let i = tracksInQueue.length - 1; i > 0; i--) {
                                 const j = Math.floor(Math.random() * (i + 1));
                                 swapNodes(
                                     tracksInQueue[j],
                                     tracksInQueue[i],
-                                    tracksInQueue[j].getBoundingClientRect(),  () => {
+                                    tracksInQueue[j].getBoundingClientRect(), () => {
                                         self.resetQueue();
                                         // self.setCorrectPlaylistIndex();
                                         // self.resetAudioPlayerSettings();
@@ -258,7 +256,7 @@ export class AudioPlayer {
         if (storedVolume) {
             Howler.volume(parseFloat(storedVolume));
             const volumeSlider = document.querySelector('.volume-slider');
-            if (volumeSlider){
+            if (volumeSlider) {
                 volumeSlider.value = storedVolume;
             }
         }
@@ -279,7 +277,7 @@ export class AudioPlayer {
 
                     // Seek to the stored position once the file is loaded
                     self.currentHowl.once('load', () => {
-                        let progress = storedData.currentPos /  self.currentHowl.duration() * 100 || 0;
+                        let progress = storedData.currentPos / self.currentHowl.duration() * 100 || 0;
                         this.songSlider.value = progress;
                         self.seek(progress);
                     });
@@ -293,7 +291,7 @@ export class AudioPlayer {
         let self = this,
             tonicsAudioPlayerTracks = document.querySelectorAll('[data-tonics-audioplayer-track]');
 
-        if (fromQueue){
+        if (fromQueue) {
             tonicsAudioPlayerTracks = document.querySelector('.audio-player-queue-list').querySelectorAll('[data-tonics-audioplayer-track]');
         }
 
@@ -334,6 +332,7 @@ export class AudioPlayer {
                         'songtitle': el.dataset.audioplayer_title,
                         'songimage': el.dataset.audioplayer_image,
                         'songurl': songurl,
+                        'url_page': el.dataset?.url_page,
                         'howl': null,
                         'format': (el.dataset.hasOwnProperty('audioplayer_format')) ? el.dataset.audioplayer_format : null,
                         'license': (el.dataset.hasOwnProperty('licenses')) ? JSON.parse(el.dataset.licenses) : null
@@ -347,36 +346,36 @@ export class AudioPlayer {
         }
     }
 
-    resetAudioPlayerSettings(){
+    resetAudioPlayerSettings() {
         let self = this
         this.audioPlayerSettings = new Map();
         this.audioPlayerSettings.set('GLOBAL_GROUP', new Map());
-        this.groupKeyToMapKey  = new Map();
+        this.groupKeyToMapKey = new Map();
         this.bootPlaylistAndSongs();
         this.loadPlaylist();
         this.loadToQueue(this.audioPlayerSettings.get(this.currentGroupID));
         this.setCorrectPlaylistIndex();
 
-        if (this.groupKeyToMapKey.size > 0){
+        if (this.groupKeyToMapKey.size > 0) {
             let audioPlayerEl = document.querySelector('.audio-player');
-            if (audioPlayerEl && audioPlayerEl.classList.contains('d:none')){
+            if (audioPlayerEl && audioPlayerEl.classList.contains('d:none')) {
                 audioPlayerEl.classList.remove('d:none');
             }
         }
     }
 
-    resetQueue(){
+    resetQueue() {
         this.audioPlayerSettings = new Map();
         this.audioPlayerSettings.set('GLOBAL_GROUP', new Map());
-        this.groupKeyToMapKey  = new Map();
+        this.groupKeyToMapKey = new Map();
         this.bootPlaylistAndSongs(true);
         this.loadPlaylist();
         this.setCorrectPlaylistIndex();
     }
 
-    loadToQueue(tracks){
+    loadToQueue(tracks) {
         let queueContainer = document.querySelector('.audio-player-queue-list');
-        if (queueContainer){
+        if (queueContainer) {
             queueContainer.innerHTML = "";
             tracks.forEach(value => {
 
@@ -384,7 +383,7 @@ export class AudioPlayer {
                 licenses['icon'] = '';
                 licenses['data'] = '';
 
-                if (value.license !== null){
+                if (value.license !== null) {
                     licenses['icon'] = `
                             <button class="dropdown-toggle bg:transparent border:none" aria-expanded="false" aria-label="Expand child menu" data-menutoggle_click_outside="true">
                                 <svg class="icon:audio color:black tonics-widget cursor:pointer act-like-button">
@@ -392,7 +391,7 @@ export class AudioPlayer {
                                 </svg>
                             </button>`;
 
-                    if (licenses.length > 0){
+                    if (licenses.length > 0) {
                         licenses.forEach((el => {
                             licenses['data'] += `
 <li class="d:flex flex-d:column align-items:center">
@@ -404,7 +403,7 @@ export class AudioPlayer {
                 }
 
                 let playing;
-                if (this.currentHowl !== null && this.currentHowl._src[0] === value.songurl){
+                if (this.currentHowl !== null && this.currentHowl._src[0] === value.songurl) {
                     playing = 'true'
                 } else {
                     playing = "false"
@@ -441,25 +440,25 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         }
     }
 
-    setCorrectPlaylistIndex(){
+    setCorrectPlaylistIndex() {
         let currentPlayingInQueue = document.querySelector('.audio-player-queue [data-audioplayer_play="true"]');
-        if (currentPlayingInQueue){
+        if (currentPlayingInQueue) {
             let songUrl = currentPlayingInQueue.dataset.audioplayer_songurl;
             let groupKey = 'GLOBAL_GROUP';
-            if (currentPlayingInQueue.dataset.hasOwnProperty('audioplayer_groupid')){
+            if (currentPlayingInQueue.dataset.hasOwnProperty('audioplayer_groupid')) {
                 groupKey = currentPlayingInQueue.dataset.audioplayer_groupid;
             }
-            if (this.groupKeyToMapKey.has(groupKey)){
+            if (this.groupKeyToMapKey.has(groupKey)) {
                 let songs = this.groupKeyToMapKey.get(groupKey);
                 let newPlaylistIndex = songs.indexOf(songUrl);
-                if (newPlaylistIndex !== -1){
+                if (newPlaylistIndex !== -1) {
                     this.playlistIndex = newPlaylistIndex;
                 }
             }
         }
     }
 
-    setSongUrlPlayAttribute(url, attrVal, title = null){
+    setSongUrlPlayAttribute(url, attrVal, title = null) {
         let currentSongWithURL = document.querySelectorAll(`[data-audioplayer_songurl="${url}"]`),
             globalPlayBTN = document.querySelector('.global-play');
 
@@ -467,7 +466,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             currentSongWithURL.forEach(value => {
                 if (value.dataset.hasOwnProperty('audioplayer_play') && value !== globalPlayBTN) {
                     value.dataset.audioplayer_play = attrVal
-                    if (title){
+                    if (title) {
                         value.title = title;
                     }
                 }
@@ -482,7 +481,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     loadPlaylist() {
         let self = this;
         let audioPlayerGlobalContainer = self.getAudioPlayerGlobalContainer();
-        if (audioPlayerGlobalContainer && audioPlayerGlobalContainer.dataset.hasOwnProperty('audioplayer_groupid')){
+        if (audioPlayerGlobalContainer && audioPlayerGlobalContainer.dataset.hasOwnProperty('audioplayer_groupid')) {
             let audioPlayerGroupID = audioPlayerGlobalContainer.dataset.audioplayer_groupid;
             if (self.audioPlayerSettings === null) {
                 this.bootPlaylistAndSongs();
@@ -555,7 +554,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             playings = document.querySelectorAll(`[data-audioplayer_play="true"]`);
 
         // pause current howl, or should we destroy it?
-        if (this.currentHowl){
+        if (this.currentHowl) {
             this.currentHowl.pause();
         }
 
@@ -601,22 +600,32 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     newHowlPlay(onload = null) {
         let self = this,
             songData = self.getSongData();
-        return new Howl({
-            preload:true,
+
+        const TonicsHowl = new Howl({
+            preload: true,
             src: [songData.songurl],
             html5: true,
             // this causes the player not to play, a bug in HOWLER JS?
             // format: [songData.format],
             onplay: () => {
+                // Fire The PlayEvent For Tonics
+                /*let OnAudioPlay = new OnAudioPlayerPlayEvent(self.getSongData());
+                self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlay, OnAudioPlayerPlayEvent);*/
+
                 // Start updating the progress of the track.
                 requestAnimationFrame(self.step.bind(self));
             },
+            /*onpause: () => {
+                // Fire The PauseEvent For Tonics
+                let OnAudioPause = new OnAudioPlayerPauseEvent(self.getSongData());
+                self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPause, OnAudioPlayerPauseEvent);
+            },*/
             onseek: () => {
                 // Start updating the progress of the track.
                 requestAnimationFrame(self.step.bind(self));
             },
             onend: () => {
-                if (self.repeatSong){
+                if (self.repeatSong) {
                     self.pause();
                     self.play();
                 } else {
@@ -624,12 +633,33 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
                 }
             }
         });
+
+        // sometimes the pause event can trigger twice, this put a stop to it
+        // note: if a song has not been paused, and you played a new one, pause event would fire and then play event would also fire, meaning they would both be fired
+        let isPaused = false;
+
+        TonicsHowl.on('play', function() {
+            isPaused = false;
+            let OnAudioPlay = new OnAudioPlayerPlayEvent(self.getSongData());
+            self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlay, OnAudioPlayerPlayEvent);
+        });
+
+        TonicsHowl.on('pause', function() {
+            if (!isPaused) {
+                isPaused = true;
+                // Fire The PauseEvent For Tonics
+                let OnAudioPause = new OnAudioPlayerPauseEvent(self.getSongData());
+                self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPause, OnAudioPlayerPauseEvent);
+            }
+        });
+
+        return TonicsHowl;
     }
 
-   storeSongPosition() {
-       // Get the Howl we want to manipulate.
-       let songData = this.getCurrentHowl();
-       let storeKey = window.location.href;
+    storeSongPosition() {
+        // Get the Howl we want to manipulate.
+        let songData = this.getCurrentHowl();
+        let storeKey = window.location.href;
         // Get the current position of the song in seconds
         const currentPosition = songData.seek();
         // Store the current URL and position in localStorage
@@ -683,11 +713,11 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 
         // calculate the duration to seek to
         let skipToDuration = songData.duration() * percentage / 100;
-        if (songData){
+        if (songData) {
             songData.seek(skipToDuration);
         }
 
-       // if (songData.playing()) {}
+        // if (songData.playing()) {}
     }
 
     step() {
@@ -706,16 +736,16 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         }
     }
 
-    updateGlobalSongProp(title = '', image = ''){
+    updateGlobalSongProp(title = '', image = '') {
         let songTitle = document.querySelector('[data-audioplayer_globaltitle]'),
             songImage = document.querySelector('[data-audioplayer_globalart]');
 
-        if (songTitle){
+        if (songTitle) {
             songTitle.innerText = title;
             songTitle.title = title;
         }
 
-        if (songImage){
+        if (songImage) {
             songImage.src = image;
         }
 
@@ -733,38 +763,64 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     getCurrentHowl() {
         return this.currentHowl;
     }
+
+    getEventDispatcher() {
+        return window.TonicsEvent.EventDispatcher;
+    }
 }
 
-if (document.querySelector('.audio-player')){
+// Abstract Class
+class AudioPlayerEventAbstract {
+    songData = null;
+
+    constructor(event) {
+        this.songData = event;
+        console.log(this.songData);
+    }
+
+    getSongData() {
+        return this.songData;
+    }
+}
+
+// Event Classes
+class OnAudioPlayerPlayEvent extends AudioPlayerEventAbstract {
+}
+
+class OnAudioPlayerPauseEvent extends AudioPlayerEventAbstract {
+}
+
+if (document.querySelector('.audio-player')) {
     let audioPlayer = new AudioPlayer();
     audioPlayer.run();
     let parent = '.audio-player-queue-list',
         widgetChild = `.track-in-queue`,
         top = false, bottom = false,
         sensitivity = 0, sensitivityMax = 5;
-    if (window?.TonicsScript.hasOwnProperty('Draggables')){
+    if (window?.TonicsScript.hasOwnProperty('Draggables')) {
         window.TonicsScript.Draggables(parent)
             .settings(widgetChild, ['.track-license'], false) // draggable element
             .onDragDrop(function (element, self) {
                 let elementDropped = self.getDroppedTarget().closest(widgetChild);
                 let elementDragged = self.getDragging().closest(widgetChild);
-                if (elementDropped !== elementDragged && top || bottom){
+                if (elementDropped !== elementDragged && top || bottom) {
                     // swap element
                     swapNodes(elementDragged, elementDropped, self.draggingOriginalRect, () => {
                         audioPlayer.resetQueue();
                     });
                     sensitivity = 0;
-                    top = false; bottom = false;
+                    top = false;
+                    bottom = false;
                 }
             }).onDragTop((element) => {
-            if (sensitivity++ >= sensitivityMax){
+            if (sensitivity++ >= sensitivityMax) {
                 let dragToTheTop = element.previousElementSibling;
-                if (dragToTheTop && dragToTheTop.classList.contains('track-in-queue')){
+                if (dragToTheTop && dragToTheTop.classList.contains('track-in-queue')) {
                     top = true;
                 }
             }
-        }).onDragBottom( (element) => {
-            if (sensitivity++ >= sensitivityMax){
+        }).onDragBottom((element) => {
+            if (sensitivity++ >= sensitivityMax) {
                 let dragToTheBottom = element.nextElementSibling;
                 if (dragToTheBottom && dragToTheBottom.classList.contains('track-in-queue')) {
                     bottom = true;
@@ -774,7 +830,7 @@ if (document.querySelector('.audio-player')){
 
     }
 
-    if (window?.TonicsScript.hasOwnProperty('MenuToggle') && window?.TonicsScript.hasOwnProperty('Query')){
+    if (window?.TonicsScript.hasOwnProperty('MenuToggle') && window?.TonicsScript.hasOwnProperty('Query')) {
         window.TonicsScript.MenuToggle('.audio-player', window.TonicsScript.Query())
             .settings('.audio-player-global-container', '.dropdown-toggle', '.audio-player-queue')
             .buttonIcon('#tonics-arrow-down', '#tonics-arrow-up')

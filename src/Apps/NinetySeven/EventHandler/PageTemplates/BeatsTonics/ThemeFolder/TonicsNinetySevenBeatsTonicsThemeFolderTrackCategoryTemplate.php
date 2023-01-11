@@ -10,15 +10,10 @@
 
 namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
-use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
-use Devsrealm\TonicsQueryBuilder\TonicsQuery;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
 
 class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements PageTemplateInterface, HandlerInterface
 {
@@ -42,7 +37,6 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
         # For Tracks Category
         $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
         $uniqueSlugID = $routeParams[0] ?? null;
-        $catSlug = $routeParams[1] ?? null;
 
         $mainTrackData = db()->Select('*')->From(Tables::getTable(Tables::TRACK_CATEGORIES))
             ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();

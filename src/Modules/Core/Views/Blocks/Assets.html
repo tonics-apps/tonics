@@ -170,10 +170,15 @@
 
 [[b('script:post-front')
     [[combine('MODULE::/Core/Assets/js/views/post/front/script-combined.js',
+        'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
+        'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
+        'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/TableOfContent.js',
+
         'MODULE::/Core/Assets/js/views/post/front/main.js',
+
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
     )]]
 <script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/front/script-combined.min.js"></script>

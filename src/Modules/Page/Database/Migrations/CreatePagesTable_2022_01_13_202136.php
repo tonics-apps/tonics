@@ -38,17 +38,24 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   UNIQUE KEY `pages_page_slug_unique` (`page_slug`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-        $defaultPage = [
+        db()->insertOnDuplicate($this->tableName(), self::defaultPages(), ['field_ids']);
+
+    }
+
+    public static function defaultPages(): array
+    {
+        return [
             ['field_ids' => '["default-page-field"]', 'page_title' => 'HomePage', 'page_slug' => '/'],
             ['field_ids' => '["default-page-field","seo-settings","all-posts-page"]', 'page_title' => 'Posts', 'page_slug' => '/posts'],
             ['field_ids' => '["default-page-field","all-categories-page"]', 'page_title' => 'Categories', 'page_slug' => '/categories'],
-            ['field_ids' => '["default-page-field"]', 'page_title' => 'Track Page', 'page_slug' => '/tracks'],
+
+            ['field_ids' => '["default-page-field"]', 'page_title' => 'Tracks Page', 'page_slug' => '/tracks', 'page_template' => 'TonicsNinetySeven_BeatsTonics_ThemeFolder_Home_Template'],
+            ['field_ids' => '["default-page-field"]', 'page_title' => 'Track Category Pag', 'page_slug' => "/track_categories/:slug-id/:slug", 'page_template' => 'TonicsNinetySeven_BeatsTonics_ThemeFolder_TrackCategory_Template'],
+            ['field_ids' => '["default-page-field"]', 'page_title' => 'Track Single Page', 'page_slug' => '/tracks/:slug-id/:slug', 'page_template' => 'TonicsNinetySeven_BeatsTonics_ThemeFolder_TrackSingle_Template'],
+
             ['field_ids' => '["default-page-field"]', 'page_title' => 'Genre Page', 'page_slug' => '/genres'],
             ['field_ids' => '["default-page-field"]', 'page_title' => 'Artist Page', 'page_slug' => '/artists'],
         ];
-
-        db()->insertOnDuplicate($this->tableName(), $defaultPage, ['field_ids']);
-
     }
 
     /**

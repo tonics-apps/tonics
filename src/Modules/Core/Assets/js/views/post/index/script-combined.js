@@ -167,6 +167,12 @@ const EventsConfig = {
 
     OnSubmitFieldEditorsFormEvent: [],
 
+    // Event For Audio Player
+    OnAudioPlayerPlayEvent: [],
+    OnAudioPlayerPauseEvent: [],
+    OnAudioPlayerPreviousEvent: [],
+    OnAudioPlayerNextEvent: [],
+
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
@@ -4967,7 +4973,6 @@ class DeleteEventHandler {
 //---------------------------
 //--- HANDLER AND EVENT SETUP
 //---------------------------
-
 if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[

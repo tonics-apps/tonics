@@ -484,6 +484,12 @@ const EventsConfig = {
 
     OnSubmitFieldEditorsFormEvent: [],
 
+    // Event For Audio Player
+    OnAudioPlayerPlayEvent: [],
+    OnAudioPlayerPauseEvent: [],
+    OnAudioPlayerPreviousEvent: [],
+    OnAudioPlayerNextEvent: [],
+
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;

@@ -53,6 +53,51 @@ class ThemeFolderViewHandler implements HandlerInterface
             }
             return '';
         });
+
+        $event->hookInto('tonics_track_from_api', function (TonicsView $tonicsView){
+            $isGetMarker = url()->getHeaderByKey('type') === 'getMarker';
+            $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
+            $uniqueSlugID = $routeParams[0] ?? null;
+            if ($isGetMarker){
+                $track = db()->Select('field_settings')->From(TrackData::getTrackTable())
+                    ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
+                $fieldSettings = null;
+                $markerData = [];
+                if (isset($track->field_settings)){
+                    $track->field_settings = json_decode($track->field_settings);
+                    $fieldSettings = json_decode($track->field_settings?->_fieldDetails);
+                }
+
+                if (is_array($fieldSettings)){
+                    $markerCurrent = [];
+                    foreach ($fieldSettings as $fieldSetting){
+                        $fieldInputName = $fieldSetting->field_input_name;
+                        if ($fieldInputName === 'track_marker_slug_id'){
+                            $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
+                        }
+                        if ($fieldSetting->field_input_name === 'track_marker_start'){
+                            $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
+                        }
+                        if ($fieldSetting->field_input_name === 'track_marker_end'){
+                            $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
+                        }
+                        if ($fieldSetting->field_input_name === 'track_marker_name'){
+                            $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
+                            $markerData[] = $markerCurrent; $markerCurrent = [];
+                        }
+                    }
+                }
+
+                if (!empty($markerData)){
+                    $data = [
+                        'isMarker' => true,
+                        'markers' => $markerData
+                    ];
+                    response()->onSuccess($data);
+                }
+            }
+            return '';
+        });
     }
 
     /**
@@ -60,7 +105,7 @@ class ThemeFolderViewHandler implements HandlerInterface
      * @return void
      * @throws \Exception
      */
-    public function handleTrackCategoryForRootQuery(TonicsView $tonicsView)
+    public function handleTrackCategoryForRootQuery(TonicsView $tonicsView): void
     {
         try {
             $db = db();

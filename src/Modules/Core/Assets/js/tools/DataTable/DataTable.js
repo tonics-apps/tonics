@@ -1101,7 +1101,6 @@ class DeleteEventHandler {
 //---------------------------
 //--- HANDLER AND EVENT SETUP
 //---------------------------
-
 if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[

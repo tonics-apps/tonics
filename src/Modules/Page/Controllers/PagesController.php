@@ -183,6 +183,7 @@ class PagesController
         $this->fieldData->getFieldItemsAPI();
 
         $page = $this->pageData->selectWithCondition($this->pageData->getPageTable(), ['*'], "page_id = ?", [$id]);
+        dd($page);
         if (!is_object($page)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }

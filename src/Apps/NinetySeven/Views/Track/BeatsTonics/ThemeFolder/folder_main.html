@@ -27,7 +27,8 @@
     ]]
 
     [[if("v[Data.ThemeFolder.next_page_url]")
-    <a type="submit" class="border:none color:white border-width:default border:white padding:default margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
+    <a type="submit" class="border:none color:white border-width:default border:white padding:default
+    margin-top:0 cart-width cursor:pointer max-width:200 text-align:center text-underline"
        title="Next" href="[[v('Data.ThemeFolder.next_page_url')]]#sfc">
         Next
     </a>
@@ -66,11 +67,15 @@
 
         <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
 
-            <button type="button" title="Play" data-tonics-audioplayer-track=""
+            <button type="button" title="Play"
+                    data-tonics-audioplayer-track
+                    data-url_page="[[v('_themeFolderData._link')]]"
                     data-audioplayer_songurl="[[v('_themeFolderData.audio_url')]]"
                     data-audioplayer_title="[[v('_themeFolderData._name')]]"
-                    data-audioplayer_image="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" data-audioplayer_format="mp3"
+                    data-audioplayer_image="[[v('_themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]"
+                    data-audioplayer_format="mp3"
                     data-audioplayer_play="false"
+                    data-licenses="[[v('_themeFolderData.license_attr')]]"
                     class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
                 <svg class="audio-play icon:audio tonics-widget pointer-events:none">
                     <use class="svgUse" xlink:href="#tonics-audio-play"></use>
@@ -79,11 +84,11 @@
                     <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
                 </svg>
             </button>
-            <button type="button" title="Play" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+            <button type="button" title="Play"
+                    class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
                 <svg class="icon:audio tonics-cart-icon tonics-widget">
                     <use class="svgUse" xlink:href="#tonics-cart"></use>
                 </svg>
-
             </button>
         </div>
     </li>

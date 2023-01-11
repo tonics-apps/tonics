@@ -157,7 +157,7 @@ input.volume-slider::-ms-track {
     position: absolute;
     right: 0;
     z-index: 55;
-    height: 5px;
+    height: 3px;
     cursor: pointer;
     background-color: inherit;
     accent-color: #000000;

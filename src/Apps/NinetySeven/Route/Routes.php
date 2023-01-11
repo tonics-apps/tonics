@@ -28,7 +28,7 @@ trait Routes
         $route->get('/posts/:slug-id/:slug', [PostsController::class, 'singlePost']);
         $route->get('/categories/:slug-id/:slug', [PostsController::class, 'singleCategory']);
 
-        # For Tracks
+        # For Tracks, No Longer Needed as it has been added from the page create
       //  $route->get('/tracks/:slug-id/:slug', [PostsController::class, 'singlePost']);
      //   $route->get('/track_categories/:slug-id/:slug', [PostsController::class, 'singleCategory']);
 
