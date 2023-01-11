@@ -176,7 +176,11 @@ class TonicsAudioPlayHandler {
                     if (!songData.hasOwnProperty('markers')){
                         songData.markers = data.data.markers;
                         event._songData = songData;
-                        event.handleMarkers();
+                        if (songData._self && songData?.markers.length > 0){
+                            songData.markers.forEach((marker) => {
+                                console.log(marker);
+                            });
+                        }
                     }
                 }
             });

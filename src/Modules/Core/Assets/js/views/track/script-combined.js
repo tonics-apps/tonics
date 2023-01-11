@@ -4183,13 +4183,14 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
         let storedData = localStorage.getItem(currentURL);
         if (storedData) {
             storedData = JSON.parse(storedData);
+            self.loadPlaylist();
             let groupSongs = null;
             if (self.audioPlayerSettings.has(storedData.currentGroupID)) {
                 groupSongs = self.audioPlayerSettings.get(storedData.currentGroupID);
                 if (groupSongs.has(storedData.songKey)) {
                     self.playlistIndex = groupSongs.get(storedData.songKey).songID;
                     // Load Howl
-                    self.play();
+                     self.play();
 
                     // Seek to the stored position once the file is loaded
                     self.currentHowl.once('load', () => {
@@ -4199,6 +4200,7 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
                     });
                 }
             }
+
         }
     }
 
@@ -4225,38 +4227,43 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
         // FOR TRACK
         let groupKeyToMapKeyArray = [];
         if (tonicsAudioPlayerTracks.length > 0) {
+            // we can rely on the i var as a key because some track song_url might not exist
+            // so, we manually use tonicsTrackKey and increment the counter ourselves
+            let tonicsTrackKey = 0;
             for (let i = 0; i < tonicsAudioPlayerTracks.length; i++) {
-                let el = tonicsAudioPlayerTracks[i],
-                    key = i,
+                const trackElButton = tonicsAudioPlayerTracks[i];
+                let key = tonicsTrackKey,
                     groupKey,
                     groupMap;
 
-                el.dataset.trackloaded = 'true';
+                trackElButton.dataset.trackloaded = 'true';
                 // first get the track groupID, if not set, we set it to global group
-                if (el.dataset.hasOwnProperty('audioplayer_groupid')) {
-                    groupKey = el.dataset.audioplayer_groupid;
+                if (trackElButton.dataset.hasOwnProperty('audioplayer_groupid')) {
+                    groupKey = trackElButton.dataset.audioplayer_groupid;
                 } else {
                     groupKey = 'GLOBAL_GROUP';
                 }
 
                 // The song elements needs at-least the songurl to get added to a playlist
-                if (el.dataset.hasOwnProperty('audioplayer_songurl')) {
+                if (trackElButton.dataset.hasOwnProperty('audioplayer_songurl') && trackElButton.dataset.audioplayer_songurl) {
                     groupMap = self.audioPlayerSettings.get(groupKey);
-                    let songurl = el.dataset.audioplayer_songurl;
-                    groupMap.set(songurl, {
+                    let songurl = trackElButton.dataset.audioplayer_songurl;
+                    const songData = {
                         'songID': key,
-                        'songtitle': el.dataset.audioplayer_title,
-                        'songimage': el.dataset.audioplayer_image,
+                        'songtitle': trackElButton.dataset.audioplayer_title,
+                        'songimage': trackElButton.dataset.audioplayer_image,
                         'songurl': songurl,
-                        'url_page': el.dataset?.url_page,
+                        'url_page': trackElButton.dataset.url_page,
                         'howl': null,
-                        'format': (el.dataset.hasOwnProperty('audioplayer_format')) ? el.dataset.audioplayer_format : null,
-                        'license': (el.dataset.hasOwnProperty('licenses')) ? JSON.parse(el.dataset.licenses) : null
-
-                    });
+                        'format': (trackElButton.dataset.hasOwnProperty('audioplayer_format')) ? trackElButton.dataset.audioplayer_format : null,
+                        'license': (trackElButton.dataset.hasOwnProperty('licenses')) ? JSON.parse(trackElButton.dataset.licenses) : null,
+                        '_dataset': trackElButton.dataset,
+                    }
+                    groupMap.set(songurl, songData);
                     groupKeyToMapKeyArray.push(songurl);
                     self.groupKeyToMapKey.set(groupKey, groupKeyToMapKeyArray);
                     self.audioPlayerSettings.set(groupKey, groupMap);
+                    ++tonicsTrackKey;
                 }
             }
         }
@@ -4338,6 +4345,7 @@ data-audioplayer_songurl="${value.songurl}"
 data-audioplayer_title="${value.songtitle}" 
 data-audioplayer_image="${value.songimage}" 
 data-audioplayer_format="${value.format}" 
+data-url_page="${value.url_page}" 
 data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:black">
     <svg class="audio-play icon:audio tonics-widget pointer-events:none">
         <use class="svgUse" xlink:href="#tonics-audio-play"></use>
@@ -4416,7 +4424,9 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             groupSongs = this.audioPlayerSettings.get(this.currentGroupID);
 
         if (groupSongs.has(songKey)) {
-            return groupSongs.get(songKey);
+            const Data = groupSongs.get(songKey);
+            Data._self = this;
+            return Data;
         }
 
         return false;
@@ -4524,18 +4534,9 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             // this causes the player not to play, a bug in HOWLER JS?
             // format: [songData.format],
             onplay: () => {
-                // Fire The PlayEvent For Tonics
-                /*let OnAudioPlay = new OnAudioPlayerPlayEvent(self.getSongData());
-                self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlay, OnAudioPlayerPlayEvent);*/
-
                 // Start updating the progress of the track.
                 requestAnimationFrame(self.step.bind(self));
             },
-            /*onpause: () => {
-                // Fire The PauseEvent For Tonics
-                let OnAudioPause = new OnAudioPlayerPauseEvent(self.getSongData());
-                self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPause, OnAudioPlayerPauseEvent);
-            },*/
             onseek: () => {
                 // Start updating the progress of the track.
                 requestAnimationFrame(self.step.bind(self));
@@ -4558,6 +4559,10 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             isPaused = false;
             let OnAudioPlay = new OnAudioPlayerPlayEvent(self.getSongData());
             self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlay, OnAudioPlayerPlayEvent);
+
+            // Remove Existing Markers if there is any.
+            let markers = document.querySelectorAll('div[data-audioplayer_marker]');
+            markers.forEach(marker => marker.remove());
         });
 
         TonicsHowl.on('pause', function() {
@@ -4570,6 +4575,32 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         });
 
         return TonicsHowl;
+    }
+
+    getMarkerPercentage(time, audioduration) {
+        let timeParts = time.split(':');
+        let hours = parseInt(timeParts[0], 10);
+        let minutes = parseInt(timeParts[1], 10);
+        let seconds = parseInt(timeParts[2], 10);
+
+        let totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+        let totalPercentage = (totalSeconds / audioduration) * 100;
+        return {
+            percentage: totalPercentage,
+            seconds: totalSeconds
+        };
+    }
+
+    updateMarker(elementClassOrId, markerData) {
+        let markerTemplate = document.querySelector('.tonics-audio-marker');
+        let markerHTML = markerTemplate.innerHTML;
+        markerHTML = markerHTML.replace('Marker_Percentage', markerData.percentage);
+        markerHTML = markerHTML.replace('Marker_Text', markerData.text);
+
+        let targetElement = document.querySelector(elementClassOrId);
+        if (!markerHTML.includes(markerData.percentage)) {
+            targetElement.appendChild(markerHTML);
+        }
     }
 
     storeSongPosition() {
@@ -4699,14 +4730,12 @@ class AudioPlayerEventAbstract {
     set songData(value) {
         this._songData = value;
     }
-
-    handleMarkers(){
-        console.log(this._songData);
-    }
 }
 
 // Event Classes
 class OnAudioPlayerPlayEvent extends AudioPlayerEventAbstract {
+
+
 }
 
 class OnAudioPlayerPauseEvent extends AudioPlayerEventAbstract {
