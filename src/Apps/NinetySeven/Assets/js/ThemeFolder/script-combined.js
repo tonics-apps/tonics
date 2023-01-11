@@ -1139,8 +1139,8 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     updateMarker(elementClassOrId, markerData) {
         let markerTemplate = document.querySelector('.tonics-audio-marker');
         let markerHTML = markerTemplate.innerHTML;
-        markerHTML = markerHTML.replace('Marker_Percentage', markerData.percentage);
-        markerHTML = markerHTML.replace('Marker_Text', markerData.text);
+        markerHTML = markerHTML.replace(/Marker_Percentage/g, markerData.percentage);
+        markerHTML = markerHTML.replace(/Marker_Text/g, markerData.text);
 
         let targetElement = document.querySelector(elementClassOrId);
         if (targetElement){
