@@ -771,14 +771,21 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 
 // Abstract Class
 class AudioPlayerEventAbstract {
-    songData = null;
 
     constructor(event) {
-        this.songData = event;
+        this._songData = event;
     }
 
-    getSongData() {
-        return this.songData;
+    get songData() {
+        return this._songData;
+    }
+
+    set songData(value) {
+        this._songData = value;
+    }
+
+    handleMarkers(){
+        console.log(this._songData);
     }
 }
 

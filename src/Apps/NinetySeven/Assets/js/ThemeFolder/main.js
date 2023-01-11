@@ -93,16 +93,6 @@ function initRouting(containerSelector, navigateCallback = null) {
     // Bind a click event listener to the container using event delegation
     container.addEventListener('click', e => {
         const el = e.target;
-
-        if (el.closest('[data-tonics-audioplayer-track]')  && el.closest('[data-url_page]')) {
-            let urlPage = el.closest('[data-url_page]').dataset.url_page;
-            if (urlPage){
-                /*window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(urlPage, function (err, data) {
-                    data = JSON.parse(data);
-                });*/
-            }
-        }
-
         if (el.closest('[data-tonics_navigate]')) {
             e.preventDefault();
             let element = el.closest('[data-tonics_navigate]');
@@ -176,7 +166,21 @@ initRouting('.main-tonics-folder-container', ({ url, type }) => {
 
 class TonicsAudioPlayHandler {
     constructor(event) {
-        console.log(event, 'From Outside World');
+        const songData = event._songData;
+        const url_page = songData?.url_page;
+        const url_page_el = document.querySelector(`button[data-url_page="${url_page}"]`);
+        if (url_page_el.closest('[data-tonics-audioplayer-track]')) {
+            window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(url_page, function (err, data) {
+                data = JSON.parse(data);
+                if(data?.data?.markers){
+                    if (!songData.hasOwnProperty('markers')){
+                        songData.markers = data.data.markers;
+                        event._songData = songData;
+                        event.handleMarkers();
+                    }
+                }
+            });
+        }
     }
 }
 
