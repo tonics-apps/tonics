@@ -278,9 +278,11 @@ export class AudioPlayer {
 
                     // Seek to the stored position once the file is loaded
                     self.currentHowl.once('load', () => {
-                        let progress = storedData.currentPos / self.currentHowl.duration() * 100 || 0;
-                        this.songSlider.value = progress;
-                        self.seek(progress);
+                        let progress = storedData.currentPos / self.currentHowl.duration() * 100;
+                        if(this.songSlider){
+                            this.songSlider.value = progress;
+                            self.seek(progress);
+                        }
                     });
                 }
             }
@@ -643,10 +645,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             isPaused = false;
             let OnAudioPlay = new OnAudioPlayerPlayEvent(self.getSongData());
             self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlay, OnAudioPlayerPlayEvent);
-
-            // Remove Existing Markers if there is any.
-            let markers = document.querySelectorAll('div[data-audioplayer_marker]');
-            markers.forEach(marker => marker.remove());
         });
 
         TonicsHowl.on('pause', function() {
@@ -671,8 +669,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let minutes = parseInt(timeParts[timeParts.length-2], 10);
         let seconds = timeParts.length > 2 ? parseInt(timeParts[timeParts.length-1], 10) : parseInt(timeParts[timeParts.length-1], 10);
 
-        console.log(hours, minutes, seconds);
-
         let totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
         if(!duration || duration <= 0) {
             console.error(`audioTrackLength is not defined or is <= 0`);
@@ -688,20 +684,27 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     updateMarker(elementClassOrId, markerData) {
         let markerTemplate = document.querySelector('.tonics-audio-marker');
         let markerHTML = markerTemplate.innerHTML;
-        markerHTML = markerHTML.replace('Marker_Percentage', markerData.percentage);
-        markerHTML = markerHTML.replace('Marker_Text', markerData.text);
+        markerHTML = markerHTML.replace(/Marker_Percentage/g, markerData.percentage);
+        markerHTML = markerHTML.replace(/Marker_Text/g, markerData.text);
 
         let targetElement = document.querySelector(elementClassOrId);
-        if (!markerHTML.includes(markerData.percentage)) {
-            targetElement.appendChild(markerHTML);
+        if (targetElement){
+            targetElement.insertAdjacentHTML('afterend', markerHTML);
         }
+
     }
 
     handleMarkerUpdating() {
         const songData = this.getSongData();
         if (songData?.markers.length > 0){
-            songData.markers.forEach((marker) => {
+            // Remove Existing Markers if there is any.
+            let markers = document.querySelectorAll('div[data-audioplayer_marker]');
+            markers.forEach(marker => marker.remove());
 
+            songData.markers.forEach((marker) => {
+                if (marker._track_marker_start_info){
+                    this.updateMarker('.song-slider', marker._track_marker_start_info);
+                }
             });
         }
     }
