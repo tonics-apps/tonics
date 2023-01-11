@@ -97,9 +97,9 @@ function initRouting(containerSelector, navigateCallback = null) {
         if (el.closest('[data-tonics-audioplayer-track]')  && el.closest('[data-url_page]')) {
             let urlPage = el.closest('[data-url_page]').dataset.url_page;
             if (urlPage){
-                window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(urlPage, function (err, data) {
+                /*window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(urlPage, function (err, data) {
                     data = JSON.parse(data);
-                });
+                });*/
             }
         }
 
@@ -170,3 +170,23 @@ initRouting('.main-tonics-folder-container', ({ url, type }) => {
     }
 });
 
+//----------------
+//--- HANDLERS
+//----------------
+
+class TonicsAudioPlayHandler {
+    constructor(event) {
+        console.log(event, 'From Outside World');
+    }
+}
+
+//---------------------------
+//--- HANDLER AND EVENT SETUP
+//---------------------------
+if (window?.TonicsEvent?.EventConfig) {
+    window.TonicsEvent.EventConfig.OnAudioPlayerPlayEvent.push(
+        ...[
+            TonicsAudioPlayHandler
+        ]
+    );
+}

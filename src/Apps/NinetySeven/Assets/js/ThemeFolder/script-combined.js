@@ -1043,7 +1043,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         try {
             songData.play();
         } catch (e) {
-            console.log('ggg')
             self.getSongData().howl = self.newHowlPlay();
             songData = self.getSongData().howl;
             songData.play();
@@ -1091,7 +1090,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         });
 
         // sometimes the pause event can trigger twice, this put a stop to it
-        // note: if a song has not been paused, and you played a new one, pause event would fire and then play event would also fire, meaning they would both be firedd
+        // note: if a song has not been paused, and you played a new one, pause event would fire and then play event would also fire, meaning they would both be fired
         let isPaused = false;
 
         TonicsHowl.on('play', function() {
@@ -1231,7 +1230,6 @@ class AudioPlayerEventAbstract {
 
     constructor(event) {
         this.songData = event;
-        console.log(this.songData);
     }
 
     getSongData() {
@@ -1413,9 +1411,9 @@ function initRouting(containerSelector, navigateCallback = null) {
         if (el.closest('[data-tonics-audioplayer-track]')  && el.closest('[data-url_page]')) {
             let urlPage = el.closest('[data-url_page]').dataset.url_page;
             if (urlPage){
-                window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(urlPage, function (err, data) {
+                /*window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(urlPage, function (err, data) {
                     data = JSON.parse(data);
-                });
+                });*/
             }
         }
 
@@ -1486,3 +1484,23 @@ initRouting('.main-tonics-folder-container', ({ url, type }) => {
     }
 });
 
+//----------------
+//--- HANDLERS
+//----------------
+
+class TonicsAudioPlayHandler {
+    constructor(event) {
+        console.log(event, 'From Outside World');
+    }
+}
+
+//---------------------------
+//--- HANDLER AND EVENT SETUP
+//---------------------------
+if (window?.TonicsEvent?.EventConfig) {
+    window.TonicsEvent.EventConfig.OnAudioPlayerPlayEvent.push(
+        ...[
+            TonicsAudioPlayHandler
+        ]
+    );
+}

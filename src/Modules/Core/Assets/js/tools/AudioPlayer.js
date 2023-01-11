@@ -775,7 +775,6 @@ class AudioPlayerEventAbstract {
 
     constructor(event) {
         this.songData = event;
-        console.log(this.songData);
     }
 
     getSongData() {
