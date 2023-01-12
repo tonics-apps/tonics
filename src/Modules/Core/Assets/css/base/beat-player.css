@@ -58,6 +58,14 @@ div#meta-container {
     display: none;
 }
 
+[data-audioplayer_marker_repeat="true"] .repeat-off {
+    display: none;
+}
+
+[data-audioplayer_marker_repeat="false"] .repeat-on {
+    display: none;
+}
+
 [data-audioplayer_shuffle="true"] .shuffle-off {
     display: none;
 }

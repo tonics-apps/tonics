@@ -10,12 +10,13 @@
     <section class="audio-player position:sticky bottom:0 left:0 z-index:audio-sticky-footer d:none">
 
     <template class="tonics-audio-marker" data-audioplayer_marker>
-        <div style="left: Marker_Percentage%;"  data-audioplayer_marker class="marker time-progress-marker z-index:time-progress-marker">
+        <div style="left: Marker_Percentage%;" data-audioplayer_marker class="marker time-progress-marker z-index:time-progress-marker">
             <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-d:column bg:pure-white
                 padding:default position:absolute right:0 overflow:auto d:none">
                 <div class="more-audio-player-control cursor:pointer">
+
                     <button type="button" title="Repeat" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black"
-                            data-audioplayer_repeat="false">
+                            data-audioplayer_marker_repeat="false">
                         <svg class="repeat-on icon:audio tonics-widget">
                             <use class="svgUse" xlink:href="#tonics-repeat-on"></use>
                         </svg>
@@ -23,6 +24,14 @@
                             <use class="svgUse" xlink:href="#tonics-repeat-off"></use>
                         </svg>
                     </button>
+
+                    <button type="button" title="Jump To Position" data-tonics-audioplayer-marker-track
+                            class="cursor:pointer border:none act-like-button bg:transparent icon:audio color:black">
+                        <svg class="audio-play icon:audio tonics-widget">
+                            <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+                        </svg>
+                    </button>
+
                 </div>
                 <div title="Marker_Text" class="cursor:text text:no-wrap text-overflow:ellipsis">Marker_Text</div>
             </div>
