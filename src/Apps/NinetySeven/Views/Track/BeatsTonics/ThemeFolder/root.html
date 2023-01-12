@@ -10,7 +10,10 @@
     <section class="audio-player position:sticky bottom:0 left:0 z-index:audio-sticky-footer d:none">
 
     <template class="tonics-audio-marker" data-audioplayer_marker>
-        <div style="left: Marker_Percentage%;" data-audioplayer_marker class="marker time-progress-marker z-index:time-progress-marker">
+        <div style="left: Marker_Percentage%;"
+             data-audioplayer_marker_start="MARKER_START"
+             data-audioplayer_marker_end="MARKER_END"
+             data-audioplayer_marker class="marker time-progress-marker z-index:time-progress-marker">
             <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-d:column bg:pure-white
                 padding:default position:absolute right:0 overflow:auto d:none">
                 <div class="more-audio-player-control cursor:pointer">

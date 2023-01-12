@@ -1025,6 +1025,17 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
                     }
                 }
 
+                // marker_repeat
+                if (el.dataset.hasOwnProperty('audioplayer_marker_repeat')){
+                    if (el.dataset.audioplayer_marker_repeat === 'true') {
+                        //self.repeatSong = false;
+                        el.dataset.audioplayer_marker_repeat = 'false';
+                    } else {
+                        //self.repeatSong = true;
+                        el.dataset.audioplayer_marker_repeat = 'true';
+                    }
+                }
+
                 // shuffle
                 if (el.dataset.hasOwnProperty('audioplayer_shuffle')) {
                     if (el.dataset.audioplayer_shuffle === 'true') {
@@ -1500,10 +1511,15 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     }
 
     updateMarker(elementClassOrId, markerData) {
+        let markerStartInfo = markerData._track_marker_start_info;
+        let markerEndInfo = markerData._track_marker_end_info;
+
         let markerTemplate = document.querySelector('.tonics-audio-marker');
         let markerHTML = markerTemplate.innerHTML;
-        markerHTML = markerHTML.replace(/Marker_Percentage/g, markerData.percentage);
-        markerHTML = markerHTML.replace(/Marker_Text/g, markerData.text);
+        markerHTML = markerHTML.replace(/Marker_Percentage/g, markerStartInfo.percentage);
+        markerHTML = markerHTML.replace(/Marker_Text/g, markerStartInfo.text);
+        markerHTML = markerHTML.replace(/MARKER_START/g, markerStartInfo.seconds);
+        markerHTML = markerHTML.replace(/MARKER_END/g, markerEndInfo.text);
 
         let targetElement = document.querySelector(elementClassOrId);
         if (targetElement){
@@ -1520,8 +1536,9 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             markers.forEach(marker => marker.remove());
 
             songData.markers.forEach((marker) => {
+                console.log(marker);
                 if (marker._track_marker_start_info){
-                    this.updateMarker('.song-slider', marker._track_marker_start_info);
+                    this.updateMarker('.song-slider', marker);
                 }
             });
         }
