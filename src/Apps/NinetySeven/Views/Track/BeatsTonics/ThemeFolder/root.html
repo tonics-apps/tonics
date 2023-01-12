@@ -11,22 +11,23 @@
 
     <template class="tonics-audio-marker" data-audioplayer_marker>
         <div style="left: Marker_Percentage%;"  data-audioplayer_marker class="marker time-progress-marker z-index:time-progress-marker">
-            <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-gap flex-d:column bg:pure-white
+            <div class="audio-player-marker-data color:black bg:white-one border-width:default border:black flex-d:column bg:pure-white
                 padding:default position:absolute right:0 overflow:auto d:none">
                 <div class="more-audio-player-control cursor:pointer">
                     <button type="button" title="Repeat" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black"
                             data-audioplayer_repeat="false">
-                        <svg class="repeat-on icon:audio tonics-widget pointer-events:none">
+                        <svg class="repeat-on icon:audio tonics-widget">
                             <use class="svgUse" xlink:href="#tonics-repeat-on"></use>
                         </svg>
-                        <svg class="repeat-off icon:audio tonics-widget pointer-events:none">
+                        <svg class="repeat-off icon:audio tonics-widget">
                             <use class="svgUse" xlink:href="#tonics-repeat-off"></use>
                         </svg>
                     </button>
                 </div>
                 <div title="Marker_Text" class="cursor:text text:no-wrap text-overflow:ellipsis">Marker_Text</div>
             </div>
-            <button type="button" title="Track Marker" class="border:none act-like-button bg:transparent cursor:pointer marker-dropdown-toggle color:white" aria-expanded="false" aria-label="Expand child menu">
+            <button type="button" title="Marker_Text" class="border:none act-like-button bg:transparent cursor:pointer marker-dropdown-toggle color:white"
+                    aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:audio tonics-widget cursor:pointer act-like-button">
                     <use class="svgUse" xlink:href="#tonics-arrow-up"></use>
                 </svg>

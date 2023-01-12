@@ -215,7 +215,8 @@ input.volume-slider::-ms-track {
 
 .time-progress .marker .audio-player-marker-data {
     height: 210px;
-    width: 250px;
     right: 0;
     top: -210px;
+    min-width: 200px;
+    left: 0;
 }

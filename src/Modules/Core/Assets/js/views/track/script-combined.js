@@ -4536,6 +4536,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             // this causes the player not to play, a bug in HOWLER JS?
             // format: [songData.format],
             onplay: () => {
+                self.handleMarkerUpdating();
                 // Start updating the progress of the track.
                 requestAnimationFrame(self.step.bind(self));
             },
@@ -4612,7 +4613,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 
     handleMarkerUpdating() {
         const songData = this.getSongData();
-        if (songData?.markers.length > 0){
+        if (songData?.markers?.length > 0){
             // Remove Existing Markers if there is any.
             let markers = document.querySelectorAll('div[data-audioplayer_marker]');
             markers.forEach(marker => marker.remove());
