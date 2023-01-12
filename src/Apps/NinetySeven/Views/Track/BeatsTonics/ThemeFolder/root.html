@@ -20,17 +20,18 @@
 
                     <button type="button" title="Repeat" class="border:none act-like-button bg:transparent cursor:pointer icon:audio color:black"
                             data-audioplayer_marker_repeat="false">
-                        <svg class="repeat-on icon:audio tonics-widget">
+                        <svg class="repeat-on icon:audio tonics-widget pointer-events:none">
                             <use class="svgUse" xlink:href="#tonics-repeat-on"></use>
                         </svg>
-                        <svg class="repeat-off icon:audio tonics-widget">
+                        <svg class="repeat-off icon:audio tonics-widget pointer-events:none">
                             <use class="svgUse" xlink:href="#tonics-repeat-off"></use>
                         </svg>
                     </button>
 
-                    <button type="button" title="Jump To Position" data-tonics-audioplayer-marker-track
-                            class="cursor:pointer border:none act-like-button bg:transparent icon:audio color:black">
-                        <svg class="audio-play icon:audio tonics-widget">
+                    <button type="button" title="Seek To Position"
+                            class="cursor:pointer border:none act-like-button bg:transparent icon:audio color:black"
+                            data-audioplayer_marker_play_jump="Marker_Percentage">
+                        <svg class="audio-play icon:audio tonics-widget pointer-events:none">
                             <use class="svgUse" xlink:href="#tonics-audio-play"></use>
                         </svg>
                     </button>

@@ -1031,9 +1031,20 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
                         //self.repeatSong = false;
                         el.dataset.audioplayer_marker_repeat = 'false';
                     } else {
+                        // remove all existing audio_marker_repeat
+                        const allMarkerRepeat = document.querySelectorAll('[data-audioplayer_marker_repeat]');
+                        allMarkerRepeat.forEach((mark) => {
+                           mark.dataset.audioplayer_marker_repeat = 'false';
+                        });
                         //self.repeatSong = true;
                         el.dataset.audioplayer_marker_repeat = 'true';
                     }
+                }
+
+                // marker jump
+                if (el.dataset.hasOwnProperty('audioplayer_marker_play_jump')){
+                    const seekToPosition = el.dataset.audioplayer_marker_play_jump; // get the percentage
+                    this.seek(seekToPosition);
                 }
 
                 // shuffle
@@ -1519,7 +1530,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         markerHTML = markerHTML.replace(/Marker_Percentage/g, markerStartInfo.percentage);
         markerHTML = markerHTML.replace(/Marker_Text/g, markerStartInfo.text);
         markerHTML = markerHTML.replace(/MARKER_START/g, markerStartInfo.seconds);
-        markerHTML = markerHTML.replace(/MARKER_END/g, markerEndInfo.text);
+        markerHTML = markerHTML.replace(/MARKER_END/g, markerEndInfo.seconds);
 
         let targetElement = document.querySelector(elementClassOrId);
         if (targetElement){
@@ -1536,7 +1547,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             markers.forEach(marker => marker.remove());
 
             songData.markers.forEach((marker) => {
-                console.log(marker);
                 if (marker._track_marker_start_info){
                     this.updateMarker('.song-slider', marker);
                 }
@@ -1603,22 +1613,28 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let skipToDuration = songData.duration() * percentage / 100;
         if (songData) {
             songData.seek(skipToDuration);
+            this.moveSlider();
         }
+    }
 
-        // if (songData.playing()) {}
+    moveSlider()
+    {
+        let self = this;
+        let howl = self.getCurrentHowl();
+        // Determine our current seek position.
+        let seek = howl.seek() || 0;
+        let progress = seek / howl.duration() * 100 || 0;
+        progress = Math.round(progress);
+        if (self.userIsSeekingSongSlider === false) {
+            self.songSlider.value = progress;
+        }
     }
 
     step() {
         let self = this;
         let howl = self.getCurrentHowl();
         if (howl.playing()) {
-            // Determine our current seek position.
-            let seek = howl.seek() || 0;
-            let progress = seek / howl.duration() * 100 || 0;
-            progress = Math.round(progress);
-            if (self.userIsSeekingSongSlider === false) {
-                self.songSlider.value = progress;
-            }
+            this.moveSlider();
             self.storeSongPosition()
             requestAnimationFrame(this.step.bind(self));
         }
