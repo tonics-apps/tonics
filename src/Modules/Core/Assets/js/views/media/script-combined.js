@@ -1456,7 +1456,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     newHowlPlay(onload = null) {
         let self = this,
             songData = self.getSongData();
-
         const TonicsHowl = new Howl({
             preload: true,
             src: [songData.songurl],
@@ -1483,8 +1482,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
                     self.next();
                 }
 
-                // at this point, we gotta remove the marker
-                self.repeatMarkerSong = null;
+                self.removeMarker()
             }
         });
 
@@ -1581,6 +1579,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 
     prev() {
         let self = this;
+        self.removeMarker()
         if (self.playlist === null) {
             self.loadPlaylist();
         }
@@ -1593,6 +1592,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 
     next() {
         let self = this;
+        self.removeMarker()
         if (self.playlist === null) {
             self.loadPlaylist();
         }
@@ -1656,6 +1656,11 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             self.storeSongPosition()
             requestAnimationFrame(this.step.bind(self));
         }
+    }
+
+    removeMarker(){
+        // at this point, we gotta remove the marker
+        this.repeatMarkerSong = null;
     }
 
     updateGlobalSongProp(title = '', image = '') {
