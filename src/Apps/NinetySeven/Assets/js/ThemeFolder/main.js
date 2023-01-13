@@ -169,29 +169,27 @@ class TonicsAudioPlayHandler {
         const songData = event._songData;
         const url_page = songData?.url_page;
         const url_page_el = document.querySelector(`button[data-url_page="${url_page}"]`);
-        if (url_page_el.closest('[data-tonics-audioplayer-track]')) {
+        if (url_page_el.closest('[data-tonics-audioplayer-track]') && !songData.hasOwnProperty('markers')) {
             window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(url_page, function (err, data) {
                 data = JSON.parse(data);
                 if(data?.data?.markers){
-                    if (!songData.hasOwnProperty('markers')){
-                        songData.markers = data.data.markers;
-                        event._songData = songData;
-                        if (songData._self && songData?.markers.length > 0){
-                            songData.markers.forEach((marker) => {
-                                if (marker.track_marker_start){
-                                    const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_start, songData.howl.duration());
-                                    markerPercentageAndSec.text = marker.track_marker_name;
-                                    marker._track_marker_start_info = markerPercentageAndSec;
-                                }
+                    songData.markers = data.data.markers;
+                    event._songData = songData;
+                    if (songData._self && songData?.markers.length > 0){
+                        songData.markers.forEach((marker) => {
+                            if (marker.track_marker_start){
+                                const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_start, songData.howl.duration());
+                                markerPercentageAndSec.text = marker.track_marker_name;
+                                marker._track_marker_start_info = markerPercentageAndSec;
+                            }
 
-                                if (marker.track_marker_end){
-                                    const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_end, songData.howl.duration());
-                                    markerPercentageAndSec.text = marker.track_marker_name;
-                                    marker._track_marker_end_info = markerPercentageAndSec;
-                                }
-                            });
-                            songData._self.handleMarkerUpdating();
-                        }
+                            if (marker.track_marker_end){
+                                const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_end, songData.howl.duration());
+                                markerPercentageAndSec.text = marker.track_marker_name;
+                                marker._track_marker_end_info = markerPercentageAndSec;
+                            }
+                        });
+                        songData._self.handleMarkerUpdating();
                     }
                 }
             });

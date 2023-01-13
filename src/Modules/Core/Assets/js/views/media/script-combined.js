@@ -1464,7 +1464,10 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             // this causes the player not to play, a bug in HOWLER JS?
             // format: [songData.format],
             onplay: () => {
-                self.handleMarkerUpdating();
+                // we only update marker if it isn't already set
+                if (!self.repeatMarkerSong){
+                    self.handleMarkerUpdating();
+                }
                 // Start updating the progress of the track.
                 requestAnimationFrame(self.step.bind(self));
             },
@@ -1479,6 +1482,9 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
                 } else {
                     self.next();
                 }
+
+                // at this point, we gotta remove the marker
+                self.repeatMarkerSong = null;
             }
         });
 
