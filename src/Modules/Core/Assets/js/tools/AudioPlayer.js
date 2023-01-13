@@ -8,6 +8,7 @@ export class AudioPlayer {
     tonicsAudioPlayerGroups = null;
     groupKeyToMapKey = new Map();
     repeatSong = false;
+    repeatMarkerSong = null;
     originalTracksInQueueBeforeShuffle = null;
 
     /**
@@ -211,7 +212,7 @@ export class AudioPlayer {
                 // marker_repeat
                 if (el.dataset.hasOwnProperty('audioplayer_marker_repeat')){
                     if (el.dataset.audioplayer_marker_repeat === 'true') {
-                        //self.repeatSong = false;
+                        self.repeatMarkerSong = null;
                         el.dataset.audioplayer_marker_repeat = 'false';
                     } else {
                         // remove all existing audio_marker_repeat
@@ -219,6 +220,11 @@ export class AudioPlayer {
                         allMarkerRepeat.forEach((mark) => {
                            mark.dataset.audioplayer_marker_repeat = 'false';
                         });
+                        self.repeatMarkerSong = {
+                            'start': el.dataset.audioplayer_marker_start,
+                            'start_percentage': el.dataset.audioplayer_marker_start_percentage,
+                            'end': el.dataset.audioplayer_marker_end,
+                        };
                         //self.repeatSong = true;
                         el.dataset.audioplayer_marker_repeat = 'true';
                     }
@@ -227,7 +233,7 @@ export class AudioPlayer {
                 // marker jump
                 if (el.dataset.hasOwnProperty('audioplayer_marker_play_jump')){
                     const seekToPosition = el.dataset.audioplayer_marker_play_jump; // get the percentage
-                    this.seek(seekToPosition);
+                    this.seek(seekToPosition); // and jump
                 }
 
                 // shuffle
@@ -817,6 +823,13 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let self = this;
         let howl = self.getCurrentHowl();
         if (howl.playing()) {
+            if (self.repeatMarkerSong){
+                let roundedSeek = Math.round(howl.seek());
+                let start = parseInt(self.repeatMarkerSong.start), end = parseInt(self.repeatMarkerSong.end);
+                if (roundedSeek >= end) {
+                    howl.seek(start)
+                }
+            }
             this.moveSlider();
             self.storeSongPosition()
             requestAnimationFrame(this.step.bind(self));
