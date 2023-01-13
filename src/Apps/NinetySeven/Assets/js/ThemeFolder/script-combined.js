@@ -680,7 +680,6 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
                             'start_percentage': el.dataset.audioplayer_marker_start_percentage,
                             'end': el.dataset.audioplayer_marker_end,
                         };
-                        //self.repeatSong = true;
                         el.dataset.audioplayer_marker_repeat = 'true';
                     }
                 }
@@ -1280,7 +1279,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         if (howl.playing()) {
             if (self.repeatMarkerSong){
                 let roundedSeek = Math.round(howl.seek());
-                let start = parseInt(self.repeatMarkerSong.start), end = parseInt(self.repeatMarkerSong.end), start_perc = self.repeatMarkerSong.start_percentage;
+                let start = parseInt(self.repeatMarkerSong.start), end = parseInt(self.repeatMarkerSong.end);
                 if (roundedSeek >= end) {
                     howl.seek(start)
                 }

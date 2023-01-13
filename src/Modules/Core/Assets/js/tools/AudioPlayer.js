@@ -225,7 +225,6 @@ export class AudioPlayer {
                             'start_percentage': el.dataset.audioplayer_marker_start_percentage,
                             'end': el.dataset.audioplayer_marker_end,
                         };
-                        //self.repeatSong = true;
                         el.dataset.audioplayer_marker_repeat = 'true';
                     }
                 }
