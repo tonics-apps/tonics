@@ -34,11 +34,15 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
      */
     public function handleTemplate(OnPageTemplate $pageTemplate): void
     {
+        $fieldSettings = $pageTemplate->getFieldSettings();
+        $fieldSettings['ThemeTrackSingle'] = true;
+
         $isAPI = url()->getHeaderByKey('isAPI') === 'true';
         if ($isAPI){
             $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/track_single');
         }else {
             $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
         }
+        $pageTemplate->setFieldSettings($fieldSettings);
     }
 }

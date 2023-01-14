@@ -1,3 +1,46 @@
 [[inherit("Modules::Core/Views/Templates/on_hook_into_event")]] [[- Manually Register On Hook Into Event -]]
 
 [[add_hook('tonics_track_from_api')]]
+
+[[b('tonics_track_main')
+<ul class="tonics-files-container list:style:none">
+    <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
+        <a class="tonics-fm-link color:white remove-button-styles" href="#"
+           title="[[v('Data._themeFolderData._name')]]"
+           data-slug_id="[[v('Data._themeFolderData.slug_id')]]"
+           data-name="[[v('Data._themeFolderData._name')]]" data-url_page="[[v('Data._themeFolderData._link')]]" data-is_track="1">
+            <img width="200px" height="200px" loading="lazy"
+                 src="[[v('Data._themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" alt="[[v('Data._themeFolderData._name')]]" class="tonics-individual-art-image">
+            <div class="tonics-file-filename">[[v('Data._themeFolderData._name')]]</div>
+            <span class="svg-per-file-loading display-none"></span>
+        </a>
+
+        <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
+
+            <button type="button" title="Play"
+                    data-tonics-audioplayer-track
+                    data-url_page="[[v('Data._themeFolderData._link')]]"
+                    data-audioplayer_songurl="[[v('Data._themeFolderData.audio_url')]]"
+                    data-audioplayer_title="[[v('Data._themeFolderData._name')]]"
+                    data-audioplayer_image="[[v('Data._themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]"
+                    data-audioplayer_format="mp3"
+                    data-audioplayer_play="false"
+                    data-licenses="[[v('Data._themeFolderData.license_attr')]]"
+                    class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                <svg class="audio-play icon:audio tonics-widget pointer-events:none">
+                    <use class="svgUse" xlink:href="#tonics-audio-play"></use>
+                </svg>
+                <svg class="audio-pause icon:audio tonics-widget pointer-events:none">
+                    <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
+                </svg>
+            </button>
+            <button type="button" title="Play"
+                    class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                <svg class="icon:audio tonics-cart-icon tonics-widget">
+                    <use class="svgUse" xlink:href="#tonics-cart"></use>
+                </svg>
+            </button>
+        </div>
+    </li>
+</ul>
+]]

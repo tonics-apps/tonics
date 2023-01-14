@@ -16,6 +16,7 @@ use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
+use PDO;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 
@@ -54,8 +55,13 @@ class ThemeFolderViewHandler implements HandlerInterface
             return '';
         });
 
+        $event->hookInto('tonics_single_main', function (TonicsView $tonicsView){
+            return $this->handleTrackSingleFragment($tonicsView);
+        });
+
         $event->hookInto('tonics_track_from_api', function (TonicsView $tonicsView){
             $isGetMarker = url()->getHeaderByKey('type') === 'getMarker';
+            $isAPI = url()->getHeaderByKey('isAPI') === 'true';
             $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
             $uniqueSlugID = $routeParams[0] ?? null;
             if ($isGetMarker){
@@ -96,6 +102,16 @@ class ThemeFolderViewHandler implements HandlerInterface
                     response()->onSuccess($data);
                 }
             }
+
+            if ($isAPI){
+                $data = [
+                    'isTrack' => true,
+                    'fragment' => $this->handleTrackSingleFragment($tonicsView),
+                    'title' => $tonicsView->accessArrayWithSeparator('Data._themeFolderData.seo_title'),
+                ];
+                helper()->onSuccess($data);
+            }
+
             return '';
         });
     }
@@ -186,6 +202,40 @@ class ThemeFolderViewHandler implements HandlerInterface
     }
 
     /**
+     * @throws \Exception
+     */
+    public function handleTrackSingleFragment(TonicsView $tonicsView): string
+    {
+        $trackData = container()->get(TrackData::class);
+        $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
+        $uniqueSlugID = $routeParams[0] ?? null;
+
+        try {
+            $track = db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
+        t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings,
+        ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
+        t.created_at,
+        1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")->From("{$trackData::getTrackTable()} t")
+                ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
+                ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
+                ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
+                ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
+                ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
+                ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
+                ->WhereEquals("t.slug_id", $uniqueSlugID)
+                ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
+
+            $trackData->unwrapForTrack($track);
+
+            $tonicsView->addToVariableData('Data._themeFolderData', $track);
+            return $tonicsView->renderABlock('tonics_track_main');
+        } catch (\Exception $exception){
+            // Log..
+        }
+        return '';
+    }
+
+    /**
      * @param TonicsView $tonicsView
      * @return string
      * @throws \Exception
@@ -225,6 +275,8 @@ class ThemeFolderViewHandler implements HandlerInterface
     }
 
     /**
+     * @param TonicsQuery $db
+     * @return TonicsQuery
      * @throws \Exception
      */
     public function dbWhenForCommonFieldKey(TonicsQuery $db): TonicsQuery
@@ -253,9 +305,12 @@ class ThemeFolderViewHandler implements HandlerInterface
     }
 
     /**
+     * @param $mainTrackData
+     * @param $fieldSettings
+     * @return void
      * @throws \Exception
      */
-    public function handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, &$fieldSettings)
+    public function handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, &$fieldSettings): void
     {
         $trackCatID = $mainTrackData['track_cat_id'];
         $trackData = TrackData::class;
@@ -387,9 +442,12 @@ TRACK_KEY;
     }
 
     /**
+     * @param $mainTrackData
+     * @param $fieldSettings
+     * @return void
      * @throws \Exception
      */
-    public function handleFilterTrackArtistKeyForCategorySubCategory($mainTrackData, &$fieldSettings)
+    public function handleFilterTrackArtistKeyForCategorySubCategory($mainTrackData, &$fieldSettings): void
     {
         $trackCatID = $mainTrackData['track_cat_id'];
         $trackData = TrackData::class;
@@ -431,7 +489,13 @@ TRACK_KEY;
         }
     }
 
-    public function handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, &$fieldSettings)
+    /**
+     * @param $mainTrackData
+     * @param $fieldSettings
+     * @return void
+     * @throws \Exception
+     */
+    public function handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, &$fieldSettings): void
     {
         $trackCatID = $mainTrackData['track_cat_id'];
         $trackData = TrackData::class;
@@ -484,6 +548,9 @@ LI;
     }
 
     /**
+     * @param string $param
+     * @param $filterOptions
+     * @return string
      * @throws \Exception
      */
     public function createCheckboxFilterFragmentFromFieldSettings(string $param, $filterOptions): string

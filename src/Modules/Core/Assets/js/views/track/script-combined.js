@@ -4331,29 +4331,6 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
             queueContainer.innerHTML = "";
             tracks.forEach(value => {
 
-                let licenses = [];
-                licenses['icon'] = '';
-                licenses['data'] = '';
-
-                if (value.license !== null) {
-                    licenses['icon'] = `
-                            <button class="dropdown-toggle bg:transparent border:none" aria-expanded="false" aria-label="Expand child menu" data-menutoggle_click_outside="true">
-                                <svg class="icon:audio color:black tonics-widget cursor:pointer act-like-button">
-                                    <use class="svgUse" xlink:href="#tonics-shopping-cart"></use>
-                                </svg>
-                            </button>`;
-
-                    if (licenses.length > 0) {
-                        licenses.forEach((el => {
-                            licenses['data'] += `
-<li class="d:flex flex-d:column align-items:center">
-        <span class="license-name">${el.name}</span>
-        <span class="license-price">$${el.price}</span>
-</li>`
-                        }))
-                    }
-                }
-
                 let playing;
                 if (this.currentHowl !== null && this.currentHowl._src[0] === value.songurl) {
                     playing = 'true'
@@ -4364,8 +4341,8 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
                 queueContainer.insertAdjacentHTML('beforeend', `
 <li tabindex="0" class="color:black cursor:move draggable track-in-queue bg:white-one border-width:default border:black position:relative">
                     <div class="queue-song-info d:flex align-items:center flex-gap:small">
-                        <div title="${value.songtitle}" class="cursor:text text:no-wrap width:80px text-overflow:ellipsis">${value.songtitle}</div>
-                        ${licenses['icon']}
+                        <a href="${value.url_page}" data-tonics_navigate data-url_page="${value.url_page}"  
+                        title="${value.songtitle}" class="cursor:pointer color:black text:no-wrap width:80px text-overflow:ellipsis">${value.songtitle}</a>
                     </div>
                     
 <button type="button" title="Play" data-tonics-audioplayer-track="" 
@@ -4383,10 +4360,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
     </svg>
 </button>
-
-<ul class="cursor:pointer track-license d:none z-index:audio-sticky-footer:license-in-queue flex-d:column width:100% position:absolute flex-gap left:0 top:46px color:black bg:white-one border-width:default border:black">
-    ${licenses['data']}
-</ul>
                 </li>
 `)
             })
@@ -5816,6 +5789,49 @@ window.addEventListener('message', (e) => {
             audioDemoInput.classList.add('d:none');
             removeAudioDemo.classList.remove('d:none');
             windowAudioFeaturedInstance.close();
+        }
+    }
+});
+
+// FOR FEATURED IMAGE
+if (document.querySelector('main')){
+    document.querySelector('main').addEventListener('click', featuredLinkHandler);
+}
+
+if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
+    let tinySelectLinkHandler = tinymce.activeEditor.dom.select(".entry-content");
+    if (tinySelectLinkHandler.length > 0){
+        tinySelectLinkHandler[0].addEventListener('click', featuredLinkHandler);
+    }
+}
+
+let  featuredLinkInput, featuredLinkWindowInstance = null;
+function featuredLinkHandler(e){
+    let el = e.target,
+        parent = el.closest('[data-widget-form="true"]');
+    if (parent) {
+        featuredLinkInput = parent.querySelector('[data-widget-file-url="true"]');
+    }
+
+    if (el.classList.contains('tonics-featured-link')) {
+        if (tonicsFileManagerURL) {
+            let windowFeatures = "left=95,top=100";
+            featuredLinkWindowInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
+        }
+    }
+}
+
+window.addEventListener('message', (e) => {
+    if (e.origin !== siteURL) {
+        return;
+    }
+    let data = e.data;
+    if (data.hasOwnProperty('cmd')) {
+        if (featuredLinkInput) {
+            if (featuredLinkInput) {
+                featuredLinkInput.value = data.value.replace(siteURL, '');
+            }
+            featuredLinkWindowInstance.close();
         }
     }
 });

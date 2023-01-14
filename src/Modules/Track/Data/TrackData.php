@@ -732,6 +732,19 @@ CAT;
     }
 
     /**
+     * @param $track
+     * @param string $fieldSettingsKey
+     * @return void
+     * @throws \Exception
+     */
+    public  function unwrapForTrack(&$track, string $fieldSettingsKey = 'field_settings'): void
+    {
+        $fieldSettings = json_decode($track[$fieldSettingsKey], true);
+        $this->getFieldData()->unwrapFieldContent($fieldSettings, contentKey: 'track_content');
+        $track = [...$fieldSettings, ...$track];
+    }
+
+    /**
      * @return OnTrackDefaultField|null
      */
     public function getOnTrackDefaultField(): ?OnTrackDefaultField

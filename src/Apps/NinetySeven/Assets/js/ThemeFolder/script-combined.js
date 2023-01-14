@@ -870,29 +870,6 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
             queueContainer.innerHTML = "";
             tracks.forEach(value => {
 
-                let licenses = [];
-                licenses['icon'] = '';
-                licenses['data'] = '';
-
-                if (value.license !== null) {
-                    licenses['icon'] = `
-                            <button class="dropdown-toggle bg:transparent border:none" aria-expanded="false" aria-label="Expand child menu" data-menutoggle_click_outside="true">
-                                <svg class="icon:audio color:black tonics-widget cursor:pointer act-like-button">
-                                    <use class="svgUse" xlink:href="#tonics-shopping-cart"></use>
-                                </svg>
-                            </button>`;
-
-                    if (licenses.length > 0) {
-                        licenses.forEach((el => {
-                            licenses['data'] += `
-<li class="d:flex flex-d:column align-items:center">
-        <span class="license-name">${el.name}</span>
-        <span class="license-price">$${el.price}</span>
-</li>`
-                        }))
-                    }
-                }
-
                 let playing;
                 if (this.currentHowl !== null && this.currentHowl._src[0] === value.songurl) {
                     playing = 'true'
@@ -903,8 +880,8 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
                 queueContainer.insertAdjacentHTML('beforeend', `
 <li tabindex="0" class="color:black cursor:move draggable track-in-queue bg:white-one border-width:default border:black position:relative">
                     <div class="queue-song-info d:flex align-items:center flex-gap:small">
-                        <div title="${value.songtitle}" class="cursor:text text:no-wrap width:80px text-overflow:ellipsis">${value.songtitle}</div>
-                        ${licenses['icon']}
+                        <a href="${value.url_page}" data-tonics_navigate data-url_page="${value.url_page}"  
+                        title="${value.songtitle}" class="cursor:pointer color:black text:no-wrap width:80px text-overflow:ellipsis">${value.songtitle}</a>
                     </div>
                     
 <button type="button" title="Play" data-tonics-audioplayer-track="" 
@@ -922,10 +899,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
     </svg>
 </button>
-
-<ul class="cursor:pointer track-license d:none z-index:audio-sticky-footer:license-in-queue flex-d:column width:100% position:absolute flex-gap left:0 top:46px color:black bg:white-one border-width:default border:black">
-    ${licenses['data']}
-</ul>
                 </li>
 `)
             })
@@ -1427,8 +1400,7 @@ if (document.querySelector('.audio-player')) {
             .run();
     }
 
-}
-/*
+}/*
  * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
  *
  * While this program can be used free of charge,
@@ -1439,7 +1411,7 @@ if (document.querySelector('.audio-player')) {
 
 try {
     // For Filter Options
-    window.TonicsScript.MenuToggle('.main-tonics-folder-container',  window.TonicsScript.Query())
+    window.TonicsScript.MenuToggle('.main-tonics-folder-container', window.TonicsScript.Query())
         .settings('.form-and-filter', '.filter-button-toggle', '.filter-container')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
         .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
@@ -1448,7 +1420,7 @@ try {
         .run();
 
     // For More Filter Options
-    window.TonicsScript.MenuToggle('.main-tonics-folder-container',  window.TonicsScript.Query())
+    window.TonicsScript.MenuToggle('.main-tonics-folder-container', window.TonicsScript.Query())
         .settings('.form-and-filter', '.more-filter-button-toggle', '.more-filter-container')
         .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
         .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
@@ -1456,16 +1428,14 @@ try {
         .closeOnClickOutSide(false)
         .stopPropagation(false)
         .run();
-}catch (e) {
+} catch (e) {
     console.error("An Error Occur Setting MenuToggle: Form-Filter")
 }
 
 
-let tonicsFileContainerForAudioPlayer = document.querySelector('.tonics-files-container');
-
 const selectElementsForm = document.querySelector("form");
-if (selectElementsForm){
-    selectElementsForm.addEventListener("submit", function(event) {
+if (selectElementsForm) {
+    selectElementsForm.addEventListener("submit", function (event) {
         const inputElements = this.querySelectorAll("input, select");
         inputElements.forEach(inputElement => {
             if (inputElement.value === "") {
@@ -1477,6 +1447,7 @@ if (selectElementsForm){
 
 function initRouting(containerSelector, navigateCallback = null) {
     const container = document.querySelector(containerSelector);
+
     function callCallback(options) {
         if (navigateCallback) {
             navigateCallback(options);
@@ -1484,23 +1455,23 @@ function initRouting(containerSelector, navigateCallback = null) {
     }
 
     function navigate(url) {
-        callCallback({ url, type: 'before' });
+        callCallback({url, type: 'before'});
         // Push a new history entry with the url
-        window.history.pushState({ 'url': url }, '', url);
-        callCallback({ url, type: 'after' });
+        window.history.pushState({'url': url}, '', url);
+        callCallback({url, type: 'after'});
     }
 
     window.onload = () => {
         // Perform initialization or setup
         // without the below, the popstate won't fire if user uses the back button for the first time
-        window.history.replaceState({ url: window.location.pathname }, '', window.location.pathname);
+        window.history.replaceState({url: window.location.pathname}, '', window.location.pathname);
     };
 
     // Bind a popstate event listener to enable the back button
     window.addEventListener('popstate', (event) => {
         if (event.state) {
             let url = event.state.url;
-            callCallback({ url, type: 'popstate' });
+            callCallback({url, type: 'popstate'});
             // we only navigate in a pop state if the url is not the same, without doing this, the forward button won't work
             // because there won't be anywhere to navigate to
 
@@ -1527,7 +1498,7 @@ function initRouting(containerSelector, navigateCallback = null) {
             let element = el.closest('[data-tonics_navigate]');
             let url = element.getAttribute('data-url_page');
             const loading = element.querySelector('.svg-per-file-loading');
-            if (loading){
+            if (loading) {
                 loading.classList.remove('d:none');
             }
             navigate(url);
@@ -1549,7 +1520,7 @@ function initRouting(containerSelector, navigateCallback = null) {
             }
             const queryString = params.toString();
             // if queryString is not empty
-            if (queryString){
+            if (queryString) {
                 // Append the query string to the URL
                 const newUrl = window.location.pathname + '?' + queryString;
                 navigate(newUrl);
@@ -1560,30 +1531,38 @@ function initRouting(containerSelector, navigateCallback = null) {
 }
 
 // Initialize the routing for the tonics-file-container element
-initRouting('.main-tonics-folder-container', ({ url, type }) => {
-    let tonicsFolderMain = document.querySelector('.tonics-folder-main');
-    let beforeFolderSearchLoading = document.querySelector('.before-folder-search');
-    let tonicsFolderSearch = document.querySelector('.tonics-folder-search');
+initRouting('body', ({url, type}) => {
+    let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
+        beforeFolderSearchLoading = document.querySelector('.before-folder-search'),
+        tonicsFolderSearch = document.querySelector('.tonics-folder-search');
 
-    if (type === 'after' || type === 'popstate'){
+    if (type === 'after' || type === 'popstate') {
         window.TonicsScript.XHRApi({isAPI: true, type: 'isTonicsNavigation'}).Get(url, function (err, data) {
             if (data) {
                 data = JSON.parse(data);
-                    if (data.data?.isFolder && tonicsFolderMain && data.data?.fragment){
-                        tonicsFolderMain.innerHTML = data?.data.fragment;
-                        document.title = data?.data.title;
-                        if (tonicsFolderSearch){
-                            tonicsFolderSearch.remove();
-                        }
-                        if (beforeFolderSearchLoading){
-                            beforeFolderSearchLoading.classList.remove('d:none');
-                            window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
-                                data = JSON.parse(data);
-                                beforeFolderSearchLoading.classList.add('d:none');
-                                beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
-                            });
-                        }
+                if (data.data?.isFolder && tonicsFolderMain && data.data?.fragment) {
+                    tonicsFolderMain.innerHTML = data?.data.fragment;
+                    document.title = data?.data.title;
+                    if (tonicsFolderSearch) {
+                        tonicsFolderSearch.remove();
                     }
+                    if (beforeFolderSearchLoading) {
+                        beforeFolderSearchLoading.classList.remove('d:none');
+                        window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
+                            data = JSON.parse(data);
+                            beforeFolderSearchLoading.classList.add('d:none');
+                            beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
+                        });
+                    }
+                }
+
+                if (data.data?.isTrack && tonicsFolderMain && data.data?.fragment) {
+                    tonicsFolderMain.innerHTML = data?.data.fragment;
+                    document.title = data?.data.title;
+                    if (tonicsFolderSearch) {
+                        tonicsFolderSearch.remove();
+                    }
+                }
             }
         });
     }
@@ -1601,18 +1580,18 @@ class TonicsAudioPlayHandler {
         if (url_page_el.closest('[data-tonics-audioplayer-track]') && !songData.hasOwnProperty('markers')) {
             window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(url_page, function (err, data) {
                 data = JSON.parse(data);
-                if(data?.data?.markers){
+                if (data?.data?.markers) {
                     songData.markers = data.data.markers;
                     event._songData = songData;
-                    if (songData._self && songData?.markers.length > 0){
+                    if (songData._self && songData?.markers.length > 0) {
                         songData.markers.forEach((marker) => {
-                            if (marker.track_marker_start){
+                            if (marker.track_marker_start) {
                                 const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_start, songData.howl.duration());
                                 markerPercentageAndSec.text = marker.track_marker_name;
                                 marker._track_marker_start_info = markerPercentageAndSec;
                             }
 
-                            if (marker.track_marker_end){
+                            if (marker.track_marker_end) {
                                 const markerPercentageAndSec = songData._self.getMarkerPercentageAndSeconds(marker.track_marker_end, songData.howl.duration());
                                 markerPercentageAndSec.text = marker.track_marker_name;
                                 marker._track_marker_end_info = markerPercentageAndSec;

@@ -1,7 +1,8 @@
 [[inherit("Modules::Core/Views/Templates/theme",
 "Apps::NinetySeven/Views/Block/base",
 "Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/folder_main",
-"Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/folder_search")
+"Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/folder_search",
+"Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/track_single")
 ]]
 
 [[import("Modules::Core/Views/Blocks/AudioPlayer")]]
@@ -194,10 +195,18 @@
     }
 </style>
     <section class="main-tonics-folder-container owl padding:default">
-    [[add_hook('tonics_folder_search')]]
-    <span class="svg-per-file-loading before-folder-search d:none color:white bg:pure-white"></span>
-    <div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
-        [[add_hook('tonics_folder_main')]]
-    </div>
-</section>
+        [[if("v[Data.ThemeFolderHome] || v[Data.MainTrackData]")
+            [[add_hook('tonics_folder_search')]]
+            <span class="svg-per-file-loading before-folder-search d:none color:white bg:pure-white"></span>
+            <div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
+                [[add_hook('tonics_folder_main')]]
+            </div>
+        ]]
+
+        [[if("v[Data.ThemeTrackSingle]")
+            <div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
+                [[add_hook('tonics_single_main')]]
+            </div>
+        ]]
+    </section>
 ]]

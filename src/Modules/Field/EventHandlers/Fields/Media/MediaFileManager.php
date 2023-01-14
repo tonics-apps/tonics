@@ -59,7 +59,8 @@ class MediaFileManager implements HandlerInterface
 
 <div class="form-group">
      <label class="menu-settings-handle-name" for="featured-link-$changeID">Upload File (do nothing for no default)
-         <input id="featured-link-$changeID" class="tonics-featured-link color:black border-width:default border:black placeholder-color:gray" name="featured_link" type="file">
+         <input id="featured-link-$changeID" class="tonics-featured-link color:black border-width:default border:black placeholder-color:gray" 
+         name="featured_link" type="file">
      </label>
  </div>
 
