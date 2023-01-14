@@ -6,12 +6,12 @@
 <ul class="tonics-files-container list:style:none">
     <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
         <a class="tonics-fm-link color:white remove-button-styles" href="#"
-           title="[[v('Data._themeFolderData._name')]]"
-           data-slug_id="[[v('Data._themeFolderData.slug_id')]]"
-           data-name="[[v('Data._themeFolderData._name')]]" data-url_page="[[v('Data._themeFolderData._link')]]" data-is_track="1">
+           title="[[v('Data._name')]]"
+           data-slug_id="[[v('Data.slug_id')]]"
+           data-name="[[v('Data._name')]]" data-url_page="[[v('Data._link')]]" data-is_track="1">
             <img width="200px" height="200px" loading="lazy"
-                 src="[[v('Data._themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]" alt="[[v('Data._themeFolderData._name')]]" class="tonics-individual-art-image">
-            <div class="tonics-file-filename">[[v('Data._themeFolderData._name')]]</div>
+                 src="[[v('Data.image_url .. Data.ThemeFolderTrackDefaultImage')]]" alt="[[v('Data._name')]]" class="tonics-individual-art-image">
+            <div class="tonics-file-filename">[[v('Data._name')]]</div>
             <span class="svg-per-file-loading display-none"></span>
         </a>
 
@@ -19,13 +19,13 @@
 
             <button type="button" title="Play"
                     data-tonics-audioplayer-track
-                    data-url_page="[[v('Data._themeFolderData._link')]]"
-                    data-audioplayer_songurl="[[v('Data._themeFolderData.audio_url')]]"
-                    data-audioplayer_title="[[v('Data._themeFolderData._name')]]"
-                    data-audioplayer_image="[[v('Data._themeFolderData.image_url .. Data.ThemeFolderTrackDefaultImage')]]"
+                    data-url_page="[[v('Data._link')]]"
+                    data-audioplayer_songurl="[[v('Data.audio_url')]]"
+                    data-audioplayer_title="[[v('Data._name')]]"
+                    data-audioplayer_image="[[v('Data.image_url .. Data.ThemeFolderTrackDefaultImage')]]"
                     data-audioplayer_format="mp3"
                     data-audioplayer_play="false"
-                    data-licenses="[[v('Data._themeFolderData.license_attr')]]"
+                    data-licenses="[[v('Data.license_attr')]]"
                     class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
                 <svg class="audio-play icon:audio tonics-widget pointer-events:none">
                     <use class="svgUse" xlink:href="#tonics-audio-play"></use>

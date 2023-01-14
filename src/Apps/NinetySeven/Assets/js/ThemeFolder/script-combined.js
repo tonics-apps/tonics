@@ -1532,41 +1532,56 @@ function initRouting(containerSelector, navigateCallback = null) {
 
 // Initialize the routing for the tonics-file-container element
 initRouting('body', ({url, type}) => {
-    let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
-        beforeFolderSearchLoading = document.querySelector('.before-folder-search'),
-        tonicsFolderSearch = document.querySelector('.tonics-folder-search');
 
     if (type === 'after' || type === 'popstate') {
         window.TonicsScript.XHRApi({isAPI: true, type: 'isTonicsNavigation'}).Get(url, function (err, data) {
             if (data) {
                 data = JSON.parse(data);
-                if (data.data?.isFolder && tonicsFolderMain && data.data?.fragment) {
-                    tonicsFolderMain.innerHTML = data?.data.fragment;
-                    document.title = data?.data.title;
-                    if (tonicsFolderSearch) {
-                        tonicsFolderSearch.remove();
-                    }
-                    if (beforeFolderSearchLoading) {
-                        beforeFolderSearchLoading.classList.remove('d:none');
-                        window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
-                            data = JSON.parse(data);
-                            beforeFolderSearchLoading.classList.add('d:none');
-                            beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
-                        });
-                    }
+                if (data.data?.isFolder) {
+                    tonicsAudioNavForFolder(data, url);
                 }
-
-                if (data.data?.isTrack && tonicsFolderMain && data.data?.fragment) {
-                    tonicsFolderMain.innerHTML = data?.data.fragment;
-                    document.title = data?.data.title;
-                    if (tonicsFolderSearch) {
-                        tonicsFolderSearch.remove();
-                    }
+                if (data.data?.isTrack) {
+                   tonicsAudioNavForTrack(data, url);
                 }
             }
         });
     }
 });
+
+function tonicsAudioNavForFolder(data, url){
+    let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
+        beforeFolderSearchLoading = document.querySelector('.before-folder-search'),
+        tonicsFolderSearch = document.querySelector('.tonics-folder-search');
+
+    if (tonicsFolderMain && data.data?.fragment) {
+        tonicsFolderMain.innerHTML = data?.data.fragment;
+        document.title = data?.data.title;
+        if (tonicsFolderSearch) {
+            tonicsFolderSearch.remove();
+        }
+
+        if (beforeFolderSearchLoading) {
+            beforeFolderSearchLoading.classList.remove('d:none');
+            window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
+                data = JSON.parse(data);
+                beforeFolderSearchLoading.classList.add('d:none');
+                beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
+            });
+        }
+    }
+}
+
+function tonicsAudioNavForTrack(data, url){
+    let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
+        tonicsFolderSearch = document.querySelector('.tonics-folder-search');
+    if (tonicsFolderMain && data.data?.fragment) {
+        tonicsFolderMain.innerHTML = data?.data.fragment;
+        document.title = data?.data.title;
+        if (tonicsFolderSearch) {
+            tonicsFolderSearch.remove();
+        }
+    }
+}
 
 //----------------
 //--- HANDLERS

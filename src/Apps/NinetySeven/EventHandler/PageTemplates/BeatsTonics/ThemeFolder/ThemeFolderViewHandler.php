@@ -12,6 +12,7 @@ namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolde
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
+use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -35,7 +36,7 @@ class ThemeFolderViewHandler implements HandlerInterface
             if ($isFolder){
                 $data = [
                     'isFolder' => true,
-                    'title' => $tonicsView->accessArrayWithSeparator('Data.MainTrackData.seo_title'),
+                    'title' => $tonicsView->accessArrayWithSeparator('Data.seo_title'),
                     'fragment' => $this->handleFolderFragment($tonicsView)
                 ];
                 helper()->onSuccess($data);
@@ -56,7 +57,7 @@ class ThemeFolderViewHandler implements HandlerInterface
         });
 
         $event->hookInto('tonics_single_main', function (TonicsView $tonicsView){
-            return $this->handleTrackSingleFragment($tonicsView);
+            return $tonicsView->renderABlock('tonics_track_main');
         });
 
         $event->hookInto('tonics_track_from_api', function (TonicsView $tonicsView){
@@ -106,7 +107,7 @@ class ThemeFolderViewHandler implements HandlerInterface
             if ($isAPI){
                 $data = [
                     'isTrack' => true,
-                    'fragment' => $this->handleTrackSingleFragment($tonicsView),
+                    'fragment' => $tonicsView->renderABlock('tonics_track_main'),
                     'title' => $tonicsView->accessArrayWithSeparator('Data._themeFolderData.seo_title'),
                 ];
                 helper()->onSuccess($data);
@@ -146,7 +147,6 @@ class ThemeFolderViewHandler implements HandlerInterface
     public function handleTrackCategoryFolderQuery(TonicsView $tonicsView)
     {
         $trackData = TrackData::class;
-        $mainTrackData = $tonicsView->accessArrayWithSeparator('Data.MainTrackData');
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
         try {
             $db = db();
@@ -162,7 +162,7 @@ class ThemeFolderViewHandler implements HandlerInterface
                 ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
                 ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
                 ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
-                ->WhereEquals('ct.track_cat_id', $mainTrackData['track_cat_id'])
+                ->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id'])
                 ->Raw('UNION')
                 ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name,
         (SELECT COUNT(*) FROM {$trackData::getTrackTracksCategoryTable()} ttc
@@ -173,7 +173,7 @@ class ThemeFolderViewHandler implements HandlerInterface
         null as created_at,
         0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
                 ->From("{$trackData::getTrackCategoryTable()} ct")
-                ->WhereEquals('ct.track_cat_parent_id', $mainTrackData['track_cat_id']))
+                ->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']))
                 ->As('track_results')
                 ->when(is_array(url()->getParam('track_bpm')), function (TonicsQuery $db){
                     $db->WhereIn('track_results.bpm', url()->getParam('track_bpm'));
@@ -204,8 +204,9 @@ class ThemeFolderViewHandler implements HandlerInterface
     /**
      * @throws \Exception
      */
-    public function handleTrackSingleFragment(TonicsView $tonicsView): string
+    public static function handleTrackSingleFragment(): mixed
     {
+        /** @var TrackData $trackData */
         $trackData = container()->get(TrackData::class);
         $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
         $uniqueSlugID = $routeParams[0] ?? null;
@@ -226,13 +227,11 @@ class ThemeFolderViewHandler implements HandlerInterface
                 ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
 
             $trackData->unwrapForTrack($track);
-
-            $tonicsView->addToVariableData('Data._themeFolderData', $track);
-            return $tonicsView->renderABlock('tonics_track_main');
+            return $track;
         } catch (\Exception $exception){
             // Log..
         }
-        return '';
+       return [];
     }
 
     /**
@@ -258,16 +257,15 @@ class ThemeFolderViewHandler implements HandlerInterface
      */
     public function handleFolderSearchFragment(TonicsView $tonicsView): string
     {
-        $mainTrackData = $tonicsView->accessArrayWithSeparator('Data.MainTrackData');
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
         $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
         if ($root){
             return '';
         } else {
             # Get Filters of a Certain Category and Its Sub Category
-            $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, $fieldSettings);
-            $this->handleFilterTrackArtistKeyForCategorySubCategory($mainTrackData, $fieldSettings);
-            $this->handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, $fieldSettings);
+            $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($fieldSettings, $fieldSettings);
+            $this->handleFilterTrackArtistKeyForCategorySubCategory($fieldSettings, $fieldSettings);
+            $this->handleFilterTrackGenreKeyForCategorySubCategory($fieldSettings, $fieldSettings);
             $tonicsView->addToVariableData('Data', $fieldSettings);
         }
 
