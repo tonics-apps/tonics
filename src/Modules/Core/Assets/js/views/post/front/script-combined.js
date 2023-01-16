@@ -173,6 +173,7 @@ const EventsConfig = {
     OnAudioPlayerPreviousEvent: [],
     OnAudioPlayerNextEvent: [],
 
+    OnAudioPlayerClickEvent: [],
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;

@@ -1142,7 +1142,9 @@ article.entry-content {
     }
 }
 
-/*FOR TONICS TRACK FOLDER*/
+/*======================
+FOR TONICS TRACK FOLDER
+======================*/
 .tonics-track-body {
     display: grid;
     grid-template-areas:
@@ -1188,4 +1190,17 @@ article.entry-content {
     .tonics-track-body {
         grid-template-areas: "tt-aside tt-aside tt-content";
     }
+}
+
+ /*===========================
+ TRACK DOWNLOAD LIST SECTION
+ =============================*/
+
+.track-download-buy-container .download-li {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1em;
+    align-items: flex-end;
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #a19c9c;
 }

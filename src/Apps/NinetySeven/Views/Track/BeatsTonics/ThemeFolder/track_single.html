@@ -7,7 +7,7 @@
     <aside class="tonics-track-aside">
         <div class="position:sticky top:0">
             <ul class="tonics-files-container list:style:none">
-                <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
+                <li class="d:flex flex-d:column text-align:center owl tonics-file padding:small">
                     <a class="tonics-fm-link color:white remove-button-styles" href="#"
                        title="[[v('Data._name')]]"
                        data-slug_id="[[v('Data.slug_id')]]"
@@ -19,7 +19,6 @@
                     </a>
 
                     <div class="tonics-cart-more-info d:flex justify-content:center flex-gap:small">
-
                         <button type="button" title="Play"
                                 data-tonics-audioplayer-track
                                 data-url_page="[[v('Data._link')]]"
@@ -37,19 +36,27 @@
                                 <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
                             </svg>
                         </button>
-                        <button type="button" title="Play"
-                                class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                            <svg class="icon:audio tonics-cart-icon tonics-widget">
-                                <use class="svgUse" xlink:href="#tonics-cart"></use>
+                        <button type="button" title="Download/Buy" data-download_buy_button="" data-licenses="[[v('Data.license_attr')]]"
+                                class="audioplayer-track-download-buy-button border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                            <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none">
+                                <use class="svgUse" xlink:href="#tonics-download"></use>
                             </svg>
                         </button>
+                    </div>
+                    <div class="color:white d:none padding:default border-width:default track-download-buy-container border:white button:box-shadow-variant-2">
+                        <ul class="track-download-ul-container"
+                                data-license_loaded="false"
+                                data-slug_id="[[v('_themeFolderData.slug_id')]]"
+                                data-url_page="[[v('_themeFolderData._link')]]"
+                                data-audioplayer_title="[[v('_themeFolderData._name')]]">
+                        </ul>
                     </div>
                 </li>
             </ul>
         </div>
     </aside>
     <article class="owl tonics-track-content color:white">
-        [[v('Data.track_content')]]
+        [[_v('Data.track_content')]]
     </article>
 </div>
 ]]

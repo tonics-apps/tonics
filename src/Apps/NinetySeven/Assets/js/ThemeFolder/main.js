@@ -26,6 +26,15 @@ try {
         .closeOnClickOutSide(false)
         .stopPropagation(false)
         .run();
+
+    // Filter For Download or Buy
+    window.TonicsScript.MenuToggle('.main-tonics-folder-container', window.TonicsScript.Query())
+        .settings('.tonics-file', '.audioplayer-track-download-buy-button', '.track-download-buy-container')
+        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+        .closeOnClickOutSide(false)
+        .stopPropagation(false)
+        .run();
 } catch (e) {
     console.error("An Error Occur Setting MenuToggle: Form-Filter")
 }
@@ -218,6 +227,64 @@ class TonicsAudioPlayHandler {
     }
 }
 
+class TonicsAudioPlayerClickHandler {
+    constructor(event) {
+        const el = event._eventEl;
+        // download_buy_container
+        if (el.dataset.hasOwnProperty('download_buy_button') && el.dataset.hasOwnProperty('licenses')) {
+            let licenses = el.dataset.licenses;
+            let trackDownloadContainer = el.closest('.tonics-file')?.querySelector('.track-download-ul-container');
+
+            if (trackDownloadContainer){
+                if (trackDownloadContainer.dataset.license_loaded === 'false'){
+                    trackDownloadContainer.dataset.license_loaded = 'true';
+                    licenses = JSON.parse(licenses);
+                    licenses.forEach((license) => {
+                        trackDownloadContainer.insertAdjacentHTML('beforeend', this.trackDownloadList(license))
+                    });
+                }
+            }
+        }
+
+        if (el.dataset.hasOwnProperty('indie_license')){
+            let indieLicense = JSON.parse(el.dataset.indie_license);
+        }
+    }
+
+    trackDownloadList(data){
+        let price = parseInt(data.price),
+            name = data.name,
+            currency = '$';
+        let encodeData = JSON.stringify(data);
+
+        if(data?.is_enabled === '1'){
+            if (price > 0){
+                return `
+<li class="download-li">
+    <span class="text cart-license-price">${name}<span> (${currency}${price}) → </span></span>
+    <button type="button" title="Buy ${name}" data-indie_license=${encodeData} class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none"><use class="svgUse" xlink:href="#tonics-cart"></use>
+     </button>
+</li>`;
+            } else {
+                return `
+<li class="download-li">
+    <span class="text cart-license-price">${name}<span> (Free) → </span></span>
+    <button type="button" title="Download ${name}" data-indie_license_type_is_free="true" 
+    data-indie_license=${encodeData} class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none"><use class="svgUse" xlink:href="#tonics-download"></use>
+     </button>
+</li>`;
+            }
+        }
+
+        return '';
+    }
+
+}
+
+
+
 //---------------------------
 //--- HANDLER AND EVENT SETUP
 //---------------------------
@@ -225,6 +292,12 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnAudioPlayerPlayEvent.push(
         ...[
             TonicsAudioPlayHandler
+        ]
+    );
+
+    window.TonicsEvent.EventConfig.OnAudioPlayerClickEvent.push(
+        ...[
+            TonicsAudioPlayerClickHandler
         ]
     );
 }

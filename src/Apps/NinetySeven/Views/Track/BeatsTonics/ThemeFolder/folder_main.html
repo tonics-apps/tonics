@@ -45,7 +45,7 @@
         <a href="[[v('_themeFolderData._link')]]" title="[[v('_themeFolderData._name')]] Folder"
            data-url_page="[[v('_themeFolderData._link')]]" data-slug_id="[[v('_themeFolderData.slug_id')]]"
            data-tonics_navigate data-is_track="0" class="tonics-fm-link color:white remove-button-styles">
-            <svg class="tonics-folder"> <use xlink:href="#tonics-folder"></use></svg>
+            <svg class="tonics-folder pointer-events:none"> <use xlink:href="#tonics-folder"></use></svg>
             <div class="tonics-file-filename">
                 [[v('_themeFolderData._name')]] ([[v('_themeFolderData.num_tracks')]])
             </div>
@@ -54,7 +54,7 @@
     </li>
     ]]
     [[if("v[_themeFolderData.is_track] == e[1]")
-    <li class="d:flex flex-d:column text-align:center tonics-file padding:small">
+    <li class="d:flex flex-d:column text-align:center tonics-file owl padding:small">
         <a class="tonics-fm-link color:white remove-button-styles" href="[[v('_themeFolderData._link')]]"
            title="[[v('_themeFolderData._name')]]"
            data-tonics_navigate data-slug_id="[[v('_themeFolderData.slug_id')]]"
@@ -84,12 +84,20 @@
                     <use class="svgUse" xlink:href="#tonics-audio-pause"></use>
                 </svg>
             </button>
-            <button type="button" title="Play"
-                    class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
-                <svg class="icon:audio tonics-cart-icon tonics-widget">
-                    <use class="svgUse" xlink:href="#tonics-cart"></use>
+            <button type="button" title="Download/Buy" data-download_buy_button="" data-licenses="[[v('_themeFolderData.license_attr')]]"
+                    class="audioplayer-track-download-buy-button border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+                <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none">
+                    <use class="svgUse" xlink:href="#tonics-download"></use>
                 </svg>
             </button>
+        </div>
+        <div class="color:white d:none padding:default border-width:default track-download-buy-container border:white button:box-shadow-variant-2">
+            <ul class="track-download-ul-container"
+                data-license_loaded="false"
+                data-slug_id="[[v('_themeFolderData.slug_id')]]"
+                data-url_page="[[v('_themeFolderData._link')]]"
+                data-audioplayer_title="[[v('_themeFolderData._name')]]">
+            </ul>
         </div>
     </li>
     ]]

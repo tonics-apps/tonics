@@ -173,6 +173,7 @@ const EventsConfig = {
     OnAudioPlayerPreviousEvent: [],
     OnAudioPlayerNextEvent: [],
 
+    OnAudioPlayerClickEvent: [],
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
@@ -4183,6 +4184,10 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
                         }
                     }
                 }
+
+                // Fire The ClickEvent For Tonics Audio
+                let OnAudioClick = new OnAudioPlayerClickEvent(self.getSongData(), el);
+                self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioClick, OnAudioPlayerClickEvent);
             });
 
             document.addEventListener('pointerdown', self.sliderThumbMouseDown.bind(self));
@@ -4422,13 +4427,15 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
     }
 
     getSongData() {
-        let songKey = this.playlist[this.playlistIndex],
-            groupSongs = this.audioPlayerSettings.get(this.currentGroupID);
+        if (this.playlist){
+            let songKey = this.playlist[this.playlistIndex],
+                groupSongs = this.audioPlayerSettings.get(this.currentGroupID);
 
-        if (groupSongs.has(songKey)) {
-            const Data = groupSongs.get(songKey);
-            Data._self = this;
-            return Data;
+            if (groupSongs.has(songKey)) {
+                const Data = groupSongs.get(songKey);
+                Data._self = this;
+                return Data;
+            }
         }
 
         return false;
@@ -4700,8 +4707,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         }
     }
 
-    moveSlider()
-    {
+    moveSlider() {
         let self = this;
         let howl = self.getCurrentHowl();
         // Determine our current seek position.
@@ -4791,6 +4797,18 @@ class OnAudioPlayerPlayEvent extends AudioPlayerEventAbstract {
 }
 
 class OnAudioPlayerPauseEvent extends AudioPlayerEventAbstract {
+}
+
+class OnAudioPlayerClickEvent extends AudioPlayerEventAbstract {
+
+    constructor(event, eventEl) {
+        super(event);
+        this._eventEl = eventEl;
+    }
+
+    get eventEl() {
+        return this._eventEl;
+    }
 }
 
 if (document.querySelector('.audio-player')) {
