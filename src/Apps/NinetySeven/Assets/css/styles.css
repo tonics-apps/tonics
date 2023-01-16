@@ -1141,3 +1141,51 @@ article.entry-content {
                 "category-article category-article category-article category-sidebar";
     }
 }
+
+/*FOR TONICS TRACK FOLDER*/
+.tonics-track-body {
+    display: grid;
+    grid-template-areas:
+        "tt-aside"
+        "tt-content";
+    gap: 1em;
+    position: relative;
+}
+
+.tonics-track-content {
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.tonics-track-content {
+    grid-area: tt-content;
+}
+
+.tonics-track-content>* {
+    padding-left: clamp(2rem,2.5vw,4rem);
+    padding-right: clamp(2rem,2.5vw,4rem);
+}
+
+.tonics-track-content>ol, .tonics-track-content>ul {
+    margin-left: clamp(1rem,5.5vw,3rem);
+}
+
+.tonics-track-content>ol>li, .tonics-track-content>ul>li, .main-header, h1, h2, h3, h4, h5, h6, p {
+    font-size: max(var(--font-min),min(var(--font-pref-val),var(--font-max)));
+    font-weight: 400;
+    -webkit-hyphens: manual;
+    -ms-hyphens: manual;
+    hyphens: manual;
+    margin: auto;
+    overflow-wrap: break-word;
+}
+
+.tonics-track-aside {
+    grid-area: tt-aside;
+}
+
+@media (min-width: 1200px) {
+    .tonics-track-body {
+        grid-template-areas: "tt-aside tt-aside tt-content";
+    }
+}
