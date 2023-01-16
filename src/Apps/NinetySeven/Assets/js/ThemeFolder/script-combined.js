@@ -1666,14 +1666,15 @@ class TonicsAudioPlayerClickHandler {
         }
 
         if (el.dataset.hasOwnProperty('indie_license')){
-            console.log(el, JSON.parse(el.dataset.indie_license));
+            let indieLicense = JSON.parse(el.dataset.indie_license);
         }
     }
 
     trackDownloadList(data){
         let price = parseInt(data.price),
             name = data.name,
-            currency = '$';
+            currency = '$',
+            uniqueID = data.unique_id;
         let encodeData = JSON.stringify(data);
 
         if(data?.is_enabled === '1'){
@@ -1681,7 +1682,7 @@ class TonicsAudioPlayerClickHandler {
                 return `
 <li class="download-li">
     <span class="text cart-license-price">${name}<span> (${currency}${price}) → </span></span>
-    <button type="button" title="Buy ${name}" data-indie_license=${encodeData} class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+    <button type="button" title="Add (${name} License) To Cart" data-unique_id="${uniqueID}" data-indie_license=${encodeData} class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
                 <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none"><use class="svgUse" xlink:href="#tonics-cart"></use>
      </button>
 </li>`;
@@ -1689,7 +1690,7 @@ class TonicsAudioPlayerClickHandler {
                 return `
 <li class="download-li">
     <span class="text cart-license-price">${name}<span> (Free) → </span></span>
-    <button type="button" title="Download ${name}" data-indie_license_type_is_free="true" 
+    <button type="button" title="Download ${name}" data-unique_id="${uniqueID}" data-indie_license_type_is_free="true" 
     data-indie_license=${encodeData} class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
                 <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none"><use class="svgUse" xlink:href="#tonics-download"></use>
      </button>
