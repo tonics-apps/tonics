@@ -208,6 +208,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     z-index: 50;
 }
 
+.z-index\:cart-main {
+    z-index: 60;
+}
+
 .swal2-container, .z-index-swal2-container {
     z-index: 10000 !important;
 }

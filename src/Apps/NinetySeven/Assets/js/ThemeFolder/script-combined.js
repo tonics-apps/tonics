@@ -1426,6 +1426,181 @@ if (document.querySelector('.audio-player')) {
  * and/or sell copies of this program without written permission to me.
  */
 
+class SimpleState {
+
+    constructor() {
+        this.returnState = "";
+        this.currentState = "";
+        this.debug = false;
+        this.errorCode = 0;
+        this.errorMessage = "";
+        this.sucessMessage = "";
+        this.stateResult = "";
+    }
+
+    static DONE = 'DONE';
+    static NEXT = 'NEXT';
+    static ERROR = 'ERROR';
+
+    runStates(returnErrorPage = true) {
+        while (this.stateResult = this.dispatchState(this.currentState)) {
+            if (this.stateResult === SimpleState.NEXT) {
+                continue;
+            }
+            if (this.stateResult === SimpleState.DONE) {
+                break;
+            }
+            if (this.stateResult === SimpleState.ERROR) {
+                if (returnErrorPage) {
+                    this.displayErrorMessage(this.errorCode, this.errorMessage);
+                }
+                break;
+            }
+        }
+    }
+
+    dispatchState(state) {
+        return state();
+    }
+
+    displayErrorMessage(errorCode, errorMessage) {
+        console.log(`Error: ${errorMessage} with code ${errorCode}`)
+    }
+
+    switchState(state, stateResult = null) {
+        this.setCurrentState(state);
+        if (this.debug) {
+            console.log(`State Switched To ${state}`);
+        }
+
+        if (stateResult !== null) {
+            return stateResult;
+        }
+        return this;
+    }
+
+    getCurrentState() {
+        return this.currentState;
+    }
+
+    setCurrentState(currentState) {
+        this.currentState = currentState.bind(this);
+        return this;
+    }
+
+    getReturnState() {
+        return this.returnState;
+    }
+
+    setReturnState(returnState) {
+        this.returnState = returnState;
+        return this;
+    }
+
+    isDebug() {
+        return this.debug;
+    }
+
+    setDebug(debug) {
+        this.debug = debug;
+    }
+
+    getErrorCode() {
+        return this.errorCode;
+    }
+
+    setErrorCode(errorCode) {
+        this.errorCode = errorCode;
+        return this;
+    }
+
+    getErrorMessage() {
+        return this.errorMessage;
+    }
+
+    setErrorMessage(errorMessage) {
+        this.errorMessage = errorMessage;
+        return this;
+    }
+
+    getStateResult() {
+        return this.stateResult;
+    }
+
+    setStateResult(stateResult) {
+        this.stateResult = stateResult;
+    }
+
+    getSuccessMessage() {
+        return this.sucessMessage;
+    }
+
+    setSuccessMessage(successMessage) {
+        this.sucessMessage = successMessage;
+    }
+}
+
+export class TrackCart extends SimpleState {
+
+    constructor() {
+        super();
+        // some logic here
+        super.setCurrentState(this.InitialState);
+
+        // For Cart Toggle
+        window.TonicsScript.MenuToggle('.tonics-cart-container', window.TonicsScript.Query())
+            .settings('.cart-button-counter', '.cart-button', '.cart-child-container')
+            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+            .closeOnClickOutSide(true)
+            .stopPropagation(true)
+            .run();
+    }
+
+    InitialState() {
+        console.log('You Entered The InitialState, Move To UpdateLicenseNameAndPrice State');
+        return this.switchState(this.UpdateLicenseNameAndPrice, SimpleState.NEXT);
+    }
+
+    AddItemToCartState() {
+
+    }
+
+    RemoveItemFromCartState() {
+
+    }
+
+    UpdateLicenseNameAndPrice() {
+        console.log('You Moved Into UpdateLicenseNameAndPrice State, Move To UpdateCartBasketNumber');
+        return this.switchState(this.UpdateCartBasketNumberState, SimpleState.NEXT);
+    }
+
+    UpdateCartBasketNumberState() {
+        console.log('You Moved Into UpdateCartBasketNumberState State');
+    }
+
+    TotalItemsPriceInCartState() {
+
+    }
+
+    AddCartToLocalStorageState() {
+
+    }
+
+    ReloadCartFromLocalStorageState() {
+
+    }
+}
+
+new TrackCart().runStates();/*
+ * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
+
 try {
     // For Filter Options
     window.TonicsScript.MenuToggle('.main-tonics-folder-container', window.TonicsScript.Query())

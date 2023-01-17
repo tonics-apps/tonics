@@ -1,22 +1,24 @@
 
-export class TrackCart {
+export class TrackCart extends SimpleState {
 
+    constructor() {
+        super();
+        // some logic here
+        super.setCurrentState(this.InitialState);
 
-    States = new Map([
-        [ 'InitialState', this.InitialState() ],
-        [ 'AddItemToCartState', this.AddItemToCartState() ],
-        [ 'RemoveItemFromCartState', this.RemoveItemFromCartState() ],
-        [ 'UpdateLicenseNameAndPrice', this.UpdateLicenseNameAndPrice() ],
-        [ 'UpdateCartBasketNumberState', this.UpdateCartBasketNumberState() ],
-        [ 'TotalItemsPriceInCartState', this.TotalItemsPriceInCartState() ],
-        [ 'AddCartToLocalStorageState', this.AddCartToLocalStorageState() ],
-        [ 'ReloadCartFromLocalStorageState', this.ReloadCartFromLocalStorageState() ],
-    ]);
-
-
+        // For Cart Toggle
+        window.TonicsScript.MenuToggle('.tonics-cart-container', window.TonicsScript.Query())
+            .settings('.cart-button-counter', '.cart-button', '.cart-child-container')
+            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+            .closeOnClickOutSide(true)
+            .stopPropagation(true)
+            .run();
+    }
 
     InitialState() {
-
+        console.log('You Entered The InitialState, Move To UpdateLicenseNameAndPrice State');
+        return this.switchState(this.UpdateLicenseNameAndPrice, SimpleState.NEXT);
     }
 
     AddItemToCartState() {
@@ -28,11 +30,12 @@ export class TrackCart {
     }
 
     UpdateLicenseNameAndPrice() {
-
+        console.log('You Moved Into UpdateLicenseNameAndPrice State, Move To UpdateCartBasketNumber');
+        return this.switchState(this.UpdateCartBasketNumberState, SimpleState.NEXT);
     }
 
     UpdateCartBasketNumberState() {
-
+        console.log('You Moved Into UpdateCartBasketNumberState State');
     }
 
     TotalItemsPriceInCartState() {
@@ -48,3 +51,4 @@ export class TrackCart {
     }
 }
 
+new TrackCart().runStates();

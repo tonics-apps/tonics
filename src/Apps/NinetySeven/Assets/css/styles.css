@@ -586,12 +586,12 @@ fieldset {
 }
 
 .cb-counter-label {
-    background-color: #ff5722;
-    color: white;
+    background-color: #e74b19;
+    border-radius: 50px;
+    color: #fff;
     padding: 5px;
     vertical-align: middle;
     white-space: nowrap;
-    border-radius: 50px;
 }
 
 .icon.tonics-cart {

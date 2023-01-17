@@ -131,69 +131,102 @@
 ]]
 
 [[hook_into('in_main')
-<style>
+    <style>
 
-    .tonics-files-container {
-        display: grid;
-        gap: 1em;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%,300px),1fr));
-        width: 100%;
-    }
+        .tonics-files-container {
+            display: grid;
+            gap: 1em;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%,300px),1fr));
+            width: 100%;
+        }
 
-    main#main {
-        background: #000;
-        background: linear-gradient(to bottom, black, rgb(31, 34, 34));
-    }
+        main#main {
+            background: #000;
+            background: linear-gradient(to bottom, black, rgb(31, 34, 34));
+        }
 
-    .remove-button-styles {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background: transparent;
-        border: none;
-    }
+        .remove-button-styles {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: transparent;
+            border: none;
+        }
 
-    .tonics-fm-link {
-        text-decoration: none;
-        -webkit-transition: -webkit-box-shadow .15s ease,-webkit-transform .15s ease;
-        transition: -webkit-box-shadow .15s ease,-webkit-transform .15s ease;
-        -o-transition: box-shadow .15s ease,transform .15s ease;
-        transition: box-shadow .15s ease,transform .15s ease;
-        transition: box-shadow .15s ease,transform .15s ease,-webkit-box-shadow .15s ease,-webkit-transform .15s ease;
-        will-change: box-shadow,transform;
-    }
+        .tonics-fm-link {
+            text-decoration: none;
+            -webkit-transition: -webkit-box-shadow .15s ease,-webkit-transform .15s ease;
+            transition: -webkit-box-shadow .15s ease,-webkit-transform .15s ease;
+            -o-transition: box-shadow .15s ease,transform .15s ease;
+            transition: box-shadow .15s ease,transform .15s ease;
+            transition: box-shadow .15s ease,transform .15s ease,-webkit-box-shadow .15s ease,-webkit-transform .15s ease;
+            will-change: box-shadow,transform;
+        }
 
-    .tonics-fm-link:active {
-        box-shadow: inset -4px 2px 5px #9e9e9e2b;
-        -webkit-transform: translateY(2px);
-        -ms-transform: translateY(2px);
-        transform: translateY(2px);
-    }
+        .tonics-fm-link:active {
+            box-shadow: inset -4px 2px 5px #9e9e9e2b;
+            -webkit-transform: translateY(2px);
+            -ms-transform: translateY(2px);
+            transform: translateY(2px);
+        }
 
-    .tonics-file {
-        border-right: 1px solid #a19c9c2e;
-        border-bottom: 1px solid #a19c9c2e;
-    }
+        .tonics-file {
+            border-right: 1px solid #a19c9c2e;
+            border-bottom: 1px solid #a19c9c2e;
+        }
 
-    svg.tonics-folder {
-        transform: scale(.8);
-        fill: #ffffff;
-    }
+        svg.tonics-folder {
+            transform: scale(.8);
+            fill: #ffffff;
+        }
 
-    .tonics-cart-icon {
-        -webkit-transform: scale(0.84);
-        transform: scale(0.84);
-    }
+        .tonics-cart-icon {
+            -webkit-transform: scale(0.84);
+            transform: scale(0.84);
+        }
 
-    .tonics-individual-art-image {
-        background-color: black;
-        -webkit-box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
-        box-shadow: 2px 2px 16px rgb(173 165 187 / 46%);
-        padding-bottom: 2%;
-        position: relative;
-        width: 200px;
-    }
-</style>
+        .tonics-individual-art-image {
+            background-color: black;
+            -webkit-box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+            box-shadow: 2px 2px 16px rgb(173 165 187 / 46%);
+            padding-bottom: 2%;
+            position: relative;
+            width: 200px;
+        }
+    </style>
+    [[- Cart Section -]]
+    <div class="nav-right tonics-cart-container position:sticky z-index:cart-main top:0 d:flex justify-content:end">
+        <div class="cart-button-counter bg:pure-black padding:default">
+        <span class="cb-counter"><span class="cb-counter-label">0</span></span>
+        <button class="border:none cart-button act-like-button bg:transparent cursor:pointer color:white" aria-expanded="false" aria-label="Expand child menu">
+            <svg class="icon color:white tonics-cart">
+                <use xlink:href="#tonics-shopping-cart"></use>
+            </svg>
+        </button>
+        <div class="child-menu cart-child-container d:none cart flex-wrap:wrap flex-d:column align-items:center bg:gray-two z-index:cart position:absolute padding:default
+        border-width:default border:black button:box-shadow-variant-2 right:0">
+            <div class="text cart-header text-align:center color:black border-width:default border:black">CART</div>
+
+            <div class="cart-item d:flex flex-wrap:wrap padding:2rem-1rem align-items:center flex-gap">
+                <img src="https://cringe.com/serve_file_path_987654321/c13676c730cc5d327360f28ac8d085e03829777ba87c9dfd814c7b2562c8d939?render" class="image:avatar" alt="Exclusivemusicplus Official Logo">
+                <div class="cart-detail">
+                    <span class="text cart-title">(Free) Afrobeat Instrumental - Ferola - Easy</span>
+                    <span class="text cart-license-price">Mp3 License
+                <span> → ($67.00)</span>
+            </span>
+                    <button class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:small cursor:pointer button:box-shadow-variant-1">
+                        <span class="text text:no-wrap">Remove</span>
+                    </button>
+                </div>
+            </div>
+
+            <button class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+                <span class="text text:no-wrap">CHECKOUT →</span>
+            </button>
+
+        </div>
+    </div>
+    </div>
     <section class="main-tonics-folder-container owl padding:default">
         [[if("v[Data.ThemeFolderHome] || v[Data.ThemeFolder]")
             [[add_hook('tonics_folder_search')]]
