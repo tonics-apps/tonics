@@ -570,8 +570,16 @@ fieldset {
 /*--------------------------------------------------------------
                 MODULE --- CART
 --------------------------------------------------------------*/
+
 .cart > * + * {
     margin-top: 1rem;
+}
+
+.cart-child-container {
+    right: 0;
+    overflow: auto;
+    flex-wrap: nowrap;
+    height: 800px;
 }
 
 .cart-button > .cart {
@@ -602,16 +610,6 @@ fieldset {
 .cart-header {
     font-size: max(2rem, min(2.5vw, 2.5rem));
     padding: 10px clamp(20px, 2vw, 25px);
-}
-
-.cart-item > img {
-    flex: 20%;
-}
-
-.cart-detail {
-    /* display: flex; */
-    /* flex-direction: column; */
-    flex: 70%;
 }
 
 .cart-detail > * + * {

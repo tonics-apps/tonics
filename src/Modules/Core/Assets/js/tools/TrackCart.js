@@ -1,6 +1,7 @@
 export class TrackCart extends SimpleState {
 
     static cartStorageKey = 'Tonics_Cart_Key_Audio_Store';
+    shakeCartButtonAnimation = true;
     cartStorageData = new Map();
     licenseData = null;
     static cartStorageData = new Map();
@@ -35,11 +36,19 @@ export class TrackCart extends SimpleState {
             }
         }
 
+        return this.switchState(this.UpdateCartBasketNumberState, SimpleState.NEXT);
+    }
 
+    UpdateCartBasketNumberState() {
+        let cartCounter = document.querySelector('.cb-counter-label');
+        if (cartCounter){
+            cartCounter.innerHTML = `${this.getCart().size}`;
+            if (this.shakeCartButtonAnimation){
+                this.shakeCartButton();
+            }
+        }
 
-        // console.log(this.getCart(), cart);
-        // console.log('You Moved Into UpdateLicenseNameAndPrice State, Move To UpdateCartBasketNumber');
-        // return this.switchState(this.UpdateCartBasketNumberState, SimpleState.NEXT);
+        console.log('You Moved Into UpdateCartBasketNumberState State');
     }
 
     AddItemToCartState() {
@@ -48,10 +57,6 @@ export class TrackCart extends SimpleState {
 
     RemoveItemFromCartState() {
 
-    }
-
-    UpdateCartBasketNumberState() {
-        console.log('You Moved Into UpdateCartBasketNumberState State');
     }
 
     TotalItemsPriceInCartState() {
@@ -73,7 +78,7 @@ export class TrackCart extends SimpleState {
     getLicenseFrag(data) {
         let currency = '$';
         return `            
-            <div data-slug_id="${data.slug_id}" class="cart-item d:flex flex-wrap:wrap padding:2rem-1rem align-items:center flex-gap">
+            <div data-slug_id="${data.slug_id}" class="cart-item d:flex flex-d:row flex-wrap:wrap padding:2rem-1rem align-items:center flex-gap">
                 <img data-audioplayer_globalart src="${data.track_image}" class="image:avatar" 
                 alt="${data.track_title}">
                 <div class="cart-detail">
@@ -86,6 +91,17 @@ export class TrackCart extends SimpleState {
                     </button>
                 </div>
             </div>`;
+    }
+
+    shakeCartButton(){
+        let cartButton = document.querySelector('.cart-button');
+        if (cartButton){
+            cartButton.classList.add("jello-diagonal-1"); // Add Animation to cart button
+            setTimeout(function () { // Remove Animation After 1 sec
+                cartButton.classList.remove("jello-diagonal-1");
+            }, 1000);
+        }
+
     }
 }
 
