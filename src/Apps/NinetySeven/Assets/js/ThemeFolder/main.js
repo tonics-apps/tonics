@@ -35,8 +35,18 @@ try {
         .closeOnClickOutSide(false)
         .stopPropagation(false)
         .run();
+
+    // For Cart Toggle
+    window.TonicsScript.MenuToggle('.tonics-cart-container', window.TonicsScript.Query())
+        .settings('.cart-button-counter', '.cart-button', '.cart-child-container')
+        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+        .closeOnClickOutSide(true)
+        .stopPropagation(true)
+        .run();
+
 } catch (e) {
-    console.error("An Error Occur Setting MenuToggle: Form-Filter")
+    console.error("An Error Occur Setting MenuToggle: Track Audio Page")
 }
 
 
@@ -247,7 +257,19 @@ class TonicsAudioPlayerClickHandler {
         }
 
         if (el.dataset.hasOwnProperty('indie_license')){
+            let trackSlugID = el.closest('[data-slug_id]')?.dataset?.slug_id;
+            let trackTitle = el.closest('[data-slug_id]')?.dataset?.audioplayer_title;
+            let trackImage = el.closest('[data-slug_id]')?.dataset?.audioplayer_image;
             let indieLicense = JSON.parse(el.dataset.indie_license);
+            if (trackSlugID){
+                indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
+                let trackCart = new TrackCart(indieLicense);
+                trackCart.setCurrentState(trackCart.InitialState);
+                trackCart.runStates();
+                console.log(indieLicense);
+            }
+
+
         }
     }
 
@@ -263,7 +285,7 @@ class TonicsAudioPlayerClickHandler {
                 return `
 <li class="download-li">
     <span class="text cart-license-price">${name}<span> (${currency}${price}) → </span></span>
-    <button type="button" title="Add (${name} License) To Cart" data-unique_id="${uniqueID}" data-indie_license=${encodeData} class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+    <button type="button" title="Add (${name} License) To Cart" data-unique_id="${uniqueID}" data-indie_license='${encodeData}' class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
                 <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none"><use class="svgUse" xlink:href="#tonics-cart"></use>
      </button>
 </li>`;
@@ -272,7 +294,7 @@ class TonicsAudioPlayerClickHandler {
 <li class="download-li">
     <span class="text cart-license-price">${name}<span> (Free) → </span></span>
     <button type="button" title="Download ${name}" data-unique_id="${uniqueID}" data-indie_license_type_is_free="true" 
-    data-indie_license=${encodeData} class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
+    data-indie_license='${encodeData}' class="audioplayer-track border:none act-like-button icon:audio bg:transparent cursor:pointer color:white">
                 <svg class="icon:audio tonics-cart-icon tonics-widget pointer-events:none"><use class="svgUse" xlink:href="#tonics-download"></use>
      </button>
 </li>`;

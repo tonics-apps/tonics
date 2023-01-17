@@ -605,8 +605,6 @@ fieldset {
 }
 
 .cart-item > img {
-    width: 80px;
-    height: 100px;
     flex: 20%;
 }
 
