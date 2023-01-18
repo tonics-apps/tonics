@@ -4,6 +4,7 @@ export class TrackCart extends SimpleState {
     shakeCartButtonAnimation = true;
     cartStorageData = new Map();
     licenseData = null;
+    cartItemToRemove = null;
     static cartStorageData = new Map();
 
     constructor(licenseData = null) {
@@ -47,27 +48,54 @@ export class TrackCart extends SimpleState {
                 this.shakeCartButton();
             }
         }
-
-        console.log('You Moved Into UpdateCartBasketNumberState State');
-    }
-
-    AddItemToCartState() {
-
+        return this.switchState(this.TotalItemsPriceInCartState, SimpleState.NEXT);
     }
 
     RemoveItemFromCartState() {
+        if (this.cartItemToRemove){
+            let slug_id = this.cartItemToRemove?.dataset?.slug_id;
+            let cart = this.getCart();
+            if (cart.has(slug_id)){
+                this.cartItemToRemove.remove();
+                cart.delete(slug_id);
+                localStorage.setItem(TrackCart.cartStorageKey, JSON.stringify(Array.from(cart)));
+            }
+        }
 
+        return this.switchState(this.UpdateCartLicenseInfo, SimpleState.NEXT);
     }
 
     TotalItemsPriceInCartState() {
 
+        let tonicsCheckoutPrice = document.querySelector('.tonics-checkout-price');
+
+        let price = 0, locale = 'en-US', currency = 'USD';
+        for (let [key, value] of this.getCart().entries()) {
+           price = price + (parseFloat(value.price));
+        }
+
+        // Format it in USD
+        // Create our CURRENCY Formatter, thanks to Intl.NumberFormat.
+        // Usage is formatter.format(2500); /* $2,500.00 */
+        const formatter = new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency,
+        });
+       let totalPrice = formatter.format(price);
+
+       if (tonicsCheckoutPrice){
+           tonicsCheckoutPrice.innerHTML = `${totalPrice}`;
+       }
+
+       return SimpleState.DONE;
+
     }
 
     ReloadCartFromLocalStorageState() {
-
+        return this.switchState(this.UpdateCartLicenseInfo, SimpleState.NEXT);
     }
 
-     getCart() {
+    getCart() {
         if (localStorage.getItem(TrackCart.cartStorageKey) !== null) {
             let storedMap = localStorage.getItem(TrackCart.cartStorageKey);
             this.cartStorageData = new Map(JSON.parse(storedMap));
@@ -86,7 +114,7 @@ export class TrackCart extends SimpleState {
                     <span class="text cart-license-price">${data.name}
                 <span> → (${currency}${data.price})</span>
             </span>
-                    <button class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:small cursor:pointer button:box-shadow-variant-1">
+                    <button data-slug_id="${data.slug_id}" class="tonics-remove-cart-item background:transparent border:none color:black bg:white-one border-width:default border:black padding:small cursor:pointer button:box-shadow-variant-1">
                         <span class="text text:no-wrap">Remove</span>
                     </button>
                 </div>

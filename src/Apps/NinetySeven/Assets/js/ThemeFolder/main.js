@@ -200,6 +200,24 @@ function tonicsAudioNavForTrack(data, url){
     }
 }
 
+const tonicsCartSectionContainer = document.querySelector('.tonics-cart-container');
+if (tonicsCartSectionContainer){
+    tonicsCartSectionContainer.addEventListener('click', (e) => {
+        let el = e.target;
+        if(el.closest('.tonics-remove-cart-item')){
+            let trackCart = new TrackCart();
+            trackCart.cartItemToRemove = el.closest('.cart-item[data-slug_id]');
+            trackCart.setCurrentState(trackCart.RemoveItemFromCartState);
+            trackCart.runStates();
+        }
+    });
+}
+
+// Reload TonicsCart Data From LocalStorage
+let trackCart = new TrackCart();
+trackCart.setCurrentState(trackCart.ReloadCartFromLocalStorageState);
+trackCart.runStates();
+
 //----------------
 //--- HANDLERS
 //----------------
@@ -266,11 +284,11 @@ class TonicsAudioPlayerClickHandler {
                 let trackCart = new TrackCart(indieLicense);
                 trackCart.setCurrentState(trackCart.InitialState);
                 trackCart.runStates();
-                console.log(indieLicense);
             }
 
-
         }
+
+        console.log(el);
     }
 
     trackDownloadList(data){
