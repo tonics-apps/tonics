@@ -44,10 +44,41 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
             if (!$isGetMarker){
                 $fieldSettings = [...$fieldSettings, ...ThemeFolderViewHandler::handleTrackSingleFragment()];
             }
+
+            $freeTrackDownload = url()->getHeaderByKey('type') === 'freeTrackDownload';
+            if ($freeTrackDownload){
+                $data = url()->getHeaderByKey('freeTrackData');
+                $trackLicense = json_decode(json_decode($data)?->dataset) ?? null;
+                $licenseAttr = json_decode($fieldSettings['license_attr'] ?? []);
+                $licenseAttrIDLink = json_decode($fieldSettings['license_attr_id_link'] ?? []);
+
+                if ($this->checkLicenseObjectEquality($licenseAttr, $trackLicense)){
+                    $uniqueID = $trackLicense->unique_id; $downloadArtifact = $licenseAttrIDLink->{$uniqueID} ?? null;
+                    helper()->onSuccess([
+                        'artifact' => $downloadArtifact,
+                    ]);
+                } else {
+                    // User has modified the $trackLicense from the client, we don't trust that kinda user, rogue user?
+                    // let's give 'em empty data
+                    helper()->onSuccess([]);
+                }
+                return;
+            }
         } else {
             $fieldSettings = [...$fieldSettings, ...ThemeFolderViewHandler::handleTrackSingleFragment()];
             $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
         }
         $pageTemplate->setFieldSettings($fieldSettings);
+    }
+
+    public function checkLicenseObjectEquality($arrayOfObjects, $compareObject): bool
+    {
+        if (!property_exists($compareObject, 'unique_id')) {
+            return false;
+        }
+        $result = array_filter($arrayOfObjects, function($item) use ($compareObject) {
+            return property_exists($item, 'unique_id') && $item->unique_id == $compareObject->unique_id && $item == $compareObject;
+        });
+        return !empty($result);
     }
 }

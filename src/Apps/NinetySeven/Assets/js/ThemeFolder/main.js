@@ -258,6 +258,7 @@ class TonicsAudioPlayHandler {
 class TonicsAudioPlayerClickHandler {
     constructor(event) {
         const el = event._eventEl;
+        let self = this;
         // download_buy_container
         if (el.dataset.hasOwnProperty('download_buy_button') && el.dataset.hasOwnProperty('licenses')) {
             let licenses = el.dataset.licenses;
@@ -275,19 +276,41 @@ class TonicsAudioPlayerClickHandler {
         }
 
         if (el.dataset.hasOwnProperty('indie_license')){
-            let trackSlugID = el.closest('[data-slug_id]')?.dataset?.slug_id;
-            let trackTitle = el.closest('[data-slug_id]')?.dataset?.audioplayer_title;
-            let trackImage = el.closest('[data-slug_id]')?.dataset?.audioplayer_image;
-            let indieLicense = JSON.parse(el.dataset.indie_license);
-            if (trackSlugID){
-                indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
-                let trackCart = new TrackCart();
-                trackCart.licenseData = indieLicense;
-                trackCart.setCurrentState(trackCart.InitialState);
-                trackCart.runStates();
-            }
 
+            if (el.dataset.hasOwnProperty('indie_license_type_is_free')){
+                let trackItem = el.closest('[data-url_page]'),
+                    urlPage = trackItem?.dataset?.url_page,
+                    slugID = trackItem?.dataset?.slug_id;
+
+                let dataSet = JSON.stringify({urlPage, slugID, dataset: el.dataset.indie_license});
+
+                window.TonicsScript.XHRApi({isAPI: true, type: 'freeTrackDownload', freeTrackData: dataSet}).Get(urlPage, function (err, data) {
+                    if (data) {
+                        data = JSON.parse(data);
+                        if (data?.data?.artifact){
+                            self.openDownloadLink(data.data.artifact);
+                        }
+                    }
+                });
+                // Issue a download link
+            } else {
+                let trackSlugID = el.closest('[data-slug_id]')?.dataset?.slug_id;
+                let trackTitle = el.closest('[data-slug_id]')?.dataset?.audioplayer_title;
+                let trackImage = el.closest('[data-slug_id]')?.dataset?.audioplayer_image;
+                let indieLicense = JSON.parse(el.dataset.indie_license);
+                if (trackSlugID){
+                    indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
+                    let trackCart = new TrackCart();
+                    trackCart.licenseData = indieLicense;
+                    trackCart.setCurrentState(trackCart.InitialState);
+                    trackCart.runStates();
+                }
+            }
         }
+    }
+
+    openDownloadLink(link) {
+        window.open(link, "_blank");
     }
 
     trackDownloadList(data){
