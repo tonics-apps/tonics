@@ -228,3 +228,41 @@ input.volume-slider::-ms-track {
     min-width: 200px;
     left: 0;
 }
+
+@media screen and (max-width: 500px) {
+    input.volume-slider {
+        display: none;
+    }
+
+    .others-audio-player-info {
+        justify-content: space-around;
+    }
+
+    .icon\:audio-x-2 {
+        font-size: 1em;
+    }
+
+    .play-pause-container{
+        flex: unset;
+    }
+
+    div#meta-container {
+        flex: unset;
+    }
+}
+
+@media screen and (max-width: 400px) {
+
+    [data-audioplayer_prev] .icon\:audio {
+        display: none;
+    }
+
+}
+
+@media screen and (max-width: 320px) {
+
+    [data-audioplayer_next] .icon\:audio {
+        display: none;
+    }
+
+}

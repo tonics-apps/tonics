@@ -60,7 +60,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
                 } else {
                     // User has modified the $trackLicense from the client, we don't trust that kinda user, rogue user?
                     // let's give 'em empty data
-                    helper()->onSuccess([]);
+                    helper()->onSuccess([], 'You are trying to do something fishy');
                 }
                 return;
             }
