@@ -281,14 +281,13 @@ class TonicsAudioPlayerClickHandler {
             let indieLicense = JSON.parse(el.dataset.indie_license);
             if (trackSlugID){
                 indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
-                let trackCart = new TrackCart(indieLicense);
+                let trackCart = new TrackCart();
+                trackCart.licenseData = indieLicense;
                 trackCart.setCurrentState(trackCart.InitialState);
                 trackCart.runStates();
             }
 
         }
-
-        console.log(el);
     }
 
     trackDownloadList(data){

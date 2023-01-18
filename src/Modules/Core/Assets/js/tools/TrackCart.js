@@ -5,12 +5,9 @@ export class TrackCart extends SimpleState {
     cartStorageData = new Map();
     licenseData = null;
     cartItemToRemove = null;
-    static cartStorageData = new Map();
 
-    constructor(licenseData = null) {
+    constructor() {
         super();
-        this.licenseData = licenseData;
-        // super.setCurrentState(initialState);
     }
 
     InitialState() {
