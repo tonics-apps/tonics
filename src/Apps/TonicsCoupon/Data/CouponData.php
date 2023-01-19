@@ -308,7 +308,7 @@ HTML;
             ->WhereEquals('coupon_type_status', 1)
             ->WhereEquals(table()->pickTable($couponTableName, [$column]), $ID)
             # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
-            ->when(Roles::RoleHasPermission($role, Roles::CAN_READ) === false, function (TonicsQuery $db) use ($couponTableName) {
+            ->when(Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ)) === false, function (TonicsQuery $db) use ($couponTableName) {
                 $db->Where(table()->pickTable($couponTableName, ['created_at']), '<=', helper()->date());
             })
             ->FetchFirst();

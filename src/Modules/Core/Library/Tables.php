@@ -41,6 +41,7 @@ final class Tables
         self::TRACK_WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
 
         self::USERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'role', 'settings', 'created_at', 'updated_at'],
+        self::ROLES => ['id', 'role_name', 'role_id', 'created_at', 'updated_at'],
         self::CUSTOMERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'is_guest', 'role', 'settings', 'created_at', 'updated_at'],
         self::WIDGET_ITEMS => ['id', 'fk_widget_id', 'wgt_id', 'wgt_name', 'wgt_options', 'created_at', 'updated_at'],
         self::WIDGETS => ['widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at'],
@@ -88,6 +89,7 @@ final class Tables
     const PURCHASE_TRACKS = 'purchase_tracks';
     const TRACK_WISH_LIST = 'track_wish_list';
 
+    const ROLES = 'roles';
     const USERS = 'user';
     const CUSTOMERS = 'customer';
 

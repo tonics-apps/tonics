@@ -24,7 +24,7 @@ class WidgetMenus implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_WIDGET, $event->userRole()), function ($event) {
+        $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_WIDGET), $event->userRole()), function ($event) {
             return $event->addMenu(OnAdminMenu::WidgetsMenuID, 'Widget', helper()->getIcon('widget', 'icon:admin'), route('widgets.create'), parent:  OnAdminMenu::ToolsMenuID)
                 ->addMenu(OnAdminMenu::WidgetsMenuID + 1, 'New Widget', helper()->getIcon('plus', 'icon:admin'), route('widgets.create'), parent: OnAdminMenu::WidgetsMenuID)
                 ->addMenu(OnAdminMenu::WidgetsMenuID + 2, 'All Widgets', helper()->getIcon('notes', 'icon:admin'), route('widgets.index'), parent: OnAdminMenu::WidgetsMenuID);

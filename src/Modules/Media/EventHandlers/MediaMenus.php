@@ -24,7 +24,7 @@ class MediaMenus implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_MEDIA, $event->userRole()), function ($event) {
+        $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_MEDIA), $event->userRole()), function ($event) {
             return $event->addMenu(OnAdminMenu::MediaMenuID, 'Media', helper()->getIcon('play', 'icon:admin'), '#0')
             ->addMenu(OnAdminMenu::FileManagerMenuID, 'File Manager', helper()->getIcon('media-file', 'icon:admin'), route('media.show'), parent:  OnAdminMenu::MediaMenuID);
         });

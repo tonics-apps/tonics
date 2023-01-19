@@ -32,7 +32,7 @@ class CoreMenus implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_CORE, $event->userRole()), function ($event) {
+        $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_CORE), $event->userRole()), function ($event) {
 
             return $event->addMenu(
                     OnAdminMenu::ToolsMenuID,
@@ -47,7 +47,7 @@ class CoreMenus implements HandlerInterface
                 ->addMenu(OnAdminMenu::JobsMenuID + 1, 'Jobs', helper()->getIcon('jobs', 'icon:admin'), route('jobs.jobsIndex'), parent:  OnAdminMenu::JobsMenuID)
                 ->addMenu(OnAdminMenu::JobsMenuID + 2, 'Jobs Scheduler', helper()->getIcon('schedule', 'icon:admin'), route('jobs.jobsSchedulerIndex'), parent:  OnAdminMenu::JobsMenuID)
 
-                ->if(UserData::canAccess(Roles::CAN_ACCESS_TRACK, $event->userRole()), function ($event) {
+                ->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_TRACK), $event->userRole()), function ($event) {
                     return $event->addMenu(OnAdminMenu::LicenseMenuID, 'License', helper()->getIcon('license','icon:admin'), route('licenses.create'), parent:  OnAdminMenu::TrackMenuID)
                         ->addMenu(OnAdminMenu::LicenseMenuID + 1, 'New License', helper()->getIcon('plus', 'icon:admin'), route('licenses.create'), parent: OnAdminMenu::LicenseMenuID)
                         ->addMenu(OnAdminMenu::LicenseMenuID + 2, 'All License', helper()->getIcon('notes', 'icon:admin'), route('licenses.index'), parent: OnAdminMenu::LicenseMenuID);
@@ -55,7 +55,7 @@ class CoreMenus implements HandlerInterface
                 //->addMenu(OnAdminMenu::LicenseMenuID + 4, 'Exports', helper()->getIcon('download', 'icon:admin'), route('imports.export'), parent:  OnAdminMenu::ToolsMenuID);
         });
 
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER, $event->userRole()), function ($event) {
+        $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_CUSTOMER), $event->userRole()), function ($event) {
             return $event->addMenu(OnAdminMenu::DashboardMenuID, 'Dashboard', helper()->getIcon('dashboard', 'icon:admin'), route('customer.dashboard'))
                 ->addMenu(OnAdminMenu::SettingsMenuID, 'Settings', helper()->getIcon('cog', 'icon:admin'), route('customer.settings'))
                 ->addMenu(OnAdminMenu::DashboardMenuID + 1, 'Profile', helper()->getIcon('cog', 'icon:admin'), route('customer.settings'), parent: OnAdminMenu::SettingsMenuID);

@@ -115,7 +115,9 @@ class RegisterController extends Controller
             }
 
             $db = db();
-            $db->FastUpdate($this->getUsersData()->getCustomersTable(), ['email_verified_at' => helper()->date(), 'role' => Roles::CUSTOMER()], $db->Q()->WhereEquals('email',$data->email));
+            $db->FastUpdate($this->getUsersData()->getCustomersTable(),
+                ['email_verified_at' => helper()->date(), 'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER),],
+                $db->Q()->WhereEquals('email',$data->email));
            // $this->getUsersData()->validateCustomer();
 
             // login user and redirect to customer dashboard

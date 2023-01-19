@@ -25,7 +25,7 @@ class PageAccess implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::CAN_ACCESS_PAGE) === false){
+        if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_PAGE)) === false){
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

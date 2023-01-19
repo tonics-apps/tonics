@@ -274,9 +274,11 @@ class Installer extends SimpleState
                 'user_name' => $requestBody['username'],
                 'email' => $requestBody['email'],
                 'user_password' => helper()->securePass($requestBody['password']),
-                'role' => Roles::ADMIN(),
+                'role' => Roles::getRoleIDFromDB(Roles::ROLE_ADMIN),
                 'settings'=> UserData::generateAdminJSONSettings()
             ];
+
+
             $newUserData = new UserData();
             $userInserted = $newUserData->insertForUser($userData);
             if ($userInserted === false){

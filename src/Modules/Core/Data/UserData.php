@@ -44,6 +44,11 @@ class UserData extends AbstractDataLayer
         return Tables::getTable(Tables::USERS);
     }
 
+    public function getRolesTable(): string
+    {
+        return Tables::getTable(Tables::ROLES);
+    }
+
     public function getCustomersColumn()
     {
         return Tables::$TABLES[Tables::CUSTOMERS];
@@ -105,7 +110,14 @@ class UserData extends AbstractDataLayer
      */
     public function validateUser(string $email, string $pass): bool
     {
-       $userInfo = $this->selectWithCondition($this->getUsersTable(), ['email', 'user_name', 'user_password', 'role', 'settings'], "email = ?", [$email]);
+        $userTable = $this->getUsersTable();
+        $rolesTable = $this->getRolesTable();
+
+        $userInfo =   db()->Select('*, role_id as role')->From($userTable)
+            ->Join($rolesTable, "{$rolesTable}.id", "{$userTable}.role")
+            ->WhereEquals('email', $email)
+            ->FetchFirst();
+
         $verifyPass = false;
         if ($userInfo instanceof \stdClass) {
             $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);
@@ -141,7 +153,14 @@ class UserData extends AbstractDataLayer
      */
     public function validateCustomer(string $email, string $pass): bool
     {
-        $userInfo = $this->selectWithCondition($this->getCustomersTable(), ['email', 'user_name', 'user_password', 'role', 'settings'], "email = ?", [$email]);
+        $userTable = $this->getCustomersTable();
+        $rolesTable = $this->getRolesTable();
+
+        $userInfo =   db()->Select('*, role_id as role')->From($userTable)
+            ->Join($rolesTable, "{$rolesTable}.id", "{$userTable}.role")
+            ->WhereEquals('email', $email)
+            ->FetchFirst();
+
         $verifyPass = false;
         if ($userInfo instanceof \stdClass) {
             $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);
@@ -265,7 +284,7 @@ class UserData extends AbstractDataLayer
      */
     public static function canNotAccessWritePermissionBoiler()
     {
-        if (UserData::canNotAccess(Roles::CAN_WRITE)) {
+        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_WRITE))) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
         }
     }
@@ -276,7 +295,7 @@ class UserData extends AbstractDataLayer
      */
     public static function canNotAccessUpdatePermissionBoiler()
     {
-        if (UserData::canNotAccess(Roles::CAN_UPDATE)) {
+        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_UPDATE))) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
         }
     }
@@ -287,7 +306,7 @@ class UserData extends AbstractDataLayer
      */
     public static function canNotAccessDeletePermissionBoiler()
     {
-        if (UserData::canNotAccess(Roles::CAN_DELETE)) {
+        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_DELETE))) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
         }
     }
@@ -298,7 +317,7 @@ class UserData extends AbstractDataLayer
      */
     public static function canNotAccessReadPermissionBoiler()
     {
-        if (UserData::canNotAccess(Roles::CAN_READ)) {
+        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_READ))) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
         }
     }

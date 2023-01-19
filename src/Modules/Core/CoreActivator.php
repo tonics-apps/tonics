@@ -13,6 +13,7 @@ namespace App\Modules\Core;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Commands\Job\JobManager;
+use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Commands\Scheduler\ScheduleManager;
 use App\Modules\Core\Configs\FieldConfig;
@@ -164,9 +165,27 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
         ];
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function onUpdate(): void
     {
-        // TODO: Implement onUpdate() method.
+        self::migrateDatabases();
+        return;
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public static function migrateDatabases()
+    {
+        $appMigrate = new ModuleMigrate();
+        $commandOptions = [
+            '--module' => 'Core',
+            '--migrate' => '',
+        ];
+        $appMigrate->setIsCLI(false);
+        $appMigrate->run($commandOptions);
     }
 
     public function onDelete(): void

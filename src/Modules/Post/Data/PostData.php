@@ -379,7 +379,7 @@ CAT;
             ->WhereEquals('cat_status', 1)
             ->WhereEquals(table()->pickTable($postTable, [$column]), $ID)
             # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
-            ->when(Roles::RoleHasPermission($role, Roles::CAN_READ) === false, function (TonicsQuery $db) use ($postTable) {
+            ->when(Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ)) === false, function (TonicsQuery $db) use ($postTable) {
                 $db->Where(table()->pickTable($postTable, ['created_at']), '<=', helper()->date());
             })
             ->FetchFirst();

@@ -24,7 +24,7 @@ class TrackMenus implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_TRACK, $event->userRole()), function ($event) {
+        $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_TRACK), $event->userRole()), function ($event) {
 
             return $event->addMenu(OnAdminMenu::TrackMenuID, 'Track', helper()->getIcon('step-forward'), route('tracks.create'), parent: OnAdminMenu::MediaMenuID)
                     ->addMenu(OnAdminMenu::TrackMenuID + 1, 'New Track', helper()->getIcon('plus', 'icon:admin'), route('tracks.create'), parent: OnAdminMenu::TrackMenuID)

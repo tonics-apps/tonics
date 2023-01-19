@@ -25,7 +25,7 @@ class MenuAccess implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::CAN_ACCESS_MENU) === false){
+        if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_MENU)) === false){
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }
