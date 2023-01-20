@@ -104,7 +104,6 @@ class InitLoaderMinimal
         self::addToGlobalVariable('Structured_Data', [
             'FAQ' => []
         ]);
-
     }
 
     /**

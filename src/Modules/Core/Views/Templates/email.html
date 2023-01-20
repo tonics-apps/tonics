@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[on_hook_into_event()]]
+
+[[add_hook('CoreEmail::before_html')]]
+<html lang="en" [[add_hook('CoreEmail::in_html_attribute')]]>
+
+[[add_hook('CoreEmail::before_head')]]
+<head [[add_hook('CoreEmail::in_head_attribute')]]>
+<title>[[add_hook('CoreEmail::in_head_title')]]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100;200;300;400;500&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Martian Mono', monospace;
+        font-weight: 300;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        text-align: start;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px #ccc;
+    }
+    h1 {
+        font-size: 24px;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    p {
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+        margin-bottom: 15px;
+    }
+    .verification-code {
+        font-size: 36px;
+        color: #f44336;
+        font-weight: bold;
+        margin-top: 15px;
+        margin-bottom: 30px;
+    }
+    .btn{
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 20px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        background-color: #3e8e41;
+        box-shadow: 0px 0px 5px #3e8e41;
+        transform: scale(1.05);
+    }
+    .logo {
+        width: 100px;
+        margin: 20px 0;
+    }
+    .footer {
+        padding: 15px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .footer a {
+        color: #fff;
+        margin-left: 10px;
+    }
+</style>
+[[add_hook('CoreEmail::in_head')]]
+</head>
+
+[[add_hook('CoreEmail::before_body')]]
+<body [[add_hook('CoreEmail::in_body_attribute')]]>
+
+[[add_hook('CoreEmail::in_body')]]
+
+
+[[add_hook('CoreEmail::before_body_footer')]]
+<div class="footer">
+    <p>
+        <span class="site-footer-info"> © 2023 Devsrealm | <a href="https://tonics.app/">Powered by Tonics</a></span>
+    </p>
+    [[add_hook('CoreEmail::in_body_footer')]]
+</div>
+[[add_hook('CoreEmail::after_body_footer')]]
+
+[[add_hook('CoreEmail::before_closing_body')]]
+</body>
+[[add_hook('CoreEmail::after_body')]]
+
+</html>

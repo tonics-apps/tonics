@@ -1,27 +1,15 @@
-<!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlnsv="urn:schemas-microsoft-com:vml" xmlnso="urn:schemas-microsoft-com:office:office">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>[[v('App_Config.APP_NAME')]] - Verify Email</title>
-</head>
-<body>
-<div>
-    <div>
-        <p>Hi, [[v('Username')]]</p>
-    </div>
-</div>
+[[inherit("Modules::Core/Views/Templates/email")]]
 
-<div>
-    <div>
-        <p>Could you please confirm that, [[v('Email')]] is your email <br>
-            address by entering the verification code presented below in the
+[[hook_into('CoreEmail::in_head_title') [[v('App_Config.APP_NAME')]] - Verify Email ]]
+
+[[hook_into('CoreEmail::in_body')
+    <div class="container">
+        <h1>Verify Email</h1>
+        <p>Hi, [[v('Username')]]</p>
+        <p>Could you please confirm that, [[v('Email')]] is your email address by
+            entering the verification code presented below in the
             confirmation box within 1 hour.
         </p>
-        <p>Verification Code is <span style="font-size: 150%">[[v('Verification_Code')]]</span> </p>
+        <p>Verification Code is <span class="verification-code"> [[v('Verification_Code')]] </span> </p>
     </div>
-</div>
-</body>
-</html>
+]]
