@@ -181,7 +181,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     {
         $appMigrate = new ModuleMigrate();
         $commandOptions = [
-            '--module' => 'Core',
+            '--module' => 'Customer',
             '--migrate' => '',
         ];
         $appMigrate->setIsCLI(false);

@@ -10,6 +10,7 @@
 
 namespace App\Modules\Customer;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Customer\Routes\RouteWeb;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -85,9 +86,27 @@ class CustomerActivator implements ExtensionConfig
         ];
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function onUpdate(): void
     {
-        // TODO: Implement onUpdate() method.
+        self::migrateDatabases();
+        return;
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public static function migrateDatabases()
+    {
+        $appMigrate = new ModuleMigrate();
+        $commandOptions = [
+            '--module' => 'Core',
+            '--migrate' => '',
+        ];
+        $appMigrate->setIsCLI(false);
+        $appMigrate->run($commandOptions);
     }
 
     public function onDelete(): void

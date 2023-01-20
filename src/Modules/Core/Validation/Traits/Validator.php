@@ -11,6 +11,7 @@
 namespace  App\Modules\Core\Validation\Traits;
 
 use App\Modules\Core\Validation\RulePlugins\Unique;
+use App\Modules\Core\Validation\RulePlugins\ValidateCustomer;
 use App\Modules\Core\Validation\RulePlugins\ValidateUser;
 use Devsrealm\TonicsValidation\Interfaces\RuleInterface;
 use Devsrealm\TonicsValidation\Rules\Boolean;
@@ -61,7 +62,8 @@ trait Validator
             new Text(),
             new Url(),
             new Unique(),
-            new ValidateUser()
+            new ValidateUser(),
+            new ValidateCustomer(),
         ]);
         $this->validatorRulesRegistrar = $validatorRulesRegistrar;
     }

@@ -156,10 +156,12 @@ class UserData extends AbstractDataLayer
         $userTable = $this->getCustomersTable();
         $rolesTable = $this->getRolesTable();
 
-        $userInfo =   db()->Select('*, role_id as role')->From($userTable)
-            ->Join($rolesTable, "{$rolesTable}.id", "{$userTable}.role")
+        $userInfo =  db()->Select('*, role_id as role')->From($userTable)
+            ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
             ->WhereEquals('email', $email)
             ->FetchFirst();
+
+        dd($userInfo, $email, $pass);
 
         $verifyPass = false;
         if ($userInfo instanceof \stdClass) {

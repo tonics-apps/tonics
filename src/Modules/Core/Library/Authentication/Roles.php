@@ -91,6 +91,8 @@ final class Roles
     ];
 
     /**
+     * This gets the ID of the role, not that this is not the role bit-shifted number but just the auto-incremented id,
+     * this way, you can use it as a foreign key
      * @throws \Exception
      */
     public static function getRoleIDFromDB(string $roleName): ?int
@@ -100,10 +102,10 @@ final class Roles
             throw new \InvalidArgumentException("`$roleName` is an invalid role name");
         }
 
-        $roleData = db()->Select('role_id')->From(Tables::getTable(Tables::ROLES))->WhereEquals('role_name', $roleName)->FetchFirst();
+        $roleData = db()->Select('id')->From(Tables::getTable(Tables::ROLES))->WhereEquals('role_name', $roleName)->FetchFirst();
 
-        if (isset($roleData->role_id)){
-            return $roleData->role_id;
+        if (isset($roleData->id)){
+            return $roleData->id;
         }
 
         return null;

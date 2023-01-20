@@ -68,8 +68,11 @@ class Database
 
             return $q;
         } catch (\PDOException $e){
-            view('Modules::Core/Views/error-page', ['error-code' => $e->getCode(), 'error-message' => "Error Connecting To The Database ❕"]);
-            exit();
+            if (helper()->isCLI() === false){
+                view('Modules::Core/Views/error-page', ['error-code' => $e->getCode(), 'error-message' => "Error Connecting To The Database ❕"]);
+            }
+
+            exit('Error Connecting To The Database');
         }
 
     }

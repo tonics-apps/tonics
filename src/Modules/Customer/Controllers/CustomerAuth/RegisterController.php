@@ -115,13 +115,13 @@ class RegisterController extends Controller
             }
 
             $db = db();
-            $db->FastUpdate($this->getUsersData()->getCustomersTable(),
-                ['email_verified_at' => helper()->date(), 'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER),],
-                $db->Q()->WhereEquals('email',$data->email));
-           // $this->getUsersData()->validateCustomer();
+            $db->FastUpdate(
+                $this->getUsersData()->getCustomersTable(),
+                ['email_verified_at' => helper()->date(), 'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER)],
+                $db->WhereEquals('email', $data->email));
 
-            // login user and redirect to customer dashboard
-            // dd($_POST, $data);
+            session()->flash(['Email Successfully Verified, Please Login'], $data, Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('customer.login'));
         }
 
         session()->flash(['Unauthorized Access']);
