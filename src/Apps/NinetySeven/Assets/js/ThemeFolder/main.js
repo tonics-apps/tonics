@@ -259,11 +259,11 @@ class TonicsAudioPlayerClickHandler {
     constructor(event) {
         let trackCart = new TrackCart();
         const el = event._eventEl;
+        let trackDownloadContainer = el.closest('.tonics-file')?.querySelector('.track-download-ul-container');
         let self = this;
         // download_buy_container
         if (el.dataset.hasOwnProperty('download_buy_button') && el.dataset.hasOwnProperty('licenses')) {
             let licenses = el.dataset.licenses;
-            let trackDownloadContainer = el.closest('.tonics-file')?.querySelector('.track-download-ul-container');
 
             if (trackDownloadContainer){
                 if (trackDownloadContainer.dataset.license_loaded === 'false'){
@@ -282,7 +282,8 @@ class TonicsAudioPlayerClickHandler {
         }
 
         if (el.dataset.hasOwnProperty('remove_from_cart')){
-
+            trackCart.setCurrentState(trackCart.RemoveItemFromCartWithUniqueID, el);
+            trackCart.runStates();
             return;
         }
 
@@ -312,6 +313,10 @@ class TonicsAudioPlayerClickHandler {
                     indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
                     trackCart.licenseData = indieLicense;
                     trackCart.setCurrentState(trackCart.InitialState);
+                    trackCart.runStates();
+
+                    // Add Remove Button
+                    trackCart.setCurrentState(trackCart.UpdateCartIconAdditionToTheCartMenuState, trackDownloadContainer);
                     trackCart.runStates();
                 }
             }

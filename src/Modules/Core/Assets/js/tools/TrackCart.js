@@ -97,11 +97,20 @@ export class TrackCart extends SimpleState {
     UpdateCartIconAdditionToTheCartMenuState(args) {
         if(args.length > 0){
             let trackDownloadContainer = args[0];
-            let licenses = trackDownloadContainer.querySelectorAll('[data-unique_id]');
+            let trackSlugID = trackDownloadContainer.closest('[data-slug_id]')?.dataset.slug_id;
 
+            let licenses = trackDownloadContainer.querySelectorAll('[data-unique_id]');
             if(licenses.length > 0){
                 licenses.forEach((license) => {
+                    // By Default, we remove the remove icon even if we would later add it when the unique_id mathces
+                     this.removeIconDeleteButton(license);
+
                     for (let [key, value] of this.getCart().entries()) {
+
+                        if (trackSlugID !== key){
+                            return;
+                        }
+
                         let licenseUniqueID = license.dataset?.unique_id;
                         let cartStorageUniqueID = value?.unique_id;
                         if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)){
@@ -121,7 +130,6 @@ export class TrackCart extends SimpleState {
                     }
                 });
             }
-
             return SimpleState.DONE;
         }
 
@@ -130,28 +138,34 @@ export class TrackCart extends SimpleState {
     RemoveItemFromCartWithUniqueID(args) {
         if(args.length > 0){
             let licenseButton = args[0];
-            let svgElement = licenseButton.querySelector('svg');
-            let useElement = licenseButton.querySelector('use');
             let licenseUniqueID = licenseButton.dataset?.unique_id;
             let cart = this.getCart();
 
             for (let [key, value] of this.getCart().entries()) {
                 let cartStorageUniqueID = value?.unique_id;
                 if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)){
-                    if (svgElement && useElement){
-                        cart.delete(key);
-                        localStorage.setItem(TrackCart.cartStorageKey, JSON.stringify(Array.from(cart)));
-                        licenseButton.title = svgElement?.dataset?.prev_button_title
-                        svgElement.dataset.prev_button_title = '';
-                        svgElement.classList.remove('color:red')
-                        useElement.setAttribute("xlink:href", "#tonics-cart");
-                    }
+                    this.removeIconDeleteButton(licenseButton);
+                    cart.delete(key);
+                    localStorage.setItem(TrackCart.cartStorageKey, JSON.stringify(Array.from(cart)));
                     break;
                 }
             }
         }
 
         return this.switchState(this.UpdateCartLicenseInfo, SimpleState.NEXT);
+    }
+
+    removeIconDeleteButton(licenseButton){
+        let svgElement = licenseButton.querySelector('svg');
+        let useElement = licenseButton.querySelector('use')
+
+        if (svgElement && useElement){
+            licenseButton.removeAttribute("data-remove_from_cart");
+            licenseButton.title = svgElement?.dataset?.prev_button_title
+            svgElement.dataset.prev_button_title = '';
+            svgElement.classList.remove('color:red')
+            useElement.setAttribute("xlink:href", "#tonics-cart");
+        }
     }
 
 
