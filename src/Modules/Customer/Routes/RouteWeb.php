@@ -12,11 +12,13 @@ namespace App\Modules\Customer\Routes;
 
 
 use App\Modules\Core\Configs\AuthConfig;
+use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Customer\Controllers\CustomerAuth\ForgotPasswordController;
 use App\Modules\Customer\Controllers\CustomerAuth\LoginController;
 use App\Modules\Customer\Controllers\CustomerAuth\RegisterController;
 use App\Modules\Customer\Controllers\DashboardController;
+use App\Modules\Customer\RequestInterceptor\CustomerAccess;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait RouteWeb
@@ -77,9 +79,13 @@ trait RouteWeb
                 $route->get('dashboard', [CustomerDashboardController::class, 'dashboard'], alias: 'dashboard');
             }, [Customer::class, VerifyCustomer::class]);*/
 
-            $route->group('', callback: function (Route $route){
+            $route->group('', function (Route $route){
+                        #---------------------------------
+                    # CUSTOMER DASHBOARD CONTROLLER...
+                #---------------------------------
                 $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
-            });
+            }, [Authenticated::class, CustomerAccess::class]);
+
         }, AuthConfig::getCSRFRequestInterceptor(),  'customer');
 
         return $route;

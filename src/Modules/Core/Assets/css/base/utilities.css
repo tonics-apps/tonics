@@ -283,6 +283,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     color: black;
 }
 
+.color\:orange {
+    color: #ffa000;
+}
+
 .bg\:transparent {
     background: transparent;
 }

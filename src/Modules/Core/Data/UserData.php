@@ -161,8 +161,6 @@ class UserData extends AbstractDataLayer
             ->WhereEquals('email', $email)
             ->FetchFirst();
 
-        dd($userInfo, $email, $pass);
-
         $verifyPass = false;
         if ($userInfo instanceof \stdClass) {
             $verifyPass = helper()->verifyPassword($pass, $userInfo->user_password);

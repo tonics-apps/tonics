@@ -1,0 +1,14 @@
+[[inherit("Modules::Core/Views/Templates/core")]]
+
+[[hook_into('Core::in_head_title')[[v('UserInfo.user_name')]]'s Dashboard]]
+[[hook_into('Core::in_main_header_title')[[v('UserInfo.user_name')]]'s Dashboard ]]
+
+[[hook_into('Core::in_main')
+
+]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:dashboard-home")]]
+    [[_use("session:delete-artifacts")]]
+]]

@@ -257,6 +257,7 @@ class TonicsAudioPlayHandler {
 
 class TonicsAudioPlayerClickHandler {
     constructor(event) {
+        let trackCart = new TrackCart();
         const el = event._eventEl;
         let self = this;
         // download_buy_container
@@ -272,11 +273,15 @@ class TonicsAudioPlayerClickHandler {
                         trackDownloadContainer.insertAdjacentHTML('beforeend', this.trackDownloadList(license))
                     });
                 }
+
+                if (trackDownloadContainer.dataset.license_loaded === 'true'){
+                    trackCart.setCurrentState(trackCart.UpdateCartIconAdditionToTheCartMenuState, trackDownloadContainer);
+                    trackCart.runStates();
+                }
             }
         }
 
         if (el.dataset.hasOwnProperty('indie_license')){
-
             if (el.dataset.hasOwnProperty('indie_license_type_is_free')){
                 let trackItem = el.closest('[data-url_page]'),
                     urlPage = trackItem?.dataset?.url_page,
@@ -300,7 +305,6 @@ class TonicsAudioPlayerClickHandler {
                 let indieLicense = JSON.parse(el.dataset.indie_license);
                 if (trackSlugID){
                     indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
-                    let trackCart = new TrackCart();
                     trackCart.licenseData = indieLicense;
                     trackCart.setCurrentState(trackCart.InitialState);
                     trackCart.runStates();

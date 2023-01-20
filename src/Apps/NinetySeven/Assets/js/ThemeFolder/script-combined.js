@@ -1469,8 +1469,25 @@ class SimpleState {
         console.log(`Error: ${errorMessage} with code ${errorCode}`)
     }
 
-    switchState(state, stateResult = null) {
-        this.setCurrentState(state);
+
+    /**
+     * Switch to a new state and pass the arguments to setCurrentState
+     *
+     * @param {function} state - The function representing the new state of the state machine.
+     * @param {*} [stateResult = null] - The optional state result to be returned.
+     * @param {...*} args - The arguments to be passed to the `currentState` function.
+     * @returns {Object | *} - The current object or the state result.
+     *
+     * @example
+     * // passing multiple arguments
+     * object.switchState(object.StateName, arg1, arg2);
+     *
+     * @example
+     * // passing an object with the arguments
+     * object.switchState(object.StateName,{arg1:value1,arg2:value2});
+     */
+    switchState(state, stateResult = null, ...args) {
+        this.setCurrentState(state, ...args);
         if (this.debug) {
             console.log(`State Switched To ${state}`);
         }
@@ -1485,8 +1502,27 @@ class SimpleState {
         return this.currentState;
     }
 
-    setCurrentState(currentState) {
-        this.currentState = currentState.bind(this);
+    /**
+     * Set the current state of the state machine.
+     *
+     * @param {function} currentState - The function representing the new state of the state machine.
+     * @param {...*} [args] - The arguments to be passed to the `currentState` function.
+     * @returns {Object} - The current object, allowing for method chaining.
+     *
+     * @example
+     * // passing multiple arguments
+     * object.setCurrentState(object.StateName, arg1, arg2);
+     *
+     * @example
+     * // passing an object with the arguments
+     * object.setCurrentState(object.StateName,{arg1:value1,arg2:value2});
+     */
+    setCurrentState(currentState, ...args) {
+        if (args.length === 0) {
+            this.currentState = currentState.bind(this);
+        } else {
+            this.currentState = currentState.bind(this, args);
+        }
         return this;
     }
 
@@ -1636,6 +1672,39 @@ export class TrackCart extends SimpleState {
     ReloadCartFromLocalStorageState() {
         return this.switchState(this.UpdateCartLicenseInfo, SimpleState.NEXT);
     }
+
+    // That is if a cart is added to the cart menu, we change the cart icon to remove icon
+    // this way, a user can remove the cart icon
+    UpdateCartIconAdditionToTheCartMenuState(args) {
+        if(args.length > 0){
+            let trackDownloadContainer = args[0];
+            let licenses = trackDownloadContainer.querySelectorAll('[data-unique_id]');
+
+            if(licenses.length > 0){
+                licenses.forEach((license) => {
+                    for (let [key, value] of this.getCart().entries()) {
+                        if (license.dataset?.unique_id === value.unique_id){
+                            let buttonTitle = license.title;
+                            license.title = 'Remove From Cart'
+                            let svgElement = license.querySelector('svg');
+                            let useElement = license.querySelector('use');
+
+                            if (svgElement && useElement){
+                                svgElement.dataset.prev_button_title = buttonTitle;
+                                svgElement.classList.add('color:red')
+                                useElement.setAttribute("xlink:href", "#tonics-remove");
+                            }
+
+                            console.log(license, buttonTitle);
+                            break;
+                        }
+                    }
+                });
+            }
+        }
+
+    }
+
 
     getCart() {
         if (localStorage.getItem(TrackCart.cartStorageKey) !== null) {
@@ -1936,6 +2005,7 @@ class TonicsAudioPlayHandler {
 
 class TonicsAudioPlayerClickHandler {
     constructor(event) {
+        let trackCart = new TrackCart();
         const el = event._eventEl;
         let self = this;
         // download_buy_container
@@ -1951,11 +2021,15 @@ class TonicsAudioPlayerClickHandler {
                         trackDownloadContainer.insertAdjacentHTML('beforeend', this.trackDownloadList(license))
                     });
                 }
+
+                if (trackDownloadContainer.dataset.license_loaded === 'true'){
+                    trackCart.setCurrentState(trackCart.UpdateCartIconAdditionToTheCartMenuState, trackDownloadContainer);
+                    trackCart.runStates();
+                }
             }
         }
 
         if (el.dataset.hasOwnProperty('indie_license')){
-
             if (el.dataset.hasOwnProperty('indie_license_type_is_free')){
                 let trackItem = el.closest('[data-url_page]'),
                     urlPage = trackItem?.dataset?.url_page,
@@ -1979,7 +2053,6 @@ class TonicsAudioPlayerClickHandler {
                 let indieLicense = JSON.parse(el.dataset.indie_license);
                 if (trackSlugID){
                     indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
-                    let trackCart = new TrackCart();
                     trackCart.licenseData = indieLicense;
                     trackCart.setCurrentState(trackCart.InitialState);
                     trackCart.runStates();

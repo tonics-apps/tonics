@@ -23,6 +23,7 @@ class Session
     const SessionCategories_AuthInfo = 'auth_info';
     const SessionCategories_AuthInfo_UserTable = 'user_table';
     const SessionCategories_AuthInfo_UserEmail = 'email';
+    const SessionCategories_AuthInfo_UserName = 'auth_info.user_name';
     const SessionCategories_AuthInfo_Role = 'role';
 
     const SessionCategories_OldFormInput = 'old_form_input';

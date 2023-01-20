@@ -10,6 +10,8 @@
 
 namespace App\Modules\Customer\Controllers;
 
+use App\Modules\Core\Library\Authentication\Session;
+
 class DashboardController
 {
     /**
@@ -17,6 +19,14 @@ class DashboardController
      */
     public function index()
     {
-        view('Modules::Customer/Views/Dashboard/home');
+        $dataInfo = \session()->retrieve(Session::SessionCategories_AuthInfo);
+        if (helper()->isJSON($dataInfo)){
+            $dataInfo = json_decode($dataInfo);
+        }
+
+        view(
+            'Modules::Customer/Views/Dashboard/home',
+            ['UserInfo' => $dataInfo]
+        );
     }
 }

@@ -92,6 +92,42 @@ export class TrackCart extends SimpleState {
         return this.switchState(this.UpdateCartLicenseInfo, SimpleState.NEXT);
     }
 
+    // That is if a cart is added to the cart menu, we change the cart icon to remove icon
+    // this way, a user can remove the cart icon
+    UpdateCartIconAdditionToTheCartMenuState(args) {
+        if(args.length > 0){
+            let trackDownloadContainer = args[0];
+            let licenses = trackDownloadContainer.querySelectorAll('[data-unique_id]');
+
+            if(licenses.length > 0){
+                licenses.forEach((license) => {
+                    for (let [key, value] of this.getCart().entries()) {
+                        let licenseUniqueID = license.dataset?.unique_id;
+                        let cartStorageUniqueID = value?.unique_id;
+                        if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)){
+                            let buttonTitle = license.title;
+                            let svgElement = license.querySelector('svg');
+                            let useElement = license.querySelector('use');
+
+                            if (svgElement && useElement){
+                                license.dataset.remove_from_cart = 'true';
+                                license.title = 'Remove From Cart'
+                                svgElement.dataset.prev_button_title = buttonTitle;
+                                svgElement.classList.add('color:red')
+                                useElement.setAttribute("xlink:href", "#tonics-remove");
+                            }
+                            break;
+                        }
+                    }
+                });
+            }
+
+            return SimpleState.DONE;
+        }
+
+    }
+
+
     getCart() {
         if (localStorage.getItem(TrackCart.cartStorageKey) !== null) {
             let storedMap = localStorage.getItem(TrackCart.cartStorageKey);
