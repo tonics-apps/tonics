@@ -127,6 +127,33 @@ export class TrackCart extends SimpleState {
 
     }
 
+    RemoveItemFromCartWithUniqueID(args) {
+        if(args.length > 0){
+            let licenseButton = args[0];
+            let svgElement = licenseButton.querySelector('svg');
+            let useElement = licenseButton.querySelector('use');
+            let licenseUniqueID = licenseButton.dataset?.unique_id;
+            let cart = this.getCart();
+
+            for (let [key, value] of this.getCart().entries()) {
+                let cartStorageUniqueID = value?.unique_id;
+                if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)){
+                    if (svgElement && useElement){
+                        cart.delete(key);
+                        localStorage.setItem(TrackCart.cartStorageKey, JSON.stringify(Array.from(cart)));
+                        licenseButton.title = svgElement?.dataset?.prev_button_title
+                        svgElement.dataset.prev_button_title = '';
+                        svgElement.classList.remove('color:red')
+                        useElement.setAttribute("xlink:href", "#tonics-cart");
+                    }
+                    break;
+                }
+            }
+        }
+
+        return this.switchState(this.UpdateCartLicenseInfo, SimpleState.NEXT);
+    }
+
 
     getCart() {
         if (localStorage.getItem(TrackCart.cartStorageKey) !== null) {

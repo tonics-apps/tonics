@@ -281,6 +281,11 @@ class TonicsAudioPlayerClickHandler {
             }
         }
 
+        if (el.dataset.hasOwnProperty('remove_from_cart')){
+
+            return;
+        }
+
         if (el.dataset.hasOwnProperty('indie_license')){
             if (el.dataset.hasOwnProperty('indie_license_type_is_free')){
                 let trackItem = el.closest('[data-url_page]'),

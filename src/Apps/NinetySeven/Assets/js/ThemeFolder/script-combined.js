@@ -1683,24 +1683,27 @@ export class TrackCart extends SimpleState {
             if(licenses.length > 0){
                 licenses.forEach((license) => {
                     for (let [key, value] of this.getCart().entries()) {
-                        if (license.dataset?.unique_id === value.unique_id){
+                        let licenseUniqueID = license.dataset?.unique_id;
+                        let cartStorageUniqueID = value?.unique_id;
+                        if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)){
                             let buttonTitle = license.title;
-                            license.title = 'Remove From Cart'
                             let svgElement = license.querySelector('svg');
                             let useElement = license.querySelector('use');
 
                             if (svgElement && useElement){
+                                license.dataset.remove_from_cart = 'true';
+                                license.title = 'Remove From Cart'
                                 svgElement.dataset.prev_button_title = buttonTitle;
                                 svgElement.classList.add('color:red')
                                 useElement.setAttribute("xlink:href", "#tonics-remove");
                             }
-
-                            console.log(license, buttonTitle);
                             break;
                         }
                     }
                 });
             }
+
+            return SimpleState.DONE;
         }
 
     }
