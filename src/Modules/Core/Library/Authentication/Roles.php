@@ -32,6 +32,7 @@ final class Roles
 
     # MODULES...
     const CAN_ACCESS_CORE = 'CAN_ACCESS_CORE';
+    const CAN_ACCESS_GUEST = 'CAN_ACCESS_GUEST'; // For Guest User, Not a Module Per se
     const CAN_ACCESS_CUSTOMER = 'CAN_ACCESS_CUSTOMER';
     const CAN_ACCESS_MEDIA = 'CAN_ACCESS_MEDIA';
     const CAN_ACCESS_MENU = 'CAN_ACCESS_MENU';
@@ -56,7 +57,7 @@ final class Roles
 
     // Since this is bit-shift, I need to ensure the array index starts at 1
     static array $PERMISSIONS = [
-        1 => self::CAN_READ, self::CAN_WRITE, self::CAN_UPDATE, self::CAN_DELETE, self::CAN_ACCESS_CORE, self::CAN_ACCESS_CUSTOMER, self::CAN_ACCESS_MEDIA,
+        1 => self::CAN_READ, self::CAN_WRITE, self::CAN_UPDATE, self::CAN_DELETE, self::CAN_ACCESS_CORE, self::CAN_ACCESS_GUEST, self::CAN_ACCESS_CUSTOMER, self::CAN_ACCESS_MEDIA,
         self::CAN_ACCESS_MENU, self::CAN_ACCESS_PAGE, self::CAN_ACCESS_PAYMENT, self::CAN_ACCESS_POST, self::CAN_ACCESS_TRACK, self::CAN_ACCESS_WIDGET,
         self::CAN_ACCESS_MODULE, self::CAN_ACCESS_APPS, self::CAN_ACCESS_FIELD, self::CAN_UPDATE_MODULES, self::CAN_UPDATE_APPS
     ];
@@ -79,6 +80,7 @@ final class Roles
     const ROLE_UPDATE = 'ROLE_UPDATE';
     const ROLE_DELETE = 'ROLE_DELETE';
     const ROLE_ADMIN = 'ROLE_ADMIN';
+    const ROLE_GUEST = 'ROLE_GUEST';
     const ROLE_CUSTOMER = 'ROLE_CUSTOMER';
 
     static array $ROLES = [
@@ -87,6 +89,7 @@ final class Roles
         self::ROLE_UPDATE,
         self::ROLE_DELETE,
         self::ROLE_ADMIN,
+        self::ROLE_GUEST,
         self::ROLE_CUSTOMER
     ];
 
@@ -167,6 +170,15 @@ final class Roles
         return self::gmpOr($adminPermissions);
     }
 
+    public static function ROLE_GUEST(): string
+    {
+        $permissions = [
+            self::shiftLeft(self::getPermission(self::CAN_READ)),
+            self::shiftLeft(self::getPermission(self::CAN_ACCESS_GUEST)),
+        ];
+        return self::gmpOr($permissions);
+    }
+
     public static function ROLE_CUSTOMER(): string
     {
         $permissions = [
@@ -242,6 +254,8 @@ final class Roles
     }
 
     /**
+     * It is important, you re-login or invalidate existing session roles after calling this function,
+     * otherwise, the old session roles would be used.
      * @return void
      * @throws \Exception
      */
@@ -257,6 +271,6 @@ final class Roles
             }
         }
 
-        db()->insertOnDuplicate(Tables::getTable(Tables::ROLES), $rolesToInsert, ['role_name']);
+        db()->insertOnDuplicate(Tables::getTable(Tables::ROLES), $rolesToInsert, ['role_id']);
     }
 }

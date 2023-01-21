@@ -462,7 +462,7 @@ SQL, $jsonPath, $sessionID);
      * Regenerate a session_id.
      *
      * <br>
-     * Note: if you are using this function in a loop and you are using Nginx or other web server,
+     * Note: if you are using this function in a loop, and you are using Nginx or other web server,
      * increase the fastcgi_buffers and fastcgi_buffer_size for Nginx (find similar functionality in other webserver) to avoid crashing d server due to the fact that it may send a lot of http header.
      * I assume that d web server would keep appending `set-cookie:  ...`(the last one appended would take effect if they are the same cookie) which increases the header size.
      *
