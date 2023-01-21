@@ -78,6 +78,10 @@ div#meta-container {
     height: 56px;
 }
 
+[data-audioplayer_globaltitle] {
+    font-size: 80%;
+}
+
 /* VOLUME RANGE STYLE */
 input.volume-slider {
     height: 4px;
@@ -229,8 +233,12 @@ input.volume-slider::-ms-track {
     left: 0;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 520px) {
     input.volume-slider {
+        display: none;
+    }
+
+    [data-global_track_time] {
         display: none;
     }
 

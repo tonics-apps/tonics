@@ -586,7 +586,7 @@ HTML;
     public function findDefaultTrackCategory()
     {
         return db()->Select(table()->pickTable(self::getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
-            ->From(self::getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-coupon')
+            ->From(self::getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-track-category')
             ->FetchFirst();
     }
     

@@ -458,6 +458,7 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
     audioPlayerSettings = new Map();
     playlist = null;
     currentGroupID = '';
+    previousTotalTrackDuration = null;
     playlistIndex = null;
     currentHowl = null;
     tonicsAudioPlayerGroups = null;
@@ -1265,13 +1266,60 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
                 let roundedSeek = Math.round(howl.seek());
                 let start = parseInt(self.repeatMarkerSong.start), end = parseInt(self.repeatMarkerSong.end);
                 if (roundedSeek >= end) {
-                    howl.seek(start)
+                    howl.seek(start);
                 }
             }
-            this.moveSlider();
-            self.storeSongPosition()
+            self.moveSlider();
+            self.storeSongPosition();
+            self.updateGlobalTime();
             requestAnimationFrame(this.step.bind(self));
         }
+    }
+
+    updateGlobalTime(){
+        let songData = this.getCurrentHowl();
+        // Get the current position of the song in seconds
+        const currentPosition = songData.seek();
+        const currentTrackTime = document.querySelector("[data-current_track_time]");
+        const totalTrackTime =  document.querySelector("[data-total_track_time]");
+
+        if (currentTrackTime){
+            // Set the innertext of the data-current_track_time element to the formatted current track time
+            currentTrackTime.innerText = this.formatTimeToHourMinSec(currentPosition);
+        }
+
+        if (totalTrackTime){
+            // Get the total track duration from howlerJS
+            const totalTrackDuration = songData.duration();
+            // Only set the total track duration if it is different from the previous one
+            if ( this.previousTotalTrackDuration !== totalTrackDuration) {
+                // Set the innertext of the data-total_track_time element to the formatted total track duration
+                totalTrackTime.innerText = this.formatTimeToHourMinSec(totalTrackDuration);
+                // Update the previous total track duration
+                this.previousTotalTrackDuration = totalTrackDuration;
+            }
+        }
+    }
+
+    formatTimeToHourMinSec(time) {
+        // Check if the time is a valid number
+        if (isNaN(time) || time < 0) {
+            return "-";
+        }
+
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time % 3600) / 60);
+        const seconds = Math.floor(time % 60);
+        let formattedTime = "";
+
+        if (hours > 0) {
+            formattedTime += ("0" + hours).slice(-2) + ":";
+        }
+
+        formattedTime += ("0" + minutes).slice(-2) + ":";
+        formattedTime += ("0" + seconds).slice(-2);
+
+        return formattedTime;
     }
 
     removeMarker(){
@@ -1281,7 +1329,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
 
     updateGlobalSongProp(title = '', image = '') {
         let songTitle = document.querySelector('[data-audioplayer_globaltitle]'),
-            songImage = document.querySelector('[data-audioplayer_globalart]');
+            songImage = document.querySelector('.main-album-art[data-audioplayer_globalart]');
 
         if (songTitle) {
             songTitle.innerText = title;
@@ -2115,6 +2163,7 @@ class TonicsAudioPlayerClickHandler {
                 let trackTitle = trackItem?.dataset?.audioplayer_title;
                 let trackImage = trackItem?.dataset?.audioplayer_image;
                 let indieLicense = JSON.parse(el.dataset.indie_license);
+                console.log(trackSlugID);
                 if (trackSlugID){
                     indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle;
                     indieLicense.track_image = trackImage; indieLicense.url_page = trackURLPage;

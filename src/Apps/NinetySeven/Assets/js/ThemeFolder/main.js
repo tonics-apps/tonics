@@ -313,6 +313,7 @@ class TonicsAudioPlayerClickHandler {
                 let trackTitle = trackItem?.dataset?.audioplayer_title;
                 let trackImage = trackItem?.dataset?.audioplayer_image;
                 let indieLicense = JSON.parse(el.dataset.indie_license);
+                console.log(trackSlugID);
                 if (trackSlugID){
                     indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle;
                     indieLicense.track_image = trackImage; indieLicense.url_page = trackURLPage;

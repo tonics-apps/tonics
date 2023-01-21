@@ -151,7 +151,7 @@ class ThemeFolderViewHandler implements HandlerInterface
         try {
             $db = db();
             $db->Select('*')->From(db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
-        t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings,
+        t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings, t.track_status as _status,
         ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
         t.created_at,
         1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")
@@ -164,13 +164,13 @@ class ThemeFolderViewHandler implements HandlerInterface
                 ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
                 ->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id'])
                 ->Raw('UNION')
-                ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name,
+                ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name, 
         (SELECT COUNT(*) FROM {$trackData::getTrackTracksCategoryTable()} ttc
         INNER JOIN {$trackData::getTrackTable()} t ON ttc.fk_track_id = t.track_id
         WHERE ttc.fk_track_cat_id = ct.track_cat_id) as num_tracks, null as plays,
-        null as bpm, null as image_url, null as audio_url, null as license_attr, ct.field_settings, 
+        null as bpm, null as image_url, null as audio_url, null as license_attr, ct.field_settings, ct.track_cat_status as _status,
         null as artist_name, null as artist_slug, null as genre_slug,
-        null as created_at,
+        ct.created_at as created_at,
         0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
                 ->From("{$trackData::getTrackCategoryTable()} ct")
                 ->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']))
@@ -189,6 +189,8 @@ class ThemeFolderViewHandler implements HandlerInterface
                 });
 
             $data =  $this->dbWhenForCommonFieldKey($db)
+                ->WhereEquals('_status', 1)
+                ->Where('created_at', '<=', helper()->date())
                 ->GroupBy("slug_id")
                 ->OrderByAsc("is_track")
                 ->OrderByDesc("created_at")
@@ -231,7 +233,7 @@ class ThemeFolderViewHandler implements HandlerInterface
         } catch (\Exception $exception){
             // Log..
         }
-       return [];
+        return [];
     }
 
     /**

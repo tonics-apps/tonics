@@ -65,10 +65,10 @@ class CouponData extends AbstractDataLayer
         WITH RECURSIVE coupon_type_recursive AS 
 	( SELECT coupon_type_id, coupon_type_parent_id, coupon_type_slug, coupon_type_name, CAST(coupon_type_slug AS VARCHAR (255))
             AS path
-      FROM {$couponTypeTable} WHERE coupon_type_parent_id IS NULL
+      FROM $couponTypeTable WHERE coupon_type_parent_id IS NULL
       UNION ALL
       SELECT tcs.coupon_type_id, tcs.coupon_type_parent_id, tcs.coupon_type_slug, tcs.coupon_type_name, CONCAT(path, '/' , tcs.coupon_type_slug)
-      FROM coupon_type_recursive as fr JOIN {$couponTypeTable} as tcs ON fr.coupon_type_id = tcs.coupon_type_parent_id
+      FROM coupon_type_recursive as fr JOIN $couponTypeTable as tcs ON fr.coupon_type_id = tcs.coupon_type_parent_id
       ) 
      SELECT * FROM coupon_type_recursive;
         ");
