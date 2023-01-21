@@ -458,6 +458,8 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
     audioPlayerSettings = new Map();
     playlist = null;
     currentGroupID = '';
+    globalCurrentTrackTime = null;
+    globalTotalTrackTime = null;
     previousTotalTrackDuration = null;
     playlistIndex = null;
     currentHowl = null;
@@ -1280,21 +1282,25 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let songData = this.getCurrentHowl();
         // Get the current position of the song in seconds
         const currentPosition = songData.seek();
-        const currentTrackTime = document.querySelector("[data-current_track_time]");
-        const totalTrackTime =  document.querySelector("[data-total_track_time]");
-
-        if (currentTrackTime){
-            // Set the innertext of the data-current_track_time element to the formatted current track time
-            currentTrackTime.innerText = this.formatTimeToHourMinSec(currentPosition);
+        if (!this.globalCurrentTrackTime){
+            this.globalCurrentTrackTime = document.querySelector("[data-current_track_time]");
+        }
+        if (!this.globalTotalTrackTime){
+            this.globalTotalTrackTime = document.querySelector("[data-total_track_time]");
         }
 
-        if (totalTrackTime){
+        if (this.globalCurrentTrackTime){
+            // Set the innertext of the data-current_track_time element to the formatted current track time
+            this.globalCurrentTrackTime.innerText = this.formatTimeToHourMinSec(currentPosition);
+        }
+
+        if (this.globalTotalTrackTime){
             // Get the total track duration from howlerJS
             const totalTrackDuration = songData.duration();
             // Only set the total track duration if it is different from the previous one
             if ( this.previousTotalTrackDuration !== totalTrackDuration) {
                 // Set the innertext of the data-total_track_time element to the formatted total track duration
-                totalTrackTime.innerText = this.formatTimeToHourMinSec(totalTrackDuration);
+                this.globalTotalTrackTime.innerText = this.formatTimeToHourMinSec(totalTrackDuration);
                 // Update the previous total track duration
                 this.previousTotalTrackDuration = totalTrackDuration;
             }
@@ -1823,7 +1829,7 @@ export class TrackCart extends SimpleState {
                 <img data-audioplayer_globalart src="${data.track_image}" class="image:avatar" 
                 alt="${data.track_title}">
                 <div class="cart-detail">
-                    <a data-tonics_navigate data-url_page="${data.url_page}" href="${data.url_page}"><span class="text cart-title">${data.track_title}</span></a> 
+                    <a data-tonics_navigate data-url_page="${data.url_page}" href="${data.url_page}"><span class="text cart-title color:black">${data.track_title}</span></a> 
                     <span class="text cart-license-price">${data.name}
                 <span> → (${currency}${data.price})</span>
             </span>

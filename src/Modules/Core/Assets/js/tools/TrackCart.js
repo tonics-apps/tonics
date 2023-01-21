@@ -194,7 +194,7 @@ export class TrackCart extends SimpleState {
                 <img data-audioplayer_globalart src="${data.track_image}" class="image:avatar" 
                 alt="${data.track_title}">
                 <div class="cart-detail">
-                    <a data-tonics_navigate data-url_page="${data.url_page}" href="${data.url_page}"><span class="text cart-title">${data.track_title}</span></a> 
+                    <a data-tonics_navigate data-url_page="${data.url_page}" href="${data.url_page}"><span class="text cart-title color:black">${data.track_title}</span></a> 
                     <span class="text cart-license-price">${data.name}
                 <span> → (${currency}${data.price})</span>
             </span>
