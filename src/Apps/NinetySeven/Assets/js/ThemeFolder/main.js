@@ -43,6 +43,7 @@ try {
         .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
         .closeOnClickOutSide(true)
         .stopPropagation(true)
+        .propagateElements(['[data-tonics_navigate]'])
         .run();
 
 } catch (e) {
@@ -110,6 +111,7 @@ function initRouting(containerSelector, navigateCallback = null) {
     // Bind a click event listener to the container using event delegation
     container.addEventListener('click', e => {
         const el = e.target;
+        e.preventDefault();
         if (el.closest('[data-tonics_navigate]')) {
             e.preventDefault();
             let element = el.closest('[data-tonics_navigate]');
@@ -299,18 +301,21 @@ class TonicsAudioPlayerClickHandler {
                     if (data) {
                         data = JSON.parse(data);
                         if (data?.data?.artifact){
+                            // Issue a download link
                             self.openDownloadLink(data.data.artifact);
                         }
                     }
                 });
-                // Issue a download link
             } else {
-                let trackSlugID = el.closest('[data-slug_id]')?.dataset?.slug_id;
-                let trackTitle = el.closest('[data-slug_id]')?.dataset?.audioplayer_title;
-                let trackImage = el.closest('[data-slug_id]')?.dataset?.audioplayer_image;
+                let trackItem = el.closest('[data-slug_id]');
+                let trackSlugID = trackItem?.dataset?.slug_id;
+                let trackURLPage = trackItem?.dataset?.url_page;
+                let trackTitle = trackItem?.dataset?.audioplayer_title;
+                let trackImage = trackItem?.dataset?.audioplayer_image;
                 let indieLicense = JSON.parse(el.dataset.indie_license);
                 if (trackSlugID){
-                    indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle; indieLicense.track_image = trackImage;
+                    indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle;
+                    indieLicense.track_image = trackImage; indieLicense.url_page = trackURLPage;
                     trackCart.licenseData = indieLicense;
                     trackCart.setCurrentState(trackCart.InitialState);
                     trackCart.runStates();

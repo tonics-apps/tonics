@@ -98,17 +98,17 @@ export class TrackCart extends SimpleState {
         if(args.length > 0){
             let trackDownloadContainer = args[0];
             let trackSlugID = trackDownloadContainer.closest('[data-slug_id]')?.dataset.slug_id;
-
             let licenses = trackDownloadContainer.querySelectorAll('[data-unique_id]');
+            let cart = this.getCart();
             if(licenses.length > 0){
                 licenses.forEach((license) => {
                     // By Default, we remove the remove icon even if we would later add it when the unique_id mathces
                      this.removeIconDeleteButton(license);
 
-                    for (let [key, value] of this.getCart().entries()) {
+                    for (let [key, value] of cart.entries()) {
 
                         if (trackSlugID !== key){
-                            return;
+                           continue;
                         }
 
                         let licenseUniqueID = license.dataset?.unique_id;
@@ -159,9 +159,9 @@ export class TrackCart extends SimpleState {
         let svgElement = licenseButton.querySelector('svg');
         let useElement = licenseButton.querySelector('use')
 
-        if (svgElement && useElement){
+        if (!licenseButton.dataset.hasOwnProperty('indie_license_type_is_free') && (svgElement && useElement)){
             licenseButton.removeAttribute("data-remove_from_cart");
-            licenseButton.title = svgElement?.dataset?.prev_button_title
+            licenseButton.title = svgElement?.dataset?.prev_button_title ?? licenseButton.title;
             svgElement.dataset.prev_button_title = '';
             svgElement.classList.remove('color:red')
             useElement.setAttribute("xlink:href", "#tonics-cart");
@@ -184,7 +184,7 @@ export class TrackCart extends SimpleState {
                 <img data-audioplayer_globalart src="${data.track_image}" class="image:avatar" 
                 alt="${data.track_title}">
                 <div class="cart-detail">
-                    <span class="text cart-title">${data.track_title}</span>
+                    <a data-tonics_navigate data-url_page="${data.url_page}" href="${data.url_page}"><span class="text cart-title">${data.track_title}</span></a> 
                     <span class="text cart-license-price">${data.name}
                 <span> → (${currency}${data.price})</span>
             </span>

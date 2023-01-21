@@ -225,6 +225,7 @@ var MenuToggle = class extends ElementAbstract {
         event: ""
       },
       propagate: true,
+      propagateElements: [],
       menuClass: $menuItemElement,
       buttonClass: $buttonElement,
       subMenuClass: $subMenuElement,
@@ -242,6 +243,12 @@ var MenuToggle = class extends ElementAbstract {
   stopPropagation($bool = true) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.propagate = $bool;
+    }
+    return this;
+  }
+  propagateElements($elementsToPropagate = []) {
+    if (this.getMenuDetails().hasOwnProperty("menu")) {
+      this.getMenuDetails().menu.propagateElements = $elementsToPropagate;
     }
     return this;
   }
@@ -274,10 +281,18 @@ var MenuToggle = class extends ElementAbstract {
     if ($parent) {
       $parent.addEventListener("click", (e) => {
         var _a, _b;
-        if (this.getMenuDetails().menu.propagate) {
-          e.stopPropagation();
-        }
         let el = e.target;
+        if (this.getMenuDetails().menu.propagate) {
+          let matchesStopPropagationEl = false;
+          this.getMenuDetails().menu.propagateElements.forEach((propElString) => {
+            if (el.closest(propElString)) {
+              matchesStopPropagationEl = true;
+            }
+          });
+          if (!matchesStopPropagationEl) {
+            e.stopPropagation();
+          }
+        }
         if (el.closest(this.getMenuDetails().menu.buttonClass)) {
           e.preventDefault();
           let $button = el.closest(this.getMenuDetails().menu.buttonClass);
@@ -393,7 +408,8 @@ if (!window.hasOwnProperty("TonicsScript")) {
 window.TonicsScript.MenuToggle = ($parentElement, $queryAdapter) => new MenuToggle($parentElement, $queryAdapter);
 export {
   MenuToggle
-};var __defProp = Object.defineProperty;
+};
+var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/Util/Element/Abstract/ElementAbstract.ts
