@@ -21,6 +21,7 @@ use App\Modules\Core\EventHandlers\CoreMenus;
 use App\Modules\Core\EventHandlers\DefaultEditorsAsset;
 use App\Modules\Core\EventHandlers\Fields\Tools\Sitemap;
 use App\Modules\Core\EventHandlers\HandleDataTableDataInTemplate;
+use App\Modules\Core\EventHandlers\Hook_AddSvgSymbols;
 use App\Modules\Core\EventHandlers\HookIntoAdminMenuTree;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
 use App\Modules\Core\EventHandlers\SchedulerTransporter\DatabaseSchedulerTransporter;
@@ -100,6 +101,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             OnHookIntoTemplate::class => [
                 HookIntoAdminMenuTree::class,
                 HandleDataTableDataInTemplate::class,
+                Hook_AddSvgSymbols::class,
             ],
         ];
 

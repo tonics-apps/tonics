@@ -28,8 +28,21 @@ class TrackSitemap extends AbstractSitemapInterface implements HandlerInterface
         return (isset($result->count)) ? $result->count : 0;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getSitemapData(): array
     {
-        $trackData = new TrackData();
+        $data = db()->paginate(
+            tableRows: $this->getSitemapDataCount(),
+            callback: function ($perPage, $offset){
+                $table = Tables::getTable(Tables::TRACKS);
+                $select = "CONCAT_WS( '/', '/tracks', slug_id, track_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
+                return db()->run(<<<SQL
+SELECT $select FROM $table WHERE track_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
+SQL, $perPage, $offset);
+            }, perPage: $this->getLimit());
+
+        return $data->data ?? [];
     }
 }

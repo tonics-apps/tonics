@@ -68,6 +68,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
             $fieldSettings = [...$fieldSettings, ...ThemeFolderViewHandler::handleTrackSingleFragment()];
             $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
         }
+        $fieldSettings[ThemeFolderViewHandler::TonicsBeatsTonicsKey] = true;
         $pageTemplate->setFieldSettings($fieldSettings);
     }
 

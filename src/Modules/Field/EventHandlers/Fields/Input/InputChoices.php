@@ -151,7 +151,7 @@ HTML;
         }
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
-<ul style="margin-left: 0;" class="list:style:none margin-top:0">
+<ul style="margin-left: 0;" class="list:style:none margin-top:0 max-height:500px overflow-x:auto">
     $choiceFrag
 </ul>
 </div>

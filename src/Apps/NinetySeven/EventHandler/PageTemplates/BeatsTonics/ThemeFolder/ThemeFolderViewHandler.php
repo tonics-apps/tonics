@@ -24,6 +24,8 @@ use RecursiveIteratorIterator;
 class ThemeFolderViewHandler implements HandlerInterface
 {
 
+    const TonicsBeatsTonicsKey = 'TonicsBeatsTonics_Theme';
+
     public function handleEvent(object $event): void
     {
         /** @var $event OnHookIntoTemplate */
@@ -150,6 +152,17 @@ class ThemeFolderViewHandler implements HandlerInterface
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
         try {
             $db = db();
+            $db->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
+                $db->With('category_tree',
+                    $db->Q()->Select('track_cat_id')->From($trackData::getTrackCategoryTable())
+                        ->WhereEquals('track_cat_id', $fieldSettings['track_cat_id'])
+                        ->UnionAll(
+                            $db->Q()->Select(' c.track_cat_id')->From("{$trackData::getTrackCategoryTable()} c")
+                                ->Join('category_tree ct', 'c.track_cat_parent_id', 'ct.track_cat_id')
+                        ),
+                    true);
+            });
+
             $db->Select('*')->From(db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
         t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings, t.track_status as _status,
         ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
@@ -158,11 +171,19 @@ class ThemeFolderViewHandler implements HandlerInterface
                 ->From("{$trackData::getTrackTable()} t")
                 ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
                 ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
+
                 ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
                 ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
+                // join cte if it is for filtering
+                ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
+                    $db ->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id");
+                 })
                 ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
                 ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
-                ->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id'])
+                // if it is not for filtering, use the current category
+                ->when(empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
+                    $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
+                })
                 ->Raw('UNION')
                 ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name, 
         (SELECT COUNT(*) FROM {$trackData::getTrackTracksCategoryTable()} ttc
@@ -173,7 +194,15 @@ class ThemeFolderViewHandler implements HandlerInterface
         ct.created_at as created_at,
         0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
                 ->From("{$trackData::getTrackCategoryTable()} ct")
-                ->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']))
+                // join cte if it is for filtering, else, we use only the current category
+                ->when(!empty(url()->getParams()), function (TonicsQuery $db){
+                    $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id")
+                        // we do not need to include the main category in the result set
+                        ->WhereNotEquals('ct.track_cat_id', 3);
+                }, function (TonicsQuery $db) use ($fieldSettings) {
+                    $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
+                })
+            ) // End Sub query
                 ->As('track_results')
                 ->when(is_array(url()->getParam('track_bpm')), function (TonicsQuery $db){
                     $db->WhereIn('track_results.bpm', url()->getParam('track_bpm'));

@@ -715,7 +715,7 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 }
 
 .max-height\:500px {
-    max-height: 400px;
+    max-height: 500px;
 }
 
 .max-height\:800px {

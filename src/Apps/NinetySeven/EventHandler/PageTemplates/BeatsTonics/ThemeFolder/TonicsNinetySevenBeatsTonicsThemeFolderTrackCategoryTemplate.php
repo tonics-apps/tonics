@@ -58,6 +58,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
             $fieldSettingsForMainTrackData = json_decode($mainTrackData->field_settings, true);
             $pageTemplate->getFieldData()->unwrapFieldContent($fieldSettingsForMainTrackData, contentKey: 'track_cat_content');
             $fieldSettings['ThemeFolder'] = true;
+            $fieldSettings[ThemeFolderViewHandler::TonicsBeatsTonicsKey] = true;
             $mainTrackData = [...$fieldSettingsForMainTrackData, ...(array)$mainTrackData];
             $fieldSettings = [...$mainTrackData, ...$fieldSettings];
             $pageTemplate->setFieldSettings($fieldSettings);

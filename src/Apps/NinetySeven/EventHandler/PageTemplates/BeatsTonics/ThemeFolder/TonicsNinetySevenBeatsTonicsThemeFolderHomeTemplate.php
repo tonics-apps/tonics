@@ -36,6 +36,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate implements PageTemplat
         $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
         $fieldSettings = $pageTemplate->getFieldSettings();
         $fieldSettings['ThemeFolderHome'] = true;
+        $fieldSettings[ThemeFolderViewHandler::TonicsBeatsTonicsKey] = true;
         $pageTemplate->setFieldSettings($fieldSettings);
     }
 }
