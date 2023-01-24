@@ -191,7 +191,7 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
             "name" => "TonicsCoupon",
             "type" => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1671952498',
+            "version" => '1-O-app.1674540680',
             "description" => "This is TonicsCoupon",
             "info_url" => '',
             "settings_page" => route('tonicsCoupon.settings'), // can be null or a route name

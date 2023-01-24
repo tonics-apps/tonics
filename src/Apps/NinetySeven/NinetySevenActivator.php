@@ -119,7 +119,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "NinetySeven",
             "type" => "Theme",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1671952498',
+            "version" => '1-O-Ola.1674540680',
             "description" => "NinetySeven Theme, The First Tonic Theme",
             "info_url" => '',
             "settings_page" => route('ninetySeven.settings'), // can be null or a route name
@@ -266,7 +266,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     "field_name": "input_rich-text",
     "field_id": 8,
     "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> \\u00a9 2023 Devsrealm |        <a href=\\\"https://tonics.app/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> \\u00a9 2022 Devsrealm |        <a href=\\\"https://devsrealm.com/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
   }
 ]
 JSON;

@@ -66,7 +66,7 @@ class CommentActivator implements ExtensionConfig
             "name" => "Comment",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1654594213',
+            "version" => '1-O-Ola.1674540680',
             "stable" => 0,
             "description" => "The Comment Module",
             "info_url" => '',

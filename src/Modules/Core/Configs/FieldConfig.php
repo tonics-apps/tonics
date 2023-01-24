@@ -314,7 +314,7 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 4,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"7e5llf54gds0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Settings\",\"inputName\":\"\",\"row\":\"2\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"7e5llf54gds0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Settings\",\"inputName\":\"\",\"row\":\"3\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Page",
@@ -353,87 +353,101 @@ class FieldConfig
   },
   {
     "fk_field_id": "Track Page",
-    "field_name": "input_text",
-    "field_id": 10,
-    "field_parent_id": 8,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1g7wkh8kwlwg000000000\",\"field_input_name\":\"track_bpm\",\"fieldName\":\"BPM\",\"inputName\":\"track_bpm\",\"textType\":\"number\",\"defaultValue\":\"125\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Track BPM\",\"readOnly\":\"0\",\"required\":\"0\"}"
-  },
-  {
-    "fk_field_id": "Track Page",
     "field_name": "input_select",
-    "field_id": 11,
+    "field_id": 10,
     "field_parent_id": 8,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"6zmwyh9ws7c0000000000\",\"field_input_name\":\"track_status\",\"fieldName\":\"Status\",\"inputName\":\"track_status\",\"selectData\":\"0:Draft,1:Publish,-1:Trash\",\"defaultValue\":\"\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "input_date",
-    "field_id": 12,
+    "field_id": 11,
     "field_parent_id": 8,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"35geneeemj60000000000\",\"field_input_name\":\"created_at\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_trackgenreselect",
-    "field_id": 13,
+    "field_id": 12,
     "field_parent_id": 4,
     "field_options": "{\"field_slug\":\"track_trackgenreselect\",\"track_trackgenreselect_cell\":\"3\",\"field_slug_unique_hash\":\"yv63jfn7dxc000000000\",\"field_input_name\":\"fk_genre_id\",\"fieldName\":\"Genre\",\"inputName\":\"fk_genre_id\",\"multipleSelect\":\"1\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_trackcategoryselect",
-    "field_id": 14,
+    "field_id": 13,
     "field_parent_id": 4,
     "field_options": "{\"field_slug\":\"track_trackcategoryselect\",\"track_trackcategoryselect_cell\":\"3\",\"field_slug_unique_hash\":\"6tvcjh7h4qg0000000000\",\"field_input_name\":\"fk_track_cat_id\",\"fieldName\":\"Category\",\"inputName\":\"fk_track_cat_id\",\"multipleSelect\":\"1\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_tracklicenseselect",
-    "field_id": 15,
+    "field_id": 14,
     "field_parent_id": 4,
     "field_options": "{\"field_slug\":\"track_tracklicenseselect\",\"track_tracklicenseselect_cell\":\"3\",\"field_slug_unique_hash\":\"112o1lw7n05s000000000\",\"field_input_name\":\"fk_license_id\",\"fieldName\":\"License\",\"inputName\":\"fk_license_id\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "track_trackartistselect",
-    "field_id": 16,
+    "field_id": 15,
     "field_parent_id": 4,
     "field_options": "{\"field_slug\":\"track_trackartistselect\",\"track_trackartistselect_cell\":\"4\",\"field_slug_unique_hash\":\"4w48rjsg7de0000000000\",\"field_input_name\":\"fk_artist_id\",\"fieldName\":\"Artist\",\"inputName\":\"fk_artist_id\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "modular_rowcolumn",
-    "field_id": 17,
+    "field_id": 16,
     "field_parent_id": 4,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"4\",\"field_slug_unique_hash\":\"7epby7s7kgg000000000\",\"field_input_name\":\"track_markers_container\",\"fieldName\":\"Markers\",\"inputName\":\"track_markers_container\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"5\",\"field_slug_unique_hash\":\"5jicx4w4n8o0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Others\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "modular_fieldselectiondropper",
+    "field_id": 17,
+    "field_parent_id": 16,
+    "field_options": "{\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"1\",\"field_slug_unique_hash\":\"6gfokal3f040000000000\",\"field_input_name\":\"track_filter_meta\",\"fieldName\":\"Filter Meta\",\"inputName\":\"track_filter_meta\",\"fieldSlug\":[\"track-default-filter\"],\"defaultFieldSlug\":\"track-default-filter\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "modular_rowcolumn",
+    "field_id": 18,
+    "field_parent_id": 16,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7epby7s7kgg000000000\",\"field_input_name\":\"track_markers_container\",\"fieldName\":\"Markers\",\"inputName\":\"track_markers_container\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "modular_rowcolumnrepeater",
-    "field_id": 18,
-    "field_parent_id": 17,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"5edpvzcchag0000000000\",\"field_input_name\":\"track_marker\",\"fieldName\":\"Track Marker\",\"inputName\":\"track_marker\",\"row\":\"1\",\"column\":\"3\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add More Track Marker\",\"cell\":\"on\"}"
-  },
-  {
-    "fk_field_id": "Track Page",
-    "field_name": "input_text",
     "field_id": 19,
     "field_parent_id": 18,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"42mq39hj2zu0000000000\",\"field_input_name\":\"track_marker_slug_id\",\"fieldName\":\"Track Slug ID\",\"inputName\":\"track_marker_slug_id\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Unique Track Slug ID\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"5edpvzcchag0000000000\",\"field_input_name\":\"track_marker\",\"fieldName\":\"Track Marker\",\"inputName\":\"track_marker\",\"row\":\"1\",\"column\":\"4\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add More Track Marker\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "input_text",
     "field_id": 20,
-    "field_parent_id": 18,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"5tbithfcyss0000000000\",\"field_input_name\":\"track_marker_start\",\"fieldName\":\"Track Start Position\",\"inputName\":\"track_marker_start\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"i.e 1:35 or 00:1:35\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_parent_id": 19,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"42mq39hj2zu0000000000\",\"field_input_name\":\"track_marker_slug_id\",\"fieldName\":\"Slug ID (Optional)\",\"inputName\":\"track_marker_slug_id\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Unique Track Slug ID\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Track Page",
     "field_name": "input_text",
     "field_id": 21,
-    "field_parent_id": 18,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"3\",\"field_slug_unique_hash\":\"3848wdbtvgo0000000000\",\"field_input_name\":\"track_marker_end\",\"fieldName\":\"Track End Position\",\"inputName\":\"track_marker_end\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"i.e 4:00 or 00:4:00\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_parent_id": 19,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"5tbithfcyss0000000000\",\"field_input_name\":\"track_marker_start\",\"fieldName\":\"Start Position\",\"inputName\":\"track_marker_start\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"i.e 1:35 or 00:1:35\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "input_text",
+    "field_id": 22,
+    "field_parent_id": 19,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"3\",\"field_slug_unique_hash\":\"3848wdbtvgo0000000000\",\"field_input_name\":\"track_marker_end\",\"fieldName\":\"End Position\",\"inputName\":\"track_marker_end\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"i.e 4:00 or 00:4:00\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Page",
+    "field_name": "input_text",
+    "field_id": 23,
+    "field_parent_id": 19,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"4\",\"field_slug_unique_hash\":\"1ierzftuw5c0000000000\",\"field_input_name\":\"track_marker_name\",\"fieldName\":\"Marker Name\",\"inputName\":\"track_marker_name\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"i.e Chorus\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Default Page Field",
@@ -671,14 +685,14 @@ class FieldConfig
     "field_name": "input_rich-text",
     "field_id": 3,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[\"PostContentEditor\"],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"217p13kr50cg000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Category Content\",\"inputName\":\"track_cat_content\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"You can start writing...\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[\"PostContentEditor\"],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"1\",\"field_slug_unique_hash\":\"217p13kr50cg000000000\",\"field_input_name\":\"track_cat_content\",\"fieldName\":\"Track Category Content\",\"inputName\":\"track_cat_content\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"You can start writing...\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Track Category Page",
     "field_name": "modular_rowcolumn",
     "field_id": 4,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4xwgii68v0c0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Category Settings\",\"inputName\":\"\",\"row\":\"2\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4xwgii68v0c0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Category Settings\",\"inputName\":\"\",\"row\":\"3\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Track Category Page",
@@ -714,6 +728,118 @@ class FieldConfig
     "field_id": 9,
     "field_parent_id": 6,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"2jy8awqg57m0000000000\",\"field_input_name\":\"created_at\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Category Page",
+    "field_name": "modular_fieldselectiondropper",
+    "field_id": 10,
+    "field_parent_id": 4,
+    "field_options": "{\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"3\",\"field_slug_unique_hash\":\"6f56nqh6mbc000000000\",\"field_input_name\":\"filter_type\",\"fieldName\":\"Filter Type\",\"inputName\":\"filter_type\",\"fieldSlug\":[\"track-default-filter\",\"track-default-filter-sample-packs\",\"track-default-filter-acapella\"],\"defaultFieldSlug\":\"track-default-filter\",\"hideInUserEditForm\":\"0\",\"expandField\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"3s8xh6pdk9o0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Filter\",\"inputName\":\"\",\"row\":\"3\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter",
+    "field_name": "input_text",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6h2eyvj0ab00000000000\",\"field_input_name\":\"track_bpm\",\"fieldName\":\"BPM\",\"inputName\":\"track_bpm\",\"textType\":\"number\",\"defaultValue\":\"125\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Track BPM\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter",
+    "field_name": "input_select",
+    "field_id": 3,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"2\",\"field_slug_unique_hash\":\"3aq5iq8e950000000000\",\"field_input_name\":\"track_default_filter_keys\",\"fieldName\":\"Keys\",\"inputName\":\"track_default_filter_keys\",\"selectData\":\"A,Am,A#,A#m,B,Bm,C,Cm,C#,C#m,D,Dm,D#,D#m,E,Em,F,Fm, F#,F#m,G,Gm,G#,G#m\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter",
+    "field_name": "input_text",
+    "field_id": 4,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"3\",\"field_slug_unique_hash\":\"5317vtir3as0000000000\",\"field_input_name\":\"track_default_filter_duration\",\"fieldName\":\"Duration\",\"inputName\":\"track_default_filter_duration\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"I.e, 00:23 or 01:20 or 00:01:20\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter",
+    "field_name": "input_select",
+    "field_id": 5,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"4\",\"field_slug_unique_hash\":\"f1rrmva09uw000000000\",\"field_input_name\":\"track_default_filter_mood\",\"fieldName\":\"Mood\",\"inputName\":\"track_default_filter_mood\",\"selectData\":\"Atmospheric,Dark,Dreamy,Emotional,Energetic,Exotic,Funky,Happy,Hopeful,Hypnotic,Intense,Intimate,Melancholic,Mellow, Mysterious,Nostalgic,Passionate,Peaceful,Playful,Reflective, Relaxed,Raw,Sad,Sensual,Soulful,Triumphant,Uplifting\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter",
+    "field_name": "input_choices",
+    "field_id": 6,
+    "field_parent_id": 1,
+    "field_options": "{\"field_slug\":\"input_choices\",\"input_choices_cell\":\"5\",\"field_slug_unique_hash\":\"1juyd114ur28000000000\",\"field_input_name\":\"track_default_filter_instruments\",\"fieldName\":\"Instruments\",\"inputName\":\"track_default_filter_instruments\",\"choiceType\":\"checkbox\",\"choices\":\"Accordion:Accordion,Acoustic Bass:Acoustic Bass,Acoustic Grand Piano:Acoustic Grand Piano,Acoustic Guitar (nylon):Acoustic Guitar (nylon),Acoustic Guitar (steel):Acoustic Guitar (steel),Agogo:Agogo,Alto Sax:Alto Sax,Applause:Applause,Bagpipe:Bagpipe,Banjo:Banjo,Baritone Sax:Baritone Sax,Bass:Bass,Bassoon:Bassoon,Bird Tweet:Bird Tweet,Blown Bottle:Blown Bottle,Bongos:Bongos,Brass Section:Brass Section,Breath Noise:Breath Noise,Bright Acoustic Piano:Bright Acoustic Piano,Celesta:Celesta,Cello:Cello,Choir Aahs:Choir Aahs,Church Organ:Church Organ,Clarinet:Clarinet,Clavinet:Clavinet,Congas:Congas,Contrabass:Contrabass,Cymbals:Cymbals,Distortion Guitar:Distortion Guitar,Drawbar Organ:Drawbar Organ,Drums:Drums,Dulcimer:Dulcimer,Electric Bass (finger):Electric Bass (finger),Electric Bass (pick):Electric Bass (pick),Electric Grand Piano:Electric Grand Piano,Electric Guitar (clean):Electric Guitar (clean),Electric Guitar (jazz):Electric Guitar (jazz),Electric Guitar (muted):Electric Guitar (muted),Electric Piano 1:Electric Piano 1,Electric Piano 2:Electric Piano 2,English Horn:English Horn,FX 1 (rain):FX 1 (rain),FX 2 (soundtrack):FX 2 (soundtrack),FX 3 (crystal):FX 3 (crystal),FX 4 (atmosphere):FX 4 (atmosphere),FX 5 (brightness):FX 5 (brightness),FX 6 (goblins):FX 6 (goblins),FX 7 (echoes):FX 7 (echoes),FX 8 (sci-fi):FX 8 (sci-fi),Fiddle:Fiddle,Flute:Flute,French Horn:French Horn,Fretless Bass:Fretless Bass,Glockenspiel:Glockenspiel,Guitar Fret Noise:Guitar Fret Noise,Guitar Harmonics:Guitar Harmonics,Guitar:Guitar,Gunshot:Gunshot,Harmonica:Harmonica,Harp:Harp,Harpsichord:Harpsichord,Helicopter:Helicopter,Honky-tonk Piano:Honky-tonk Piano,Kalimba:Kalimba,Koto:Koto,Lead 1 (square):Lead 1 (square),Lead 2 (sawtooth):Lead 2 (sawtooth),Lead 3 (calliope):Lead 3 (calliope),Lead 4 (chiff):Lead 4 (chiff),Lead 5 (charang):Lead 5 (charang),Lead 6(voice):Lead 6 (voice),Lead 7 (fifths):Lead 7 (fifths),Lead 8 (bass + lead):Lead 8 (bass + lead),Mandolin:Mandolin,Maracas:Maracas,Marimba:Marimba,Melodic Tom:Melodic Tom,Music Box:Music Box,Muted Trumpet:Muted Trumpet,Oboe:Oboe,Ocarina:Ocarina,Orchestra Hit:Orchestra Hit,Orchestral Harp:Orchestral Harp,Overdriven Guitar:Overdriven Guitar,Pad 1 (new age):Pad 1 (new age),Pad 2 (warm):Pad 2 (warm),Pad 3 (polysynth):Pad 3 (polysynth),Pad 4 (choir):Pad 4 (choir),Pad 5 (bowed):Pad 5 (bowed),Pad 6 (metallic):Pad 6 (metallic),Pad 7 (halo):Pad 7 (halo),Pad 8 (sweep):Pad 8 (sweep),Pan Flute:Pan Flute,Percussive Organ:Percussive Organ,Piano:Piano,Piccolo:Piccolo,Pizzicato Strings:Pizzicato Strings,Recorder:Recorder,Reed Organ:Reed Organ,Reverse Cymbal:Reverse Cymbal,Rock Organ:Rock Organ,Saxophone:Saxophone,Seashore:Seashore,Shakuhachi:Shakuhachi,Shamisen:Shamisen,Shanai:Shanai,Sitar:Sitar,Slap Bass 1:Slap Bass 1,Slap Bass 2:Slap Bass 2,Snare drum:Snare drum,Soprano Sax:Soprano Sax,Steel Drums:Steel Drums,Steel drums:Steel drums,String Ensemble 1:String Ensemble 1,String Ensemble 2:String Ensemble 2,Synth Bass 1:Synth Bass 1,Synth Bass 2:Synth Bass 2,Synth Brass 1:Synth Brass 1,Synth Brass 2:Synth Brass 2,Synth Drum:Synth Drum,Synth Strings 1:Synth Strings 1,Synth Strings 2:Synth Strings 2,Synth Voice:Synth Voice,Tabla:Tabla,Taiko Drum:Taiko Drum,Tango Accordion:Tango Accordion,Telephone Ring:Telephone Ring,Tenor Sax:Tenor Sax,Timpani:Timpani,Tinkle Bell:Tinkle Bell,Tremolo Strings:Tremolo Strings,Triangle:Triangle,Trombone:Trombone,Trumpet:Trumpet,Tuba:Tuba,Tubular Bells:Tubular Bells,Vibraphone:Vibraphone,Viola:Viola,Violin:Violin,Vocals:Vocals,Voice Oohs:Voice Oohs,Whistle:Whistle,Woodblock:Woodblock,Xylophone:Xylophone\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter",
+    "field_name": "modular_fieldselectiondropper",
+    "field_id": 7,
+    "field_parent_id": 1,
+    "field_options": "{\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"6\",\"field_slug_unique_hash\":\"4781z2j9hc80000000000\",\"field_input_name\":\"track_default_filter_moreFilters\",\"fieldName\":\"More Filters\",\"inputName\":\"track_default_filter_moreFilters\",\"fieldSlug\":[\"track-default-filter-sample-packs\",\"track-default-filter-acapella\"],\"defaultFieldSlug\":\"track-default-filter-sample-packs\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Sample Packs]",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"eqttwypyztk000000000\",\"field_input_name\":\"track_default_filter_samplePacks\",\"fieldName\":\"Sample Packs Filter\",\"inputName\":\"track_default_filter_samplePacks\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Sample Packs]",
+    "field_name": "input_choices",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_slug\":\"input_choices\",\"input_choices_cell\":\"1\",\"field_slug_unique_hash\":\"76hyys33dk80000000000\",\"field_input_name\":\"track_default_filter_samplePacks_Type\",\"fieldName\":\"Sample Packs Type\",\"inputName\":\"track_default_filter_samplePacks_Type\",\"choiceType\":\"checkbox\",\"choices\":\"Bass:Bass,Construction kit:Construction kit,Drum:Drum,FX:FX,Full track:Full track,Guitar:Guitar,Live instrument:Live instrument,Loop:Loop,Midi:Midi,One-shots:One-shots,Piano:Piano,Percussion:Percussion,Preset:Preset,Sample:Sample,Synth:Synth,Vocal:Vocal\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Acapella]",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"6jtq847s9hc0000000000\",\"field_input_name\":\"track_default_filter_acapella\",\"fieldName\":\"Acapella Filter\",\"inputName\":\"track_default_filter_acapella\",\"row\":\"3\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Acapella]",
+    "field_name": "input_select",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"3b7ekb66h7s0000000000\",\"field_input_name\":\"track_default_filter_acapella_gender\",\"fieldName\":\"Gender\",\"inputName\":\"track_default_filter_acapella_gender\",\"selectData\":\"Male,Female,Male & Female\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Acapella]",
+    "field_name": "input_choices",
+    "field_id": 3,
+    "field_parent_id": 1,
+    "field_options": "{\"field_slug\":\"input_choices\",\"input_choices_cell\":\"2\",\"field_slug_unique_hash\":\"4o0baxfiq2g0000000000\",\"field_input_name\":\"track_default_filter_acapella_vocalStyle\",\"fieldName\":\"Vocal Style\",\"inputName\":\"track_default_filter_acapella_vocalStyle\",\"choiceType\":\"checkbox\",\"choices\":\"Accapella:Accapella,Adlib:Adlib, Harmonies:Harmonies,Melody:Melody,Rap:Rap,Spoken word:Spoken word,Vocal chop:Vocal chop,Vocal effect:Vocal effect,Vocal harmony:Vocal harmony,Vocal loop:Vocal loop,Vocal one-shot:Vocal one-shot,Vocal sample:Vocal sample,Vocal sound effect:Vocal sound effect,Whispering:Whispering\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Acapella]",
+    "field_name": "input_select",
+    "field_id": 4,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"3\",\"field_slug_unique_hash\":\"88f2lv5iw2g000000000\",\"field_input_name\":\"track_default_filter_acapella_emotion\",\"fieldName\":\"Emotion\",\"inputName\":\"track_default_filter_acapella_emotion\",\"selectData\":\"Angry:Angry,Sad:Sad,Happy:Happy,Emotional:Emotional,Passionate:Passionate,Soulful:Soulful,Intense:Intense,Playful:Playful,Melancholic:Melancholic,Nostalgic:Nostalgic,Hypnotic:Hypnotic,Mysterious:Mysterious,Mellow:Mellow,Relaxed:Relaxed,Reflective:Reflective\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Acapella]",
+    "field_name": "input_select",
+    "field_id": 5,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"4\",\"field_slug_unique_hash\":\"2r4hsnobk860000000000\",\"field_input_name\":\"track_default_filter_acapella_scale\",\"fieldName\":\"Scale\",\"inputName\":\"track_default_filter_acapella_scale\",\"selectData\":\"Alto:Alto,Baritone:Baritone,Bass:Bass,Countertenor:Countertenor,Mezzo-soprano:Mezzo-soprano,Soprano:Soprano,Tenor:Tenor\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Default Filter »» [Acapella]",
+    "field_name": "input_choices",
+    "field_id": 6,
+    "field_parent_id": 1,
+    "field_options": "{\"field_slug\":\"input_choices\",\"input_choices_cell\":\"5\",\"field_slug_unique_hash\":\"40tgb29l7ru0000000000\",\"field_input_name\":\"track_default_filter_acapella_effects\",\"fieldName\":\"Effects\",\"inputName\":\"track_default_filter_acapella_effects\",\"choiceType\":\"checkbox\",\"choices\":\"Autotune:Autotune,Chorus:Chorus,Delay:Delay,Echo:Echo,Flanger:Flanger,Harmony:Harmony,Phaser:Phaser,Reverb:Reverb,Vibrato:Vibrato,Distortion:Distortion,Pitch shift:Pitch shift,Compression:Compression,EQ:EQ,Filtering:Filtering,Volume:Volume,Wah-wah:Wah-wah\",\"defaultValue\":\"\"}"
   }
 ]
 JSON;
