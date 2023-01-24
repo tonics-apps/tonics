@@ -128,6 +128,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
                 Tables::getTable(Tables::SESSIONS) => Tables::$TABLES[Tables::SESSIONS],
                 Tables::getTable(Tables::GLOBAL) => Tables::$TABLES[Tables::GLOBAL],
                 Tables::getTable(Tables::USERS) => Tables::$TABLES[Tables::USERS],
+                Tables::getTable(Tables::ROLES) => Tables::$TABLES[Tables::ROLES],
                 Tables::getTable(Tables::BROKEN_LINKS) => Tables::$TABLES[Tables::BROKEN_LINKS],
                 Tables::getTable(Tables::JOBS) => Tables::$TABLES[Tables::JOBS],
                 Tables::getTable(Tables::SCHEDULER) => Tables::$TABLES[Tables::SCHEDULER],
@@ -183,7 +184,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     {
         $appMigrate = new ModuleMigrate();
         $commandOptions = [
-            '--module' => 'Customer',
+            '--module' => 'Core',
             '--migrate' => '',
         ];
         $appMigrate->setIsCLI(false);

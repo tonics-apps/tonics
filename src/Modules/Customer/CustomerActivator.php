@@ -102,7 +102,7 @@ class CustomerActivator implements ExtensionConfig
     {
         $appMigrate = new ModuleMigrate();
         $commandOptions = [
-            '--module' => 'Core',
+            '--module' => 'Customer',
             '--migrate' => '',
         ];
         $appMigrate->setIsCLI(false);
