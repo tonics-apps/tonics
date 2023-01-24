@@ -36,6 +36,15 @@ try {
         .stopPropagation(false)
         .run();
 
+    // For Read More Container
+    window.TonicsScript.MenuToggle('.main-tonics-folder-container', window.TonicsScript.Query())
+        .settings('.tonics-folder-about-container', '.read-more-button', '.tonics-track-content')
+        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd"])
+        .menuIsOn(["swing-in-top-fwd"], ["swing-out-top-fwd", "d:none"])
+        .closeOnClickOutSide(false)
+        .stopPropagation(false)
+        .run();
+
     // For Cart Toggle
     window.TonicsScript.MenuToggle('.tonics-cart-container', window.TonicsScript.Query())
         .settings('.cart-button-counter', '.cart-button', '.cart-child-container')
@@ -170,6 +179,7 @@ initRouting('body', ({url, type}) => {
 function tonicsAudioNavForFolder(data, url){
     let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
         beforeFolderSearchLoading = document.querySelector('.before-folder-search'),
+        tonicsFolderAboutContainer = document.querySelector('.tonics-folder-about-container'),
         tonicsFolderSearch = document.querySelector('.tonics-folder-search');
 
     if (tonicsFolderMain && data.data?.fragment) {
@@ -177,6 +187,7 @@ function tonicsAudioNavForFolder(data, url){
         document.title = data?.data.title;
         if (tonicsFolderSearch) {
             tonicsFolderSearch.remove();
+            tonicsFolderAboutContainer.remove();
         }
 
         if (beforeFolderSearchLoading) {

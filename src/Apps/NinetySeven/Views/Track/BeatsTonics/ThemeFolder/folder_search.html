@@ -71,3 +71,18 @@
   ]]
 
 ]]
+
+[[b('tonics_folder_content')
+    [[if("v[Data.track_cat_content] !== block[empty]")
+      <div style="margin-bottom: 1rem;" class="tonics-folder-about-container">
+        <div class="form-group row d:flex flex-gap:small align-items:center justify-content:center flex-wrap:wrap">
+          <button title="Description About [[v('Data.track_cat_name')]] Folder" type="button" class="border:none read-more-button bg:white-one color:black border-width:default cart-width border:black padding:tiny margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            <span class="text">Read More About [[v('Data.track_cat_name')]] Folder ↓</span>
+          </button>
+        </div>
+        <article class="owl tonics-track-content d:none color:white">
+          [[_v('Data.track_cat_content')]]
+        </article>
+      </div>
+    ]]
+]]

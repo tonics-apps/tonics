@@ -289,6 +289,10 @@ class ThemeFolderViewHandler implements HandlerInterface
     public function handleFolderSearchFragment(TonicsView $tonicsView): string
     {
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
+        if (isset($fieldSettings['track_cat_content']) && $fieldSettings['track_cat_content'] === '<p><br></p>'){
+            $fieldSettings['track_cat_content'] = '';
+            $tonicsView->addToVariableData('Data', $fieldSettings);
+        }
         $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
         if ($root){
             return '';
@@ -300,7 +304,7 @@ class ThemeFolderViewHandler implements HandlerInterface
             $tonicsView->addToVariableData('Data', $fieldSettings);
         }
 
-        return $tonicsView->renderABlock('tonics_folder_search');
+        return $tonicsView->renderABlock('tonics_folder_content') . $tonicsView->renderABlock('tonics_folder_search');
     }
 
     /**
