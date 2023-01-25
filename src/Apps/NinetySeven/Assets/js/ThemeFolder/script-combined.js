@@ -2059,12 +2059,14 @@ function tonicsAudioNavForFolder(data, url){
 
 function tonicsAudioNavForTrack(data, url){
     let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
+        tonicsFolderAboutContainer = document.querySelector('.tonics-folder-about-container'),
         tonicsFolderSearch = document.querySelector('.tonics-folder-search');
     if (tonicsFolderMain && data.data?.fragment) {
         tonicsFolderMain.innerHTML = data?.data.fragment;
         document.title = data?.data.title;
         if (tonicsFolderSearch) {
             tonicsFolderSearch.remove();
+            tonicsFolderAboutContainer.remove();
         }
     }
 }
@@ -2180,7 +2182,6 @@ class TonicsAudioPlayerClickHandler {
                 let trackTitle = trackItem?.dataset?.audioplayer_title;
                 let trackImage = trackItem?.dataset?.audioplayer_image;
                 let indieLicense = JSON.parse(el.dataset.indie_license);
-                console.log(trackSlugID);
                 if (trackSlugID){
                     indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle;
                     indieLicense.track_image = trackImage; indieLicense.url_page = trackURLPage;
@@ -2234,6 +2235,129 @@ class TonicsAudioPlayerClickHandler {
 }
 
 
+//----------------------
+//--- PAYMENT EVENTS
+//---------------------
+
+class TonicsPaymentEventAbstract {
+
+    getPaymentButton() {
+
+    }
+
+    bootPayment() {
+
+    }
+}
+
+class OnAudioPlayerPaymentGatewayCollatorEvent {
+    checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
+
+    addPaymentButton(string) {
+        if (this.checkout_button_div_el){
+            this.checkout_button_div_el.insertAdjacentHTML('beforeend', string)
+        }
+    }
+
+    /**
+     * Load External or Internal Script Asynchronously
+     * @param $scriptPath
+     * e.g /js/script/tonics.js
+     * @param $uniqueIdentifier
+     * e.g tonics, this is useful for preventing the script from loading twice
+     */
+    loadScriptDynamically($scriptPath, $uniqueIdentifier){
+        return new Promise((resolve, reject) => {
+            let scriptCheck = document.querySelector(`[data-script_id="${$uniqueIdentifier}"]`);
+            // if script has previously been loaded, resolve
+            if (scriptCheck){
+                resolve();
+                // else...load script
+            } else {
+                const script = document.createElement('script');
+                script.dataset.script_id = $uniqueIdentifier;
+                document.body.appendChild(script);
+                script.onload = resolve;
+                script.onerror = reject;
+                script.async = true;
+                script.src = $scriptPath;
+            }
+        });
+    }
+}
+
+//----------------------
+//--- PAYMENT HANDLERS
+//---------------------
+
+class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
+
+    constructor(event) {
+        super();
+        event.addPaymentButton(this.getPaymentButton());
+        this.bootPayment(event);
+    }
+
+    getPaymentButton() {
+        return `
+        <div id="smart-button-container">
+            <div style="text-align: center;">
+                <div id="paypal-button-container"></div>
+            </div>
+        </div>
+<!--        <button type="button" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">-->
+<!--            <span class="text text:no-wrap">Pay With PayPal →</span>-->
+<!--        </button>-->
+        `;
+    }
+
+    bootPayment(event = null) {
+        let self = this;
+        if (event){
+            const clientID = "AWqLRTOUEtBYPRgUhgvag2fMBWA_jBqIh3KcPq-9UZL5SUpwN-vsKijwxsCrfv9kKlgTZD_5_TznifZB";
+            const currencyName = 'USD';
+            event.loadScriptDynamically(`https://www.paypal.com/sdk/js?client-id=${clientID}&enable-funding=venmo&currency=${currencyName}`, 'paypal')
+                .then(() => {
+                    self.initPayPalButton();
+                });
+        }
+    }
+
+    initPayPalButton() {
+        paypal.Buttons({
+            style: {
+                shape: 'pill',
+                color: 'white',
+                layout: 'vertical',
+                label: 'pay',
+            },
+
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{"amount":{"currency_code":"USD","value":1}}]
+                });
+            },
+
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(orderData) {
+
+                    // Full available details
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+                    // Show a success message within this page, e.g.
+                    const element = document.getElementById('paypal-button-container');
+                    element.innerHTML = '';
+                    element.innerHTML = '<h3>Thank you for your payment!</h3>';
+                    // Or go to another URL:  actions.redirect('thank_you.html');
+                });
+            },
+
+            onError: function(err) {
+                console.log(err);
+            }
+        }).render('#paypal-button-container');
+    }
+}
 
 //---------------------------
 //--- HANDLER AND EVENT SETUP
@@ -2250,4 +2374,15 @@ if (window?.TonicsEvent?.EventConfig) {
             TonicsAudioPlayerClickHandler
         ]
     );
+
+    window.TonicsEvent.EventConfig.OnAudioPlayerPaymentGatewayCollatorEvent.push(
+        ...[
+            TonicsPayPalGateway
+        ]
+    );
 }
+
+// Fire Payment Gateways
+let OnAudioPlayerPaymentGatewayCollator = new OnAudioPlayerPaymentGatewayCollatorEvent();
+window.TonicsEvent.EventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlayerPaymentGatewayCollator, OnAudioPlayerPaymentGatewayCollatorEvent);
+

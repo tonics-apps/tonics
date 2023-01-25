@@ -134,6 +134,57 @@
 ]]
 
 [[hook_into('in_main')
+
+[[-
+<div id="smart-button-container">
+    <div style="text-align: center;">
+        <div id="paypal-button-container"></div>
+    </div>
+</div>
+<script src="https://www.paypal.com/sdk/js?client-id=sb&enable-funding=venmo&currency=USD" data-sdk-integration-source="button-factory"></script>
+<script>
+    function initPayPalButton() {
+        paypal.Buttons({
+            style: {
+                shape: 'pill',
+                color: 'white',
+                layout: 'horizontal',
+                label: 'pay',
+                tagline: true
+            },
+
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{"amount":{"currency_code":"USD","value":1}}]
+                });
+            },
+
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(orderData) {
+
+                    // Full available details
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+                    // Show a success message within this page, e.g.
+                    const element = document.getElementById('paypal-button-container');
+                    element.innerHTML = '';
+                    element.innerHTML = '<h3>Thank you for your payment!</h3>';
+
+                    // Or go to another URL:  actions.redirect('thank_you.html');
+
+                });
+            },
+
+            onError: function(err) {
+                console.log(err);
+            }
+        }).render('#paypal-button-container');
+    }
+    initPayPalButton();
+</script>
+
+-]]
+
     <style>
 
         .tonics-files-container {
@@ -213,9 +264,23 @@
             <div class="tonics-cart-items-container">
             </div>
 
-            <button class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
-                <span class="text">CHECKOUT → <span class="tonics-checkout-price">$2,330.00</span></span>
-            </button>
+            <div class="owl checkout-payment-gateway-container">
+                <span title="That is The Total Price, Enter Email and Pay Below"
+                      style="font-size: max(1rem,min(2.5vw,1.5rem));" class="text">→  <span class="tonics-checkout-price">$0.00</span> </span>
+
+                <div style="font-size: 85%;" class="checkout-payment-gateways owl">
+                    <div class="form-group row">
+                        <label style="margin-inline-end: auto;/* font-size: inherit !important; */" for="email">
+                            <span>E-Mail Address</span>
+                        </label>
+                        <input style="font-size: inherit !important;" class="color:black checkout-email-tonics bg:white-one border-width:default border:black" value="" type="email" id="email"
+                               placeholder="Enter E-mail Address" name="email" required="" autocomplete="email" autofocus="">
+                    </div>
+                    <div class="form-group row d:flex checkout-payment-gateways-buttons flex-gap:small align-items:center flex-wrap:wrap">
+                        [[- Hook In Payment Buttons -]]
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -224,13 +289,13 @@
         [[if("v[Data.ThemeFolderHome] || v[Data.ThemeFolder]")
             [[add_hook('tonics_folder_search')]]
             <span class="svg-per-file-loading before-folder-search d:none color:white bg:pure-white"></span>
-            <div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
+            <div style="padding-top: 1rem;" class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
                 [[add_hook('tonics_folder_main')]]
             </div>
         ]]
 
         [[if("v[Data.ThemeTrackSingle]")
-            <div class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
+            <div style="padding-top: 1rem;" class="d:flex flex-wrap:wrap justify-content:center tonics-folder-main">
                 [[add_hook('tonics_single_main')]]
             </div>
         ]]

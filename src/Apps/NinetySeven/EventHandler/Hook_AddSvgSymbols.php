@@ -45,6 +45,7 @@ class Hook_AddSvgSymbols implements HandlerInterface
                     $helper::SvgSymbol_Pause_Outline,
                     $helper::SvgSymbol_Folder,
                     $helper::SvgSymbol_Download,
+                    $helper::SvgSymbol_Remove,
                 ]));
             }
 

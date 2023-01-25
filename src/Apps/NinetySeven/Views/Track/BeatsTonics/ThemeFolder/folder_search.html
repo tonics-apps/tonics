@@ -74,13 +74,28 @@
 
 [[b('tonics_folder_content')
     [[if("v[Data.track_cat_content] !== block[empty]")
-      <div style="margin-bottom: 1rem;" class="tonics-folder-about-container">
+    <style>
+      .tonics-track-content-folder::before {
+        content: "“";
+        font-size: 60px;
+        position: absolute;
+        top: 0;
+        left: 10px;
+        color: #ccc;
+      }
+
+      .tonics-fancy-border {
+        border: 2px solid;
+        border-image: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000) 1;
+      }
+    </style>
+      <div style="margin-bottom: 2rem;" class="tonics-folder-about-container">
         <div class="form-group row d:flex flex-gap:small align-items:center justify-content:center flex-wrap:wrap">
-          <button title="Description About [[v('Data.track_cat_name')]] Folder" type="button" class="border:none read-more-button bg:white-one color:black border-width:default cart-width border:black padding:tiny margin-top:0 cursor:pointer button:box-shadow-variant-2">
+          <button title="Description About [[v('Data.track_cat_name')]] Folder" type="button" class="read-more-button d:flex align-items:center bg:transparent border:none color:white border-width:default border:white padding:default cursor:pointer button:box-shadow-variant-2">
             <span class="text">Read More About [[v('Data.track_cat_name')]] Folder ↓</span>
           </button>
         </div>
-        <article class="owl tonics-track-content d:none color:white">
+        <article style="max-width: 1100px;margin: 1rem auto 0;" class="owl tonics-fancy-border padding:default bg:pure-white tonics-track-content tonics-track-content-folder d:none">
           [[_v('Data.track_cat_content')]]
         </article>
       </div>

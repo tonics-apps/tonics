@@ -489,8 +489,8 @@ const EventsConfig = {
     OnAudioPlayerPauseEvent: [],
     OnAudioPlayerPreviousEvent: [],
     OnAudioPlayerNextEvent: [],
-
     OnAudioPlayerClickEvent: [],
+    OnAudioPlayerPaymentGatewayCollatorEvent: [],
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;

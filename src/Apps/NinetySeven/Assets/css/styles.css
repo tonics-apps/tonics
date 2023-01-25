@@ -572,9 +572,9 @@ fieldset {
 --------------------------------------------------------------*/
 
 .tonics-cart-container {
-    /*IF VIEWPORT IS GREATER THAN 300px, USE 26EM, IF IT IS LOWER THAN 300 USE 1EM*/
-    width: clamp((1em), (100vw - 300px )*1000, 26em);
     margin-left: auto;
+    /*IF VIEWPORT IS GREATER THAN 400px, USE 26EM, IF IT IS LOWER THAN 400 USE 5EM*/
+    width: clamp((5em),(100vw - 400px)*1000,26em);
 }
 
 .cart > * + * {
