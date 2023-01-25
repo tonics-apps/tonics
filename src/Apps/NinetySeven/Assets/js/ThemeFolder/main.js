@@ -120,7 +120,6 @@ function initRouting(containerSelector, navigateCallback = null) {
     // Bind a click event listener to the container using event delegation
     container.addEventListener('click', e => {
         const el = e.target;
-        e.preventDefault();
         if (el.closest('[data-tonics_navigate]')) {
             e.preventDefault();
             let element = el.closest('[data-tonics_navigate]');
