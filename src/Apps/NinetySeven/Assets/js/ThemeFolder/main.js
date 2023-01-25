@@ -225,6 +225,15 @@ if (tonicsCartSectionContainer){
             trackCart.setCurrentState(trackCart.RemoveItemFromCartState);
             trackCart.runStates();
         }
+
+        const cartButtonCounterEl = el.closest('.cart-button-counter');
+        if(cartButtonCounterEl && !cartButtonCounterEl.dataset.hasOwnProperty('tonics_loaded_payment_gateway')){
+            cartButtonCounterEl.dataset.tonics_loaded_payment_gateway =' true';
+            // Fire Payment Gateways
+            let OnAudioPlayerPaymentGatewayCollator = new OnAudioPlayerPaymentGatewayCollatorEvent();
+            window.TonicsEvent.EventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlayerPaymentGatewayCollator, OnAudioPlayerPaymentGatewayCollatorEvent);
+        }
+
     });
 }
 
@@ -399,6 +408,10 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
 
     addPaymentButton(string) {
         if (this.checkout_button_div_el){
+            let loadingAnimation = this.checkout_button_div_el.querySelector('.loading-button-payment-gateway');
+            if (loadingAnimation && !loadingAnimation.classList.contains('d:none')){
+                loadingAnimation.classList.add('d:none');
+            }
             this.checkout_button_div_el.insertAdjacentHTML('beforeend', string)
         }
     }
@@ -438,7 +451,6 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
 
     constructor(event) {
         super();
-        event.addPaymentButton(this.getPaymentButton());
         this.bootPayment(event);
     }
 
@@ -462,6 +474,7 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
             const currencyName = 'USD';
             event.loadScriptDynamically(`https://www.paypal.com/sdk/js?client-id=${clientID}&enable-funding=venmo&currency=${currencyName}`, 'paypal')
                 .then(() => {
+                    event.addPaymentButton(self.getPaymentButton());
                     self.initPayPalButton();
                 });
         }
@@ -525,8 +538,4 @@ if (window?.TonicsEvent?.EventConfig) {
         ]
     );
 }
-
-// Fire Payment Gateways
-let OnAudioPlayerPaymentGatewayCollator = new OnAudioPlayerPaymentGatewayCollatorEvent();
-window.TonicsEvent.EventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlayerPaymentGatewayCollator, OnAudioPlayerPaymentGatewayCollatorEvent);
 
