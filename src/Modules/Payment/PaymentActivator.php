@@ -14,10 +14,12 @@ namespace App\Modules\Payment;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Payment\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class PaymentActivator implements ExtensionConfig
 {
+    use Routes;
 
     /**
      * @inheritDoc
@@ -50,7 +52,8 @@ class PaymentActivator implements ExtensionConfig
      */
     public function route(Route $routes): Route
     {
-        return $routes;
+        $this->routeApi($routes);
+        return $this->routeWeb($routes);
     }
 
     /**

@@ -39,16 +39,19 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `purchase_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(64) DEFAULT NULL,
   `fk_customer_id` BIGINT NOT NULL,
-  `total_price` decimal(10,2) DEFAULT NULL,
+  `total_price` decimal(15, 2) DEFAULT NULL,
   `payment_status` enum('pending','processing','completed','decline') NOT NULL DEFAULT 'pending',
   `others` longtext NOT NULL DEFAULT '$othersJSON' CHECK (json_valid(`others`)),
+  `invoice_id` VARCHAR(255) GENERATED ALWAYS AS (JSON_EXTRACT(others, '$.invoice_id')) STORED,
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   UNIQUE KEY (`slug_id`),
   PRIMARY KEY (`purchase_id`),
+  INDEX invoice_id_index (`invoice_id`),
   KEY `purchases_fk_customer_id_foreign` (`fk_customer_id`),
   CONSTRAINT `purchases_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customerTable` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
     }
 
     /**

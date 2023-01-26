@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `pt_id` int(10) unsigned NOT NULL AUTO_INCREMENT, -- pt_ meaning purchasetrack
   `fk_purchase_id` int(10) unsigned NOT NULL,
   `fk_track_id` int(10) unsigned NOT NULL,
-  `price` decimal(6,2) NOT NULL, -- Store Total price, upto 9999.99
+  `price` decimal(6,2) NOT NULL, -- Store Total price, upto 999999.99
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`pt_id`),
