@@ -17,6 +17,8 @@ use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
+use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
+use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
 use App\Modules\Track\EventHandlers\DefaultTrackCategoryFieldHandler;
 use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
 use App\Modules\Track\EventHandlers\GenreMenuMetaBox;
@@ -100,6 +102,10 @@ class TrackActivator implements ExtensionConfig
 
             OnAddSitemap::class => [
                 TrackSitemap::class
+            ],
+
+            OnAddTrackPaymentEvent::class => [
+                AudioTonicsPayPalHandler::class,
             ]
         ];
     }

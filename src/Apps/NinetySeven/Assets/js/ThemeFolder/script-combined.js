@@ -2293,6 +2293,8 @@ class TonicsAudioPlayerClickHandler {
 
 class TonicsPaymentEventAbstract {
 
+    getPaymentName() {}
+
     getPaymentButton() {
 
     }
@@ -2303,6 +2305,10 @@ class TonicsPaymentEventAbstract {
 }
 
 class OnAudioPlayerPaymentGatewayCollatorEvent {
+
+    get_request_flow_address = "/tracks_payment/get_request_flow";
+    post_request_flow_address = "/tracks_payment/get_request_flow";
+
     checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
 
     addPaymentButton(string) {
@@ -2313,6 +2319,22 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
             }
             this.checkout_button_div_el.insertAdjacentHTML('beforeend', string)
         }
+    }
+
+    generateInvoiceID(PaymentHandlerName, onSuccess = null, onError = null) {
+        window.TonicsScript.XHRApi({ PaymentHandlerName: PaymentHandlerName, PaymentQueryType: "GenerateInvoiceID" }).Get(this.get_request_flow_address, function (err, data) {
+            if (data) {
+                data = JSON.parse(data);
+                if (onSuccess){
+                    onSuccess(data);
+                }
+
+                if (onError){
+                    onError()
+                }
+            }
+        });
+
     }
 
     /**
@@ -2353,6 +2375,10 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
         this.bootPayment(event);
     }
 
+    getPaymentName() {
+        return "AudioTonicsPayPalHandler";
+    }
+
     getPaymentButton() {
         return `
         <div id="smart-button-container">
@@ -2374,14 +2400,14 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
             event.loadScriptDynamically(`https://www.paypal.com/sdk/js?client-id=${clientID}&enable-funding=venmo&currency=${currencyName}`, 'paypal')
                 .then(() => {
                     event.addPaymentButton(self.getPaymentButton());
-                    self.initPayPalButton();
+                    self.initPayPalButton(event);
                 });
         }
     }
 
 
 
-    initPayPalButton() {
+    initPayPalButton(event) {
         let self = this;
         const cart = new TrackCart();
         const currency = 'USD';
@@ -2396,33 +2422,47 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                 label: 'pay',
             },
 
-            onClick: function(data)  {
-                if (payeeEmail && payeeEmail.checkValidity()) {
-                    cart.removeCheckoutEmailInvalid();
-                } else {
-                    cart.addCheckoutEmailInvalid();
-                    throw new Error(`Invalid Email Address`);
-                }
-            },
-
             createOrder: function(data, actions) {
-                return actions.order.create({
-                    "purchase_units": [{
-                        "payee": {
-                            "email_address": payeeEmail.value
-                        },
-                        "amount": {
-                            "currency_code": currency,
-                            "value": totalPrice,
-                            "breakdown": {
-                                "item_total": {
-                                    "currency_code": currency,
-                                    "value": totalPrice
-                                }
-                            }
-                        },
-                        "items": self.getPayPalItems(cart.getCart(), currency)
-                    }]
+                //Make an AJAX request to the server to generate the invoice_id
+                return new Promise(function(resolve, reject) {
+                    if (payeeEmail && payeeEmail.checkValidity()) {
+                        cart.removeCheckoutEmailInvalid();
+                    } else {
+                        cart.addCheckoutEmailInvalid();
+                        reject('Invalid Email Address');
+                    }
+
+                    event.generateInvoiceID(self.getPaymentName(),  (data) => {
+                        const invoice_id = data?.data;
+                        if (invoice_id){
+                            resolve(actions.order.create({
+                                "purchase_units": [{
+                                    "payee": {
+                                        "email_address": payeeEmail.value
+                                    },
+                                    "amount": {
+                                        "currency_code": currency,
+                                        "value": totalPrice,
+                                        "breakdown": {
+                                            "item_total": {
+                                                "currency_code": currency,
+                                                "value": totalPrice
+                                            }
+                                        }
+                                    },
+                                    "invoice_id": invoice_id,
+                                    "items": self.getPayPalItems(cart.getCart(), currency)
+                                }]
+                            }));
+                        } else {
+                            reject('Invalid Invoice ID');
+                        }
+
+                    }, () => {
+                        reject('Something Went Wrong Processing Payment');
+                    });
+                }).catch(function(error) {
+                    console.log("Error creating order: ");
                 });
             },
 
@@ -2441,7 +2481,8 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
             },
 
             onError: function(err) {
-                console.log(err);
+               // console.log('An Error Occured Processing Payment')
+                // console.log(err);
             }
         }).render('#paypal-button-container');
     }

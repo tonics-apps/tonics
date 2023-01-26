@@ -11,7 +11,6 @@
 namespace App\Modules\Core\Events;
 
 use App\Modules\Core\Library\SchedulerSystem\SchedulerTransporterInterface;
-use Devsrealm\TonicsEventSystem\Interfaces\EventDispatcherInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
 class OnAddSchedulerTransporter implements EventInterface
