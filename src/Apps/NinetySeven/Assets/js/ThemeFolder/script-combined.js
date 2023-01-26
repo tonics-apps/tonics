@@ -2068,14 +2068,14 @@ initRouting('body', ({url, type}) => {
                     tonicsAudioNavForFolder(data, url);
                 }
                 if (data.data?.isTrack) {
-                   tonicsAudioNavForTrack(data, url);
+                    tonicsAudioNavForTrack(data, url);
                 }
             }
         });
     }
 });
 
-function tonicsAudioNavForFolder(data, url){
+function tonicsAudioNavForFolder(data, url) {
     let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
         beforeFolderSearchLoading = document.querySelector('.before-folder-search'),
         tonicsFolderAboutContainer = document.querySelector('.tonics-folder-about-container'),
@@ -2100,7 +2100,7 @@ function tonicsAudioNavForFolder(data, url){
     }
 }
 
-function tonicsAudioNavForTrack(data, url){
+function tonicsAudioNavForTrack(data, url) {
     let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
         tonicsFolderAboutContainer = document.querySelector('.tonics-folder-about-container'),
         tonicsFolderSearch = document.querySelector('.tonics-folder-search');
@@ -2115,10 +2115,10 @@ function tonicsAudioNavForTrack(data, url){
 }
 
 const tonicsCartSectionContainer = document.querySelector('.tonics-cart-container');
-if (tonicsCartSectionContainer){
+if (tonicsCartSectionContainer) {
     tonicsCartSectionContainer.addEventListener('click', (e) => {
         let el = e.target;
-        if(el.closest('.tonics-remove-cart-item')){
+        if (el.closest('.tonics-remove-cart-item')) {
             let trackCart = new TrackCart();
             trackCart.cartItemToRemove = el.closest('.cart-item[data-slug_id]');
             trackCart.setCurrentState(trackCart.RemoveItemFromCartState);
@@ -2126,8 +2126,8 @@ if (tonicsCartSectionContainer){
         }
 
         const cartButtonCounterEl = el.closest('.cart-button-counter');
-        if(cartButtonCounterEl && !cartButtonCounterEl.dataset.hasOwnProperty('tonics_loaded_payment_gateway')){
-            cartButtonCounterEl.dataset.tonics_loaded_payment_gateway =' true';
+        if (cartButtonCounterEl && !cartButtonCounterEl.dataset.hasOwnProperty('tonics_loaded_payment_gateway')) {
+            cartButtonCounterEl.dataset.tonics_loaded_payment_gateway = ' true';
             // Fire Payment Gateways
             let OnAudioPlayerPaymentGatewayCollator = new OnAudioPlayerPaymentGatewayCollatorEvent();
             window.TonicsEvent.EventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlayerPaymentGatewayCollator, OnAudioPlayerPaymentGatewayCollatorEvent);
@@ -2188,8 +2188,8 @@ class TonicsAudioPlayerClickHandler {
         if (el.dataset.hasOwnProperty('download_buy_button') && el.dataset.hasOwnProperty('licenses')) {
             let licenses = el.dataset.licenses;
 
-            if (trackDownloadContainer){
-                if (trackDownloadContainer.dataset.license_loaded === 'false'){
+            if (trackDownloadContainer) {
+                if (trackDownloadContainer.dataset.license_loaded === 'false') {
                     trackDownloadContainer.dataset.license_loaded = 'true';
                     licenses = JSON.parse(licenses);
                     licenses.forEach((license) => {
@@ -2197,31 +2197,35 @@ class TonicsAudioPlayerClickHandler {
                     });
                 }
 
-                if (trackDownloadContainer.dataset.license_loaded === 'true'){
+                if (trackDownloadContainer.dataset.license_loaded === 'true') {
                     trackCart.setCurrentState(trackCart.UpdateCartIconAdditionToTheCartMenuState, trackDownloadContainer);
                     trackCart.runStates();
                 }
             }
         }
 
-        if (el.dataset.hasOwnProperty('remove_from_cart')){
+        if (el.dataset.hasOwnProperty('remove_from_cart')) {
             trackCart.setCurrentState(trackCart.RemoveItemFromCartWithUniqueID, el);
             trackCart.runStates();
             return;
         }
 
-        if (el.dataset.hasOwnProperty('indie_license')){
-            if (el.dataset.hasOwnProperty('indie_license_type_is_free')){
+        if (el.dataset.hasOwnProperty('indie_license')) {
+            if (el.dataset.hasOwnProperty('indie_license_type_is_free')) {
                 let trackItem = el.closest('[data-url_page]'),
                     urlPage = trackItem?.dataset?.url_page,
                     slugID = trackItem?.dataset?.slug_id;
 
                 let dataSet = JSON.stringify({urlPage, slugID, dataset: el.dataset.indie_license});
 
-                window.TonicsScript.XHRApi({isAPI: true, type: 'freeTrackDownload', freeTrackData: dataSet}).Get(urlPage, function (err, data) {
+                window.TonicsScript.XHRApi({
+                    isAPI: true,
+                    type: 'freeTrackDownload',
+                    freeTrackData: dataSet
+                }).Get(urlPage, function (err, data) {
                     if (data) {
                         data = JSON.parse(data);
-                        if (data?.data?.artifact){
+                        if (data?.data?.artifact) {
                             // Issue a download link
                             self.openDownloadLink(data.data.artifact);
                         }
@@ -2234,9 +2238,11 @@ class TonicsAudioPlayerClickHandler {
                 let trackTitle = trackItem?.dataset?.audioplayer_title;
                 let trackImage = trackItem?.dataset?.audioplayer_image;
                 let indieLicense = JSON.parse(el.dataset.indie_license);
-                if (trackSlugID){
-                    indieLicense.slug_id = trackSlugID; indieLicense.track_title = trackTitle;
-                    indieLicense.track_image = trackImage; indieLicense.url_page = trackURLPage;
+                if (trackSlugID) {
+                    indieLicense.slug_id = trackSlugID;
+                    indieLicense.track_title = trackTitle;
+                    indieLicense.track_image = trackImage;
+                    indieLicense.url_page = trackURLPage;
                     trackCart.licenseData = indieLicense;
                     trackCart.setCurrentState(trackCart.InitialState);
                     trackCart.runStates();
@@ -2253,15 +2259,15 @@ class TonicsAudioPlayerClickHandler {
         window.open(link, "_blank");
     }
 
-    trackDownloadList(data){
+    trackDownloadList(data) {
         let price = parseInt(data.price),
             name = data.name,
             currency = '$',
             uniqueID = data.unique_id;
         let encodeData = JSON.stringify(data);
 
-        if(data?.is_enabled === '1'){
-            if (price > 0){
+        if (data?.is_enabled === '1') {
+            if (price > 0) {
                 return `
 <li class="download-li">
     <span class="text cart-license-price">${name}<span> (${currency}${price}) → </span></span>
@@ -2293,7 +2299,8 @@ class TonicsAudioPlayerClickHandler {
 
 class TonicsPaymentEventAbstract {
 
-    getPaymentName() {}
+    getPaymentName() {
+    }
 
     getPaymentButton() {
 
@@ -2307,14 +2314,14 @@ class TonicsPaymentEventAbstract {
 class OnAudioPlayerPaymentGatewayCollatorEvent {
 
     get_request_flow_address = "/tracks_payment/get_request_flow";
-    post_request_flow_address = "/tracks_payment/get_request_flow";
+    post_request_flow_address = "/tracks_payment/post_request_flow";
 
     checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
 
     addPaymentButton(string) {
-        if (this.checkout_button_div_el){
+        if (this.checkout_button_div_el) {
             let loadingAnimation = this.checkout_button_div_el.querySelector('.loading-button-payment-gateway');
-            if (loadingAnimation && !loadingAnimation.classList.contains('d:none')){
+            if (loadingAnimation && !loadingAnimation.classList.contains('d:none')) {
                 loadingAnimation.classList.add('d:none');
             }
             this.checkout_button_div_el.insertAdjacentHTML('beforeend', string)
@@ -2322,19 +2329,44 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
     }
 
     generateInvoiceID(PaymentHandlerName, onSuccess = null, onError = null) {
-        window.TonicsScript.XHRApi({ PaymentHandlerName: PaymentHandlerName, PaymentQueryType: "GenerateInvoiceID" }).Get(this.get_request_flow_address, function (err, data) {
+        window.TonicsScript.XHRApi({
+            PaymentHandlerName: PaymentHandlerName,
+            PaymentQueryType: "GenerateInvoiceID"
+        }).Get(this.get_request_flow_address, function (err, data) {
             if (data) {
                 data = JSON.parse(data);
-                if (onSuccess){
+                if (onSuccess) {
                     onSuccess(data);
                 }
+            }
 
-                if (onError){
-                    onError()
-                }
+            if (err) {
+                onError()
             }
         });
+    }
 
+    sendBody(PaymentHandlerName, BodyData, onSuccess = null, onError = null) {
+        window.TonicsScript.XHRApi({
+            PaymentHandlerName: PaymentHandlerName,
+            PaymentQueryType: "CapturedPaymentDetails",
+            'Tonics-CSRF-Token': `${this.getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+        }).Post(this.post_request_flow_address, JSON.stringify(BodyData), function (err, data) {
+            console.log(BodyData, data);
+            if (data) {
+                data = JSON.parse(data);
+                if (onSuccess) {
+                    onSuccess(data);
+                }
+            } else {
+                if (onError) {
+                    onError();
+                }
+            }
+            if (err) {
+                onError()
+            }
+        });
     }
 
     /**
@@ -2344,11 +2376,11 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
      * @param $uniqueIdentifier
      * e.g tonics, this is useful for preventing the script from loading twice
      */
-    loadScriptDynamically($scriptPath, $uniqueIdentifier){
+    loadScriptDynamically($scriptPath, $uniqueIdentifier) {
         return new Promise((resolve, reject) => {
             let scriptCheck = document.querySelector(`[data-script_id="${$uniqueIdentifier}"]`);
             // if script has previously been loaded, resolve
-            if (scriptCheck){
+            if (scriptCheck) {
                 resolve();
                 // else...load script
             } else {
@@ -2362,13 +2394,28 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
             }
         });
     }
+
+    getCSRFFromInput(csrfNames) {
+        let csrf = null;
+        csrfNames.forEach((value, index) => {
+            var _a, _b;
+            let inputCSRF = (_a = document.querySelector(`input[name=${value}]`)) == null ? void 0 : _a.value;
+            if (!inputCSRF) {
+                inputCSRF = (_b = document.querySelector(`meta[name=${value}]`)) == null ? void 0 : _b.content;
+            }
+            if (!csrf && inputCSRF) {
+                csrf = inputCSRF;
+            }
+        });
+        return csrf;
+    }
 }
 
 //----------------------
 //--- PAYMENT HANDLERS
 //---------------------
 
-class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
+class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
 
     constructor(event) {
         super();
@@ -2394,7 +2441,7 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
 
     bootPayment(event = null) {
         let self = this;
-        if (event){
+        if (event) {
             const clientID = "AWqLRTOUEtBYPRgUhgvag2fMBWA_jBqIh3KcPq-9UZL5SUpwN-vsKijwxsCrfv9kKlgTZD_5_TznifZB";
             const currencyName = 'USD';
             event.loadScriptDynamically(`https://www.paypal.com/sdk/js?client-id=${clientID}&enable-funding=venmo&currency=${currencyName}`, 'paypal')
@@ -2404,7 +2451,6 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                 });
         }
     }
-
 
 
     initPayPalButton(event) {
@@ -2422,9 +2468,9 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                 label: 'pay',
             },
 
-            createOrder: function(data, actions) {
+            createOrder: (data, actions) => {
                 //Make an AJAX request to the server to generate the invoice_id
-                return new Promise(function(resolve, reject) {
+                return new Promise((resolve, reject) => {
                     if (payeeEmail && payeeEmail.checkValidity()) {
                         cart.removeCheckoutEmailInvalid();
                     } else {
@@ -2432,9 +2478,9 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                         reject('Invalid Email Address');
                     }
 
-                    event.generateInvoiceID(self.getPaymentName(),  (data) => {
+                    event.generateInvoiceID(self.getPaymentName(), (data) => {
                         const invoice_id = data?.data;
-                        if (invoice_id){
+                        if (invoice_id) {
                             resolve(actions.order.create({
                                 "purchase_units": [{
                                     "payee": {
@@ -2461,27 +2507,46 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                     }, () => {
                         reject('Something Went Wrong Processing Payment');
                     });
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.log("Error creating order: ");
                 });
             },
 
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(orderData) {
+            onApprove: (data, actions) => {
+                return actions.order.capture().then((orderData) => {
 
-                    // Full available details
-                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    if (orderData.status === 'COMPLETED') {
 
-                    // Show a success message within this page, e.g.
-                    const element = document.getElementById('paypal-button-container');
-                    element.innerHTML = '';
-                    element.innerHTML = '<h3>Thank you for your payment!</h3>';
-                    // Or go to another URL:  actions.redirect('thank_you.html');
+                        const body = {
+                            orderData: orderData,
+                            cartItems: cart.getCart()
+                        };
+
+                        event.sendBody(self.getPaymentName(),
+                            body,
+                            (data) => {
+                                console.log(data);
+                            },
+                            (error) => {
+
+                            });
+
+                        // Full available details
+                        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                        // Show a success message within this page, e.g.
+                        const element = document.getElementById('paypal-button-container');
+                        element.innerHTML = '';
+                        element.innerHTML = '<h3>Thank you for your payment!</h3>';
+                        // Or go to another URL:  actions.redirect('thank_you.html');
+
+                    } else {
+
+                    }
                 });
             },
 
-            onError: function(err) {
-               // console.log('An Error Occured Processing Payment')
+            onError: function (err) {
+                // console.log('An Error Occured Processing Payment')
                 // console.log(err);
             }
         }).render('#paypal-button-container');

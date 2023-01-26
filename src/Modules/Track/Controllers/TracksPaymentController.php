@@ -19,7 +19,7 @@ class TracksPaymentController
     /**
      * @throws \Exception
      */
-    function getRequestFlow()
+    function RequestFlow()
     {
         $paymentHandlerName = url()->getHeaderByKey('PaymentHandlerName');
 
@@ -33,6 +33,4 @@ class TracksPaymentController
             response()->onError(400, 'No Valid Payment Handler');
         }
     }
-
-    function postRequestFlow() {}
 }

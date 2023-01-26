@@ -135,8 +135,8 @@ trait Routes
         }, AuthConfig::getAuthRequestInterceptor());
 
         $route->group('tracks_payment', function (Route $route){
-            $route->post('/post_request_flow', [TracksPaymentController::class, 'postRequestFlow']);
-            $route->get('/get_request_flow', [TracksPaymentController::class, 'getRequestFlow']);
+            $route->get('/get_request_flow', [TracksPaymentController::class, 'RequestFlow']);
+            $route->post('/post_request_flow', [TracksPaymentController::class, 'RequestFlow']);
         }, AuthConfig::getCSRFRequestInterceptor());
 
         return $route;

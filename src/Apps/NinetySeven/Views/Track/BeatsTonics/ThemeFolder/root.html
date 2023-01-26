@@ -7,6 +7,10 @@
 
 [[import("Modules::Core/Views/Blocks/AudioPlayer")]]
 
+[[hook_into('in_head')
+    [[_use('csrf-meta')]]
+]]
+
 [[hook_into('before_footer')
     <section class="audio-player position:sticky bottom:0 left:0 z-index:audio-sticky-footer d:none">
 

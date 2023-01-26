@@ -17,6 +17,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentInterface
 {
     const Query_GenerateInvoiceID = 'GenerateInvoiceID';
+    const Query_CapturedPaymentDetails = 'CapturedPaymentDetails';
 
     public function handleEvent(object $event): void
     {
@@ -37,6 +38,11 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
         $queryType = url()->getHeaderByKey('PaymentQueryType');
         if ($queryType === self::Query_GenerateInvoiceID){
             $this->generateInvoiceID();
+        }
+
+        if ($queryType === self::Query_CapturedPaymentDetails){
+            $body = url()->getEntityBody();
+            dd(json_decode($body));
         }
 
     }
