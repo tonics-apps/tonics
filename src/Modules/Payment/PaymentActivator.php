@@ -12,6 +12,7 @@ namespace App\Modules\Payment;
 
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -91,10 +92,29 @@ class PaymentActivator implements ExtensionConfig
         ];
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function onUpdate(): void
     {
-        // TODO: Implement onUpdate() method.
+        self::migrateDatabases();
+        return;
     }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public static function migrateDatabases()
+    {
+        $appMigrate = new ModuleMigrate();
+        $commandOptions = [
+            '--module' => 'Payment',
+            '--migrate' => '',
+        ];
+        $appMigrate->setIsCLI(false);
+        $appMigrate->run($commandOptions);
+    }
+
 
     public function onDelete(): void
     {

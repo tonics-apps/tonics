@@ -12,6 +12,7 @@ namespace App\Modules\Track;
 
 
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
@@ -162,9 +163,27 @@ class TrackActivator implements ExtensionConfig
         ];
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function onUpdate(): void
     {
-        // TODO: Implement onUpdate() method.
+        self::migrateDatabases();
+        return;
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public static function migrateDatabases()
+    {
+        $appMigrate = new ModuleMigrate();
+        $commandOptions = [
+            '--module' => 'Track',
+            '--migrate' => '',
+        ];
+        $appMigrate->setIsCLI(false);
+        $appMigrate->run($commandOptions);
     }
 
     public function onDelete(): void

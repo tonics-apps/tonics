@@ -1702,29 +1702,24 @@ export class TrackCart extends SimpleState {
     }
 
     TotalItemsPriceInCartState() {
-
         let tonicsCheckoutPrice = document.querySelector('.tonics-checkout-price');
 
-        let price = 0, locale = 'en-US', currency = 'USD';
-        for (let [key, value] of this.getCart().entries()) {
-           price = price + (parseFloat(value.price));
-        }
-
-        // Format it in USD
-        // Create our CURRENCY Formatter, thanks to Intl.NumberFormat.
-        // Usage is formatter.format(2500); /* $2,500.00 */
-        const formatter = new Intl.NumberFormat(locale, {
-            style: 'currency',
-            currency: currency,
-        });
-       let totalPrice = formatter.format(price);
-
        if (tonicsCheckoutPrice){
+           let currency = 'USD', locale = 'en-US';
+           let totalPrice = this.getTotalItemPrice();
+
+           // Format it in USD
+           // Create our CURRENCY Formatter, thanks to Intl.NumberFormat.
+           // Usage is formatter.format(2500); /* $2,500.00 */
+           const formatter = new Intl.NumberFormat(locale, {
+               style: 'currency',
+               currency: currency,
+           });
+           totalPrice = formatter.format(totalPrice);
            tonicsCheckoutPrice.innerHTML = `${totalPrice}`;
        }
 
        return SimpleState.DONE;
-
     }
 
     ReloadCartFromLocalStorageState() {
@@ -1813,13 +1808,62 @@ export class TrackCart extends SimpleState {
         }
     }
 
-
     getCart() {
         if (localStorage.getItem(TrackCart.cartStorageKey) !== null) {
             let storedMap = localStorage.getItem(TrackCart.cartStorageKey);
             this.cartStorageData = new Map(JSON.parse(storedMap));
         }
         return this.cartStorageData;
+    }
+
+    getCheckOutEmail() {
+        return document.querySelector('.checkout-email-tonics');
+    }
+
+    addCheckoutEmailInvalid() {
+        let emailInput = document.querySelector('.checkout-email-tonics');
+        let checkoutEmailContainer = document.querySelector('.checkout-email-error-container');
+        let checkoutEmailErrorMessageSpanEl = document.querySelector('.checkout-email-error');
+
+        if (checkoutEmailContainer){
+            checkoutEmailContainer.classList.remove('d:none');
+        }
+
+        if (emailInput){
+            emailInput.setAttribute('aria-invalid', 'true');
+            emailInput.setAttribute('aria-describedby', checkoutEmailErrorMessageSpanEl.id);
+        }
+
+        if (checkoutEmailErrorMessageSpanEl){
+            checkoutEmailErrorMessageSpanEl.setAttribute('aria-live', 'assertive');
+        }
+    }
+
+    removeCheckoutEmailInvalid() {
+        let emailInput = document.querySelector('.checkout-email-tonics');
+        let checkoutEmailContainer = document.querySelector('.checkout-email-error-container');
+        let checkoutEmailErrorMessageSpanEl = document.querySelector('.checkout-email-error');
+
+        if (checkoutEmailContainer){
+            checkoutEmailContainer.classList.add('d:none');
+        }
+
+        if (emailInput){
+            emailInput.setAttribute('aria-invalid', 'false');
+            emailInput.removeAttribute('aria-describedby');
+        }
+
+        if (checkoutEmailErrorMessageSpanEl){
+            checkoutEmailErrorMessageSpanEl.removeAttribute('aria-live');
+        }
+    }
+
+    getTotalItemPrice() {
+        let price = 0;
+        for (let [key, value] of this.getCart().entries()) {
+            price = price + (parseFloat(value.price));
+        }
+        return price;
     }
 
     getLicenseFrag(data) {
@@ -2335,7 +2379,15 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
         }
     }
 
+
+
     initPayPalButton() {
+        let self = this;
+        const cart = new TrackCart();
+        const currency = 'USD';
+        const totalPrice = cart.getTotalItemPrice();
+        const payeeEmail = cart.getCheckOutEmail();
+
         paypal.Buttons({
             style: {
                 shape: 'pill',
@@ -2344,9 +2396,33 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                 label: 'pay',
             },
 
+            onClick: function(data)  {
+                if (payeeEmail && payeeEmail.checkValidity()) {
+                    cart.removeCheckoutEmailInvalid();
+                } else {
+                    cart.addCheckoutEmailInvalid();
+                    throw new Error(`Invalid Email Address`);
+                }
+            },
+
             createOrder: function(data, actions) {
                 return actions.order.create({
-                    purchase_units: [{"amount":{"currency_code":"USD","value":1}}]
+                    "purchase_units": [{
+                        "payee": {
+                            "email_address": payeeEmail.value
+                        },
+                        "amount": {
+                            "currency_code": currency,
+                            "value": totalPrice,
+                            "breakdown": {
+                                "item_total": {
+                                    "currency_code": currency,
+                                    "value": totalPrice
+                                }
+                            }
+                        },
+                        "items": self.getPayPalItems(cart.getCart(), currency)
+                    }]
                 });
             },
 
@@ -2368,6 +2444,23 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                 console.log(err);
             }
         }).render('#paypal-button-container');
+    }
+
+    getPayPalItems(cart, currency = 'USD') {
+        const items = [];
+        for (let [key, value] of cart.entries()) {
+            items.push({
+                "name": value.track_title,
+                "description": `At the time of the purchase, you bought the ${value.name} License of ${value.track_title} wih a slug id ${value.slug_id}`,
+                "unit_amount": {
+                    "currency_code": currency,
+                    "value": value?.price
+                },
+                "quantity": "1"
+            },)
+        }
+
+        return items;
     }
 }
 

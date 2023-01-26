@@ -67,29 +67,24 @@ export class TrackCart extends SimpleState {
     }
 
     TotalItemsPriceInCartState() {
-
         let tonicsCheckoutPrice = document.querySelector('.tonics-checkout-price');
 
-        let price = 0, locale = 'en-US', currency = 'USD';
-        for (let [key, value] of this.getCart().entries()) {
-           price = price + (parseFloat(value.price));
-        }
-
-        // Format it in USD
-        // Create our CURRENCY Formatter, thanks to Intl.NumberFormat.
-        // Usage is formatter.format(2500); /* $2,500.00 */
-        const formatter = new Intl.NumberFormat(locale, {
-            style: 'currency',
-            currency: currency,
-        });
-       let totalPrice = formatter.format(price);
-
        if (tonicsCheckoutPrice){
+           let currency = 'USD', locale = 'en-US';
+           let totalPrice = this.getTotalItemPrice();
+
+           // Format it in USD
+           // Create our CURRENCY Formatter, thanks to Intl.NumberFormat.
+           // Usage is formatter.format(2500); /* $2,500.00 */
+           const formatter = new Intl.NumberFormat(locale, {
+               style: 'currency',
+               currency: currency,
+           });
+           totalPrice = formatter.format(totalPrice);
            tonicsCheckoutPrice.innerHTML = `${totalPrice}`;
        }
 
        return SimpleState.DONE;
-
     }
 
     ReloadCartFromLocalStorageState() {
@@ -178,13 +173,62 @@ export class TrackCart extends SimpleState {
         }
     }
 
-
     getCart() {
         if (localStorage.getItem(TrackCart.cartStorageKey) !== null) {
             let storedMap = localStorage.getItem(TrackCart.cartStorageKey);
             this.cartStorageData = new Map(JSON.parse(storedMap));
         }
         return this.cartStorageData;
+    }
+
+    getCheckOutEmail() {
+        return document.querySelector('.checkout-email-tonics');
+    }
+
+    addCheckoutEmailInvalid() {
+        let emailInput = document.querySelector('.checkout-email-tonics');
+        let checkoutEmailContainer = document.querySelector('.checkout-email-error-container');
+        let checkoutEmailErrorMessageSpanEl = document.querySelector('.checkout-email-error');
+
+        if (checkoutEmailContainer){
+            checkoutEmailContainer.classList.remove('d:none');
+        }
+
+        if (emailInput){
+            emailInput.setAttribute('aria-invalid', 'true');
+            emailInput.setAttribute('aria-describedby', checkoutEmailErrorMessageSpanEl.id);
+        }
+
+        if (checkoutEmailErrorMessageSpanEl){
+            checkoutEmailErrorMessageSpanEl.setAttribute('aria-live', 'assertive');
+        }
+    }
+
+    removeCheckoutEmailInvalid() {
+        let emailInput = document.querySelector('.checkout-email-tonics');
+        let checkoutEmailContainer = document.querySelector('.checkout-email-error-container');
+        let checkoutEmailErrorMessageSpanEl = document.querySelector('.checkout-email-error');
+
+        if (checkoutEmailContainer){
+            checkoutEmailContainer.classList.add('d:none');
+        }
+
+        if (emailInput){
+            emailInput.setAttribute('aria-invalid', 'false');
+            emailInput.removeAttribute('aria-describedby');
+        }
+
+        if (checkoutEmailErrorMessageSpanEl){
+            checkoutEmailErrorMessageSpanEl.removeAttribute('aria-live');
+        }
+    }
+
+    getTotalItemPrice() {
+        let price = 0;
+        for (let [key, value] of this.getCart().entries()) {
+            price = price + (parseFloat(value.price));
+        }
+        return price;
     }
 
     getLicenseFrag(data) {

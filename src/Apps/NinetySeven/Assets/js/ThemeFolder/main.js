@@ -479,7 +479,15 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
         }
     }
 
+
+
     initPayPalButton() {
+        let self = this;
+        const cart = new TrackCart();
+        const currency = 'USD';
+        const totalPrice = cart.getTotalItemPrice();
+        const payeeEmail = cart.getCheckOutEmail();
+
         paypal.Buttons({
             style: {
                 shape: 'pill',
@@ -489,8 +497,29 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
             },
 
             createOrder: function(data, actions) {
+                if (payeeEmail && payeeEmail.checkValidity()) {
+                    cart.removeCheckoutEmailInvalid();
+                } else {
+                    cart.addCheckoutEmailInvalid();
+                    throw new Error(`Invalid Email Address`);
+                }
                 return actions.order.create({
-                    purchase_units: [{"amount":{"currency_code":"USD","value":1}}]
+                    "purchase_units": [{
+                        "payee": {
+                            "email_address": payeeEmail.value
+                        },
+                        "amount": {
+                            "currency_code": currency,
+                            "value": totalPrice,
+                            "breakdown": {
+                                "item_total": {
+                                    "currency_code": currency,
+                                    "value": totalPrice
+                                }
+                            }
+                        },
+                        "items": self.getPayPalItems(cart.getCart(), currency)
+                    }]
                 });
             },
 
@@ -512,6 +541,23 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract{
                 console.log(err);
             }
         }).render('#paypal-button-container');
+    }
+
+    getPayPalItems(cart, currency = 'USD') {
+        const items = [];
+        for (let [key, value] of cart.entries()) {
+            items.push({
+                "name": value.track_title,
+                "description": `At the time of the purchase, you bought the ${value.name} License of ${value.track_title} wih a slug id ${value.slug_id}`,
+                "unit_amount": {
+                    "currency_code": currency,
+                    "value": value?.price
+                },
+                "quantity": "1"
+            },)
+        }
+
+        return items;
     }
 }
 
