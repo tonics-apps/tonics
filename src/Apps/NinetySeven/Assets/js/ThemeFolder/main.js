@@ -583,9 +583,6 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                         if (invoice_id) {
                             resolve(actions.order.create({
                                 "purchase_units": [{
-                                    "payee": {
-                                        "email_address": payeeEmail.value
-                                    },
                                     "amount": {
                                         "currency_code": currency,
                                         "value": totalPrice,
@@ -618,8 +615,9 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                     if (orderData.status === 'COMPLETED') {
 
                         const body = {
+                            payee: payeeEmail.value,
                             orderData: orderData,
-                            cartItems: cart.getCart()
+                            cartItems:  Array.from(cart.getCart())
                         };
 
                         event.sendBody(self.getPaymentName(),
