@@ -54,6 +54,7 @@ class PaymentActivator implements ExtensionConfig
     /**
      * @param Route $routes
      * @return Route
+     * @throws \ReflectionException
      */
     public function route(Route $routes): Route
     {
@@ -81,6 +82,9 @@ class PaymentActivator implements ExtensionConfig
         // TODO: Implement onUninstall() method.
     }
 
+    /**
+     * @throws \Exception
+     */
     public function info(): array
     {
         return [
@@ -90,6 +94,7 @@ class PaymentActivator implements ExtensionConfig
             "version" => '1-O-Ola.1674540680',
             "description" => "The Payment Module",
             "info_url" => '',
+            "settings_page" => route('payment.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-payment-module/releases/latest",
             "authors" => [
                 "name" => "The Devsrealm Guy",

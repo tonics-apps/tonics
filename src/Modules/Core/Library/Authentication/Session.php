@@ -36,8 +36,9 @@ class Session
     const SessionCategories_WordPressImport = 'tonics_wordpress_import';
 
     const SessionCategories_PasswordReset = 'tonics_password_reset_info';
-
     const SessionCategories_NewVerification = 'tonics_user_new_verification';
+
+    const SessionCategories_PaymentAccessToken = 'tonics_payment_access_token';
 
     private string $table;
 

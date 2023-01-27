@@ -15,6 +15,8 @@ use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Media\FileManager\LocalDriver;
+use App\Modules\Payment\Controllers\PaymentSettingsController;
+use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
