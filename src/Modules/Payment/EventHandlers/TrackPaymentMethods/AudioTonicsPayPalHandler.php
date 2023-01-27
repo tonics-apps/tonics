@@ -11,6 +11,7 @@
 namespace App\Modules\Payment\EventHandlers\TrackPaymentMethods;
 
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
 use App\Modules\Payment\Events\AudioTonicsPaymentInterface;
@@ -28,6 +29,8 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
 
     const Key_SandBoxClientID = 'tonics_payment_settings_apiCredentials_SandBox_ClientID';
     const Key_SandBoxSecretKey = 'tonics_payment_settings_apiCredentials_SandBox_SecretKey';
+
+    const GlobalTableKey = 'AudioTonics_PayPal_AccessToken_Info';
 
     public function handleEvent(object $event): void
     {
@@ -80,17 +83,24 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
      */
     public static function getAccessToken() {
 
+        $globalTable = Tables::getTable(Tables::GLOBAL);
         $settings = PaymentSettingsController::getSettingsData();
         $live = false;
         $generateNewToken = true;
         $accessToken = null;
         $expiration_date = time();
-        $accessInfo = session()->retrieve(Session::SessionCategories_PaymentAccessToken, jsonDecode: true);
-        if (isset($accessInfo->access_token) && isset($accessInfo->expires_in)){
-            $accessToken = $accessInfo->access_token;
-            $expiration_date = time() + $accessInfo->expires_in;
-            $generateNewToken = false;
+
+        $accessInfo = db(true)->Select('*')
+            ->From($globalTable)->WhereEquals('`key`', self::GlobalTableKey)->FetchFirst();
+        if (isset($accessInfo->value) && !empty($accessInfo->value)) {
+            $accessInfo = json_decode($accessInfo->value);
+            if (isset($accessInfo->access_token) && isset($accessInfo->expires_in)){
+                $accessToken = $accessInfo->access_token;
+                $expiration_date = time() + $accessInfo->expires_in;
+                $generateNewToken = false;
+            }
         }
+
 
         // Before making an API call, check if the token has expired
         if (time() > $expiration_date) {
@@ -133,7 +143,14 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             if (isset($response->access_token) && isset($response->expires_in)){
                 $accessToken = $response->access_token;
                 $expiration_date = time() + $response->expires_in;
-                \session()->append(Session::SessionCategories_PaymentAccessToken, ['access_token' => $accessToken, 'expires_in' => $expiration_date]);
+
+                db(true)->insertOnDuplicate(
+                    $globalTable,
+                    [
+                        'key' => self::GlobalTableKey,
+                        'value' => json_encode(['access_token' => $accessToken, 'expires_in' => $expiration_date])
+                    ],
+                    ['value']);
             }
         }
 
