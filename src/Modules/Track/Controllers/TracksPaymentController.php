@@ -22,7 +22,6 @@ class TracksPaymentController
     function RequestFlow()
     {
         $paymentHandlerName = url()->getHeaderByKey('PaymentHandlerName');
-
         /** @var $paymentObject OnAddTrackPaymentEvent */
         $paymentObject = event()->dispatch(new OnAddTrackPaymentEvent())->event();
         if ($paymentObject->exist($paymentHandlerName)){

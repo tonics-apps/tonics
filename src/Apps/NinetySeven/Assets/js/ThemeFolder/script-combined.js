@@ -2319,6 +2319,7 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
     checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
 
     addPaymentButton(string) {
+        console.log(this.getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token']));
         if (this.checkout_button_div_el) {
             let loadingAnimation = this.checkout_button_div_el.querySelector('.loading-button-payment-gateway');
             if (loadingAnimation && !loadingAnimation.classList.contains('d:none')) {
@@ -2395,17 +2396,17 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
     }
 
     getCSRFFromInput(csrfNames) {
+
         let csrf = null;
-        csrfNames.forEach((value, index) => {
-            var _a, _b;
-            let inputCSRF = (_a = document.querySelector(`input[name=${value}]`)) == null ? void 0 : _a.value;
-            if (!inputCSRF) {
-                inputCSRF = (_b = document.querySelector(`meta[name=${value}]`)) == null ? void 0 : _b.content;
+        csrfNames.forEach(((value, index) => {
+            let inputCSRF = document.querySelector(`input[name=${value}]`)?.value;
+            if (!inputCSRF){
+                inputCSRF = document.querySelector(`meta[name=${value}]`)?.content;
             }
-            if (!csrf && inputCSRF) {
+            if (!csrf && inputCSRF){
                 csrf = inputCSRF;
             }
-        });
+        }))
         return csrf;
     }
 }
