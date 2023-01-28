@@ -610,7 +610,8 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                 return actions.order.capture().then((orderData) => {
 
                     if (orderData.status === 'COMPLETED') {
-
+                        const cart = new TrackCart();
+                        const payeeEmail = cart.getCheckOutEmail();
                         const body = {
                             payee: payeeEmail.value,
                             orderData: orderData,

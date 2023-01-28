@@ -226,13 +226,13 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             "webhook_event" => $webhookEvent
         ];
 
-/*        db(true)->insertOnDuplicate(
+        db(true)->insertOnDuplicate(
             Tables::getTable(Tables::GLOBAL),
             [
                 'key' => 'WebHook_Data',
                 'value' => json_encode($data)
             ],
-            ['value']);*/
+            ['value']);
 
         $data_string = json_encode($data);
         $access_token = self::getAccessToken();
@@ -253,13 +253,13 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
         if ($http_status == 200) {
             $result = json_decode($result, true);
 
-            /*db(true)->insertOnDuplicate(
+            db(true)->insertOnDuplicate(
                 Tables::getTable(Tables::GLOBAL),
                 [
                     'key' => 'WebHook_Verification',
                     'value' => json_encode($result)
                 ],
-                ['value']);*/
+                ['value']);
 
             if (isset($result['verification_status'])){
                 return $result['verification_status'] === 'SUCCESS';

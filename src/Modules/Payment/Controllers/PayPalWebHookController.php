@@ -14,6 +14,7 @@ use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandl
 
 class PayPalWebHookController
 {
+    const PaymentType_AudioTonics = 'AudioTonics_';
 
     /**
      * @throws \Exception
@@ -21,9 +22,13 @@ class PayPalWebHookController
     public function handleWebHook()
     {
         // Retrieve the payload and headers of the webhook notification
-        if (helper()->isJSON(request()->getEntityBody())){
-            $webhookEvent = json_decode(request()->getEntityBody());
-            AudioTonicsPayPalHandler::verifyWebHookSignature($webhookEvent);
+        $entityBody = request()->getEntityBody();
+        if (helper()->isJSON($entityBody)){
+            $webhook = json_decode($entityBody);
+            if (AudioTonicsPayPalHandler::verifyWebHookSignature($webhook)){
+                $webHookEvent = $webhook->webhook_event;
+
+            }
         }
 
        // $headers = request()->getHeaderByKey(['']);
