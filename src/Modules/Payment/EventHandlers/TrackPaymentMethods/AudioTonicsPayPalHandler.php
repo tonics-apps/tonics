@@ -158,7 +158,10 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
         return $accessToken;
     }
 
-    public function confirmOrder($accessToken, $orderId) {
+    /**
+     * @throws \Exception
+     */
+    public static function confirmOrder($accessToken, $orderId) {
         $settings = PaymentSettingsController::getSettingsData();
         $live = false;
         if (key_exists(self::Key_IsLive, $settings) && $settings[self::Key_IsLive] === '1'){
@@ -176,12 +179,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             'Authorization: Bearer ' . $accessToken,
         ];
 
-        $curlGetOrder = curl_init($checkoutOrderURL . $orderId);
-        curl_setopt($curlGetOrder, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curlGetOrder, CURLOPT_RETURNTRANSFER, true);
-        $responseOfGetOrder = curl_exec($curlGetOrder);
-        curl_close($curlGetOrder);
-        $responseOfGetOrder = json_decode($responseOfGetOrder);
+        $responseOfGetOrder = self::getOrderDetails($accessToken, $orderId);
 
         $response = [];
         if (isset($responseOfGetOrder->payment_source)){
@@ -195,6 +193,37 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
         }
 
         return json_decode($response, true);
+    }
+
+    /**
+     * @param $accessToken
+     * @param $orderID
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function getOrderDetails($accessToken, $orderID): mixed
+    {
+        $settings = PaymentSettingsController::getSettingsData();
+        $live = false;
+        if (key_exists(self::Key_IsLive, $settings) && $settings[self::Key_IsLive] === '1'){
+            $live = true;
+        }
+        $checkoutOrderURL = 'https://api.paypal.com/v2/checkout/orders/';
+        if (!$live){
+            $checkoutOrderURL = 'https://api.sandbox.paypal.com/v2/checkout/orders/';
+        }
+
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken,
+        ];
+
+        $curlGetOrder = curl_init($checkoutOrderURL . $orderID);
+        curl_setopt($curlGetOrder, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curlGetOrder, CURLOPT_RETURNTRANSFER, true);
+        $responseOfGetOrder = curl_exec($curlGetOrder);
+        curl_close($curlGetOrder);
+        return json_decode($responseOfGetOrder);
     }
 
     /**
@@ -229,7 +258,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
         db(true)->insertOnDuplicate(
             Tables::getTable(Tables::GLOBAL),
             [
-                'key' => 'WebHook_Data',
+                'key' => 'WebHook_Data_' . helper()->randomString(5),
                 'value' => json_encode($data)
             ],
             ['value']);
@@ -256,7 +285,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             db(true)->insertOnDuplicate(
                 Tables::getTable(Tables::GLOBAL),
                 [
-                    'key' => 'WebHook_Verification',
+                    'key' => 'WebHook_Verification'  . helper()->randomString(5),
                     'value' => json_encode($result)
                 ],
                 ['value']);

@@ -11,6 +11,7 @@
 namespace App\Modules\Payment\Controllers;
 
 use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
+use App\Modules\Payment\Events\PayPal\PayPalWebHookEvent;
 
 class PayPalWebHookController
 {
@@ -21,16 +22,27 @@ class PayPalWebHookController
      */
     public function handleWebHook()
     {
-        // Retrieve the payload and headers of the webhook notification
         $entityBody = request()->getEntityBody();
         if (helper()->isJSON($entityBody)){
             $webhook = json_decode($entityBody);
             if (AudioTonicsPayPalHandler::verifyWebHookSignature($webhook)){
                 $webHookEvent = $webhook->webhook_event;
+                $eventType = $webHookEvent->event_type;
+                if (isset($webHookEvent->resource->purchase_units->{0}->invoice_id)){
+                    $invoiceIDString = $webHookEvent->resource->purchase_units->{0}->invoice_id;
+                    $invoiceID = explode('_', $invoiceIDString);
+                    $tonicsSolutionType = $invoiceID[0] ?? '';
 
+                    /** @var $webHookEventObject PayPalWebHookEvent */
+                    $payPalWebHookEventObject = new PayPalWebHookEvent();
+                    $payPalWebHookEventObject->setInvoiceID($invoiceIDString);
+
+                    $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
+                    $webHookEventObject->handleWebHookEvent($eventType, $tonicsSolutionType);
+                }
             }
         }
 
-       // $headers = request()->getHeaderByKey(['']);
+        response()->onError(400);
     }
 }
