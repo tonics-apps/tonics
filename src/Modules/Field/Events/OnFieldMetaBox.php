@@ -336,7 +336,7 @@ $scriptPath>
                     </svg>
                 </button>
             </legend>
-            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+            <div $isEditorWidgetSettings role="form"  data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
 HTML;
         }
 

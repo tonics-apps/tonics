@@ -573,8 +573,9 @@ fieldset {
 
 .tonics-cart-container {
     margin-left: auto;
+    width: inherit;
     /*IF VIEWPORT IS GREATER THAN 400px, USE 26EM, IF IT IS LOWER THAN 400 USE 5EM*/
-    width: clamp((5em),(100vw - 400px)*1000,26em);
+    /*width: clamp((5em),(100vw - 400px)*1000,26em);*/
 }
 
 .cart > * + * {
@@ -586,6 +587,7 @@ fieldset {
     overflow: auto;
     flex-wrap: nowrap;
     height: 800px;
+    padding-bottom: 15em;
 }
 
 .cart-button > .cart {

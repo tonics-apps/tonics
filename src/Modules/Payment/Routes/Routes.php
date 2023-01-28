@@ -12,6 +12,7 @@ namespace App\Modules\Payment\Routes;
 
 use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
+use App\Modules\Payment\Controllers\PayPalWebHookController;
 use App\Modules\Payment\RequestInterceptor\PaymentAccess;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -29,6 +30,8 @@ trait Routes
                 $route->post('settings', [PaymentSettingsController::class, 'update']);
             });
         }, AuthConfig::getAuthRequestInterceptor([PaymentAccess::class]));
+
+        $route->post('/payment/paypal_web_hook_endpoint', [PayPalWebHookController::class, 'handleWebHook']);
 
         return $route;
     }

@@ -452,7 +452,6 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
             PaymentQueryType: "CapturedPaymentDetails",
             'Tonics-CSRF-Token': `${this.getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
         }).Post(this.post_request_flow_address, JSON.stringify(BodyData), function (err, data) {
-            console.log(BodyData, data);
             if (data) {
                 data = JSON.parse(data);
                 if (onSuccess) {
@@ -533,9 +532,6 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                 <div id="paypal-button-container"></div>
             </div>
         </div>
-<!--        <button type="button" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">-->
-<!--            <span class="text text:no-wrap">Pay With PayPal →</span>-->
-<!--        </button>-->
         `;
     }
 
@@ -555,10 +551,6 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
 
     initPayPalButton(event) {
         let self = this;
-        const cart = new TrackCart();
-        const currency = 'USD';
-        const totalPrice = cart.getTotalItemPrice();
-        const payeeEmail = cart.getCheckOutEmail();
 
         paypal.Buttons({
             style: {
@@ -571,6 +563,11 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
             createOrder: (data, actions) => {
                 //Make an AJAX request to the server to generate the invoice_id
                 return new Promise((resolve, reject) => {
+                    const cart = new TrackCart();
+                    const currency = 'USD';
+                    const totalPrice = cart.getTotalItemPrice();
+                    const payeeEmail = cart.getCheckOutEmail();
+
                     if (payeeEmail && payeeEmail.checkValidity()) {
                         cart.removeCheckoutEmailInvalid();
                     } else {
@@ -605,7 +602,7 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                         reject('Something Went Wrong Processing Payment');
                     });
                 }).catch(function (error) {
-                    console.log("Error creating order: ");
+                    console.log("Error creating order: ", error);
                 });
             },
 
@@ -655,7 +652,7 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
         for (let [key, value] of cart.entries()) {
             items.push({
                 "name": value.track_title,
-                "description": `At the time of the purchase, you bought the ${value.name} License of ${value.track_title} wih a slug id ${value.slug_id}`,
+                "description": `At the time of the purchase, you bought the ${value.name} License of ${value.track_title} wih the slug id ${value.slug_id}`,
                 "unit_amount": {
                     "currency_code": currency,
                     "value": value?.price
