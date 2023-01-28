@@ -10,6 +10,8 @@
 
 namespace App\Modules\Payment\EventHandlers\TrackPaymentMethods;
 
+use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
@@ -59,7 +61,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
         if ($queryType === self::Query_CapturedPaymentDetails){
             $body = url()->getEntityBody();
             $body = json_decode($body);
-            dd($body, 'MARKER_THAT', $this->confirmOrder(self::getAccessToken(), $body?->orderData?->id));
+            dd($body, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo), $this->confirmOrder(self::getAccessToken(), $body?->orderData?->id));
             dd($body);
         }
 

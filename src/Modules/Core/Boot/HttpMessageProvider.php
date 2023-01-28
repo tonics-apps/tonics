@@ -44,9 +44,6 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
-
-       // dd(AudioTonicsPayPalHandler::getOrderDetails(AudioTonicsPayPalHandler::getAccessToken(), '08F678773R544881S'));
-
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception | \Throwable $e) {
