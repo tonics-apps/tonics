@@ -2415,6 +2415,7 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
 //---------------------
 
 class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
+    invoice_id = null;
 
     constructor(event) {
         super();
@@ -2451,7 +2452,6 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
 
     initPayPalButton(event) {
         let self = this;
-
         paypal.Buttons({
             style: {
                 shape: 'pill',
@@ -2476,8 +2476,8 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                     }
 
                     event.generateInvoiceID(self.getPaymentName(), (data) => {
-                        const invoice_id = data?.data;
-                        if (invoice_id) {
+                        self.invoice_id = data?.data;
+                        if (self.invoice_id) {
                             resolve(actions.order.create({
                                 "purchase_units": [{
                                     "amount": {
@@ -2490,7 +2490,7 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                                             }
                                         }
                                     },
-                                    "invoice_id": invoice_id,
+                                    "invoice_id": self.invoice_id,
                                     "items": self.getPayPalItems(cart.getCart(), currency)
                                 }]
                             }));
@@ -2511,9 +2511,10 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
 
                     if (orderData.status === 'COMPLETED') {
                         const cart = new TrackCart();
-                        const payeeEmailAddress = cart.getCheckOutEmail();
+                        const checkOutEmail = cart.getCheckOutEmail();
                         const body = {
-                            payee: payeeEmailAddress.value,
+                            invoice_id: self.invoice_id,
+                            checkout_email: checkOutEmail.value,
                             orderData: orderData,
                             cartItems:  Array.from(cart.getCart())
                         };

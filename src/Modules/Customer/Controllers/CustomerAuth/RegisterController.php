@@ -114,10 +114,16 @@ class RegisterController extends Controller
                 redirect(route('customer.verifyEmailForm'));
             }
 
+
             $db = db();
+            // Once customer verifies email, if they are a guest, we remove it.
             $db->FastUpdate(
                 $this->getUsersData()->getCustomersTable(),
-                ['email_verified_at' => helper()->date(), 'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER)],
+                [
+                    'email_verified_at' => helper()->date(),
+                    'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER),
+                    'is_guest' => 0
+                ],
                 $db->WhereEquals('email', $data->email));
 
             session()->flash(['Email Successfully Verified, Please Login'], $data, Session::SessionCategories_FlashMessageSuccess);

@@ -11,11 +11,13 @@
 namespace App\Modules\Payment\EventHandlers\TrackPaymentMethods;
 
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
 use App\Modules\Payment\Events\AudioTonicsPaymentInterface;
+use App\Modules\Payment\Events\OnPurchaseCreate;
 use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -63,38 +65,89 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             $body = url()->getEntityBody();
             $body = json_decode($body);
 
+            // Here are the steps, if user exist (we get the user data, check the amount and add the purchase)
+            // if user does not exist, we create a guest user with the email supplies in the checkout_email
+            $userData = new UserData();
+            $checkoutEmail = $body->checkout_email ?? '';
+            $customerData = $userData->doesCustomerExist($checkoutEmail);
+
+            // if customer does not exist, we create a guest user
+            if (!$customerData) {
+                $guestCustomersData = [
+                    'user_name' => helper()->extractNameFromEmail($checkoutEmail) ?? $checkoutEmail,
+                    'email' => $checkoutEmail,
+                    // add a random password
+                    'user_password' => helper()->securePass(helper()->randomString()),
+                    'settings'=> UserData::generateCustomerJSONSettings(),
+                    'is_guest' => 1,
+                    'role' => Roles::getRoleIDFromDB(Roles::ROLE_GUEST)
+                ];
+
+                $customerData = $userData->insertForCustomer($guestCustomersData, ['user_id', 'user_name', 'email', 'is_guest']);
+            }
+
             if (isset($body->cartItems) && is_array($body->cartItems)){
                 $cartItemsSlugID = [];
                 foreach ($body->cartItems as $cartItem){
                     $cartItemsSlugID[] = (isset($cartItem[0])) ? $cartItem[0] : '';
                 }
 
-                $trackData = TrackData::class;
-                $purchaseTracks = db()->Select('track_id, slug_id, track_slug, track_title, license_attr_id_link, license_attr')
-                    ->From($trackData::getTrackTable())
-                    ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
-                    ->WhereIn("{$trackData::getTrackTable()}.slug_id", $cartItemsSlugID)
-                    ->GroupBy("{$trackData::getTrackTable()}.slug_id")
-                    ->FetchResult();
+                try {
+                    $trackData = TrackData::class;
+                    $purchaseTracks = db()->Select('track_id, slug_id, track_slug, track_title, license_attr_id_link, license_attr')
+                        ->From($trackData::getTrackTable())
+                        ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
+                        ->WhereIn("{$trackData::getTrackTable()}.slug_id", $cartItemsSlugID)
+                        ->GroupBy("{$trackData::getTrackTable()}.slug_id")
+                        ->FetchResult();
 
-                dd($purchaseTracks, $this->getTotalPriceOfPurchaseTracks($body->cartItems, $purchaseTracks));
+                    if ($customerData->email){
+                        $purchaseData = [
+                            'fk_customer_id' => $customerData->user_id,
+                            'total_price' => $this->getTotalPriceOfPurchaseTracks($body->cartItems, $purchaseTracks),
+                            'others' => json_encode([
+                                'itemIds' => $cartItemsSlugID, // would be used to confirm the item the user is actually buying
+                                'invoice_id' => $body->invoice_id,
+                                'tx_ref' => null, // this is for flutterwave
+                                'order_id' => $body->orderData->id, // this is for PayPal
+                                'payment_method' => 'TonicsPayPal', // i.e PayPal, FlutterWave
+                                'tonics_solution' => PaymentSettingsController::TonicsSolution_AudioTonics
+                            ]),
+                        ];
+
+                        $purchaseDataReturn = db()->insertReturning(Tables::getTable(Tables::PURCHASES), $purchaseData, Tables::$TABLES[Tables::PURCHASES], 'purchase_id');
+                        $onPurchaseCreate = new OnPurchaseCreate($purchaseDataReturn);
+                        event()->dispatch($onPurchaseCreate);
+                    }
+                } catch (\Exception $exception){
+                    // Log..
+                }
+
             }
-
-            // Here are the steps, if user exist (we get the user data, check the amount and add the purchase)
-            $userData = new UserData();
-            $customerData = $userData->doesCustomerExist($body->checkout_email ?? '');
-
-            if ($customerData->email){
-                $purchaseData = [];
-            }
-
+            dd($onPurchaseCreate);
 
             dd($body, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo), $this->confirmOrder(self::getAccessToken(), $body?->orderData?->id));
             dd($body);
         }
 
         if ($queryType === self::Query_ClientCredentials){
+            $settings = PaymentSettingsController::getSettingsData();
+            $credentials = ''; $live = false;
+            if (key_exists(self::Key_IsLive, $settings) && $settings[self::Key_IsLive] === '1'){
+                $live = true;
+            }
 
+            if ($live){
+                if (isset($settings[self::Key_LiveClientID])){
+                    $credentials = $settings[self::Key_LiveClientID];
+                }
+            } else {
+                if (isset($settings[self::Key_SandBoxClientID])){
+                    $credentials = $settings[self::Key_SandBoxClientID];
+                }
+            }
+
+            response()->onSuccess($credentials);
         }
 
     }

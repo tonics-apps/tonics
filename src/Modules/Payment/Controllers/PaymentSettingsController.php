@@ -17,6 +17,9 @@ use App\Modules\Field\Data\FieldData;
 
 class PaymentSettingsController
 {
+    const TonicsSolution_AudioTonics = 'AudioTonics';
+    const TonicsSolution_TonicsCommerce = 'TonicsCommerce'; // not yet available
+
     private ?FieldData $fieldData;
 
     const TonicsModule_TonicsPaymentSettings = 'TonicsModule_TonicsPaymentSettings';
