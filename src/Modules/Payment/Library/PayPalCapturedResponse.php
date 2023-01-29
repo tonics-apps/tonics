@@ -60,9 +60,22 @@ class PayPalCapturedResponse {
         return $this->response->status === 'FAILED';
     }
 
-    public function getAmount()
+    public function getTotalAmount()
     {
-        return $this->response->amount ?? null;
+        if (isset($this->response->purchase_units->{0}->amount)){
+            return $this->response->purchase_units->{0}->amount->value ?? null;
+        }
+
+        return null;
+    }
+
+    public function getCurrency()
+    {
+        if (isset($this->response->purchase_units->{0}->amount)){
+            return $this->response->purchase_units->{0}->amount->currency_code ?? null;
+        }
+
+        return null;
     }
 
     public function getPayerAddress()

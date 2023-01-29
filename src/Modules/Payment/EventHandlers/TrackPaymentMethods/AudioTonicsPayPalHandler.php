@@ -65,8 +65,6 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             $body = url()->getEntityBody();
             $body = json_decode($body);
 
-            // Here are the steps, if user exist (we get the user data, check the amount and add the purchase)
-            // if user does not exist, we create a guest user with the email supplies in the checkout_email
             $userData = new UserData();
             $checkoutEmail = $body->checkout_email ?? '';
             $customerData = $userData->doesCustomerExist($checkoutEmail);
@@ -118,16 +116,14 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                         $purchaseDataReturn = db()->insertReturning(Tables::getTable(Tables::PURCHASES), $purchaseData, Tables::$TABLES[Tables::PURCHASES], 'purchase_id');
                         $onPurchaseCreate = new OnPurchaseCreate($purchaseDataReturn);
                         event()->dispatch($onPurchaseCreate);
+                        response()->onSuccess(['email' => $checkoutEmail], 'Pending Review');
+
+                        dd($onPurchaseCreate, $customerData);
                     }
                 } catch (\Exception $exception){
                     // Log..
                 }
-
             }
-            dd($onPurchaseCreate);
-
-            dd($body, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo), $this->confirmOrder(self::getAccessToken(), $body?->orderData?->id));
-            dd($body);
         }
 
         if ($queryType === self::Query_ClientCredentials){

@@ -21,6 +21,7 @@ use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 use Embera\Embera;
+use Symfony\Component\Yaml\Tests\A;
 
 /**
  * Class HttpMessageProvider
@@ -44,6 +45,7 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
+     //  dd(AudioTonicsPayPalHandler::getOrderDetails(AudioTonicsPayPalHandler::getAccessToken(), '1PJ72004HS825671N'));
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception | \Throwable $e) {
