@@ -44,8 +44,7 @@ class HandleNewCategorySlugIDGeneration implements HandlerInterface
         /**
          * @var OnPostCategoryCreate $event
          */
-        $slugGen = $event->getCatID() . random_int(PHP_INT_MIN, PHP_INT_MAX). hrtime(true);
-        $slugGen = hash('xxh3', $slugGen);
+        $slugGen = helper()->generateUniqueSlugID($event->getCatID());
         $postToUpdate = $event->getPostData()->createCategory(['cat_slug'], false);
         $postToUpdate['slug_id'] = $slugGen;
         db()->FastUpdate($event->getPostData()->getCategoryTable(), $postToUpdate, db()->Where('cat_id', '=', $event->getCatID()));

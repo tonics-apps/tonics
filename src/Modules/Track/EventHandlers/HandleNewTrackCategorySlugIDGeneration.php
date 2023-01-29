@@ -43,8 +43,7 @@ class HandleNewTrackCategorySlugIDGeneration implements HandlerInterface
         /**
          * @var OnTrackCategoryCreate $event
          */
-        $slugGen = $event->getCatID() . random_int(PHP_INT_MIN, PHP_INT_MAX). hrtime(true);
-        $slugGen = hash('xxh3', $slugGen);
+        $slugGen = helper()->generateUniqueSlugID($event->getCatID());
         $trackToUpdate = $event->getTrackData()->createCategory(['track_cat_slug'], false);
         $trackToUpdate['slug_id'] = $slugGen;
         db()->FastUpdate($event->getTrackData()->getTrackCategoryTable(), $trackToUpdate, db()->Where('track_cat_id', '=', $event->getCatID()));

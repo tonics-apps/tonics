@@ -14,7 +14,9 @@ namespace App\Modules\Payment;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Payment\EventHandlers\HandleNewPurchaseSlugIDGeneration;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
+use App\Modules\Payment\Events\OnPurchaseCreate;
 use App\Modules\Payment\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -38,6 +40,10 @@ class PaymentActivator implements ExtensionConfig
         return [
             OnAddTrackPaymentEvent::class => [
 
+            ],
+
+            OnPurchaseCreate::class => [
+                HandleNewPurchaseSlugIDGeneration::class,
             ]
         ];
         /*  return [

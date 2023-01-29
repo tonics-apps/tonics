@@ -8,28 +8,31 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Track\EventHandlers;
+namespace App\Modules\Payment\EventHandlers;
 
-use App\Modules\Track\Events\OnTrackCreate;
+use App\Modules\Core\Library\Tables;
+use App\Modules\Payment\Events\OnPurchaseCreate;
+use App\Modules\Post\Events\OnPostCreate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class HandleNewTrackSlugIDGeneration implements HandlerInterface
+class HandleNewPurchaseSlugIDGeneration implements HandlerInterface
 {
 
     /**
+     * @inheritDoc
      * @throws \Exception
      */
     public function handleEvent(object $event): void
     {
-        ## The iteration should only go once, but in a unlikely case that a collision occur,
-        # we try force updating the slugID until we max out 10 iterations
+        ## The iteration should only go once, but in an unlikely case that a collision occur, we try force updating the slugID until we max out 10 iterations
         ## but it should never happen even if you have 10Million posts
         $iterations = 10;
         for ($i = 0; $i < $iterations; ++$i) {
             try {
                 $this->updateSlugID($event);
                 break;
-            } catch (\Exception){
+            } catch (\Exception $exception){
+                // Log..
                 // Collision occur message
             }
         }
@@ -41,11 +44,11 @@ class HandleNewTrackSlugIDGeneration implements HandlerInterface
     public function updateSlugID($event)
     {
         /**
-         * @var OnTrackCreate $event
+         * @var OnPurchaseCreate $event
          */
-        $slugGen = helper()->generateUniqueSlugID($event->getTrackID());
-        $trackToUpdate = $event->getTrackData()->createTrack(['track_slug'], false);
-        $trackToUpdate['slug_id'] = $slugGen;
-        db()->FastUpdate($event->getTrackData()->getTrackTable(), $trackToUpdate, db()->Where('track_id', '=', $event->getTrackID()));
+        $slugGen = helper()->generateUniqueSlugID($event->getPurchaseID());
+        $purchaseToUpdate['slug_id'] = $slugGen;
+        db()->FastUpdate(Tables::getTable(Tables::PURCHASES), $purchaseToUpdate, db()->Where('purchase_id', '=', $event->getPurchaseID()));
+        $event->getPurchase()->slug_id = $slugGen;
     }
 }

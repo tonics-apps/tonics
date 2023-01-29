@@ -16,6 +16,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
 use App\Modules\Payment\Events\AudioTonicsPaymentInterface;
+use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentInterface
@@ -62,10 +63,30 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             $body = url()->getEntityBody();
             $body = json_decode($body);
 
-            // Here are the steps, if
+            if (isset($body->cartItems) && is_array($body->cartItems)){
+                $cartItemsSlugID = [];
+                foreach ($body->cartItems as $cartItem){
+                    $cartItemsSlugID[] = (isset($cartItem[0])) ? $cartItem[0] : '';
+                }
 
-          //  $userData = new UserData();
-          //  $customerData = $userData->doesCustomerExist($body->payee);
+                $trackData = TrackData::class;
+                $purchaseTracks = db()->Select('track_id, slug_id, track_slug, track_title, license_attr_id_link, license_attr')
+                    ->From($trackData::getTrackTable())
+                    ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
+                    ->WhereIn("{$trackData::getTrackTable()}.slug_id", $cartItemsSlugID)
+                    ->GroupBy("{$trackData::getTrackTable()}.slug_id")
+                    ->FetchResult();
+
+                dd($purchaseTracks, $this->getTotalPriceOfPurchaseTracks($body->cartItems, $purchaseTracks));
+            }
+
+            // Here are the steps, if user exist (we get the user data, check the amount and add the purchase)
+            $userData = new UserData();
+            $customerData = $userData->doesCustomerExist($body->checkout_email ?? '');
+
+            if ($customerData->email){
+                $purchaseData = [];
+            }
 
 
             dd($body, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo), $this->confirmOrder(self::getAccessToken(), $body?->orderData?->id));
@@ -79,6 +100,35 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
     }
 
 
+    public function getTotalPriceOfPurchaseTracks($cartItems, $purchaseTracks): int
+    {
+       $licenseUniqueID = [];
+        foreach ($cartItems as $cartItem){
+            $licenseUniqueID[(isset($cartItem[0])) ? $cartItem[0] : ''] = (isset($cartItem[1]->unique_id)) ? $cartItem[1]->unique_id : '';
+        }
+
+        $totalPrice = 0;
+        // Loop PurchaseTracks
+        foreach ($purchaseTracks as $purchaseTrack){
+            $licenseAttributes = json_decode($purchaseTrack->license_attr);
+            // Check if slug_is existed in $licenseUniqueID, $licenseUniqueID is formatted as
+            // [slug_id] => license unique ID of the item user paid for
+            if (isset($licenseUniqueID[$purchaseTrack->slug_id])){
+                $uniqueID = $licenseUniqueID[$purchaseTrack->slug_id];
+                // Loop licenses attached to the track
+                foreach ($licenseAttributes as $attribute) {
+                    // check if the $uniqueID matches with the one in the attribute
+                    // if so, add to the totalPrice and break
+                    if ($attribute->unique_id === $uniqueID){
+                        $totalPrice += $attribute->price;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $totalPrice;
+    }
 
     /**
      * @throws \Exception

@@ -43,8 +43,7 @@ class HandleNewCouponTypeSlugIDGeneration implements HandlerInterface
         /**
          * @var OnCouponTypeCreate $event
          */
-        $slugGen = $event->getCouponTypeID() . random_int(PHP_INT_MIN, PHP_INT_MAX). hrtime(true);
-        $slugGen = hash('xxh3', $slugGen);
+        $slugGen = helper()->generateUniqueSlugID($event->getCouponTypeID());
         $updateChanges = $event->getCouponData()->createCouponType(['coupon_type_slug'], false);
         $updateChanges['slug_id'] = $slugGen;
         db()->FastUpdate($event->getCouponData()->getCouponTypeTable(), $updateChanges, db()->Where('coupon_type_id', '=', $event->getCouponTypeID()));

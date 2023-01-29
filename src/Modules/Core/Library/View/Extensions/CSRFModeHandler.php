@@ -53,7 +53,7 @@ class CSRFModeHandler extends TonicsTemplateViewAbstract implements TonicsModeIn
         $csrf = '';
         try {
             $csrf = \session()->getCSRFToken();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception){
             // Log..
         }
 
