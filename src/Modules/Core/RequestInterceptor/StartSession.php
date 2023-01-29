@@ -22,8 +22,6 @@ class StartSession implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        ## Won't touch the db here yet, this is just generating a sessionID in cookie if
-        ## it doesn't already exist. It would touch DB as soon as you start writing
         session()->startSession();
     }
 }

@@ -2319,7 +2319,6 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
     checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
 
     addPaymentButton(string) {
-        console.log(this.getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token']));
         if (this.checkout_button_div_el) {
             let loadingAnimation = this.checkout_button_div_el.querySelector('.loading-button-payment-gateway');
             if (loadingAnimation && !loadingAnimation.classList.contains('d:none')) {

@@ -66,7 +66,7 @@ class RegisterController extends Controller
             unset($customerInserted->user_password);
         }
 
-        $customerInserted->verification = $this->handleVerificationCodeGeneration((object)UserData::generateVerificationArrayDataForCustomer());
+        $customerInserted->verification = $this->handleVerificationCodeGeneration((object)UserData::generateVerificationArrayDataForUser());
         session()->append(Session::SessionCategories_NewVerification, $customerInserted);
         $this->sendNewRegistrationJob($customerInserted);
     }

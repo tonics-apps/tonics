@@ -55,6 +55,12 @@ class Session
     }
 
     /**
+     * Check if session Exist, if it doesn't we create one,
+     * meaning it create a sessionID in cookie.
+     *
+     * <br>
+     * Note: Won't touch the db here yet, this is just generating a sessionID in cookie if it doesn't already exist.
+     * It would touch DB as soon as you start writing
      * @throws \Exception
      */
     public function startSession(): void
@@ -278,11 +284,11 @@ SQL, $jsonPath, $sessionID);
      */
     public function getCSRFToken()
     {
-        if (session()->hasKey(Session::SessionCategories_CSRFToken) === false){
-            session()->append(Session::SessionCategories_CSRFToken, helper()->randomString());
+        if ($this->hasKey(Session::SessionCategories_CSRFToken) === false){
+            $this->append(Session::SessionCategories_CSRFToken, helper()->randomString());
         }
 
-        return session()->retrieve(Session::SessionCategories_CSRFToken, jsonDecode: true);
+        return $this->retrieve(Session::SessionCategories_CSRFToken, jsonDecode: true);
     }
 
     /**
@@ -550,8 +556,8 @@ SQL, $jsonPath, $sessionID);
      */
     public function logout()
     {
-        session()->clear();
-        session()->updateSessionIDInCookie(session()->generateSessionID());
+        $this->clear();
+        $this->updateSessionIDInCookie($this->generateSessionID());
     }
 
 }

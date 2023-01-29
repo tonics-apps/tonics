@@ -193,6 +193,31 @@ class UserData extends AbstractDataLayer
     }
 
     /**
+     * If customer does exist, we return the customer data, including its role_id
+     * else, you get null
+     * @param string $email
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public function doesCustomerExist(string $email): mixed
+    {
+        $userTable = $this->getCustomersTable();
+        $rolesTable = $this->getRolesTable();
+
+        $queryResult = null;
+        $userInfo =  db()->Select('*, role_id as role')->From($userTable)
+            ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
+            ->WhereEquals('email', $email)
+            ->FetchFirst();
+
+        if (isset($userInfo->email)){
+            $queryResult = $userInfo;
+        }
+
+        return $queryResult;
+    }
+
+    /**
      * @throws \Exception
      */
     public static function getCurrentUserID()
@@ -348,6 +373,25 @@ class UserData extends AbstractDataLayer
 
     }
 
+    public static function generateVerificationArrayDataForUser(): array
+    {
+        return [
+            'verification_code' => null,    # the unique verification code
+            'verification_code_at' => null, # time the verification code was created
+            'x_verification_code' => 0,     # number of times verification code was generated or requested
+            'is_verified' => 0,             # is verification code verified....1 for true, 0 for false
+            'is_sent' => 0,                 # is email sent...1 for true, 0 for false
+            'verified_at' => null,          # when the code was verified
+            'verified_attempt' => 0,        # number of times user tried verifying
+            /**
+             * As you can see the expire_lock_time has in fact expired (this is default)
+             * So, each time the x_verification_code is 5 and above, we add the current_time plus 5 more minutes to...
+             * lock user from generating too much verification code, this is like throttling if you get me ;)
+             * And whenever the time expires, user can send a new one, if they fail again, we give another 5 minutes :p
+             */
+            'expire_lock_time' => '1997-07-05 00:00:00',
+        ];
+    }
 
     /**
      * @throws \Exception
@@ -370,35 +414,6 @@ class UserData extends AbstractDataLayer
         ]);
     }
 
-    public static function generateVerificationArrayDataForUser(): array
-    {
-        return [
-            'verification_code' => null,    # the unique verification code
-            'verification_code_at' => null, # time the verification code was created
-            'x_verification_code' => 0,     # number of times verification code was generated or requested
-            'is_verified' => 0,             # is verification code verified....1 for true, 0 for false
-            'is_sent' => 0,                 # is email sent...1 for true, 0 for false
-            'verified_at' => null,          # when the code was verified
-            'verified_attempt' => 0,        # number of times user tried verifying
-            /**
-             * As you can see the expire_lock_time has in fact expired (this is default)
-             * So, each time the x_verification_code is 5 and above, we add the current_time plus 5 more minutes to...
-             * lock user from generating too much verification code, this is like throttling if you get me ;)
-             * And whenever the time expires, user can send a new one, if they fail again, we give another 5 minutes :p
-             */
-            'expire_lock_time' => '1997-07-05 00:00:00',
-        ];
-    }
-
-    public static function generateVerificationArrayDataForCustomer(): array
-    {
-        $verification = self::generateVerificationArrayDataForUser();
-        # When a user is guest, this is the hash that would be used to identify the user when the user is
-        # trying to transfer the guest account to an actual user account.
-        $verification['guest_hash'] = null;
-        return $verification;
-    }
-
     /**
      * @return string
      * @throws \Exception
@@ -410,13 +425,13 @@ class UserData extends AbstractDataLayer
             'timezone' => "Africa/Lagos",
             'email_from' => "",     // email for sending notifications, this overrides "users email"
             'api' => [
-                # The plain_token is available if you wanna auth outside this app,
+                # The plain_token is available if you want to auth outside this app,
                 # e.g. connecting from Insomnia, Postman, etc
                 'plain_token' => $apiTokenAndHash->token,
                 'hash_token' => $apiTokenAndHash->hash,
                 'updated_at' => helper()->date()
             ],
-            'verification' => self::generateVerificationArrayDataForCustomer(),
+            'verification' => self::generateVerificationArrayDataForUser(),
             'active_sessions' => []
         ]);
     }

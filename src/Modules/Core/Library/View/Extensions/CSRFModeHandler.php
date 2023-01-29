@@ -46,12 +46,17 @@ class CSRFModeHandler extends TonicsTemplateViewAbstract implements TonicsModeIn
      */
     public function render(string $content, array $args, array $nodes = []): string
     {
+        // The fact that this mode is called means that we should start the session, else
+        // no session would get created which can lead to serious issue.
+        session()->startSession();
+
         $csrf = '';
         try {
             $csrf = \session()->getCSRFToken();
         }catch (\Exception $exception){
             // Log..
         }
+
         return $csrf;
     }
 }

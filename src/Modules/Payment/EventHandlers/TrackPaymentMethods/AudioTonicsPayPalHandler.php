@@ -61,6 +61,13 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
         if ($queryType === self::Query_CapturedPaymentDetails){
             $body = url()->getEntityBody();
             $body = json_decode($body);
+
+            // Here are the steps, if
+
+          //  $userData = new UserData();
+          //  $customerData = $userData->doesCustomerExist($body->payee);
+
+
             dd($body, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo), $this->confirmOrder(self::getAccessToken(), $body?->orderData?->id));
             dd($body);
         }
