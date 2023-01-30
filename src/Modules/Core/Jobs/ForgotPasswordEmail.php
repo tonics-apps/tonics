@@ -31,7 +31,7 @@ class ForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInte
      */
     public function handle(): void
     {
-        $messageToSend = view('Modules::Core/Views/Emails/forgot-password', [
+        $messageToSend = view('Modules::Core/Views/Emails/email-verification', [
             'Username' => $this->getData()->user_name,
             'Email' => $this->getData()->email,
             'Verification_Code' => $this->getData()->verification->verification_code,

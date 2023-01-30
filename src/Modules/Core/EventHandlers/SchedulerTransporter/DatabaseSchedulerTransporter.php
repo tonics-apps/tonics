@@ -113,10 +113,10 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                 usleep(5000000); # Sleep for 5 seconds
                 continue;
             }
-            $schedules = $this->getNextScheduledEvent($db);
+            $schedules = $this->getNextScheduledEvent();
             if (empty($schedules)){
-                # While the schedule event is empty, we sleep for a 0.1, this reduces the CPU usage, thus giving the CPU the chance to do other things
-                usleep(100000);
+                # While the schedule event is empty, we sleep for a 1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(1000000);
                 continue;
             }
             foreach ($schedules as $schedule) {
@@ -147,10 +147,10 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                                 exit(1); # Failed
                             }
                         },
-                        beforeOnChild: function () use ($db, $schedule, $scheduleObject) {
+                        beforeOnChild: function () use ($schedule, $scheduleObject) {
                             $update = $this->getToInsert($scheduleObject);
                             $update['schedule_ticks'] = $schedule->schedule_ticks + 1;
-                            $db->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
+                            $this->getDb()->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
                         }
                     );
                 }
@@ -161,10 +161,10 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     /**
      * @throws \Exception
      */
-    public function getNextScheduledEvent($db): array
+    public function getNextScheduledEvent(): array
     {
         $table = Tables::getTable(Tables::SCHEDULER);
-        $data = $db->run("
+        $data = $this->getDb()->run("
         WITH RECURSIVE scheduler_recursive AS 
 	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_ticks_max, schedule_next_run
       FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run
@@ -202,4 +202,14 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
             }
         }
     }
+
+    /**
+     * @return TonicsQuery|null
+     * @throws \Exception
+     */
+    public function getDb(): ?TonicsQuery
+    {
+        return db(true);
+    }
+
 }
