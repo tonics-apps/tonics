@@ -31,7 +31,7 @@ class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface,
 
     public function TonicsSolutionType(): string
     {
-        return PayPalWebHookEvent::TonicsSolution_AudioTonics;
+        return PaymentSettingsController::TonicsSolution_AudioTonics;
     }
 
     public function HandleWebHookEvent(PayPalWebHookEvent $payPalWebHookEvent): void

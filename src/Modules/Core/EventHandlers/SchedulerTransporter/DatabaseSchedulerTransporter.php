@@ -106,13 +106,14 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     public function runSchedule(): void
     {
         $this->helper = helper();
+        $db = db(true);
         while (true) {
             if (AppConfig::isMaintenanceMode()){
                 $this->infoMessage("Site in Maintenance Mode...Sleeping");
                 usleep(5000000); # Sleep for 5 seconds
                 continue;
             }
-            $schedules = $this->getNextScheduledEvent();
+            $schedules = $this->getNextScheduledEvent($db);
             if (empty($schedules)){
                 # While the schedule event is empty, we sleep for a 0.1, this reduces the CPU usage, thus giving the CPU the chance to do other things
                 usleep(100000);
@@ -146,10 +147,10 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                                 exit(1); # Failed
                             }
                         },
-                        beforeOnChild: function () use ($schedule, $scheduleObject) {
+                        beforeOnChild: function () use ($db, $schedule, $scheduleObject) {
                             $update = $this->getToInsert($scheduleObject);
                             $update['schedule_ticks'] = $schedule->schedule_ticks + 1;
-                            $this->getDB()->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
+                            $db->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
                         }
                     );
                 }
@@ -158,21 +159,12 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     }
 
     /**
-     * @return TonicsQuery
      * @throws \Exception
      */
-    public function getDB(): TonicsQuery
-    {
-        return db(true);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getNextScheduledEvent(): array
+    public function getNextScheduledEvent($db): array
     {
         $table = Tables::getTable(Tables::SCHEDULER);
-        $data = $this->getDB()->run("
+        $data = $db->run("
         WITH RECURSIVE scheduler_recursive AS 
 	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_ticks_max, schedule_next_run
       FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run

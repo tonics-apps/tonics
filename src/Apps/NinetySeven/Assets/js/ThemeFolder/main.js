@@ -623,18 +623,18 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                             body,
                             (data) => {
                                 console.log(data);
+                                // Show a success message within this page, e.g.
+                                const element = document.getElementById('paypal-button-container');
+                                element.innerHTML = '';
+                                element.innerHTML = data?.message;
+                                // Or go to another URL:  actions.redirect('thank_you.html');
                             },
                             (error) => {
 
                             });
 
                         // Full available details
-                        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                        // Show a success message within this page, e.g.
-                        const element = document.getElementById('paypal-button-container');
-                        element.innerHTML = '';
-                        element.innerHTML = '<h3>Thank you for your payment!</h3>';
-                        // Or go to another URL:  actions.redirect('thank_you.html');
+                       // console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
 
                     } else {
 

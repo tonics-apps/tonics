@@ -72,7 +72,7 @@ class Database
                 view('Modules::Core/Views/error-page', ['error-code' => $e->getCode(), 'error-message' => "Error Connecting To The Database ❕"]);
             }
 
-            exit('Error Connecting To The Database');
+            exit('Error Connecting To The Database' .  "\n" . $e->getMessage() . "\n");
         }
 
     }

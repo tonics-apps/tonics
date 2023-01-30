@@ -19,6 +19,7 @@ use App\Modules\Customer\Controllers\CustomerAuth\LoginController;
 use App\Modules\Customer\Controllers\CustomerAuth\RegisterController;
 use App\Modules\Customer\Controllers\DashboardController;
 use App\Modules\Customer\RequestInterceptor\CustomerAccess;
+use App\Modules\Customer\RequestInterceptor\RedirectCustomerGuest;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait RouteWeb
@@ -65,11 +66,6 @@ trait RouteWeb
             $route->post('verifyEmail', [RegisterController::class, 'verifyEmail'], alias: 'verifyEmail');
 
                     #---------------------------------
-                # TRANSFER GUEST CUSTOMER ACCOUNT...
-            #---------------------------------
-//            $route->get('guest/transfer/:slugid/:guesthash', [CustomerDashboardController::class, 'transferGuestToCustomer'], alias: 'transfer.guest');
-
-                    #---------------------------------
                 # CUSTOMER DASHBOARD CONTROLLER...
             #---------------------------------
             /*$route->group('', function (Route $route) {
@@ -84,8 +80,8 @@ trait RouteWeb
                     # CUSTOMER DASHBOARD CONTROLLER...
                 #---------------------------------
                 $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
-            }, [Authenticated::class, CustomerAccess::class]);
-
+                $route->get('purchase/:slug_id', [DashboardController::class, 'purchaseHistory'], alias: 'purchase.history');
+            }, [Authenticated::class, RedirectCustomerGuest::class, CustomerAccess::class]);
         }, AuthConfig::getCSRFRequestInterceptor(),  'customer');
 
         return $route;

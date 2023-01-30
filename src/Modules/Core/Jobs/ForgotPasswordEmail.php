@@ -23,7 +23,7 @@ use Genkgo\Mail\Protocol\Smtp\ClientFactory;
 use Genkgo\Mail\Transport\EnvelopeFactory;
 use Genkgo\Mail\Transport\SmtpTransport;
 
-class UserAdminForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInterface
+class ForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInterface
 {
 
     /**
@@ -48,6 +48,7 @@ class UserAdminForgotPasswordEmail extends AbstractJobInterface implements JobHa
             ClientFactory::fromString(MailConfig::getMailDataSource())->newClient(),
             EnvelopeFactory::useExtractedHeader()
         );
+
         $transport->send($message);
     }
 }

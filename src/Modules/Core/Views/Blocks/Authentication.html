@@ -134,6 +134,67 @@
 </form>
 ]]
 
+[[b('body.main.customer-form-reset-password')
+<form method="POST" action="[[arg('1')]]" class="padding:small owl margin-top:0">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="email">
+            <span class="field-label">E-Mail Address</span>
+        </label>
+        [[arg('2')]]
+        <input class="bg:white-one color:black border-width:default border:black" type="email" id="email"
+               placeholder="Enter E-mail Address" name="email" required autocomplete="email" autofocus=""
+               value="[[session('getOldFormInput', 'old_form_input.email', '')]]">
+    </div>
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <button type="submit" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Send Password Reset Link →</span>
+        </button>
+    </div>
+</form>
+]]
+
+[[b('body.main.customer-form-verify-code-reset-password')
+<form method="POST" action="[[arg('1')]]" class="padding:small owl margin-top:0">
+    <input type="hidden" name="token" value="[[csrf()]]" >
+    <span class="text-align:center text text:tip margin-top:0">
+        The verification code has been sent to your mailbox or spam folder.<br>
+        Wait a bit before requesting for a new one.
+    </span>
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="email">
+            <span class="field-label">Verification Code</span>
+        </label>
+        [[arg('2')]]
+        <input required class="bg:white-one color:black border-width:default border:black" style="font-size: revert;" type="number" id="verification-code" placeholder="Verification Code"
+               name="verification-code" autofocus>
+    </div>
+    <div class="form-group row">
+        <label style="margin-inline-end: auto;" for="password">
+            <span class="field-label">New Password</span>
+        </label>
+        <div class="password-with-show position:relative">
+            <input type="password" class="form-control input-checkout bg:white-one color:black border-width:default border:black"
+                   autocomplete="off" id="password" name="password" minlength="5" required >
+            <button aria-pressed="false" type="button" class="text show-password bg:pure-black color:white cursor:pointer">Show</button>
+        </div>
+        <ul class="form-error">
+            <li class=""><span class="text list-info-span">!</span>Required: Password Minimum of 5 Characters</li>
+        </ul>
+    </div>
+    <div class="form-group row d:flex flex-gap:small align-items:center flex-wrap:wrap">
+        <button type="submit" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Reset Password →</span>
+        </button>
+
+        <a href="[[url('customer.password.request')]]" type="submit" class="border:none bg:white-one color:black border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
+            <span class="text text:no-wrap">Re-send Verification Code →</span>
+        </a>
+    </div>
+</form>
+]]
+
+
 [[b('body.main.form-verify-code-reset-password')
 <form method="POST" action="[[arg('1')]]" class="padding:small owl margin-top:0">
     <input type="hidden" name="token" value="[[csrf()]]" >

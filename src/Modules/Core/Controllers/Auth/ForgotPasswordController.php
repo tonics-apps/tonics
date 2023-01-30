@@ -13,7 +13,7 @@ namespace App\Modules\Core\Controllers\Auth;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Jobs\UserAdminForgotPasswordEmail;
+use App\Modules\Core\Jobs\ForgotPasswordEmail;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\Tables;
@@ -40,6 +40,7 @@ class ForgotPasswordController extends Controller
     public function sendResetLinkEmail()
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->getSendResetLinkEmailRule());
+
         if ($validator->fails()){
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('admin.password.request'));
@@ -66,10 +67,10 @@ class ForgotPasswordController extends Controller
                 $forgotPasswordData->verification = $verification;
                 session()->append(Session::SessionCategories_PasswordReset, $forgotPasswordData);
 
-                $userAdminForgotPasswordJob = new UserAdminForgotPasswordEmail();
-                $userAdminForgotPasswordJob->setJobName('UserAdminForgotPasswordEmail');
-                $userAdminForgotPasswordJob->setData($forgotPasswordData);
-                job()->enqueue($userAdminForgotPasswordJob);
+                $forgotPasswordEmail = new ForgotPasswordEmail();
+                $forgotPasswordEmail->setJobName('ForgotPasswordEmail');
+                $forgotPasswordEmail->setData($forgotPasswordData);
+                job()->enqueue($forgotPasswordEmail);
 
                 redirect(route('admin.password.verifyEmail'));
             }
@@ -103,60 +104,13 @@ class ForgotPasswordController extends Controller
     public function reset()
     {
         $userData = new UserData();
-
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->getResetRule());
-        if ($validator->fails()){
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('admin.password.request'));
-        }
-
-        if (!session()->hasKey(Session::SessionCategories_PasswordReset)){
-            # User that doesn't have the Session::SessionCategories_PasswordReset key should be sent back to request form
-            session()->flash(['Unauthorized Access'], input()->fromPost()->all());
-            redirect(route('admin.password.request'));
-        }
-
-        try {
-            $verificationData = session()->retrieve(Session::SessionCategories_PasswordReset, jsonDecode: true);
-            $verification = $verificationData->verification;
-
-            $timeDifference = time() - $verification->verification_code_at;
-
-            # If time is greater than an hour
-            if ($timeDifference > Scheduler::everyHour(1)){
-                $this->verificationInvalid();
-            }
-
-            $verificationCodeFromUser = input()->fromPost()->retrieve('verification-code');
-            $password = helper()->securePass(input()->fromPost()->retrieve('password'));
-
-            # If verification code is in-valid
-            if (!hash_equals((string)$verification->verification_code, $verificationCodeFromUser)){
-                $this->verificationInvalid();
-            }
-
-            # Remove Existing Active Sessions
-            $settings = json_decode($verificationData->settings);
-            $columns = array_flip(Tables::$TABLES[Tables::SESSIONS]);
-            $itemsToDelete = [];
-            foreach ($settings->active_sessions as $toDelete){
-                $itemsToDelete[] = ['session_id' => $toDelete];
-            }
-            $userData->deleteMultiple(Tables::getTable(Tables::SESSIONS), $columns, 'session_id', $itemsToDelete,
-                onSuccess: function () use ($settings, $verificationData, $password, $userData) {
-                $settings->active_sessions = [];
-                # Update Password
-                db()->FastUpdate($userData->getUsersTable(), ['user_password' => $password, 'settings' => json_encode($settings)],
-                    db()->Where('email', '=', $verificationData->email));
-            }, onError: function (){
-                $this->verificationInvalid();
-                });
-
-            session()->flash(['Password Successfully Changed, Login'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('admin.login'));
-        }catch (\Exception){
-            $this->verificationInvalid();
-        }
+        $userData->verifyAndResetUserPass([
+            'resetRule' => $this->getResetRule(),
+            'validationFails' => function(){
+                redirect(route('admin.password.request'));
+            },
+            'table' => $userData->getUsersTable()
+        ]);
     }
 
     /**

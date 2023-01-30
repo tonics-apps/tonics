@@ -116,9 +116,20 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                         $purchaseDataReturn = db()->insertReturning(Tables::getTable(Tables::PURCHASES), $purchaseData, Tables::$TABLES[Tables::PURCHASES], 'purchase_id');
                         $onPurchaseCreate = new OnPurchaseCreate($purchaseDataReturn);
                         event()->dispatch($onPurchaseCreate);
-                        response()->onSuccess(['email' => $checkoutEmail], 'Pending Review');
 
-                        dd($onPurchaseCreate, $customerData);
+                        $customer_purchase_history = route('customer.purchase.history', ['slug_id' => $onPurchaseCreate->getSlugID()]);
+
+                        $message = <<<MESSAGE
+<h6>Pending Review, Check $checkoutEmail mailbox in few minutes for files, please contact us if you got stucked.</h6>
+<br>
+Alternatively, If you have an account, check <a href="$customer_purchase_history" target="_blank">Purchase Files</a> for your file(s)
+<br>
+
+
+MESSAGE;
+
+
+                        response()->onSuccess(['email' => $checkoutEmail], $message);
                     }
                 } catch (\Exception $exception){
                     // Log..

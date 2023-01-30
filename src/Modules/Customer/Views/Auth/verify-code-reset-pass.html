@@ -1,7 +1,7 @@
 [[inherit("Modules::Core/Views/Templates/core")]]
 
-[[hook_into('Core::in_head_title')Request Password Reset]]
-[[hook_into('Core::in_main_header_title')Request Password Reset]]
+[[hook_into('Core::in_head_title')Reset Password]]
+[[hook_into('Core::in_main_header_title')Reset Password]]
 
 [[reset_hook('in_site_navigation_ul')]]
 
@@ -9,7 +9,7 @@
 [[hook_into('Core::in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:center]]
 
 [[hook_into('Core::in_main')
-    [[func("body.main.customer-form-reset-password", "url.customer-password-email", "body.main.form-get-email-flash-error-message")]]
+    [[func("body.main.customer-form-verify-code-reset-password", "empty", "body.main.form-get-verification-code-flash-error-message")]]
 ]]
 
 [[hook_into('Core::before_footer')

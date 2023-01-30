@@ -13,6 +13,7 @@ namespace App\Modules\Core\Data;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use JetBrains\PhpStorm\ArrayShape;
@@ -434,6 +435,91 @@ class UserData extends AbstractDataLayer
             'verification' => self::generateVerificationArrayDataForUser(),
             'active_sessions' => []
         ]);
+    }
+
+    /**
+     * @param array $settings
+     * @return void
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function verifyAndResetUserPass(array $settings = [])
+    {
+        $rule = $settings['resetRule'] ?? '';
+        $onError = $settings['validationFails'] ?? '';
+        $table = $settings['table'] ?? '';
+
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $rule);
+        if ($validator->fails()){
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
+            if (is_callable($onError)){
+                $onError();
+            }
+        }
+
+        if (!session()->hasKey(Session::SessionCategories_PasswordReset)){
+            # User that doesn't have the Session::SessionCategories_PasswordReset key should be sent back to request form
+            session()->flash(['Unauthorized Access'], input()->fromPost()->all());
+            if (is_callable($onError)){
+                $onError();
+            }
+        }
+
+        try {
+            $verificationData = session()->retrieve(Session::SessionCategories_PasswordReset, jsonDecode: true);
+            $verification = $verificationData->verification;
+
+            $timeDifference = time() - $verification->verification_code_at;
+
+            # If time is greater than an hour
+            if ($timeDifference > Scheduler::everyHour(1)){
+                $this->verificationInvalid($onError);
+            }
+
+            $verificationCodeFromUser = input()->fromPost()->retrieve('verification-code');
+            $password = helper()->securePass(input()->fromPost()->retrieve('password'));
+
+            # If verification code is in-valid
+            if (!hash_equals((string)$verification->verification_code, $verificationCodeFromUser)){
+                $this->verificationInvalid($onError);
+            }
+
+            # Remove Existing Active Sessions
+            $settings = json_decode($verificationData->settings);
+            $columns = array_flip(Tables::$TABLES[Tables::SESSIONS]);
+            $itemsToDelete = [];
+            foreach ($settings->active_sessions as $toDelete){
+                $itemsToDelete[] = ['session_id' => $toDelete];
+            }
+            $this->deleteMultiple(Tables::getTable(Tables::SESSIONS), $columns, 'session_id', $itemsToDelete,
+                onSuccess: function () use ($table, $settings, $verificationData, $password) {
+                    $settings->active_sessions = [];
+                    # Update Password
+                    db()->FastUpdate($table, ['user_password' => $password, 'settings' => json_encode($settings)],
+                        db()->Where('email', '=', $verificationData->email));
+                }, onError: function () use ($onError) {
+                    $this->verificationInvalid($onError);
+                });
+
+            session()->flash(['Password Successfully Changed, Login'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('admin.login'));
+        }catch (\Exception){
+            session()->flash(['Verification code is invalid, request a new one']);
+            $this->verificationInvalid($onError);
+        }
+    }
+
+    /**
+     * @param callable $call
+     * @return void
+     * @throws \Exception
+     */
+    private function verificationInvalid(callable $call): void
+    {
+        session()->flash(['Verification code is invalid, request a new one'], input()->fromPost()->all());
+        if (is_callable($call)){
+            $call();
+        }
     }
 
 }

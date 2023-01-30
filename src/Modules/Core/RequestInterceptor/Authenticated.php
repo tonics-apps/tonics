@@ -34,14 +34,14 @@ class Authenticated implements TonicsRouterRequestInterceptorInterface
     public function handle(OnRequestProcess $request): void
     {
        if (UserData::isAuthenticated() === false){
-           self::handleUnAunthenticated();
+           self::handleUnAuthenticated();
        }
     }
 
     /**
      * @throws \Exception
      */
-    #[NoReturn] public static function handleUnAunthenticated()
+    #[NoReturn] public static function handleUnAuthenticated()
     {
         // set the current url to session here, just in case we wanna redirect to intended after log in
         session()->append(Session::SessionCategories_URLReferer, request()->getHeaderByKey('REQUEST_URI'));

@@ -31,8 +31,8 @@ trait Routes
             });
         }, AuthConfig::getAuthRequestInterceptor([PaymentAccess::class]));
 
-        $route->post('/payment/paypal_web_hook_endpoint', [PayPalWebHookController::class, 'handleWebHook']);
 
+        $route->post('/payment/paypal_web_hook_endpoint', [PayPalWebHookController::class, 'handleWebHook']);
         return $route;
     }
 
