@@ -146,21 +146,21 @@ class PostCategoryController
 
         # Storing db reference is the only way I got tx to work
         # this could be as a result of pass db() around in event handlers
-        $db = db();
+        $dbTx = db();
         try {
-            $db->beginTransaction();
+            $dbTx->beginTransaction();
             $category = $this->postData->createCategory();
             $categoryReturning = $this->postData->insertForPost($category, PostData::Category_INT);
             $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
             event()->dispatch($onPostCategoryCreate);
-            $db->commit();
+            $dbTx->commit();
 
             apcu_clear_cache();
             session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('posts.category.edit', ['category' => $onPostCategoryCreate->getCatSlug()]));
         }catch (Exception $exception){
             // Log..
-            $db->rollBack();
+            $dbTx->rollBack();
             session()->flash(['An Error Occurred, Creating Post Category'], input()->fromPost()->all());
             redirect(route('posts.category.create'));
         }

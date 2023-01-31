@@ -491,8 +491,9 @@ HTML;
     {
         $fieldTable = Tables::getTable(Tables::FIELD);
         $fieldNameToID = [];
+        $dbTx = db();
         try {
-            db()->beginTransaction();
+            $dbTx->beginTransaction();
             foreach ($fieldItems as $k => $item) {
                 $json = json_decode($item->field_options, true) ?? [];
                 if (isset($item->fk_field_id) && is_string($item->fk_field_id)) {
@@ -512,8 +513,9 @@ HTML;
                 $fieldItems[$k] = (array)$item;
             }
             db()->Insert($this->getFieldItemsTable(), $fieldItems);
-            db()->commit();
+            $dbTx->commit();
         } catch (\Exception $exception) {
+            $dbTx->rollBack();
             // log...
             // var_dump($exception->getMessage(), $exception->getTraceAsString());
         }

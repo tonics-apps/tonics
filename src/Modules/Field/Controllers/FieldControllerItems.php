@@ -83,16 +83,18 @@ class FieldControllerItems extends Controller
         $error = false;
         if ($validator->passes()){
             try {
-                db()->beginTransaction();
+                $dbTx = db();
+                $dbTx->beginTransaction();
                 # Delete All the Field Items Related to $fieldDetails->fieldID
                 $this->getFieldData()->deleteWithCondition(
                     whereCondition: "fk_field_id = ?", parameter: [$fieldDetails['fieldID']], table: $this->getFieldData()->getFieldItemsTable());
                 # Reinsert it
                 db()->Insert($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
-                db()->commit();
+                $dbTx->commit();
                 event()->dispatch(new OnFieldItemsSave($fieldDetails));
                 $error = true;
             }catch (\Exception $exception){
+                $dbTx->rollBack();
                 // log..
             }
         }

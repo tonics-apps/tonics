@@ -162,6 +162,8 @@ class CouponTypeController
             event()->dispatch($onCouponTypeCreate);
             $db->commit();
 
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
+
             session()->flash(['Coupon Type Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tonicsCoupon.Type.edit', ['couponType' => $onCouponTypeCreate->getCouponTypeSlug()]));
         }catch (Exception $exception){

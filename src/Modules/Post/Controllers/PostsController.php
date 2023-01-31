@@ -183,9 +183,9 @@ class PostsController
 
         # Storing db reference is the only way I got tx to work
         # this could be as a result of pass db() around in event handlers
-        $db = db();
+        $dbTx = db();
         try {
-            $db->beginTransaction();
+            $dbTx->beginTransaction();
             $post = $this->postData->createPost(['token']);
             $onBeforePostSave = new OnBeforePostSave($post);
             event()->dispatch($onBeforePostSave);
@@ -196,14 +196,14 @@ class PostsController
 
             $onPostCreate = new OnPostCreate($postReturning, $this->postData);
             event()->dispatch($onPostCreate);
-            $db->commit();
+            $dbTx->commit();
 
             session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
             apcu_clear_cache();
             redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
         } catch (\Exception $exception) {
             // log..
-            $db->rollBack();
+            $dbTx->rollBack();
             session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
             redirect(route('posts.create'));
         }
@@ -394,9 +394,10 @@ class PostsController
     protected function updateMultiple($entityBag)
     {
         $postTable = Tables::getTable(Tables::POSTS);
+        $dbTx = db();
         try {
             $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
-            db()->beginTransaction();
+            $dbTx->beginTransaction();
             foreach ($updateItems as $updateItem) {
                 $db = db();
                 $postUpdate = [];
@@ -441,10 +442,10 @@ class PostsController
                 $onPostUpdate = new OnPostUpdate((object)$colForEvent, $this->postData);
                 event()->dispatch($onPostUpdate);
             }
-            db()->commit();
+            $dbTx->commit();
             return true;
         } catch (\Exception $exception) {
-            db()->rollBack();
+            $dbTx->rollBack();
             return false;
             // log..
         }

@@ -50,8 +50,12 @@ class ForgotPasswordController extends Controller
 
         try {
             $table = Tables::getTable(Tables::USERS);
-            $forgotPasswordData = db()->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))->From($table)
-                ->WhereEquals('email', $email)->FetchFirst();
+            $forgotPasswordData = null;
+
+            db(onGetDB: function ($db) use ($table, $email, &$forgotPasswordData){
+                $forgotPasswordData = $db->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))->From($table)
+                    ->WhereEquals('email', $email)->FetchFirst();
+            });
 
             if (hash_equals(AppConfig::getKey(), $app_key) && isset($forgotPasswordData->email) && hash_equals($forgotPasswordData->email, $email)){
                 if (session()->hasKey(Session::SessionCategories_PasswordReset)){

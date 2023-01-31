@@ -65,17 +65,7 @@ class Database
      */
     private function getConnection(array $settings = []): TonicsQuery
     {
-        $databaseName = $settings['databaseName'] ?? null;
-        $Host = $settings['host'] ?? null;
-        $User = $settings['user'] ?? null;
-        $Pass = $settings['pass'] ?? null;
-        $Char = $settings['char'] ?? null;
-
-        $dsn = 'mysql:host=' . ($this->Host() ?: $Host) .
-            ';dbname=' . ($databaseName ?: $this->DatabaseName()) .
-            ';charset=' . ($this->Charset() ?: $Char);
-
-        $tonicsQueryBuilder = new TonicsQueryBuilder(new PDO($dsn, ($this->User() ?: $User), ($this->Password() ?: $Pass), options: $this->options),
+        $tonicsQueryBuilder = new TonicsQueryBuilder($this->getInstanceOfPdoObj(),
             new MariaDBTonicsQueryTransformer(),
             new MariaDBTables(''));
 
@@ -96,6 +86,21 @@ class Database
         }
 
         return $q;
+    }
+
+    public function getInstanceOfPdoObj(): PDO
+    {
+        $databaseName = $settings['databaseName'] ?? null;
+        $Host = $settings['host'] ?? null;
+        $User = $settings['user'] ?? null;
+        $Pass = $settings['pass'] ?? null;
+        $Char = $settings['char'] ?? null;
+
+        $dsn = 'mysql:host=' . ($this->Host() ?: $Host) .
+            ';dbname=' . ($databaseName ?: $this->DatabaseName()) .
+            ';charset=' . ($this->Charset() ?: $Char);
+
+        return new PDO($dsn, ($this->User() ?: $User), ($this->Password() ?: $Pass), options: $this->options);
     }
 
     /**

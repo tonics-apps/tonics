@@ -261,16 +261,18 @@ MESSAGE;
             curl_close($curl);
             $response = json_decode($response);
             if (isset($response->access_token) && isset($response->expires_in)){
-                $accessToken = $response->access_token;
-                $expiration_date = time() + $response->expires_in;
 
-                db(true)->insertOnDuplicate(
-                    $globalTable,
-                    [
-                        'key' => self::GlobalTableKey,
-                        'value' => json_encode(['access_token' => $accessToken, 'expires_in' => $expiration_date])
-                    ],
-                    ['value']);
+                db(onGetDB: function ($db) use ($globalTable, $response) {
+                    $accessToken = $response->access_token;
+                    $expiration_date = time() + $response->expires_in;
+                    $db->insertOnDuplicate(
+                        $globalTable,
+                        [
+                            'key' => self::GlobalTableKey,
+                            'value' => json_encode(['access_token' => $accessToken, 'expires_in' => $expiration_date])
+                        ],
+                        ['value']);
+                });
             }
         }
 
@@ -374,7 +376,7 @@ MESSAGE;
             "webhook_event" => $webhookEvent
         ];
 
-        db(true)->insertOnDuplicate(
+        db()->insertOnDuplicate(
             Tables::getTable(Tables::GLOBAL),
             [
                 'key' => 'WebHook_Data_' . helper()->randomString(5),
@@ -401,7 +403,7 @@ MESSAGE;
         if ($http_status == 200) {
             $result = json_decode($result, true);
 
-            db(true)->insertOnDuplicate(
+            db()->insertOnDuplicate(
                 Tables::getTable(Tables::GLOBAL),
                 [
                     'key' => 'WebHook_Verification'  . helper()->randomString(5),

@@ -21,6 +21,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Post\Data\PostData;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -165,11 +166,15 @@ class TonicsSeoController
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-        $categoryData = db()
-            ->Select('*, JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.seo_description")) as cat_description')
-            ->From($CatTbl)->WhereEquals('cat_slug', $categoryName)->FetchFirst();
+        $categoryData = null;
+        db(onGetDB: function (TonicsQuery $db) use ($categoryName, $CatTbl, &$categoryData){
+            $categoryData = $db
+                ->Select('*, JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.seo_description")) as cat_description')
+                ->From($CatTbl)->WhereEquals('cat_slug', $categoryName)->FetchFirst();
+        });
 
         if ($categoryData){
+
             $settings = self::getSettingsData();
             $rssSettingsData = [
                 'Title' => $settings['app_tonicsseo_site_title'] ?? null,
@@ -179,30 +184,33 @@ class TonicsSeoController
                 'Language' => $settings['app_tonicsseo_rss_settings_language'] ?? 'en',
             ];
 
-            $postFieldSettings = $postTbl . '.field_settings';
-            $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'slug_id', 'created_at', 'updated_at', 'image_url']])
-                . ", $postTbl.post_title as _title, $postTbl.image_url as _image "
-                . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
-                . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as _description"
-                . ", DATE_FORMAT($postTbl.created_at, '%a, %d %b %Y %T') as rssPubDate";
+            $queryData = null;
+            db(onGetDB: function ($db) use($CatTbl, $postCatTbl, $postTbl, $categoryData, &$queryData) {
+                $postFieldSettings = $postTbl . '.field_settings';
+                $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'slug_id', 'created_at', 'updated_at', 'image_url']])
+                    . ", $postTbl.post_title as _title, $postTbl.image_url as _image "
+                    . ', CONCAT(cat_id, "::", cat_slug ) as fk_cat_id, CONCAT_WS("/", "/posts", post_slug) as _preview_link '
+                    . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as _description"
+                    . ", DATE_FORMAT($postTbl.created_at, '%a, %d %b %Y %T') as rssPubDate";
 
-            $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($categoryData->cat_id);
-            $catIDS = [];
-            foreach ($catIDSResult as $catID){
-                $catIDS[] = $catID->cat_id;
-            }
+                $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($categoryData->cat_id);
+                $catIDS = [];
+                foreach ($catIDSResult as $catID){
+                    $catIDS[] = $catID->cat_id;
+                }
 
-            $rssSettingsData['Query'] = db()->Select($tblCol)
-                ->From($postCatTbl)
-                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-                ->WhereEquals('post_status', 1)
-                ->Where("$postTbl.created_at", '<=', helper()->date())
-                ->WhereIn('cat_id', $catIDS)->GroupBy('post_id')
-                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(30);
+                $queryData = $db->Select($tblCol)
+                    ->From($postCatTbl)
+                    ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                    ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                    ->WhereEquals('post_status', 1)
+                    ->Where("$postTbl.created_at", '<=', helper()->date())
+                    ->WhereIn('cat_id', $catIDS)->GroupBy('post_id')
+                    ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(30);
+            });
 
+            $rssSettingsData['Query'] = $queryData;
             response()->header("content-type: text/xml; charset=UTF-8");
-
             view('Apps::TonicsSeo/Views/rss', [
                 'rssData' => $rssSettingsData,
             ]);

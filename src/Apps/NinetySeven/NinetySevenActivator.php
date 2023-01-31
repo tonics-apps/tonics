@@ -28,6 +28,7 @@ use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageTemplate;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
@@ -296,6 +297,11 @@ JSON;
     {
         $toDelete = ['app-ninety-seven-settings', 'app-ninety-seven-post-home-page'];
         $tb = $this->fieldData->getFieldTable();
-        db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+        db(onGetDB: function (TonicsQuery $db) use ($toDelete, $tb) {
+            $newDB = db();
+            $db->FastDelete($tb, $newDB->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+            $newDB->getTonicsQueryBuilder()->destroyPdoConnection();
+        });
+
     }
 }

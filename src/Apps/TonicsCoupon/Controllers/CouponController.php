@@ -220,6 +220,7 @@ class CouponController
             $onCouponCreate = new OnCouponCreate($couponReturning, $this->couponData);
             event()->dispatch($onCouponCreate);
             $db->commit();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
             if (!$this->isUserInCLI){
                 session()->flash(['Coupon Created'], type: Session::SessionCategories_FlashMessageSuccess);
                 redirect(route('tonicsCoupon.edit', ['coupon' => $onCouponCreate->getCouponSlug()]));
@@ -399,9 +400,10 @@ class CouponController
     protected function updateMultiple($entityBag)
     {
         $couponTable = TonicsCouponActivator::couponTableName();
+        $dbTx = db();
         try {
             $updateItems = $this->getCouponData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
-            db()->beginTransaction();
+            $dbTx->beginTransaction();
             foreach ($updateItems as $updateItem) {
                 $db = db();
                 $updateChanges = [];
@@ -454,10 +456,10 @@ class CouponController
                 $onPostUpdate = new OnCouponUpdate((object)$colForEvent, $this->couponData);
                 event()->dispatch($onPostUpdate);
             }
-            db()->commit();
+            $dbTx->commit();
             return true;
         } catch (\Exception $exception) {
-            db()->rollBack();
+            $dbTx->rollBack();
             return false;
             // log..
         }

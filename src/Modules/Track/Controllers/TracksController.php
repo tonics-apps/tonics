@@ -196,9 +196,9 @@ class TracksController extends Controller
 
         # Storing db reference is the only way I got tx to work
         # this could be as a result of pass db() around in event handlers
-        $db = db();
+        $dbTx = db();
         try {
-            $db->beginTransaction();
+            $dbTx->beginTransaction();
             $track = $this->getTrackData()->createTrack(['token']);
             $trackReturning = db()->insertReturning($this->getTrackData()::getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
             if (is_object($trackReturning)) {
@@ -207,13 +207,13 @@ class TracksController extends Controller
             }
             $onTrackCreate = new OnTrackCreate($trackReturning, $this->getTrackData());
             event()->dispatch($onTrackCreate);
-            $db->commit();
+            $dbTx->commit();
 
             session()->flash(['Track Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tracks.edit', ['track' => $onTrackCreate->getTrackSlug()]));
         } catch (Exception $exception){
             // Log..
-            $db->rollBack();
+            $dbTx->rollBack();
             session()->flash(['An Error Occurred, Creating Track'], input()->fromPost()->all());
             redirect(route('tracks.create'));
         }
@@ -310,8 +310,8 @@ class TracksController extends Controller
             redirect(route('tracks.edit', [$slug]));
         }
 
-        $db = db();
-        $db->beginTransaction();
+        $dbTx = db();
+        $dbTx->beginTransaction();
         $trackToUpdate = $this->getTrackData()->createTrack(['token']);
         try {
             $trackToUpdate['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_slug'));
@@ -323,9 +323,11 @@ class TracksController extends Controller
             $onTrackToUpdate = new OnTrackUpdate((object)$trackToUpdate, $this->getTrackData());
             event()->dispatch($onTrackToUpdate);
 
-            $db->commit();
+            $dbTx->commit();
 
         } catch (Exception){
+            // Log..
+            $dbTx->rollBack();
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.edit', [$slug]));
         }

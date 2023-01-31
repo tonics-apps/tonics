@@ -414,9 +414,10 @@ SQL, ...$parameter);
      */
     public function dataTableUpdateMultiple(string $id, string $table, $entityBag, array $rules = [], callable $onSuccess = null, callable $onError = null): bool
     {
+        $dbTx = db();
         try {
             $updateItems = $this->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
-            db()->beginTransaction();
+            $dbTx->beginTransaction();
             foreach ($updateItems as $updateItem) {
                 $db = db();
                 $updateChanges = [];
@@ -453,11 +454,11 @@ SQL, ...$parameter);
                     $onSuccess($colForEvent, $entityBag);
                 }
             }
-            db()->commit();
+            $dbTx->commit();
             apcu_clear_cache();
             return true;
         } catch (\Exception $exception) {
-            db()->rollBack();
+            $dbTx->rollBack();
             if ($onError){
                 $onError();
             }

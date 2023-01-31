@@ -13,15 +13,12 @@ namespace App\Modules\Core\EventHandlers\SchedulerTransporter;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Library\ConsoleColor;
-use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
 use App\Modules\Core\Library\SchedulerSystem\SchedulerTransporterInterface;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
-use Devsrealm\TonicsQueryBuilder\TonicsQuery;
-use ParagonIE\EasyDB\EasyDB;
 use Throwable;
 
 class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, HandlerInterface
@@ -58,7 +55,6 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
      */
     public function enqueue(AbstractSchedulerInterface $scheduleObject): void
     {
-        $db = db(true);
         if ($scheduleObject->chainsEmpty()) {
             $insert = $this->getToInsert($scheduleObject);
         } else {
@@ -71,7 +67,11 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                 $insert[] = $insertChild;
             }
         }
-        $db->insertOnDuplicate($this->getTable(), $insert, $this->updateKeyOnUpdate());
+
+        db(onGetDB: function ($db) use ($insert) {
+            $db->insertOnDuplicate($this->getTable(), $insert, $this->updateKeyOnUpdate());
+        });
+
     }
 
     public function getToInsert(AbstractSchedulerInterface $scheduleObject): array
@@ -106,13 +106,13 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     {
         $this->helper = helper();
         while (true) {
-            if (AppConfig::isMaintenanceMode()){
+            if (AppConfig::isMaintenanceMode()) {
                 $this->infoMessage("Site in Maintenance Mode...Sleeping");
                 usleep(5000000); # Sleep for 5 seconds
                 continue;
             }
             $schedules = $this->getNextScheduledEvent();
-            if (empty($schedules)){
+            if (empty($schedules)) {
                 # While the schedule event is empty, we sleep for a 0.1, this reduces the CPU usage, thus giving the CPU the chance to do other things
                 usleep(100000);
                 continue;
@@ -148,21 +148,15 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     }
 
     /**
-     * @return TonicsQuery
-     * @throws \Exception
-     */
-    public function getDB(): TonicsQuery
-    {
-        return db(true);
-    }
-
-    /**
      * @throws \Exception
      */
     public function getNextScheduledEvent(): array
     {
         $table = Tables::getTable(Tables::SCHEDULER);
-        $data = $this->getDB()->run("
+
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data) {
+            $data = $db->run("
         WITH RECURSIVE scheduler_recursive AS 
 	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_next_run
       FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run
@@ -172,6 +166,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
       ) 
      SELECT * FROM scheduler_recursive;
         ");
+        });
 
         $schedules = $this->helper->generateTree(['parent_id' => 'schedule_parent_name', 'id' => 'schedule_name'], $data);
         usort($schedules, function ($id1, $id2) {
@@ -191,7 +186,9 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     {
         $update = $this->getToInsert($scheduleObject);
         $update['schedule_ticks'] = $schedule->schedule_ticks + 1;
-        $this->getDB()->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
+        db(onGetDB: function ($db) use ($update) {
+            $db->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
+        });
     }
 
     /**

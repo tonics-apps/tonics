@@ -109,21 +109,21 @@ class FieldConfig
      */
     public static function savePluginFieldSettings($key, array $data): array
     {
-        $key = 'App_Settings_' . $key;
-        if (isset($data['token'])){
-            unset($data['token']);
-        }
-
-        $globalTable = Tables::getTable(Tables::GLOBAL);
-        db(true)->insertOnDuplicate(
-            $globalTable,
-            [
-                'key' => $key,
-                'value' => json_encode($data)
-            ],
-            ['value']
-        );
-
+        db(onGetDB: function ($db) use ($key, $data) {
+            $key = 'App_Settings_' . $key;
+            if (isset($data['token'])){
+                unset($data['token']);
+            }
+            $globalTable = Tables::getTable(Tables::GLOBAL);
+            $db->insertOnDuplicate(
+                $globalTable,
+                [
+                    'key' => $key,
+                    'value' => json_encode($data)
+                ],
+                ['value']
+            );
+        });
         apcu_clear_cache();
         return $data;
     }
@@ -137,7 +137,12 @@ class FieldConfig
             $key = 'App_Settings_' . $key;
         }
         $globalTable = Tables::getTable(Tables::GLOBAL);
-        $updates = db(true)->row("SELECT * FROM $globalTable WHERE `key` = ?", $key);
+        $updates = null;
+
+        db(onGetDB: function ($db) use ($key, $globalTable, &$updates) {
+            $updates = $db->row("SELECT * FROM $globalTable WHERE `key` = ?", $key);
+        });
+
         if (isset($updates->value) && !empty($updates->value)){
             return json_decode($updates->value, true);
         }

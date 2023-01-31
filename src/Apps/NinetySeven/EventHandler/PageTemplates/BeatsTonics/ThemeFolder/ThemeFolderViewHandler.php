@@ -68,8 +68,11 @@ class ThemeFolderViewHandler implements HandlerInterface
             $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
             $uniqueSlugID = $routeParams[0] ?? null;
             if ($isGetMarker){
-                $track = db()->Select('field_settings')->From(TrackData::getTrackTable())
-                    ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
+                $track = null;
+                db(onGetDB: function ($db) use ($uniqueSlugID, &$track) {
+                    $track = $db->Select('field_settings')->From(TrackData::getTrackTable())
+                        ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
+                });
                 $fieldSettings = null;
                 $markerData = [];
                 if (isset($track->field_settings)){

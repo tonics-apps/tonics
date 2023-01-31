@@ -146,22 +146,22 @@ class TrackCategoryController
 
         # Storing db reference is the only way I got tx to work
         # this could be as a result of pass db() around in event handlers
-        $db = db();
+        $dbTx = db();
         try {
-            $db->beginTransaction();
+            $dbTx->beginTransaction();
             $category = $this->trackData->createCategory();
             $td = $this->getTrackData();
             $categoryReturning = db()->insertReturning($td::getTrackCategoryTable(), $category, $td->getTrackCategoryColumns(), 'track_cat_id');
             $onTrackCategoryCreate = new OnTrackCategoryCreate($categoryReturning, $td);
             event()->dispatch($onTrackCategoryCreate);
-            $db->commit();
+            $dbTx->commit();
 
             apcu_clear_cache();
             session()->flash(['Track Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tracks.category.edit', ['category' => $onTrackCategoryCreate->getCatSlug()]));
         }catch (Exception $exception){
             // Log..
-            $db->rollBack();
+            $dbTx->rollBack();
             session()->flash(['An Error Occurred, Creating Track Category'], input()->fromPost()->all());
             redirect(route('tracks.category.create'));
         }

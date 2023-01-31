@@ -85,13 +85,14 @@ class MenuControllerItems extends Controller
         $error = false;
         if ($validator->passes()) {
             try {
-                db()->beginTransaction();
+                $dbTx = db();
+                $dbTx->beginTransaction();
                 # Delete All the Menu Items Related to $menuDetails->menuID
                 $this->getMenuData()->deleteWithCondition(
                     whereCondition: "fk_menu_id = ?", parameter: [$menuDetails['menuID']], table: $this->getMenuData()->getMenuItemsTable());
                 # Reinsert it
                 db()->Insert($this->getMenuData()->getMenuItemsTable(), $menuDetails['menuItems']);
-                db()->commit();
+                $dbTx->commit();
                 $error = true;
             } catch (Exception $exception) {
                 // log..

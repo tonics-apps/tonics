@@ -139,13 +139,28 @@ function utility(): TonicsHelpers
 /**
  * This gets a new instance of TonicsQuery,
  * if newConnection is set to true it creates a new PDO connection
+ *
+ * <br>
+ *
+ * If you pass a callable func in `$onGetDB`, you would get an instance of the db connection, and
+ * it would be cleaned up or destroyed after you are done using it. A new call to it would throw an error, be warned.
+ * This is a good option to keep unused connection closed and tidy up.
  * @param bool $newConnection
- * @return TonicsQuery
+ * @param callable|null $onGetDB
+ * @return TonicsQuery|null
  * @throws Exception
  */
-function db(bool $newConnection = false): TonicsQuery
+function db(bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
 {
-    return AppConfig::initLoaderMinimal()->getDatabase($newConnection)->Q();
+    $db = AppConfig::initLoaderMinimal()->getDatabase(true)->Q();
+    if ($onGetDB){
+        $onGetDB($db);
+        $db->getTonicsQueryBuilder()->destroyPdoConnection();
+    } else {
+        return $db;
+    }
+
+    return null;
 }
 
 /**

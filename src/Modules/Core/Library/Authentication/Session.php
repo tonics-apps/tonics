@@ -12,6 +12,7 @@ namespace App\Modules\Core\Library\Authentication;
 
 
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\Pure;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
@@ -324,9 +325,12 @@ SQL, $jsonPath, $sessionID);
     {
         $sessionID = $this->getCookieID();
         $db = db();
-        return $db->Select()->JsonExtract('session_data', $key)
-            ->As('row')->From($this->getTable())
-            ->Where('session_id', '=', $sessionID)->FetchFirst();
+        $rr =  $db->Select()->JsonExtract('session_data', $key)
+            ->As('row')
+            ->From($this->getTable())
+            ->WhereEquals('session_id', $sessionID)->FetchFirst();
+
+        return $rr;
     }
 
 
@@ -339,18 +343,22 @@ SQL, $jsonPath, $sessionID);
     {
         $stm = null;
         if ($this->sessionExist()) {
-            $sessionID = $this->getCookieID();
-            ## Add 1 hours to the current time
-            // $dateTime = date('Y-m-d H:i:s', strtotime('+1 hour'));
-            $toSave = [
-                'session_id' => $sessionID,
-                'session_data' => json_encode($sessionData),
-            ];
-            $stm = db()->insertOnDuplicate(
-                table: $this->getTable(),
-                data: $toSave,
-                update: ['session_id', 'session_data'],
-                chunkInsertRate: 1);
+            db(onGetDB: function ($db) use ($sessionData, &$stm){
+                $sessionID = $this->getCookieID();
+                ## Add 1 hours to the current time
+                // $dateTime = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                $toSave = [
+                    'session_id' => $sessionID,
+                    'session_data' => json_encode($sessionData),
+                ];
+
+
+                $stm = $db->insertOnDuplicate(
+                    table: $this->getTable(),
+                    data: $toSave,
+                    update: ['session_id', 'session_data'],
+                    chunkInsertRate: 1);
+            });
         }
 
         return $stm !== null;
@@ -476,16 +484,18 @@ SQL, $jsonPath, $sessionID);
      */
     public function regenerate(): bool
     {
+        $result = false;
         if ($this->sessionExist()) {
-            db()->beginTransaction();
-            $oldSessionID = $this->getCookieID();
-            $newSessionID = $this->generateSessionID();
-            db()->row("UPDATE {$this->getTable()} SET session_id = ? WHERE session_id = ?", $newSessionID, $oldSessionID);
-            $this->updateSessionIDInCookie($newSessionID);
-            return db()->commit();
+            db(onGetDB: function (TonicsQuery $db) use (&$result){
+                $db->beginTransaction();
+                $oldSessionID = $this->getCookieID();
+                $newSessionID = $this->generateSessionID();
+                $db->row("UPDATE {$this->getTable()} SET session_id = ? WHERE session_id = ?", $newSessionID, $oldSessionID);
+                $this->updateSessionIDInCookie($newSessionID);
+                $result = $db->commit();
+            });
         }
-
-        return false;
+        return $result;
     }
 
     /**
@@ -507,9 +517,10 @@ SQL, $jsonPath, $sessionID);
             }
         }
 
-        db()->beginTransaction();
+        $dbTx = db();
+        $dbTx->beginTransaction();
         db()->run("DELETE FROM {$this->getTable()} WHERE `session_id` = ?", $sessionID);
-        return db()->commit();
+        return $dbTx->commit();
     }
 
     /**

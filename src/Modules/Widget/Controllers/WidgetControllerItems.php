@@ -80,17 +80,19 @@ class WidgetControllerItems extends Controller
         # Stage Two: Working On The Extracted Data and Dumping In DB...
         $error = false;
         if ($validator->passes()){
+            $dbTx = db();
             try {
-                db()->beginTransaction();
+                $dbTx->beginTransaction();
                 # Delete All the Menu Items Related to $menuDetails->menuID
                 $this->getWidgetData()->deleteWithCondition(
                     whereCondition: "fk_widget_id = ?", parameter: [$menuDetails['menuWidgetID']], table: $this->getWidgetData()->getWidgetItemsTable());
                 # Reinsert it
                 db()->Insert($this->getWidgetData()->getWidgetItemsTable(), $menuDetails['menuWidgetItems']);
-                db()->commit();
+                $dbTx->commit();
                 $error = true;
             }catch (\Exception){
                 // Log..
+                $dbTx->rollBack();
             }
         }
 
