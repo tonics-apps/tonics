@@ -26,8 +26,6 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      `schedule_ticks` int(10) unsigned DEFAULT 1, -- no of time job has been scheduled or ticked
      -- no of parallelization, 1 should be enough most of the time, go above if your code is built with parallization in mind
      `schedule_parallel` tinyint unsigned NOT NULL DEFAULT 1,
-      -- max number of ticks before the job_schedule is deleted, NULL mean unlimited
-     `schedule_ticks_max` int(10) unsigned DEFAULT NULL,
      `schedule_every` int(10) signed DEFAULT 120, -- default is every 2 minute, note that job_schedule_every is in second
      -- Whenever we have changes in any column, the next_run gets computed, this would usually be when we increment the tick
       `schedule_next_run` timestamp GENERATED ALWAYS AS (DATE_ADD(updated_at, INTERVAL schedule_every SECOND)) VIRTUAL, 

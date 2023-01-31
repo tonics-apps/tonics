@@ -20,61 +20,82 @@ use PDO;
 
 class Database
 {
+    use ConsoleColor;
 
     protected array $options = [
         PDO::ATTR_CASE => PDO::CASE_NATURAL,
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
         PDO::ATTR_STRINGIFY_FETCHES => false,
-        PDO::ATTR_EMULATE_PREPARES => false,
+        PDO::ATTR_EMULATE_PREPARES => false
     ];
 
     /**
-     * @param null $databaseName
-     * @param null $Host
-     * @param null $User
-     * @param null $Pass
-     * @param null $Char
+     * @param array $settings
      * @return TonicsQuery
      * @throws \Exception
      */
-    public function createNewDatabaseInstance($databaseName = null, $Host = null, $User = null, $Pass =null, $Char = null): TonicsQuery
+    public function createNewDatabaseInstance(array $settings = []): TonicsQuery
     {
+        $counter = 20;
+        $exc = null;
+        while ($counter > 0) {
+            try {
+                return $this->getConnection($settings);
+            } catch (\PDOException $e){
+                $exc = $e;
+                $counter--;
+                if (helper()->isCLI()){
+                    sleep(1);
+                    $this->infoMessage("Error Connecting To The Database [{$exc->getMessage()}], Retrying To Connect, Retry Left $counter \n");
+                }
+            }
+        }
+        if (helper()->isCLI() === false){
+            view('Modules::Core/Views/error-page', ['error-code' => $exc->getCode(), 'error-message' => "Error Connecting To The Database ❕"]);
+        }
+        exit('Error Connecting To The Database' .  "\n" . $exc->getMessage() . "\n");
+
+    }
+
+    /**
+     * @param array $settings
+     * @return TonicsQuery
+     * @throws \Exception
+     */
+    private function getConnection(array $settings = []): TonicsQuery
+    {
+        $databaseName = $settings['databaseName'] ?? null;
+        $Host = $settings['host'] ?? null;
+        $User = $settings['user'] ?? null;
+        $Pass = $settings['pass'] ?? null;
+        $Char = $settings['char'] ?? null;
+
         $dsn = 'mysql:host=' . ($this->Host() ?: $Host) .
             ';dbname=' . ($databaseName ?: $this->DatabaseName()) .
             ';charset=' . ($this->Charset() ?: $Char);
 
-        try {
+        $tonicsQueryBuilder = new TonicsQueryBuilder(new PDO($dsn, ($this->User() ?: $User), ($this->Password() ?: $Pass), options: $this->options),
+            new MariaDBTonicsQueryTransformer(),
+            new MariaDBTables(''));
 
-            $tonicsQueryBuilder = new TonicsQueryBuilder(new PDO($dsn, ($this->User() ?: $User), ($this->Password() ?: $Pass), options: $this->options),
-                new MariaDBTonicsQueryTransformer(),
-                new MariaDBTables(''));
+        $q = $tonicsQueryBuilder->getTonicsQuery();
+        $t = $tonicsQueryBuilder->getTables();
 
-            $q = $tonicsQueryBuilder->getTonicsQuery();
-            $t = $tonicsQueryBuilder->getTables();
-
-            # Sync Users TimeZone with Database
-            $offset = date('P');
-            $q->Q()->Set('time_zone', $offset)->FetchFirst();
-            # Set Up Tables
-            $modules = helper()->getModuleActivators([ExtensionConfig::class]);
-            $apps = helper()->getModuleActivators([ExtensionConfig::class], helper()->getAllAppsDirectory());
-            $modules = [...$modules, ...$apps];
-            foreach ($modules as $module) {
-                foreach ($module->tables() as $tableName => $tableValues){
-                    $t->addTable($tableName, $tableValues);
-                }
+        # Sync Users TimeZone with Database
+        $offset = date('P');
+        $q->Q()->Set('time_zone', $offset)->FetchFirst();
+        # Set Up Tables
+        $modules = helper()->getModuleActivators([ExtensionConfig::class]);
+        $apps = helper()->getModuleActivators([ExtensionConfig::class], helper()->getAllAppsDirectory());
+        $modules = [...$modules, ...$apps];
+        foreach ($modules as $module) {
+            foreach ($module->tables() as $tableName => $tableValues){
+                $t->addTable($tableName, $tableValues);
             }
-
-            return $q;
-        } catch (\PDOException $e){
-            if (helper()->isCLI() === false){
-                view('Modules::Core/Views/error-page', ['error-code' => $e->getCode(), 'error-message' => "Error Connecting To The Database ❕"]);
-            }
-
-            exit('Error Connecting To The Database' .  "\n" . $e->getMessage() . "\n");
         }
 
+        return $q;
     }
 
     /**

@@ -14,7 +14,6 @@ class AbstractSchedulerInterface
 {
     private string $name = '';
     private int $priority = Scheduler::PRIORITY_MEDIUM;
-    private ?int $maxTicks = null;
     private int $every = 60;
     private int $parallel = 1;
     private array $chains = [];
@@ -59,24 +58,6 @@ class AbstractSchedulerInterface
     public function setPriority(int $priority): AbstractSchedulerInterface
     {
         $this->priority = $priority;
-        return $this;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getMaxTicks(): ?int
-    {
-        return $this->maxTicks;
-    }
-
-    /**
-     * @param int|null $maxTicks
-     * @return AbstractSchedulerInterface
-     */
-    public function setMaxTicks(?int $maxTicks): AbstractSchedulerInterface
-    {
-        $this->maxTicks = $maxTicks;
         return $this;
     }
 
@@ -151,5 +132,4 @@ class AbstractSchedulerInterface
         $this->parent = $parent;
         return $this;
     }
-
 }

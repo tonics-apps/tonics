@@ -48,7 +48,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
 
     public function updateKeyOnUpdate(): array
     {
-        return ['schedule_priority', 'schedule_parallel', 'schedule_data', 'schedule_ticks_max', 'schedule_every', 'schedule_ticks'];
+        return ['schedule_priority', 'schedule_parallel', 'schedule_data', 'schedule_every', 'schedule_ticks'];
     }
 
     /**
@@ -81,7 +81,6 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
             'schedule_priority' => $scheduleObject->getPriority(),
             'schedule_parallel' => $scheduleObject->getParallel(),
             'schedule_data' => json_encode(get_class($scheduleObject)),
-            'schedule_ticks_max' => $scheduleObject->getMaxTicks(),
             // when a scheduleObject has a parent,
             // then schedule_every should be 0 since it is tied to a parent
             // (it has no business in scheduling anything, it is directly called after parent)
@@ -106,7 +105,6 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     public function runSchedule(): void
     {
         $this->helper = helper();
-        $db = db(true);
         while (true) {
             if (AppConfig::isMaintenanceMode()){
                 $this->infoMessage("Site in Maintenance Mode...Sleeping");
@@ -115,16 +113,11 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
             }
             $schedules = $this->getNextScheduledEvent();
             if (empty($schedules)){
-                # While the schedule event is empty, we sleep for a 1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
-                usleep(1000000);
+                # While the schedule event is empty, we sleep for a 0.1, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(100000);
                 continue;
             }
             foreach ($schedules as $schedule) {
-                # If the number of times to tick has been reached, we won't run the schedule event
-                if ($schedule->schedule_ticks_max >= $schedule->schedule_ticks){
-                    continue;
-                }
-
                 $scheduleClass = json_decode($schedule->schedule_data);
                 if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])) {
                     /** @var ScheduleHandlerInterface|AbstractSchedulerInterface $scheduleObject */
@@ -134,6 +127,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                         $this->recursivelyCollateScheduleObject($schedule->_children, $scheduleObject);
                     }
                     $this->infoMessage("Running $schedule->schedule_name Scheduled Event");
+                    $this->tick($schedule, $scheduleObject);
                     $this->helper->fork(
                         $schedule->schedule_parallel,
                         onChild: function () use ($schedule, $scheduleObject) {
@@ -146,11 +140,6 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                                 $this->errorMessage($exception->getTraceAsString());
                                 exit(1); # Failed
                             }
-                        },
-                        beforeOnChild: function () use ($schedule, $scheduleObject) {
-                            $update = $this->getToInsert($scheduleObject);
-                            $update['schedule_ticks'] = $schedule->schedule_ticks + 1;
-                            $this->getDb()->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
                         }
                     );
                 }
@@ -159,17 +148,26 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     }
 
     /**
+     * @return TonicsQuery
+     * @throws \Exception
+     */
+    public function getDB(): TonicsQuery
+    {
+        return db(true);
+    }
+
+    /**
      * @throws \Exception
      */
     public function getNextScheduledEvent(): array
     {
         $table = Tables::getTable(Tables::SCHEDULER);
-        $data = $this->getDb()->run("
+        $data = $this->getDB()->run("
         WITH RECURSIVE scheduler_recursive AS 
-	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_ticks_max, schedule_next_run
+	( SELECT schedule_id, schedule_name, schedule_parent_name, schedule_priority, schedule_parallel, schedule_data, schedule_ticks, schedule_next_run
       FROM $table WHERE schedule_parent_name IS NULL AND NOW() >= schedule_next_run
       UNION ALL
-      SELECT tsf.schedule_id, tsf.schedule_name, tsf.schedule_parent_name, tsf.schedule_priority, tsf.schedule_parallel, tsf.schedule_data, tsf.schedule_ticks, tsf.schedule_ticks_max, tsf.schedule_next_run
+      SELECT tsf.schedule_id, tsf.schedule_name, tsf.schedule_parent_name, tsf.schedule_priority, tsf.schedule_parallel, tsf.schedule_data, tsf.schedule_ticks, tsf.schedule_next_run
       FROM $table as tsf JOIN scheduler_recursive as ts ON ts.schedule_name = tsf.schedule_parent_name
       ) 
      SELECT * FROM scheduler_recursive;
@@ -179,7 +177,21 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
         usort($schedules, function ($id1, $id2) {
             return $id1->schedule_priority < $id2->schedule_priority;
         });
+
         return $schedules;
+    }
+
+    /**
+     * @param $schedule
+     * @param $scheduleObject
+     * @return void
+     * @throws \Exception
+     */
+    public function tick($schedule, $scheduleObject): void
+    {
+        $update = $this->getToInsert($scheduleObject);
+        $update['schedule_ticks'] = $schedule->schedule_ticks + 1;
+        $this->getDB()->insertOnDuplicate($this->getTable(), $update, $this->updateKeyOnUpdate());
     }
 
     /**
@@ -202,14 +214,4 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
             }
         }
     }
-
-    /**
-     * @return TonicsQuery|null
-     * @throws \Exception
-     */
-    public function getDb(): ?TonicsQuery
-    {
-        return db(true);
-    }
-
 }

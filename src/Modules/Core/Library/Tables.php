@@ -48,7 +48,7 @@ final class Tables
         self::DRIVE_SYSTEM => ['drive_id', 'drive_parent_id', 'drive_unique_id', 'drive_name', 'filename', '`type`', 'status', 'properties', '`security`'],
         self::DRIVE_BLOB_COLLATOR => [ 'id', 'hash_id', 'blob_name', 'blob_chunk_part', 'blob_chunk_size', 'live_blob_chunk_size', 'missing_blob_chunk_byte', 'moreBlobInfo'],
 
-        self::SCHEDULER => [ 'schedule_id', 'schedule_name', 'schedule_parent_name', 'schedule_priority', 'schedule_data', 'schedule_parallel', 'schedule_ticks', 'schedule_ticks_max', 'schedule_every', 'schedule_next_run', 'created_at', 'updated_at'],
+        self::SCHEDULER => [ 'schedule_id', 'schedule_name', 'schedule_parent_name', 'schedule_priority', 'schedule_data', 'schedule_parallel', 'schedule_ticks',  'schedule_every', 'schedule_next_run', 'created_at', 'updated_at'],
 
         self::JOBS => [ 'job_id', 'job_name', 'job_status', 'job_priority', 'job_data', 'created_at', 'updated_at', 'time_completed'],
 

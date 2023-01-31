@@ -27,6 +27,7 @@
     "ext-gmp": "*",
     "ext-curl": "*",
     "ext-gd": "*",
+    "ext-sysvshm": "*",
     "devsrealm/tonics-template-system": "*",
     "devsrealm/tonics-dom-parser": "*",
     "devsrealm/tonics-file-manager": "*",
