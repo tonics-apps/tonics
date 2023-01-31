@@ -181,7 +181,14 @@ class CouponTypeController
      */
     public function edit(string $slug): void
     {
-        $couponType = db()->Select('*')->From(TonicsCouponActivator::couponTypeTableName())->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
+        $couponType = null;
+
+        db(onGetDB: function ($db) use ($slug, &$couponType){
+            $couponType = $db->Select('*')
+                ->From(TonicsCouponActivator::couponTypeTableName())
+                ->WhereEquals('coupon_type_slug', $slug)
+                ->FetchFirst();
+        });
 
         if (!is_object($couponType)){
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -225,7 +232,14 @@ class CouponTypeController
         if (input()->fromPost()->hasValue('coupon_type_parent_id') && input()->fromPost()->hasValue('coupon_type_id')){
             $trackCatParentID = input()->fromPost()->retrieve('coupon_type_parent_id');
             $trackCatID = input()->fromPost()->retrieve('coupon_type_id');
-            $category = db()->Select('*')->From($this->getCouponData()->getCouponTypeTable())->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
+
+            $category = null;
+            db(onGetDB: function ($db) use ($slug, &$category){
+                $category = $db->Select('*')
+                    ->From($this->getCouponData()->getCouponTypeTable())
+                    ->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
+            });
+
             // Coupon Type Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
             if ($trackCatParentID === $trackCatID){
                 $_POST['coupon_type_parent_id'] = $category->coupon_type_parent_id;
@@ -237,7 +251,12 @@ class CouponTypeController
         $updateChanges = $this->couponData->createCouponType();
         $updateChanges['coupon_type_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_type_slug'));
 
-        db()->FastUpdate($this->couponData->getCouponTypeTable(), $updateChanges, db()->Where('coupon_type_slug', '=', $slug));
+        db(onGetDB: function ($db) use ($slug, $updateChanges) {
+            $dbWhere = db();
+            $db->FastUpdate($this->couponData->getCouponTypeTable(), $updateChanges, $dbWhere->Where('coupon_type_slug', '=', $slug));
+            $dbWhere->getTonicsQueryBuilder()->destroyPdoConnection();
+        });
+
         $slug = $updateChanges['coupon_type_slug'];
 
         if (input()->fromPost()->has('_fieldErrorEmitted') === true){

@@ -261,7 +261,6 @@ MESSAGE;
             curl_close($curl);
             $response = json_decode($response);
             if (isset($response->access_token) && isset($response->expires_in)){
-
                 db(onGetDB: function ($db) use ($globalTable, $response) {
                     $accessToken = $response->access_token;
                     $expiration_date = time() + $response->expires_in;

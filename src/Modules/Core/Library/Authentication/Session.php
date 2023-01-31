@@ -95,9 +95,14 @@ class Session
             return '';
         }
 
-        $data = db()->row(<<<SQL
+        $data = null;
+        db(onGetDB: function ($db) use (&$data){
+
+            $data = $db->row(<<<SQL
 SELECT * FROM {$this->getTable()} WHERE session_id = ?
 SQL, $this->getCookieID());
+
+        });
 
         if (is_null($data)) {
             return '';
@@ -258,12 +263,15 @@ SQL, $this->getCookieID());
     public function hasKey(string $key): bool
     {
         if ($this->sessionExist()) {
-            $sessionID = $this->getCookieID();
-            $jsonPath = '$.' . $key;
 
-            $res = db()->row(<<<SQL
+            $res = null;
+            db(onGetDB: function ($db) use ($key, &$res){
+                $sessionID = $this->getCookieID();
+                $jsonPath = '$.' . $key;
+                $res = db()->row(<<<SQL
 SELECT JSON_EXISTS(session_data , ?) AS row FROM {$this->getTable()} WHERE session_id = ?;
 SQL, $jsonPath, $sessionID);
+            });
 
             if ($res === null) {
                 ## return false, meaning, $sessionID is invalid or $JSON_KEY no exists
@@ -323,14 +331,15 @@ SQL, $jsonPath, $sessionID);
      */
     private function getValue(string $key): mixed
     {
-        $sessionID = $this->getCookieID();
-        $db = db();
-        $rr =  $db->Select()->JsonExtract('session_data', $key)
-            ->As('row')
-            ->From($this->getTable())
-            ->WhereEquals('session_id', $sessionID)->FetchFirst();
-
-        return $rr;
+        $res = null;
+        db(onGetDB: function ($db) use ($key, &$res) {
+            $sessionID = $this->getCookieID();
+            $res =  $db->Select()->JsonExtract('session_data', $key)
+                ->As('row')
+                ->From($this->getTable())
+                ->WhereEquals('session_id', $sessionID)->FetchFirst();
+        });
+        return $res;
     }
 
 
