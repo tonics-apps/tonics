@@ -10,7 +10,6 @@
 
 namespace App\Modules\Payment\Controllers;
 
-use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
 use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
 
 class PayPalWebHookController
@@ -23,13 +22,11 @@ class PayPalWebHookController
         $entityBody = request()->getEntityBody();
         if (helper()->isJSON($entityBody)){
             $webhook = json_decode($entityBody);
-            if (AudioTonicsPayPalHandler::verifyWebHookSignature($webhook)){
-                $webHookEvent = $webhook->webhook_event;
-                $eventType = $webHookEvent->event_type;
-
+            if (PaymentSettingsController::verifyWebHookSignature($webhook)){
+                $eventType = $webhook->event_type;
                 /** @var $webHookEventObject OnAddPayPalWebHookEvent */
                 $payPalWebHookEventObject = new OnAddPayPalWebHookEvent();
-                $payPalWebHookEventObject->setWebHookEvent($webHookEvent);
+                $payPalWebHookEventObject->setWebHookEvent($webhook);
                 $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
                 $webHookEventObject->handleWebHookEvent($eventType);
 
