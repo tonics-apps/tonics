@@ -26,7 +26,7 @@ class PayPalWebHookController
                 $eventType = $webhook->event_type;
                 /** @var $webHookEventObject OnAddPayPalWebHookEvent */
                 $payPalWebHookEventObject = new OnAddPayPalWebHookEvent();
-                $payPalWebHookEventObject->setWebHookEvent($webhook);
+                $payPalWebHookEventObject->setWebHookData($webhook);
                 $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
                 $webHookEventObject->handleWebHookEvent($eventType);
 

@@ -13,6 +13,7 @@ namespace App\Modules\Payment\EventHandlers\PayPal;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
 use App\Modules\Payment\Events\PayPal\PayPalWebHookEventInterface;
+use App\Modules\Payment\Library\PayPalPaymentCapturedCompletedWebHookResponse;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface, PayPalWebHookEventInterface
@@ -36,7 +37,12 @@ class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface,
 
     public function HandleWebHookEvent(OnAddPayPalWebHookEvent $payPalWebHookEvent): void
     {
-        // we handle the final event completion hia;
-        dd('handle tonics hia', $payPalWebHookEvent);
+        $capturedResponse = new PayPalPaymentCapturedCompletedWebHookResponse($payPalWebHookEvent->getWebHookData());
+        # Only Handle AudioTonics Order
+        $invoiceID = $capturedResponse->getInvoiceID();
+        if (str_starts_with($invoiceID, PaymentSettingsController::TonicsSolution_AudioTonics) && $capturedResponse->isCompleted()){
+            $totalAmount = $capturedResponse->getTotalAmount();
+            dd($totalAmount, $invoiceID);
+        }
     }
 }

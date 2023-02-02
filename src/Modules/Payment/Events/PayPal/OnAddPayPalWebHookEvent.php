@@ -15,7 +15,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 class OnAddPayPalWebHookEvent implements EventInterface
 {
     private array $paypalWebHookHandler = [];
-    private $webHookEvent = null;
+    private \stdClass|null $webHookData = null;
 
     const EventType_CheckoutOrderApproved = 'CHECKOUT.ORDER.APPROVED';
     const EventType_PaymentCapturedCompleted = 'PAYMENT.CAPTURE.COMPLETED';
@@ -81,17 +81,17 @@ class OnAddPayPalWebHookEvent implements EventInterface
     /**
      * @return null
      */
-    public function getWebHookEvent()
+    public function getWebHookData()
     {
-        return $this->webHookEvent;
+        return $this->webHookData;
     }
 
     /**
-     * @param null $webHookEvent
+     * @param null $webHookData
      */
-    public function setWebHookEvent($webHookEvent): OnAddPayPalWebHookEvent
+    public function setWebHookData($webHookData): OnAddPayPalWebHookEvent
     {
-        $this->webHookEvent = $webHookEvent;
+        $this->webHookData = $webHookData;
         return $this;
     }
 }

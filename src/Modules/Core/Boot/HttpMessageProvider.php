@@ -14,10 +14,12 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
+use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
 use App\Modules\Payment\Library\PayPalCapturedResponse;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 /**
  * Class HttpMessageProvider
@@ -143,6 +145,12 @@ class HttpMessageProvider implements ServiceProvider
   "resource_version": "2.0"
 }
 JSON;
+        $payPalWebHookEventObject = new OnAddPayPalWebHookEvent();
+        $payPalWebHookEventObject->setWebHookData(json_decode($json));
+        $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
+        $webHookEventObject->handleWebHookEvent('PAYMENT.CAPTURE.COMPLETED');
+
+
         dd(json_decode($json));
 
         $response = AudioTonicsPayPalHandler::getOrderDetails(AudioTonicsPayPalHandler::getAccessToken(), '15J862865W625972J');
