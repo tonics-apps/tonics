@@ -9,10 +9,13 @@
  */
 
 namespace App\Modules\Core\Library\JobSystem;
+use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 
 class AbstractJobInterface
 {
+    use ConsoleColor;
+
     private string $jobName = '';
     private ?int $jobParentID = null;
     private string $jobStatus = Job::JobStatus_Queued;

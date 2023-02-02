@@ -10,8 +10,13 @@
 
 namespace App\Modules\Core\Configs;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+
 class MailConfig
 {
+    private static ?PHPMailer $PHPMailer = null;
+
     public static function getMailMailer(): string
     {
         return env('MAIL_MAILER');
@@ -47,7 +52,49 @@ class MailConfig
         return env('MAIL_FROM_ADDRESS');
     }
 
-    public static function getMailDataSource(
+    public static function getMailReplyTo(): string
+    {
+        return env('MAIL_REPLY_TO');
+    }
+
+    /**
+     * @return PHPMailer|null
+     * @throws \Exception
+     */
+    public static function getMailer(): ?PHPMailer
+    {
+        if (!self::$PHPMailer) {
+            self::$PHPMailer = new PHPMailer(true);
+        }
+        $helper = helper();
+        $mail = self::$PHPMailer;
+        try {
+            //Server settings
+           //  $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            $mail->isSMTP();
+            $mail->Host       = MailConfig::getMailHost();
+            $mail->SMTPAuth   = true;
+            $mail->Hostname = MailConfig::getMailHost();
+            $mail->Username   = MailConfig::getMailUsername();
+            $mail->Password   = MailConfig::getMailPassword();
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            $mail->XMailer = ' ';
+           // $mail->addCustomHeader('List-unsubscribe', '<mailto:mail@tonics.com>, <https://tonics.app/unsubscribe>');
+            $mail->addReplyTo(MailConfig::getMailReplyTo(), ucfirst($helper->extractNameFromEmail(MailConfig::getMailReplyTo())));
+            $mail->setFrom(MailConfig::getMailFromAddress(),  ucfirst($helper->extractNameFromEmail(MailConfig::getMailFromAddress())));
+            //Content
+            $mail->isHTML();
+        } catch (\Exception $e) {
+            // Log..
+          //  echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+
+        return $mail;
+
+    }
+
+/*    public static function getMailDataSource(
         string|null $smtp = null,
         string|null $userName = null,
         string|null $password = null,
@@ -63,5 +110,5 @@ class MailConfig
 
         return "$smtp://" . str_replace('@', '%40', $userName) . ':' .
             $password . '@' . $host . ':' . $port;
-    }
+    }*/
 }

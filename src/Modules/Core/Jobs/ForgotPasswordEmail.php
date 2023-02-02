@@ -30,18 +30,24 @@ class ForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInte
             'Verification_Code' => $this->getData()->verification->verification_code,
         ], TonicsView::RENDER_CONCATENATE);
 
-/*        $message = (new MessageBodyCollection())
-            ->withHtml($messageToSend)
-            ->createMessage()
-            ->withHeader(new Subject(AppConfig::getAppName() . ' - Verify Your Email'))
-            ->withHeader(From::fromEmailAddress(MailConfig::getMailFromAddress()))
-            ->withHeader(To::fromSingleRecipient($this->getData()->email, $this->getData()->user_name));
+        $mail = MailConfig::getMailer();
+        $mail->SMTPKeepAlive = true; //SMTP connection will not close after each email sent, reduces SMTP overhead
+        $mail->addAddress($this->getData()->email, $this->getData()->user_name);
+        $mail->Subject = AppConfig::getAppName() . ' - Verify Your Email';
+        $mail->msgHTML($messageToSend);
 
-        $transport = new SmtpTransport(
-            ClientFactory::fromString(MailConfig::getMailDataSource())->newClient(),
-            EnvelopeFactory::useExtractedHeader()
-        );
+        try {
+            $mail->send();
+        } catch (\Exception $e) {
+            // Log...
+            $this->infoMessage('Mailer Error (' . htmlspecialchars($this->getData()->email) . ') ' . $mail->ErrorInfo);
+            //Reset the connection to abort sending this message
+            //The loop will continue trying to send to the rest of the list
+            $mail->getSMTPInstance()->reset();
+        }
 
-        $transport->send($message);*/
+            //Clear all addresses and attachments for the next iteration
+        $mail->clearAddresses();
+        $mail->clearAttachments();
     }
 }

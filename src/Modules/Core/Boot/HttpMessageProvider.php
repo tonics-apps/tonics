@@ -79,8 +79,9 @@ class HttpMessageProvider implements ServiceProvider
             $mail->Port       = 587;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
             $mail->XMailer = ' ';
             $mail->addCustomHeader('List-unsubscribe', '<mailto:mail@tonics.com>, <https://tonics.app/unsubscribe>');
-            //Recipients
+            $mail->addReplyTo('exclusivemusicplsu@gmail.com', 'Faruq');
             $mail->setFrom(MailConfig::getMailFromAddress(), 'Olayemi Faruq');
+            //Recipients
             $mail->addAddress('devsrealmer@gmail.com');               //Name is optional
             //Content
             $mail->isHTML();                                  //Set email format to HTML
