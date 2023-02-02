@@ -78,7 +78,11 @@ class RegisterController extends Controller
     {
         if (\session()->hasKey(Session::SessionCategories_NewVerification)){
             $data = session()->retrieve(Session::SessionCategories_NewVerification, jsonDecode: true);
-            $data->verification = $this->handleVerificationCodeGeneration($data->verification);
+            $verification = $data->verification;
+            $data->verification = $this->getUsersData()->handleVerificationCodeGeneration($verification, 5,
+                function () {
+                    redirect(route('customer.verifyEmailForm'));
+                });
             session()->append(Session::SessionCategories_NewVerification, $data);
             $this->sendNewRegistrationJob($data);
         }

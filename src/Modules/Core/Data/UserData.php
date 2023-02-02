@@ -438,6 +438,58 @@ class UserData extends AbstractDataLayer
     }
 
     /**
+     * each time the x_verification_code is $maxVerification (default to 5) and above, we add the current_time plus 5 more minutes to...
+     * lock user from generating too much verification code, this is like throttling if you get me ;)
+     * And whenever the time expires, user can send a new one, if they fail again, we give another 5 minutes :p
+     * @param \stdClass $verification
+     * @param int $maxVerification
+     * @param callable|null $onThrottled
+     * @return \stdClass
+     * @throws \Exception
+     */
+
+    /**
+     * If x_verification_code is greater than or equal to 5 and the current time is less than expire_lock_time,
+     * we prevent the user from generating a new verification code. If the current time is greater than expire_lock_time,
+     * we allow the user to generate a new verification code and update expire_lock_time to the current time plus 5 minutes.
+     * @param \stdClass $verification
+     * @param int $maxVerification
+     * @param callable|null $onThrottled
+     * @return \stdClass
+     * @throws \Exception
+     */
+    public function handleVerificationCodeGeneration(\stdClass $verification, int $maxVerification = 5, callable $onThrottled = null): \stdClass
+    {
+
+        if (is_string($verification->expire_lock_time)){
+            $verification->expire_lock_time = strtotime($verification->expire_lock_time);
+        }
+
+
+        if ($verification->x_verification_code >= $maxVerification && $verification->expire_lock_time > time()){
+            $waitTime = $verification->expire_lock_time - time();
+            session()->flash(["You are doing too much, wait $waitTime second(s) before generating a new one"], type: Session::SessionCategories_FlashMessageInfo);
+            if ($onThrottled){
+                $onThrottled();
+            }
+
+            return $verification;
+        } else {
+            // reset x_verification_code to 0 if the wait time has elapsed
+            if ($verification->expire_lock_time < time()) {
+                $verification->x_verification_code = 0;
+            }
+
+            $verification->expire_lock_time = time() + Scheduler::everyMinute(5);
+            $verification->verification_code = random_int(000000000, 999999999);
+            $verification->verification_code_at = time();
+            ++$verification->x_verification_code;
+        }
+
+        return $verification;
+    }
+
+    /**
      * @param array $settings
      * @return void
      * @throws \ReflectionException

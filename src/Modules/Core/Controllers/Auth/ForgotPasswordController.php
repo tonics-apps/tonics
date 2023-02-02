@@ -64,13 +64,14 @@ class ForgotPasswordController extends Controller
                 } else {
                     $verification = (object)UserData::generateVerificationArrayDataForUser();
                 }
-                $verification->verification_code = random_int(000000000, 999999999);
-                $verification->verification_code_at = time();
-                $verification->x_verification_code = $verification->x_verification_code + 1;
 
-                $forgotPasswordData->verification = $verification;
+                $userData = new UserData();
+                $forgotPasswordData->verification = $userData->handleVerificationCodeGeneration($verification, 5,
+                    function () {
+                        redirect(route('admin.password.request'));
+                    });
+
                 session()->append(Session::SessionCategories_PasswordReset, $forgotPasswordData);
-
                 $forgotPasswordEmail = new ForgotPasswordEmail();
                 $forgotPasswordEmail->setJobName('ForgotPasswordEmail');
                 $forgotPasswordEmail->setData($forgotPasswordData);
@@ -115,15 +116,6 @@ class ForgotPasswordController extends Controller
             },
             'table' => $userData->getUsersTable()
         ]);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    #[NoReturn] public function verificationInvalid()
-    {
-        session()->flash(['Verification code is invalid, request a new one']);
-        redirect(route('admin.password.request'));
     }
 
     public function getSendResetLinkEmailRule(): array
