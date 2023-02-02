@@ -41,13 +41,6 @@ class ForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInte
         } catch (\Exception $e) {
             // Log...
             $this->infoMessage('Mailer Error (' . htmlspecialchars($this->getData()->email) . ') ' . $mail->ErrorInfo);
-            //Reset the connection to abort sending this message
-            //The loop will continue trying to send to the rest of the list
-            $mail->getSMTPInstance()->reset();
         }
-
-            //Clear all addresses and attachments for the next iteration
-        $mail->clearAddresses();
-        $mail->clearAttachments();
     }
 }

@@ -31,23 +31,24 @@ class CustomerRegistrationVerificationCodeEmail extends AbstractJobInterface imp
      */
     public function handle(): void
     {
-        $messageToSend = view('Modules::Customer/Views/Emails/email-verification', [
+        $messageToSend = view('Modules::Core/Views/Emails/email-verification', [
             'Username' => $this->getData()->user_name,
             'Email' => $this->getData()->email,
             'Verification_Code' => $this->getData()->verification->verification_code,
         ], TonicsView::RENDER_CONCATENATE);
 
-        $message = (new MessageBodyCollection())
-            ->withHtml($messageToSend)
-            ->createMessage()
-            ->withHeader(new Subject(AppConfig::getAppName() . ' - Verify Your Email'))
-            ->withHeader(From::fromEmailAddress(MailConfig::getMailFromAddress()))
-            ->withHeader(To::fromSingleRecipient($this->getData()->email, $this->getData()->user_name));
+        $mail = MailConfig::getMailer();
+        $mail->SMTPKeepAlive = true; //SMTP connection will not close after each email sent, reduces SMTP overhead
+        $mail->addAddress($this->getData()->email, $this->getData()->user_name);
+        $mail->Subject = AppConfig::getAppName() . ' - Verify Your Email';
+        $mail->msgHTML($messageToSend);
 
-        $transport = new SmtpTransport(
-            ClientFactory::fromString(MailConfig::getMailDataSource())->newClient(),
-            EnvelopeFactory::useExtractedHeader()
-        );
-        $transport->send($message);
+        try {
+            $mail->send();
+        } catch (\Exception $e) {
+            // Log...
+            $this->infoMessage('Mailer Error (' . htmlspecialchars($this->getData()->email) . ') ' . $mail->ErrorInfo);
+        }
+
     }
 }
