@@ -16,6 +16,7 @@ use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 /**
  * Class HttpMessageProvider

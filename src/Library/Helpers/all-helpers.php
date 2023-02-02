@@ -246,6 +246,16 @@ function view(string $viewname, array|stdClass $data = [], int $condition = Toni
 {
     $data = [...$data, ...getGlobalVariableData()];
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
+    #
+    # For Some reason, in CLI, if we call view multiple times, it renders hook_into content that number of times,
+    # instead of just once, the below is a work-around until I find a fix
+    #
+    if (helper()->isCLI()){
+        $newView = new TonicsView();
+        $newView->setVariableData($data);
+        $view->reset()->copySettingsToNewViewInstance($newView);
+        $view = $newView;
+    }
     return $view->render($viewname, $condition);
 }
 

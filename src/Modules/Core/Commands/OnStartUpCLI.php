@@ -15,6 +15,7 @@ use App\Modules\Core\Library\ConsoleColor;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 /**
  * Start up with: `php bin/console --run --onStartUp=parallel` which would spin up the core command to run on startupClI,

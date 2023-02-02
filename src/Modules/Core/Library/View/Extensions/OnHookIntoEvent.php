@@ -88,7 +88,6 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
             foreach ($hookers as $hooker){
                 $hook_into = $hooker['hook_into'];
                 $handler = $hooker['handler'];
-
                 if (isset($storage[$hook_into])){
                     $tag = new Tag('char');
                     $handlerInit = $handler($this->getTonicsView()) ?? '';
