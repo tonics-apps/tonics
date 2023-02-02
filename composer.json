@@ -38,9 +38,9 @@
     "devsrealm/tonics-container": "*",
     "devsrealm/tonics-helpers": "*",
     "devsrealm/tonics-query-builder": "*",
-    "genkgo/mail": "dev-master",
     "mpratt/embera": "~2.0",
-    "halaxa/json-machine": "dev-master"
+    "halaxa/json-machine": "dev-master",
+    "phpmailer/phpmailer": "dev-master"
   },
   "repositories": [
     {

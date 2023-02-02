@@ -16,6 +16,7 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsQueryBuilder\TonicsQueryBuilder;
 use Devsrealm\TonicsQueryBuilder\Transformers\MariaDB\MariaDBTables;
 use Devsrealm\TonicsQueryBuilder\Transformers\MariaDB\MariaDBTonicsQueryTransformer;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 use PDO;
 
 class Database

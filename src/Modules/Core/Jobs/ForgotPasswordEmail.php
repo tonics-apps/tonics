@@ -15,13 +15,6 @@ use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
-use Genkgo\Mail\Header\From;
-use Genkgo\Mail\Header\Subject;
-use Genkgo\Mail\Header\To;
-use Genkgo\Mail\MessageBodyCollection;
-use Genkgo\Mail\Protocol\Smtp\ClientFactory;
-use Genkgo\Mail\Transport\EnvelopeFactory;
-use Genkgo\Mail\Transport\SmtpTransport;
 
 class ForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInterface
 {
@@ -37,7 +30,7 @@ class ForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInte
             'Verification_Code' => $this->getData()->verification->verification_code,
         ], TonicsView::RENDER_CONCATENATE);
 
-        $message = (new MessageBodyCollection())
+/*        $message = (new MessageBodyCollection())
             ->withHtml($messageToSend)
             ->createMessage()
             ->withHeader(new Subject(AppConfig::getAppName() . ' - Verify Your Email'))
@@ -49,6 +42,6 @@ class ForgotPasswordEmail extends AbstractJobInterface implements JobHandlerInte
             EnvelopeFactory::useExtractedHeader()
         );
 
-        $transport->send($message);
+        $transport->send($message);*/
     }
 }
