@@ -15,13 +15,6 @@ use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
-use Genkgo\Mail\Header\From;
-use Genkgo\Mail\Header\Subject;
-use Genkgo\Mail\Header\To;
-use Genkgo\Mail\MessageBodyCollection;
-use Genkgo\Mail\Protocol\Smtp\ClientFactory;
-use Genkgo\Mail\Transport\EnvelopeFactory;
-use Genkgo\Mail\Transport\SmtpTransport;
 
 class CustomerRegistrationVerificationCodeEmail extends AbstractJobInterface implements JobHandlerInterface
 {
