@@ -491,18 +491,21 @@ class UserData extends AbstractDataLayer
             foreach ($settings->active_sessions as $toDelete){
                 $itemsToDelete[] = ['session_id' => $toDelete];
             }
+
             $this->deleteMultiple(Tables::getTable(Tables::SESSIONS), $columns, 'session_id', $itemsToDelete,
-                onSuccess: function () use ($table, $settings, $verificationData, $password) {
-                    $settings->active_sessions = [];
-                    # Update Password
-                    db()->FastUpdate($table, ['user_password' => $password, 'settings' => json_encode($settings)],
-                        db()->Where('email', '=', $verificationData->email));
-                }, onError: function () use ($onError) {
+                onError: function () use ($onError) {
                     $this->verificationInvalid($onError);
                 });
 
+            $settings->active_sessions = [];
+            # Update Password
+            db(onGetDB: function ($db) use ($verificationData, $settings, $password, $table) {
+                $db->FastUpdate($table, ['user_password' => $password, 'settings' => json_encode($settings)],
+                    db()->Where('email', '=', $verificationData->email));
+            });
+
             session()->flash(['Password Successfully Changed, Login'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('admin.login'));
+            redirect(route('customer.login'));
         }catch (\Exception){
             session()->flash(['Verification code is invalid, request a new one']);
             $this->verificationInvalid($onError);

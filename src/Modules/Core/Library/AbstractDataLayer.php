@@ -235,6 +235,7 @@ SQL, ...$parameter);
         string $moreWhereCondition = ''): void
     {
         $parameter = [];
+        $givenItemsToDelete = input()->fromPost()->retrieve('itemsToDelete', $itemsToDelete) ?: [];
         $itemsToDelete = array_map(function ($item) use ($colParam, $columns, &$parameter){
             $itemCopy = [];
             if (helper()->isJSON($item)){
@@ -256,14 +257,16 @@ SQL, ...$parameter);
             }
 
             return $item;
-        }, input()->fromPost()->retrieve('itemsToDelete', $itemsToDelete));
+        }, $givenItemsToDelete);
 
 
         try {
-            $questionMarks = helper()->returnRequiredQuestionMarks([$itemsToDelete]);
-            db()->run("DELETE FROM $table WHERE $colParam IN ($questionMarks) $moreWhereCondition", ...$parameter);
-            if ($onSuccess){
-                $onSuccess();
+            if (!empty($itemsToDelete)){
+                $questionMarks = helper()->returnRequiredQuestionMarks([$itemsToDelete]);
+                db()->run("DELETE FROM $table WHERE $colParam IN ($questionMarks) $moreWhereCondition", ...$parameter);
+                if ($onSuccess){
+                    $onSuccess();
+                }
             }
         }catch (\Exception $e){
             if ($onError){
