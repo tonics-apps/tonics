@@ -11,16 +11,14 @@
 namespace App\Modules\Payment\Controllers;
 
 use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
-use App\Modules\Payment\Events\PayPal\PayPalWebHookEvent;
+use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
 
 class PayPalWebHookController
 {
-    const PaymentType_AudioTonics = 'AudioTonics_';
-
     /**
      * @throws \Exception
      */
-    public function handleWebHook()
+    public function handleWebHook(): void
     {
         $entityBody = request()->getEntityBody();
         if (helper()->isJSON($entityBody)){
@@ -28,18 +26,14 @@ class PayPalWebHookController
             if (AudioTonicsPayPalHandler::verifyWebHookSignature($webhook)){
                 $webHookEvent = $webhook->webhook_event;
                 $eventType = $webHookEvent->event_type;
-                if (isset($webHookEvent->resource->purchase_units->{0}->invoice_id)){
-                    $invoiceIDString = $webHookEvent->resource->purchase_units->{0}->invoice_id;
-                    $invoiceID = explode('_', $invoiceIDString);
-                    $tonicsSolutionType = $invoiceID[0] ?? '';
 
-                    /** @var $webHookEventObject PayPalWebHookEvent */
-                    $payPalWebHookEventObject = new PayPalWebHookEvent();
-                    $payPalWebHookEventObject->setInvoiceID($invoiceIDString);
+                /** @var $webHookEventObject OnAddPayPalWebHookEvent */
+                $payPalWebHookEventObject = new OnAddPayPalWebHookEvent();
+                $payPalWebHookEventObject->setWebHookEvent($webHookEvent);
+                $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
+                $webHookEventObject->handleWebHookEvent($eventType);
 
-                    $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
-                    $webHookEventObject->handleWebHookEvent($eventType, $tonicsSolutionType);
-                }
+                response()->onSuccess([], 'On Success');
             }
         }
 

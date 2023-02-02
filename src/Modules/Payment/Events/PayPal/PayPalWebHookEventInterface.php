@@ -23,5 +23,5 @@ interface PayPalWebHookEventInterface
     /**
      * @return void
      */
-    public function HandleWebHookEvent(PayPalWebHookEvent $payPalWebHookEvent): void;
+    public function HandleWebHookEvent(OnAddPayPalWebHookEvent $payPalWebHookEvent): void;
 }

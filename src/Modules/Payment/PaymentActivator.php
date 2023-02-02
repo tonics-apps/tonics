@@ -15,8 +15,10 @@ use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\EventHandlers\HandleNewPurchaseSlugIDGeneration;
+use App\Modules\Payment\EventHandlers\PayPal\HandleAudioTonicsPaymentCaptureCompletedEvent;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
 use App\Modules\Payment\Events\OnPurchaseCreate;
+use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
 use App\Modules\Payment\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -44,15 +46,16 @@ class PaymentActivator implements ExtensionConfig
 
             OnPurchaseCreate::class => [
                 HandleNewPurchaseSlugIDGeneration::class,
+            ],
+
+            OnAddPayPalWebHookEvent::class => [
+                HandleAudioTonicsPaymentCaptureCompletedEvent::class
             ]
         ];
         /*  return [
               \App\Modules\Payment\Events\PaymentMethodsEvent::class => [
                //   \App\Modules\Payment\EventHandlers\FlutterwavePaymentSettings::class,
                //   \App\Modules\Payment\EventHandlers\PayPalPaymentSettings::class
-              ],
-              \App\Modules\Payment\Events\PurchaseCreatedEvent::class => [
-               //   \App\Modules\Payment\EventHandlers\CreatePurchaseSlugID::class
               ]
           ];*/
     }

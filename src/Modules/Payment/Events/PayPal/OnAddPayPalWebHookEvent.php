@@ -12,16 +12,13 @@ namespace App\Modules\Payment\Events\PayPal;
 
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
-class PayPalWebHookEvent implements EventInterface
+class OnAddPayPalWebHookEvent implements EventInterface
 {
     private array $paypalWebHookHandler = [];
-    private string $invoiceID = '';
+    private $webHookEvent = null;
 
     const EventType_CheckoutOrderApproved = 'CHECKOUT.ORDER.APPROVED';
     const EventType_PaymentCapturedCompleted = 'PAYMENT.CAPTURE.COMPLETED';
-
-    const TonicsSolution_AudioTonics = 'AudioTonics';
-    const TonicsSolution_TonicsCommerce = 'TonicsCommerce'; // not yet available
 
 
     public function event(): static
@@ -35,32 +32,34 @@ class PayPalWebHookEvent implements EventInterface
      */
     public function addWebHookEventHandler(PayPalWebHookEventInterface $payPalWebHookEventHandler): static
     {
-        $this->paypalWebHookHandler[$payPalWebHookEventHandler->EventType()][$payPalWebHookEventHandler->TonicsSolutionType()] = $payPalWebHookEventHandler;
+        $this->paypalWebHookHandler[$payPalWebHookEventHandler->EventType()][] = $payPalWebHookEventHandler;
         return $this;
     }
 
     /**
+     * This would run all paypalWebHookHandlers that is waiting to handle $eventType, then in each handler,
+     * you can act on it based on whatever, e.g. invoice_id, etc
      * @param string $eventType
-     * @param string $tonicsSolutionType
      * @return void
      */
-    public function handleWebHookEvent(string $eventType, string $tonicsSolutionType): void
+    public function handleWebHookEvent(string $eventType): void
     {
-        if ($this->eventTypeExist($eventType, $tonicsSolutionType)){
-            $paypalWebHookHandler = $this->paypalWebHookHandler[$eventType][$tonicsSolutionType];
+        if ($this->eventTypeExist($eventType)){
+            $paypalWebHookHandlers = $this->paypalWebHookHandler[$eventType];
             /** @var PayPalWebHookEventInterface $paypalWebHookHandler */
-            $paypalWebHookHandler->HandleWebHookEvent($this);
+            foreach ($paypalWebHookHandlers as $paypalWebHookHandler){
+                $paypalWebHookHandler->HandleWebHookEvent($this);
+            }
         }
     }
 
     /**
      * @param string $name
-     * @param string $tonicsSolutionType
      * @return bool
      */
-    public function eventTypeExist(string $name, string $tonicsSolutionType): bool
+    public function eventTypeExist(string $name): bool
     {
-        return isset($this->paypalWebHookHandler[$name][$tonicsSolutionType]);
+        return isset($this->paypalWebHookHandler[$name]);
     }
 
     /**
@@ -80,20 +79,19 @@ class PayPalWebHookEvent implements EventInterface
     }
 
     /**
-     * @return string
+     * @return null
      */
-    public function getInvoiceID(): string
+    public function getWebHookEvent()
     {
-        return $this->invoiceID;
+        return $this->webHookEvent;
     }
 
     /**
-     * @param string $invoiceID
-     * @return PayPalWebHookEvent
+     * @param null $webHookEvent
      */
-    public function setInvoiceID(string $invoiceID): PayPalWebHookEvent
+    public function setWebHookEvent($webHookEvent): OnAddPayPalWebHookEvent
     {
-        $this->invoiceID = $invoiceID;
+        $this->webHookEvent = $webHookEvent;
         return $this;
     }
 }

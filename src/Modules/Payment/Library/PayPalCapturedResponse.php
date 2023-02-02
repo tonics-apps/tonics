@@ -20,7 +20,7 @@ class PayPalCapturedResponse {
         $this->response = $response;
     }
 
-    public function getId()
+    public function getOrderID()
     {
         return $this->response->id ?? null;
     }
@@ -62,8 +62,35 @@ class PayPalCapturedResponse {
 
     public function getTotalAmount()
     {
-        if (isset($this->response->purchase_units->{0}->amount)){
-            return $this->response->purchase_units->{0}->amount->value ?? null;
+        if (isset($this->response->purchase_units[0]->amount)){
+            return $this->response->purchase_units[0]->amount->value ?? null;
+        }
+
+        return null;
+    }
+
+    public function getTotalCountOfItemPurchased(): ?int
+    {
+        if (isset($this->response->purchase_units[0]->items)){
+            return count($this->response->purchase_units[0]->items);
+        }
+
+        return null;
+    }
+
+    public function getItemsPurchased(): ?int
+    {
+        if (isset($this->response->purchase_units[0]->items)){
+            return $this->response->purchase_units[0]->items;
+        }
+
+        return null;
+    }
+
+    public function getInvoiceID()
+    {
+        if (isset($this->response->purchase_units[0]->invoice_id)){
+            return $this->response->purchase_units[0]->invoice_id;
         }
 
         return null;
@@ -71,8 +98,8 @@ class PayPalCapturedResponse {
 
     public function getCurrency()
     {
-        if (isset($this->response->purchase_units->{0}->amount)){
-            return $this->response->purchase_units->{0}->amount->currency_code ?? null;
+        if (isset($this->response->purchase_units[0]->amount)){
+            return $this->response->purchase_units[0]->amount->currency_code ?? null;
         }
 
         return null;
