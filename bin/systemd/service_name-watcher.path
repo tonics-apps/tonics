@@ -1,6 +1,19 @@
 [Unit]
 Description=Tonics Path To RestartService File Path Changes
 
+#
+# Create a new file: sudo nano /etc/systemd/system/service_name-watcher.path
+#
+#  - Change service_name to the name of your website or any unique_service name
+#  - Change /path/to/tonics to the directory where tonics is installed e.g /var/www/tonics.com
+#  - Copy everything in this file and paste it in the opened file, remember to change the service_name, and path to tonics
+#  - Save The File
+#  - Reload daemon: systemctl daemon-reload
+#  - Start service: systemctl start service_name-watcher.path
+#  - Enable service: systemctl enable service_name-watcher.path
+#  - You can check the status if everything is fine: systemctl status service_name-watcher.path
+#
+
 [Path]
 PathChanged=/path/to/tonics/web/bin/restart_service.json
 

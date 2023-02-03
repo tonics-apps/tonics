@@ -5,8 +5,27 @@ After=network.target
 StartLimitIntervalSec=10
 StartLimitBurst=5
 
+#
+# Create a new file: sudo nano /etc/systemd/system/service_name-watcher.service
+#
+#  - Change service_name to the name of your website or any unique_service name
+#  - Copy everything in this file and paste it in the opened file, remember to change the service_name
+#  - Save The File
+#  - Reload daemon: systemctl daemon-reload
+#  - Start service: systemctl start service_name-watcher.service
+#  - Enable service: systemctl enable service_name-watcher.service
+#  - You can check the status if everything is fine: systemctl status service_name-watcher.service
+
+#
+#   If you have also created the watcher service and path, you can enable and start the two service like so:
+#       systemctl enable systemctl enable service_name-watcher.{path,service}
+#       systemctl start systemctl enable service_name-watcher.{path,service}
+#
+#       This way you do not have to enable the watcher service and the path, the above would do the two
+#
+
 [Service]
-Type=OneShot
+Type=oneshot
 ExecStart=/bin/systemctl restart service_name.service
 
 [Install]

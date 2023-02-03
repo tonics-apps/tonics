@@ -2,14 +2,30 @@
 Description=Tonics OnStartUPCLI Service
 After=network.target
 
+#
+# Create a new file sudo nano /etc/systemd/system/service_name.service
+#
+#  - Change service_name to the name of your website or any unique_service name
+#  - Change /path/to/tonics to the directory where tonics is installed e.g /var/www/tonics.com
+#  - Copy everything in this file and paste it in the opened file, remember to change the service_name and the /path/to/tonics
+#  - Save The File
+#  - Reload daemon: systemctl daemon-reload
+#  - Start service: systemctl start service_name
+#  - Enable service: systemctl enable service_name
+#  - You can check the status if everything is fine: systemctl status service_name
+#
+#
+#
+#
+
 [Service]
 Type=simple
 ExecStart=/usr/bin/php8.1 bin/console --run --onStartUp=parallel
 WorkingDirectory=/path/to/tonics/web
 Restart=always
 RestartSec=10
-StandardOutput=/var/log/tonics.log
-StandardError=/var/log/error.log
+StandardOutput=file:/var/log/tonics.log
+StandardError=file:/var/log/tonics.err
 
 [Install]
 WantedBy=multi-user.target
