@@ -82,7 +82,7 @@ class MailConfig
             $mail->XMailer = ' ';
            // $mail->addCustomHeader('List-unsubscribe', '<mailto:mail@tonics.com>, <https://tonics.app/unsubscribe>');
             $mail->addReplyTo(MailConfig::getMailReplyTo(), ucfirst($helper->extractNameFromEmail(MailConfig::getMailReplyTo())));
-            $mail->setFrom(MailConfig::getMailFromAddress(),  ucfirst($helper->extractNameFromEmail(MailConfig::getMailFromAddress())));
+            $mail->setFrom(MailConfig::getMailFromAddress(),  ucfirst($helper->extractNameFromEmail(MailConfig::getMailFromAddress())) . ' From ' . AppConfig::getAppName());
             //Content
             $mail->isHTML();
         } catch (\Exception $e) {

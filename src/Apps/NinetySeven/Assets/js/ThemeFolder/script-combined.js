@@ -1645,6 +1645,11 @@ export class TrackCart extends SimpleState {
         super();
     }
 
+    getCartStorageKey()
+    {
+        return TrackCart.cartStorageKey;
+    }
+
     InitialState() {
         let cart = this.getCart();
         cart.set(this.licenseData.slug_id, this.licenseData);
@@ -2548,6 +2553,11 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
                                 const element = document.getElementById('paypal-button-container');
                                 element.innerHTML = '';
                                 element.innerHTML = data?.message;
+                                const cart = new TrackCart();
+                                localStorage.removeItem(cart.getCartStorageKey())
+                                // Reload TonicsCart Data From LocalStorage
+                                cart.setCurrentState(cart.ReloadCartFromLocalStorageState);
+                                cart.runStates();
                                 // Or go to another URL:  actions.redirect('thank_you.html');
                             },
                             (error) => {

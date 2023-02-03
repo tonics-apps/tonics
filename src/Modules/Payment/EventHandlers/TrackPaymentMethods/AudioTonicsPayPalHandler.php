@@ -10,6 +10,7 @@
 
 namespace App\Modules\Payment\EventHandlers\TrackPaymentMethods;
 
+use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
@@ -97,7 +98,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                             'others' => json_encode([
                                 'downloadables' => $purchaseInfo['downloadables'] ?? [], // would be used to confirm the item the user is actually buying
                                 // if this is different from register email, we would also send the order details there in case user misspell register email
-                                'paypal_email_address' => (isset($body->orderData->payer->email_address)) ? $body->orderData->payer->email_address : '',
+                                'payment_email_address' => (isset($body->orderData->payer->email_address)) ? $body->orderData->payer->email_address : '',
                                 'itemIds' => $cartItemsSlugID, // would be used to confirm the item the user is actually buying
                                 'invoice_id' => $body->invoice_id,
                                 'tx_ref' => null, // this is for flutterwave
@@ -111,13 +112,19 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                         $onPurchaseCreate = new OnPurchaseCreate($purchaseDataReturn);
                         event()->dispatch($onPurchaseCreate);
 
+                        $mailReplyTo = MailConfig::getMailReplyTo();
+                        $orderID = $onPurchaseCreate->getSlugID();
+                        $mailTo = <<<MAILTO
+<a href="mailto:$mailReplyTo?subject=Failed To Get Order #$orderID">Contact US</a>
+MAILTO;
                         $customer_purchase_history = route('customer.purchase.history', ['slug_id' => $onPurchaseCreate->getSlugID()]);
                         $message = <<<MESSAGE
-<h6>Pending Review, Check $checkoutEmail mailbox or spam folder in few minutes for files, please contact us if you got stucked.</h6>
+<p>Pending Review, Check $checkoutEmail mailbox or spam folder in few minutes for files, please $mailTo if you got stucked.</p>
 <br>
 Alternatively, If you have an account, check <a href="$customer_purchase_history" target="_blank">Purchase Files</a> for your file(s)
 <br>
-
+<br>
+Please <a href="">Refresh The Page</a> To Start Shopping Again
 
 MESSAGE;
                         response()->onSuccess(['email' => $checkoutEmail], $message);

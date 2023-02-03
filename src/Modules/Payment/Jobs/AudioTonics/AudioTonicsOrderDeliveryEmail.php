@@ -38,8 +38,11 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
         $mail = MailConfig::getMailer();
         $mail->SMTPKeepAlive = true; //SMTP connection will not close after each email sent, reduces SMTP overhead
         $mail->addAddress($this->getData()->email, $name);
-        if (isset($this->getData()->others->paypal_email_address)){
-            $mail->addAddress($this->getData()->others->paypal_email_address, $name);
+        #
+        # In case the user registers mail is incorrect, we also send the order details to the PaymentEmailAddress
+        #
+        if (isset($this->getData()->others->payment_email_address) && $this->getData()->others->payment_email_address !== $this->getData()->email){
+            $mail->addAddress($this->getData()->others->payment_email_address, $name);
         }
         $mail->Subject = $subject;
         $mail->msgHTML($messageToSend);

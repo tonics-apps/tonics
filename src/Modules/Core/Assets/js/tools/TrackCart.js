@@ -10,6 +10,11 @@ export class TrackCart extends SimpleState {
         super();
     }
 
+    getCartStorageKey()
+    {
+        return TrackCart.cartStorageKey;
+    }
+
     InitialState() {
         let cart = this.getCart();
         cart.set(this.licenseData.slug_id, this.licenseData);

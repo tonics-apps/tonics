@@ -67,7 +67,7 @@ trait ConsoleColor
     public function coloredText(string $fgColor = 'black', string $bgColor = 'yellow', string $message = ''): string
     {
         $this->initShellColors();
-        $shortClassName = '[' . helper()->getObjectShortClassName($this) . ']';
+        $shortClassName = '[' . helper()->getObjectShortClassName($this) . ']:';
         if (key_exists($fgColor, $this->fgColors) && key_exists($bgColor, $this->bgColors)){
             $fgColor = $this->fgColors[$fgColor];
             $bgColor = $this->bgColors[$bgColor];
