@@ -96,7 +96,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                             'total_price' => $purchaseInfo['totalPrice'] ?? 0,
                             'others' => json_encode([
                                 'downloadables' => $purchaseInfo['downloadables'] ?? [], // would be used to confirm the item the user is actually buying
-                                // if this is different from register email, we would also send the order details here in case user misspell register email
+                                // if this is different from register email, we would also send the order details there in case user misspell register email
                                 'paypal_email_address' => (isset($body->orderData->payer->email_address)) ? $body->orderData->payer->email_address : '',
                                 'itemIds' => $cartItemsSlugID, // would be used to confirm the item the user is actually buying
                                 'invoice_id' => $body->invoice_id,
