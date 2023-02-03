@@ -43,7 +43,7 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
-        $json = <<<JSON
+        /*$json = <<<JSON
 {
   "id": "WH-12P352976M872801U-4VG268328G5994910",
   "create_time": "2023-01-28T09:55:18.338Z",
@@ -148,14 +148,9 @@ JSON;
         $payPalWebHookEventObject = new OnAddPayPalWebHookEvent();
         $payPalWebHookEventObject->setWebHookData(json_decode($json));
         $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
-        $webHookEventObject->handleWebHookEvent('PAYMENT.CAPTURE.COMPLETED');
+        $webHookEventObject->handleWebHookEvent('PAYMENT.CAPTURE.COMPLETED');*/
 
 
-        dd(json_decode($json));
-
-        $response = AudioTonicsPayPalHandler::getOrderDetails(AudioTonicsPayPalHandler::getAccessToken(), '15J862865W625972J');
-        $paypalCapturedResponse = new PayPalCapturedResponse($response);
-       dd($paypalCapturedResponse, $paypalCapturedResponse->getInvoiceID());
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception | \Throwable $e) {

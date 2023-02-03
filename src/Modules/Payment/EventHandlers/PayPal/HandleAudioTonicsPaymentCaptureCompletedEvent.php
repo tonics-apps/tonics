@@ -103,6 +103,6 @@ class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface,
             // Log..
         }
 
-        dd($purchaseRecord);
+        dd($purchaseRecord, json_decode($purchaseRecord->others));
     }
 }

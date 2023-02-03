@@ -88,11 +88,14 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                         ->GroupBy("{$trackData::getTrackTable()}.slug_id")
                         ->FetchResult();
 
+                    $purchaseInfo = $this->getPurchaseTracksInfo($body->cartItems, $purchaseTracks);
+
                     if ($customerData->email){
                         $purchaseData = [
                             'fk_customer_id' => $customerData->user_id,
-                            'total_price' => $this->getTotalPriceOfPurchaseTracks($body->cartItems, $purchaseTracks),
+                            'total_price' => $purchaseInfo['totalPrice'] ?? 0,
                             'others' => json_encode([
+                                'downloadables' => $purchaseInfo['downloadables'] ?? [], // would be used to confirm the item the user is actually buying
                                 'itemIds' => $cartItemsSlugID, // would be used to confirm the item the user is actually buying
                                 'invoice_id' => $body->invoice_id,
                                 'tx_ref' => null, // this is for flutterwave
@@ -107,7 +110,6 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                         event()->dispatch($onPurchaseCreate);
 
                         $customer_purchase_history = route('customer.purchase.history', ['slug_id' => $onPurchaseCreate->getSlugID()]);
-
                         $message = <<<MESSAGE
 <h6>Pending Review, Check $checkoutEmail mailbox or spam folder in few minutes for files, please contact us if you got stucked.</h6>
 <br>
@@ -116,8 +118,6 @@ Alternatively, If you have an account, check <a href="$customer_purchase_history
 
 
 MESSAGE;
-
-
                         response()->onSuccess(['email' => $checkoutEmail], $message);
                     }
                 } catch (\Exception $exception){
@@ -149,7 +149,19 @@ MESSAGE;
     }
 
 
-    public function getTotalPriceOfPurchaseTracks($cartItems, $purchaseTracks): int
+    /**
+     * @param $cartItems
+     * @param $purchaseTracks
+     * @return array
+     *
+     * You get the following:
+     * [
+    'totalPrice' => $totalPrice,
+    'downloadables' => $downloadables
+    ]
+     *
+     */
+    public function getPurchaseTracksInfo($cartItems, $purchaseTracks): array
     {
        $licenseUniqueID = [];
         foreach ($cartItems as $cartItem){
@@ -157,26 +169,42 @@ MESSAGE;
         }
 
         $totalPrice = 0;
+        $downloadables = [];
         // Loop PurchaseTracks
         foreach ($purchaseTracks as $purchaseTrack){
             $licenseAttributes = json_decode($purchaseTrack->license_attr);
+            $licenseAttributesDownloadLink = json_decode($purchaseTrack->license_attr_id_link);
             // Check if slug_is existed in $licenseUniqueID, $licenseUniqueID is formatted as
             // [slug_id] => license unique ID of the item user paid for
             if (isset($licenseUniqueID[$purchaseTrack->slug_id])){
                 $uniqueID = $licenseUniqueID[$purchaseTrack->slug_id];
+
                 // Loop licenses attached to the track
                 foreach ($licenseAttributes as $attribute) {
                     // check if the $uniqueID matches with the one in the attribute
                     // if so, add to the totalPrice and break
                     if ($attribute->unique_id === $uniqueID){
                         $totalPrice += $attribute->price;
+                        $downloadables[$purchaseTrack->slug_id] = [
+                          'track_title' =>   $purchaseTrack->track_title,
+                          'license' =>   $attribute->name,
+                        ];
+
+                        if (isset($licenseAttributesDownloadLink->{$uniqueID})){
+                            $downloadables[$purchaseTrack->slug_id]['download_link'] = $licenseAttributesDownloadLink->{$uniqueID};
+                        }
+
                         break;
                     }
                 }
+
             }
         }
 
-        return $totalPrice;
+        return [
+            'totalPrice' => $totalPrice,
+            'downloadables' => $downloadables
+            ];
     }
 
     /**
