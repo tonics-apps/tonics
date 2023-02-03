@@ -1,0 +1,13 @@
+[Unit]
+Description=Restart Tonics SystemD Service
+After=network.target
+# A Limit of 5 restart in a 10 second interval
+StartLimitIntervalSec=10
+StartLimitBurst=5
+
+[Service]
+Type=OneShot
+ExecStart=/bin/systemctl restart service_name.service
+
+[Install]
+WantedBy=multi-user.target

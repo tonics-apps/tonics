@@ -1,0 +1,15 @@
+[Unit]
+Description=Tonics OnStartUPCLI Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/php8.1 bin/console --run --onStartUp=parallel
+WorkingDirectory=/path/to/tonics/web
+Restart=always
+RestartSec=10
+StandardOutput=/var/log/tonics.log
+StandardError=/var/log/error.log
+
+[Install]
+WantedBy=multi-user.target

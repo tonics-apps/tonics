@@ -1,0 +1,8 @@
+[Unit]
+Description=Tonics Path To RestartService File Path Changes
+
+[Path]
+PathChanged=/path/to/tonics/web/bin/restart_service.json
+
+[Install]
+WantedBy=multi-user.target
