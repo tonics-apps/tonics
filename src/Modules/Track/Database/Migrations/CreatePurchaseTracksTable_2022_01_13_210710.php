@@ -26,7 +26,7 @@ class CreatePurchaseTracksTable_2022_01_13_210710 extends Migration {
         $purchasesTable = Tables::getTable(Tables::PURCHASES);
         $tracksTable = Tables::getTable(Tables::TRACKS);
 
-        $this->getDB()->run("
+/*        $this->getDB()->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `pt_id` int(10) unsigned NOT NULL AUTO_INCREMENT, -- pt_ meaning purchasetrack
   `fk_purchase_id` int(10) unsigned NOT NULL,
@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   KEY `bt_purchase_tracks_fk_track_id_foreign` (`fk_track_id`),
   CONSTRAINT `bt_purchase_tracks_fk_purchase_id_foreign` FOREIGN KEY (`fk_purchase_id`) REFERENCES `$purchasesTable` (`purchase_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `bt_purchase_tracks_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$tracksTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");*/
+
     }
 
     /**
