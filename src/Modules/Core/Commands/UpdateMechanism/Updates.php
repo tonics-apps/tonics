@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Commands\UpdateMechanism;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\States\UpdateMechanismState;
@@ -63,6 +64,7 @@ class Updates implements ConsoleCommand
         $updateMechanismState->runStates(false);
         if ($updateMechanismState->getStateResult() === SimpleState::DONE){
             if ($actions === 'update'){
+                AppConfig::updateRestartService();
                 helper()->sendMsg($updateMechanismState->getStateResult(), "Update SuccessFull", 'close');
                 session()->flash(["Update SuccessFull"], [], type: Session::SessionCategories_FlashMessageSuccess);
             }

@@ -387,9 +387,37 @@ class AppConfig
         return APP_ROOT . '/src/Apps';
     }
 
-    public static function getETCPath(): string
+    public static function getBinPath(): string
     {
-        return APP_ROOT . '/etc';
+        return APP_ROOT . '/bin';
+    }
+
+    public static function getBinRestartServiceJSONFile(): string
+    {
+        return APP_ROOT . '/bin/restart_service.json';
+    }
+
+    /**
+     * This function should be called whenever an update, delete, installation of app and module is done.
+     *
+     * The timestamp change is just to trigger a modified_file_change in the restart_service, this way,
+     * you can listen to that and restart any service running in bin/console
+     * @return void
+     * @throws Exception
+     */
+    public static function updateRestartService(): void
+    {
+        if (helper()->isFile(AppConfig::getBinRestartServiceJSONFile())){
+            $json = file_get_contents(AppConfig::getBinRestartServiceJSONFile());
+            if (helper()->isJSON($json)){
+                $json = json_decode($json);
+                if (isset($json->timestamp)){
+                    $json->timestamp = time();
+                }
+                @file_put_contents(AppConfig::getBinRestartServiceJSONFile(), json_encode($json));
+            }
+        }
+
     }
 
     public static function getAppAsset(string $appName, string $path): string

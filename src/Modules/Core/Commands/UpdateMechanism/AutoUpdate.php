@@ -62,5 +62,7 @@ class AutoUpdate implements ConsoleCommand
                 ->runStates(false);
         }
 
+        AppConfig::updateRestartService();
+
     }
 }

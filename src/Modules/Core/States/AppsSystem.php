@@ -107,6 +107,8 @@ class AppsSystem extends SimpleState
             }
         }
 
+        AppConfig::updateRestartService();
+
         if (!empty($errorActivatorName)){
             $errorActivatorName = implode(',', $errorActivatorName);
             session()->flash(["An Error Occurred Installing App: [$errorActivatorName]"], []);
@@ -156,6 +158,8 @@ class AppsSystem extends SimpleState
                 }
             }
         }
+
+        AppConfig::updateRestartService();
 
         if (!empty($errorActivatorName)){
             $errorActivatorName = implode(',', $errorActivatorName);
@@ -219,15 +223,16 @@ class AppsSystem extends SimpleState
                     } catch (\Exception $exception){
                         // Log..
                     }
-
                 }
             }
         }
 
+        AppConfig::updateRestartService();
+
         if (!empty($errorActivatorName)){
             $errorActivatorName = implode(', ', $errorActivatorName);
             $this->setErrorMessage("An Error Occurred Deleting App: [$errorActivatorName]");
-        }elseif (!empty($deletedApp)){
+        } elseif (!empty($deletedApp)){
             $deletedApp = implode(', ', $deletedApp);
             $this->setSucessMessage("[$deletedApp] App Deleted");
             return self::DONE;
@@ -284,6 +289,7 @@ class AppsSystem extends SimpleState
             }
         }
 
+        AppConfig::updateRestartService();
         $appOrModuleToUpdate = implode(', ', $appOrModuleToUpdate);
         $this->setSucessMessage("[$appOrModuleToUpdate] Updated: Reload Page");
         return self::DONE;
@@ -346,6 +352,7 @@ class AppsSystem extends SimpleState
                     $appName = helper()->getFileName($appTempPath);
                     $copyResult = helper()->copyFolder($appTempPath, AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . $appName);
                     if ($copyResult === true) {
+                        AppConfig::updateRestartService();
                         $this->setSucessMessage("[$appName] Uploaded: Go To App List Page, Ignore if on App Page");
                         return self::DONE;
                     }
