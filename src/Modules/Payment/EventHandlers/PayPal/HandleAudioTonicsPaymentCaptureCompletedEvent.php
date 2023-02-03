@@ -83,7 +83,8 @@ class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface,
             # If there is a purchase record
             if (is_object($purchaseRecord)){
                 # Validate the amount
-                if (floatval($purchaseRecord->total_price) >= floatval($totalAmount)){
+                # If what user pays is greater or equals to total_price, the payment is valid
+                if (helper()->moneyGreaterOrEqual($totalAmount, $purchaseRecord->total_price)){
                     # Change From Pending to Completed
                     db( onGetDB: function (TonicsQuery $db) use ($purchaseTable, $invoiceID){
                         $db->FastUpdate($purchaseTable,
