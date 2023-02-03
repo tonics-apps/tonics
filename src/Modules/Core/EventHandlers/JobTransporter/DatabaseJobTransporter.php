@@ -57,10 +57,14 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
         }
 
         if ($afterEnqueue){
-            $returning = db(true)->InsertReturning($this->getTable(), $toInsert, Tables::$TABLES[Tables::JOBS], 'job_id');
-            $afterEnqueue($returning);
+            db(onGetDB: function ($db) use ($afterEnqueue, $toInsert){
+                $returning = $db->InsertReturning($this->getTable(), $toInsert, Tables::$TABLES[Tables::JOBS], 'job_id');
+                $afterEnqueue($returning);
+            });
         } else {
-            db(true)->insert($this->getTable(), $toInsert);
+            db(onGetDB: function ($db) use ($toInsert) {
+                $db->insert($this->getTable(), $toInsert);
+            });
         }
 
     }
@@ -97,7 +101,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
      */
     public function runJob(): void
     {
-        $db = db(true);
+        $db = db();
         $table = $this->getTable();
         while (true) {
             if (AppConfig::isMaintenanceMode()){
@@ -114,7 +118,9 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
              * The outer query then filters out any jobs whose job_id is in the list of job_parent_id values, effectively excluding any jobs that have child jobs.
              *
              */
-            $jobs = $db->run(<<<SQL
+            $jobs = null;
+            db(onGetDB: function ($db) use ($table, &$jobs){
+                $jobs = $db->run(<<<SQL
 SELECT * 
 FROM $table
 WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
@@ -122,6 +128,8 @@ ORDER BY `job_priority` DESC
 LIMIT ?
 FOR UPDATE SKIP LOCKED
 SQL, Job::JobStatus_Queued, 1);
+            });
+
 
             if (empty($jobs)){
                 # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
@@ -129,25 +137,27 @@ SQL, Job::JobStatus_Queued, 1);
                 continue;
             }
 
-            foreach ($jobs as $job) {
-                try {
-                    $this->infoMessage("Running job $job->job_name with an id of $job->job_id");
-                    # Job In_Progress
-                    $update = ['job_status' => Job::JobStatus_InProgress];
-                    $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+            db(onGetDB: function (TonicsQuery $db) use ($jobs, $table) {
+                foreach ($jobs as $job) {
+                    try {
+                        $this->infoMessage("Running job $job->job_name with an id of $job->job_id");
+                        # Job In_Progress
+                        $update = ['job_status' => Job::JobStatus_InProgress];
+                        $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
 
-                    $this->handleIndividualJob($job);
+                        $this->handleIndividualJob($job);
 
-                    $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
-                    $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
-                    $this->infoMessage("Completed job $job->job_name with an id of $job->job_id");
-                } catch (\Throwable $exception) {
-                    $update = ['job_status' => Job::JobStatus_Failed];
-                    $this->errorMessage("Job $job->job_name failed, with an id of $job->job_id");
-                    $db->FastUpdate($table, $update, $db->Q()->WhereEquals('job_id', $job->job_id));
-                    $this->errorMessage($exception->getMessage() . $exception->getTraceAsString());
+                        $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
+                        $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+                        $this->infoMessage("Completed job $job->job_name with an id of $job->job_id");
+                    } catch (\Throwable $exception) {
+                        $update = ['job_status' => Job::JobStatus_Failed];
+                        $this->errorMessage("Job $job->job_name failed, with an id of $job->job_id");
+                        $db->FastUpdate($table, $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+                        $this->errorMessage($exception->getMessage() . $exception->getTraceAsString());
+                    }
                 }
-            }
+            });
         }
     }
 
