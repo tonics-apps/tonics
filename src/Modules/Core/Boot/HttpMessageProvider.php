@@ -52,7 +52,7 @@ class HttpMessageProvider implements ServiceProvider
   "summary": "Payment completed for $ 60.0 USD",
   "resource": {
     "amount": {
-      "value": "60.00",
+      "value": "50.00",
       "currency_code": "USD"
     },
     "seller_protection": {
@@ -84,7 +84,7 @@ class HttpMessageProvider implements ServiceProvider
         "currency_code": "USD"
       }
     },
-    "invoice_id": "AudioTonics_63d4f0f7b245d8.54148325",
+    "invoice_id": "AudioTonics_63d95e6048d070.18997466",
     "links": [
       {
         "method": "GET",
