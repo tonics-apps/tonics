@@ -101,7 +101,6 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
      */
     public function runJob(): void
     {
-        $db = db();
         $table = $this->getTable();
         while (true) {
             if (AppConfig::isMaintenanceMode()){
@@ -158,6 +157,7 @@ SQL, Job::JobStatus_Queued, 1);
                     }
                 }
             });
+
         }
     }
 

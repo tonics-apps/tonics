@@ -15,6 +15,7 @@ use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Payment\Schedules\AudioTonics\ManuallyConfirmAudioTonicsPaymentPayPal;
 
 class PaymentSettingsController
 {
@@ -64,6 +65,11 @@ class PaymentSettingsController
         try {
             $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
             apcu_store(self::getCacheKey(), $settings);
+
+            # Enqueue ManuallyConfirmAudioTonicsPaymentPayPal for Schedule
+            $ManuallyConfirmAudioTonicsPaymentPayPal = new ManuallyConfirmAudioTonicsPaymentPayPal();
+            schedule()->enqueue($ManuallyConfirmAudioTonicsPaymentPayPal);
+
             session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('payment.settings'));
         }catch (\Exception){
