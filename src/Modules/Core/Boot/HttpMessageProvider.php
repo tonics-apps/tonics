@@ -43,7 +43,7 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
-        /*$json = <<<JSON
+        $json = <<<JSON
 {
   "id": "WH-12P352976M872801U-4VG268328G5994910",
   "create_time": "2023-01-28T09:55:18.338Z",
@@ -52,7 +52,7 @@ class HttpMessageProvider implements ServiceProvider
   "summary": "Payment completed for $ 60.0 USD",
   "resource": {
     "amount": {
-      "value": "50.00",
+      "value": "160.00",
       "currency_code": "USD"
     },
     "seller_protection": {
@@ -84,7 +84,7 @@ class HttpMessageProvider implements ServiceProvider
         "currency_code": "USD"
       }
     },
-    "invoice_id": "AudioTonics_63d95e6048d070.18997466",
+    "invoice_id": "AudioTonics_63dc7af567af00.03646774",
     "links": [
       {
         "method": "GET",
@@ -148,8 +148,9 @@ JSON;
         $payPalWebHookEventObject = new OnAddPayPalWebHookEvent();
         $payPalWebHookEventObject->setWebHookData(json_decode($json));
         $webHookEventObject = event()->dispatch($payPalWebHookEventObject)->event();
-        $webHookEventObject->handleWebHookEvent('PAYMENT.CAPTURE.COMPLETED');*/
+        $webHookEventObject->handleWebHookEvent('PAYMENT.CAPTURE.COMPLETED');
 
+        exit();
 
         try {
             $this->getRouter()->dispatchRequestURL();

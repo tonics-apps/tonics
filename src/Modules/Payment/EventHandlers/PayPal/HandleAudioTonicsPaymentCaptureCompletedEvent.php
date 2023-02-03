@@ -14,6 +14,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
 use App\Modules\Payment\Events\PayPal\PayPalWebHookEventInterface;
+use App\Modules\Payment\Jobs\AudioTonics\AudioTonicsOrderDeliveryEmail;
 use App\Modules\Payment\Library\PayPalPaymentCapturedCompletedWebHookResponse;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -73,7 +74,7 @@ class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface,
         try {
             # Get the purchase records by invoiceID
             db( onGetDB: function (TonicsQuery $db) use ($purchaseTable, $customerTable, $invoiceID, &$purchaseRecord){
-                $purchaseRecord = $db->Select("total_price, email, $purchaseTable.others")
+                $purchaseRecord = $db->Select("total_price, email, $purchaseTable.others, $purchaseTable.slug_id")
                     ->From($purchaseTable)
                     ->Join("{$customerTable} c", "c.user_id", "$purchaseTable.fk_customer_id")
                     ->WhereEquals('invoice_id', $invoiceID)->WhereEquals('payment_status', 'pending')->FetchFirst();
@@ -89,6 +90,13 @@ class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface,
                             ['payment_status' => 'completed'],
                             db()->WhereEquals('invoice_id', $invoiceID)->WhereEquals('payment_status', 'pending'));
                     });
+
+                    # Queue Job For Order Delivery
+                    $tonicsOrderDeliveryJob = new AudioTonicsOrderDeliveryEmail();
+                    $tonicsOrderDeliveryJob->setJobName('AudioTonicsOrderDeliveryEmail');
+                    $purchaseRecord->others = json_decode($purchaseRecord->others);
+                    $tonicsOrderDeliveryJob->setData($purchaseRecord);
+                    job()->enqueue($tonicsOrderDeliveryJob);
                 } else {
                     # Decline Purchase
                     db( onGetDB: function (TonicsQuery $db) use ($purchaseTable, $invoiceID){
@@ -102,7 +110,5 @@ class HandleAudioTonicsPaymentCaptureCompletedEvent implements HandlerInterface,
         } catch (\Exception $exception){
             // Log..
         }
-
-        dd($purchaseRecord, json_decode($purchaseRecord->others));
     }
 }

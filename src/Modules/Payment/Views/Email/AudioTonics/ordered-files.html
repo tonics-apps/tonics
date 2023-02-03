@@ -1,0 +1,47 @@
+[[inherit("Modules::Core/Views/Templates/email")]]
+
+[[hook_into('CoreEmail::in_head_title') [[v('Subject')]] ]]
+
+[[hook_into('CoreEmail::in_style')
+table {
+border-collapse: collapse;
+width: 100%;
+}
+
+th, td {
+border: 1px solid #ddd;
+padding: 8px;
+text-align: left;
+}
+
+th {
+background-color: #ddd;
+color: #333;
+}
+]]
+
+[[hook_into('CoreEmail::in_body')
+<div class="container">
+  <h1>Download Audio Files</h1>
+  <p>[[v('Username')]], Thanks for your support 🙏, download the files below</p>
+  <table>
+    <thead>
+    <tr>
+      <th>File Name</th>
+      <th>Download Link</th>
+    </tr>
+    </thead>
+    <tbody>
+    [[each("_file in Files")
+      <tr>
+        <td>[[v('_file.track_title')]] ([[v('_file.license')]])</td>
+        <td><a href="[[v('_file.download_link')]]">Download</a></td>
+      </tr>
+    ]]
+    </tbody>
+  </table>
+  <p></p>
+  <p>[[v('Username')]], Your Order ID is {Order #[[v('SlugID')]]}</p>
+  <p style="text-align: center; font-size: 12px; color: #999; margin-top: 20px;">This email was generated automatically by tonics.</p>
+</div>
+]]
