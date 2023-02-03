@@ -446,6 +446,24 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
         });
     }
 
+    getClientCredentials(PaymentHandlerName, onSuccess = null, onError = null) {
+        window.TonicsScript.XHRApi({
+            PaymentHandlerName: PaymentHandlerName,
+            PaymentQueryType: "ClientPaymentCredentials"
+        }).Get(this.get_request_flow_address, function (err, data) {
+            if (data) {
+                data = JSON.parse(data);
+                if (onSuccess) {
+                    onSuccess(data);
+                }
+            }
+
+            if (err) {
+                onError()
+            }
+        });
+    }
+
     sendBody(PaymentHandlerName, BodyData, onSuccess = null, onError = null) {
         window.TonicsScript.XHRApi({
             PaymentHandlerName: PaymentHandlerName,
@@ -539,13 +557,16 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
     bootPayment(event = null) {
         let self = this;
         if (event) {
-            const clientID = "AWqLRTOUEtBYPRgUhgvag2fMBWA_jBqIh3KcPq-9UZL5SUpwN-vsKijwxsCrfv9kKlgTZD_5_TznifZB";
-            const currencyName = 'USD';
-            event.loadScriptDynamically(`https://www.paypal.com/sdk/js?client-id=${clientID}&enable-funding=venmo&currency=${currencyName}`, 'paypal')
-                .then(() => {
-                    event.addPaymentButton(self.getPaymentButton());
-                    self.initPayPalButton(event);
-                });
+            event.getClientCredentials(self.getPaymentName(), (data) => {
+                const clientID = data?.data;
+                const currencyName = 'USD';
+                event.loadScriptDynamically(`https://www.paypal.com/sdk/js?client-id=${clientID}&enable-funding=venmo&currency=${currencyName}`, 'paypal')
+                    .then(() => {
+                        event.addPaymentButton(self.getPaymentButton());
+                        self.initPayPalButton(event);
+                    });
+            })
+
         }
     }
 
