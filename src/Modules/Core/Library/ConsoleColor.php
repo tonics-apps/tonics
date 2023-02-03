@@ -67,11 +67,12 @@ trait ConsoleColor
     public function coloredText(string $fgColor = 'black', string $bgColor = 'yellow', string $message = ''): string
     {
         $this->initShellColors();
-
+        $shortClassName = '[' . helper()->getObjectShortClassName($this) . ']';
         if (key_exists($fgColor, $this->fgColors) && key_exists($bgColor, $this->bgColors)){
             $fgColor = $this->fgColors[$fgColor];
             $bgColor = $this->bgColors[$bgColor];
-            $message ="\e[{$fgColor};{$bgColor}m{$message}\e[0m\n";
+            $date = date("M  j H:i:s", time());
+            $message ="$date $shortClassName \e[{$fgColor};{$bgColor}m{$message}\e[0m\n";
         }
 
         return $message;

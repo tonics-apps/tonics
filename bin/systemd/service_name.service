@@ -24,8 +24,8 @@ ExecStart=/usr/bin/php8.1 bin/console --run --onStartUp=parallel
 WorkingDirectory=/path/to/tonics/web
 Restart=always
 RestartSec=10
-StandardOutput=file:/var/log/tonics.log
-StandardError=file:/var/log/tonics.err
+StandardOutput=append:/var/log/tonics.log
+StandardError=append:/var/log/tonics.err
 
 [Install]
 WantedBy=multi-user.target
