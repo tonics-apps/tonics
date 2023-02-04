@@ -10,51 +10,75 @@
 
 namespace App\Modules\Core\Configs;
 
+use App\Modules\Core\Controllers\CoreSettingsController;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 
 class MailConfig
 {
     private static ?PHPMailer $PHPMailer = null;
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailMailer(): string
     {
-        return env('MAIL_MAILER');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_Mailer, env('MAIL_MAILER'));
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailHost(): string
     {
-        return env('MAIL_HOST');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_MailHost, env('MAIL_HOST'));
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailPort(): string
     {
-        return env('MAIL_PORT');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_MailPort, env('MAIL_PORT'));
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailUsername(): string
     {
-        return env('MAIL_USERNAME');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_MailUsername, env('MAIL_USERNAME'));
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailPassword(): string
     {
-        return env('MAIL_PASSWORD');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_MailPassword, env('MAIL_PASSWORD'));
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailEncryption(): string
     {
-        return env('MAIL_ENCRYPTION');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_MailEncryption, env('MAIL_ENCRYPTION'));
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailFromAddress(): string
     {
-        return env('MAIL_FROM_ADDRESS');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_MailFromAddress, env('MAIL_FROM_ADDRESS'));
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMailReplyTo(): string
     {
-        return env('MAIL_REPLY_TO');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::Mail_MailReplyTo, env('MAIL_REPLY_TO'));
     }
 
     /**

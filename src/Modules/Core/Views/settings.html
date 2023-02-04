@@ -1,0 +1,12 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field")]]
+
+[[hook_into('Core::in_head_title') Core Settings Page ]]
+[[hook_into('Core::in_main_header_title') Core Settings ]]
+
+[[hook_into('form_action')/admin/tools/apps/tonics_seo/settings]]
+
+[[hook_into('Core::before_footer')
+  [[_use("script:variables")]]
+  [[_use("script:core")]]
+  [[_use("session:delete-artifacts")]]
+]]

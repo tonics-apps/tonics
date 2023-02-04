@@ -15,6 +15,7 @@ use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Controllers\Auth\CacheController;
 use App\Modules\Core\Controllers\Auth\ForgotPasswordController;
 use App\Modules\Core\Controllers\Auth\LoginController;
+use App\Modules\Core\Controllers\CoreSettingsController;
 use App\Modules\Core\Controllers\DashboardController;
 use App\Modules\Core\Controllers\ImportExport\ImportController;
 use App\Modules\Core\Controllers\Installer;
@@ -49,6 +50,14 @@ trait Routes
             $route->get('installer', [Installer::class, 'showInstallerForm'], requestInterceptor: [InstallerChecker::class]);
 
             $route->group('', function (Route $route){
+
+                        #---------------------------------
+                    # Core Settings
+                #---------------------------------
+                $route->group('/core/', function (Route $route){
+                    $route->get('settings', [CoreSettingsController::class, 'edit'], alias: 'settings');
+                    $route->post('settings', [CoreSettingsController::class, 'update']);
+                }, [CoreAccess::class], alias: 'core');
 
                 $route->group('', function (Route $route){
                             #---------------------------------
@@ -87,6 +96,7 @@ trait Routes
                     $route->get('/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'verifyEmail');
                     $route->post('/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'update');
                 }, alias: 'password');
+
             }, AuthConfig::getCSRFRequestInterceptor());
 
         }, alias: 'admin');
@@ -125,7 +135,7 @@ trait Routes
 
             }, [CoreAccess::class]);
 
-            #---------------------------------
+                    #---------------------------------
                 # Apps Routes...
             #---------------------------------
             $route->group('/apps', function (Route $route) {

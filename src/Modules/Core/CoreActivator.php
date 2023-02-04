@@ -158,6 +158,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "stable" => 0,
             "description" => "The Core Module",
             "info_url" => '',
+            "settings_page" => route('admin.core.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-core-module/releases/latest",
             "authors" => [
                 "name" => "The Devsrealm Guy",

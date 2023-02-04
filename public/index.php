@@ -19,18 +19,19 @@ require dirname(__FILE__, 2) . '/src/Modules/Core/Library/Composer/autoload.php'
     # LOAD ENV FILE
 #---------------------------------
 (new Loader)->load(AppConfig::getEnvFilePath());
-
-if (AppConfig::isProduction() === false){
-    error_reporting(E_ALL);
-    ini_set("display_errors", "On");
-}
+apcu_clear_cache();
 
         #-----------------------------------
     # EACH DAY IS A NEW BEGINNING
 #-------------------------------------------
 try {
+    if (AppConfig::isProduction() === false) {
+        error_reporting(E_ALL);
+        ini_set("display_errors", "On");
+    }
+
     AppConfig::initLoaderMinimal()->init();
     AppConfig::initLoaderOthers()->BootDaBoot();
 } catch (Exception $e) {
-    // log...
+    // Log..
 }

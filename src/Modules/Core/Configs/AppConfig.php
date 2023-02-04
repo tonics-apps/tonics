@@ -15,6 +15,7 @@ use App\Apps\TonicsCoupon\TonicsCouponActivator;
 use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Boot\InitLoaderMinimal;
+use App\Modules\Core\Controllers\CoreSettingsController;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Router\RouteResolver;
@@ -211,9 +212,12 @@ class AppConfig
         return (bool)env('MAINTENANCE_MODE', false);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getTimeZone(): string
     {
-        return env('APP_TIME_ZONE', 'UTC');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppTimeZone,  env('APP_TIME_ZONE', 'UTC'));
     }
 
     public static function getLanguage(): string
@@ -221,9 +225,12 @@ class AppConfig
         return env('APP_LANGUAGE', '');
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getAppName(): string
     {
-        return env('APP_NAME', 'Tonics');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppName, env('APP_NAME', 'Tonics'));
     }
 
     /**
@@ -269,19 +276,36 @@ class AppConfig
         return env('APP_KEY', 'Tonics');
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getAppEnv(): string
     {
-        return env('APP_ENV', 'production');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppEnvironment, env('APP_ENV', 'production'));
     }
 
+    /**
+     * @throws Exception
+     */
+    public static function getAppLog404(): string
+    {
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppLog404, env('APP_LOG_404', '1'));
+    }
+
+    /**
+     * @throws Exception
+     */
     public static function isProduction(): bool
     {
         return AppConfig::getAppEnv() === 'production';
     }
 
+    /**
+     * @throws Exception
+     */
     public static function canLog404(): bool
     {
-        return env('APP_LOG_404') === '1';
+        return self::getAppLog404() === '1';
     }
 
     public static function getAppInstallKey(): string
@@ -301,10 +325,11 @@ class AppConfig
      * - array, then only the array items should be auto_updated
      *
      * @return array|bool
+     * @throws Exception
      */
     public static function getAutoUpdateApps(): array|bool
     {
-        $update = env('AUTO_UPDATE_APPS', 'NULL');
+        $update = CoreSettingsController::getSettingsValue(CoreSettingsController::Updates_AutoUpdateApps, env('AUTO_UPDATE_APPS', 'NULL'));
         return self::handleAutoUpdateReturn($update);
     }
 
@@ -315,10 +340,11 @@ class AppConfig
      * - array, then only the array items should be auto_updated
      *
      * @return array|bool
+     * @throws Exception
      */
     public static function getAutoUpdateModules(): array|bool
     {
-        $update = env('AUTO_UPDATE_MODULES', 'NULL');
+        $update = CoreSettingsController::getSettingsValue(CoreSettingsController::Updates_AutoUpdateModules, env('AUTO_UPDATE_MODULES', 'NULL'));
         return self::handleAutoUpdateReturn($update);
     }
 
@@ -357,9 +383,12 @@ class AppConfig
         return [];
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getAppUrl(): string
     {
-        return env('APP_URL');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppURL, env('APP_URL'));
     }
 
     public static function getAppUrlPort(): string
