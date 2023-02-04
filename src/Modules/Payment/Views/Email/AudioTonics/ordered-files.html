@@ -3,21 +3,25 @@
 [[hook_into('CoreEmail::in_head_title') [[v('Subject')]] ]]
 
 [[hook_into('CoreEmail::in_style')
-table {
-border-collapse: collapse;
-width: 100%;
-}
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
 
-th, td {
-border: 1px solid #ddd;
-padding: 8px;
-text-align: left;
-}
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
 
-th {
-background-color: #ddd;
-color: #333;
-}
+  th {
+    background-color: #ddd;
+    color: #333;
+  }
+
+  tfoot td {
+    font-weight: bold;
+  }
 ]]
 
 [[hook_into('CoreEmail::in_body')
@@ -29,6 +33,7 @@ color: #333;
     <tr>
       <th>File Name</th>
       <th>Download Link</th>
+      <th>Price</th>
     </tr>
     </thead>
     <tbody>
@@ -36,9 +41,16 @@ color: #333;
       <tr>
         <td>[[v('_file.track_title')]] ([[v('_file.license')]])</td>
         <td><a href="[[v('_file.download_link')]]">Download</a></td>
+        <td>$[[v('_file.price')]]</td>
       </tr>
     ]]
     </tbody>
+    <tfoot>
+    <tr>
+      <td colspan="2">Total:</td>
+      <td>$[[v('TotalPrice')]]</td>
+    </tr>
+    </tfoot>
   </table>
   <p></p>
   <p>[[v('Username')]], Your Order ID is {Order #[[v('SlugID')]]}</p>

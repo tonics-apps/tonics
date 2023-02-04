@@ -58,7 +58,6 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             $userData = new UserData();
             $checkoutEmail = $body->checkout_email ?? '';
             $customerData = $userData->doesCustomerExist($checkoutEmail);
-
             // if customer does not exist, we create a guest user
             $forgetPassMessage = '';
             if (!$customerData) {
@@ -126,7 +125,7 @@ MAILTO;
                         $message = <<<MESSAGE
 <p>Pending Review, Check $checkoutEmail mailbox or spam folder in few minutes for files, please $mailTo if you got stucked.</p>
 <br>
-Alternatively, If you have an account, check <a href="$customer_purchase_history" target="_blank">Purchase Files</a> for your file(s)
+Alternatively, If you have an account, check <a href="$customer_purchase_history" target="_blank">Order Details</a> for your file(s)
 <br>
 $forgetPassMessage
 <br>

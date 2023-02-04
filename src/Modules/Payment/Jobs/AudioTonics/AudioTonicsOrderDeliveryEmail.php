@@ -33,6 +33,7 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
             'SlugID' => $this->getData()->slug_id,
             'Email' => $this->getData()->email,
             'Files' => (array)$this->getData()->others->downloadables,
+            'TotalPrice' => (array)$this->getData()->total_price,
         ], TonicsView::RENDER_CONCATENATE);
 
         $mail = MailConfig::getMailer();
