@@ -117,7 +117,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                         $mailTo = <<<MAILTO
 <a href="mailto:$mailReplyTo?subject=Failed To Get Order #$orderID">Contact US</a>
 MAILTO;
-                        $customer_purchase_history = route('customer.purchase.history', ['slug_id' => $onPurchaseCreate->getSlugID()]);
+                        $customer_purchase_history = route('customer.order.audiotonics.details', ['slug_id' => $onPurchaseCreate->getSlugID()]);
                         $message = <<<MESSAGE
 <p>Pending Review, Check $checkoutEmail mailbox or spam folder in few minutes for files, please $mailTo if you got stucked.</p>
 <br>

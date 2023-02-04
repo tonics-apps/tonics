@@ -1,0 +1,11 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/customer")]]
+
+[[hook_into('Core::in_head_title') Order [[v('SlugID')]] ]]
+[[hook_into('Core::in_main_header_title') {Order #[[v('SlugID')]]} ]]
+
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:core")]]
+    [[_use("session:delete-artifacts")]]
+]]

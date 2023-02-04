@@ -69,7 +69,11 @@ SQL, $slugID, 'completed');
             $purchaseRecord->others = json_decode($purchaseRecord->others);
         }
 
-        dd($purchaseRecord);
+        view('Modules::Customer/Views/Orders/AudioTonics/order_details', [
+            'OrderDetails' => $purchaseRecord,
+            'SlugID' => $slugID,
+            'SiteURL' => AppConfig::getAppUrl(),
+        ]);
 
     }
 }
