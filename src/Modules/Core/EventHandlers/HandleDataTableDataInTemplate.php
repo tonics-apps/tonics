@@ -47,7 +47,7 @@ HTML;
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('Core::before_data_table', function (TonicsView $tonicsView){
             $dtHeaders = $tonicsView->accessArrayWithSeparator('DataTable.headers');
-            if ($this->isDataTableTypeEditablePreview($tonicsView) || $this->isDataTableTypeEditableBuilder($tonicsView)){
+            if ($this->isDataTableTypeEditablePreview($tonicsView) || $this->isDataTableTypeEditableBuilder($tonicsView) || $this->isDataTableTypeView($tonicsView)){
                 $dtHeaders[] = [
                     'title' => 'Actions',
                     'minmax' => "250px, 1.2fr",
@@ -87,7 +87,18 @@ HTML;
 </a>
 HTML;
                 }
+                $dtRow->_view_links = $editButton;
+            }
 
+            if ($this->isDataTableTypeView($tonicsView)){
+                $editButton = '';
+                $dtRow = $tonicsView->accessArrayWithSeparator('dtRow');
+                $editButton .= <<<HTML
+<a class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
+                        margin-top:0 cursor:pointer button:box-shadow-variant-3" href="$dtRow->_view">
+    <span>View</span>
+</a>
+HTML;
                 $dtRow->_view_links = $editButton;
             }
         });
@@ -99,14 +110,12 @@ HTML;
         $event->hookInto('Core::before_data_table', function (TonicsView $tonicsView){
             $dtHeaders = $tonicsView->accessArrayWithSeparator('DataTable.headers');
             if ($this->isDataTableTypeApplicationView($tonicsView)){
-               // dd($dtHeaders);
                 $dtHeaders[] = [
                     'title' => 'Actions',
                     'minmax' => "250px, 1.2fr",
                     'td' => '_view_links'
                 ];
 
-               // $tonicsView->addToVariableData('DataTable.headers', $dtHeaders);
                 $dtHeaders = null;
             }
         });
@@ -133,5 +142,10 @@ HTML;
     public function isDataTableTypeApplicationView(TonicsView $tonicsView): bool
     {
         return $tonicsView->accessArrayWithSeparator('DataTable.dataTableType') === 'APPLICATION_VIEW';
+    }
+
+    public function isDataTableTypeView(TonicsView $tonicsView): bool
+    {
+        return $tonicsView->accessArrayWithSeparator('DataTable.dataTableType') === 'VIEW_LINK';
     }
 }

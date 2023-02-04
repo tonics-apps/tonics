@@ -1,7 +1,7 @@
-[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/customer", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
 
-[[hook_into('Core::in_head_title')Purchases Index]]
-[[hook_into('Core::in_main_header_title')Purchases Index]]
+[[hook_into('Core::in_head_title')Orders Index]]
+[[hook_into('Core::in_main_header_title')Orders]]
 
 [[reset_hook('Core::in_main_form_and_filter_status')]]
 [[reset_hook('Core::in_main_form_and_filter_date')]]

@@ -41,9 +41,7 @@
     [[add_hook('Core::header_section')
         <section class="[[add_hook('Core::in_header_section_class')]]">
             <div class="site-logo">
-                <a href="[[url('admin.dashboard')]]" rel="home" itemprop="url">
-                    <img src="/logo/o-ola-micky-logo.svg" class="image:avatar" alt="Tonics Official Logo" title="O-Ọlá Official Logo">
-                </a>
+                [[add_hook('Core::in_site_logo_link')]]
             </div>
             <nav id="site-navigation" class="site-nav d:flex align-items:center" role="navigation">
                 <ul class="site-navigation-ul d:flex flex-gap list:style:none">
@@ -53,6 +51,11 @@
         </section>
     ]]
 
+    [[hook_into('Core::in_site_logo_link')
+        <a href="[[url('admin.dashboard')]]" rel="home" itemprop="url">
+            <img src="/logo/o-ola-micky-logo.svg" class="image:avatar" alt="Tonics Official Logo" title="O-Ọlá Official Logo">
+        </a>
+    ]]
     [[hook_into('Core::in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:space-around]]
     [[hook_into('Core::in_site_navigation_ul')
         [[event('\App\Modules\Core\Events\OnAdminMenu', 'generateMenuTree')]]

@@ -1,4 +1,4 @@
-[[inherit("Modules::Core/Views/Templates/core")]]
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/customer")]]
 
 [[hook_into('Core::in_head_title')[[v('UserInfo.user_name')]]'s Dashboard]]
 [[hook_into('Core::in_main_header_title')[[v('UserInfo.user_name')]]'s Dashboard ]]
