@@ -18,6 +18,7 @@ use App\Modules\Customer\Controllers\CustomerAuth\ForgotPasswordController;
 use App\Modules\Customer\Controllers\CustomerAuth\LoginController;
 use App\Modules\Customer\Controllers\CustomerAuth\RegisterController;
 use App\Modules\Customer\Controllers\DashboardController;
+use App\Modules\Customer\Controllers\PurchaseController;
 use App\Modules\Customer\RequestInterceptor\CustomerAccess;
 use App\Modules\Customer\RequestInterceptor\RedirectCustomerGuest;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -80,7 +81,8 @@ trait RouteWeb
                     # CUSTOMER DASHBOARD CONTROLLER...
                 #---------------------------------
                 $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
-                $route->get('purchase/:slug_id', [DashboardController::class, 'purchaseHistory'], alias: 'purchase.history');
+                $route->get('purchases', [PurchaseController::class, 'index'], alias: 'purchase.index');
+                $route->get('purchase/:slug_id', [PurchaseController::class, 'purchaseDetails'], alias: 'purchase.details');
             }, [Authenticated::class, RedirectCustomerGuest::class, CustomerAccess::class]);
         }, AuthConfig::getCSRFRequestInterceptor(),  'customer');
 

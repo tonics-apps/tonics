@@ -29,9 +29,4 @@ class DashboardController
             ['UserInfo' => $dataInfo]
         );
     }
-
-    public function purchaseHistory()
-    {
-
-    }
 }
