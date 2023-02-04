@@ -125,7 +125,8 @@ MAILTO;
                         $message = <<<MESSAGE
 <p>Pending Review, Check $checkoutEmail mailbox or spam folder in few minutes for files, please $mailTo if you got stucked.</p>
 <br>
-Alternatively, If you have an account, check <a href="$customer_purchase_history" target="_blank">Order Details</a> for your file(s)
+If you have an account, check <a href="$customer_purchase_history" target="_blank">Order Details</a> for your file(s)
+<br>
 <br>
 $forgetPassMessage
 <br>
