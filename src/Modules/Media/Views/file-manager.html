@@ -253,11 +253,13 @@ class="audioplayer-track border:none act-like-button icon:audio bg:transparent c
     $storageDriverManager
         .attachDriveStorage($localDrive);
 
-    [[each('_dropBoxDrive in DropboxDiskDrive')
-        [[if("v[_loop.key] && v[_dropBoxDrive]")
-            $storageDriverManager.attachDriveStorage(new TonicsFileManagerExcrete('DropboxDiskDrive')(`[[v('_loop.key')]]`, `[[v('_dropBoxDrive')]]`))
+        [[each('_dropBoxDrive in DropboxDiskDrive')
+            [[if("v[_loop.key] && v[_dropBoxDrive]")
+                $storageDriverManager.attachDriveStorage(new TonicsFileManagerExcrete('DropboxDiskDrive')(`[[v('_loop.key')]]`, `[[v('_dropBoxDrive')]]`))
+            ]]
         ]]
-    ]]
+
+
 
     const loadDriveEvent = new TonicsFileManagerExcrete('LoadDriveEvent')($storageDriverManager, siteURL);
 
