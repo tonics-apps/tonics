@@ -248,11 +248,16 @@ class="audioplayer-track border:none act-like-button icon:audio bg:transparent c
     }
 
     const $localDrive = new TonicsFileManagerExcrete('LocalDiskDrive')('Local', 'xxxxxx', siteURL);
-    const $dropboxDrive = new TonicsFileManagerExcrete('DropboxDiskDrive')('Dropbox', `[[v('DropboxDiskDriveKey')]]`);
+    // const $dropboxDrive = new TonicsFileManagerExcrete('DropboxDiskDrive')('Dropbox', `[[v('DropboxDiskDriveKey')]]`);
     const $storageDriverManager = new TonicsFileManagerExcrete('StorageDriversManager');
     $storageDriverManager
-        .attachDriveStorage($localDrive)
-        .attachDriveStorage($dropboxDrive);
+        .attachDriveStorage($localDrive);
+
+    [[each('_dropBoxDrive in DropboxDiskDrive')
+        [[if("v[_loop.key] && v[_dropBoxDrive]")
+            $storageDriverManager.attachDriveStorage(new TonicsFileManagerExcrete('DropboxDiskDrive')(`[[v('_loop.key')]]`, `[[v('_dropBoxDrive')]]`))
+        ]]
+    ]]
 
     const loadDriveEvent = new TonicsFileManagerExcrete('LoadDriveEvent')($storageDriverManager, siteURL);
 

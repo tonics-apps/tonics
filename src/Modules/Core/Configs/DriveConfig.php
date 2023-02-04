@@ -11,6 +11,8 @@
 namespace App\Modules\Core\Configs;
 
 
+use App\Modules\Core\Controllers\CoreSettingsController;
+
 class DriveConfig
 {
     /*
@@ -94,8 +96,17 @@ class DriveConfig
         return dirname(APP_ROOT) . '/private/uploads/wordpress_import/uploads';
     }
 
-    public static function getDropBoxKey(): string
+    /**
+     * @throws \Exception
+     */
+    public static function getDropBoxKey(): mixed
     {
+        $name = CoreSettingsController::getSettingsValue(CoreSettingsController::MediaDrive_DropBoxName, []);
+        $key = CoreSettingsController::getSettingsValue(CoreSettingsController::MediaDrive_DropBoxKey, []);
+        $value = array_combine($name, $key);
+        if (!empty($value)){
+            return $value;
+        }
         return env('DROPBOX_KEY', '');
     }
 }

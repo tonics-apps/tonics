@@ -52,7 +52,7 @@ class MediaControllers
     {
         view('Modules::Media/Views/file-manager',
             [
-                'DropboxDiskDriveKey' => DriveConfig::getDropBoxKey()
+                'DropboxDiskDrive' => DriveConfig::getDropBoxKey()
             ]
         );
     }

@@ -41,6 +41,7 @@ class CoreSettingsController
 
     const MediaDrive_DropBoxRepeaterName = 'tonics_core_settings_mediaDrives_dropBoxRepeater';
     const MediaDrive_DropBoxKey = 'tonics_core_settings_mediaDrives_dropBoxRepeater_Key';
+    const MediaDrive_DropBoxName = 'tonics_core_settings_mediaDrives_dropBoxRepeater_Name';
 
 
     private ?FieldData $fieldData;
@@ -102,12 +103,12 @@ class CoreSettingsController
 
     /**
      * @param string $key
-     * @param string $default
+     * @param $default
      * If $key value is empty, we use $default
      * @return string
      * @throws \Exception
      */
-    public static function getSettingsValue(string $key, string $default = ''): string
+    public static function getSettingsValue(string $key,  $default = null): mixed
     {
         #
         # If DB doesn't exist here, then it means we are accessing settings too early,
