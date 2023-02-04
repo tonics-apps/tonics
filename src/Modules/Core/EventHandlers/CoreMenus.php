@@ -57,9 +57,7 @@ class CoreMenus implements HandlerInterface
 
         $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_CUSTOMER), $event->userRole()), function ($event) {
             return $event
-                ->addMenu(OnAdminMenu::DashboardMenuID, 'Orders', helper()->getIcon('cart', 'icon:admin'), route('customer.order.index'))
-                ->addMenu(OnAdminMenu::SettingsMenuID, 'Settings', helper()->getIcon('cog', 'icon:admin'), route('customer.settings'))
-                ->addMenu(OnAdminMenu::DashboardMenuID + 1, 'Profile', helper()->getIcon('cog', 'icon:admin'), route('customer.settings'), parent: OnAdminMenu::SettingsMenuID);
+                ->addMenu(OnAdminMenu::DashboardMenuID, 'Orders', helper()->getIcon('cart', 'icon:admin'), route('customer.order.index'));
         });
     }
 }

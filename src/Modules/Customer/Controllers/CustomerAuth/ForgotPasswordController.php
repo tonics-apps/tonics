@@ -47,27 +47,29 @@ class ForgotPasswordController extends Controller
 
         try {
             $table = Tables::getTable(Tables::CUSTOMERS);
-            $forgotPasswordData = db()->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))->From($table)
+            $customerData = db()->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))->From($table)
                 ->WhereEquals('email', $email)->FetchFirst();
 
 
-            if (isset($forgotPasswordData->email) && hash_equals($forgotPasswordData->email, $email)){
+            if (isset($customerData->email) && hash_equals($customerData->email, $email)){
+
                 if (session()->hasKey(Session::SessionCategories_PasswordReset)){
                     $verification = session()->retrieve(Session::SessionCategories_PasswordReset, jsonDecode: true);
                     $verification = $verification->verification;
                 } else {
                     $verification = (object)UserData::generateVerificationArrayDataForUser();
                 }
+
                 $userData = new UserData();
-                $forgotPasswordData->verification = $userData->handleVerificationCodeGeneration($verification, 5,
+                $customerData->verification = $userData->handleVerificationCodeGeneration($verification, 5,
                     function () {
                     redirect(route('customer.password.request'));
                 });
 
-                session()->append(Session::SessionCategories_PasswordReset, $forgotPasswordData);
+                session()->append(Session::SessionCategories_PasswordReset, $customerData);
                 $forgotPasswordEmail = new ForgotPasswordEmail();
                 $forgotPasswordEmail->setJobName('ForgotPasswordEmail');
-                $forgotPasswordEmail->setData($forgotPasswordData);
+                $forgotPasswordEmail->setData($customerData);
                 job()->enqueue($forgotPasswordEmail);
 
                 redirect(route('customer.password.verifyEmail'));

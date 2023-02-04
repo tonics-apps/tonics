@@ -60,6 +60,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
             $customerData = $userData->doesCustomerExist($checkoutEmail);
 
             // if customer does not exist, we create a guest user
+            $forgetPassMessage = '';
             if (!$customerData) {
                 $guestCustomersData = [
                     'user_name' => helper()->extractNameFromEmail($checkoutEmail) ?? $checkoutEmail,
@@ -70,8 +71,12 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
                     'is_guest' => 1,
                     'role' => Roles::getRoleIDFromDB(Roles::ROLE_GUEST)
                 ];
-
                 $customerData = $userData->insertForCustomer($guestCustomersData, ['user_id', 'user_name', 'email', 'is_guest']);
+                $forgetLink = route('customer.password.request');
+                $forgetPassMessage = <<<FORGET_MESSAGE
+This is a new account, <a href="$forgetLink" target="_blank"> Please Reset Your Password</a> to view order history
+FORGET_MESSAGE;
+
             }
 
             if (isset($body->cartItems) && is_array($body->cartItems)){
@@ -122,6 +127,8 @@ MAILTO;
 <p>Pending Review, Check $checkoutEmail mailbox or spam folder in few minutes for files, please $mailTo if you got stucked.</p>
 <br>
 Alternatively, If you have an account, check <a href="$customer_purchase_history" target="_blank">Purchase Files</a> for your file(s)
+<br>
+$forgetPassMessage
 <br>
 <br>
 Please <a href="">Refresh The Page</a> To Start Shopping Again
@@ -197,6 +204,7 @@ MESSAGE;
                         $downloadables[$purchaseTrack->slug_id] = [
                           'track_title' =>   $purchaseTrack->track_title,
                           'license' =>   $attribute->name,
+                          'price' =>   $attribute->price,
                         ];
 
                         if (isset($licenseAttributesDownloadLink->{$uniqueID})){

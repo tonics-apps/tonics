@@ -3,6 +3,69 @@
 [[hook_into('Core::in_head_title') Order [[v('SlugID')]] ]]
 [[hook_into('Core::in_main_header_title') {Order #[[v('SlugID')]]} ]]
 
+[[hook_into('Core::in_main')
+<style>
+    table.order-details {
+        width: 80%;
+        margin: 2rem auto;
+        border-collapse: collapse;
+        font-size: 1.2rem;
+    }
+
+    table.order-details th,
+    table.order-details td {
+        padding: 1rem;
+        border: 1px solid gray;
+        text-align: center;
+    }
+
+    table.order-details thead th {
+        font-weight: bold;
+        background-color: lightgray;
+    }
+
+    table.order-details tfoot td {
+        font-weight: bold;
+        background-color: lightgray;
+        text-align: right;
+    }
+
+    table.order-details a {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+</style>
+<table class="order-details">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Download</th>
+    </tr>
+    </thead>
+    <tbody>
+    [[each("_order in OrderDetails.others.downloadables")
+    <tr>
+        <td>[[v('_order.track_title')]]</td>
+        <td>You Ordered ([[v('_order.license')]]) License of [[v('_order.track_title')]]</td>
+        <td>$[[v('_order.price')]]</td>
+        <td><a href="[[v('_order.download_link')]]" target="_blank">Download [[v('_order.track_title')]]  ([[v('_order.license')]])</a></td>
+    </tr>
+    ]]
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="3">Total:</td>
+        <td>$[[v('OrderDetails.total_price')]]</td>
+    </tr>
+    </tfoot>
+</table>
+
+
+]]
+
 
 [[hook_into('Core::before_footer')
     [[_use("script:variables")]]
