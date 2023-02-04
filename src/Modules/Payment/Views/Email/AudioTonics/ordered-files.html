@@ -37,18 +37,18 @@
     </tr>
     </thead>
     <tbody>
-    [[each("_file in Files")
+    [[each("_order in OrderDetails.others.downloadables")
       <tr>
-        <td>[[v('_file.track_title')]] ([[v('_file.license')]])</td>
-        <td><a href="[[v('_file.download_link')]]">Download</a></td>
-        <td>$[[v('_file.price')]]</td>
+        <td>[[v('_order.track_title')]] ([[v('_order.license')]])</td>
+        <td><a href="[[v('_order.download_link')]]">Download</a></td>
+        <td>$[[v('_order.price')]]</td>
       </tr>
     ]]
     </tbody>
     <tfoot>
     <tr>
       <td colspan="2">Total:</td>
-      <td>$[[v('TotalPrice')]]</td>
+      <td>$[[v('OrderDetails.total_price')]]</td>
     </tr>
     </tfoot>
   </table>

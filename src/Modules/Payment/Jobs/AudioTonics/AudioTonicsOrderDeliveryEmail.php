@@ -32,12 +32,10 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
             'Subject' => $subject,
             'SlugID' => $this->getData()->slug_id,
             'Email' => $this->getData()->email,
-            'Files' => (array)$this->getData()->others->downloadables,
-            'TotalPrice' => (array)$this->getData()->total_price,
+            'OrderDetails' => $this->getData(),
         ], TonicsView::RENDER_CONCATENATE);
 
         $mail = MailConfig::getMailer();
-        $mail->SMTPKeepAlive = true; //SMTP connection will not close after each email sent, reduces SMTP overhead
         $mail->addAddress($this->getData()->email, $name);
         #
         # In case the user registers mail is incorrect, we also send the order details to the PaymentEmailAddress

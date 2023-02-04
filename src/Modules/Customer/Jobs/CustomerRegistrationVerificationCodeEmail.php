@@ -31,7 +31,6 @@ class CustomerRegistrationVerificationCodeEmail extends AbstractJobInterface imp
         ], TonicsView::RENDER_CONCATENATE);
 
         $mail = MailConfig::getMailer();
-        $mail->SMTPKeepAlive = true; //SMTP connection will not close after each email sent, reduces SMTP overhead
         $mail->addAddress($this->getData()->email, $this->getData()->user_name);
         $mail->Subject = AppConfig::getAppName() . ' - Verify Your Email';
         $mail->msgHTML($messageToSend);

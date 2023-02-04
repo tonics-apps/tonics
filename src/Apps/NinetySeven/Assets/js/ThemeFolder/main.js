@@ -680,7 +680,7 @@ class TonicsPayPalGateway extends TonicsPaymentEventAbstract {
         for (let [key, value] of cart.entries()) {
             items.push({
                 "name": value.track_title,
-                "description": `At the time of the purchase, you bought the ${value.name} License of ${value.track_title} wih the slug id ${value.slug_id}`,
+                "description": `You ordered License ${value.name} with slug ${value.slug_id}`,
                 "unit_amount": {
                     "currency_code": currency,
                     "value": value?.price
