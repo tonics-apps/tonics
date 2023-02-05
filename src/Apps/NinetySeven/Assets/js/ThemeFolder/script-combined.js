@@ -1070,7 +1070,6 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         }
 
         self.currentHowl = songData;
-        this.updateGlobalSongProp(self.getSongData().songtitle, self.getSongData().songimage)
     }
 
     newHowlPlay(onload = null) {
@@ -1111,6 +1110,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let isPaused = false;
 
         TonicsHowl.on('play', function() {
+            self.updateGlobalSongProp(songData.songtitle, songData.songimage)
             isPaused = false;
             let OnAudioPlay = new OnAudioPlayerPlayEvent(self.getSongData());
             self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnAudioPlay, OnAudioPlayerPlayEvent);
