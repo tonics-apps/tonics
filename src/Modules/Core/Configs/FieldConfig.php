@@ -12,6 +12,7 @@ namespace App\Modules\Core\Configs;
 
 use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Data\FieldData;
 
 class FieldConfig
 {
@@ -97,6 +98,28 @@ class FieldConfig
     public static function getPostEditorFieldsContent()
     {
         return AppConfig::initLoaderMinimal()::getGlobalVariableData(self::postEditorFieldsContentID()) ?? [];
+    }
+
+    /**
+     * @param FieldData $fieldData
+     * @param $settingsData
+     * @param array $slugs
+     * @return string
+     * @throws \Exception
+     */
+    public static function getSettingsHTMLFrag(FieldData $fieldData, $settingsData, array $slugs = []): string
+    {
+        if (isset($settingsData['_fieldDetails'])){
+            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(json_decode($settingsData['_fieldDetails']));
+            $htmlFrag = $fieldData->getUsersFormFrag($fieldCategories);
+        } else {
+            $htmlFrag =  $fieldData->generateFieldWithFieldSlug(
+                $slugs,
+                $settingsData
+            )->getHTMLFrag();
+        }
+
+        return $htmlFrag;
     }
 
 
@@ -858,7 +881,7 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 2,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"23m83nv9jow0000000000\",\"field_input_name\":\"\",\"fieldName\":\"PayPal\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"23m83nv9jow0000000000\",\"field_input_name\":\"\",\"fieldName\":\"PayPal\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Payment Settings",
@@ -921,7 +944,7 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 11,
     "field_parent_id": 4,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"26d80lb119mo000000000\",\"field_input_name\":\"\",\"fieldName\":\"WebHook\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"26d80lb119mo000000000\",\"field_input_name\":\"\",\"fieldName\":\"WebHook\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Payment Settings",
@@ -956,7 +979,7 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 2,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7gp0hhha16w0000000000\",\"field_input_name\":\"\",\"fieldName\":\"App Settiings\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7gp0hhha16w0000000000\",\"field_input_name\":\"tonics_core_settings_AppSettingsContainer\",\"fieldName\":\"App Settiings\",\"inputName\":\"tonics_core_settings_AppSettingsContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Core Settings",
@@ -998,7 +1021,7 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 8,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2jhxm3bsgaa0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Mail\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2jhxm3bsgaa0000000000\",\"field_input_name\":\"tonics_core_settings_MailContainer\",\"fieldName\":\"Mail\",\"inputName\":\"tonics_core_settings_MailContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Core Settings",
@@ -1061,7 +1084,7 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 17,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5gjx50opx980000000000\",\"field_input_name\":\"\",\"fieldName\":\"Updates\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5gjx50opx980000000000\",\"field_input_name\":\"tonics_core_settings_UpdatesContainer\",\"fieldName\":\"Updates\",\"inputName\":\"tonics_core_settings_UpdatesContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Core Settings",
@@ -1082,7 +1105,7 @@ class FieldConfig
     "field_name": "modular_rowcolumn",
     "field_id": 20,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5w3edftqzbk0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Media Drives\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5w3edftqzbk0000000000\",\"field_input_name\":\"tonics_core_settings_MediaDrivesContainer\",\"fieldName\":\"Media Drives\",\"inputName\":\"tonics_core_settings_MediaDrivesContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Core Settings",
@@ -1096,7 +1119,28 @@ class FieldConfig
     "field_name": "input_text",
     "field_id": 22,
     "field_parent_id": 21,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"636viit00k40000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key\",\"fieldName\":\"DropBox Key\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter DropBox Key\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2iwfmemy1zy0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Name[]\",\"fieldName\":\"DropBox Name\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Name[]\",\"textType\":\"text\",\"defaultValue\":\"DropBox Instance 1\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter DropBox Name\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Core Settings",
+    "field_name": "input_text",
+    "field_id": 23,
+    "field_parent_id": 21,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"636viit00k40000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key[]\",\"fieldName\":\"DropBox Key\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key[]\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter DropBox Key\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Core Settings",
+    "field_name": "modular_rowcolumnrepeater",
+    "field_id": 24,
+    "field_parent_id": 20,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"5a2eu7nrrrk0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_oneDriveRepeater\",\"fieldName\":\"OneDrive\",\"inputName\":\"tonics_core_settings_mediaDrives_oneDriveRepeater\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"1\",\"repeat_button_text\":\"Add New OneDrive\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Core Settings",
+    "field_name": "input_text",
+    "field_id": 25,
+    "field_parent_id": 24,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1w565xz9kqhs000000000\",\"field_input_name\":\"\",\"fieldName\":\"Comiing Soon\",\"inputName\":\"\",\"textType\":\"text\",\"defaultValue\":\"Coming Soon\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"1\",\"required\":\"1\"}"
   }
 ]
 JSON;

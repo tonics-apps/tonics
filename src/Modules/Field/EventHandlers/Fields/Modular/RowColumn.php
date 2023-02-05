@@ -215,9 +215,10 @@ HTML;
 
         # The Tabs Version:
         if ($useTabs){
+
             $tabID = helper()->slug($fieldName, '_');
             $frag .= <<<HTML
-<ul id="$tabID" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
+<ul id="$tabID" data-test_tab="checker" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
 <style>
 .tonicsFieldTabsContainer {
      font-size: unset; 

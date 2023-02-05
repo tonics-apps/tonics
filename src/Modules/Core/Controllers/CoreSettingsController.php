@@ -57,13 +57,8 @@ class CoreSettingsController
      */
     public function edit(): void
     {
-        $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
-            ['core-settings'],
-            $this->getSettingsData()
-        )->getHTMLFrag();
-
         view('Modules::Core/Views/settings', [
-                'FieldItems' => $fieldItems
+                'FieldItems' => FieldConfig::getSettingsHTMLFrag($this->getFieldData(), self::getSettingsData(), ['core-settings'])
             ]
         );
     }
