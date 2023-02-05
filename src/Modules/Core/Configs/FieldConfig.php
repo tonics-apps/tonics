@@ -147,6 +147,7 @@ class FieldConfig
                 ['value']
             );
         });
+        AppConfig::updateRestartService();
         apcu_clear_cache();
         return $data;
     }
