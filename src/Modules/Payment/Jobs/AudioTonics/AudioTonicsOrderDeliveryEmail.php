@@ -24,6 +24,7 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
      */
     public function handle(): void
     {
+        $appURL = AppConfig::getAppUrl();
         $helper = helper();
         $name = $helper->extractNameFromEmail($this->getData()->email);
         $subject = AppConfig::getAppName() . " - Audio Order Delivery {Order #{$this->getData()->slug_id}}";
@@ -33,6 +34,8 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
             'SlugID' => $this->getData()->slug_id,
             'Email' => $this->getData()->email,
             'OrderDetails' => $this->getData(),
+            'OrderDetailsURL' => $appURL . route('customer.order.audiotonics.details', ['slug_id' => $this->getData()->slug_id]),
+            'ForgetPasswordLink' => $appURL . route('customer.password.request'),
         ], TonicsView::RENDER_CONCATENATE);
 
         $mail = MailConfig::getMailer();
@@ -48,6 +51,8 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
 
         try {
             $mail->send();
+            $mail->clearAddresses();
+            $mail->clearAttachments();
         } catch (\Exception $e) {
             // Log...
             $this->infoMessage('Mailer Error (' . htmlspecialchars($this->getData()->email) . ') ' . $mail->ErrorInfo);

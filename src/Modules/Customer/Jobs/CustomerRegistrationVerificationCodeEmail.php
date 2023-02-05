@@ -37,6 +37,8 @@ class CustomerRegistrationVerificationCodeEmail extends AbstractJobInterface imp
 
         try {
             $mail->send();
+            $mail->clearAddresses();
+            $mail->clearAttachments();
         } catch (\Exception $e) {
             // Log...
             $this->infoMessage('Mailer Error (' . htmlspecialchars($this->getData()->email) . ') ' . $mail->ErrorInfo);

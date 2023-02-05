@@ -1350,11 +1350,21 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title,
                 artwork: [
-                    {src: image, sizes: '100x100', type: 'image/png'},
+                    {src: this.convertRelativeToAbsoluteURL(image), sizes: '200x200', type: 'image/png'},
                 ]
             });
         }
 
+    }
+
+    convertRelativeToAbsoluteURL(url) {
+        // Check if the URL is a relative URL
+        if (!url.startsWith('http')) {
+            // Convert the relative URL to an absolute URL using the new URL constructor
+            url = new URL(url, window.location.href).href;
+        }
+
+        return url;
     }
 
     getCurrentHowl() {
