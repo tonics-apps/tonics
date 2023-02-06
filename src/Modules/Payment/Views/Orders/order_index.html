@@ -1,0 +1,18 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/customer", "Modules::Core/Views/Templates/extends/data_table", "Modules::Core/Views/Templates/extends/in_main_form_and_filter")]]
+
+[[hook_into('Core::in_head_title')Orders Index]]
+[[hook_into('Core::in_main_header_title')Orders History]]
+
+[[reset_hook('Core::in_main_form_and_filter_status')]]
+[[reset_hook('Core::in_main_form_and_filter_date')]]
+
+[[reset_hook('Core::data_table_menu')]]
+[[hook_into('Core::data_table_menu')
+    [[_use('Core::data_table_menu_reload')]]
+]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:variables")]]
+    [[_use("script:post-index")]]
+    [[_use("session:delete-artifacts")]]
+]]

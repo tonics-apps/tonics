@@ -11,6 +11,7 @@
 namespace App\Modules\Payment\Routes;
 
 use App\Modules\Core\Configs\AuthConfig;
+use App\Modules\Payment\Controllers\OrderController;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Controllers\PayPalWebHookController;
 use App\Modules\Payment\RequestInterceptor\PaymentAccess;
@@ -26,6 +27,7 @@ trait Routes
     {
         $route->group('/admin', function (Route $route) {
             $route->group('/payment/', function (Route $route){
+                $route->get('orders', [OrderController::class, 'index'], alias: 'payment.order.index');
                 $route->get('settings', [PaymentSettingsController::class, 'edit'], alias: 'payment.settings');
                 $route->post('settings', [PaymentSettingsController::class, 'update']);
             });
