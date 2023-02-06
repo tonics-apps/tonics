@@ -20,7 +20,7 @@ class OrderController
     /**
      * @throws \Exception
      */
-    public function index()
+    public function index(): void
     {
         $purchaseTable = Tables::getTable(Tables::PURCHASES);
         $dataTableHeaders = [

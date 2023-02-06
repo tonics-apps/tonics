@@ -28,6 +28,7 @@ use App\Modules\Track\EventHandlers\HandleNewTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleNewTrackToTrackCategoryMapping;
 use App\Modules\Track\EventHandlers\HandleUpdateTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleUpdateTrackToTrackCategoryMapping;
+use App\Modules\Track\EventHandlers\TrackCategorySitemap;
 use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
 use App\Modules\Track\EventHandlers\TrackMenus;
 use App\Modules\Track\EventHandlers\TrackSitemap;
@@ -101,7 +102,8 @@ class TrackActivator implements ExtensionConfig
             ],
 
             OnAddSitemap::class => [
-                TrackSitemap::class
+                TrackSitemap::class,
+                TrackCategorySitemap::class
             ],
 
             OnAddTrackPaymentEvent::class => [
