@@ -10,13 +10,11 @@
 
 namespace App\Modules\Core\Library;
 
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Modules\Core\Configs\DatabaseConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsQueryBuilder\TonicsQueryBuilder;
 use Devsrealm\TonicsQueryBuilder\Transformers\MariaDB\MariaDBTables;
 use Devsrealm\TonicsQueryBuilder\Transformers\MariaDB\MariaDBTonicsQueryTransformer;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 use PDO;
 
 class Database

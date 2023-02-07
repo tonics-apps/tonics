@@ -11,10 +11,9 @@
 namespace App\Modules\Core\Configs;
 
 
-use App\Apps\TonicsCoupon\TonicsCouponActivator;
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Boot\InitLoaderMinimal;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Controllers\CoreSettingsController;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;

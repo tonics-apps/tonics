@@ -10,7 +10,7 @@
 
 namespace App\Modules\Core\Library\Authentication;
 
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\SimpleState;

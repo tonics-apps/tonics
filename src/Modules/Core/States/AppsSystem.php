@@ -10,13 +10,12 @@
 
 namespace App\Modules\Core\States;
 
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Media\FileManager\LocalDriver;
-use Devsrealm\TonicsHelpers\TonicsHelpers;
 use JetBrains\PhpStorm\NoReturn;
 
 class AppsSystem extends SimpleState

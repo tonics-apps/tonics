@@ -10,9 +10,8 @@
 
 namespace App\Modules\Field\Controllers;
 
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
-use App\Modules\Comment\CommentActivator;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;

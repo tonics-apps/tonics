@@ -78,7 +78,7 @@ class MediaActivator implements ExtensionConfig
             "name" => "Media",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1674540680',
+            "version" => '1-O-Ola.1675754507',
             // "version" => '1-O-Ola.943905600', // fake old date
             "description" => "The Media Module",
             "info_url" => '',
