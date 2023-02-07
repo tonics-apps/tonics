@@ -497,7 +497,7 @@ class AppConfig
      */
     public static function includeHelpers(): void
     {
-        require AppConfig::getAppRoot() . '/src/Library/Helpers/all-helpers.php';
+        require AppConfig::getAppRoot() . '/src/Modules/Core/Boot/Helpers/all-helpers.php';
     }
 
     /**

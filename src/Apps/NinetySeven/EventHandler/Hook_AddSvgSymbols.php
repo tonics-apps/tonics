@@ -10,6 +10,7 @@
 
 namespace App\Apps\NinetySeven\EventHandler;
 
+use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
@@ -49,21 +50,28 @@ class Hook_AddSvgSymbols implements HandlerInterface
                 ]));
             }
 
-            return implode('', helper()->getIconSymbols([
-                $helper::SvgSymbol_Arrow_Down,
-                $helper::SvgSymbol_Arrow_Up,
-                $helper::SvgSymbol_Filter,
+            $globalMenus = array_values(InitLoaderMinimal::getGlobalVariableData('Menu.SVG_ICONS') ?? []);
+            $Menus = [
+                    $helper::SvgSymbol_Arrow_Down,
+                    $helper::SvgSymbol_Arrow_Up,
+                    $helper::SvgSymbol_Filter,
 
-                // Social Symbol
-                $helper::SvgSymbol_Facebook,
-                $helper::SvgSymbol_Youtube,
-                $helper::SvgSymbol_Pinterest,
-                $helper::SvgSymbol_Twitter,
-                $helper::SvgSymbol_Reddit,
-                $helper::SvgSymbol_Whatsapp,
-                $helper::SvgSymbol_Instagram,
-                $helper::SvgSymbol_Mail,
-            ])) . $audioSymbol;
+                    // Social Symbol
+                    $helper::SvgSymbol_Facebook,
+                    $helper::SvgSymbol_Youtube,
+                    $helper::SvgSymbol_Pinterest,
+                    $helper::SvgSymbol_Twitter,
+                    $helper::SvgSymbol_Reddit,
+                    $helper::SvgSymbol_Whatsapp,
+                    $helper::SvgSymbol_Instagram,
+                    $helper::SvgSymbol_Mail
+            ];
+
+            foreach ($globalMenus as $globalMenu){
+                $Menus[] = $globalMenu;
+            }
+
+            return implode('', helper()->getIconSymbols($Menus)) . $audioSymbol;
         });
     }
 }

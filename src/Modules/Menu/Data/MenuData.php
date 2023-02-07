@@ -129,7 +129,7 @@ class="width:100%  draggable menu-arranger-li d:flex flex-d:column align-items:c
                     
                      <div class="form-group">
                         <label class="menu-settings-handle-name" for="menu-name">SVG Icon Name
-                            <input id="menu-name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="svg-icon" value="$menu->mt_icon" placeholder="e.g tonics-toggle-right">
+                            <input id="menu-name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="svg-icon" value="$menu->mt_icon" placeholder="e.g toggle-right">
                         </label>
                     </div>
 

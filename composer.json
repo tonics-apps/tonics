@@ -40,7 +40,7 @@
     "devsrealm/tonics-query-builder": "*",
     "mpratt/embera": "~2.0",
     "halaxa/json-machine": "dev-master",
-    "phpmailer/phpmailer": "dev-master"
+    "phpmailer/phpmailer": "^6.7.1"
   },
   "repositories": [
     {

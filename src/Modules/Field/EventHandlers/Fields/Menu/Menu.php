@@ -10,12 +10,14 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Menu;
 
+use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Menu\Data\MenuData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class Menu implements HandlerInterface
 {
+    private array $svgIcon = [];
 
     /**
      * @inheritDoc
@@ -173,6 +175,7 @@ HTML;
         foreach ($tree as $t) {
             $frag .= $this->getMenuHTMLFragment($t, 0, $displayName);
         }
+        InitLoaderMinimal::addToGlobalVariable('Menu.SVG_ICONS', $this->svgIcon);
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         addToGlobalVariable("Menu_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Data' => $frag, 'Tree' => $tree]);
         return '';
@@ -185,8 +188,10 @@ HTML;
     {
         $svgIcon = '';
         if (!empty($menu->mt_icon)) {
-            $svgIcon = helper()->htmlSpecChar($menu->mt_icon);
-            $svgIcon = "<svg class='icon:admin $svgIcon'><use xlink:href='#$svgIcon'></use></svg>";
+            if (array_key_exists($menu->mt_icon, helper()->iconSymbols())) {
+                $this->svgIcon[$menu->mt_icon] = $menu->mt_icon;
+                $svgIcon = "<svg class='icon:admin $svgIcon'><use xlink:href='#tonics-$menu->mt_icon'></use></svg>";
+            }
         }
         $menuName = helper()->htmlSpecChar($menu->mt_name);
         $name = '';

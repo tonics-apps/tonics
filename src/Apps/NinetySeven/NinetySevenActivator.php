@@ -120,7 +120,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "NinetySeven",
             "type" => "Theme",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1674540680',
+            "version" => '1-O-Ola.1674540685',
             "description" => "NinetySeven Theme, The First Tonic Theme",
             "info_url" => '',
             "settings_page" => route('ninetySeven.settings'), // can be null or a route name
