@@ -11,7 +11,7 @@
 namespace App\Modules\Payment;
 
 
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\EventHandlers\HandleNewPurchaseSlugIDGeneration;

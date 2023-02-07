@@ -6,10 +6,9 @@ use App\Apps\TonicsAmazonAffiliate\EventHandler\TonicsAmazonAffiliateFieldSelect
 use App\Apps\TonicsAmazonAffiliate\EventHandler\TonicsAmazonAffiliateProductBoxFieldHandler;
 use App\Apps\TonicsAmazonAffiliate\EventHandler\TonicsAmazonAffiliateProductIndividuallyFieldsFieldHandler;
 use App\Apps\TonicsAmazonAffiliate\Route\Routes;
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Configs\DatabaseConfig;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnEditorFieldSelection;

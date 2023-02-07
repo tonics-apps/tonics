@@ -11,12 +11,11 @@
 namespace App\Modules\Widget;
 
 
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Widget\EventHandlers\MenuWidgets\ImageMenuWidget;
 use App\Modules\Widget\EventHandlers\MenuWidgets\PlainTextMenuWidget;
-use App\Modules\Widget\EventHandlers\MenuWidgets\RecentPostMenuWidget;
 use App\Modules\Widget\EventHandlers\MenuWidgets\RichTextMenuWidget;
 use App\Modules\Widget\EventHandlers\WidgetMenus;
 use App\Modules\Widget\Events\OnMenuWidgetMetaBox;

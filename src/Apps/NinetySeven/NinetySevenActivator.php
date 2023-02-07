@@ -21,8 +21,8 @@ use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\Toni
 use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenHomePageTemplate;
 use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenPostPageTemplate;
 use App\Apps\NinetySeven\Route\Routes;
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Field\Data\FieldData;

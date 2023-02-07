@@ -10,8 +10,8 @@
 
 namespace App\Modules\Core;
 
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Commands\OnStartUpCLI;

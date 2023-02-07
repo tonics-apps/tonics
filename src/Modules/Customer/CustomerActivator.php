@@ -9,7 +9,7 @@
  */
 
 namespace App\Modules\Customer;
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Customer\Routes\RouteWeb;

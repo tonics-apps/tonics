@@ -94,7 +94,7 @@ class AppBoilerPlate implements ConsoleCommand
 namespace App\Apps\{{AppExample}};
 
 use App\Apps\{{AppExample}}\Route\Routes;
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsRouterSystem\Route;
 

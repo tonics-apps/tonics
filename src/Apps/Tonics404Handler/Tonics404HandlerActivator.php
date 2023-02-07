@@ -3,9 +3,8 @@
 namespace App\Apps\Tonics404Handler;
 
 use App\Apps\Tonics404Handler\Route\Routes;
-use App\Library\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Library\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
-use App\Modules\Core\Library\Tables;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsRouterSystem\Route;
 
