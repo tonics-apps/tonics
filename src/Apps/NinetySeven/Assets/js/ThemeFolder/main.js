@@ -181,22 +181,26 @@ function tonicsAudioNavForFolder(data, url) {
         tonicsFolderAboutContainer = document.querySelector('.tonics-folder-about-container'),
         tonicsFolderSearch = document.querySelector('.tonics-folder-search');
 
+    if (tonicsFolderAboutContainer){
+        tonicsFolderAboutContainer.remove();
+    }
+
     if (tonicsFolderMain && data.data?.fragment) {
         tonicsFolderMain.innerHTML = data?.data.fragment;
         document.title = data?.data.title;
-        if (tonicsFolderSearch) {
-            tonicsFolderSearch.remove();
-            tonicsFolderAboutContainer.remove();
-        }
+    }
 
-        if (beforeFolderSearchLoading) {
-            beforeFolderSearchLoading.classList.remove('d:none');
-            window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
-                data = JSON.parse(data);
-                beforeFolderSearchLoading.classList.add('d:none');
-                beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
-            });
-        }
+    if (tonicsFolderSearch) {
+        tonicsFolderSearch.remove();
+    }
+
+    if (beforeFolderSearchLoading) {
+        beforeFolderSearchLoading.classList.remove('d:none');
+        window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
+            data = JSON.parse(data);
+            beforeFolderSearchLoading.classList.add('d:none');
+            beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
+        });
     }
 }
 

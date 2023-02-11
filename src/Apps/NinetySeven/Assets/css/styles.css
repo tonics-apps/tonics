@@ -1163,6 +1163,10 @@ FOR TONICS TRACK FOLDER
     overflow-wrap: break-word;
 }
 
+.tonics-track-content a {
+    color: white;
+}
+
 .tonics-track-content {
     grid-area: tt-content;
 }

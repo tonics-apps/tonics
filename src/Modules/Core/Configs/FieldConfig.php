@@ -784,7 +784,7 @@ class FieldConfig
     "field_name": "input_select",
     "field_id": 3,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"2\",\"field_slug_unique_hash\":\"3aq5iq8e950000000000\",\"field_input_name\":\"track_default_filter_keys\",\"fieldName\":\"Keys\",\"inputName\":\"track_default_filter_keys\",\"selectData\":\"A,Am,A#,A#m,B,Bm,C,Cm,C#,C#m,D,Dm,D#,D#m,E,Em,F,Fm, F#,F#m,G,Gm,G#,G#m\",\"defaultValue\":\"\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"2\",\"field_slug_unique_hash\":\"3aq5iq8e950000000000\",\"field_input_name\":\"track_default_filter_keys\",\"fieldName\":\"Keys\",\"inputName\":\"track_default_filter_keys\",\"selectData\":\"A:A Major (A),Am:A minor (Am),Bb:Bb Major (Bb),Bm:B minor (Bb),C:C Major (C),Cm:C minor (Cm),C#:C# Major (C#),C#m:C# minor (C#m),D:D Major (D),Dm:D minor (Dm),Eb:Eb Major (Eb),Ebm:Eb minor (Ebm),E:E Major (E),Em:E minor (Em),F:F Major (F),Fm:F minor (Fm),F#:F# Major (F#),F#m:F# minor (F#m),G:G Major (G),Gm:G minor (Gm),G#:G# Major (G#),G#m:G# minor (G#m)\",\"defaultValue\":\"\"}"
   },
   {
     "fk_field_id": "Track Default Filter",
@@ -1057,7 +1057,7 @@ class FieldConfig
     "field_name": "input_text",
     "field_id": 13,
     "field_parent_id": 8,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3vuuf9kzvy80000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailPort\",\"fieldName\":\"Mail Password\",\"inputName\":\"tonics_core_settings_mail_mailPort\",\"textType\":\"password\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Mail Password\",\"readOnly\":\"0\",\"required\":\"0\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3vuuf9kzvy80000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailPort\",\"fieldName\":\"Mail Password\",\"inputName\":\"tonics_core_settings_mail_mailPassword\",\"textType\":\"password\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Mail Password\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Core Settings",

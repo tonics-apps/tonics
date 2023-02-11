@@ -10,9 +10,12 @@
 /*******************************
 BEAT-PLAYER STICKY BOTTOM STYLES
 *******************************/
-
 .audio-player-queue-list {
     counter-reset: player-queue-list;
+}
+
+.audio-player-queue {
+    height: 400px;
 }
 
 .audio-player-queue-list > li {
@@ -274,3 +277,4 @@ input.volume-slider::-ms-track {
     }
 
 }
+

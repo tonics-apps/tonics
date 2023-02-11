@@ -133,15 +133,12 @@ class ThemeFolderViewHandler implements HandlerInterface
             $db = db();
             $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
             $trackData = TrackData::class;
-            $track_cat_id_col = db()->getTonicsQueryBuilder()->getTables()->getColumn($trackData::getTrackCategoryTable(), 'track_cat_id');
-            $data = $db->Select('0 as is_track, track_cat_name as _name, slug_id, CONCAT_WS("/", "/track_categories", slug_id, track_cat_slug) as _link, ')
-                ->Select(
-                    db()->Count()->From("{$trackData::getTrackTracksCategoryTable()} ttc")->Join("{$trackData::getTrackTable()} t", "ttc.fk_track_id", "t.track_id")
-                        ->WhereEquals('ttc.fk_track_cat_id', db()->addRawString($track_cat_id_col)))->As('num_tracks')
+            $data = $db->Select('0 as is_track, track_cat_name as _name, slug_id, CONCAT_WS("/", "/track_categories", slug_id, track_cat_slug) as _link')
                 ->From($trackData::getTrackCategoryTable())->WhereNull('track_cat_parent_id')
                 ->WhereEquals('track_cat_status', 1)
                 ->Where("{$trackData::getTrackCategoryTable()}.created_at", '<=', helper()->date())
                 ->SimplePaginate(AppConfig::getAppPaginationMax());
+
             $fieldSettings['ThemeFolder'] = $data;
             $tonicsView->addToVariableData('Data', $fieldSettings);
         } catch (\Exception $exception){
@@ -188,20 +185,24 @@ class ThemeFolderViewHandler implements HandlerInterface
                     $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
                 })
                 ->Raw('UNION')
-                ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name, 
-        (SELECT COUNT(*) FROM {$trackData::getTrackTracksCategoryTable()} ttc
-        INNER JOIN {$trackData::getTrackTable()} t ON ttc.fk_track_id = t.track_id
-        WHERE ttc.fk_track_cat_id = ct.track_cat_id) as num_tracks, null as plays,
+                ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name,
+                -- the num_tracks calculate both the sub-folder and tracks in a folder
+        (SELECT COUNT(*) + 
+           (SELECT COUNT(*) FROM {$trackData::getTrackTracksCategoryTable()} ttc
+            INNER JOIN {$trackData::getTrackTable()} t ON ttc.fk_track_id = t.track_id
+            WHERE ttc.fk_track_cat_id = ct.track_cat_id) 
+        FROM {$trackData::getTrackCategoryTable()} WHERE track_cat_parent_id = ct.track_cat_id) as num_tracks, 
+        null as plays,
         null as bpm, null as image_url, null as audio_url, null as license_attr, ct.field_settings, ct.track_cat_status as _status,
         null as artist_name, null as artist_slug, null as genre_slug,
         ct.created_at as created_at,
         0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
                 ->From("{$trackData::getTrackCategoryTable()} ct")
                 // join cte if it is for filtering, else, we use only the current category
-                ->when(!empty(url()->getParams()), function (TonicsQuery $db){
+                ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
                     $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id")
                         // we do not need to include the main category in the result set
-                        ->WhereNotEquals('ct.track_cat_id', 3);
+                        ->WhereNotEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
                 }, function (TonicsQuery $db) use ($fieldSettings) {
                     $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
                 })

@@ -46,45 +46,45 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
     {
 
         $queryType = url()->getHeaderByKey('PaymentQueryType');
-        if ($queryType === self::Query_GenerateInvoiceID){
+        if ($queryType === self::Query_GenerateInvoiceID) {
             $this->generateInvoiceID();
             return;
         }
 
-        if ($queryType === self::Query_CapturedPaymentDetails){
-            $body = url()->getEntityBody();
-            $body = json_decode($body);
+        if ($queryType === self::Query_CapturedPaymentDetails) {
+            try {
+                $body = url()->getEntityBody();
+                $body = json_decode($body);
 
-            $userData = new UserData();
-            $checkoutEmail = $body->checkout_email ?? '';
-            $customerData = $userData->doesCustomerExist($checkoutEmail);
-            // if customer does not exist, we create a guest user
-            $forgetPassMessage = '';
-            if (!$customerData) {
-                $guestCustomersData = [
-                    'user_name' => helper()->extractNameFromEmail($checkoutEmail) ?? $checkoutEmail,
-                    'email' => $checkoutEmail,
-                    // add a random password
-                    'user_password' => helper()->securePass(helper()->randomString()),
-                    'settings'=> UserData::generateCustomerJSONSettings(),
-                    'is_guest' => 1,
-                    'role' => Roles::getRoleIDFromDB(Roles::ROLE_GUEST)
-                ];
-                $customerData = $userData->insertForCustomer($guestCustomersData, ['user_id', 'user_name', 'email', 'is_guest']);
-                $forgetLink = route('customer.password.request');
-                $forgetPassMessage = <<<FORGET_MESSAGE
+                $userData = new UserData();
+                $checkoutEmail = $body->checkout_email ?? '';
+                $customerData = $userData->doesCustomerExist($checkoutEmail);
+                // if customer does not exist, we create a guest user
+                $forgetPassMessage = '';
+                if (!$customerData) {
+                    $guestCustomersData = [
+                        'user_name' => helper()->extractNameFromEmail($checkoutEmail) ?? $checkoutEmail,
+                        'email' => $checkoutEmail,
+                        // add a random password
+                        'user_password' => helper()->securePass(helper()->randomString()),
+                        'settings' => UserData::generateCustomerJSONSettings(),
+                        'is_guest' => 1,
+                        'role' => Roles::getRoleIDFromDB(Roles::ROLE_GUEST)
+                    ];
+                    $customerData = $userData->insertForCustomer($guestCustomersData, ['user_id', 'user_name', 'email', 'is_guest']);
+                    $forgetLink = route('customer.password.request');
+                    $forgetPassMessage = <<<FORGET_MESSAGE
 This is a new account, <a href="$forgetLink" target="_blank"> Please Reset Your Password</a> to view order history
 FORGET_MESSAGE;
 
-            }
-
-            if (isset($body->cartItems) && is_array($body->cartItems)){
-                $cartItemsSlugID = [];
-                foreach ($body->cartItems as $cartItem){
-                    $cartItemsSlugID[] = (isset($cartItem[0])) ? $cartItem[0] : '';
                 }
 
-                try {
+                if (isset($body->cartItems) && is_array($body->cartItems)) {
+                    $cartItemsSlugID = [];
+                    foreach ($body->cartItems as $cartItem) {
+                        $cartItemsSlugID[] = (isset($cartItem[0])) ? $cartItem[0] : '';
+                    }
+
                     $trackData = TrackData::class;
                     $purchaseTracks = db()->Select('track_id, slug_id, track_slug, track_title, license_attr_id_link, license_attr')
                         ->From($trackData::getTrackTable())
@@ -95,7 +95,7 @@ FORGET_MESSAGE;
 
                     $purchaseInfo = $this->getPurchaseTracksInfo($body->cartItems, $purchaseTracks);
 
-                    if ($customerData->email){
+                    if ($customerData->email) {
                         $purchaseData = [
                             'fk_customer_id' => $customerData->user_id,
                             'total_price' => $purchaseInfo['totalPrice'] ?? 0,
@@ -136,25 +136,27 @@ Please <a href="">Refresh The Page</a> To Start Shopping Again
 MESSAGE;
                         response()->onSuccess(['email' => $checkoutEmail], $message);
                     }
-                } catch (\Exception $exception){
-                    // Log..
                 }
+            } catch (\Exception $exception) {
+                response()->onError(400, $exception->getMessage());
+                // Log..
             }
         }
 
-        if ($queryType === self::Query_ClientCredentials){
+        if ($queryType === self::Query_ClientCredentials) {
             $settings = PaymentSettingsController::getSettingsData();
-            $credentials = ''; $live = false;
-            if (key_exists(PaymentSettingsController::Key_IsLive, $settings) && $settings[PaymentSettingsController::Key_IsLive] === '1'){
+            $credentials = '';
+            $live = false;
+            if (key_exists(PaymentSettingsController::Key_IsLive, $settings) && $settings[PaymentSettingsController::Key_IsLive] === '1') {
                 $live = true;
             }
 
-            if ($live){
-                if (isset($settings[PaymentSettingsController::Key_LiveClientID])){
+            if ($live) {
+                if (isset($settings[PaymentSettingsController::Key_LiveClientID])) {
                     $credentials = $settings[PaymentSettingsController::Key_LiveClientID];
                 }
             } else {
-                if (isset($settings[PaymentSettingsController::Key_SandBoxClientID])){
+                if (isset($settings[PaymentSettingsController::Key_SandBoxClientID])) {
                     $credentials = $settings[PaymentSettingsController::Key_SandBoxClientID];
                 }
             }
@@ -172,42 +174,42 @@ MESSAGE;
      *
      * You get the following:
      * [
-    'totalPrice' => $totalPrice,
-    'downloadables' => $downloadables
-    ]
+     * 'totalPrice' => $totalPrice,
+     * 'downloadables' => $downloadables
+     * ]
      *
      */
     public function getPurchaseTracksInfo($cartItems, $purchaseTracks): array
     {
-       $licenseUniqueID = [];
-        foreach ($cartItems as $cartItem){
+        $licenseUniqueID = [];
+        foreach ($cartItems as $cartItem) {
             $licenseUniqueID[(isset($cartItem[0])) ? $cartItem[0] : ''] = (isset($cartItem[1]->unique_id)) ? $cartItem[1]->unique_id : '';
         }
 
         $totalPrice = 0;
         $downloadables = [];
         // Loop PurchaseTracks
-        foreach ($purchaseTracks as $purchaseTrack){
+        foreach ($purchaseTracks as $purchaseTrack) {
             $licenseAttributes = json_decode($purchaseTrack->license_attr);
             $licenseAttributesDownloadLink = json_decode($purchaseTrack->license_attr_id_link);
             // Check if slug_is existed in $licenseUniqueID, $licenseUniqueID is formatted as
             // [slug_id] => license unique ID of the item user paid for
-            if (isset($licenseUniqueID[$purchaseTrack->slug_id])){
+            if (isset($licenseUniqueID[$purchaseTrack->slug_id])) {
                 $uniqueID = $licenseUniqueID[$purchaseTrack->slug_id];
 
                 // Loop licenses attached to the track
                 foreach ($licenseAttributes as $attribute) {
                     // check if the $uniqueID matches with the one in the attribute
                     // if so, add to the totalPrice and break
-                    if ($attribute->unique_id === $uniqueID){
+                    if ($attribute->unique_id === $uniqueID) {
                         $totalPrice += $attribute->price;
                         $downloadables[$purchaseTrack->slug_id] = [
-                          'track_title' =>   $purchaseTrack->track_title,
-                          'license' =>   $attribute->name,
-                          'price' =>   $attribute->price,
+                            'track_title' => $purchaseTrack->track_title,
+                            'license' => $attribute->name,
+                            'price' => $attribute->price,
                         ];
 
-                        if (isset($licenseAttributesDownloadLink->{$uniqueID})){
+                        if (isset($licenseAttributesDownloadLink->{$uniqueID})) {
                             $downloadables[$purchaseTrack->slug_id]['download_link'] = $licenseAttributesDownloadLink->{$uniqueID};
                         }
 
@@ -221,7 +223,7 @@ MESSAGE;
         return [
             'totalPrice' => $totalPrice,
             'downloadables' => $downloadables
-            ];
+        ];
     }
 
     /**

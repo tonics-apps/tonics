@@ -1,5 +1,7 @@
 [[inherit("Modules::Core/Views/Templates/on_hook_into_event")]] [[- Manually Register On Hook Into Event -]]
 
+[[b('empty')]]
+
 [[b('TrackPagination')
     <div class="d:flex flex-gap justify-content:center padding:default flex-wrap:wrap">
     [[if("v[Data.ThemeFolder.prev_page_url]")
@@ -47,7 +49,7 @@
            data-tonics_navigate data-is_track="0" class="tonics-fm-link color:white remove-button-styles">
             <svg class="tonics-folder pointer-events:none"> <use xlink:href="#tonics-folder"></use></svg>
             <div class="tonics-file-filename">
-                [[v('_themeFolderData._name')]] ([[v('_themeFolderData.num_tracks')]])
+                [[v('_themeFolderData._name')]] [[if("v[_themeFolderData.num_tracks] !== block[empty] ") ([[v('_themeFolderData.num_tracks')]]) ]]
             </div>
             <span style="top: 42%;" class="svg-per-file-loading color:white bg:pure-white d:none"></span>
         </a>

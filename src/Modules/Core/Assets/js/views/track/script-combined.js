@@ -4554,7 +4554,7 @@ data-audioplayer_play="${playing}" class="audioplayer-track border:none act-like
         let self = this,
             songData = self.getSongData();
         const TonicsHowl = new Howl({
-            preload: true,
+            preload: false, // this is the only way that dropBox worked
             src: [songData.songurl],
             html5: true,
             // this causes the player not to play, a bug in HOWLER JS?

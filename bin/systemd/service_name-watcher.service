@@ -18,15 +18,16 @@ StartLimitBurst=5
 
 #
 #   If you have also created the watcher service and path, you can enable and start the two service like so:
-#       systemctl enable systemctl enable service_name-watcher.{path,service}
-#       systemctl start systemctl enable service_name-watcher.{path,service}
+#       systemctl enable service_name-watcher.{path,service}
+#       systemctl start service_name-watcher.{path,service}
 #
 #       This way you do not have to enable the watcher service and the path, the above would do the two
 #
 
 [Service]
 Type=oneshot
-ExecStart=/bin/systemctl restart service_name.service
+# ExecStart=/bin/systemctl restart service_name.service
+ExecStart=/usr/bin/systemctl restart service_name.service
 
 [Install]
 WantedBy=multi-user.target
