@@ -1163,8 +1163,22 @@ FOR TONICS TRACK FOLDER
     overflow-wrap: break-word;
 }
 
+.tonics-folder-about-container a {
+    color: black;
+}
+
 .tonics-track-content a {
     color: white;
+}
+
+/*FOR CART ITEM TITLE LINK*/
+.tonics-cart-items-container [data-tonics_navigate] {
+    display: block;
+    font-size: 80%;
+    max-width: 25ch;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    overflow: hidden;
 }
 
 .tonics-track-content {

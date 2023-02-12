@@ -40,7 +40,7 @@ class TrackCategorySitemap extends AbstractSitemapInterface implements HandlerIn
             callback: function ($perPage, $offset){
                 $table = Tables::getTable(Tables::TRACK_CATEGORIES);
                 return db()->run(<<<SQL
-SELECT CONCAT_WS( '/', '/track_categories', slug_id, track_cat_slug ) AS `_link`, DATE_FORMAT(updated_at, '%Y-%m-%d') as '_lastmod'
+SELECT CONCAT_WS( '/', '/track_categories', slug_id, track_cat_slug ) AS `_link`, updated_at as '_lastmod'
 FROM $table WHERE track_cat_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());

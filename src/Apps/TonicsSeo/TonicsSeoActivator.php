@@ -114,7 +114,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "TonicsSeo",
             "type" => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1675754507',
+            "version" => '1-O-app.1675754509',
             "description" => "This is TonicsSeo",
             "info_url" => '',
             "settings_page" => route('tonicsSeo.settings'), // can be null or a route name

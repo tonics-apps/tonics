@@ -13,6 +13,7 @@ namespace App\Apps\TonicsSeo\EventHandler;
 use App\Apps\TonicsSeo\Controller\TonicsSeoController;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
+use DateTime;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
@@ -50,6 +51,11 @@ class ViewHookIntoHandler implements HandlerInterface
 
             return AppConfig::getAppUrl() . $currentImageInLoop;
         });
+
+        $event->hookInto('sitemap_lastmod', function (TonicsView $tonicsView){
+            return date_create($tonicsView->accessArrayWithSeparator('sitemap._lastmod'))->format('c');
+        });
+
 
         $event->hookInto('rss_in_image_url', function (TonicsView $tonicsView){
             $currentImageInLoop = $tonicsView->accessArrayWithSeparator('rssQueryData._image');

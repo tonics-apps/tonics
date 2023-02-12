@@ -79,10 +79,19 @@ div#meta-container {
 [data-audioplayer_globalart] {
     width: 56px;
     height: 56px;
+    object-fit: contain;
 }
 
 [data-audioplayer_globaltitle] {
-    font-size: 80%;
+    font-size: 70%;
+    max-width: 20ch;
+    white-space: pre-wrap;
+}
+
+.tonics-file-filename {
+    width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* VOLUME RANGE STYLE */
@@ -153,6 +162,10 @@ input.volume-slider::-ms-track {
     border-color: transparent;
     border-width: 16px 0;
     color: transparent;
+}
+
+.others-audio-player-info {
+    overflow: hidden;
 }
 
 /************************
@@ -268,6 +281,9 @@ input.volume-slider::-ms-track {
         display: none;
     }
 
+/*    [data-audioplayer_next] .icon\:audio {
+        display: none;
+    }*/
 }
 
 @media screen and (max-width: 320px) {

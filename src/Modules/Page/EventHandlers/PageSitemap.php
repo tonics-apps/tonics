@@ -40,7 +40,7 @@ class PageSitemap extends AbstractSitemapInterface implements HandlerInterface
             callback: function ($perPage, $offset){
                 $table = Tables::getTable(Tables::PAGES);
                 return db()->run(<<<SQL
-SELECT page_slug AS `_link`, DATE_FORMAT(updated_at, '%Y-%m-%d') as '_lastmod'
+SELECT page_slug AS `_link`, updated_at as '_lastmod'
 FROM $table WHERE page_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());

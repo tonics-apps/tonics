@@ -40,7 +40,7 @@ class PostCategorySitemap extends AbstractSitemapInterface implements HandlerInt
             callback: function ($perPage, $offset){
                 $table = Tables::getTable(Tables::CATEGORIES);
                 return db()->run(<<<SQL
-SELECT CONCAT_WS( '/', '/categories', slug_id, cat_slug ) AS `_link`, DATE_FORMAT(updated_at, '%Y-%m-%d') as '_lastmod'
+SELECT CONCAT_WS( '/', '/categories', slug_id, cat_slug ) AS `_link`, updated_at as '_lastmod'
 FROM $table WHERE cat_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
             }, perPage: $this->getLimit());
