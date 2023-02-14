@@ -18,6 +18,7 @@ use App\Modules\Track\Controllers\License\LicenseController;
 use App\Modules\Track\Controllers\License\LicenseControllerItems;
 use App\Modules\Track\Controllers\TrackCategoryController;
 use App\Modules\Track\Controllers\TracksController;
+use App\Modules\Track\Controllers\TracksImportController;
 use App\Modules\Track\Controllers\TracksPaymentController;
 use App\Modules\Track\RequestInterceptor\TrackAccess;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -39,8 +40,8 @@ trait Routes
                 ## FOR TRACK
                 $route->group('/tracks', function (Route $route) {
 
-                    #---------------------------------
-                    # TRACK RESOURCES...
+                            #---------------------------------
+                        # TRACK RESOURCES...
                     #---------------------------------
                     $route->get('', [TracksController::class, 'index'], alias: 'index');
                     $route->post('', [TracksController::class, 'dataTable'], alias: 'dataTables');
@@ -53,6 +54,9 @@ trait Routes
                     $route->post( ':track/trash', [TracksController::class, 'trash'], alias: 'trash');
                     $route->match(['post', 'delete'], ':track/delete', [TracksController::class, 'delete'], alias: 'delete');
                     $route->match(['post', 'delete'], 'delete/multiple', [TracksController::class, 'deleteMultiple'], alias: 'deleteMultiple');
+
+                    $route->get('import-track-items', [TracksImportController::class, 'importTrackItems'], alias: 'importTrackItems');
+                    $route->post('import-track-items', [TracksImportController::class, 'importTrackItemsStore'], alias: 'importTrackItems');
 
                     #---------------------------------
                     # TRACK CATEGORIES...

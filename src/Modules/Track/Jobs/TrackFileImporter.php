@@ -24,13 +24,18 @@ class TrackFileImporter extends AbstractJobInterface implements JobHandlerInterf
      */
     public function handle(): void
     {
-        if(isset($this->getData()->fileInfo) && isset($this->getData()->settings)){
+        if(isset($this->getData()->fileInfo)){
             $dataFileInfo = $this->getData()->fileInfo;
             if (isset($dataFileInfo->fullFilePath) && helper()->fileExists($dataFileInfo->fullFilePath)){
-                $couponJsonFilePath = $dataFileInfo->fullFilePath;
-                $this->handleFileImporting($couponJsonFilePath, $this->getData()->settings);
+                $fileJsonFilePath = $dataFileInfo->fullFilePath;
+                $this->handleFileImporting($fileJsonFilePath);
                 return;
             }
+        }
+
+        if (isset($this->getData()->settings)){
+            $this->handleFileImporting('', $this->getData()->settings);
+            return;
         }
 
         throw new \Exception("No FileInfo or Settings Property Found in TrackFileImporter Data");
@@ -43,7 +48,7 @@ class TrackFileImporter extends AbstractJobInterface implements JobHandlerInterf
      * @throws InvalidArgumentException
      * @throws \Exception
      */
-    protected function handleFileImporting(string $filePath, $settings): void
+    protected function handleFileImporting(string $filePath = '', $settings = null): void
     {
         $trackItemImport = container()->get(TrackItemImport::class);
         $trackItemImport->setJobName('TrackItemImport');
@@ -54,9 +59,18 @@ class TrackFileImporter extends AbstractJobInterface implements JobHandlerInterf
             afterEnqueue: function ($enqueueData) use (&$parentData) {
                 $parentData = $enqueueData;
             });
-        
+
+        $helper = helper();
         if ($parentData){
-            $items = Items::fromFile($filePath);
+            $items = [];
+            if (isset($settings->track_page_import_text) && $helper->isJSON($settings->track_page_import_text)){
+                $items = json_decode($settings->track_page_import_text);
+            }
+
+            if (isset($filePath)){
+                $items = Items::fromFile($filePath);
+            }
+
             foreach ($items as $item) {
                 $trackItemImport->setJobName('TrackItemImport_Child');
                 $trackItemImport->setJobStatus(Job::JobStatus_Queued);

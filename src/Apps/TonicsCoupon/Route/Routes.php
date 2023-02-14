@@ -34,8 +34,8 @@ trait Routes
         ## For WEB
         $route->group('/admin/tonics_coupon', function (Route $route){
 
-            #---------------------------------
-            # POST RESOURCES...
+                    #---------------------------------
+                # POST RESOURCES...
             #---------------------------------
             $route->get('', [CouponController::class, 'index'],  alias: 'index');
             $route->post('', [CouponController::class, 'dataTable'],  alias: 'dataTables');
@@ -52,8 +52,8 @@ trait Routes
             $route->get('import-coupon-items', [CouponController::class, 'importCouponItems'], alias: 'importCouponItems');
             $route->post('import-coupon-items', [CouponController::class, 'importCouponItemsStore'], alias: 'importCouponItems');
 
-            #---------------------------------
-            # POST CATEGORIES...
+                    #---------------------------------
+                # POST CATEGORIES...
             #---------------------------------
             $route->group('/type', function (Route $route){
                 $route->get('', [CouponTypeController::class, 'index'], alias: 'index');
