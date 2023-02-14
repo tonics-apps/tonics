@@ -1142,6 +1142,27 @@ class FieldConfig
     "field_id": 25,
     "field_parent_id": 24,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1w565xz9kqhs000000000\",\"field_input_name\":\"\",\"fieldName\":\"Comiing Soon\",\"inputName\":\"\",\"textType\":\"text\",\"defaultValue\":\"Coming Soon\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"1\",\"required\":\"1\"}"
+  },
+  {
+    "fk_field_id": "Track Page Import Settings",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"6o0ktvw02xg000000000\",\"field_input_name\":\"\",\"fieldName\":\"Track Page Import Settings\",\"inputName\":\"\",\"row\":\"2\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "Track Page Import Settings",
+    "field_name": "media_media-manager",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_slug\":\"media_media-manager\",\"media_media-manager_cell\":\"1\",\"field_slug_unique_hash\":\"772ag0bznts0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Import File (Local JSON)\",\"inputName\":\"track_page_import_file_URL\",\"featured_link\":\"\",\"file_url\":\"\"}"
+  },
+  {
+    "fk_field_id": "Track Page Import Settings",
+    "field_name": "input_text",
+    "field_id": 3,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"3f64ul4us160000000000\",\"field_input_name\":\"\",\"fieldName\":\"Import JSON Text\",\"inputName\":\"track_page_import_text\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Paste JSON text\",\"readOnly\":\"0\",\"required\":\"0\"}"
   }
 ]
 JSON;
