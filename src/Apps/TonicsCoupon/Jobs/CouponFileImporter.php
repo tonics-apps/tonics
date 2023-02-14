@@ -117,10 +117,14 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
 
                     if (isset($item->{$couponTypeField})){
                         $newItem[$couponTypeField] = $item->{$couponTypeField};
-                        $fkCouponTypeID = db()->Select('coupon_type_id')->From(TonicsCouponActivator::couponTypeTableName())
-                            ->WhereEquals('coupon_type_slug', $item->{$couponTypeField})
-                            ->OrWhereEquals('coupon_type_name', $item->{$couponTypeField})
-                            ->FetchFirst();
+                        $fkCouponTypeID = null;
+                        db(onGetDB: function ($db) use($item, &$fkCouponTypeID, $couponTypeField) {
+                            $fkCouponTypeID = $db->Select('coupon_type_id')->From(TonicsCouponActivator::couponTypeTableName())
+                                ->WhereEquals('coupon_type_slug', $item->{$couponTypeField})
+                                ->OrWhereEquals('coupon_type_name', $item->{$couponTypeField})
+                                ->FetchFirst();
+                        });
+
                         if (isset($fkCouponTypeID->coupon_type_id)){
                             $newItem['fk_coupon_type_id'] = [$fkCouponTypeID->coupon_type_id];
                         }

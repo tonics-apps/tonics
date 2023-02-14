@@ -36,6 +36,7 @@ class TracksController extends Controller
     use Validator, TrackValidationRules;
 
     private TrackData $trackData;
+    private bool $isUserInCLI = false;
 
     public function __construct(TrackData $trackData)
     {
@@ -164,9 +165,8 @@ class TracksController extends Controller
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function store()
+    public function store()
     {
-
         if (input()->fromPost()->hasValue('created_at') === false){
             $_POST['created_at'] = helper()->date();
         }
@@ -188,10 +188,15 @@ class TracksController extends Controller
             "fk_artist_id:required" => "Track Artist Is Empty",
             "fk_genre_id:required" => "Track Genre Is Empty",
         ]);
+
         $validator = $getValidator->make(input()->fromPost()->all(), $this->trackStoreRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('tracks.create'));
+            if (!$this->isUserInCLI){
+                session()->flash($validator->getErrors(), input()->fromPost()->all());
+                redirect(route('tracks.create'));
+            }
+
+            throw new \Exception($validator->errorsAsString());
         }
 
         # Storing db reference is the only way I got tx to work
@@ -208,14 +213,19 @@ class TracksController extends Controller
             $onTrackCreate = new OnTrackCreate($trackReturning, $this->getTrackData());
             event()->dispatch($onTrackCreate);
             $dbTx->commit();
-
-            session()->flash(['Track Created'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('tracks.edit', ['track' => $onTrackCreate->getTrackSlug()]));
+            if (!$this->isUserInCLI){
+                session()->flash(['Track Created'], type: Session::SessionCategories_FlashMessageSuccess);
+                redirect(route('tracks.edit', ['track' => $onTrackCreate->getTrackSlug()]));
+            }
         } catch (Exception $exception){
             // Log..
             $dbTx->rollBack();
-            session()->flash(['An Error Occurred, Creating Track'], input()->fromPost()->all());
-            redirect(route('tracks.create'));
+            if (!$this->isUserInCLI){
+                session()->flash(['An Error Occurred, Creating Track'], input()->fromPost()->all());
+                redirect(route('tracks.create'));
+            }
+            # Rethrow in CLI
+            throw $exception;
         }
     }
 
@@ -226,9 +236,7 @@ class TracksController extends Controller
      */
     public function edit(string $slug)
     {
-
         $trackData = TrackData::class;
-
         $select = "{$trackData::getTrackTable()}.*, {$trackData::getLicenseTable()}.*,
        GROUP_CONCAT(DISTINCT {$trackData::getGenreTable()}.genre_id) AS `fk_genre_id[]`,
        GROUP_CONCAT(DISTINCT {$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id) AS fk_track_cat_id";
@@ -291,7 +299,7 @@ class TracksController extends Controller
      * @throws \ReflectionException
      * @throws Exception
      */
-    #[NoReturn] public function update(string $slug)
+    public function update(string $slug)
     {
         $this->getTrackData()->setDefaultTrackCategoryIfNotSet();
 
@@ -306,8 +314,12 @@ class TracksController extends Controller
         ]);
         $validator = $getValidator->make(input()->fromPost()->all(), $this->trackUpdateRule());
         if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('tracks.edit', [$slug]));
+            if (!$this->isUserInCLI){
+                session()->flash($validator->getErrors(), input()->fromPost()->all());
+                redirect(route('tracks.edit', [$slug]));
+            }
+
+            throw new \Exception($validator->errorsAsString());
         }
 
         $dbTx = db();
@@ -325,22 +337,26 @@ class TracksController extends Controller
 
             $dbTx->commit();
 
-        } catch (Exception){
+            $slug = $trackToUpdate['track_slug'];
+            if (!$this->isUserInCLI){
+                if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+                    session()->flash(['Track Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+                } else {
+                    session()->flash(['Track Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+                }
+                apcu_clear_cache();
+                redirect(route('tracks.edit', ['track' => $slug]));
+            }
+        } catch (\Exception $exception){
             // Log..
             $dbTx->rollBack();
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('tracks.edit', [$slug]));
+            if (!$this->isUserInCLI){
+                session()->flash($validator->getErrors(), input()->fromPost()->all());
+                redirect(route('tracks.edit', [$slug]));
+            }
+            # Rethrow in CLI
+            throw $exception;
         }
-
-        $slug = $trackToUpdate['track_slug'];
-        if (input()->fromPost()->has('_fieldErrorEmitted') === true){
-            session()->flash(['Track Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
-        } else {
-            session()->flash(['Track Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-        }
-
-        apcu_clear_cache();
-        redirect(route('tracks.edit', ['track' => $slug]));
     }
 
     /**
@@ -410,6 +426,22 @@ class TracksController extends Controller
     public function getOnTrackDefaultField(): ?OnTrackDefaultField
     {
         return  $this->getTrackData()->getOnTrackDefaultField();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUserInCLI(): bool
+    {
+        return $this->isUserInCLI;
+    }
+
+    /**
+     * @param bool $isUserInCLI
+     */
+    public function setIsUserInCLI(bool $isUserInCLI): void
+    {
+        $this->isUserInCLI = $isUserInCLI;
     }
 
 }
