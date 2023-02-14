@@ -11,10 +11,8 @@
 namespace App\Modules\Core\Boot;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;

@@ -34,12 +34,23 @@ class TrackItemImport extends AbstractJobInterface implements JobHandlerInterfac
     public function handle(): void
     {
         $track = $this->getDataAsArray();
-        if (isset($track['coupon_slug'])) {
+        if (isset($track['track_title'])) {
+            $slug = helper()->slug($track['track_title']);
+            if (!isset($track['track_slug'])){
+                $track['track_slug'] = $slug;
+            }
+        }
+
+        try {
             $this->getTrackController()->setIsUserInCLI(True);
             $_POST = $track;
-            $trackData = db()->Select("track_slug, track_id")->From(TrackData::getTrackTable())
-                ->WhereEquals('track_slug', $track['track_slug'])
-                ->FetchFirst();
+            $trackData = null;
+            db(onGetDB: function ($db) use($track, &$trackData) {
+                $trackData = db()->Select("track_slug, track_id")->From(TrackData::getTrackTable())
+                    ->WhereEquals('track_slug', $track['track_slug'])
+                    ->FetchFirst();
+            });
+
             if (isset($trackData->track_slug)) {
                 $_POST['track_id'] = $trackData->track_id;
                 $this->getTrackController()->update($trackData->track_slug);
@@ -48,9 +59,11 @@ class TrackItemImport extends AbstractJobInterface implements JobHandlerInterfac
                 $this->getTrackController()->store();
                 $this->successMessage($track['track_title'] . " [Track Created] ");
             }
-        } else {
-            throw new \Exception("Failed To Import Coupon Item - Malformed Coupon Data");
+        } catch (\Throwable $exception){
+            // Log..
+            throw new \Exception("Failed To Import Track Item - An Error Occurred - {$exception->getMessage()}");
         }
+
     }
 
     /**
