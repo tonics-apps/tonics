@@ -10,10 +10,11 @@
 
 namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder;
 
-use App\Modules\Core\Library\Tables;
+use App\Modules\Core\Library\SimpleState;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 
 class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements PageTemplateInterface, HandlerInterface
 {
@@ -65,7 +66,11 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
                 return;
             }
         } else {
-            $fieldSettings = [...$fieldSettings, ...ThemeFolderViewHandler::handleTrackSingleFragment()];
+            $track = ThemeFolderViewHandler::handleTrackSingleFragment();
+            if (!isset($track['_name'])){
+                throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
+            }
+            $fieldSettings = [...$fieldSettings, ...$track];
             $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
         }
         $fieldSettings[ThemeFolderViewHandler::TonicsBeatsTonicsKey] = true;

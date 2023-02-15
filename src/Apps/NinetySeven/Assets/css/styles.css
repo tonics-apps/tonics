@@ -1161,6 +1161,7 @@ FOR TONICS TRACK FOLDER
 .tonics-track-content {
     hyphens: auto;
     overflow-wrap: break-word;
+    overflow: hidden;
 }
 
 .tonics-folder-about-container a {
