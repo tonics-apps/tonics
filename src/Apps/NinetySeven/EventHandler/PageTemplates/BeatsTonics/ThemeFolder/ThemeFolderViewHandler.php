@@ -360,40 +360,6 @@ class ThemeFolderViewHandler implements HandlerInterface
         $trackCatID = $mainTrackData['track_cat_id'];
         $trackData = TrackData::class;
 
-        /**
-         * JSON_OBJECT(
-        'track_bpm',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_bpm') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_bpm') <> '') as subquery),
-        'track_default_filter_keys',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_keys') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_keys') <> '') as subquery),
-        'track_default_filter_mood',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_mood') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_mood') <> '') as subquery),
-        'track_default_filter_instruments',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_instruments') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_instruments') <> '') as subquery),
-        'track_default_filter_samplePacks_Type',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_samplePacks_Type') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_samplePacks_Type') <> '') as subquery),
-        'track_default_filter_acapella_gender',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_gender') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_gender') <> '') as subquery),
-        'track_default_filter_acapella_vocalStyle',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_vocalStyle') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_vocalStyle') <> '') as subquery),
-        'track_default_filter_acapella_emotion',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_emotion') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_emotion') <> '') as subquery),
-        'track_default_filter_acapella_scale',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_scale') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_scale') <> '') as subquery),
-        'track_default_filter_acapella_effects',
-        (SELECT JSON_ARRAYAGG(DISTINCT val)
-        FROM (SELECT JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_effects') as val FROM {$trackData::getTrackTable()} WHERE JSON_EXTRACT(field_settings, '$.track_default_filter_acapella_effects') <> '') as subquery)
-         */
-
         $filters = [
             'track_bpm',
             'track_default_filter_keys',
