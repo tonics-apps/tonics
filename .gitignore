@@ -7,3 +7,4 @@ src/Modules/*.zip
 /build/
 src/Apps/*.installed
 /src/Modules/Core/Library/Composer/
+/src/Apps/TestApp/

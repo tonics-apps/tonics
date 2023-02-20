@@ -18,6 +18,10 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $tonicsQuickLinks = [
+            
+        ];
+
        view('Modules::Core/Views/Dashboard/home');
     }
 

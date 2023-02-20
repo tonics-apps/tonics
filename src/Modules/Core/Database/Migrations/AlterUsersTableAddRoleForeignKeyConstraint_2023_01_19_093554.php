@@ -8,6 +8,7 @@ namespace App\Modules\Core\Database\Migrations;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class AlterUsersTableAddRoleForeignKeyConstraint_2023_01_19_093554 extends Migration {
 
@@ -16,14 +17,12 @@ class AlterUsersTableAddRoleForeignKeyConstraint_2023_01_19_093554 extends Migra
      */
     public function up()
     {
-        try {
-            $this->getDB()->run("ALTER TABLE `{$this->tableUser()}` DROP COLUMN `role`;");
-            $this->getDB()->run("ALTER TABLE `{$this->tableUser()}` ADD COLUMN `role` INT AFTER `user_password`");
-            $this->getDB()->run("ALTER TABLE `{$this->tableUser()}` ADD FOREIGN KEY (`role`) REFERENCES `{$this->tableRole()}`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT;");
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("ALTER TABLE `{$this->tableUser()}` DROP COLUMN `role`;");
+            $db->run("ALTER TABLE `{$this->tableUser()}` ADD COLUMN `role` INT AFTER `user_password`");
+            $db->run("ALTER TABLE `{$this->tableUser()}` ADD FOREIGN KEY (`role`) REFERENCES `{$this->tableRole()}`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT;");
             Roles::updateRolesInDatabase();
-        } catch (\PDOException $e) {
-            throw $e;
-        }
+        });
     }
 
     public function tableUser(): string

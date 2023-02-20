@@ -106,8 +106,6 @@ class AppsSystem extends SimpleState
             }
         }
 
-        AppConfig::updateRestartService();
-
         if (!empty($errorActivatorName)){
             $errorActivatorName = implode(',', $errorActivatorName);
             session()->flash(["An Error Occurred Installing App: [$errorActivatorName]"], []);
@@ -118,6 +116,7 @@ class AppsSystem extends SimpleState
             apcu_clear_cache();
             $installedApp = implode(',', $installedApp);
             session()->flash(["[$installedApp] App Installed"], [], type: Session::SessionCategories_FlashMessageSuccess);
+            AppConfig::updateRestartService();
             return self::DONE;
         }
 
@@ -158,8 +157,6 @@ class AppsSystem extends SimpleState
             }
         }
 
-        AppConfig::updateRestartService();
-
         if (!empty($errorActivatorName)){
             $errorActivatorName = implode(',', $errorActivatorName);
             session()->flash(["An Error Occurred UnInstalling App: [$errorActivatorName]"], []);
@@ -170,6 +167,7 @@ class AppsSystem extends SimpleState
             apcu_clear_cache();
             $unInstalledApp = implode(',', $unInstalledApp);
             session()->flash(["[$unInstalledApp] App UnInstalled"], [], type: Session::SessionCategories_FlashMessageSuccess);
+            AppConfig::updateRestartService();
             return self::DONE;
         }
 
@@ -226,14 +224,13 @@ class AppsSystem extends SimpleState
             }
         }
 
-        AppConfig::updateRestartService();
-
         if (!empty($errorActivatorName)){
             $errorActivatorName = implode(', ', $errorActivatorName);
             $this->setErrorMessage("An Error Occurred Deleting App: [$errorActivatorName]");
         } elseif (!empty($deletedApp)){
             $deletedApp = implode(', ', $deletedApp);
             $this->setSucessMessage("[$deletedApp] App Deleted");
+            AppConfig::updateRestartService();
             return self::DONE;
         }
 

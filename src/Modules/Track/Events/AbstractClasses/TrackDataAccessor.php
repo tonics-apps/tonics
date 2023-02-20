@@ -175,9 +175,9 @@ abstract class TrackDataAccessor
 
     /**
      * @param TrackData $trackData
-     * @return OnTrackCreate
+     * @return static
      */
-    public function setTrackData(TrackData $trackData): OnTrackCreate
+    public function setTrackData(TrackData $trackData): static
     {
         $this->trackData = $trackData;
         return $this;

@@ -26,6 +26,7 @@ use App\Modules\Track\EventHandlers\HandleNewTrackCategorySlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleNewTrackToTrackCategoryMapping;
+use App\Modules\Track\EventHandlers\HandleTrackDefaultFilterMappings;
 use App\Modules\Track\EventHandlers\HandleUpdateTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleUpdateTrackToTrackCategoryMapping;
 use App\Modules\Track\EventHandlers\TrackCategorySitemap;
@@ -64,11 +65,13 @@ class TrackActivator implements ExtensionConfig
                 HandleNewTrackSlugIDGeneration::class,
                 HandleNewTrackToGenreMapping::class,
                 HandleNewTrackToTrackCategoryMapping::class,
+                HandleTrackDefaultFilterMappings::class,
             ],
 
             OnTrackUpdate::class => [
                 HandleUpdateTrackToTrackCategoryMapping::class,
                 HandleUpdateTrackToGenreMapping::class,
+                HandleTrackDefaultFilterMappings::class,
             ],
 
             OnArtistCreate::class => [
@@ -158,7 +161,7 @@ class TrackActivator implements ExtensionConfig
             "name" => "Track",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1675754510',
+            "version" => '1-O-Ola.1675754513',
             "description" => "The Track Module",
             "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-track-module/releases/latest",

@@ -798,7 +798,7 @@ class FieldConfig
     "field_name": "input_select",
     "field_id": 5,
     "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"4\",\"field_slug_unique_hash\":\"f1rrmva09uw000000000\",\"field_input_name\":\"track_default_filter_mood\",\"fieldName\":\"Mood\",\"inputName\":\"track_default_filter_mood\",\"selectData\":\"Atmospheric,Dark,Dreamy,Emotional,Energetic,Exotic,Funky,Happy,Hopeful,Hypnotic,Intense,Intimate,Melancholic,Mellow, Mysterious,Nostalgic,Passionate,Peaceful,Playful,Reflective, Relaxed,Raw,Sad,Sensual,Soulful,Triumphant,Uplifting\",\"defaultValue\":\"\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"4\",\"field_slug_unique_hash\":\"f1rrmva09uw000000000\",\"field_input_name\":\"track_default_filter_mood\",\"fieldName\":\"Mood\",\"inputName\":\"track_default_filter_mood\",\"selectData\":\"No Mood,Atmospheric,Dark,Dreamy,Emotional,Energetic,Exotic,Funky,Happy,Hopeful,Hypnotic,Intense,Intimate,Melancholic,Mellow, Mysterious,Nostalgic,Passionate,Peaceful,Playful,Reflective, Relaxed,Raw,Sad,Sensual,Soulful,Triumphant,Uplifting\",\"defaultValue\":\"\"}"
   },
   {
     "fk_field_id": "Track Default Filter",
@@ -868,7 +868,7 @@ class FieldConfig
     "field_name": "input_choices",
     "field_id": 6,
     "field_parent_id": 1,
-    "field_options": "{\"field_slug\":\"input_choices\",\"input_choices_cell\":\"5\",\"field_slug_unique_hash\":\"40tgb29l7ru0000000000\",\"field_input_name\":\"track_default_filter_acapella_effects\",\"fieldName\":\"Effects\",\"inputName\":\"track_default_filter_acapella_effects\",\"choiceType\":\"checkbox\",\"choices\":\"Autotune:Autotune,Chorus:Chorus,Delay:Delay,Echo:Echo,Flanger:Flanger,Harmony:Harmony,Phaser:Phaser,Reverb:Reverb,Vibrato:Vibrato,Distortion:Distortion,Pitch shift:Pitch shift,Compression:Compression,EQ:EQ,Filtering:Filtering,Volume:Volume,Wah-wah:Wah-wah\",\"defaultValue\":\"\"}"
+    "field_options": "{\"field_slug\":\"input_choices\",\"input_choices_cell\":\"5\",\"field_slug_unique_hash\":\"40tgb29l7ru0000000000\",\"field_input_name\":\"track_default_filter_acapella_effects\",\"fieldName\":\"Effects\",\"inputName\":\"track_default_filter_acapella_effects\",\"choiceType\":\"checkbox\",\"choices\":\"No Autotune:No Autotune,Autotune:Autotune,Chorus:Chorus,Delay:Delay,Echo:Echo,Flanger:Flanger,Harmony:Harmony,Phaser:Phaser,Reverb:Reverb,Vibrato:Vibrato,Distortion:Distortion,Pitch shift:Pitch shift,Compression:Compression,EQ:EQ,Filtering:Filtering,Volume:Volume,Wah-wah:Wah-wah\",\"defaultValue\":\"\"}"
   },
   {
     "fk_field_id": "Payment Settings",

@@ -60,8 +60,9 @@ class TrackItemImport extends AbstractJobInterface implements JobHandlerInterfac
                 $this->successMessage($track['track_title'] . " [Track Created] ");
             }
         } catch (\Throwable $exception){
+            $title = $track['track_title'] ?? '';
             // Log..
-            throw new \Exception("Failed To Import Track Item - An Error Occurred - {$exception->getMessage()}");
+            throw new \Exception("Failed To Import Track Item ($title) - An Error Occurred - {$exception->getMessage()}");
         }
 
     }

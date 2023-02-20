@@ -75,7 +75,7 @@ class PostsController
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $postData = db()->Select(PostData::getPostTableJoiningRelatedColumns())
+        $postData = db()->Select(PostData::getPostTableJoiningRelatedColumns(false))
             ->From($postCatTbl)
             ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
             ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))

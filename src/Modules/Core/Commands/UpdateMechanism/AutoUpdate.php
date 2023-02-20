@@ -62,7 +62,9 @@ class AutoUpdate implements ConsoleCommand
                 ->runStates(false);
         }
 
-        AppConfig::updateRestartService();
+        if ($autoUpdateApps || $autoUpdateModules){
+            AppConfig::updateRestartService();
+        }
 
     }
 }

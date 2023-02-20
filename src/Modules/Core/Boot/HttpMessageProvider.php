@@ -10,9 +10,13 @@
 
 namespace App\Modules\Core\Boot;
 
+use App\Apps\TestApp\DropboxFileLinkGenerator;
+use App\Apps\TestApp\ImportMIDI;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Track\Controllers\TracksController;
+use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
@@ -29,7 +33,8 @@ class HttpMessageProvider implements ServiceProvider
     /**
      * @param Router $router
      */
-    public function __construct(Router $router){
+    public function __construct(Router $router)
+    {
         $this->router = $router;
     }
 
@@ -39,54 +44,53 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
-
         try {
             $this->getRouter()->dispatchRequestURL();
-        } catch (\Exception | \Throwable $e) {
-             if ($e->getCode() === 404 ){
-                 $redirect_to = $this->tryURLRedirection();
-                 $reURL = url()->getRequestURL();
-                 if ($redirect_to === false){
-                     if (AppConfig::canLog404()){
-                         try {
-                             db()->Insert(
-                                 Tables::getTable(Tables::BROKEN_LINKS),
-                                 [
-                                     'from' => $reURL,
-                                     'to'   => null,
-                                 ]
-                             );
-                         }catch (\Exception $exception){
-                             // Log..
-                         }
-                     }
-                 } else {
-                     if (isset($redirect_to->to) && !empty($redirect_to->to)){
-                         redirect($redirect_to->to, $redirect_to->redirection_type);
-                     } else {
-                         if (!empty($reURL)){
-                             $hit = $redirect_to->hit ?? 1;
-                             try {
-                                 db()->FastUpdate(
-                                     Tables::getTable(Tables::BROKEN_LINKS),
-                                     [
-                                         '`from`' => $reURL,
-                                         '`to`'   => null,
-                                         '`hit`'   => ++$hit,
-                                     ],
-                                     db()->WhereEquals('`from`', $reURL)
-                                 );
-                             } catch (\Exception $exception){
-                                 // Log..
-                             }
-                         }
-                     }
-                 }
-             }
-            if (AppConfig::isProduction()){
-                SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage());
+        } catch (\Exception|\Throwable $e) {
+            if ($e->getCode() === 404) {
+                $redirect_to = $this->tryURLRedirection();
+                $reURL = url()->getRequestURL();
+                if ($redirect_to === false) {
+                    if (AppConfig::canLog404()) {
+                        try {
+                            db()->Insert(
+                                Tables::getTable(Tables::BROKEN_LINKS),
+                                [
+                                    'from' => $reURL,
+                                    'to' => null,
+                                ]
+                            );
+                        } catch (\Exception $exception) {
+                            // Log..
+                        }
+                    }
+                } else {
+                    if (isset($redirect_to->to) && !empty($redirect_to->to)) {
+                        redirect($redirect_to->to, $redirect_to->redirection_type);
+                    } else {
+                        if (!empty($reURL)) {
+                            $hit = $redirect_to->hit ?? 1;
+                            try {
+                                db()->FastUpdate(
+                                    Tables::getTable(Tables::BROKEN_LINKS),
+                                    [
+                                        '`from`' => $reURL,
+                                        '`to`' => null,
+                                        '`hit`' => ++$hit,
+                                    ],
+                                    db()->WhereEquals('`from`', $reURL)
+                                );
+                            } catch (\Exception $exception) {
+                                // Log..
+                            }
+                        }
+                    }
+                }
+            }
+            if (AppConfig::isProduction()) {
+                SimpleState::displayErrorMessage($e->getCode(), $e->getMessage());
             } else {
-                SimpleState::displayErrorMessage($e->getCode(),  $e->getMessage() . $e->getTraceAsString());
+                SimpleState::displayErrorMessage($e->getCode(), $e->getMessage() . $e->getTraceAsString());
             }
         }
     }
@@ -94,19 +98,19 @@ class HttpMessageProvider implements ServiceProvider
     /**
      * @throws \Exception
      */
-    public function tryURLRedirection():object|bool
+    public function tryURLRedirection(): object|bool
     {
         try {
             $table = Tables::getTable(Tables::BROKEN_LINKS);
             $result = db()->Select('*')->From($table)->WhereEquals(table()->pickTable($table, ['from']), url()->getRequestURL())->FetchFirst();
-            if (is_object($result)){
+            if (is_object($result)) {
                 return $result;
             }
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // Log..
         }
 
-       return false;
+        return false;
     }
 
     /**

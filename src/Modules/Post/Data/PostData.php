@@ -498,12 +498,17 @@ SQL, ...$parameter);
     /**
      * @throws \Exception
      */
-    public static function getPostTableJoiningRelatedColumns(): string
+    public static function getPostTableJoiningRelatedColumns($includeFieldSettingsCol = true): string
     {
+        $fieldSettings = [];
+        if ($includeFieldSettingsCol){
+            $fieldSettings = ['field_settings'];
+        }
+
         $postTable = Tables::getTable(Tables::POSTS);
         return  table()->pick(
                 [
-                    $postTable => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at', 'image_url'],
+                    $postTable => [...['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'created_at', 'updated_at', 'image_url'], ...$fieldSettings],
                     Tables::getTable(Tables::USERS) => ['user_name', 'email']
                 ]
             )

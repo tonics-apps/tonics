@@ -39,6 +39,8 @@ final class Tables
         self::TRACK_TRACK_CATEGORIES => ['id', 'fk_track_cat_id', 'fk_track_id', 'created_at', 'updated_at'],
         self::PURCHASE_TRACKS => ['pt_id', 'fk_purchase_id', 'fk_track_id', 'price', 'created_at', 'updated_at'],
         self::TRACK_WISH_LIST => ['wl_id', 'fk_customer_id', 'track_id', 'created_at', 'updated_at'],
+        self::TRACK_DEFAULT_FILTERS => ['tdf_id', 'tdf_name', 'tdf_type'],
+        self::TRACK_DEFAULT_FILTERS_TRACKS => ['id', 'fk_track_id', 'fk_tdf_id'],
 
         self::USERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'role', 'settings', 'created_at', 'updated_at'],
         self::ROLES => ['id', 'role_name', 'role_id', 'created_at', 'updated_at'],
@@ -88,6 +90,11 @@ final class Tables
     const TRACK_TRACK_CATEGORIES = 'track_track_categories';
     const PURCHASE_TRACKS = 'purchase_tracks';
     const TRACK_WISH_LIST = 'track_wish_list';
+
+    // would hold the common filters values and their types
+    const TRACK_DEFAULT_FILTERS = 'track_default_filters';
+    const TRACK_DEFAULT_FILTERS_TRACKS = 'track_default_filters_tracks'; // a junction table connect track_default_filters to tracks
+
 
     const ROLES = 'roles';
     const USERS = 'user';

@@ -716,6 +716,27 @@ HTML;
     }
 
     /**
+     * @param array $fieldItems
+     * @param array $globalPostData
+     * @return array
+     * @throws \Exception
+     */
+/*    public function updateFieldsInputNameValue(array $fieldItems, array $globalPostData)
+    {
+        foreach ($fieldItems as $fieldItem){
+            if (isset($fieldItem->field_options) && helper()->isJSON($fieldItem->field_options)) {
+                $fieldOption = json_decode($fieldItem->field_options);
+                if (isset($fieldOption->field_input_name) && key_exists($fieldOption->field_input_name, $globalPostData)){
+                    $fieldOption->{$fieldOption->field_input_name} = $globalPostData[$fieldOption->field_input_name];
+                }
+                $fieldItem->field_options = json_encode($fieldOption);
+            }
+        }
+
+        return $fieldItems;
+    }*/
+
+    /**
      * The purpose of this function is using the $fieldSlugIDS to not only sort the $fieldItems for any updated fields,
      * but also to build its field_options.
      *

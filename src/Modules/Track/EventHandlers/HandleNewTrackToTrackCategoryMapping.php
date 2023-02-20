@@ -10,8 +10,7 @@
 
 namespace App\Modules\Track\EventHandlers;
 
-use App\Modules\Post\Data\PostData;
-use App\Modules\Post\Events\OnPostCreate;
+
 use App\Modules\Track\Events\OnTrackCreate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 

@@ -60,20 +60,26 @@ class TracksController extends Controller
         ];
 
         $trackTable = Tables::getTable(Tables::TRACKS);
-        $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
-        $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
-        $genreTable = Tables::getTable(Tables::GENRES);
-        $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
 
-        $tblCol = table()->pick([$trackTable => ['track_id', 'track_title', 'track_slug', 'field_settings', 'updated_at']])
+        $tblCol = table()->pick([$trackTable => ['track_id', 'track_title', 'track_slug', 'updated_at']])
             . ', CONCAT("/admin/tracks/", track_slug, "/edit") as _edit_link, CONCAT_WS("/", "/tracks", track_slug) as _preview_link ';
 
         $data = db()->Select($tblCol)
             ->From($trackTable)
-            ->Join($trackGenreTable, "$trackGenreTable.fk_track_id", "$trackTable.track_id")
-            ->Join($genreTable, "$genreTable.genre_id", "$trackGenreTable.fk_genre_id")
-            ->Join($trackTracksCategoriesTable, "$trackTracksCategoriesTable.fk_track_id", "$trackTable.track_id")
-            ->Join($trackCategoriesTable, "$trackCategoriesTable.track_cat_id", "$trackTracksCategoriesTable.fk_track_cat_id")
+            // we only join the table when we have query, that is user is filtering...
+            ->when(url()->hasParam('query'), function (TonicsQuery $query){
+                $trackTable = Tables::getTable(Tables::TRACKS);
+                $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
+                $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
+                $genreTable = Tables::getTable(Tables::GENRES);
+                $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
+
+                $query
+                    ->Join($trackGenreTable, "$trackGenreTable.fk_track_id", "$trackTable.track_id")
+                    ->Join($genreTable, "$genreTable.genre_id", "$trackGenreTable.fk_genre_id")
+                    ->Join($trackTracksCategoriesTable, "$trackTracksCategoriesTable.fk_track_id", "$trackTable.track_id")
+                    ->Join($trackCategoriesTable, "$trackCategoriesTable.track_cat_id", "$trackTracksCategoriesTable.fk_track_cat_id");
+            })
             ->when(url()->hasParamAndValue('status'),
                 function (TonicsQuery $db) {
                     $db->WhereEquals('track_status', url()->getParam('status'));
@@ -89,7 +95,6 @@ class TracksController extends Controller
 
             })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($trackTable) {
                 $db->WhereBetween(table()->pickTable($trackTable, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-
             })
             ->GroupBy("$trackTable.track_id")
             ->OrderByDesc(table()->pickTable($trackTable, ['updated_at']))

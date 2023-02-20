@@ -377,16 +377,7 @@ class ThemeFolderViewHandler implements HandlerInterface
         foreach ($filters as $filterKey => $filter){
             $filterSQLFRAG .= <<<SQL
   '$filter',
-  (
-    SELECT JSON_ARRAYAGG(DISTINCT val)
-    FROM (
-      SELECT JSON_EXTRACT(t.field_settings, '$.$filter') AS val
-      FROM {$trackData::getTrackTable()} t
-      JOIN {$trackData::getTrackTracksCategoryTable()} ttc ON t.track_id = ttc.fk_track_id
-      JOIN category_tree ct ON ttc.fk_track_cat_id = ct.track_cat_id
-      WHERE JSON_EXTRACT(t.field_settings, '$.$filter') <> ''
-    ) AS subquery
-  )
+  JSON_ARRAYAGG(DISTINCT CASE WHEN JSON_EXTRACT(t.field_settings, '$.$filter') <> '' THEN JSON_EXTRACT(t.field_settings, '$.$filter') END)
 SQL;
             if ($filterKey !== $last){
                 $filterSQLFRAG .= ',' . "\n";
@@ -406,9 +397,13 @@ WITH RECURSIVE category_tree AS (
 SELECT JSON_OBJECT(
   $filterSQLFRAG
 ) AS filters
-FROM category_tree
+FROM {$trackData::getTrackTable()} t
+JOIN {$trackData::getTrackTracksCategoryTable()} ttc ON t.track_id = ttc.fk_track_id
+JOIN category_tree ct ON ttc.fk_track_cat_id = ct.track_cat_id
 LIMIT 1;
 FILTER_OPTION, $trackCatID);
+
+
         if (isset($filterOptions->filters) && helper()->isJSON($filterOptions->filters)){
             $fieldSettings['ThemeFolder_FilterOption_More'] = [];
             $filterOptions = json_decode($filterOptions->filters);
