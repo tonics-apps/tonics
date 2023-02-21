@@ -14,6 +14,7 @@ use App\Apps\RefreshTrackUpdates\Jobs\TrackRefreshUpdateData;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddJobTransporter;
 use App\Modules\Core\Library\ConsoleColor;
+use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
@@ -53,21 +54,19 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     public function enqueue(AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
     {
         $toInsert = $this->getToInsert($jobEvent);
-        if ($beforeEnqueue){
+        if ($beforeEnqueue) {
             $beforeEnqueue($toInsert);
         }
 
-        if ($afterEnqueue){
-            $returning = null;
-            db(onGetDB: function (TonicsQuery $db) use ($afterEnqueue, $toInsert, &$returning){
+        db(onGetDB: function (TonicsQuery $db) use ($afterEnqueue, $toInsert) {
+            if ($afterEnqueue){
                 $returning = $db->InsertReturning($this->getTable(), $toInsert, Tables::$TABLES[Tables::JOBS], 'job_id');
-            });
-            $afterEnqueue($returning);
-        } else {
-            db(onGetDB: function ($db) use ($toInsert) {
+                $afterEnqueue($returning);
+            } else {
                 $db->insert($this->getTable(), $toInsert);
-            });
-        }
+            }
+
+        });
 
     }
 
@@ -105,7 +104,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     {
         $table = $this->getTable();
         while (true) {
-            if (AppConfig::isMaintenanceMode()){
+            if (AppConfig::isMaintenanceMode()) {
                 $this->infoMessage("Site in Maintenance Mode...Sleeping");
                 usleep(5000000); # Sleep for 5 seconds
                 continue;
@@ -120,7 +119,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
              *
              */
             $jobs = null;
-            db(onGetDB: function ($db) use ($table, &$jobs){
+            db(onGetDB: function ($db) use ($table, &$jobs) {
                 $jobs = $db->run(<<<SQL
 SELECT * 
 FROM $table
@@ -132,7 +131,7 @@ SQL, Job::JobStatus_Queued, 1);
             });
 
 
-            if (empty($jobs)){
+            if (empty($jobs)) {
                 # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
                 usleep(100000);
                 continue;
