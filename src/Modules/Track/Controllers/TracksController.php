@@ -309,7 +309,18 @@ class TracksController extends Controller
         $this->getTrackData()->setDefaultTrackCategoryIfNotSet();
 
         # Meaning The Unique_id is a link to the url_download
-        $urlDownloadCombine = array_combine(input()->fromPost()->retrieve('unique_id'), input()->fromPost()->retrieve('url_download'));
+        $uniqueID = input()->fromPost()->retrieve('unique_id');
+        $urlDownload = input()->fromPost()->retrieve('url_download');
+
+        if (!is_array($uniqueID)){
+            $uniqueID = [];
+        }
+
+        if (!is_array($urlDownload)){
+            $urlDownload = [];
+        }
+
+        $urlDownloadCombine = array_combine($uniqueID, $urlDownload);
         $_POST['license_attr_id_link'] = json_encode($urlDownloadCombine);
         $getValidator = $this->getValidator();
         $getValidator->changeErrorMessage([

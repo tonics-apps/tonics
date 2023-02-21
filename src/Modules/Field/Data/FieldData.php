@@ -666,7 +666,14 @@ HTML;
     {
 
         $data['field_settings'] = input()->fromPost()->all();
-        unset($_POST['field_settings']['token'], $data[$contentKey]);
+
+        if (isset($_POST['field_settings']['token'])){
+            unset($_POST['field_settings']['token'], $data[$contentKey]);
+        }
+
+        if (isset($data[$contentKey])){
+            unset($data[$contentKey]);
+        }
 
         if (isset($data[$titleKey])) {
             if (isset($data['field_settings']['seo_title']) && empty($data['field_settings']['seo_title'])) {
@@ -688,7 +695,9 @@ HTML;
 
         if (isset($_POST['fieldItemsDataFromEditor'])) {
             $data['field_settings'][$contentKey] = $_POST['fieldItemsDataFromEditor'];
-            unset($data['field_settings']['fieldItemsDataFromEditor']);
+            if (isset($data['field_settings']['fieldItemsDataFromEditor'])){
+                unset($data['field_settings']['fieldItemsDataFromEditor']);
+            }
         }
 
         $this->preSavePostEditorFieldItems($data['field_settings'], $contentKey);

@@ -66,6 +66,7 @@ class TrackActivator implements ExtensionConfig
                 HandleNewTrackToGenreMapping::class,
                 HandleNewTrackToTrackCategoryMapping::class,
                 HandleTrackDefaultFilterMappings::class,
+                HandleTrackDefaultFilterMappings::class,
             ],
 
             OnTrackUpdate::class => [

@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\EventHandlers\JobTransporter;
 
+use App\Apps\RefreshTrackUpdates\Jobs\TrackRefreshUpdateData;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddJobTransporter;
 use App\Modules\Core\Library\ConsoleColor;
@@ -57,10 +58,11 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
         }
 
         if ($afterEnqueue){
-            db(onGetDB: function ($db) use ($afterEnqueue, $toInsert){
+            $returning = null;
+            db(onGetDB: function (TonicsQuery $db) use ($afterEnqueue, $toInsert, &$returning){
                 $returning = $db->InsertReturning($this->getTable(), $toInsert, Tables::$TABLES[Tables::JOBS], 'job_id');
-                $afterEnqueue($returning);
             });
+            $afterEnqueue($returning);
         } else {
             db(onGetDB: function ($db) use ($toInsert) {
                 $db->insert($this->getTable(), $toInsert);

@@ -402,6 +402,9 @@ HTML;
     }
 
     /**
+     * @param array $ignore
+     * @param bool $prepareFieldSettings
+     * @return array
      * @throws \Exception
      */
     public function createTrack(array $ignore = [], bool $prepareFieldSettings = true): array
@@ -428,7 +431,9 @@ HTML;
         $ignores = array_diff_key($ignore, $track);
         if (!empty($ignores)){
             foreach ($ignores as $v){
-                unset($track[$v]);
+                if (isset($track[$v])){
+                    unset($track[$v]);
+                }
             }
         }
 

@@ -149,7 +149,7 @@ function utility(): TonicsHelpers
 function db(bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
 {
     $db = AppConfig::initLoaderMinimal()->getDatabase(true)->Q();
-    if ($onGetDB){
+    if (is_callable($onGetDB)){
         $onGetDB($db);
         $db->getTonicsQueryBuilder()->destroyPdoConnection();
     } else {

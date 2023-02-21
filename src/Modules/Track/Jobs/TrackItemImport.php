@@ -78,7 +78,7 @@ class TrackItemImport extends AbstractJobInterface implements JobHandlerInterfac
     /**
      * @param TracksController $trackController
      */
-    public function setCouponController(TracksController $trackController): void
+    public function setTrackController(TracksController $trackController): void
     {
         $this->tracksController = $trackController;
     }
