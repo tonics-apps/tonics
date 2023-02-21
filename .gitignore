@@ -8,3 +8,4 @@ src/Modules/*.zip
 src/Apps/*.installed
 /src/Modules/Core/Library/Composer/
 /src/Apps/TestApp/
+/src/Apps/RefreshTrackUpdates/
