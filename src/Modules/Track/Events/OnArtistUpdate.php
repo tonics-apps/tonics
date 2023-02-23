@@ -13,7 +13,7 @@ namespace App\Modules\Track\Events;
 use App\Modules\Track\Events\AbstractClasses\ArtistDataAccessor;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
-class OnArtistCreate extends ArtistDataAccessor implements EventInterface
+class OnArtistUpdate extends ArtistDataAccessor implements EventInterface
 {
 
 }

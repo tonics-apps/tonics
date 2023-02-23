@@ -80,7 +80,10 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
             'schedule_name' => $scheduleObject->getName(),
             'schedule_priority' => $scheduleObject->getPriority(),
             'schedule_parallel' => $scheduleObject->getParallel(),
-            'schedule_data' => json_encode(get_class($scheduleObject)),
+            // 'schedule_data' => json_encode(get_class($scheduleObject)),
+            'schedule_data' => json_encode([
+                'data' => $scheduleObject->getData(),
+                'class' => get_class($scheduleObject)]),
             // when a scheduleObject has a parent,
             // then schedule_every should be 0 since it is tied to a parent
             // (it has no business in scheduling anything, it is directly called after parent)
@@ -118,11 +121,13 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                 continue;
             }
             foreach ($schedules as $schedule) {
-                $scheduleClass = json_decode($schedule->schedule_data);
+                $scheduleData = json_decode($schedule->schedule_data);
+                $scheduleClass = $scheduleData->class ?? $scheduleData;
                 if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])) {
                     /** @var ScheduleHandlerInterface|AbstractSchedulerInterface $scheduleObject */
                     $scheduleObject = new $scheduleClass;
                     $scheduleObject->setName($schedule->schedule_name);
+                    $scheduleObject->setData($scheduleData->data ?? []);
                     if (isset($schedule->_children)) {
                         $this->recursivelyCollateScheduleObject($schedule->_children, $scheduleObject);
                     }
@@ -199,12 +204,14 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     public function recursivelyCollateScheduleObject($schedules, AbstractSchedulerInterface $parent = null): void
     {
         foreach ($schedules as $schedule) {
-            $scheduleClass = json_decode($schedule->schedule_data);
+            $scheduleData = json_decode($schedule->schedule_data);
+            $scheduleClass = $scheduleData->class ?? $scheduleData;
             if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])) {
                 $scheduleObject = new $scheduleClass;
                 $scheduleObject->setName($schedule->schedule_name);
                 /** @var $scheduleObject AbstractSchedulerInterface */
                 $scheduleObject->setParent($parent);
+                $scheduleObject->setData($scheduleData->data ?? []);
                 if (isset($schedule->_children)) {
                     $this->recursivelyCollateScheduleObject($schedule->_children, $scheduleObject);
                 }

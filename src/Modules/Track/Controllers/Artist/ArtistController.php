@@ -18,6 +18,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnArtistCreate;
+use App\Modules\Track\Events\OnArtistUpdate;
 use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
@@ -168,6 +169,9 @@ class ArtistController
             db()->FastUpdate($this->getTrackData()::getArtistTable(), $artistToUpdate, db()->Where('artist_slug', '=', $slug));
 
             $slug = $artistToUpdate['artist_slug'];
+            $onArtistUpdate = new OnArtistUpdate((object)$artistToUpdate, $this->getTrackData());
+            event()->dispatch($onArtistUpdate);
+
             session()->flash(['Artist Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('artists.edit', ['artist' => $slug]));
         }catch (\Exception){

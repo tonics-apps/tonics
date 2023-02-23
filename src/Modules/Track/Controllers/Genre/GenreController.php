@@ -18,6 +18,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnGenreCreate;
+use App\Modules\Track\Events\OnGenreUpdate;
 use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
@@ -163,12 +164,15 @@ class GenreController
         }
 
         try {
-            $genreToUpdate = $this->getTrackData()->createArtist();
+            $genreToUpdate = $this->getTrackData()->createGenre();
             $genreToUpdate['genre_slug'] = helper()->slug(input()->fromPost()->retrieve('genre_slug'));
 
             db()->FastUpdate($this->getTrackData()::getGenreTable(), $genreToUpdate, db()->Where('genre_slug', '=', $slug));
 
             $slug = $genreToUpdate['genre_slug'];
+            $onGenreUpdate = new OnGenreUpdate((object)$genreToUpdate, $this->getTrackData());
+            event()->dispatch($onGenreUpdate);
+
             session()->flash(['Genre Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('genres.edit', ['genre' => $slug]));
         }catch (\Exception){

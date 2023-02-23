@@ -22,6 +22,8 @@ use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
 use App\Modules\Track\EventHandlers\DefaultTrackCategoryFieldHandler;
 use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
 use App\Modules\Track\EventHandlers\GenreMenuMetaBox;
+use App\Modules\Track\EventHandlers\HandleArtistTypeFilter;
+use App\Modules\Track\EventHandlers\HandleGenreTypeFilter;
 use App\Modules\Track\EventHandlers\HandleNewTrackCategorySlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackToGenreMapping;
@@ -34,6 +36,9 @@ use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
 use App\Modules\Track\EventHandlers\TrackMenus;
 use App\Modules\Track\EventHandlers\TrackSitemap;
 use App\Modules\Track\Events\OnArtistCreate;
+use App\Modules\Track\Events\OnArtistUpdate;
+use App\Modules\Track\Events\OnGenreCreate;
+use App\Modules\Track\Events\OnGenreUpdate;
 use App\Modules\Track\Events\OnLicenseCreate;
 use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryDefaultField;
@@ -66,7 +71,6 @@ class TrackActivator implements ExtensionConfig
                 HandleNewTrackToGenreMapping::class,
                 HandleNewTrackToTrackCategoryMapping::class,
                 HandleTrackDefaultFilterMappings::class,
-                HandleTrackDefaultFilterMappings::class,
             ],
 
             OnTrackUpdate::class => [
@@ -75,8 +79,20 @@ class TrackActivator implements ExtensionConfig
                 HandleTrackDefaultFilterMappings::class,
             ],
 
-            OnArtistCreate::class => [
+            OnGenreCreate::class => [
+                HandleGenreTypeFilter::class
+            ],
 
+            OnGenreUpdate::class => [
+                HandleGenreTypeFilter::class
+            ],
+
+            OnArtistCreate::class => [
+                HandleArtistTypeFilter::class
+            ],
+
+            OnArtistUpdate::class => [
+                HandleArtistTypeFilter::class
             ],
 
             OnLicenseCreate::class => [
@@ -95,7 +111,6 @@ class TrackActivator implements ExtensionConfig
             OnAdminMenu::class => [
                 TrackMenus::class
             ],
-
 
             OnTrackDefaultField::class => [
                 DefaultTrackFieldHandler::class

@@ -10,8 +10,10 @@
 
 namespace App\Modules\Track\EventHandlers;
 
+use App\Modules\Core\Library\Tables;
 use App\Modules\Track\Events\AbstractClasses\TrackDataAccessor;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class HandleTrackDefaultFilterMappings implements HandlerInterface
 {
@@ -40,11 +42,36 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
             'track_default_filter_acapella_vocalStyle' => 'acapellaVocalStyle',
             'track_default_filter_acapella_emotion' => 'acapellaEmotion',
             'track_default_filter_acapella_scale' => 'acapellaScale',
-            'track_default_filter_acapella_effects' => 'acapellaEffects'
+            'track_default_filter_acapella_effects' => 'acapellaEffects',
+            'track_default_filter_genres' => 'genre',
+            'track_default_filter_artists' => 'artist',
         ];
 
         try {
             $db = db();
+
+            if (isset($fieldSettings->fk_genre_id)){
+                $genres = null;
+                db(onGetDB: function (TonicsQuery $query) use($fieldSettings, &$genres){
+                    $genres = $query->Select('genre_slug')->From(Tables::getTable(Tables::GENRES))
+                        ->WhereIn('genre_id', $fieldSettings->fk_genre_id)->FetchResult();
+                });
+                $newGenre = [];
+                foreach ($genres as $genre){ $newGenre[] = $genre->genre_slug; }
+                $fieldSettings->track_default_filter_genres = $newGenre;
+            }
+
+            if (isset($fieldSettings->fk_artist_id)){
+                $artists = null;
+                db(onGetDB: function (TonicsQuery $query) use($fieldSettings, &$artists){
+                    $artists = $query->Select('artist_slug')->From(Tables::getTable(Tables::ARTISTS))
+                        ->WhereIn('artist_id', $fieldSettings->fk_artist_id)->FetchResult();
+                });
+                $newArtists = [];
+                foreach ($artists as $artist){ $newArtists[] = $artist->artist_slug; }
+                $fieldSettings->track_default_filter_artists = $newArtists;
+            }
+
             $filtersTable = $event->getTrackData()::getTrackDefaultFiltersTable();
             $db->Select('tdf_id')->From($filtersTable);
             foreach ($filters as $filter => $type){

@@ -373,6 +373,7 @@ SQL, ...$parameter);
      * @param string $table
      * @param $entityBag
      * @param callable|null $onSuccess
+     * you get the deleted item in the onSuccess callback param
      * @param callable|null $onError
      * @return bool
      */
@@ -393,7 +394,7 @@ SQL, ...$parameter);
             db()->FastDelete($table, db()->WhereIn($id, $toDelete));
             apcu_clear_cache();
             if ($onSuccess){
-                $onSuccess();
+                $onSuccess($toDelete);
             }
             return true;
         } catch (\Exception $exception) {

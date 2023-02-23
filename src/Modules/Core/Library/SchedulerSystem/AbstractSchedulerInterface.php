@@ -17,6 +17,7 @@ class AbstractSchedulerInterface
     private int $every = 60;
     private int $parallel = 1;
     private array $chains = [];
+    private mixed $data = null;
 
     private ?AbstractSchedulerInterface $parent = null;
 
@@ -130,6 +131,40 @@ class AbstractSchedulerInterface
     public function setParent(?AbstractSchedulerInterface $parent): AbstractSchedulerInterface
     {
         $this->parent = $parent;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getData(): mixed
+    {
+        return $this->data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDataAsArray(): array
+    {
+        return (array)$this->data;
+    }
+
+    /**
+     * @return object
+     */
+    public function getDataAsObject(): object
+    {
+        return (object)$this->data;
+    }
+
+    /**
+     * @param mixed $data
+     * @return static
+     */
+    public function setData(mixed $data): static
+    {
+        $this->data = $data;
         return $this;
     }
 }

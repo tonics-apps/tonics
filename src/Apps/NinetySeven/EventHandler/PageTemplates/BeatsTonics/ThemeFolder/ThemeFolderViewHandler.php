@@ -152,6 +152,7 @@ class ThemeFolderViewHandler implements HandlerInterface
     {
         $trackData = TrackData::class;
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
+        dd($fieldSettings);
         try {
             $db = db();
             $db->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
@@ -311,8 +312,8 @@ class ThemeFolderViewHandler implements HandlerInterface
         } else {
             # Get Filters of a Certain Category and Its Sub Category
             $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($fieldSettings, $fieldSettings);
-            $this->handleFilterTrackArtistKeyForCategorySubCategory($fieldSettings, $fieldSettings);
-            $this->handleFilterTrackGenreKeyForCategorySubCategory($fieldSettings, $fieldSettings);
+           // $this->handleFilterTrackArtistKeyForCategorySubCategory($fieldSettings, $fieldSettings);
+           // $this->handleFilterTrackGenreKeyForCategorySubCategory($fieldSettings, $fieldSettings);
             $tonicsView->addToVariableData('Data', $fieldSettings);
         }
 
@@ -361,124 +362,108 @@ class ThemeFolderViewHandler implements HandlerInterface
         $trackData = TrackData::class;
 
         $filters = [
-            'track_bpm',
-            'track_default_filter_keys',
-            'track_default_filter_mood',
-            'track_default_filter_instruments',
-            'track_default_filter_samplePacks_Type',
-            'track_default_filter_acapella_gender',
-            'track_default_filter_acapella_vocalStyle',
-            'track_default_filter_acapella_emotion',
-            'track_default_filter_acapella_scale',
-            'track_default_filter_acapella_effects',
+            'bpm',
+            'mood',
+            'instrument',
+            'key',
+            'samplePackType',
+            'acapellaGender',
+            'acapellaVocalStyle',
+            'acapellaEmotion',
+            'acapellaScale',
+            'acapellaEffects',
         ];
-        $filterSQLFRAG = '';
+        $filterType = '';
         $last = array_key_last($filters);
         foreach ($filters as $filterKey => $filter){
-            $filterSQLFRAG .= <<<SQL
-  '$filter',
-  JSON_ARRAYAGG(DISTINCT CASE WHEN JSON_EXTRACT(t.field_settings, '$.$filter') <> '' THEN JSON_EXTRACT(t.field_settings, '$.$filter') END)
+            $filterType .= <<<SQL
+'$filter'
 SQL;
             if ($filterKey !== $last){
-                $filterSQLFRAG .= ',' . "\n";
+                $filterType .= ',';
             }
         }
 
-        $filterOptions = db()->row(<<<FILTER_OPTION
-WITH RECURSIVE category_tree AS (
-  SELECT ct.track_cat_id, ct.track_cat_parent_id, ct.field_settings
-  FROM {$trackData::getTrackCategoryTable()} ct
-  WHERE ct.track_cat_id = ?
-  UNION
-  SELECT ct.track_cat_id, ct.track_cat_parent_id, ct.field_settings
-  FROM {$trackData::getTrackCategoryTable()} ct
-  JOIN category_tree ON ct.track_cat_parent_id = category_tree.track_cat_id
-)
-SELECT JSON_OBJECT(
-  $filterSQLFRAG
-) AS filters
-FROM {$trackData::getTrackTable()} t
+        $filterOptions = db()->run(<<<FILTER_OPTION
+SELECT tdf_type, JSON_ARRAYAGG(DISTINCT tdf.tdf_name) as filter_values
+FROM {$trackData::getTrackDefaultFiltersTable()} tdf
+JOIN {$trackData::getTrackDefaultFiltersTrackTable()} tdft ON tdf.tdf_id = tdft.fk_tdf_id
+JOIN {$trackData::getTrackTable()} t ON tdft.fk_track_id = t.track_id
 JOIN {$trackData::getTrackTracksCategoryTable()} ttc ON t.track_id = ttc.fk_track_id
-JOIN category_tree ct ON ttc.fk_track_cat_id = ct.track_cat_id
-LIMIT 1;
-FILTER_OPTION, $trackCatID);
+JOIN (
+  SELECT track_cat_id
+  FROM {$trackData::getTrackCategoryTable()}
+  WHERE track_cat_id = ? OR track_cat_parent_id = ?
+) category_tree ON ttc.fk_track_cat_id = category_tree.track_cat_id
+WHERE tdf.tdf_type IN ($filterType)
+GROUP BY tdf_type;
+FILTER_OPTION, $trackCatID, $trackCatID);
 
+        $newFilterOptions = [];
+        foreach ($filterOptions as $filterOption){
+            $newFilterOptions[$filterOption->tdf_type] = json_decode($filterOption->filter_values);
+        }
 
-        if (isset($filterOptions->filters) && helper()->isJSON($filterOptions->filters)){
-            $fieldSettings['ThemeFolder_FilterOption_More'] = [];
-            $filterOptions = json_decode($filterOptions->filters);
-
-            # Check if Some Key Values are Multidimensional, if so, flatten it
-            foreach ($filterOptions as $filterKey => $filterValue){
-                if (is_array($filterValue) && helper()->array_depth($filterValue) > 1) {
-                    $filterValue = iterator_to_array(new RecursiveIteratorIterator(new RecursiveArrayIterator($filterValue)), false);
-                    $filterValue = array_unique($filterValue);
-                    $filterOptions->{$filterKey} = $filterValue;
-                }
-            }
-
+        if (!empty($newFilterOptions)){
+            $filterOptions = $newFilterOptions;
             $trackKeysFrag ='';
-            if (is_array($filterOptions->track_default_filter_keys)){
+            if (is_array($filterOptions['key'])){
                 $trackKeysFrag = <<<TRACK_KEY
 <label for="track_key">Choose Key
                         <select class="default-selector border-width:default border:white color:black" name="track_key" id="track_key">
                         <option value=''>Any Key</option>
 TRACK_KEY;
-                foreach ($filterOptions->track_default_filter_keys as $filter_key){
+                foreach ($filterOptions['key'] as $filter_key){
                     $select = (url()->getParam('track_key') === $filter_key) ? 'selected' : '';
                     $trackKeysFrag .= " <option $select value='$filter_key'>$filter_key</option>";
                 }
                 $trackKeysFrag .= '</select></label>';
             }
 
-
             $fieldSettings['ThemeFolder_FilterOption_TrackKey'] = $trackKeysFrag;
             $fieldSettings['ThemeFolderTrackDefaultImage'] = "https://via.placeholder.com/200/FFFFFF/000000?text=Featured+Image+Is+Empty";
-            $fieldSettings['ThemeFolder_FilterOption_TrackBPM'] = $this->createCheckboxFilterFragmentFromFieldSettings("track_bpm", $filterOptions);
+            $fieldSettings['ThemeFolder_FilterOption_TrackBPM'] = $this->createCheckboxFilterFragmentFromFieldSettings("bpm", $filterOptions);
 
             if (isset($mainTrackData['filter_type'])){
                 $filterType = $mainTrackData['filter_type'];
                 $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_mood'] = [
                     'label' => 'Choose Mood',
-                    'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_mood", $filterOptions),
+                    'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("mood", $filterOptions),
                 ];
-
                 $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_instruments'] = [
                     'label' => 'Choose Instrument',
-                    'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_instruments", $filterOptions),
+                    'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("instrument", $filterOptions),
                 ];
-
                 if ($filterType === 'track-default-filter-sample-packs'){
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_samplePacks_Type'] = [
                         'label' => 'Choose Sample Type',
-                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_samplePacks_Type", $filterOptions),
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("samplePackType", $filterOptions),
                     ];
                 }
-
                 if ($filterType === 'track-default-filter-acapella'){
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_gender'] = [
                         'label' => 'Choose Gender',
-                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_gender", $filterOptions),
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("acapellaGender", $filterOptions),
                     ];
 
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_vocalStyle'] = [
                         'label' => 'Choose Vocal Style',
-                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_vocalStyle", $filterOptions),
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("acapellaVocalStyle", $filterOptions),
                     ];
 
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_emotion'] = [
                         'label' => 'Choose Emotion',
-                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_emotion", $filterOptions),
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("acapellaEmotion", $filterOptions),
                     ];
 
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_scale'] = [
                         'label' => 'Choose Scale',
-                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_scale", $filterOptions),
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("acapellaScale", $filterOptions),
                     ];
 
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_effects'] = [
                         'label' => 'Choose Effects',
-                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("track_default_filter_acapella_effects", $filterOptions),
+                        'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("acapellaEffects", $filterOptions),
                     ];
                 }
             }
@@ -600,11 +585,18 @@ LI;
     public function createCheckboxFilterFragmentFromFieldSettings(string $param, $filterOptions): string
     {
         $frag = '';
+        $filterOptionsToLoop = [];
         if (is_array($filterOptions->{$param})){
+            $filterOptionsToLoop = $filterOptions->{$param};
+        } elseif (is_array($filterOptions[$param])){
+            $filterOptionsToLoop = $filterOptions[$param];
+        }
+
+        if (!empty($filterOptionsToLoop)){
             $frag = <<<TRACK_KEY
 <ul class="menu-box-radiobox-items list:style:none">
 TRACK_KEY;
-            foreach ($filterOptions->{$param} as $filterValue){
+            foreach ($filterOptionsToLoop as $filterValue){
                 $checked = '';
                 if (is_array(url()->getParam($param))){
                     $bpmParam = array_combine(url()->getParam($param), url()->getParam($param));

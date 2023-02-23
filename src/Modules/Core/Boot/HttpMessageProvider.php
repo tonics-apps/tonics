@@ -19,6 +19,7 @@ use App\Modules\Track\Controllers\TracksController;
 use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 
 /**

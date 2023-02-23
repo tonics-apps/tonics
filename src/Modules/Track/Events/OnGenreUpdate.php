@@ -10,10 +10,10 @@
 
 namespace App\Modules\Track\Events;
 
-use App\Modules\Track\Events\AbstractClasses\ArtistDataAccessor;
+use App\Modules\Track\Events\AbstractClasses\GenreDataAccessor;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
-class OnArtistCreate extends ArtistDataAccessor implements EventInterface
+class OnGenreUpdate extends GenreDataAccessor implements EventInterface
 {
 
 }
