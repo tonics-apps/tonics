@@ -8,7 +8,7 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Track\EventHandlers;
+namespace App\Modules\Track\EventHandlers\Genre;
 
 use App\Modules\Track\Events\OnTrackUpdate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;

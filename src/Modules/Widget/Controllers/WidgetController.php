@@ -185,7 +185,12 @@ class WidgetController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getWidgetData()->dataTableUpdateMultiple('widget_id', Tables::getTable(Tables::WIDGETS), $entityBag, $this->widgetUpdateMultipleRule());
+        return $this->getWidgetData()->dataTableUpdateMultiple([
+            'id' => 'widget_id',
+            'table' => Tables::getTable(Tables::WIDGETS),
+            'rules' => $this->widgetUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
@@ -195,7 +200,11 @@ class WidgetController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getWidgetData()->dataTableDeleteMultiple('widget_id', Tables::getTable(Tables::WIDGETS), $entityBag);
+        return $this->getWidgetData()->dataTableDeleteMultiple([
+            'id' => 'widget_id',
+            'table' => Tables::getTable(Tables::WIDGETS),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

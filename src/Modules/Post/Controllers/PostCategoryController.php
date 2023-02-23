@@ -278,16 +278,26 @@ class PostCategoryController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getPostData()->dataTableUpdateMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag, $this->postCategoryUpdateMultipleRule());
+        return $this->getPostData()->dataTableUpdateMultiple([
+            'id' => 'cat_id',
+            'table' => Tables::getTable(Tables::CATEGORIES),
+            'rules' => $this->postCategoryUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
      * @param $entityBag
      * @return bool
+     * @throws Exception
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getPostData()->dataTableDeleteMultiple('cat_id', Tables::getTable(Tables::CATEGORIES), $entityBag);
+        return $this->getPostData()->dataTableDeleteMultiple([
+            'id' => 'cat_id',
+            'table' => Tables::getTable(Tables::CATEGORIES),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

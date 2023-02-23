@@ -369,17 +369,30 @@ SQL, ...$parameter);
     }
 
     /**
-     * @param string $id
-     * @param string $table
-     * @param $entityBag
-     * @param callable|null $onSuccess
-     * you get the deleted item in the onSuccess callback param
-     * @param callable|null $onError
+     * @param array $settings
+     * You can have the following options:
+     *
+     *  - id <br/>
+     *  - table <br/>
+     *  - entityBag <br/>
+     *  - onBeforeDelete (you get what to delet in the callback param) <br/>
+     *  - onSuccess (you get the deleted in the callback param)  <br/>
+     *  - onError  <br/>
      * @return bool
+     * @throws Exception
      */
-    public function dataTableDeleteMultiple(string $id, string $table, $entityBag, callable $onSuccess = null, callable $onError = null): bool
+    public function dataTableDeleteMultiple(array $settings): bool
     {
+        $id = $settings['id'] ?? null;
+        $table = $settings['table'] ?? null;
+        $entityBag = $settings['entityBag'] ?? null;
+        $onBeforeDelete = $settings['onBeforeDelete'] ?? null;
+        $onSuccess = $settings['onSuccess'] ?? null;
+        $onError = $settings['onError'] ?? null;
+
         $toDelete = [];
+        $dbTx = db();
+        $dbTx->beginTransaction();
         try {
             $deleteItems = $this->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
             foreach ($deleteItems as $deleteItem) {
@@ -391,15 +404,21 @@ SQL, ...$parameter);
                 }
             }
 
+            if (is_callable($onBeforeDelete)){
+                $onBeforeDelete($toDelete);
+            }
+
             db()->FastDelete($table, db()->WhereIn($id, $toDelete));
             apcu_clear_cache();
-            if ($onSuccess){
+            if (is_callable($onSuccess)){
                 $onSuccess($toDelete);
             }
+            $dbTx->commit();
             return true;
         } catch (\Exception $exception) {
+            $dbTx->rollBack();
             // log..
-            if ($onError){
+            if (is_callable($onError)){
                 $onError();
             }
             return false;
@@ -407,17 +426,29 @@ SQL, ...$parameter);
     }
 
     /**
-     * @param string $id
-     * @param string $table
-     * @param $entityBag
-     * @param array $rules
-     * @param callable|null $onSuccess
-     * @param callable|null $onError
+     * @param array $settings
+     * You can have the following options:
+     *
+     *  - id <br/>
+     *  - table <br/>
+     *  - entityBag <br/>
+     *  - rules <br/>
+     *  - onBeforeUpdate (you get what to update in the callback param, this is not in bulk like the dataTableDeleteMultiple function, it is one at a time) <br/>
+     *  - onSuccess <br/>
+     *  - onError  <br/>
      * @return bool
      * @throws Exception
      */
-    public function dataTableUpdateMultiple(string $id, string $table, $entityBag, array $rules = [], callable $onSuccess = null, callable $onError = null): bool
+    public function dataTableUpdateMultiple(array $settings): bool
     {
+        $id = $settings['id'] ?? null;
+        $table = $settings['table'] ?? null;
+        $entityBag = $settings['entityBag'] ?? null;
+        $rules = $settings['rules'] ?? [];
+        $onBeforeUpdate = $settings['onBeforeUpdate'] ?? null;
+        $onSuccess = $settings['onSuccess'] ?? null;
+        $onError = $settings['onError'] ?? null;
+
         $dbTx = db();
         try {
             $updateItems = $this->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
@@ -453,6 +484,11 @@ SQL, ...$parameter);
                         $updateChanges[table()->getColumn($table, 'field_settings')] = json_encode($fieldSettings);
                     }
                 }
+
+                if (is_callable($onBeforeUpdate)){
+                    $onBeforeUpdate($updateChanges);
+                }
+
                 $db->FastUpdate($table, $updateChanges, db()->Where($id, '=', $ID));
                 if ($onSuccess){
                     $onSuccess($colForEvent, $entityBag);

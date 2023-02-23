@@ -17,8 +17,9 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Track\Data\TrackData;
-use App\Modules\Track\Events\OnGenreCreate;
-use App\Modules\Track\Events\OnGenreUpdate;
+use App\Modules\Track\Events\Genres\OnGenreCreate;
+use App\Modules\Track\Events\Genres\OnGenreDelete;
+use App\Modules\Track\Events\Genres\OnGenreUpdate;
 use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
@@ -188,7 +189,12 @@ class GenreController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableUpdateMultiple('genre_id', Tables::getTable(Tables::GENRES), $entityBag, $this->genreUpdateMultipleRule());
+        return $this->getTrackData()->dataTableUpdateMultiple([
+            'id' => 'genre_id',
+            'table' => Tables::getTable(Tables::GENRES),
+            'entityBag' => $entityBag,
+            'rules' => $this->genreUpdateMultipleRule(),
+        ]);
     }
 
     /**
@@ -198,7 +204,20 @@ class GenreController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableDeleteMultiple('genre_id', Tables::getTable(Tables::GENRES), $entityBag);
+        $table = Tables::getTable(Tables::GENRES);
+        return $this->getTrackData()->dataTableDeleteMultiple([
+            'id' => 'genre_id',
+            'table' => $table,
+            'entityBag' => $entityBag,
+            'onBeforeDelete' => function($genreIDS) use ($table) {
+                $genres = db()->Select('genre_slug, genre_name, genre_id')->From($table)
+                    ->WhereIn('genre_id', $genreIDS)->FetchResult();
+                foreach ($genres as $genre){
+                    $onGenreDelete = new OnGenreDelete($genre, $this->getTrackData());
+                    event()->dispatch($onGenreDelete);
+                }
+            }
+        ]);
     }
 
     /**

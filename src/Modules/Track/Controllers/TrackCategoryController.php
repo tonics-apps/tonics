@@ -248,16 +248,26 @@ class TrackCategoryController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableUpdateMultiple('track_cat_id', Tables::getTable(Tables::TRACK_CATEGORIES), $entityBag, $this->trackCategoryUpdateMultipleRule());
+        return $this->getTrackData()->dataTableUpdateMultiple([
+            'id' => 'track_cat_id',
+            'table' => Tables::getTable(Tables::TRACK_CATEGORIES),
+            'rules' => $this->trackCategoryUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
      * @param $entityBag
      * @return bool
+     * @throws Exception
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableDeleteMultiple('track_cat_id', Tables::getTable(Tables::TRACK_CATEGORIES), $entityBag);
+        return $this->getTrackData()->dataTableDeleteMultiple([
+            'id' => 'track_cat_id',
+            'table' => Tables::getTable(Tables::TRACK_CATEGORIES),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

@@ -19,26 +19,29 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
+use App\Modules\Track\EventHandlers\Artist\HandleArtistFilterTypeCreation;
+use App\Modules\Track\EventHandlers\Artist\HandleArtistFilterTypeDeletion;
 use App\Modules\Track\EventHandlers\DefaultTrackCategoryFieldHandler;
 use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
-use App\Modules\Track\EventHandlers\GenreMenuMetaBox;
-use App\Modules\Track\EventHandlers\HandleArtistTypeFilter;
-use App\Modules\Track\EventHandlers\HandleGenreTypeFilter;
+use App\Modules\Track\EventHandlers\Genre\HandleGenreFilterTypeCreation;
+use App\Modules\Track\EventHandlers\Genre\HandleGenreFilterTypeDeletion;
+use App\Modules\Track\EventHandlers\Genre\HandleNewTrackToGenreMapping;
+use App\Modules\Track\EventHandlers\Genre\HandleUpdateTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleNewTrackCategorySlugIDGeneration;
 use App\Modules\Track\EventHandlers\HandleNewTrackSlugIDGeneration;
-use App\Modules\Track\EventHandlers\HandleNewTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleNewTrackToTrackCategoryMapping;
 use App\Modules\Track\EventHandlers\HandleTrackDefaultFilterMappings;
-use App\Modules\Track\EventHandlers\HandleUpdateTrackToGenreMapping;
 use App\Modules\Track\EventHandlers\HandleUpdateTrackToTrackCategoryMapping;
 use App\Modules\Track\EventHandlers\TrackCategorySitemap;
 use App\Modules\Track\EventHandlers\TrackMenuMetaBox;
 use App\Modules\Track\EventHandlers\TrackMenus;
 use App\Modules\Track\EventHandlers\TrackSitemap;
-use App\Modules\Track\Events\OnArtistCreate;
-use App\Modules\Track\Events\OnArtistUpdate;
-use App\Modules\Track\Events\OnGenreCreate;
-use App\Modules\Track\Events\OnGenreUpdate;
+use App\Modules\Track\Events\Artist\OnArtistCreate;
+use App\Modules\Track\Events\Artist\OnArtistDelete;
+use App\Modules\Track\Events\Artist\OnArtistUpdate;
+use App\Modules\Track\Events\Genres\OnGenreCreate;
+use App\Modules\Track\Events\Genres\OnGenreDelete;
+use App\Modules\Track\Events\Genres\OnGenreUpdate;
 use App\Modules\Track\Events\OnLicenseCreate;
 use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryDefaultField;
@@ -80,19 +83,27 @@ class TrackActivator implements ExtensionConfig
             ],
 
             OnGenreCreate::class => [
-                HandleGenreTypeFilter::class
+                HandleGenreFilterTypeCreation::class
             ],
 
             OnGenreUpdate::class => [
-                HandleGenreTypeFilter::class
+                HandleGenreFilterTypeCreation::class
+            ],
+
+            OnGenreDelete::class => [
+                HandleGenreFilterTypeDeletion::class
             ],
 
             OnArtistCreate::class => [
-                HandleArtistTypeFilter::class
+                HandleArtistFilterTypeCreation::class
             ],
 
             OnArtistUpdate::class => [
-                HandleArtistTypeFilter::class
+                HandleArtistFilterTypeCreation::class
+            ],
+
+            OnArtistDelete::class => [
+                HandleArtistFilterTypeDeletion::class
             ],
 
             OnLicenseCreate::class => [

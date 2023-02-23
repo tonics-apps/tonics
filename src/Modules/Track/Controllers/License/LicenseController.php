@@ -183,7 +183,12 @@ class LicenseController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableUpdateMultiple('license_id', Tables::getTable(Tables::LICENSES), $entityBag, $this->licenseUpdateMultipleRule());
+        return $this->getTrackData()->dataTableUpdateMultiple([
+            'id' => 'license_id',
+            'table' => Tables::getTable(Tables::LICENSES),
+            'rules' => $this->licenseUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
@@ -193,7 +198,11 @@ class LicenseController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableDeleteMultiple('license_id', Tables::getTable(Tables::LICENSES), $entityBag);
+        return $this->getTrackData()->dataTableDeleteMultiple([
+            'id' => 'license_id',
+            'table' => Tables::getTable(Tables::LICENSES),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

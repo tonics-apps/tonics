@@ -8,7 +8,7 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Track\EventHandlers;
+namespace App\Modules\Track\EventHandlers\Genre;
 
 use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Track\Data\TrackData;

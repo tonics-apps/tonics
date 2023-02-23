@@ -274,16 +274,26 @@ class CouponTypeController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getCouponData()->dataTableUpdateMultiple('coupon_type_id', TonicsCouponActivator::couponTypeTableName(), $entityBag, $this->couponTypeUpdateMultipleRule());
+        return $this->getCouponData()->dataTableUpdateMultiple([
+            'id' => 'coupon_type_id',
+            'table' => TonicsCouponActivator::couponTypeTableName(),
+            'rules' => $this->couponTypeUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
      * @param $entityBag
      * @return bool
+     * @throws Exception
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getCouponData()->dataTableDeleteMultiple('coupon_type_id', TonicsCouponActivator::couponTypeTableName(), $entityBag);
+        return $this->getCouponData()->dataTableDeleteMultiple([
+            'id' => 'coupon_type_id',
+            'table' => TonicsCouponActivator::couponTypeTableName(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

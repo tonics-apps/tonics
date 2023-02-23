@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `genre_name` varchar(250) NOT NULL,
   `genre_slug` varchar(255) NOT NULL,
   `genre_description` text DEFAULT NULL,
-  `can_delete` tinyint(4) DEFAULT 1, -- 1 for deleteable and 0 for non-deleteable
   `genre_status` tinyint(4) DEFAULT 1,
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -50,8 +49,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
                 'genre_name' => ucwords(str_replace("-", " ", $genre)),
                 ## slug would be progressive-house
                 'genre_slug' => str_replace(" ", "-", $genre),
-                'genre_description' => ucwords(str_replace("-", "", $genre)),
-                'can_delete' => 0
+                'genre_description' => ucwords(str_replace("-", "", $genre))
             ];
         }
         ## Populate the genres tables With Default Genres Data

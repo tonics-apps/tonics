@@ -8,13 +8,13 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Modules\Track\EventHandlers;
+namespace App\Modules\Track\EventHandlers\Genre;
 
 use App\Modules\Track\Data\TrackData;
-use App\Modules\Track\Events\AbstractClasses\ArtistDataAccessor;
+use App\Modules\Track\Events\AbstractClasses\GenreDataAccessor;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class HandleArtistTypeFilter implements HandlerInterface
+class HandleGenreFilterTypeCreation implements HandlerInterface
 {
 
     /**
@@ -22,10 +22,10 @@ class HandleArtistTypeFilter implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        /** @var ArtistDataAccessor $event */
+        /** @var GenreDataAccessor $event */
         $trackDefaultFiltersValueTable = TrackData::getTrackDefaultFiltersTable();
         $data = [
-            ['tdf_name' => $event->getArtistSlug(), 'tdf_type' => 'artist']
+            ['tdf_name' => $event->getGenreSlug(), 'tdf_type' => 'genre']
         ];
         db()->insertOnDuplicate($trackDefaultFiltersValueTable, $data, update: ['tdf_name']);
     }

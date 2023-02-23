@@ -10,10 +10,7 @@
 
 namespace App\Modules\Track\Events\AbstractClasses;
 
-use App\Modules\Post\Data\PostData;
 use App\Modules\Track\Data\TrackData;
-use App\Modules\Track\Events\OnGenreCreate;
-use App\Modules\Track\Events\OnTrackCreate;
 use stdClass;
 
 abstract class GenreDataAccessor

@@ -157,10 +157,15 @@ class Tonics404HandlerController
     /**
      * @param $entityBag
      * @return bool
+     * @throws \Exception
      */
     protected function deleteMultiple($entityBag): bool
     {
-        return $this->getFieldData()->dataTableDeleteMultiple('id', Tables::getTable(Tables::BROKEN_LINKS), $entityBag);
+        return $this->getFieldData()->dataTableDeleteMultiple([
+            'id' => 'id',
+            'table' => Tables::getTable(Tables::BROKEN_LINKS),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
@@ -175,7 +180,12 @@ class Tonics404HandlerController
             'updated_at' => ['required', 'string'],
             'redirection_type' => ['required', 'numeric'],
         ];
-        return $this->getFieldData()->dataTableUpdateMultiple('id', Tables::getTable(Tables::BROKEN_LINKS), $entityBag, $rulesUpdate);
+        return $this->getFieldData()->dataTableUpdateMultiple([
+            'id' => 'genre_id',
+            'table' => Tables::getTable(Tables::BROKEN_LINKS),
+            'rules' => $rulesUpdate,
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

@@ -187,7 +187,12 @@ class FieldController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getFieldData()->dataTableUpdateMultiple('field_id', Tables::getTable(Tables::FIELD), $entityBag, $this->fieldUpdateMultipleRule());
+        return $this->getFieldData()->dataTableUpdateMultiple([
+            'id' => 'field_id',
+            'table' => Tables::getTable(Tables::FIELD),
+            'rules' => $this->fieldUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
@@ -197,7 +202,11 @@ class FieldController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getFieldData()->dataTableDeleteMultiple('field_id', Tables::getTable(Tables::FIELD), $entityBag);
+        return $this->getFieldData()->dataTableDeleteMultiple([
+            'id' => 'field_id',
+            'table' => Tables::getTable(Tables::FIELD),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

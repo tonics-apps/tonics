@@ -17,8 +17,9 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Track\Data\TrackData;
-use App\Modules\Track\Events\OnArtistCreate;
-use App\Modules\Track\Events\OnArtistUpdate;
+use App\Modules\Track\Events\Artist\OnArtistCreate;
+use App\Modules\Track\Events\Artist\OnArtistDelete;
+use App\Modules\Track\Events\Artist\OnArtistUpdate;
 use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
@@ -187,7 +188,12 @@ class ArtistController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableUpdateMultiple('artist_id', Tables::getTable(Tables::ARTISTS), $entityBag, $this->artistUpdateMultipleRule());
+        return $this->getTrackData()->dataTableUpdateMultiple([
+            'id' => 'artist_id',
+            'table' => Tables::getTable(Tables::ARTISTS),
+            'rules' => $this->artistUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
@@ -197,7 +203,20 @@ class ArtistController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableDeleteMultiple('artist_id', Tables::getTable(Tables::ARTISTS), $entityBag);
+        $table = Tables::getTable(Tables::ARTISTS);
+        return $this->getTrackData()->dataTableDeleteMultiple([
+            'id' => 'artist_id',
+            'table' => $table,
+            'entityBag' => $entityBag,
+            'onBeforeDelete' => function($artistIDS) use ($table) {
+                $artists = db()->Select('artist_slug, artist_name, artist_id')->From($table)
+                    ->WhereIn('artist_id', $artistIDS)->FetchResult();
+                foreach ($artists as $artist){
+                    $onArtistDelete = new OnArtistDelete($artist, $this->getTrackData());
+                    event()->dispatch($onArtistDelete);
+                }
+            }
+        ]);
     }
 
 

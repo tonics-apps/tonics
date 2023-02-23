@@ -264,16 +264,26 @@ class PagesController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getPageData()->dataTableUpdateMultiple('page_id', Tables::getTable(Tables::PAGES), $entityBag, $this->pageUpdateMultipleRule());
+        return $this->getPageData()->dataTableUpdateMultiple([
+            'id' => 'page_id',
+            'table' => Tables::getTable(Tables::PAGES),
+            'rules' => $this->pageUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
      * @param $entityBag
      * @return bool
+     * @throws Exception
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getPageData()->dataTableDeleteMultiple('page_id', Tables::getTable(Tables::PAGES), $entityBag);
+        return $this->getPageData()->dataTableDeleteMultiple([
+            'id' => 'page_id',
+            'table' => Tables::getTable(Tables::PAGES),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

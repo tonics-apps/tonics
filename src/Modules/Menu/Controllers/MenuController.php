@@ -172,7 +172,12 @@ class MenuController
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getMenuData()->dataTableUpdateMultiple('menu_id', Tables::getTable(Tables::MENUS), $entityBag, $this->menuUpdateMultipleRule());
+        return $this->getMenuData()->dataTableUpdateMultiple([
+            'id' => 'menu_id',
+            'table' => Tables::getTable(Tables::MENUS),
+            'rules' => $this->menuUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
@@ -182,7 +187,11 @@ class MenuController
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getMenuData()->dataTableDeleteMultiple('menu_id', Tables::getTable(Tables::MENUS), $entityBag);
+        return $this->getMenuData()->dataTableDeleteMultiple([
+            'id' => 'menu_id',
+            'table' => Tables::getTable(Tables::MENUS),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**

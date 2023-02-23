@@ -382,16 +382,26 @@ class TracksController extends Controller
      */
     protected function updateMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableUpdateMultiple('track_id', Tables::getTable(Tables::TRACKS), $entityBag, $this->trackUpdateMultipleRule());
+        return $this->getTrackData()->dataTableUpdateMultiple([
+            'id' => 'track_id',
+            'table' => Tables::getTable(Tables::TRACKS),
+            'rules' => $this->trackUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
      * @param $entityBag
      * @return bool
+     * @throws Exception
      */
     public function deleteMultiple($entityBag): bool
     {
-        return $this->getTrackData()->dataTableDeleteMultiple('track_id', Tables::getTable(Tables::TRACKS), $entityBag);
+        return $this->getTrackData()->dataTableDeleteMultiple([
+            'id' => 'track_id',
+            'table' => Tables::getTable(Tables::TRACKS),
+            'entityBag' => $entityBag,
+        ]);
     }
 
     /**
