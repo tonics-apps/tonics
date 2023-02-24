@@ -2057,7 +2057,7 @@ function initRouting(containerSelector, navigateCallback = null) {
                 // Trim the value before adding it to the query string
                 if (value.trim()) {
                     const trimmedValue = value.trim();
-                    params.set(key, trimmedValue);
+                    params.append(key, trimmedValue);
                 }
             }
             const queryString = params.toString();
