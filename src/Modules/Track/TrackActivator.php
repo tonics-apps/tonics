@@ -23,6 +23,7 @@ use App\Modules\Track\EventHandlers\Artist\HandleArtistFilterTypeCreation;
 use App\Modules\Track\EventHandlers\Artist\HandleArtistFilterTypeDeletion;
 use App\Modules\Track\EventHandlers\DefaultTrackCategoryFieldHandler;
 use App\Modules\Track\EventHandlers\DefaultTrackFieldHandler;
+use App\Modules\Track\EventHandlers\Genre\GenreMenuMetaBox;
 use App\Modules\Track\EventHandlers\Genre\HandleGenreFilterTypeCreation;
 use App\Modules\Track\EventHandlers\Genre\HandleGenreFilterTypeDeletion;
 use App\Modules\Track\EventHandlers\Genre\HandleNewTrackToGenreMapping;

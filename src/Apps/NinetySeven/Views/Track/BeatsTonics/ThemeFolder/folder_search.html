@@ -4,10 +4,7 @@
 
 [[add_hook('tonics_folder_search_from_api')]]
 [[b('tonics_folder_search')
-
-  [[- If There is Artist At Least, Then We Can Show The Filter Frag -]]
-  [[if("v[Data.ThemeFolder_FilterOption_TrackArtists]")
-    <div class="tonics-folder-search width:100% margin-top:0">
+  <div class="tonics-folder-search width:100% margin-top:0">
     <form class="tonics-form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
       <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
         <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-none border:white border-radius:40px" name="query"
@@ -68,8 +65,6 @@
       </div>
     </form>
   </div>
-  ]]
-
 ]]
 
 [[b('tonics_folder_content')

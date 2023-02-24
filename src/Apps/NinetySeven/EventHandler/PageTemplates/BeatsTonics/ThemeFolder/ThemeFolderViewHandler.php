@@ -31,13 +31,13 @@ class ThemeFolderViewHandler implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var $event OnHookIntoTemplate */
-        $event->hookInto('tonics_folder_main', function (TonicsView $tonicsView){
+        $event->hookInto('tonics_folder_main', function (TonicsView $tonicsView) {
             return $this->handleFolderFragment($tonicsView);
         });
 
-        $event->hookInto('tonics_folder_main_from_api', function (TonicsView $tonicsView){
+        $event->hookInto('tonics_folder_main_from_api', function (TonicsView $tonicsView) {
             $isFolder = url()->getHeaderByKey('type') === 'isTonicsNavigation';
-            if ($isFolder){
+            if ($isFolder) {
                 $data = [
                     'isFolder' => true,
                     'title' => $tonicsView->accessArrayWithSeparator('Data.seo_title'),
@@ -48,28 +48,28 @@ class ThemeFolderViewHandler implements HandlerInterface
             return '';
         });
 
-        $event->hookInto('tonics_folder_search', function (TonicsView $tonicsView){
+        $event->hookInto('tonics_folder_search', function (TonicsView $tonicsView) {
             return $this->handleFolderSearchFragment($tonicsView);
         });
 
-        $event->hookInto('tonics_folder_search_from_api', function (TonicsView $tonicsView){
+        $event->hookInto('tonics_folder_search_from_api', function (TonicsView $tonicsView) {
             $isSearch = url()->getHeaderByKey('type') === 'isSearch';
-            if ($isSearch){
+            if ($isSearch) {
                 response()->onSuccess($this->handleFolderSearchFragment($tonicsView));
             }
             return '';
         });
 
-        $event->hookInto('tonics_single_main', function (TonicsView $tonicsView){
+        $event->hookInto('tonics_single_main', function (TonicsView $tonicsView) {
             return $tonicsView->renderABlock('tonics_track_main');
         });
 
-        $event->hookInto('tonics_track_from_api', function (TonicsView $tonicsView){
+        $event->hookInto('tonics_track_from_api', function (TonicsView $tonicsView) {
             $isGetMarker = url()->getHeaderByKey('type') === 'getMarker';
             $isAPI = url()->getHeaderByKey('isAPI') === 'true';
             $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
             $uniqueSlugID = $routeParams[0] ?? null;
-            if ($isGetMarker){
+            if ($isGetMarker) {
                 $track = null;
                 db(onGetDB: function ($db) use ($uniqueSlugID, &$track) {
                     $track = $db->Select('field_settings')->From(TrackData::getTrackTable())
@@ -77,32 +77,33 @@ class ThemeFolderViewHandler implements HandlerInterface
                 });
                 $fieldSettings = null;
                 $markerData = [];
-                if (isset($track->field_settings)){
+                if (isset($track->field_settings)) {
                     $track->field_settings = json_decode($track->field_settings);
                     $fieldSettings = json_decode($track->field_settings?->_fieldDetails);
                 }
 
-                if (is_array($fieldSettings)){
+                if (is_array($fieldSettings)) {
                     $markerCurrent = [];
-                    foreach ($fieldSettings as $fieldSetting){
+                    foreach ($fieldSettings as $fieldSetting) {
                         $fieldInputName = $fieldSetting->field_input_name;
-                        if ($fieldInputName === 'track_marker_slug_id'){
+                        if ($fieldInputName === 'track_marker_slug_id') {
                             $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
                         }
-                        if ($fieldSetting->field_input_name === 'track_marker_start'){
+                        if ($fieldSetting->field_input_name === 'track_marker_start') {
                             $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
                         }
-                        if ($fieldSetting->field_input_name === 'track_marker_end'){
+                        if ($fieldSetting->field_input_name === 'track_marker_end') {
                             $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
                         }
-                        if ($fieldSetting->field_input_name === 'track_marker_name'){
+                        if ($fieldSetting->field_input_name === 'track_marker_name') {
                             $markerCurrent[$fieldInputName] = json_decode($fieldSetting?->field_options)?->{$fieldInputName};
-                            $markerData[] = $markerCurrent; $markerCurrent = [];
+                            $markerData[] = $markerCurrent;
+                            $markerCurrent = [];
                         }
                     }
                 }
 
-                if (!empty($markerData)){
+                if (!empty($markerData)) {
                     $data = [
                         'isMarker' => true,
                         'markers' => $markerData
@@ -111,7 +112,7 @@ class ThemeFolderViewHandler implements HandlerInterface
                 }
             }
 
-            if ($isAPI){
+            if ($isAPI) {
                 $data = [
                     'isTrack' => true,
                     'fragment' => $tonicsView->renderABlock('tonics_track_main'),
@@ -143,7 +144,7 @@ class ThemeFolderViewHandler implements HandlerInterface
 
             $fieldSettings['ThemeFolder'] = $data;
             $tonicsView->addToVariableData('Data', $fieldSettings);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // Log..
         }
     }
@@ -152,7 +153,6 @@ class ThemeFolderViewHandler implements HandlerInterface
     {
         $trackData = TrackData::class;
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
-        dd($fieldSettings);
         try {
             $db = db();
             $db->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
@@ -166,38 +166,33 @@ class ThemeFolderViewHandler implements HandlerInterface
                     true);
             });
 
-            $db->Select('*')->From(db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
-        t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings, t.track_status as _status,
-        ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
+            $db->Select('*')->From(db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, t.track_plays as plays,
+        t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.track_status as _status,
         t.created_at,
         1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")
                 ->From("{$trackData::getTrackTable()} t")
-                ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
-                ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
-
                 ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
                 ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
                 // join cte if it is for filtering
                 ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
-                    $db ->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id");
-                 })
+                    $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id");
+                })
                 ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
-                ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
+                ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($trackData) {
+                    // -- join with the filter table
+                    $db->Join("{$trackData::getTrackDefaultFiltersTrackTable()} tdft", "t.track_id", "tdft.fk_track_id")
+                    // -- join with the filter values
+                    ->Join("{$trackData::getTrackDefaultFiltersTable()} tdf", "tdft.fk_tdf_id", "tdf.tdf_id");
+                    $this->dbWhenForCommonFieldKey($db);
+                })
                 // if it is not for filtering, use the current category
                 ->when(empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
                     $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
                 })
                 ->Raw('UNION')
                 ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name,
-                -- the num_tracks calculate both the sub-folder and tracks in a folder
-        (SELECT COUNT(*) + 
-           (SELECT COUNT(*) FROM {$trackData::getTrackTracksCategoryTable()} ttc
-            INNER JOIN {$trackData::getTrackTable()} t ON ttc.fk_track_id = t.track_id
-            WHERE ttc.fk_track_cat_id = ct.track_cat_id AND t.track_status = 1) 
-        FROM {$trackData::getTrackCategoryTable()} WHERE track_cat_parent_id = ct.track_cat_id) as num_tracks, 
         null as plays,
-        null as bpm, null as image_url, null as audio_url, null as license_attr, ct.field_settings, ct.track_cat_status as _status,
-        null as artist_name, null as artist_slug, null as genre_slug,
+        null as bpm, null as image_url, null as audio_url, null as license_attr, ct.track_cat_status as _status,
         ct.created_at as created_at,
         0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
                 ->From("{$trackData::getTrackCategoryTable()} ct")
@@ -210,22 +205,12 @@ class ThemeFolderViewHandler implements HandlerInterface
                     $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
                 })
             ) // End Sub query
-                ->As('track_results')
-                ->when(is_array(url()->getParam('track_bpm')), function (TonicsQuery $db){
-                    $db->WhereIn('track_results.bpm', url()->getParam('track_bpm'));
-                })->when(is_array(url()->getParam('track_genres')), function (TonicsQuery $db){
-                    $db->WhereIn('track_results.genre_slug', url()->getParam('track_genres'));
-                })->when(url()->hasParamAndValue('track_artist'), function (TonicsQuery $db){
-                    $db->WhereEquals('track_results.artist_slug', url()->getParam('track_artist'));
-                })->when(url()->hasParamAndValue('track_key'), function (TonicsQuery $db) {
-                    $trackKey = '"' . url()->getParam('track_key') . '"';
-                    $db->WhereJsonContains('track_results.field_settings', 'track_default_filter_keys', $trackKey);
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+            ->As('track_results')
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                     $db->WhereLike('_name', url()->getParam('query'));
                 });
 
-            $data =  $this->dbWhenForCommonFieldKey($db)
-                ->WhereEquals('_status', 1)
+            $data = $db->WhereEquals('_status', 1)
                 ->Where('created_at', '<=', helper()->date())
                 ->GroupBy("slug_id")
                 ->OrderByAsc("is_track")
@@ -234,7 +219,7 @@ class ThemeFolderViewHandler implements HandlerInterface
 
             $fieldSettings['ThemeFolder'] = $data;
             $tonicsView->addToVariableData('Data', $fieldSettings);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // Log...
         }
     }
@@ -266,13 +251,13 @@ class ThemeFolderViewHandler implements HandlerInterface
                 ->WhereEquals("t.slug_id", $uniqueSlugID)
                 ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
 
-            if (!is_array($track)){
+            if (!is_array($track)) {
                 return [];
             }
 
             $trackData->unwrapForTrack($track);
             return $track;
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // Log..
         }
         return [];
@@ -286,7 +271,7 @@ class ThemeFolderViewHandler implements HandlerInterface
     public function handleFolderFragment(TonicsView $tonicsView): string
     {
         $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
-        if ($root){
+        if ($root) {
             $this->handleTrackCategoryForRootQuery($tonicsView);
         } else {
             $this->handleTrackCategoryFolderQuery($tonicsView);
@@ -302,21 +287,18 @@ class ThemeFolderViewHandler implements HandlerInterface
     public function handleFolderSearchFragment(TonicsView $tonicsView): string
     {
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
-        if (isset($fieldSettings['track_cat_content']) && $fieldSettings['track_cat_content'] === '<p><br></p>'){
+        if (isset($fieldSettings['track_cat_content']) && $fieldSettings['track_cat_content'] === '<p><br></p>') {
             $fieldSettings['track_cat_content'] = '';
             $tonicsView->addToVariableData('Data', $fieldSettings);
         }
         $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
-        if ($root){
+        if ($root) {
             return '';
         } else {
             # Get Filters of a Certain Category and Its Sub Category
             $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($fieldSettings, $fieldSettings);
-           // $this->handleFilterTrackArtistKeyForCategorySubCategory($fieldSettings, $fieldSettings);
-           // $this->handleFilterTrackGenreKeyForCategorySubCategory($fieldSettings, $fieldSettings);
             $tonicsView->addToVariableData('Data', $fieldSettings);
         }
-
         return $tonicsView->renderABlock('tonics_folder_content') . $tonicsView->renderABlock('tonics_folder_search');
     }
 
@@ -327,23 +309,25 @@ class ThemeFolderViewHandler implements HandlerInterface
      */
     public function dbWhenForCommonFieldKey(TonicsQuery $db): TonicsQuery
     {
+
         $keys = [
-            'track_default_filter_mood',
-            'track_default_filter_instruments',
-            'track_default_filter_samplePacks_Type',
-            'track_default_filter_acapella_gender',
-            'track_default_filter_acapella_vocalStyle',
-            'track_default_filter_acapella_emotion',
-            'track_default_filter_acapella_scale',
-            'track_default_filter_acapella_effects'
+            'track_bpm' => 'bpm',
+            'track_key' => 'key',
+            'track_genres' => 'genre',
+            'track_artist' => 'artist',
+            'mood' => 'mood',
+            'instrument' => 'instrument',
+            'samplePackType' => 'samplePackType',
+            'acapellaGender' => 'acapellaGender',
+            'acapellaVocalStyle' => 'acapellaVocalStyle',
+            'acapellaEmotion' => 'acapellaEmotion',
+            'acapellaScale' => 'acapellaScale',
+            'acapellaEffects' => 'acapellaEffects',
         ];
-        foreach ($keys as $key){
-            $db->when(is_array(url()->getParam($key)), function (TonicsQuery $db) use ($key) {
-                $keyValues = url()->getParam($key);
-                foreach ($keyValues as $value){
-                    $value = '"' . $value . '"';
-                    $db->WhereJsonContains('track_results.field_settings', $key, $value, ifWhereUse: 'OR');
-                }
+        foreach ($keys as $param => $key) {
+            $db->when(url()->hasParam($param), function (TonicsQuery $db) use ($param, $key) {
+                $keyValues = url()->getParam($param);
+                $db->OrWhereEquals('tdf.tdf_type', $key)->WhereIn('tdf.tdf_name', $keyValues);
             });
         }
 
@@ -363,9 +347,11 @@ class ThemeFolderViewHandler implements HandlerInterface
 
         $filters = [
             'bpm',
+            'key',
+            'genre',
+            'artist',
             'mood',
             'instrument',
-            'key',
             'samplePackType',
             'acapellaGender',
             'acapellaVocalStyle',
@@ -375,17 +361,17 @@ class ThemeFolderViewHandler implements HandlerInterface
         ];
         $filterType = '';
         $last = array_key_last($filters);
-        foreach ($filters as $filterKey => $filter){
+        foreach ($filters as $filterKey => $filter) {
             $filterType .= <<<SQL
 '$filter'
 SQL;
-            if ($filterKey !== $last){
+            if ($filterKey !== $last) {
                 $filterType .= ',';
             }
         }
 
         $filterOptions = db()->run(<<<FILTER_OPTION
-SELECT tdf_type, JSON_ARRAYAGG(DISTINCT tdf.tdf_name) as filter_values
+SELECT tdf_type, JSON_ARRAYAGG(tdf.tdf_name) as filter_values
 FROM {$trackData::getTrackDefaultFiltersTable()} tdf
 JOIN {$trackData::getTrackDefaultFiltersTrackTable()} tdft ON tdf.tdf_id = tdft.fk_tdf_id
 JOIN {$trackData::getTrackTable()} t ON tdft.fk_track_id = t.track_id
@@ -400,31 +386,79 @@ GROUP BY tdf_type;
 FILTER_OPTION, $trackCatID, $trackCatID);
 
         $newFilterOptions = [];
-        foreach ($filterOptions as $filterOption){
-            $newFilterOptions[$filterOption->tdf_type] = json_decode($filterOption->filter_values);
+        foreach ($filterOptions as $filterOption) {
+            $values = array_unique(json_decode($filterOption->filter_values));
+            $newFilterOptions[$filterOption->tdf_type] = $values;
         }
 
-        if (!empty($newFilterOptions)){
+        if (!empty($newFilterOptions)) {
             $filterOptions = $newFilterOptions;
-            $trackKeysFrag ='';
-            if (is_array($filterOptions['key'])){
+            # FOR AUDIO KEY
+            $trackKeysFrag = '';
+            if (is_array($filterOptions['key'])) {
                 $trackKeysFrag = <<<TRACK_KEY
 <label for="track_key">Choose Key
                         <select class="default-selector border-width:default border:white color:black" name="track_key" id="track_key">
                         <option value=''>Any Key</option>
 TRACK_KEY;
-                foreach ($filterOptions['key'] as $filter_key){
+                foreach ($filterOptions['key'] as $filter_key) {
                     $select = (url()->getParam('track_key') === $filter_key) ? 'selected' : '';
                     $trackKeysFrag .= " <option $select value='$filter_key'>$filter_key</option>";
                 }
                 $trackKeysFrag .= '</select></label>';
             }
 
+            # FOR AUDIO ARTIST
+            $artists = $filterOptions['artist'] ?? [];
+            if (is_array($artists) && !empty($artists)) {
+                $trackArtistsFrag = <<<TRACK_KEY
+<label for="track_key">Choose Artist
+                        <select class="default-selector border-width:default border:white color:black" name="track_artist" id="track_artist">
+                        <option value=''>Any Artist</option>
+TRACK_KEY;
+                foreach ($artists as $artist) {
+                    $select = (url()->getParam('track_artist') === $artist) ? 'selected' : '';
+                    $artistName = ucwords(str_replace("-", " ", $artist));
+                    $trackArtistsFrag .= " <option $select value='$artist'>$artistName</option>";
+                }
+                $trackArtistsFrag .= '</select></label>';
+
+                $fieldSettings['ThemeFolder_FilterOption_TrackArtists'] = $trackArtistsFrag;
+            }
+
+            # FOR AUDIO GENRES
+            $trackGenresFrag = '';
+            $genres = $filterOptions['genre'] ?? [];
+            if (is_array($genres) && !empty($genres)) {
+                $trackGenresFrag = <<<TRACK_KEY
+<ul class="menu-box-radiobox-items list:style:none">
+TRACK_KEY;
+                foreach ($genres as $genre) {
+                    $checked = '';
+                    if (is_array(url()->getParam('track_genres'))) {
+                        $genreParam = array_combine(url()->getParam('track_genres'), url()->getParam('track_genres'));
+                        if (key_exists($genre, $genreParam)) {
+                            $checked = 'checked';
+                        }
+                    }
+                    $genreName = ucwords(str_replace("-", " ", $genre));
+                    $trackGenresFrag .= <<<LI
+<li class="menu-item">
+    <input type="checkbox" $checked id="track_genre_$genre" name="track_genres[]" value="$genre">
+     <label for="track_genre_$genre">$genreName</label>
+ </li>
+LI;
+                }
+                $trackGenresFrag .= '</ul>';
+            }
+
+            $fieldSettings['ThemeFolder_FilterOption_TrackGenres'] = $trackGenresFrag;
+
             $fieldSettings['ThemeFolder_FilterOption_TrackKey'] = $trackKeysFrag;
             $fieldSettings['ThemeFolderTrackDefaultImage'] = "https://via.placeholder.com/200/FFFFFF/000000?text=Featured+Image+Is+Empty";
             $fieldSettings['ThemeFolder_FilterOption_TrackBPM'] = $this->createCheckboxFilterFragmentFromFieldSettings("bpm", $filterOptions);
 
-            if (isset($mainTrackData['filter_type'])){
+            if (isset($mainTrackData['filter_type'])) {
                 $filterType = $mainTrackData['filter_type'];
                 $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_mood'] = [
                     'label' => 'Choose Mood',
@@ -434,13 +468,13 @@ TRACK_KEY;
                     'label' => 'Choose Instrument',
                     'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("instrument", $filterOptions),
                 ];
-                if ($filterType === 'track-default-filter-sample-packs'){
+                if ($filterType === 'track-default-filter-sample-packs') {
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_samplePacks_Type'] = [
                         'label' => 'Choose Sample Type',
                         'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("samplePackType", $filterOptions),
                     ];
                 }
-                if ($filterType === 'track-default-filter-acapella'){
+                if ($filterType === 'track-default-filter-acapella') {
                     $fieldSettings['ThemeFolder_FilterOption_More']['track_default_filter_acapella_gender'] = [
                         'label' => 'Choose Gender',
                         'frag' => $this->createCheckboxFilterFragmentFromFieldSettings("acapellaGender", $filterOptions),
@@ -471,112 +505,6 @@ TRACK_KEY;
     }
 
     /**
-     * @param $mainTrackData
-     * @param $fieldSettings
-     * @return void
-     * @throws \Exception
-     */
-    public function handleFilterTrackArtistKeyForCategorySubCategory($mainTrackData, &$fieldSettings): void
-    {
-        $trackCatID = $mainTrackData['track_cat_id'];
-        $trackData = TrackData::class;
-        $artists = db()->run(<<<SQL
--- This would get the artist that has track in them within the category and its sub-categories using RECURSIVE CTE
-WITH RECURSIVE category_tree AS (
-SELECT track_cat_id, track_cat_parent_id, slug_id, track_cat_name, track_cat_status, field_settings, 0 as level
-FROM {$trackData::getTrackCategoryTable()}
-WHERE track_cat_id = ?
-UNION ALL
-SELECT c.track_cat_id, c.track_cat_parent_id, c.slug_id, c.track_cat_name, c.track_cat_status, c.field_settings, level + 1
-FROM {$trackData::getTrackCategoryTable()} c
-INNER JOIN category_tree ct ON c.track_cat_parent_id = ct.track_cat_id
-)
-SELECT a.artist_id, a.artist_name, a.artist_slug, COUNT(t.track_id) as num_tracks
-FROM tonics_artists a
-INNER JOIN {$trackData::getTrackTable()} t ON a.artist_id = t.fk_artist_id
-INNER JOIN {$trackData::getTrackTracksCategoryTable()} ttc ON t.track_id = ttc.fk_track_id
-INNER JOIN category_tree ct ON ttc.fk_track_cat_id = ct.track_cat_id
-GROUP BY a.artist_id, a.artist_name
-HAVING COUNT(t.track_id) > 0
-ORDER BY a.artist_name;
-SQL, $trackCatID);
-
-        $trackArtistsFrag ='';
-        if (is_array($artists) && !empty($artists)){
-            $trackArtistsFrag = <<<TRACK_KEY
-<label for="track_key">Choose Artist
-                        <select class="default-selector border-width:default border:white color:black" name="track_artist" id="track_artist">
-                        <option value=''>Any Artist</option>
-TRACK_KEY;
-            foreach ($artists as $artist){
-                $select = (url()->getParam('track_artist') === $artist->artist_slug) ? 'selected' : '';
-                $trackArtistsFrag .= " <option $select value='$artist->artist_slug'>$artist->artist_name</option>";
-            }
-            $trackArtistsFrag .= '</select></label>';
-
-            $fieldSettings['ThemeFolder_FilterOption_TrackArtists'] = $trackArtistsFrag;
-        }
-    }
-
-    /**
-     * @param $mainTrackData
-     * @param $fieldSettings
-     * @return void
-     * @throws \Exception
-     */
-    public function handleFilterTrackGenreKeyForCategorySubCategory($mainTrackData, &$fieldSettings): void
-    {
-        $trackCatID = $mainTrackData['track_cat_id'];
-        $trackData = TrackData::class;
-        $genres = db()->run(<<<SQL
--- This would get the genre that has track in them within the category and its sub-categories using RECURSIVE CTE
-WITH RECURSIVE category_tree AS (
-SELECT track_cat_id, track_cat_parent_id, slug_id, track_cat_name, track_cat_status, field_settings, 0 as level
-FROM {$trackData::getTrackCategoryTable()}
-WHERE track_cat_id = ?
-UNION ALL
-SELECT c.track_cat_id, c.track_cat_parent_id, c.slug_id, c.track_cat_name, c.track_cat_status, c.field_settings, level + 1
-FROM {$trackData::getTrackCategoryTable()} c
-INNER JOIN category_tree ct ON c.track_cat_parent_id = ct.track_cat_id
-)
-SELECT g.genre_id, g.genre_name, g.genre_slug, COUNT(t.track_id) as num_tracks
-FROM tonics_genres g
-INNER JOIN {$trackData::getTrackToGenreTable()} tg ON g.genre_id = tg.fk_genre_id
-INNER JOIN {$trackData::getTrackTable()} t ON tg.fk_track_id = t.track_id
-INNER JOIN {$trackData::getTrackTracksCategoryTable()} ttc ON t.track_id = ttc.fk_track_id
-INNER JOIN category_tree ct ON ttc.fk_track_cat_id = ct.track_cat_id
-GROUP BY g.genre_id, g.genre_name
-HAVING COUNT(t.track_id) > 0
-ORDER BY num_tracks DESC;
-SQL, $trackCatID);
-
-        $trackGenresFrag ='';
-        if (is_array($genres) && !empty($genres)){
-            $trackGenresFrag = <<<TRACK_KEY
-<ul class="menu-box-radiobox-items list:style:none">
-TRACK_KEY;
-            foreach ($genres as $genre){
-                $checked = '';
-                if (is_array(url()->getParam('track_genres'))){
-                    $genreParam = array_combine(url()->getParam('track_genres'), url()->getParam('track_genres'));
-                    if (key_exists($genre->genre_slug, $genreParam)){
-                        $checked = 'checked';
-                    }
-                }
-                $trackGenresFrag .= <<<LI
-<li class="menu-item">
-    <input type="checkbox" $checked id="track_genre_$genre->genre_slug" name="track_genres[]" value="$genre->genre_slug">
-     <label for="track_genre_$genre->genre_slug">$genre->genre_name ($genre->num_tracks)</label>
- </li>
-LI;
-            }
-            $trackGenresFrag .= '</ul>';
-        }
-
-        $fieldSettings['ThemeFolder_FilterOption_TrackGenres'] = $trackGenresFrag;
-    }
-
-    /**
      * @param string $param
      * @param $filterOptions
      * @return string
@@ -586,21 +514,21 @@ LI;
     {
         $frag = '';
         $filterOptionsToLoop = [];
-        if (is_array($filterOptions->{$param})){
+        if (is_array($filterOptions->{$param})) {
             $filterOptionsToLoop = $filterOptions->{$param};
-        } elseif (is_array($filterOptions[$param])){
+        } elseif (is_array($filterOptions[$param])) {
             $filterOptionsToLoop = $filterOptions[$param];
         }
 
-        if (!empty($filterOptionsToLoop)){
+        if (!empty($filterOptionsToLoop)) {
             $frag = <<<TRACK_KEY
 <ul class="menu-box-radiobox-items list:style:none">
 TRACK_KEY;
-            foreach ($filterOptionsToLoop as $filterValue){
+            foreach ($filterOptionsToLoop as $filterValue) {
                 $checked = '';
-                if (is_array(url()->getParam($param))){
+                if (is_array(url()->getParam($param))) {
                     $bpmParam = array_combine(url()->getParam($param), url()->getParam($param));
-                    if (key_exists($filterValue, $bpmParam)){
+                    if (key_exists($filterValue, $bpmParam)) {
                         $checked = 'checked';
                     }
                 }
