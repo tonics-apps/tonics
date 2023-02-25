@@ -2006,7 +2006,11 @@ function initRouting(containerSelector, navigateCallback = null) {
     window.onload = () => {
         // Perform initialization or setup
         // without the below, the popstate won't fire if user uses the back button for the first time
-        window.history.replaceState({url: window.location.pathname}, '', window.location.pathname);
+
+        // Get the query string from the URL
+        const UrlPlusQueryString = window.location.pathname + window.location.search;
+        // Replace the current state of the browser history with the current URL, including the query string
+        window.history.replaceState({url: UrlPlusQueryString}, '', UrlPlusQueryString);
     };
 
     // Bind a popstate event listener to enable the back button
@@ -2074,7 +2078,6 @@ function initRouting(containerSelector, navigateCallback = null) {
 
 // Initialize the routing for the tonics-file-container element
 initRouting('body', ({url, type}) => {
-
     if (type === 'after' || type === 'popstate') {
         window.TonicsScript.XHRApi({isAPI: true, type: 'isTonicsNavigation'}).Get(url, function (err, data) {
             if (data) {

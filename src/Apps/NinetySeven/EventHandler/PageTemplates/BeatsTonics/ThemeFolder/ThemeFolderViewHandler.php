@@ -149,6 +149,10 @@ class ThemeFolderViewHandler implements HandlerInterface
         }
     }
 
+    /**
+     * @param TonicsView $tonicsView
+     * @return void
+     */
     public function handleTrackCategoryFolderQuery(TonicsView $tonicsView)
     {
         $trackData = TrackData::class;
@@ -186,23 +190,24 @@ class ThemeFolderViewHandler implements HandlerInterface
                     $this->dbWhenForCommonFieldKey($db);
                 })
                 // if it is not for filtering, use the current category
-                ->when(empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
-                    $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
-                })
-                ->Raw('UNION')
-                ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name,
-        null as plays,
-        null as bpm, null as image_url, null as audio_url, null as license_attr, ct.track_cat_status as _status,
-        ct.created_at as created_at,
-        0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
-                ->From("{$trackData::getTrackCategoryTable()} ct")
-                // join cte if it is for filtering, else, we use only the current category
-                ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
-                    $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id")
-                        // we do not need to include the main category in the result set
-                        ->WhereNotEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
-                }, function (TonicsQuery $db) use ($fieldSettings) {
-                    $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
+                // also, we won't be returning track_categories result set
+                // though, if there are tracks in the inner track_categories that satisfies the filter, it would get the track appropriately
+                // just not the track_category data
+                ->when(empty(url()->getParams()), function (TonicsQuery $db) use ($trackData, $fieldSettings) {
+                    $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id'])
+                        ->Raw('UNION')
+                        ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name, null as plays, null as bpm, 
+                        null as image_url, null as audio_url, null as license_attr, ct.track_cat_status as _status,
+                        ct.created_at as created_at,0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
+                        ->From("{$trackData::getTrackCategoryTable()} ct")
+                        // join cte if it is for filtering, else, we use only the current category
+                        ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
+                            $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id")
+                                // we do not need to include the main category in the result set
+                                ->WhereNotEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
+                        }, function (TonicsQuery $db) use ($fieldSettings) {
+                            $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
+                        });
                 })
             ) // End Sub query
             ->As('track_results')
@@ -311,7 +316,7 @@ class ThemeFolderViewHandler implements HandlerInterface
     {
 
         $keys = [
-            'track_bpm' => 'bpm',
+            'bpm' => 'bpm',
             'track_key' => 'key',
             'track_genres' => 'genre',
             'track_artist' => 'artist',
@@ -324,13 +329,12 @@ class ThemeFolderViewHandler implements HandlerInterface
             'acapellaScale' => 'acapellaScale',
             'acapellaEffects' => 'acapellaEffects',
         ];
-        foreach ($keys as $param => $key) {
-            $db->when(url()->hasParam($param), function (TonicsQuery $db) use ($param, $key) {
+        foreach ($keys as $param => $filterType) {
+            $db->when(url()->hasParam($param), function (TonicsQuery $db) use ($filterType, $param) {
                 $keyValues = url()->getParam($param);
-                $db->OrWhereEquals('tdf.tdf_type', $key)->WhereIn('tdf.tdf_name', $keyValues);
+                $db->OrWhereEquals('tdf.tdf_type', $filterType)->WhereIn('tdf.tdf_name', $keyValues);
             });
         }
-
         return $db;
     }
 
@@ -381,7 +385,7 @@ JOIN (
   FROM {$trackData::getTrackCategoryTable()}
   WHERE track_cat_id = ? OR track_cat_parent_id = ?
 ) category_tree ON ttc.fk_track_cat_id = category_tree.track_cat_id
-WHERE tdf.tdf_type IN ($filterType)
+WHERE t.track_status = 1 AND tdf.tdf_type IN ($filterType)
 GROUP BY tdf_type;
 FILTER_OPTION, $trackCatID, $trackCatID);
 
