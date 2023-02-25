@@ -393,7 +393,7 @@ SQL;
         }
 
         $filterOptions = db()->run(<<<FILTER_OPTION
-SELECT tdf_type, JSON_ARRAYAGG(tdf.tdf_name) as filter_values
+SELECT tdf_type, JSON_ARRAYAGG(DISTINCT tdf.tdf_name) as filter_values
 FROM {$trackData::getTrackDefaultFiltersTable()} tdf
 JOIN {$trackData::getTrackDefaultFiltersTrackTable()} tdft ON tdf.tdf_id = tdft.fk_tdf_id
 JOIN {$trackData::getTrackTable()} t ON tdft.fk_track_id = t.track_id
@@ -409,8 +409,11 @@ FILTER_OPTION, $trackCatID, $trackCatID);
 
         $newFilterOptions = [];
         foreach ($filterOptions as $filterOption) {
-            $values = array_unique(json_decode($filterOption->filter_values));
-            $newFilterOptions[$filterOption->tdf_type] = $values;
+            $decode = json_decode($filterOption->filter_values, flags: JSON_INVALID_UTF8_IGNORE);
+            if ($decode !== null){
+                $values = array_unique($decode);
+                $newFilterOptions[$filterOption->tdf_type] = $values;
+            }
         }
 
         if (!empty($newFilterOptions)) {

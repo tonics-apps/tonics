@@ -17,6 +17,7 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Track\Controllers\TracksController;
 use App\Modules\Track\Data\TrackData;
+use App\Modules\Track\Database\Migrations\CreateTrackDefaultFiltersValueTable_2023_02_20_010255;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
