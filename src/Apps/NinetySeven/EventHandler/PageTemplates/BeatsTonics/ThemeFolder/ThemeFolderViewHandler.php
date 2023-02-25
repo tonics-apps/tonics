@@ -159,7 +159,7 @@ class ThemeFolderViewHandler implements HandlerInterface
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
         try {
             $db = db();
-            $db->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
+            $db->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
                 $db->With('category_tree',
                     $db->Q()->Select('track_cat_id')->From($trackData::getTrackCategoryTable())
                         ->WhereEquals('track_cat_id', $fieldSettings['track_cat_id'])
@@ -178,22 +178,22 @@ class ThemeFolderViewHandler implements HandlerInterface
                 ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
                 ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
                 // join cte if it is for filtering
-                ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
+                ->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings) {
                     $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id");
                 })
                 ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
-                ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($trackData) {
+                ->when($this->isFiltering(), function (TonicsQuery $db) use ($trackData) {
                     // -- join with the filter table
-                    $db->Join("{$trackData::getTrackDefaultFiltersTrackTable()} tdft", "t.track_id", "tdft.fk_track_id")
+                    $db->LeftJoin("{$trackData::getTrackDefaultFiltersTrackTable()} tdft", "t.track_id", "tdft.fk_track_id")
                     // -- join with the filter values
-                    ->Join("{$trackData::getTrackDefaultFiltersTable()} tdf", "tdft.fk_tdf_id", "tdf.tdf_id");
+                    ->LeftJoin("{$trackData::getTrackDefaultFiltersTable()} tdf", "tdft.fk_tdf_id", "tdf.tdf_id");
                     $this->dbWhenForCommonFieldKey($db);
                 })
                 // if it is not for filtering, use the current category
                 // also, we won't be returning track_categories result set
                 // though, if there are tracks in the inner track_categories that satisfies the filter, it would get the track appropriately
                 // just not the track_category data
-                ->when(empty(url()->getParams()), function (TonicsQuery $db) use ($trackData, $fieldSettings) {
+                ->when($this->isFiltering() === false, function (TonicsQuery $db) use ($trackData, $fieldSettings) {
                     $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id'])
                         ->Raw('UNION')
                         ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name, null as plays, null as bpm, 
@@ -201,7 +201,7 @@ class ThemeFolderViewHandler implements HandlerInterface
                         ct.created_at as created_at,0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
                         ->From("{$trackData::getTrackCategoryTable()} ct")
                         // join cte if it is for filtering, else, we use only the current category
-                        ->when(!empty(url()->getParams()), function (TonicsQuery $db) use ($fieldSettings) {
+                        ->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings) {
                             $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id")
                                 // we do not need to include the main category in the result set
                                 ->WhereNotEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
@@ -215,7 +215,8 @@ class ThemeFolderViewHandler implements HandlerInterface
                     $db->WhereLike('_name', url()->getParam('query'));
                 });
 
-            $data = $db->WhereEquals('_status', 1)
+            $data = $db
+                ->WhereEquals('_status', 1)
                 ->Where('created_at', '<=', helper()->date())
                 ->GroupBy("slug_id")
                 ->OrderByAsc("is_track")
@@ -227,6 +228,23 @@ class ThemeFolderViewHandler implements HandlerInterface
         } catch (\Exception $exception) {
             // Log...
         }
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isFiltering(): bool
+    {
+        if (!empty(url()->getParams())){
+            return true;
+        }
+
+        if (url()->hasParamAndValue('query')){
+            return true;
+        }
+
+        return false;
     }
 
     /**
