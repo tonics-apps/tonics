@@ -100,7 +100,7 @@ class PaymentActivator implements ExtensionConfig
             "name" => "Payment",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1675754509',
+            "version" => '1-O-Ola.1677355962',
             "description" => "The Payment Module",
             "info_url" => '',
             "settings_page" => route('payment.settings'), // can be null or a route name

@@ -87,7 +87,7 @@ class MenuActivator implements ExtensionConfig
             "name" => "Menu",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1675754507',
+            "version" => '1-O-Ola.1677355962',
             "description" => "The Menu Module",
             "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-menu-module/releases/latest",
