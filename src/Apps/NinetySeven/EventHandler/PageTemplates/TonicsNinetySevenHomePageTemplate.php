@@ -10,10 +10,14 @@
 
 namespace App\Apps\NinetySeven\EventHandler\PageTemplates;
 
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
+use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class TonicsNinetySevenHomePageTemplate implements PageTemplateInterface, HandlerInterface
 {
@@ -34,106 +38,41 @@ class TonicsNinetySevenHomePageTemplate implements PageTemplateInterface, Handle
      */
     public function handleTemplate(OnPageTemplate $pageTemplate): void
     {
-        $ninetySevenHomePage = [
-            'Featured' => [],
-            'Best' => [],
-            'OtherCategories' => [],
-        ];
 
-        $featuredAndTopBestParent = 'ninetySeven_featured_and_top_best_modular';
-        $featuredLabelInputName = 'ninetySeven_featured_label';
-        $featuredPostQuery = 'ninetySeven_featured_postQuery';
-        $bestLabelInputName = 'ninetySeven_best_label';
-        $bestPostQueryLabel = 'ninetySeven_best_postQuery';
+        $postTbl = Tables::getTable(Tables::POSTS);
+        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+        $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-        # Other Post Category...
+        try {
+            $pageTemplate->setViewName('Apps::NinetySeven/Views/Page/single');
 
-        $otherPostCategoryParent = 'ninetySeven_other_post_category_repeater';
-        $otherPostCategoryTitle = 'ninetySeven_category_title';
-        $otherPostCategoryLink = 'ninetySeven_category_link';
-        $otherPostCategoryDesc = 'ninetySeven_category_description';
-        $otherPostCategoryQuery = 'ninetySeven_categoryQuery';
+            $postData = db()->Select(PostData::getPostPaginationColumns())
+                ->From($postCatTbl)
+                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                ->WhereEquals('post_status', 1)
+                ->Where("$postTbl.created_at", '<=', helper()->date())
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('post_title', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
+                    $db->WhereIn('cat_id', url()->getParam('cat'));
+                })
+                ->GroupBy('post_id')
+                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))
+                ->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
-        $pageTemplate->setViewName('Apps::NinetySeven/Views/Page/single');
+            $categories = db()->Select(table()->pickTableExcept($CatTbl, ['field_settings', 'created_at', 'updated_at']))
+                ->From(Tables::getTable(Tables::CATEGORIES))->FetchResult();
 
-        if (isset($pageTemplate->getFieldSettings()['_fieldDetails']) && is_array($fieldDetails = json_decode($pageTemplate->getFieldSettings()['_fieldDetails']))){
-            $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field){
-                if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
-                    $fieldOption = json_decode($field->field_options);
-                    $field->field_options = $fieldOption;
-                }
-                return $field;
-            });
+            $fieldSettings = $pageTemplate->getFieldSettings();
+            $fieldSettings['NinetySevenPostData'] = $postData;
+            $fieldSettings['NinetySevenPostCategoryData'] = (new PostData())->categoryCheckBoxListing($categories, url()->getParam('cat') ?? [], type: 'checkbox');
+            $pageTemplate->setFieldSettings($fieldSettings);
 
-            foreach ($fieldDetails as $field){
-                if (isset($field->field_options)){
-                    if ($field->field_input_name === $featuredAndTopBestParent && isset($field->_children)){
-                        foreach ($field->_children as $child){
-
-                            if ($child->field_input_name === $featuredLabelInputName){
-                                $ninetySevenHomePage['Featured']['Label'] = $child->field_options->ninetySeven_featured_label;
-                            }
-                            if ($child->field_input_name === $featuredPostQuery){
-                                if (isset($child->_children[0]->_children)){
-                                    $ninetySevenHomePage['Featured']['QueryData'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children);
-                                }
-                            }
-                            if ($child->field_input_name === $bestLabelInputName){
-                                $ninetySevenHomePage['Best']['Label'] = $child->field_options->ninetySeven_best_label;
-                            }
-                            if ($child->field_input_name === $bestPostQueryLabel){
-                                if (isset($child->_children[0]->_children)){
-                                    try {
-                                        $ninetySevenHomePage['Best']['QueryData'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children);
-                                    }catch (\Throwable $throwable){
-                                        // Log...
-                                        $ninetySevenHomePage['Best']['QueryData'] = null;
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-
-                    # Other Post Category...
-                    if ($field->field_input_name === $otherPostCategoryParent){
-                        if (isset($field->_children)){
-                            $currentOther = [];
-                            foreach ($field->_children as $child){
-
-                                if ($child->field_input_name === $otherPostCategoryTitle){
-                                    $currentOther['Title'] = $child->field_options->ninetySeven_category_title ?? '';
-                                }
-
-                                if ($child->field_input_name === $otherPostCategoryLink){
-                                    $currentOther['Link'] = $child->field_options->ninetySeven_category_link ?? '';
-                                }
-
-                                if ($child->field_input_name === $otherPostCategoryDesc){
-                                    $currentOther['Desc'] = $child->field_options->ninetySeven_category_description ?? '';
-                                }
-
-                                if ($child->field_input_name === $otherPostCategoryQuery){
-                                    if (isset($child->_children[0]->_children)){
-                                        try {
-                                            $currentOther['QueryData'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children);
-                                        }catch (\Throwable $throwable){
-                                            // Log...
-                                            $currentOther['QueryData'] = null;
-                                        }
-                                    }
-                                    $ninetySevenHomePage['OtherCategories'][] = $currentOther;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        } catch (\Exception $exception){
+            // Log..
         }
 
-        $fieldSettings = $pageTemplate->getFieldSettings();
-        $fieldSettings['NinetySevenHomePage'] = $ninetySevenHomePage;
-        $pageTemplate->setFieldSettings($fieldSettings);
-        $ninetySevenHomePage = null;
+
     }
 }

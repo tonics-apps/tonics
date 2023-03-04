@@ -518,11 +518,19 @@ SQL, ...$parameter);
 
     /**
      * @return string
+     * @throws \Exception
      */
-    public function getPostPaginationColumns(): string
+    public static function getPostPaginationColumns(): string
     {
-        return '`post_id`, `slug_id`, `post_title`, `post_slug`, `post_status`, `user_id`, `created_at` AS `post_created_at`, `updated_at`,
-        CONCAT_WS( "/", "/posts", slug_id, post_slug ) AS `_link`, `post_title` AS `_name`, `post_id` AS `_id`';
+        $postTable = Tables::getTable(Tables::POSTS);
+        return  table()->pick(
+            [
+                $postTable => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'created_at', 'updated_at', 'image_url']
+            ]
+        ) . ", 
+        CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _link, 
+        CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _preview_link, 
+        post_title AS _name, $postTable.post_id AS _id ";
     }
 
     /**

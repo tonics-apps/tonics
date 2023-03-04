@@ -32,32 +32,32 @@ class PayPalCapturedResponse {
 
     public function isCompleted(): bool
     {
-        return $this->response->status === 'COMPLETED';
+        return $this->getStatus() === 'COMPLETED';
     }
 
     public function isDeclined(): bool
     {
-        return $this->response->status === 'DECLINED';
+        return $this->getStatus() === 'DECLINED';
     }
 
     public function isPartiallyRefunded(): bool
     {
-        return $this->response->status === 'PARTIALLY_REFUNDED';
+        return $this->getStatus() === 'PARTIALLY_REFUNDED';
     }
 
     public function isPending(): bool
     {
-        return $this->response->status === 'PENDING';
+        return $this->getStatus() === 'PENDING';
     }
 
     public function isRefunded(): bool
     {
-        return $this->response->status === 'REFUNDED';
+        return $this->getStatus() === 'REFUNDED';
     }
 
     public function isFailed(): bool
     {
-        return $this->response->status === 'FAILED';
+        return $this->getStatus() === 'FAILED';
     }
 
     public function getTotalAmount()

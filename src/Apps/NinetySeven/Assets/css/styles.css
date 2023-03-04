@@ -1104,6 +1104,17 @@ article.entry-content {
     grid-template-columns: repeat(auto-fit,minmax(min(100%,400px),1fr));
 }
 
+.tonics-category-no-sidebar {
+    grid-gap: 1.25rem;
+    display: grid;
+    grid-template-areas:
+        "category-title"
+        "category-desc"
+        "category-article"
+        "category-sidebar";
+    grid-template-columns: repeat(auto-fit,minmax(min(100%,400px),1fr));
+}
+
 .category-title {
     grid-area: category-title;
     display: flex;
@@ -1143,6 +1154,14 @@ article.entry-content {
                 "category-title category-title category-title category-sidebar"
                 "category-desc category-desc category-desc category-sidebar"
                 "category-article category-article category-article category-sidebar";
+    }
+
+    .tonics-category-no-sidebar {
+        grid-template-columns: repeat(4,1fr);
+        grid-template-areas:
+                "category-title category-title category-title category-sidebar"
+                "category-desc category-desc category-desc category-sidebar"
+                "category-article category-article category-article category-article";
     }
 }
 

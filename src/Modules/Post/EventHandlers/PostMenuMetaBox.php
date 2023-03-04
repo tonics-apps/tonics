@@ -27,7 +27,7 @@ class PostMenuMetaBox implements HandlerInterface
     {
         $postData = new PostData();
         $paginationInfo = $postData->generatePaginationData(
-            $postData->getPostPaginationColumns(),
+            $postData::getPostPaginationColumns(),
             'post_title',
             $postData->getPostTable());
 
