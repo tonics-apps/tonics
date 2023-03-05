@@ -27,7 +27,7 @@ final class Tables
         self::FIELD => ['field_id', 'field_name', 'field_slug', 'created_at', 'updated_at'],
         self::MIGRATIONS => ['id', 'migration'],
         self::POST_CATEGORIES => ['id', 'fk_cat_id', 'fk_post_id', 'created_at', 'updated_at'],
-        self::POSTS => ['post_id', 'slug_id', 'user_id', 'image_url', 'post_title', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at'],
+        self::POSTS => ['post_id', 'slug_id', 'user_id', 'image_url', 'post_title', 'post_excerpt', 'post_slug', 'post_status', 'field_settings', 'created_at', 'updated_at'],
         self::PURCHASES => ['purchase_id', 'slug_id', 'fk_customer_id', 'total_price', 'payment_status', 'others', 'created_at', 'updated_at'],
         self::SESSIONS => ['id', 'session_id', 'session_data', 'updated_at'],
         self::GLOBAL => ['id', 'key', 'value', 'created_at', 'updated_at'],

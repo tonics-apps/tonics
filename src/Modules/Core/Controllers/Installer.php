@@ -250,7 +250,7 @@ class Installer extends SimpleState
             }
             $this->issue(self::getCurrentState(), 'An Error Occurred Migrating Some Database Tables');
             return self::ERROR;
-        } catch (Exception|\ReflectionException $e){
+        } catch (\Throwable $e){
             helper()->sendMsg(time(), json_encode($e->getMessage(), $e->getTraceAsString()), 'issue');
             $this->issue(self::getCurrentState(), 'An Error Occurred Migrating Some Database Tables: Raised Exception');
             return self::ERROR;

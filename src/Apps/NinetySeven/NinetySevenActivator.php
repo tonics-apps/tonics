@@ -120,7 +120,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "NinetySeven",
             "type" => "Theme",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1677355963',
+            "version" => '1-O-Ola.1677355965',
             "description" => "NinetySeven Theme, The First Tonic Theme",
             "info_url" => '',
             "settings_page" => route('ninetySeven.settings'), // can be null or a route name
@@ -143,76 +143,6 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     {
         $json =<<<'JSON'
 [
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "modular_rowcolumn",
-    "field_id": 1,
-    "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4xekzw3z6ew0000000000\",\"field_input_name\":\"ninetySeven_featured_and_top_best_modular\",\"fieldName\":\"Featured and Top Best\",\"inputName\":\"ninetySeven_featured_and_top_best_modular\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"1fr\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "input_text",
-    "field_id": 2,
-    "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6wgc8a4t6ns0000000000\",\"field_input_name\":\"ninetySeven_featured_label\",\"fieldName\":\"Featured  Label\",\"inputName\":\"ninetySeven_featured_label\",\"textType\":\"text\",\"defaultValue\":\"Featured\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"0\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "modular_fieldselection",
-    "field_id": 3,
-    "field_parent_id": 1,
-    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"1\",\"field_slug_unique_hash\":\"50p241i02fg0000000000\",\"field_input_name\":\"ninetySeven_featured_postQuery\",\"fieldName\":\"Featured Post Query\",\"inputName\":\"ninetySeven_featured_postQuery\",\"fieldSlug\":\"post-query-builder\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "input_text",
-    "field_id": 4,
-    "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"20wx6ymlpnr4000000000\",\"field_input_name\":\"ninetySeven_best_label\",\"fieldName\":\"Best Label\",\"inputName\":\"ninetySeven_best_label\",\"textType\":\"text\",\"defaultValue\":\"Top Best\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"0\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "modular_fieldselection",
-    "field_id": 5,
-    "field_parent_id": 1,
-    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"2\",\"field_slug_unique_hash\":\"743gv1qsz740000000000\",\"field_input_name\":\"ninetySeven_best_postQuery\",\"fieldName\":\"Best Post Query\",\"inputName\":\"ninetySeven_best_postQuery\",\"fieldSlug\":\"post-query-builder\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "modular_rowcolumnrepeater",
-    "field_id": 6,
-    "field_parent_id": null,
-    "field_options": "{\"field_validations\":[\"url\"],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"15e73bc1m9i8000000000\",\"field_input_name\":\"ninetySeven_other_post_category_repeater\",\"fieldName\":\"Other Post Category\",\"inputName\":\"ninetySeven_other_post_category_repeater\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Repeat Post Category\",\"cell\":\"on\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "input_text",
-    "field_id": 7,
-    "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3py5fz8te140000000000\",\"field_input_name\":\"ninetySeven_category_title\",\"fieldName\":\"Category Title\",\"inputName\":\"ninetySeven_category_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Title\",\"readOnly\":\"0\",\"required\":\"0\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "input_text",
-    "field_id": 8,
-    "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[\"url\"],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"28m1lcaob24g000000000\",\"field_input_name\":\"ninetySeven_category_link\",\"fieldName\":\"Category Link\",\"inputName\":\"ninetySeven_category_link\",\"textType\":\"url\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Link\",\"readOnly\":\"0\",\"required\":\"0\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "input_text",
-    "field_id": 9,
-    "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"136tqlcfowdc00000000\",\"field_input_name\":\"ninetySeven_category_description\",\"fieldName\":\"Category Description\",\"inputName\":\"ninetySeven_category_description\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Category Description\",\"readOnly\":\"0\",\"required\":\"0\"}"
-  },
-  {
-    "fk_field_id": "App Ninety Seven [Post Home Page]",
-    "field_name": "modular_fieldselection",
-    "field_id": 10,
-    "field_parent_id": 6,
-    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"1\",\"field_slug_unique_hash\":\"1b4e4dbm2aow000000000\",\"field_input_name\":\"ninetySeven_categoryQuery\",\"fieldName\":\"Category Query\",\"inputName\":\"ninetySeven_categoryQuery\",\"fieldSlug\":\"post-query-builder\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
-  },
   {
     "fk_field_id": "App Ninety Seven Settings",
     "field_name": "modular_rowcolumn",
@@ -267,7 +197,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     "field_name": "input_rich-text",
     "field_id": 8,
     "field_parent_id": 6,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> \\u00a9 2022 Devsrealm |        <a href=\\\"https://devsrealm.com/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> © 2023 Devsrealm |        <a href=\\\"https://tonics.app/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
   }
 ]
 JSON;

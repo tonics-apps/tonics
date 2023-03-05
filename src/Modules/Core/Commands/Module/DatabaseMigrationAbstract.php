@@ -14,6 +14,7 @@ use App\Modules\Core\Commands\Module\Traits\InitMigrationTable;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use PDO;
 
 abstract class DatabaseMigrationAbstract
@@ -56,8 +57,10 @@ abstract class DatabaseMigrationAbstract
     {
         if ($this->doesMigrationExist($migrationName) && is_subclass_of($class, Migration::class)) {
             container()->get($class)->down(); $tbl = $this->migrationTableName();
-            db()->FastDelete($tbl, db()->WhereIn(table()->getColumn($tbl, 'migration'), $migrationName));
-            $this->successMessage("$migrationName Migration Reversed");
+            db(onGetDB: function (TonicsQuery $db) use ($tbl, $migrationName, &$result) {
+                $db->FastDelete($tbl, db()->WhereIn(table()->getColumn($tbl, 'migration'), $migrationName));
+                $this->successMessage("$migrationName Migration Reversed");
+            });
         }
     }
 
@@ -67,9 +70,11 @@ abstract class DatabaseMigrationAbstract
      */
     public function insertMigrationRow($migrationName): void
     {
-        db()->Insert($this->migrationTableName(), ['migration' => $migrationName]);
-        # Migration message for the console
-        $this->successMessage("$migrationName Migrated");
+        db(onGetDB: function (TonicsQuery $db) use ($migrationName, &$result) {
+            $db->Insert($this->migrationTableName(), ['migration' => $migrationName]);
+            # Migration message for the console
+            $this->successMessage("$migrationName Migrated");
+        });
     }
 
     /**
@@ -77,17 +82,18 @@ abstract class DatabaseMigrationAbstract
      */
     public function forceDropTable(): void
     {
-        $db = db();
-        $db->query("SET foreign_key_checks = 0");
+        db(onGetDB: function (TonicsQuery $db){
+            $db->query("SET foreign_key_checks = 0");
 
-        $stm = db()->getPdo()->prepare("SHOW TABLES");
-        $stm->execute();
-        if ($tables = $stm->fetchAll(\PDO::FETCH_COLUMN, 0)){
-            foreach ($tables as $table){
-                $db->query("DROP TABLE IF EXISTS `$table`");
+            $stm = db()->getPdo()->prepare("SHOW TABLES");
+            $stm->execute();
+            if ($tables = $stm->fetchAll(\PDO::FETCH_COLUMN, 0)){
+                foreach ($tables as $table){
+                    $db->query("DROP TABLE IF EXISTS `$table`");
+                }
             }
-        }
-        $db->query("SET foreign_key_checks = 1");
+            $db->query("SET foreign_key_checks = 1");
+        });
     }
 
     /**
@@ -95,9 +101,12 @@ abstract class DatabaseMigrationAbstract
      */
     public function doesMigrationExist($migrationName): bool
     {
-        $result = db()
-            ->run("SELECT EXISTS(SELECT * FROM {$this->migrationTableName()} WHERE migration = ?) AS result",
-                $migrationName);
+        $result = null;
+        db(onGetDB: function (TonicsQuery $db) use ($migrationName, &$result) {
+            $result = $db
+                ->run("SELECT EXISTS(SELECT * FROM {$this->migrationTableName()} WHERE migration = ?) AS result",
+                    $migrationName);
+        });
 
         if (is_array($result) && $result[0]->result === 0) {
             return false;

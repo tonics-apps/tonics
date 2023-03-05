@@ -10,17 +10,13 @@
 
 namespace App\Modules\Core\Boot;
 
-use App\Apps\TestApp\DropboxFileLinkGenerator;
-use App\Apps\TestApp\ImportMIDI;
+use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Track\Controllers\TracksController;
-use App\Modules\Track\Data\TrackData;
-use App\Modules\Track\Database\Migrations\CreateTrackDefaultFiltersValueTable_2023_02_20_010255;
+use App\Modules\Page\Database\Migrations\CreatePagesTable_2022_01_13_202136;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
-use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 
 /**

@@ -97,11 +97,13 @@ class Session
 
         $data = null;
         db(onGetDB: function ($db) use (&$data){
-
-            $data = $db->row(<<<SQL
+            try {
+                $data = $db->row(<<<SQL
 SELECT * FROM {$this->getTable()} WHERE session_id = ?
 SQL, $this->getCookieID());
-
+            } catch (\Exception $exception){
+                $data = null;
+            }
         });
 
         if (is_null($data)) {
@@ -265,12 +267,16 @@ SQL, $this->getCookieID());
         if ($this->sessionExist()) {
 
             $res = null;
-            db(onGetDB: function ($db) use ($key, &$res){
+            db(onGetDB: function () use ($key, &$res){
                 $sessionID = $this->getCookieID();
                 $jsonPath = '$.' . $key;
-                $res = db()->row(<<<SQL
+                try {
+                    $res = db()->row(<<<SQL
 SELECT JSON_EXISTS(session_data , ?) AS row FROM {$this->getTable()} WHERE session_id = ?;
 SQL, $jsonPath, $sessionID);
+                }catch (\Exception $exception){
+                    $res = null;
+                }
             });
 
             if ($res === null) {
@@ -334,11 +340,17 @@ SQL, $jsonPath, $sessionID);
         $res = null;
         db(onGetDB: function ($db) use ($key, &$res) {
             $sessionID = $this->getCookieID();
-            $res =  $db->Select()->JsonExtract('session_data', $key)
-                ->As('row')
-                ->From($this->getTable())
-                ->WhereEquals('session_id', $sessionID)->FetchFirst();
+            try {
+                $res =  $db->Select()->JsonExtract('session_data', $key)
+                    ->As('row')
+                    ->From($this->getTable())
+                    ->WhereEquals('session_id', $sessionID)->FetchFirst();
+            }catch (\Exception $exception){
+                $res = false;
+            }
+
         });
+
         return $res;
     }
 

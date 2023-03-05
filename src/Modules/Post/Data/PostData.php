@@ -527,7 +527,7 @@ SQL, ...$parameter);
             [
                 $postTable => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'created_at', 'updated_at', 'image_url']
             ]
-        ) . ", 
+        ) . ", post_excerpt AS _excerpt, 
         CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _link, 
         CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _preview_link, 
         post_title AS _name, $postTable.post_id AS _id ";

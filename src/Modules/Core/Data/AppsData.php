@@ -31,11 +31,16 @@ class AppsData extends AbstractDataLayer
         $internal_modules = helper()->getModuleActivators([ExtensionConfig::class]);
         $updatesObject = AppConfig::getAppUpdatesObject();
 
+        /**  @var ExtensionConfig $app */
         foreach ($apps as $path => $app){
             $classToString = $app::class;
 
+            $canUpdate = false;
             if (isset($updatesObject['app']) && isset($updatesObject['app'][$classToString])){
                 $updateInfos = $updatesObject['app'][$classToString];
+                $appTimeStamp = helper()->getTimeStampFromVersion($app->info()['version'] ?? '');
+                $updateTimeStamp = $updateInfos['release_timestamp'] ?? '';
+                $canUpdate = $updateTimeStamp > $appTimeStamp;
                 $data = [
                     ...$updateInfos,
                     ...$app->info()
@@ -81,7 +86,7 @@ FORM;
             }
 
             $data['type'] = strtoupper($type);
-            $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
+            $data['update_available'] = ($canUpdate) ? 'Yes' : 'No';
 
             $data['update_frag'] = <<<HTML
 <div class="form-group d:flex flex-gap:small flex-wrap:wrap">
@@ -97,8 +102,12 @@ HTML;
             $classToString = $module::class;
             $updateInfos = [];
 
+            $canUpdate = false;
             if (isset($updatesObject['module']) && isset($updatesObject['module'][$classToString])){
                 $updateInfos = $updatesObject['module'][$classToString];
+                $moduleTimeStamp = helper()->getTimeStampFromVersion($module->info()['version'] ?? '');
+                $updateTimeStamp = $updateInfos['release_timestamp'] ?? '';
+                $canUpdate = $updateTimeStamp > $moduleTimeStamp;
             }
             $data = [
                 ...$updateInfos,
@@ -107,7 +116,7 @@ HTML;
 
             $data['type'] = 'MODULE';
 
-            $data['update_available'] = (isset($data['can_update']) && $data['can_update']) ? 'Yes' : 'No';
+            $data['update_available'] = ($canUpdate) ? 'Yes' : 'No';
 
             $settingsFrag = '';
             if (isset($data['settings_page']) && !empty($data['settings_page'])){

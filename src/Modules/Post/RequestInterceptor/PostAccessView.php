@@ -127,10 +127,9 @@ class PostAccessView
             $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
             $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-            $postFieldSettings = $postTbl . '.field_settings';
             $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
                 . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
-                . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
+                . ", $postTbl.post_excerpt AS _excerpt";
 
 
             $relatedPost = db()->Select($tblCol)
@@ -182,7 +181,7 @@ class PostAccessView
                 $postFieldSettings = $postTbl . '.field_settings';
                 $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
                     . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
-                    . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as post_description";
+                    . ", $postTbl.post_excerpt AS _excerpt";
 
                 $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($category['cat_id']);
                 $catIDS = [];

@@ -1105,7 +1105,6 @@ article.entry-content {
 }
 
 .tonics-category-no-sidebar {
-    grid-gap: 1.25rem;
     display: grid;
     grid-template-areas:
         "category-title"

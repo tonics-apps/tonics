@@ -6,15 +6,15 @@
 [[hook_into('in_head_title')[[v('Data.seo_title .. Data.page_title')]] ]]
 [[hook_into('in_head_og_title')[[v("Data.seo_title .. Data.page_title")]] ]]
 
-[[hook_into('in_main_class')padding:default more-owl]]
+[[hook_into('in_main_class')]]
 [[hook_into('in_main')
   <section>
-    <div class="tonics-coupon padding:default more-owl">
-        <div class="tonics-coupon-title d:flex flex-d:column">
+    <div class="padding:default owl">
+        <div class="d:flex flex-d:column">
             <h1>[[v('Data.page_title')]]</h1>
         </div>
-        <div class="tonics-coupon-search width:100% margin-top:0">
-            <form action="#tonicsCoupon" class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
+        <div class="width:100%">
+            <form class="dataTable-Form form-and-filter width:100% d:flex flex-d:column align-items:center flex-gap:small" method="GET">
                 <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
                     <input type="search" value="[[v('URL.PARAMS.query')]]"  class="filter-search-admin border-radius:40px" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
                 </div>
@@ -33,7 +33,7 @@
             </form>
         </div>
 
-        <div class="tonics-category-no-sidebar padding:default owl">
+        <div class="tonics-category-no-sidebar">
             <div id="sfc" class="category-article">
                 <ul class="top-best-list">
                     [[each("_post_article in Data.NinetySevenPostData.data")
@@ -48,6 +48,7 @@
                             </div>
                             <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
                                 <h4 class="margin-left:0">[[v('_post_article.post_title')]]</h4>
+                                <p style="max-width:unset;">[[v('_post_article._excerpt')]]</p>
                             </div>
                             <div class="form-group d:flex flex-gap:small padding:default ">
                                 <a title="[[v('_post_article.post_title')]]" href="[[v('_post_article._preview_link')]]" class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default

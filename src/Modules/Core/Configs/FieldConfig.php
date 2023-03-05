@@ -164,7 +164,12 @@ class FieldConfig
         $updates = null;
 
         db(onGetDB: function ($db) use ($key, $globalTable, &$updates) {
-            $updates = $db->row("SELECT * FROM $globalTable WHERE `key` = ?", $key);
+            try {
+                $updates = $db->row("SELECT * FROM $globalTable WHERE `key` = ?", $key);
+            } catch (\Exception $exception){
+                $updates = [];
+            }
+
         });
 
         if (isset($updates->value) && !empty($updates->value)){
@@ -253,6 +258,13 @@ class FieldConfig
     "field_id": 11,
     "field_parent_id": 8,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_date\",\"input_date_cell\":\"1\",\"field_slug_unique_hash\":\"13mgpl0rp37g000000000\",\"field_input_name\":\"created_at\",\"fieldName\":\"Date\",\"inputName\":\"created_at\",\"dateType\":\"datetime-local\",\"min\":\"\",\"max\":\"\",\"readonly\":\"0\",\"required\":\"0\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "Post Page",
+    "field_name": "input_text",
+    "field_id": 12,
+    "field_parent_id": 8,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2nnbe60y6140000000000\",\"field_input_name\":\"post_excerpt\",\"fieldName\":\"Excerpt\",\"inputName\":\"post_excerpt\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"500\",\"placeholder\":\"Enter Post Excerpt\",\"readOnly\":\"0\",\"required\":\"0\"}"
   },
   {
     "fk_field_id": "Post Category Page",
