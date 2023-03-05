@@ -186,7 +186,7 @@ class PostsController
         $dbTx = db();
         try {
             $dbTx->beginTransaction();
-            $post = $this->postData->createPost(['token']);
+            $post = $this->postData->createPost(['token', 'post_excerpt']);
             $onBeforePostSave = new OnBeforePostSave($post);
             event()->dispatch($onBeforePostSave);
             $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
@@ -330,7 +330,7 @@ class PostsController
 
         $db = db();
         $db->beginTransaction();
-        $postToUpdate = $this->postData->createPost(['token']);
+        $postToUpdate = $this->postData->createPost(['token', 'post_excerpt']);
 
         try {
             $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));

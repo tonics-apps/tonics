@@ -12,6 +12,7 @@ namespace App\Modules\Menu\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateMenuItemsTable_2022_01_13_200954 extends Migration {
 
@@ -23,9 +24,9 @@ class CreateMenuItemsTable_2022_01_13_200954 extends Migration {
      */
     public function up()
     {
-        $menuTable = Tables::getTable(Tables::MENUS);
-
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $menuTable = Tables::getTable(Tables::MENUS);
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `fk_menu_id` int(10) unsigned NOT NULL,
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   KEY `menu_items_fk_menu_id_foreign` (`fk_menu_id`),
   CONSTRAINT `menu_items_fk_menu_id_foreign` FOREIGN KEY (`fk_menu_id`) REFERENCES `$menuTable` (`menu_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-
+        });
     }
 
     /**

@@ -14,6 +14,7 @@ use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateFieldItemsTable_2022_01_05_161811 extends Migration {
 
@@ -22,8 +23,10 @@ class CreateFieldItemsTable_2022_01_05_161811 extends Migration {
      */
     public function up()
     {
-        $fieldTable = Tables::getTable(Tables::FIELD);
-        $this->getDB()->run("
+
+        db(onGetDB: function (TonicsQuery $db){
+            $fieldTable = Tables::getTable(Tables::FIELD);
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `fk_field_id` int(10) unsigned NOT NULL,
@@ -38,10 +41,14 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   CONSTRAINT `bt_field_items_fk_field_id_foreign` FOREIGN KEY (`fk_field_id`) REFERENCES `$fieldTable` (`field_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `CONSTRAINT_1` CHECK (`field_options` is null or json_valid(`field_options`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
 
         (new FieldData())->importFieldItems(FieldConfig::DefaultFieldItems());
     }
 
+    /**
+     * @throws \Exception
+     */
     public function down()
     {
         return $this->dropTable($this->tableName());

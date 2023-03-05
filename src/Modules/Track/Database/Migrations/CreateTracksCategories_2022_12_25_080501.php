@@ -10,9 +10,13 @@ use App\Modules\Core\Library\Tables;
 
 class CreateTracksCategories_2022_12_25_080501 extends Migration {
 
+    /**
+     * @throws \Exception
+     */
     public function up()
     {
-        $this->getDB()->run("
+        db(onGetDB: function ($db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `track_cat_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(16) DEFAULT NULL,
@@ -27,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   KEY `track_cat_parent_id_foreign` (`track_cat_parent_id`),
   CONSTRAINT `track_cat_parent_id_foreign` FOREIGN KEY (`track_cat_parent_id`) REFERENCES `{$this->tableName()}` (`track_cat_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
     /**

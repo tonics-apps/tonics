@@ -23,16 +23,18 @@ class CreateTracksTable_2022_01_13_210642 extends Migration {
      */
     public function up()
     {
-        $artistTable = Tables::getTable(Tables::ARTISTS);
-        $licenseTable = Tables::getTable(Tables::LICENSES);
 
-        // unique_id should be one of licenseAttr License
-        $licenseAttrJSON = json_encode([
-            'unique_id' => 'url_download',
-            'unique_id_2' => 'url_download_2',
-        ], JSON_THROW_ON_ERROR);
+        db(onGetDB: function ($db){
+            $artistTable = Tables::getTable(Tables::ARTISTS);
+            $licenseTable = Tables::getTable(Tables::LICENSES);
 
-        $this->getDB()->run("
+            // unique_id should be one of licenseAttr License
+            $licenseAttrJSON = json_encode([
+                'unique_id' => 'url_download',
+                'unique_id_2' => 'url_download_2',
+            ], JSON_THROW_ON_ERROR);
+
+            $db->run("
 CREATE TABLE IF NOT EXISTS {$this->tableName()} (
   `track_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(16) DEFAULT NULL,
@@ -57,6 +59,7 @@ CREATE TABLE IF NOT EXISTS {$this->tableName()} (
   CONSTRAINT `bt_tracks_fk_artist_id_foreign` FOREIGN KEY (`fk_artist_id`) REFERENCES `$artistTable` (`artist_id`) ON UPDATE CASCADE,
   CONSTRAINT `bt_tracks_fk_license_id_foreign` FOREIGN KEY (`fk_license_id`) REFERENCES `$licenseTable` (`license_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
     /**

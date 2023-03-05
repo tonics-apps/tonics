@@ -12,6 +12,7 @@ namespace App\Modules\Payment\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JsonException;
 
 class CreatePurchasesTable_2022_01_13_210655 extends Migration {
@@ -21,20 +22,23 @@ class CreatePurchasesTable_2022_01_13_210655 extends Migration {
      *
      * @return void
      * @throws JsonException
+     * @throws \Exception
      */
     public function up()
     {
-        $othersJSON = json_encode([
-            'itemIds' => null, // would be used to confirm the item the user is actually buying
-            'invoice_id' => null,
-            'tx_ref' => null, // this is for flutterwave
-            'order_id' => null, // this is for PayPal
-            'payment_method' => null, // i.e PayPal, FlutterWave
-        ], JSON_THROW_ON_ERROR);
+        db(onGetDB: function (TonicsQuery $db){
 
-        $customerTable = Tables::getTable(Tables::CUSTOMERS);
+            $othersJSON = json_encode([
+                'itemIds' => null, // would be used to confirm the item the user is actually buying
+                'invoice_id' => null,
+                'tx_ref' => null, // this is for flutterwave
+                'order_id' => null, // this is for PayPal
+                'payment_method' => null, // i.e PayPal, FlutterWave
+            ], JSON_THROW_ON_ERROR);
 
-        $this->getDB()->run("
+            $customerTable = Tables::getTable(Tables::CUSTOMERS);
+
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `purchase_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(64) DEFAULT NULL,
@@ -51,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   KEY `purchases_fk_customer_id_foreign` (`fk_customer_id`),
   CONSTRAINT `purchases_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customerTable` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-
+        });
     }
 
     /**

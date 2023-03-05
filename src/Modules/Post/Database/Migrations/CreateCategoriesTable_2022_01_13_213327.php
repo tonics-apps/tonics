@@ -12,6 +12,7 @@ namespace App\Modules\Post\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateCategoriesTable_2022_01_13_213327 extends Migration {
 
@@ -23,9 +24,9 @@ class CreateCategoriesTable_2022_01_13_213327 extends Migration {
      */
     public function up()
     {
-        ## This would be the category for the Post table. it is not related to track table
-
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            ## This would be the category for the Post table. it is not related to track table
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `cat_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(16) DEFAULT NULL,
@@ -40,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   KEY `cat_parent_id_foreign` (`cat_parent_id`),
   CONSTRAINT `cat_parent_id_foreign` FOREIGN KEY (`cat_parent_id`) REFERENCES `{$this->tableName()}` (`cat_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-
+        });
     }
 
     /**

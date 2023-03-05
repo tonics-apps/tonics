@@ -12,8 +12,10 @@ namespace App\Modules\Page\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class CreatePagesTable_2022_01_13_202136 extends Migration {
+class CreatePagesTable_2022_01_13_202136 extends Migration
+{
 
     /**
      * Run the migrations.
@@ -21,9 +23,11 @@ class CreatePagesTable_2022_01_13_202136 extends Migration {
      * @return void
      * @throws \Exception
      */
-    public function up(){
+    public function up()
+    {
 
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db) {
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `page_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `field_ids` longtext DEFAULT '{}' CHECK (json_valid(`field_ids`)),
@@ -38,7 +42,8 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   UNIQUE KEY `pages_page_slug_unique` (`page_slug`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-        db()->insertOnDuplicate($this->tableName(), self::defaultPages(), ['field_ids']);
+            $db->insertOnDuplicate($this->tableName(), self::defaultPages(), ['field_ids']);
+        });
 
     }
 

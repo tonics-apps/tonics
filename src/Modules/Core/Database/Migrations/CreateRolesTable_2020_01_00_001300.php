@@ -14,6 +14,7 @@ use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 
 class CreateRolesTable_2020_01_00_001300 extends Migration
@@ -24,7 +25,8 @@ class CreateRolesTable_2020_01_00_001300 extends Migration
      */
     public function up()
     {
-    $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db) {
+            $db->run("
     CREATE TABLE IF NOT EXISTS `{$this->tableUser()}` (
         `id`  INT AUTO_INCREMENT PRIMARY KEY,
         `role_name` varchar(255) NOT NULL,
@@ -34,6 +36,7 @@ class CreateRolesTable_2020_01_00_001300 extends Migration
         UNIQUE KEY `role_name_unique` (`role_name`),
         UNIQUE KEY `role_id_unique` (`role_id`)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
     /**

@@ -7,12 +7,17 @@ namespace App\Modules\Core\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateBrokenLinksTable_2022_10_21_073932 extends Migration {
 
+    /**
+     * @throws \Exception
+     */
     public function up()
     {
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,     
     `from` varchar(500) NOT NULL,
@@ -25,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_key` (`from`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
     /**

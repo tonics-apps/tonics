@@ -12,6 +12,7 @@ namespace App\Modules\Track\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JsonException;
 
 class CreateLicensesTable_2022_01_13_210634 extends Migration {
@@ -26,15 +27,16 @@ class CreateLicensesTable_2022_01_13_210634 extends Migration {
     public function up()
     {
 
-        // unique_id should be unique for a single row (it can be the same across different rows)
-        $licenseAttrJSON = json_encode([
-            ['name' => 'Basic', 'unique_id' => helper()->randomString(), 'price' => 50.00, 'license_contract' => '', 'is_enabled' => true ],
-            ['name' => 'Premium', 'unique_id' => helper()->randomString(), 'price' => 100.00, 'license_contract' => '', 'is_enabled' => true ],
-            ['name' => 'Unlimited', 'unique_id' => helper()->randomString(), 'price' => 200.00, 'license_contract' => '', 'is_enabled' => true ]
-        ], JSON_THROW_ON_ERROR);
+        db(onGetDB: function (TonicsQuery $db){
+            // unique_id should be unique for a single row (it can be the same across different rows)
+            $licenseAttrJSON = json_encode([
+                ['name' => 'Basic', 'unique_id' => helper()->randomString(), 'price' => 50.00, 'license_contract' => '', 'is_enabled' => true ],
+                ['name' => 'Premium', 'unique_id' => helper()->randomString(), 'price' => 100.00, 'license_contract' => '', 'is_enabled' => true ],
+                ['name' => 'Unlimited', 'unique_id' => helper()->randomString(), 'price' => 200.00, 'license_contract' => '', 'is_enabled' => true ]
+            ], JSON_THROW_ON_ERROR);
 
-        // This table stands as license groups
-        $this->getDB()->run("
+            // This table stands as license groups
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `license_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `license_name` varchar(255) NOT NULL,
@@ -47,10 +49,11 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   CONSTRAINT `CONSTRAINT_1` CHECK (`license_attr` is null or json_valid(`license_attr`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-        // Default Insert
-        $this->getDB()->run("
+            // Default Insert
+            $db->run("
 INSERT INTO {$this->tableName()}(`license_name`, `license_slug`)
 VALUES ('Beat Standard','beat-standard');");
+        });
     }
 
     /**

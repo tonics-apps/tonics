@@ -7,6 +7,7 @@ namespace App\Modules\Comment\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateCommentTable_2022_08_27_065459 extends Migration {
 
@@ -15,8 +16,9 @@ class CreateCommentTable_2022_08_27_065459 extends Migration {
      */
     public function up()
     {
-        $commentUserTypeTable = Tables::getTable(Tables::COMMENT_USER_TYPE);
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db) {
+            $commentUserTypeTable = Tables::getTable(Tables::COMMENT_USER_TYPE);
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
      `fk_comment_usertype_id` int(10) unsigned NOT NULL,
@@ -35,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     CONSTRAINT `comment_fk_comment_usertype_id` FOREIGN KEY (`fk_comment_usertype_id`) REFERENCES `$commentUserTypeTable` (`comment_usertype_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
+        });
     }
 
     /**

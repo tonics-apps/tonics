@@ -7,6 +7,7 @@ namespace App\Modules\Core\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateSchedulerTable_2022_08_19_014455 extends Migration
 {
@@ -37,7 +38,10 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
       CONSTRAINT `schedule_child_to_parent_foreign` FOREIGN KEY (`schedule_parent_name`) REFERENCES `{$this->tableName()}` (`schedule_name`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
-        $this->getDB()->run($sql);
+
+        db(onGetDB: function (TonicsQuery $db) use ($sql) {
+            $db->run($sql);
+        });
     }
 
     /**

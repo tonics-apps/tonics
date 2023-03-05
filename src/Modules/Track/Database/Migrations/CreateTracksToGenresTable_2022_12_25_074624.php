@@ -15,10 +15,10 @@ class CreateTracksToGenresTable_2022_12_25_074624 extends Migration {
      */
     public function up()
     {
-        $trackTable = Tables::getTable(Tables::TRACKS);
-        $genreTable = Tables::getTable(Tables::GENRES);
-        
-        $this->getDB()->run("
+        db(onGetDB: function ($db){
+            $trackTable = Tables::getTable(Tables::TRACKS);
+            $genreTable = Tables::getTable(Tables::GENRES);
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `fk_track_id` int(10) unsigned NOT NULL,
@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   CONSTRAINT `track_genre_fk_genre_id_foreign` FOREIGN KEY (`fk_genre_id`) REFERENCES `$genreTable` (`genre_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `track_genre_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$trackTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
     /**

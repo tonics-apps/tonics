@@ -12,6 +12,7 @@ namespace App\Modules\Core\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateSessionTable_2022_01_13_124434 extends Migration
 {
@@ -21,7 +22,8 @@ class CreateSessionTable_2022_01_13_124434 extends Migration
      */
     public function up()
     {
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
      -- `active` tinyint(2) NOT NULL DEFAULT 1,
@@ -32,8 +34,12 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
    PRIMARY KEY (`id`),
    UNIQUE KEY `primaryid_sessionid_unique` (`session_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
+    /**
+     * @throws \Exception
+     */
     public function down()
     {
         $this->dropTable($this->tableName());

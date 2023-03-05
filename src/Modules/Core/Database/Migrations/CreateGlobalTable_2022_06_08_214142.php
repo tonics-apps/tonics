@@ -12,6 +12,7 @@ namespace App\Modules\Core\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateGlobalTable_2022_06_08_214142 extends Migration
 {
@@ -21,7 +22,8 @@ class CreateGlobalTable_2022_06_08_214142 extends Migration
      */
     public function up()
     {
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,     
     `key` varchar(500) NOT NULL,
@@ -31,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
     /**

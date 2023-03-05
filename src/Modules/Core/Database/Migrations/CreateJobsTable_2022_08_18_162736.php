@@ -7,6 +7,7 @@ namespace App\Modules\Core\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateJobsTable_2022_08_18_162736 extends Migration {
 
@@ -15,7 +16,9 @@ class CreateJobsTable_2022_08_18_162736 extends Migration {
      */
     public function up()
     {
-        $this->getDB()->run("
+
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      `job_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
       job_parent_id bigint(20) unsigned DEFAULT NULL,
@@ -33,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      CONSTRAINT `job_parent_id_foreign` FOREIGN KEY (`job_parent_id`) REFERENCES `{$this->tableName()}` (`job_id`) ON UPDATE CASCADE ON DELETE CASCADE,
      PRIMARY KEY (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
 
     }
 

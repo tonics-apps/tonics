@@ -12,6 +12,7 @@ namespace App\Modules\Track\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateArtistsTable_2022_01_13_210624 extends Migration {
 
@@ -23,7 +24,8 @@ class CreateArtistsTable_2022_01_13_210624 extends Migration {
      */
     public function up()
     {
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `artist_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `artist_name` varchar(255) NOT NULL,
@@ -36,13 +38,13 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   UNIQUE KEY `bt_artists_artist_slug_unique` (`artist_slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-        $defaultArtist[] = [
-            'artist_name' => 'Unknown',
-            'artist_slug' => 'unknown',
-            'artist_bio' => 'I am unknown',
-        ];
-        $this->getDB()->insertOnDuplicate(table: $this->tableName(), data: $defaultArtist, update: ['artist_name', 'artist_bio']);
-
+            $defaultArtist[] = [
+                'artist_name' => 'Unknown',
+                'artist_slug' => 'unknown',
+                'artist_bio' => 'I am unknown',
+            ];
+            $db->insertOnDuplicate(table: $this->tableName(), data: $defaultArtist, update: ['artist_name', 'artist_bio']);
+        });
     }
 
     /**

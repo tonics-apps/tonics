@@ -12,6 +12,7 @@ namespace App\Modules\Post\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreatePostToCategoriesTable_2022_01_13_213416 extends Migration {
 
@@ -23,13 +24,15 @@ class CreatePostToCategoriesTable_2022_01_13_213416 extends Migration {
      */
     public function up()
     {
-        ## Many To Many Rel --- A Post May Have Many Categories and Likewise,
-        ##  A Category Can Belong To Many Posts
 
-        $postTable = Tables::getTable(Tables::POSTS);
-        $catTable = Tables::getTable(Tables::CATEGORIES);
+        db(onGetDB: function (TonicsQuery $db){
+            ## Many To Many Rel --- A Post May Have Many Categories and Likewise,
+            ##  A Category Can Belong To Many Posts
 
-        $this->getDB()->run("
+            $postTable = Tables::getTable(Tables::POSTS);
+            $catTable = Tables::getTable(Tables::CATEGORIES);
+
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `fk_cat_id` int(10) unsigned NOT NULL,
@@ -42,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   CONSTRAINT `bt_post_categories_fk_cat_id_foreign` FOREIGN KEY (`fk_cat_id`) REFERENCES `$catTable` (`cat_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `bt_post_categories_fk_post_id_foreign` FOREIGN KEY (`fk_post_id`) REFERENCES `$postTable` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
 
     }
 

@@ -41,6 +41,11 @@ abstract class Migration
      */
     public function dropTable($tableName): mixed
     {
-        return $this->getDB()->run("DROP TABLE IF EXISTS `$tableName`");
+        $result = false;
+        db(onGetDB: function (TonicsQuery $db) use ($tableName, &$result) {
+            $result = $db->run("DROP TABLE IF EXISTS `$tableName`");
+        });
+
+        return $result;
     }
 }

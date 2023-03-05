@@ -18,9 +18,9 @@ class CreateTrackWishListsTable_2022_12_25_091628 extends Migration {
      */
     public function up()
     {
-        $customersTable = Tables::getTable(Tables::CUSTOMERS);
-        
-        $this->getDB()->run("
+        db(onGetDB: function ($db){
+            $customersTable = Tables::getTable(Tables::CUSTOMERS);
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `track_wl_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `fk_customer_id` BIGINT NOT NULL,
@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   KEY `bt_wish_lists_fk_customer_id_foreign` (`fk_customer_id`),
   CONSTRAINT `bt_wish_lists_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customersTable` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
     /**

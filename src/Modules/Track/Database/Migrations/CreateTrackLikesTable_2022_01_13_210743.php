@@ -23,10 +23,10 @@ class CreateTrackLikesTable_2022_01_13_210743 extends Migration {
      */
     public function up()
     {
-        $customersTable = Tables::getTable(Tables::CUSTOMERS);
-        $tracksTable = Tables::getTable(Tables::TRACKS);
-
-        $this->getDB()->run("
+        db(onGetDB: function ($db){
+            $customersTable = Tables::getTable(Tables::CUSTOMERS);
+            $tracksTable = Tables::getTable(Tables::TRACKS);
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `fk_customer_id` BIGINT NOT NULL,
@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   CONSTRAINT `bt_track_likes_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customersTable` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `bt_track_likes_fk_track_id_foreign` FOREIGN KEY (`fk_track_id`) REFERENCES `$tracksTable` (`track_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+        });
     }
 
     /**

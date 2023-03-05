@@ -13,6 +13,7 @@ namespace App\Modules\Core\Database\Migrations;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 
 class CreateUsersTable_2020_01_00_001340 extends Migration
@@ -23,8 +24,10 @@ class CreateUsersTable_2020_01_00_001340 extends Migration
      */
     public function up()
     {
-        $settingsJSON = UserData::generateAdminJSONSettings();
-    $this->getDB()->run("
+
+        db(onGetDB: function (TonicsQuery $db){
+            $settingsJSON = UserData::generateAdminJSONSettings();
+            $db->run("
     CREATE TABLE IF NOT EXISTS `{$this->tableUser()}` (
         `user_id`  BIGINT AUTO_INCREMENT PRIMARY KEY,
         `user_name` varchar(255) NOT NULL,
@@ -37,6 +40,8 @@ class CreateUsersTable_2020_01_00_001340 extends Migration
         `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
         UNIQUE KEY `users_email_unique` (`email`)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
+
     }
 
     /**

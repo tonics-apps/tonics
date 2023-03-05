@@ -12,6 +12,7 @@ namespace App\Modules\Post\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreatePostsTable_2022_01_11_213250 extends Migration {
 
@@ -27,7 +28,8 @@ class CreatePostsTable_2022_01_11_213250 extends Migration {
      */
     public function up() {
 
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `post_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(16) DEFAULT NULL,
@@ -44,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   UNIQUE KEY `posts_post_slug_unique` (`post_slug`),
   FULLTEXT KEY `post_fulltext_index` (`post_title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
 
     }
 

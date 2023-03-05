@@ -12,6 +12,7 @@ namespace App\Modules\Menu\Database\Migrations;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CreateMenuTable_2022_01_12_200940 extends Migration {
 
@@ -22,7 +23,8 @@ class CreateMenuTable_2022_01_12_200940 extends Migration {
      * @throws \Exception
      */
     public function up() {
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `menu_name` varchar(255) NOT NULL,
@@ -32,22 +34,23 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   PRIMARY KEY (`menu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-        // Default Menu Populate
-        $this->getDB()->run("
+            // Default Menu Populate
+            $db->run("
 INSERT INTO {$this->tableName()}(menu_name, menu_slug)
 VALUES 
     ('Header Menu','header-menu'),
     ('Footer Builder','footer-menu');");
+        });
 
     }
 
     /**
      * Reverse the migrations.
      *
-     * @return void
+     * @return mixed
      * @throws \Exception
      */
-    public function down()
+    public function down(): mixed
     {
         return $this->dropTable($this->tableName());
     }

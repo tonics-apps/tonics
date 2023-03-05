@@ -13,6 +13,7 @@ namespace App\Modules\Track\Database\Migrations;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Track\Data\TrackData;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 
 class CreateGenresTable_2022_01_13_210615 extends Migration
@@ -26,7 +27,8 @@ class CreateGenresTable_2022_01_13_210615 extends Migration
      */
     public function up()
     {
-        $this->getDB()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `genre_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `genre_name` varchar(250) NOT NULL,
@@ -39,21 +41,22 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   UNIQUE KEY `bt_genres_genre_slug_unique` (`genre_slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-       $genres = TrackData::defaultGenreData();
-        ## loop over all the data -+ Inserting data to database using foreach loop might be slow depending on the number of rows u are inserting...
-        ## What about storing the loop data into an array, and then dumping it once in d db, sound like a good isea.
-        $GenresData = [];
-        foreach ($genres as $genre) {
-            $GenresData[] = [
-                ## if an item in the data is "progressive-house", this turns it to "Progressive House"
-                'genre_name' => ucwords(str_replace("-", " ", $genre)),
-                ## slug would be progressive-house
-                'genre_slug' => str_replace(" ", "-", $genre),
-                'genre_description' => ucwords(str_replace("-", "", $genre))
-            ];
-        }
-        ## Populate the genres tables With Default Genres Data
-        $this->getDB()->insertOnDuplicate(table: $this->tableName(), data: $GenresData, update: ['genre_name', 'genre_description']);
+            $genres = TrackData::defaultGenreData();
+            ## loop over all the data -+ Inserting data to database using foreach loop might be slow depending on the number of rows u are inserting...
+            ## What about storing the loop data into an array, and then dumping it once in d db, sound like a good isea.
+            $GenresData = [];
+            foreach ($genres as $genre) {
+                $GenresData[] = [
+                    ## if an item in the data is "progressive-house", this turns it to "Progressive House"
+                    'genre_name' => ucwords(str_replace("-", " ", $genre)),
+                    ## slug would be progressive-house
+                    'genre_slug' => str_replace(" ", "-", $genre),
+                    'genre_description' => ucwords(str_replace("-", "", $genre))
+                ];
+            }
+            ## Populate the genres tables With Default Genres Data
+            $db->insertOnDuplicate(table: $this->tableName(), data: $GenresData, update: ['genre_name', 'genre_description']);
+        });
     }
 
     /**
