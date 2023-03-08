@@ -196,6 +196,62 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     "field_id": 8,
     "field_parent_id": 6,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_rich-text\",\"input_rich-text_cell\":\"2\",\"field_slug_unique_hash\":\"6h1171hdkzk0000000000\",\"field_input_name\":\"site_credit\",\"fieldName\":\"site_credit\",\"inputName\":\"site_credit\",\"defaultValue\":\"<span class=\\\"site-footer-info\\\"> © 2023 Devsrealm |        <a href=\\\"https://tonics.app/\\\">Powered by Tonics</a> | Theme: <a href=\\\"#\\\">NinetySeven by DevsRealmGuy</a>    </span>\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "modular_rowcolumn",
+    "field_id": 1,
+    "field_parent_id": null,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"7fscxensj5c0000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings\",\"fieldName\":\"WriTonics Post Page Settings\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "modular_rowcolumn",
+    "field_id": 2,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"11jaaydgi1j4000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings_formSettings\",\"fieldName\":\"Form Settings\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings_formSettings\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "input_select",
+    "field_id": 3,
+    "field_parent_id": 2,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"3hnuash9ua20000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings_formSettings_search\",\"fieldName\":\"Enable Search\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings_formSettings_search\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "input_select",
+    "field_id": 4,
+    "field_parent_id": 2,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"3zn8s5luu4k0000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings_formSettings_categoriesSelect\",\"fieldName\":\"Enable Categories Select\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings_formSettings_categoriesSelect\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "input_text",
+    "field_id": 5,
+    "field_parent_id": 2,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"n7ia09xyvk0000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings_formSettings_filterButtonName\",\"fieldName\":\"Filter Button Name\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings_formSettings_filterButtonName\",\"textType\":\"text\",\"defaultValue\":\"Filter\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Filter Button Name (e.g., Filter, Search, etc.)\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "modular_rowcolumn",
+    "field_id": 6,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"6su713s984w0000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings_postSettings\",\"fieldName\":\"Post Settings\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings_postSettings\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "input_select",
+    "field_id": 7,
+    "field_parent_id": 6,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"63t5bvj4ojg0000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings_postSettings_featuredImage\",\"fieldName\":\"Enable Featured Image\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings_postSettings_featuredImage\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+  },
+  {
+    "fk_field_id": "App Ninety Seven [WriTonics Post Page] Settings",
+    "field_name": "modular_fieldselection",
+    "field_id": 8,
+    "field_parent_id": 6,
+    "field_options": "{\"field_slug\":\"modular_fieldselection\",\"modular_fieldselection_cell\":\"1\",\"field_slug_unique_hash\":\"1084xil5skxs000000000\",\"field_input_name\":\"app_ninetyseven_writonics_post_page_settings_postSettings_queryBuilder\",\"fieldName\":\"Query Builder\",\"inputName\":\"app_ninetyseven_writonics_post_page_settings_postSettings_queryBuilder\",\"fieldSlug\":\"post-query-builder\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
   }
 ]
 JSON;

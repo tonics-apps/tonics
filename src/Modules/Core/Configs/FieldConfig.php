@@ -635,7 +635,7 @@ class FieldConfig
     "field_name": "modular_rowcolumnrepeater",
     "field_id": 1,
     "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"4z1rbnzzwho0000000000\",\"field_input_name\":\"post_query_builder_field\",\"fieldName\":\"Post Query Builder\",\"inputName\":\"post_query_builder_field\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"1fr 2fr\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"1\",\"repeat_button_text\":\"Add Post Query Builder\",\"cell\":\"on\"}"
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"4z1rbnzzwho0000000000\",\"field_input_name\":\"post_query_builder_field\",\"fieldName\":\"Post Query Builder\",\"inputName\":\"post_query_builder_field\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"1\",\"repeat_button_text\":\"Add Post Query Builder\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Post Query Builder",
@@ -653,23 +653,30 @@ class FieldConfig
   },
   {
     "fk_field_id": "Post Query Builder",
-    "field_name": "modular_rowcolumnrepeater",
+    "field_name": "input_text",
     "field_id": 4,
+    "field_parent_id": 1,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"52jeqkyyzqc0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Pin Post\",\"inputName\":\"post_query_builder_pinPost\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Post IDs, Separated By Comma (E.g, 33, 44, 55)\",\"readOnly\":\"0\",\"required\":\"0\"}"
+  },
+  {
+    "fk_field_id": "Post Query Builder",
+    "field_name": "modular_rowcolumnrepeater",
+    "field_id": 5,
     "field_parent_id": 1,
     "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"2\",\"field_slug_unique_hash\":\"4pvzswsjd9q0000000000\",\"field_input_name\":\"post_query_builder_CategoryIn\",\"fieldName\":\"Category In\",\"inputName\":\"post_query_builder_CategoryIn\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add Category In\",\"cell\":\"on\"}"
   },
   {
     "fk_field_id": "Post Query Builder",
     "field_name": "input_select",
-    "field_id": 5,
-    "field_parent_id": 4,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"47bcdkcxrd6000000000\",\"field_input_name\":\"categoryOperator\",\"fieldName\":\"Operator\",\"inputName\":\"categoryOperator\",\"selectData\":\"IN,NOT IN\",\"defaultValue\":\"\"}"
+    "field_id": 6,
+    "field_parent_id": 5,
+    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"47bcdkcxrd6000000000\",\"field_input_name\":\"categoryOperator\",\"fieldName\":\"Operator\",\"inputName\":\"categoryOperator\",\"selectData\":\"IN,NOT IN\",\"defaultValue\":\"ALL\"}"
   },
   {
     "fk_field_id": "Post Query Builder",
     "field_name": "post_postcategoryselect",
-    "field_id": 6,
-    "field_parent_id": 4,
+    "field_id": 7,
+    "field_parent_id": 5,
     "field_options": "{\"field_slug\":\"post_postcategoryselect\",\"post_postcategoryselect_cell\":\"1\",\"field_slug_unique_hash\":\"cemz102yrg0000000000\",\"field_input_name\":\"post_query_builder_Category\",\"fieldName\":\"Choose Category\",\"inputName\":\"post_query_builder_Category\",\"multipleSelect\":\"1\"}"
   },
   {
