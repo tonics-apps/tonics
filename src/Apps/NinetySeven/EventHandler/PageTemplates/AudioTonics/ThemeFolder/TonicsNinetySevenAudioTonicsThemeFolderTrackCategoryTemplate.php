@@ -8,14 +8,14 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder;
+namespace App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder;
 
 use App\Modules\Core\Library\Tables;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements PageTemplateInterface, HandlerInterface
+class TonicsNinetySevenAudioTonicsThemeFolderTrackCategoryTemplate implements PageTemplateInterface, HandlerInterface
 {
 
     public function handleEvent(object $event): void
@@ -26,7 +26,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
 
     public function name(): string
     {
-        return 'TonicsNinetySeven_BeatsTonics_ThemeFolder_TrackCategory_Template';
+        return 'TonicsNinetySeven_AudioTonics_ThemeFolder_TrackCategory_Template';
     }
 
     /**
@@ -47,18 +47,18 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate implements Pa
 
             // From API
             if ($isFolder){
-                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/folder_main');
+                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/AudioTonics/ThemeFolder/folder_main');
             } elseif ($isSearch){
-                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/folder_search');
+                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/AudioTonics/ThemeFolder/folder_search');
             } else {
-                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
+                $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/AudioTonics/ThemeFolder/root');
             }
 
             $fieldSettings = $pageTemplate->getFieldSettings();
             $fieldSettingsForMainTrackData = json_decode($mainTrackData->field_settings, true);
             $pageTemplate->getFieldData()->unwrapFieldContent($fieldSettingsForMainTrackData, contentKey: 'track_cat_content');
             $fieldSettings['ThemeFolder'] = true;
-            $fieldSettings[ThemeFolderViewHandler::TonicsBeatsTonicsKey] = true;
+            $fieldSettings[ThemeFolderViewHandler::TonicsAudioTonicsKey] = true;
             $mainTrackData = [...$fieldSettingsForMainTrackData, ...(array)$mainTrackData];
             $fieldSettings = [...$mainTrackData, ...$fieldSettings];
             $pageTemplate->setFieldSettings($fieldSettings);

@@ -14,12 +14,11 @@ use App\Apps\NinetySeven\EventHandler\AssetsHookHandler;
 use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
 use App\Apps\NinetySeven\EventHandler\ConfigureNinetySevenPageSettings;
 use App\Apps\NinetySeven\EventHandler\Hook_AddSvgSymbols;
-use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\ThemeFolderViewHandler;
-use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate;
-use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate;
-use App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder\TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate;
-use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenHomePageTemplate;
-use App\Apps\NinetySeven\EventHandler\PageTemplates\TonicsNinetySevenPostPageTemplate;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder\ThemeFolderViewHandler;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder\TonicsNinetySevenAudioTonicsThemeFolderHomeTemplate;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder\TonicsNinetySevenAudioTonicsThemeFolderTrackCategoryTemplate;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder\TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate;
+use App\Apps\NinetySeven\EventHandler\PageTemplates\WriTonics\TonicsNinetySevenWriTonicsPostPageTemplate;
 use App\Apps\NinetySeven\Route\Routes;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
@@ -64,11 +63,10 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             ],
 
             OnPageTemplate::class => [
-                TonicsNinetySevenHomePageTemplate::class,
-                TonicsNinetySevenPostPageTemplate::class,
-                TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate::class,
-                TonicsNinetySevenBeatsTonicsThemeFolderTrackCategoryTemplate::class,
-                TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate::class,
+                TonicsNinetySevenWriTonicsPostPageTemplate::class,
+                TonicsNinetySevenAudioTonicsThemeFolderHomeTemplate::class,
+                TonicsNinetySevenAudioTonicsThemeFolderTrackCategoryTemplate::class,
+                TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate::class,
             ],
 
             OnHookIntoTemplate::class => [
@@ -120,7 +118,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "NinetySeven",
             "type" => "Theme",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1677355965',
+            "version" => '1-O-Ola.1677355966',
             "description" => "NinetySeven Theme, The First Tonic Theme",
             "info_url" => '',
             "settings_page" => route('ninetySeven.settings'), // can be null or a route name

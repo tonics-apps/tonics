@@ -12,6 +12,7 @@ namespace App\Modules\Page;
 
 
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
@@ -111,7 +112,7 @@ class PageActivator implements ExtensionConfig
             "name" => "Page",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1678030774',
+            "version" => '1-O-Ola.1678030775',
             "description" => "The Page Module",
             "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-page-module/releases/latest",
@@ -124,9 +125,27 @@ class PageActivator implements ExtensionConfig
         ];
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function onUpdate(): void
     {
-        // TODO: Implement onUpdate() method.
+        self::migrateDatabases();
+        return;
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public static function migrateDatabases()
+    {
+        $appMigrate = new ModuleMigrate();
+        $commandOptions = [
+            '--module' => 'Page',
+            '--migrate' => '',
+        ];
+        $appMigrate->setIsCLI(false);
+        $appMigrate->run($commandOptions);
     }
 
     public function onDelete(): void

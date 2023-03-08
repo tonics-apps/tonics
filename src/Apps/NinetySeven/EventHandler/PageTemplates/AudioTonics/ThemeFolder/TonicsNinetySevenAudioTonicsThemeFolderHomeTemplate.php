@@ -8,13 +8,13 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder;
+namespace App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder;
 
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate implements PageTemplateInterface, HandlerInterface
+class TonicsNinetySevenAudioTonicsThemeFolderHomeTemplate implements PageTemplateInterface, HandlerInterface
 {
 
     public function handleEvent(object $event): void
@@ -25,7 +25,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate implements PageTemplat
 
     public function name(): string
     {
-        return 'TonicsNinetySeven_BeatsTonics_ThemeFolder_Home_Template';
+        return 'TonicsNinetySeven_AudioTonics_ThemeFolder_Home_Template';
     }
 
     /**
@@ -33,10 +33,10 @@ class TonicsNinetySevenBeatsTonicsThemeFolderHomeTemplate implements PageTemplat
      */
     public function handleTemplate(OnPageTemplate $pageTemplate): void
     {
-        $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
+        $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/AudioTonics/ThemeFolder/root');
         $fieldSettings = $pageTemplate->getFieldSettings();
         $fieldSettings['ThemeFolderHome'] = true;
-        $fieldSettings[ThemeFolderViewHandler::TonicsBeatsTonicsKey] = true;
+        $fieldSettings[ThemeFolderViewHandler::TonicsAudioTonicsKey] = true;
         $pageTemplate->setFieldSettings($fieldSettings);
     }
 }

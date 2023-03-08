@@ -8,25 +8,20 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder;
+namespace App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
-use App\Modules\Core\Library\SimpleState;
-use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
-use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use PDO;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
 
 class ThemeFolderViewHandler implements HandlerInterface
 {
 
-    const TonicsBeatsTonicsKey = 'TonicsBeatsTonics_Theme';
+    const TonicsAudioTonicsKey = 'TonicsBeatsTonics_Theme';
 
     public function handleEvent(object $event): void
     {

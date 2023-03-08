@@ -15,7 +15,6 @@ use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
-use PDO;
 
 abstract class DatabaseMigrationAbstract
 {

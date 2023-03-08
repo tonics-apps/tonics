@@ -8,7 +8,7 @@
  * and/or sell copies of this program without written permission to me.
  */
 
-namespace App\Apps\NinetySeven\EventHandler\PageTemplates\BeatsTonics\ThemeFolder;
+namespace App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder;
 
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
@@ -16,7 +16,7 @@ use App\Modules\Page\Events\OnPageTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 
-class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements PageTemplateInterface, HandlerInterface
+class TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate implements PageTemplateInterface, HandlerInterface
 {
 
     public function handleEvent(object $event): void
@@ -27,7 +27,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
 
     public function name(): string
     {
-        return 'TonicsNinetySeven_BeatsTonics_ThemeFolder_TrackSingle_Template';
+        return 'TonicsNinetySeven_AudioTonics_ThemeFolder_TrackSingle_Template';
     }
 
     /**
@@ -41,7 +41,7 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
         $isAPI = url()->getHeaderByKey('isAPI') === 'true';
 
         if ($isAPI){
-            $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/track_single');
+            $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/AudioTonics/ThemeFolder/track_single');
             if (!$isGetMarker){
                 $fieldSettings = [...$fieldSettings, ...ThemeFolderViewHandler::handleTrackSingleFragment()];
             }
@@ -71,9 +71,9 @@ class TonicsNinetySevenBeatsTonicsThemeFolderTrackSingleTemplate implements Page
                 throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
             }
             $fieldSettings = [...$fieldSettings, ...$track];
-            $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/BeatsTonics/ThemeFolder/root');
+            $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/AudioTonics/ThemeFolder/root');
         }
-        $fieldSettings[ThemeFolderViewHandler::TonicsBeatsTonicsKey] = true;
+        $fieldSettings[ThemeFolderViewHandler::TonicsAudioTonicsKey] = true;
         $pageTemplate->setFieldSettings($fieldSettings);
     }
 
