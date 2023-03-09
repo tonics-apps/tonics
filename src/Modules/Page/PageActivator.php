@@ -131,7 +131,6 @@ class PageActivator implements ExtensionConfig
     public function onUpdate(): void
     {
         self::migrateDatabases();
-        return;
     }
 
     /**

@@ -70,6 +70,12 @@ class TonicsNinetySevenWriTonicsPostPageTemplate implements PageTemplateInterfac
 
                 $fieldSettings['NinetySeven_WriTonics_EnableSearch'] = false;
                 $fieldSettings['NinetySeven_WriTonics_EnableCategorySelect'] = false;
+                $fieldSettings['NinetySeven_WriTonics_EnableFeaturedImage'] = false;
+
+                if (isset($fieldSettings['app_ninetyseven_writonics_post_page_settings_postSettings_featuredImage']) &&
+                    $fieldSettings['app_ninetyseven_writonics_post_page_settings_postSettings_featuredImage'] === '1'){
+                    $fieldSettings['NinetySeven_WriTonics_EnableFeaturedImage'] = true;
+                }
 
                 if (isset($fieldSettings['app_ninetyseven_writonics_post_page_settings_formSettings_search']) &&
                     $fieldSettings['app_ninetyseven_writonics_post_page_settings_formSettings_search'] === '1'){

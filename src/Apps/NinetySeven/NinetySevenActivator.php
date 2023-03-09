@@ -22,6 +22,7 @@ use App\Apps\NinetySeven\EventHandler\PageTemplates\WriTonics\TonicsNinetySevenW
 use App\Apps\NinetySeven\Route\Routes;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
+use App\Modules\Core\Commands\App\AppMigrate;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Field\Data\FieldData;
@@ -118,7 +119,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "NinetySeven",
             "type" => "Theme",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1677355966',
+            "version" => '1-O-Ola.1677355968',
             "description" => "NinetySeven Theme, The First Tonic Theme",
             "info_url" => '',
             "settings_page" => route('ninetySeven.settings'), // can be null or a route name
@@ -132,9 +133,27 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
         ];
     }
 
+    /**
+     * @return void
+     * @throws \ReflectionException
+     */
     public function onUpdate(): void
     {
-        // TODO: Implement onUpdate() method.
+        self::migrateDatabases();
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public static function migrateDatabases()
+    {
+        $appMigrate = new AppMigrate();
+        $commandOptions = [
+            '--app' => 'NinetySeven',
+            '--migrate' => '',
+        ];
+        $appMigrate->setIsCLI(false);
+        $appMigrate->run($commandOptions);
     }
 
     public function fieldItems(): array
@@ -279,13 +298,16 @@ JSON;
      */
     public function onDelete(): void
     {
-        $toDelete = ['app-ninety-seven-settings', 'app-ninety-seven-post-home-page'];
-        $tb = $this->fieldData->getFieldTable();
-        db(onGetDB: function (TonicsQuery $db) use ($toDelete, $tb) {
+        $toDelete = ['app-ninety-seven-settings', 'app-ninety-seven-post-home-page', 'app-ninety-seven-writonics-post-page-settings'];
+        db(onGetDB: function (TonicsQuery $db) use ($toDelete) {
             $newDB = db();
-            $db->FastDelete($tb, $newDB->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+            $db->FastDelete($this->getFieldTable(), $newDB->WhereIn(table()->getColumn($this->getFieldTable(), 'field_slug'), $toDelete));
             $newDB->getTonicsQueryBuilder()->destroyPdoConnection();
         });
+    }
 
+    public function getFieldTable(): string
+    {
+        return $this->fieldData->getFieldTable();
     }
 }

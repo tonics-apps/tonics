@@ -17,6 +17,7 @@ use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Media\FileManager\LocalDriver;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class UpdateMechanismState extends SimpleState
 {
@@ -124,14 +125,16 @@ class UpdateMechanismState extends SimpleState
         }
 
         if (!empty($this->collate)) {
-            db(true)->insertOnDuplicate(
-                $globalTable,
-                [
-                    'key' => 'updates',
-                    'value' => json_encode($this->collate)
-                ],
-                ['value']
-            );
+            db(onGetDB: function (TonicsQuery $db) use ($globalTable) {
+                $db->insertOnDuplicate(
+                    $globalTable,
+                    [
+                        'key' => 'updates',
+                        'value' => json_encode($this->collate)
+                    ],
+                    ['value']
+                );
+            });
 
             if ($this->action === 'update') {
                 return $this->switchState(self::ExamineCollation, self::NEXT);
@@ -192,14 +195,16 @@ class UpdateMechanismState extends SimpleState
 
         $globalTable = Tables::getTable(Tables::GLOBAL);
         if (!empty($this->collate)) {
-            db(true)->insertOnDuplicate(
-                $globalTable,
-                [
-                    'key' => 'updates',
-                    'value' => json_encode($this->collate)
-                ],
-                ['value']
-            );
+            db(onGetDB: function (TonicsQuery $db) use ($globalTable) {
+                $db->insertOnDuplicate(
+                    $globalTable,
+                    [
+                        'key' => 'updates',
+                        'value' => json_encode($this->collate)
+                    ],
+                    ['value']
+                );
+            });
         }
 
         return self::DONE;
@@ -321,6 +326,9 @@ class UpdateMechanismState extends SimpleState
         $tonicsHelper = helper();
         $modules = $this->collate[$type] ?? [];
         foreach ($modules as $classString => $module) {
+            if ($tonicsHelper->classImplements($classString, [ExtensionConfig::class]) === false){
+                continue;
+            }
             $ref = new \ReflectionClass($classString);
             $dir = dirname($ref->getFileName());
             $dirName = helper()->getFileName($dir);
@@ -329,16 +337,24 @@ class UpdateMechanismState extends SimpleState
                     continue;
                 }
             }
-
-            if ($module['can_update'] && !empty($module['download_url'])) {
+            /** @var ExtensionConfig $object */
+            $object = new $classString;
+            $moduleOrAppTimeStamp = helper()->getTimeStampFromVersion($object->info()['version'] ?? '');
+            $updateTimeStamp = $module['release_timestamp'] ?? '';
+            $canUpdate = $updateTimeStamp > $moduleOrAppTimeStamp;
+            if ($canUpdate && !empty($module['download_url'])) {
                 $localDriver = new LocalDriver();
 
                 $name = strtolower($module['version']) . '.zip';
                 $folderName = $module['folder_name'];
                 $sep = DIRECTORY_SEPARATOR;
 
-                if ($tonicsHelper->fileExists($tempPath . $sep . $name)){
-                    $tonicsHelper->forceDeleteFile($tempPath . $sep . $name);
+                $tempPathZipName = $tempPath . $sep . $name;
+                $tempPathFolder = $tempPath . $sep . "$folderName";
+                $appModulePathFolder = $dirPath . $sep . "$folderName";
+
+                if ($tonicsHelper->fileExists($tempPathZipName)){
+                    $tonicsHelper->forceDeleteFile($tempPathZipName);
                 }
 
                 $createFromURLResult = $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
@@ -350,9 +366,7 @@ class UpdateMechanismState extends SimpleState
                     break;
                 }
 
-                $result = $localDriver->extractFile($tempPath . $sep . "$name", $tempPath, importToDB: false);
-                $tempPathFolder = $tempPath . $sep . "$folderName";
-                $appModulePathFolder = $dirPath . $sep . "$folderName";
+                $result = $localDriver->extractFile($tempPathZipName, $tempPath, importToDB: false);
                 if ($result && $tonicsHelper->fileExists($tempPathFolder) && $tonicsHelper->fileExists($appModulePathFolder)) {
 
                     # If there is .installed in the app path, drop it in the tempPath, if it fails, then user might
@@ -380,9 +394,9 @@ class UpdateMechanismState extends SimpleState
                         $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                         break;
                     } else {
-                        $directory = $dirPath . $sep . "$folderName";
                         $this->collate[$type][$classString]['can_update'] = false;
-                        $this->reActivate($directory, $folderName);
+                        $tonicsHelper->tonicsChmodRecursive($appModulePathFolder);
+                        $this->reActivate($appModulePathFolder, $folderName);
                     }
                 } else {
                     $error = "Failed To Extract: '$name'";
