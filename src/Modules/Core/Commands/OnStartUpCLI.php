@@ -55,18 +55,25 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
         $parallel = $commandOptions['--onStartUp'] === 'parallel';
 
         $pIDS = [];
-        foreach ($event->getClasses() as $class){
-            if ($helper->classImplements($class, [HandlerInterface::class, ConsoleCommand::class])){
+        foreach ($event->getClasses() as $class) {
+            if ($helper->classImplements($class, [HandlerInterface::class, ConsoleCommand::class])) {
                 /** @var ConsoleCommand $command */
                 $command = new $class;
                 $this->infoMessage("Running $class");
-                if ($parallel){
-                    $helper->fork(AppConfig::getAppCLIForkLimit(), onChild: function () use ($class, $command) {
-                        cli_set_process_title("$class");
-                        $command->run([]);
-                    }, beforeOnChild: function ($pid) use (&$pIDS){
-                        $pIDS[] = $pid;
-                    });
+                if ($parallel) {
+                    $helper->fork(AppConfig::getAppCLIForkLimit(),
+                        onChild: function () use ($class, $command) {
+                            cli_set_process_title("$class");
+                            $command->run([]);
+                        },
+                        beforeOnChild: function ($pid) use (&$pIDS) {
+                            $pIDS[] = $pid;
+                        },
+                        onForkError: function () {
+                            // handle the fork error here for the parent, this is because when a fork error occurs
+                            // it propagates to the parent which abruptly stop the script execution
+                            $this->errorMessage("Unable to Fork");
+                        });
                 } else {
                     $command->run([]);
                 }
@@ -75,9 +82,9 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
 
         # We could have put this in the fork function, but it would wait for the child process to exit making it block
         # putting it here solves that problem...
-        foreach ($pIDS as $pID){
+        foreach ($pIDS as $pID) {
             pcntl_waitpid($pID, $status);
-            if ($status > 0){
+            if ($status > 0) {
                 posix_kill($pID, SIGKILL);
             }
         }

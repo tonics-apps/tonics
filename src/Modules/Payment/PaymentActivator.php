@@ -52,12 +52,6 @@ class PaymentActivator implements ExtensionConfig
                 HandleAudioTonicsPaymentCaptureCompletedEvent::class
             ]
         ];
-        /*  return [
-              \App\Modules\Payment\Events\PaymentMethodsEvent::class => [
-               //   \App\Modules\Payment\EventHandlers\FlutterwavePaymentSettings::class,
-               //   \App\Modules\Payment\EventHandlers\PayPalPaymentSettings::class
-              ]
-          ];*/
     }
 
     /**
@@ -115,26 +109,10 @@ class PaymentActivator implements ExtensionConfig
     }
 
     /**
-     * @throws \ReflectionException
      */
     public function onUpdate(): void
     {
-        self::migrateDatabases();
         return;
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    public static function migrateDatabases()
-    {
-        $appMigrate = new ModuleMigrate();
-        $commandOptions = [
-            '--module' => 'Payment',
-            '--migrate' => '',
-        ];
-        $appMigrate->setIsCLI(false);
-        $appMigrate->run($commandOptions);
     }
 
 

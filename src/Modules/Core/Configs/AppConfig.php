@@ -16,6 +16,7 @@ use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Controllers\CoreSettingsController;
 use App\Modules\Core\Events\TonicsTemplateEngines;
+use App\Modules\Core\Jobs\UpdateMigrations;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\Tables;
@@ -442,10 +443,24 @@ class AppConfig
                 if (isset($json->timestamp)){
                     $json->timestamp = time();
                 }
-                @file_put_contents(AppConfig::getBinRestartServiceJSONFile(), json_encode($json));
+               $result = @file_put_contents(AppConfig::getBinRestartServiceJSONFile(), json_encode($json));
+                if ($result === true){
+                    self::addUpdateMigrationsJob();
+                }
             }
         }
 
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public static function addUpdateMigrationsJob(): void
+    {
+        $updateMigration = new UpdateMigrations();
+        $updateMigration->setJobName('UpdateMigrations');
+        job()->enqueue($updateMigration);
     }
 
     public static function getAppAsset(string $appName, string $path): string

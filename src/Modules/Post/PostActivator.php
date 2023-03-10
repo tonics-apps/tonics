@@ -149,26 +149,10 @@ class PostActivator implements ExtensionConfig
     }
 
     /**
-     * @throws \ReflectionException
      */
     public function onUpdate(): void
     {
-        self::migrateDatabases();
         return;
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    public static function migrateDatabases()
-    {
-        $appMigrate = new ModuleMigrate();
-        $commandOptions = [
-            '--module' => 'Post',
-            '--migrate' => '',
-        ];
-        $appMigrate->setIsCLI(false);
-        $appMigrate->run($commandOptions);
     }
 
     public function onDelete(): void

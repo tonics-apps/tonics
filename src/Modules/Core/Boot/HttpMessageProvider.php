@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\Boot;
 
+use App\Apps\NinetySeven\NinetySevenActivator;
 use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\SimpleState;

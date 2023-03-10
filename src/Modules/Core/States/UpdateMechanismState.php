@@ -238,34 +238,6 @@ class UpdateMechanismState extends SimpleState
         }
     }
 
-
-    /**
-     * @throws \Exception
-     */
-    private function reActivate($directory, $folderName)
-    {
-        $tonicsHelper = helper();
-        $file = $tonicsHelper->findFilesWithExtension(['php'], $directory);
-        if (isset($file[0]) && $tonicsHelper->fileExists($file[0])) {
-            $class = $tonicsHelper->getFullClassName(file_get_contents($file[0]));
-            $implements = @class_implements($class);
-            $implementors = [ExtensionConfig::class];
-
-            foreach ($implementors as $implement) {
-                if (is_array($implements) && key_exists($implement, $implements)) {
-                    $moduleClass = new $class;
-                    /**@var $moduleClass ExtensionConfig */
-                    $moduleClass->onUpdate();
-                    $this->setSucessMessage("$folderName Updated");
-                }
-            }
-        } else {
-            $error = "Update Was Successfully But Failed To Call onUpdate method";
-            $this->setErrorMessage($error);
-            $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
-        }
-    }
-
     /**
      * @param $type
      * @param array $modulesOrApps
@@ -396,7 +368,6 @@ class UpdateMechanismState extends SimpleState
                     } else {
                         $this->collate[$type][$classString]['can_update'] = false;
                         $tonicsHelper->tonicsChmodRecursive($appModulePathFolder);
-                        $this->reActivate($appModulePathFolder, $folderName);
                     }
                 } else {
                     $error = "Failed To Extract: '$name'";

@@ -40,6 +40,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Routes\Routes;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
@@ -154,7 +155,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "Core",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1678030776',
+            "version" => '1-O-Ola.1678030778',
             "stable" => 0,
             "description" => "The Core Module",
             "info_url" => '',
@@ -170,26 +171,10 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     }
 
     /**
-     * @throws \ReflectionException
      */
     public function onUpdate(): void
     {
-        self::migrateDatabases();
         return;
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    public static function migrateDatabases()
-    {
-        $appMigrate = new ModuleMigrate();
-        $commandOptions = [
-            '--module' => 'Core',
-            '--migrate' => '',
-        ];
-        $appMigrate->setIsCLI(false);
-        $appMigrate->run($commandOptions);
     }
 
     public function onDelete(): void

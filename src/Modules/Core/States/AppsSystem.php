@@ -287,7 +287,7 @@ class AppsSystem extends SimpleState
 
         AppConfig::updateRestartService();
         $appOrModuleToUpdate = implode(', ', $appOrModuleToUpdate);
-        $this->setSucessMessage("[$appOrModuleToUpdate] Updated: Reload Page");
+        $this->setSucessMessage("[$appOrModuleToUpdate] Updated: Reload Page (If Any, Migrations Scheduled)");
         return self::DONE;
     }
 

@@ -133,6 +133,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                     }
                     $this->infoMessage("Running $schedule->schedule_name Scheduled Event");
                     $this->tick($schedule, $scheduleObject);
+
                     $this->helper->fork(
                         $schedule->schedule_parallel,
                         onChild: function () use ($schedule, $scheduleObject) {
@@ -145,6 +146,11 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                                 $this->errorMessage($exception->getTraceAsString());
                                 exit(1); # Failed
                             }
+                        },
+                        onForkError: function () {
+                            // handle the fork error here for the parent, this is because when a fork error occurs
+                            // it propagates to the parent which abruptly stop the script execution
+                            $this->errorMessage("Unable to Fork");
                         }
                     );
                 }
