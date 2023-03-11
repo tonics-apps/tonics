@@ -116,8 +116,8 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
             }
             $schedules = $this->getNextScheduledEvent();
             if (empty($schedules)) {
-                # While the schedule event is empty, we sleep for a 0.1, this reduces the CPU usage, thus giving the CPU the chance to do other things
-                usleep(100000);
+                # While the schedule event is empty, we sleep for a 0.5, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(500000);
                 continue;
             }
             foreach ($schedules as $schedule) {

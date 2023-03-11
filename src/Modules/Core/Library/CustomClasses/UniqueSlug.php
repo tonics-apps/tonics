@@ -49,8 +49,7 @@ trait UniqueSlug
     {
         $slug = null;
         db(onGetDB: function ($db) use ($slugName, $columnToCheckAgainst, $tableName, &$slug){
-            $slug = $db
-                ->row("SELECT * FROM $tableName WHERE $columnToCheckAgainst = ?", $slugName);
+            $slug = $db->row("SELECT * FROM $tableName WHERE $columnToCheckAgainst = ?", $slugName);
         });
 
         if (!empty($slug)) {

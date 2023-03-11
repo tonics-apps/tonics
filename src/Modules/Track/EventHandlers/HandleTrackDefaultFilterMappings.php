@@ -49,51 +49,55 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
 
         try {
             $db = db();
-            if (isset($fieldSettings->fk_genre_id)){
-                $genres = null;
-                db(onGetDB: function (TonicsQuery $query) use($fieldSettings, &$genres){
-                    $genres = $query->Select('genre_slug')->From(Tables::getTable(Tables::GENRES))
-                        ->WhereIn('genre_id', $fieldSettings->fk_genre_id)->FetchResult();
-                });
-                $newGenre = [];
-                foreach ($genres as $genre){ $newGenre[] = $genre->genre_slug; }
-                $fieldSettings->track_default_filter_genres = $newGenre;
-            }
+            db(onGetDB: function (TonicsQuery $db) use ($table, $filters, $event) {
 
-            if (isset($fieldSettings->fk_artist_id)){
-                $artists = null;
-                db(onGetDB: function (TonicsQuery $query) use($fieldSettings, &$artists){
-                    $artists = $query->Select('artist_slug')->From(Tables::getTable(Tables::ARTISTS))
-                        ->WhereIn('artist_id', $fieldSettings->fk_artist_id)->FetchResult();
-                });
-                $newArtists = [];
-                foreach ($artists as $artist){ $newArtists[] = $artist->artist_slug; }
-                $fieldSettings->track_default_filter_artists = $newArtists;
-            }
-
-            $filtersTable = $event->getTrackData()::getTrackDefaultFiltersTable();
-            $db->Select('tdf_id')->From($filtersTable);
-            foreach ($filters as $filter => $type){
-                if (isset($fieldSettings->{$filter})){
-                    $db->OrWhereEquals('tdf_type', $type)->WhereIn('tdf_name', $fieldSettings->{$filter});
+                if (isset($fieldSettings->fk_genre_id)){
+                    $genres = $db->Select('genre_slug')->From(Tables::getTable(Tables::GENRES))
+                        ->WhereIn('genre_id', $fieldSettings->fk_genre_id)
+                        ->FetchResult();
+                    $newGenre = [];
+                    foreach ($genres as $genre){ $newGenre[] = $genre->genre_slug; }
+                    $fieldSettings->track_default_filter_genres = $newGenre;
                 }
-            }
 
-            $tdfIDS = $db->FetchResult();
-            $toInsert = [];
-            db(onGetDB: function ($db) use ($event, $table) {
+                if (isset($fieldSettings->fk_artist_id)){
+                    $artists = $db->Select('artist_slug')->From(Tables::getTable(Tables::ARTISTS))
+                        ->WhereIn('artist_id', $fieldSettings->fk_artist_id)
+                        ->FetchResult();
+                    $newArtists = [];
+                    foreach ($artists as $artist){ $newArtists[] = $artist->artist_slug; }
+                    $fieldSettings->track_default_filter_artists = $newArtists;
+                }
+
+                $filtersTable = $event->getTrackData()::getTrackDefaultFiltersTable();
+                $tdfIDS = null;
+                db(onGetDB: function ($db) use ($event, $table, $filters, $filtersTable, &$tdfIDS) {
+
+                    $db->Select('tdf_id')->From($filtersTable);
+                    foreach ($filters as $filter => $type){
+                        if (isset($fieldSettings->{$filter})){
+                            $db->OrWhereEquals('tdf_type', $type)->WhereIn('tdf_name', $fieldSettings->{$filter});
+                        }
+                    }
+
+                    $tdfIDS = $db->FetchResult();
+                });
+
                 $db->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
-            });
-            foreach ($tdfIDS as $tdfID){
-                $toInsert[] = [
-                    'fk_track_id' => $event->getTrackID(),
-                    'fk_tdf_id' => $tdfID->tdf_id,
-                ];
-            }
 
-            db(onGetDB: function ($db) use ($toInsert, $table){
-                $db->Insert($table, $toInsert);
+                $toInsert = [];
+                foreach ($tdfIDS as $tdfID){
+                    $toInsert[] = [
+                        'fk_track_id' => $event->getTrackID(),
+                        'fk_tdf_id' => $tdfID->tdf_id,
+                    ];
+                }
+
+                db(onGetDB: function ($db) use ($toInsert, $table){
+                    $db->Insert($table, $toInsert);
+                });
             });
+
         } catch (\Exception $exception){
             // Log..
         }

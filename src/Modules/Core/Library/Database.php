@@ -40,7 +40,7 @@ class Database
         $exc = null;
         while ($counter > 0) {
             try {
-                return $this->getConnection($settings);
+                return $this->getConnection();
             } catch (\PDOException $e){
                 $exc = $e;
                 $counter--;
@@ -58,11 +58,10 @@ class Database
     }
 
     /**
-     * @param array $settings
      * @return TonicsQuery
      * @throws \Exception
      */
-    private function getConnection(array $settings = []): TonicsQuery
+    private function getConnection(): TonicsQuery
     {
         $tonicsQueryBuilder = new TonicsQueryBuilder($this->getInstanceOfPdoObj(),
             new MariaDBTonicsQueryTransformer(),

@@ -132,8 +132,8 @@ SQL, Job::JobStatus_Queued, 1);
 
 
             if (empty($jobs)) {
-                # While the job is empty, we sleep for a 0.1s, this reduces the CPU usage, thus giving the CPU the chance to do other things
-                usleep(100000);
+                # While the job is empty, we sleep for a 0.5s, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(500000);
                 continue;
             }
 
