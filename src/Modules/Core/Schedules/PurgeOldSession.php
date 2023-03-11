@@ -32,17 +32,18 @@ class PurgeOldSession extends AbstractSchedulerInterface implements ScheduleHand
      */
     public function handle(): void
     {
-        $table = Tables::getTable(Tables::SESSIONS);
-        $db = db(true);
-        $total = $db->row("SELECT COUNT(*) AS total FROM $table WHERE `updated_at` <= NOW()");
-        $chunksToDeleteAtATime = 1000;
-
-        if (isset($total->total)){
-            $total = $total->total;
-            $noOfTimesToLoop = ceil($total / $chunksToDeleteAtATime);
-            for ($i = 1; $i <= $noOfTimesToLoop; $i++) {
-                db()->run("DELETE FROM $table WHERE `updated_at` <= NOW() LIMIT $chunksToDeleteAtATime");
+        db(onGetDB: function ($db){
+            $table = Tables::getTable(Tables::SESSIONS);
+            $total = $db->row("SELECT COUNT(*) AS total FROM $table WHERE `updated_at` <= NOW()");
+            $chunksToDeleteAtATime = 1000;
+            if (isset($total->total)){
+                $total = $total->total;
+                $noOfTimesToLoop = ceil($total / $chunksToDeleteAtATime);
+                for ($i = 1; $i <= $noOfTimesToLoop; $i++) {
+                    $db->run("DELETE FROM $table WHERE `updated_at` <= NOW() LIMIT $chunksToDeleteAtATime");
+                }
             }
-        }
+        });
+
     }
 }

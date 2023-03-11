@@ -46,10 +46,12 @@ class ForgotPasswordController extends Controller
         $email = input()->fromPost()->retrieve('email');
 
         try {
-            $table = Tables::getTable(Tables::CUSTOMERS);
-            $customerData = db()->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))->From($table)
-                ->WhereEquals('email', $email)->FetchFirst();
-
+            $customerData = null;
+            db(onGetDB: function ($db) use ($email, &$customerData){
+                $table = Tables::getTable(Tables::CUSTOMERS);
+                $customerData = $db->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))->From($table)
+                    ->WhereEquals('email', $email)->FetchFirst();
+            });
 
             if (isset($customerData->email) && hash_equals($customerData->email, $email)){
 

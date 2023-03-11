@@ -105,7 +105,12 @@ final class Roles
             throw new \InvalidArgumentException("`$roleName` is an invalid role name");
         }
 
-        $roleData = db()->Select('id')->From(Tables::getTable(Tables::ROLES))->WhereEquals('role_name', $roleName)->FetchFirst();
+        $roleData = null;
+        db(onGetDB: function ($db) use ($roleName, &$roleData){
+            $roleData = $db->Select('id')->From(Tables::getTable(Tables::ROLES))
+                ->WhereEquals('role_name', $roleName)
+                ->FetchFirst();
+        });
 
         if (isset($roleData->id)){
             return $roleData->id;
@@ -271,6 +276,8 @@ final class Roles
             }
         }
 
-        db()->insertOnDuplicate(Tables::getTable(Tables::ROLES), $rolesToInsert, ['role_id']);
+        db(onGetDB: function ($db) use ($rolesToInsert) {
+            $db->insertOnDuplicate(Tables::getTable(Tables::ROLES), $rolesToInsert, ['role_id']);
+        });
     }
 }

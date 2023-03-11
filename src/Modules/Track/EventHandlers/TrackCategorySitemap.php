@@ -23,7 +23,10 @@ class TrackCategorySitemap extends AbstractSitemapInterface implements HandlerIn
     {
         if (is_null($this->dataCount)){
             $table = Tables::getTable(Tables::TRACK_CATEGORIES);
-            $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE track_cat_status = 1 AND NOW() >= created_at");
+            $result = null;
+            db(onGetDB: function ($db) use ($table, &$result){
+                $result = $db->row("SELECT COUNT(*) as count FROM $table WHERE track_cat_status = 1 AND NOW() >= created_at");
+            });
             $this->setDataCount((isset($result->count)) ? (int)$result->count : 0);
         }
 
@@ -35,15 +38,23 @@ class TrackCategorySitemap extends AbstractSitemapInterface implements HandlerIn
      */
     public function getSitemapData(): array
     {
-        $data = db()->paginate(
-            tableRows: $this->getSitemapDataCount(),
-            callback: function ($perPage, $offset){
-                $table = Tables::getTable(Tables::TRACK_CATEGORIES);
-                return db()->run(<<<SQL
+        $data = null;
+        db(onGetDB: function ($db) use (&$data){
+            $data = $db->paginate(
+                tableRows: $this->getSitemapDataCount(),
+                callback: function ($perPage, $offset){
+                    $table = Tables::getTable(Tables::TRACK_CATEGORIES);
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($offset, $perPage, $table, &$cbData){
+                        $cbData = $db->run(<<<SQL
 SELECT CONCAT_WS( '/', '/track_categories', slug_id, track_cat_slug ) AS `_link`, updated_at as '_lastmod'
 FROM $table WHERE track_cat_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
-            }, perPage: $this->getLimit());
+                    });
+                    return $cbData;
+                }, perPage: $this->getLimit());
+        });
+
         return $data->data;
     }
 }

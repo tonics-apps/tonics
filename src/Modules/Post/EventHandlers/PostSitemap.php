@@ -22,8 +22,12 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
     public function getSitemapDataCount(): ?int
     {
         if (is_null($this->dataCount)){
-            $table = Tables::getTable(Tables::POSTS);
-            $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE post_status = 1 AND NOW() >= created_at");
+            $result = null;
+            db(onGetDB: function ($db) use (&$result){
+                $table = Tables::getTable(Tables::POSTS);
+                $result = $db->row("SELECT COUNT(*) as count FROM $table WHERE post_status = 1 AND NOW() >= created_at");
+            });
+
             $this->setDataCount((isset($result->count)) ? (int)$result->count : 0);
         }
 
@@ -37,10 +41,14 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
     {
         if (is_null($this->dataCount)){
             $table = Tables::getTable(Tables::POSTS);
-            $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE post_status = 1 
+            $result = null;
+            db(onGetDB: function ($db) use ($table, &$result){
+                $result = $db->row("SELECT COUNT(*) as count FROM $table WHERE post_status = 1 
                                       AND created_at >= DATE_SUB(NOW(), INTERVAL 2 DAY) 
                                       AND TRIM(JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.app_tonics_seo_structured_data_article_article_type'))) = 'NewsArticle'
                                       ");
+            });
+
             $this->setDataCount((isset($result->count)) ? (int)$result->count : 0);
         }
 
@@ -53,15 +61,22 @@ class PostSitemap extends AbstractSitemapInterface implements HandlerInterface
      */
     public function getSitemapData(): array
     {
-        $data = db()->paginate(
-            tableRows: $this->getSitemapDataCount(),
-            callback: function ($perPage, $offset){
-                $table = Tables::getTable(Tables::POSTS);
-                $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
-                return db()->run(<<<SQL
+        $data = null;
+        db(onGetDB: function ($db) use (&$data){
+            $data = $db->paginate(
+                tableRows: $this->getSitemapDataCount(),
+                callback: function ($perPage, $offset){
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($perPage, $offset, &$cbData){
+                        $table = Tables::getTable(Tables::POSTS);
+                        $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
+                        $cbData = $db->run(<<<SQL
 SELECT $select FROM $table WHERE post_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
-            }, perPage: $this->getLimit());
+                    });
+
+                }, perPage: $this->getLimit());
+        });
 
         return $data->data ?? [];
     }
@@ -72,22 +87,30 @@ SQL, $perPage, $offset);
      */
     public function getSitemapNewsData(): array
     {
-        $data = db()->paginate(
-            tableRows: $this->getSitemapNewsDataCount(),
-            callback: function ($perPage, $offset){
-                $table = Tables::getTable(Tables::POSTS);
-                $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, 
+
+        $data = null;
+        db(onGetDB: function ($db) use (&$data){
+            $data = $db->paginate(
+                tableRows: $this->getSitemapNewsDataCount(),
+                callback: function ($perPage, $offset){
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($offset, $perPage, &$cbData) {
+                        $table = Tables::getTable(Tables::POSTS);
+                        $select = "CONCAT_WS( '/', '/posts', slug_id, post_slug ) AS `_link`, 
                 image_url AS '_image', 
                 post_title AS '_title', 
                 DATE_FORMAT(created_at, '%Y-%m-%d') AS '_published_date', 
                 DATE_FORMAT(updated_at, '%Y-%m-%d') AS '_lastmod'";
-                return db()->run(<<<SQL
+                        $cbData = $db->run(<<<SQL
 SELECT $select FROM $table WHERE post_status = 1 
                           AND created_at >= DATE_SUB(NOW(), INTERVAL 2 DAY) 
                           AND TRIM(JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.app_tonics_seo_structured_data_article_article_type'))) = 'NewsArticle'
                           ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
-            }, perPage: $this->getLimit());
+                    });
+                    return $cbData;
+                }, perPage: $this->getLimit());
+        });
 
         return $data->data ?? [];
     }

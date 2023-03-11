@@ -57,8 +57,13 @@ class FieldData extends AbstractDataLayer
      */
     public function getFieldID(string $slug): mixed
     {
-        $table = $this->getFieldTable();
-        return db()->row("SELECT `field_id` FROM $table WHERE `field_slug` = ?", $slug)->field_id ?? null;
+        $result = null;
+        db(onGetDB: function ($db) use ($slug, &$result){
+            $table = $this->getFieldTable();
+            $result =  $db->row("SELECT `field_id` FROM $table WHERE `field_slug` = ?", $slug)->field_id ?? null;
+        });
+
+        return $result;
     }
 
     public function getFieldAndFieldItemsCols(): string
@@ -82,7 +87,13 @@ COLUMNS;
     {
         if (!empty($slugs)) {
             # For Field
-            $fields = db()->Select("field_id, field_slug")->From($this->getFieldTable())->WhereIn('field_slug', $slugs)->FetchResult();
+            $fields = null;
+            db(onGetDB: function ($db) use ($slugs, &$fields){
+                $fields = $db->Select("field_id, field_slug")
+                    ->From($this->getFieldTable())->WhereIn('field_slug', $slugs)
+                    ->FetchResult();
+            });
+
             # For Field Items
             $fieldIDS = [];
             foreach ($slugs as $slug){
@@ -104,7 +115,14 @@ COLUMNS;
     public function getFieldSortedItems(array $slugs = []): array
     {
         # For Field
-        $fields = db()->Select('field_id')->From($this->getFieldTable())->WhereIn('field_slug', $slugs)->OrderBy('field_id')->FetchResult();
+        $fields = null;
+        db(onGetDB: function ($db) use ($slugs, &$fields){
+            $fields = $db->Select('field_id')
+                ->From($this->getFieldTable())
+                ->WhereIn('field_slug', $slugs)
+                ->OrderBy('field_id')->FetchResult();
+        });
+
         # For Field Items
         $fieldIDS = [];
         foreach ($fields as $field) {
@@ -120,8 +138,12 @@ COLUMNS;
      */
     public function getFieldItems(int $fkFieldID): array
     {
-        $table = $this->getFieldItemsTable();
-        $result = db()->run("SELECT * FROM $table WHERE `fk_field_id` = ?", $fkFieldID);
+        $result = null;
+        db(onGetDB: function ($db) use ($fkFieldID, &$result){
+            $table = $this->getFieldItemsTable();
+            $result = $db->run("SELECT * FROM $table WHERE `fk_field_id` = ?", $fkFieldID);
+        });
+
         $result = $this->decodeFieldOptions($result);
         if (!empty($result)) {
             return helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $result);
@@ -293,8 +315,12 @@ HTML;
      */
     public function getFieldsSelection(array $fieldIDS = []): string
     {
-        $table = Tables::getTable(Tables::FIELD);
-        $fields = db()->run("SELECT * FROM $table");
+        $fields = null;
+        db(onGetDB: function ($db) use (&$fields){
+            $table = Tables::getTable(Tables::FIELD);
+            $fields = $db->run("SELECT * FROM $table");
+        });
+
         $fieldsFrag = "";
         if (is_array($fieldIDS)) {
             $fieldIDS = array_flip($fieldIDS);
@@ -397,14 +423,17 @@ HTML;
             $sortedFieldItems = array_merge(...$sortedFieldItems);
 
             $key = 'sortedField_' . implode('_', $fieldSlugs);
-            db()->insertOnDuplicate(
-                Tables::getTable(Tables::GLOBAL),
-                [
-                    'key' => $key,
-                    'value' => json_encode($sortedFieldItems, JSON_UNESCAPED_SLASHES)
-                ],
-                ['value']
-            );
+            db(onGetDB: function ($db) use ($sortedFieldItems, $key){
+                $db->insertOnDuplicate(
+                    Tables::getTable(Tables::GLOBAL),
+                    [
+                        'key' => $key,
+                        'value' => json_encode($sortedFieldItems, JSON_UNESCAPED_SLASHES)
+                    ],
+                    ['value']
+                );
+            });
+
         } catch (\Exception $exception) {
             // log...
         }
@@ -498,8 +527,13 @@ HTML;
                 $json = json_decode($item->field_options, true) ?? [];
                 if (isset($item->fk_field_id) && is_string($item->fk_field_id)) {
                     if (!isset($fieldNameToID[$item->fk_field_id])) {
-                        db()->FastDelete($fieldTable, db()->Where('field_slug', '=', helper()->slug($item->fk_field_id, '-')));
-                        $field = db()->insertReturning($fieldTable, ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id'], 'field_id');
+                        $result = null;
+                        $field = null;
+                        db(onGetDB: function ($db) use ($item, $fieldTable, &$field, &$result){
+                            $db->FastDelete($fieldTable, db()->Where('field_slug', '=', helper()->slug($item->fk_field_id, '-')));
+                            $field = $db->insertReturning($fieldTable, ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id'], 'field_id');
+                        });
+
                         if (isset($field->field_id)) {
                             $fieldNameToID[$item->fk_field_id] = $field->field_id;
                             $item->fk_field_id = $field->field_id;
@@ -512,10 +546,15 @@ HTML;
                 }
                 $fieldItems[$k] = (array)$item;
             }
-            db()->Insert($this->getFieldItemsTable(), $fieldItems);
+            db(onGetDB: function ($db) use ($fieldItems) {
+                $db->Insert($this->getFieldItemsTable(), $fieldItems);
+            });
+
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
         } catch (\Exception $exception) {
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             // log...
             // var_dump($exception->getMessage(), $exception->getTraceAsString());
         }
@@ -782,8 +821,12 @@ HTML;
             $fieldItemsTable = $this->getFieldItemsTable();
             $fieldAndFieldItemsCols = $this->getFieldAndFieldItemsCols();
 
-            $originalFieldIDAndSlugs = db()->Select("field_id, field_slug")->From($fieldTable)
-                ->WhereIn('field_slug', $fieldSlugIDS)->OrderBy('field_id')->FetchResult();
+            $originalFieldIDAndSlugs = null;
+            db(onGetDB: function ($db) use ($fieldTable, $fieldSlugIDS, &$originalFieldIDAndSlugs){
+                $originalFieldIDAndSlugs = $db->Select("field_id, field_slug")->From($fieldTable)
+                    ->WhereIn('field_slug', $fieldSlugIDS)
+                    ->OrderBy('field_id')->FetchResult();
+            });
 
             # For Field Items
             $fieldIDS = [];
@@ -795,10 +838,13 @@ HTML;
                 }
             }
 
-            $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
-                ->From($fieldItemsTable)
-                ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
+            $originalFieldItems = null;
+            db(onGetDB: function ($db) use ($fieldItemsTable, $fieldAndFieldItemsCols, $fieldIDS, $fieldTable, &$originalFieldItems){
+                $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
+                    ->From($fieldItemsTable)
+                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                    ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('fk_field_id')->FetchResult();
+            });
 
             $originalFieldCategories = [];
             foreach ($originalFieldItems as $originalFieldItem) {

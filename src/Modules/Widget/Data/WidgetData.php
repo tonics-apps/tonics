@@ -47,8 +47,13 @@ class WidgetData extends AbstractDataLayer
      */
     public function getWidgets(): mixed
     {
-        $table = $this->getWidgetTable();
-        return db()->run("SELECT * FROM $table");
+        $result = null;
+        db(onGetDB: function ($db) use (&$result){
+            $table = $this->getWidgetTable();
+            $result = $db->run("SELECT * FROM $table");
+        });
+
+        return $result;
     }
 
     /**
@@ -58,8 +63,13 @@ class WidgetData extends AbstractDataLayer
      */
     public function getWidgetID(string $slug): mixed
     {
-        $table = $this->getWidgetTable();
-        return db()->row("SELECT `widget_id` FROM $table WHERE `widget_slug` = ?", $slug)->widget_id ?? null;
+        $result = null;
+        db(onGetDB: function ($db) use ($slug, &$result){
+            $table = $this->getWidgetTable();
+            $result = $db->row("SELECT `widget_id` FROM $table WHERE `widget_slug` = ?", $slug)->widget_id ?? null;
+        });
+
+        return $result;
     }
 
     /**
@@ -67,18 +77,22 @@ class WidgetData extends AbstractDataLayer
      */
     public function getWidgetItems(int|string $widgetIDOrSlug): array
     {
-        $widgetItemsTable = $this->getWidgetItemsTable();
-        $widgetTable = $this->getWidgetTable();
-        $result = db()->Select('*')->From($widgetItemsTable)
-            ->Join($widgetTable, table()->pickTable($widgetTable, ['widget_id']), table()->pickTable($widgetItemsTable, ['fk_widget_id']))
-            ->when(is_string($widgetIDOrSlug),
-                function (TonicsQuery $db) use ($widgetIDOrSlug) {
-                    $db->WhereEquals('widget_slug', $widgetIDOrSlug);
-                },
-                function (TonicsQuery $db) use ($widgetIDOrSlug) {
-                    $db->WhereEquals('fk_widget_id', $widgetIDOrSlug);
-                })
-            ->FetchResult();
+        $result = null;
+        db(onGetDB: function ($db) use ($widgetIDOrSlug, &$result){
+            $widgetItemsTable = $this->getWidgetItemsTable();
+            $widgetTable = $this->getWidgetTable();
+            $result = $db->Select('*')->From($widgetItemsTable)
+                ->Join($widgetTable, table()->pickTable($widgetTable, ['widget_id']), table()->pickTable($widgetItemsTable, ['fk_widget_id']))
+                ->when(is_string($widgetIDOrSlug),
+                    function (TonicsQuery $db) use ($widgetIDOrSlug) {
+                        $db->WhereEquals('widget_slug', $widgetIDOrSlug);
+                    },
+                    function (TonicsQuery $db) use ($widgetIDOrSlug) {
+                        $db->WhereEquals('fk_widget_id', $widgetIDOrSlug);
+                    })
+                ->FetchResult();
+        });
+
         return $this->decodeWidgetOptions($result);
     }
 

@@ -19,9 +19,7 @@ class TonicsNinetysevenDeleteFieldSlugPostHomePage_2023_03_09_134218 extends Mig
     {
         $toDelete = ['app-ninety-seven-post-home-page'];
         db(onGetDB: function (TonicsQuery $db) use ($toDelete) {
-            $newDB = db();
-            $db->FastDelete($this->getFieldTable(), $newDB->WhereIn(table()->getColumn($this->getFieldTable(), 'field_slug'), $toDelete));
-            $newDB->getTonicsQueryBuilder()->destroyPdoConnection();
+            $db->FastDelete($this->getFieldTable(), db()->WhereIn(table()->getColumn($this->getFieldTable(), 'field_slug'), $toDelete));
         });
     }
 

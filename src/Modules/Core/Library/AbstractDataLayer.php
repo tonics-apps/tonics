@@ -12,6 +12,7 @@ namespace App\Modules\Core\Library;
 
 use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Validation\Traits\Validator;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 
 class AbstractDataLayer
@@ -46,7 +47,11 @@ class AbstractDataLayer
      */
     public function getTableCount(string $table): mixed
     {
-        return db()->run("SELECT COUNT(*) AS 'r' FROM $table")[0]->r;
+        $count = null;
+        db(onGetDB: function ($db) use ($table, &$count){
+            $count = $db->run("SELECT COUNT(*) AS 'r' FROM $table")[0]->r;
+        });
+        return $count;
     }
 
     /**
@@ -58,9 +63,14 @@ class AbstractDataLayer
      */
     public function getSearchTableCount(string $searchTerm, string $table, string $colToSearch): mixed
     {
-        return db()->run(<<<SQL
+        $count = null;
+        db(onGetDB: function ($db) use ($colToSearch, $table, $searchTerm, &$count){
+            $count = $db->run(<<<SQL
 SELECT COUNT(*) AS 'r' FROM $table WHERE $colToSearch LIKE CONCAT('%', ?, '%')
 SQL, $searchTerm)[0]->r;
+        });
+
+        return $count;
     }
 
     /**
@@ -73,13 +83,19 @@ SQL, $searchTerm)[0]->r;
      */
     public function getRowWithOffsetLimit(string $table, $offset, $limit, string $cols = null): mixed
     {
-        if ($cols !== null){
-            return db()
-                ->run("SELECT $cols FROM $table LIMIT ? OFFSET ?", $limit, $offset);
-        }
+        $offsetLimit = null;
+        db(onGetDB: function ($db) use ($offset, $limit, $table, $cols, &$offsetLimit){
+            if ($cols !== null){
+                $offsetLimit = $db
+                    ->run("SELECT $cols FROM $table LIMIT ? OFFSET ?", $limit, $offset);
+                return;
+            }
 
-        return db()
-            ->run("SELECT * FROM $table LIMIT ? OFFSET ?", $limit, $offset);
+            $offsetLimit = $db
+                ->run("SELECT * FROM $table LIMIT ? OFFSET ?", $limit, $offset);
+        });
+
+        return $offsetLimit;
     }
 
     /**
@@ -94,16 +110,22 @@ SQL, $searchTerm)[0]->r;
      */
     public function searchRowWithOffsetLimit(string $searchTerm, $offset, $limit, string $table, string $colToSearch, string $cols = null): mixed
     {
-
-        if ($cols !== null){
-            return db()->run(<<<SQL
+        $offsetLimit = null;
+        db(onGetDB: function ($db) use ($colToSearch, $searchTerm, $offset, $limit, $table, $cols, &$offsetLimit){
+            if ($cols !== null){
+                $offsetLimit = $db->run(<<<SQL
 SELECT $cols FROM $table WHERE $colToSearch LIKE CONCAT('%', ?, '%') LIMIT ? OFFSET ?
 SQL, $searchTerm, $limit, $offset);
-        }
+                return;
+            }
 
-        return db()->run(<<<SQL
+            $offsetLimit = $db->run(<<<SQL
 SELECT * FROM $table WHERE $colToSearch LIKE CONCAT('%', ?, '%') LIMIT ? OFFSET ?
 SQL, $searchTerm, $limit, $offset);
+        });
+
+        return $offsetLimit;
+
     }
 
     /**
@@ -124,27 +146,38 @@ SQL, $searchTerm, $limit, $offset);
     public function selectWithCondition(string $table, array $colToSelect, string $whereCondition, array $parameter, bool $singleRow = true): mixed
     {
         $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
+        $data = null;
 
-        if ($colToSelect === ['*']){
-            if ($singleRow){
-                return db()->row(<<<SQL
+        db(onGetDB: function (TonicsQuery $db) use ($select, $parameter, $table, $whereCondition, $singleRow, $colToSelect, &$data){
+
+            if ($colToSelect === ['*']){
+                if ($singleRow){
+                    $data = $db->row(<<<SQL
 SELECT * FROM $table WHERE $whereCondition
 SQL, ...$parameter);
+                    return;
+                }
+
+                $data = $db->run(<<<SQL
+SELECT * FROM $table WHERE $whereCondition
+SQL, ...$parameter);
+                return;
             }
-            return db()->run(<<<SQL
-SELECT * FROM $table WHERE $whereCondition
-SQL, ...$parameter);
-        }
 
-        if ($singleRow){
-            return db()->row(<<<SQL
+            if ($singleRow){
+                $data = $db->row(<<<SQL
 SELECT $select FROM $table WHERE $whereCondition
 SQL, ...$parameter);
-        }
+                return;
+            }
 
-        return db()->run(<<<SQL
+            $data = $db->run(<<<SQL
 SELECT $select FROM $table WHERE $whereCondition
 SQL, ...$parameter);
+        });
+
+        return $data;
+
     }
 
     /**
@@ -156,9 +189,11 @@ SQL, ...$parameter);
      */
     public function deleteWithCondition(string $whereCondition, array $parameter, string $table): void
     {
-        db()->run(<<<SQL
+        db(onGetDB: function (TonicsQuery $db) use ($parameter, $whereCondition, $table) {
+            $db->run(<<<SQL
 DELETE FROM $table WHERE $whereCondition
 SQL, ...$parameter);
+        });
     }
 
     /**
@@ -182,32 +217,40 @@ SQL, ...$parameter);
         int $defaultPerPage = 20,
     array $settings = []): ?object
     {
-        $queryName = (isset($settings['query_name'])) ? $settings['query_name'] : 'query';
-        $pageName = (isset($settings['page_name'])) ? $settings['page_name'] : 'page';
-        $perPage = (isset($settings['per_page_name'])) ? $settings['per_page_name'] : 'per_page';
-        // remove token query string:
-        url()->removeParam("token");
-        $searchQuery = url()->getParam($queryName, '');
-        if ($searchQuery){
-            $tableRows = $this->getSearchTableCount(
-                $searchQuery,
-                $table,
-                $colToSearch);
-        } else {
-            $tableRows = $this->getTableCount($table);
-        }
 
-        return db()->paginate(
-            tableRows: $tableRows,
-            callback: function ($perPage, $offset) use ($colToSearch, $table, $cols, $searchQuery){
-                if ($searchQuery){
-                    return $this->searchRowWithOffsetLimit(
-                        $searchQuery, $offset, $perPage,
-                        $table, $colToSearch, $cols);
-                } else {
-                    return $this->getRowWithOffsetLimit($table, $offset, $perPage, $cols);
-                }
-            }, perPage: url()->getParam($perPage, $defaultPerPage), pageName: $pageName);
+
+        $data = null;
+        db(onGetDB: function (TonicsQuery $db) use ($defaultPerPage, $cols, $settings, $table, $colToSearch, &$data){
+
+            $queryName = (isset($settings['query_name'])) ? $settings['query_name'] : 'query';
+            $pageName = (isset($settings['page_name'])) ? $settings['page_name'] : 'page';
+            $perPage = (isset($settings['per_page_name'])) ? $settings['per_page_name'] : 'per_page';
+            // remove token query string:
+            url()->removeParam("token");
+            $searchQuery = url()->getParam($queryName, '');
+            if ($searchQuery){
+                $tableRows = $this->getSearchTableCount(
+                    $searchQuery,
+                    $table,
+                    $colToSearch);
+            } else {
+                $tableRows = $this->getTableCount($table);
+            }
+
+            $data = $db->paginate(
+                tableRows: $tableRows,
+                callback: function ($perPage, $offset) use ($colToSearch, $table, $cols, $searchQuery){
+                    if ($searchQuery){
+                        return $this->searchRowWithOffsetLimit(
+                            $searchQuery, $offset, $perPage,
+                            $table, $colToSearch, $cols);
+                    } else {
+                        return $this->getRowWithOffsetLimit($table, $offset, $perPage, $cols);
+                    }
+                }, perPage: url()->getParam($perPage, $defaultPerPage), pageName: $pageName);
+        });
+
+        return $data;
     }
 
     /**
@@ -263,7 +306,9 @@ SQL, ...$parameter);
         try {
             if (!empty($itemsToDelete)){
                 $questionMarks = helper()->returnRequiredQuestionMarks([$itemsToDelete]);
-                db()->run("DELETE FROM $table WHERE $colParam IN ($questionMarks) $moreWhereCondition", ...$parameter);
+                db(onGetDB: function (TonicsQuery $db) use ($parameter, $moreWhereCondition, $questionMarks, $colParam, $table) {
+                    $db->run("DELETE FROM $table WHERE $colParam IN ($questionMarks) $moreWhereCondition", ...$parameter);
+                });
                 if ($onSuccess){
                     $onSuccess();
                 }
@@ -408,15 +453,20 @@ SQL, ...$parameter);
                 $onBeforeDelete($toDelete);
             }
 
-            db()->FastDelete($table, db()->WhereIn($id, $toDelete));
+            db(onGetDB: function (TonicsQuery $db) use ($toDelete, $id, $table) {
+                $db->FastDelete($table, db()->WhereIn($id, $toDelete));
+            });
+
             apcu_clear_cache();
             if (is_callable($onSuccess)){
                 $onSuccess($toDelete);
             }
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             return true;
         } catch (\Exception $exception) {
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             // log..
             if (is_callable($onError)){
                 $onError();
@@ -490,15 +540,18 @@ SQL, ...$parameter);
                 }
 
                 $db->FastUpdate($table, $updateChanges, db()->Where($id, '=', $ID));
+                $db->getTonicsQueryBuilder()->destroyPdoConnection();
                 if ($onSuccess){
                     $onSuccess($colForEvent, $entityBag);
                 }
             }
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             apcu_clear_cache();
             return true;
         } catch (\Exception $exception) {
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             if ($onError){
                 $onError();
             }

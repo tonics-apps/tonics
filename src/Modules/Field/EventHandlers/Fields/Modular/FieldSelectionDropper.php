@@ -65,8 +65,12 @@ HTML;
         }
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $table = Tables::getTable(Tables::FIELD);
-        $fields = db()->run("SELECT * FROM $table");
+        $fields = null;
+        db(onGetDB: function ($db) use (&$fields){
+            $table = Tables::getTable(Tables::FIELD);
+            $fields = $db->run("SELECT * FROM $table");
+        });
+
         $fieldFrag = '';
         $fieldSlug = array_combine($fieldSlug, $fieldSlug);
         $selectedFields = [];
@@ -150,8 +154,11 @@ FORM;
         $expandField = (isset($data->expandField)) ? $data->expandField : '1';
         $defaultFieldSlug = (empty($keyValue)) ? $data?->defaultFieldSlug : $keyValue;
         $fieldSelectDropperFrag = '';
-        $table = Tables::getTable(Tables::FIELD);
-        $fields = db()->run("SELECT * FROM $table");
+        $fields = null;
+        db(onGetDB: function ($db) use (&$fields){
+            $table = Tables::getTable(Tables::FIELD);
+            $fields = $db->run("SELECT * FROM $table");
+        });
 
         $fieldSelectionFrag = '';
         $defaultFieldSlugFrag = '';
@@ -176,14 +183,18 @@ HTML;
 
         if ($expandField === '1'){
             if (isset($data->_field->_children)){
-                $fieldTable = $event->getFieldData()->getFieldTable();
-                $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
-                $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
 
-                $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
-                    ->From($fieldItemsTable)
-                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                    ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
+                $originalFieldItems = null;
+                db(onGetDB: function ($db) use ($event, $defaultFieldSlug, &$originalFieldItems){
+                    $fieldTable = $event->getFieldData()->getFieldTable();
+                    $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
+                    $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
+
+                    $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
+                        ->From($fieldItemsTable)
+                        ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                        ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
+                });
 
                 foreach ($originalFieldItems as $originalFieldItem){
                     $fieldOption = json_decode($originalFieldItem->field_options);

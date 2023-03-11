@@ -80,11 +80,17 @@ class CouponAccessView
         $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $couponTypeSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
         $couponTypeTable = TonicsCouponActivator::couponTypeTableName();
-        $couponType = (array)db()->Select('*')->From($couponTypeTable)->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
+        $couponType = null;
+        db(onGetDB: function ($db) use ($uniqueSlugID, $couponTypeTable, &$couponType){
+            $couponType = (array)$db->Select('*')->From($couponTypeTable)->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
+        });
 
         # if empty we can check with the coupon_type_slug and do a redirection
         if (empty($couponType)){
-            $couponType = (array)db()->Select('*')->From($couponTypeTable)->WhereEquals('coupon_type_slug', $uniqueSlugID)->FetchFirst();
+            $couponType = null;
+            db(onGetDB: function ($db) use ($uniqueSlugID, $couponTypeTable, &$couponType){
+                $couponType = (array)$db->Select('*')->From($couponTypeTable)->WhereEquals('coupon_type_slug', $uniqueSlugID)->FetchFirst();
+            });
             if (isset($couponType['slug_id'])){
                 redirect(TonicsCouponActivator::getCouponTypeAbsoluteURLPath($couponType), 302);
             }
@@ -125,22 +131,25 @@ class CouponAccessView
                 }
             }
 
-            $couponTableName = TonicsCouponActivator::couponTableName();
-            $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
-            $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
-            $userTable = Tables::getTable(Tables::USERS);
+            $relatedCoupon = null;
+            db(onGetDB: function (TonicsQuery $db) use ($coupon, $typeID, &$relatedCoupon){
+                $couponTableName = TonicsCouponActivator::couponTableName();
+                $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+                $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
+                $userTable = Tables::getTable(Tables::USERS);
 
-            $relatedCoupon = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())
-                ->From($couponToTypeTableName)
-                ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
-                ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
-                ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
-                ->addRawString("WHERE MATCH(coupon_name) AGAINST(?)")->addParam($coupon['coupon_name'])->setLastEmittedType('WHERE')
-                ->WhereEquals('coupon_status', 1)
-                ->WhereIn('coupon_type_id', $typeID)
-                ->WhereNotIn('coupon_id', $coupon['coupon_id'])
-                ->Where("$couponTableName.created_at", '<=', helper()->date())
-                ->OrderByDesc(table()->pickTable($couponTableName, ['updated_at']))->SimplePaginate(6);
+                $relatedCoupon = $db->Select(CouponData::getCouponTableJoiningRelatedColumns())
+                    ->From($couponToTypeTableName)
+                    ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+                    ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+                    ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
+                    ->addRawString("WHERE MATCH(coupon_name) AGAINST(?)")->addParam($coupon['coupon_name'])->setLastEmittedType('WHERE')
+                    ->WhereEquals('coupon_status', 1)
+                    ->WhereIn('coupon_type_id', $typeID)
+                    ->WhereNotIn('coupon_id', $coupon['coupon_id'])
+                    ->Where("$couponTableName.created_at", '<=', helper()->date())
+                    ->OrderByDesc(table()->pickTable($couponTableName, ['updated_at']))->SimplePaginate(6);
+            });
 
             $coupon['related_coupon'] = $relatedCoupon;
             $this->getCouponData()->unwrapForCoupon($coupon);
@@ -189,34 +198,37 @@ class CouponAccessView
                     $couponTypesID[] = $couponTypeID->coupon_type_id;
                 }
 
-                $couponData = db()->Select($tblCol)
-                    ->From($couponToTypeTableName)
-                    ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
-                    ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
-                    ->WhereEquals('coupon_status', 1)
-                    ->WhereIn('coupon_type_id', $couponTypesID)
-                    ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                        $db->WhereLike('coupon_name', url()->getParam('query'));
-                    })
-                    ->Where("$couponTableName.created_at", '<=', helper()->date())
-                    ->when(url()->hasParamAndValue('order_by'), function (TonicsQuery $db) use ($couponTableName) {
-                        $orderIsDesc = true;
-                        if (url()->getParam('order_by') === '1'){
-                            $orderIsDesc = false;
-                        }
-                        $sort_by = 'expired_at';
-                        if (url()->getParam('sort_by') === '1'){
-                            $sort_by = 'created_at';
-                        }
-                        if ($orderIsDesc){
-                            $db->OrderByDesc(table()->pickTable($couponTableName, [$sort_by]));
-                        } else {
-                            $db->orderByAsc(table()->pickTable($couponTableName, [$sort_by]));
-                        }
-                    }, function (TonicsQuery $db) use ($couponTableName) {
-                        $db->orderByAsc(table()->pickTable($couponTableName, ['expired_at']));
-                    })
-                    ->SimplePaginate(AppConfig::getAppPaginationMax());
+                $couponData = null;
+                db(onGetDB: function (TonicsQuery $db) use ($couponTypesID, $couponTypeTableName, $couponTableName, $tblCol, $couponToTypeTableName, &$couponData){
+                    $couponData = $db->Select($tblCol)
+                        ->From($couponToTypeTableName)
+                        ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+                        ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+                        ->WhereEquals('coupon_status', 1)
+                        ->WhereIn('coupon_type_id', $couponTypesID)
+                        ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                            $db->WhereLike('coupon_name', url()->getParam('query'));
+                        })
+                        ->Where("$couponTableName.created_at", '<=', helper()->date())
+                        ->when(url()->hasParamAndValue('order_by'), function (TonicsQuery $db) use ($couponTableName) {
+                            $orderIsDesc = true;
+                            if (url()->getParam('order_by') === '1'){
+                                $orderIsDesc = false;
+                            }
+                            $sort_by = 'expired_at';
+                            if (url()->getParam('sort_by') === '1'){
+                                $sort_by = 'created_at';
+                            }
+                            if ($orderIsDesc){
+                                $db->OrderByDesc(table()->pickTable($couponTableName, [$sort_by]));
+                            } else {
+                                $db->orderByAsc(table()->pickTable($couponTableName, [$sort_by]));
+                            }
+                        }, function (TonicsQuery $db) use ($couponTableName) {
+                            $db->orderByAsc(table()->pickTable($couponTableName, ['expired_at']));
+                        })
+                        ->SimplePaginate(AppConfig::getAppPaginationMax());
+                });
 
                 $couponData = ['TonicsCouponData' => $couponData, 'TonicsCouponTypesData' => $couponTypesIDResult];
 

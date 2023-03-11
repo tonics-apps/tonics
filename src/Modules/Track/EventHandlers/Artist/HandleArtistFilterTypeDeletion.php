@@ -22,8 +22,10 @@ class HandleArtistFilterTypeDeletion implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        /** @var ArtistDataAccessor $event */
-        $trackDefaultFiltersValueTable = TrackData::getTrackDefaultFiltersTable();
-        db()->FastDelete($trackDefaultFiltersValueTable, db()->WhereEquals('tdf_type', 'artist')->WhereEquals('tdf_name', $event->getArtistSlug()));
+        db(onGetDB: function ($db){
+            /** @var ArtistDataAccessor $event */
+            $trackDefaultFiltersValueTable = TrackData::getTrackDefaultFiltersTable();
+            $db->FastDelete($trackDefaultFiltersValueTable, db()->WhereEquals('tdf_type', 'artist')->WhereEquals('tdf_name', $event->getArtistSlug()));
+        });
     }
 }

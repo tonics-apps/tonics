@@ -128,14 +128,16 @@ class ThemeFolderViewHandler implements HandlerInterface
     public function handleTrackCategoryForRootQuery(TonicsView $tonicsView): void
     {
         try {
-            $db = db();
             $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
             $trackData = TrackData::class;
-            $data = $db->Select('0 as is_track, track_cat_name as _name, slug_id, CONCAT_WS("/", "/track_categories", slug_id, track_cat_slug) as _link')
-                ->From($trackData::getTrackCategoryTable())->WhereNull('track_cat_parent_id')
-                ->WhereEquals('track_cat_status', 1)
-                ->Where("{$trackData::getTrackCategoryTable()}.created_at", '<=', helper()->date())
-                ->SimplePaginate(AppConfig::getAppPaginationMax());
+            $data = null;
+            db(onGetDB: function ($db) use ($trackData, &$data){
+                $data = $db->Select('0 as is_track, track_cat_name as _name, slug_id, CONCAT_WS("/", "/track_categories", slug_id, track_cat_slug) as _link')
+                    ->From($trackData::getTrackCategoryTable())->WhereNull('track_cat_parent_id')
+                    ->WhereEquals('track_cat_status', 1)
+                    ->Where("{$trackData::getTrackCategoryTable()}.created_at", '<=', helper()->date())
+                    ->SimplePaginate(AppConfig::getAppPaginationMax());
+            });
 
             $fieldSettings['ThemeFolder'] = $data;
             $tonicsView->addToVariableData('Data', $fieldSettings);
@@ -153,70 +155,72 @@ class ThemeFolderViewHandler implements HandlerInterface
         $trackData = TrackData::class;
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
         try {
-            $db = db();
-            $db->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
-                $db->With('category_tree',
-                    $db->Q()->Select('track_cat_id')->From($trackData::getTrackCategoryTable())
-                        ->WhereEquals('track_cat_id', $fieldSettings['track_cat_id'])
-                        ->UnionAll(
-                            $db->Q()->Select(' c.track_cat_id')->From("{$trackData::getTrackCategoryTable()} c")
-                                ->Join('category_tree ct', 'c.track_cat_parent_id', 'ct.track_cat_id')
-                        ),
-                    true);
-            });
+            db(onGetDB: function (TonicsQuery $db) use ($trackData, $fieldSettings, &$data) {
 
-            $db->Select('*')->From(db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, t.track_plays as plays,
+                $db->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
+                    $db->With('category_tree',
+                        $db->Q()->Select('track_cat_id')->From($trackData::getTrackCategoryTable())
+                            ->WhereEquals('track_cat_id', $fieldSettings['track_cat_id'])
+                            ->UnionAll(
+                                $db->Q()->Select(' c.track_cat_id')->From("{$trackData::getTrackCategoryTable()} c")
+                                    ->Join('category_tree ct', 'c.track_cat_parent_id', 'ct.track_cat_id')
+                            ),
+                        true);
+                });
+
+                $db->Select('*')->From(db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, t.track_plays as plays,
         t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.track_status as _status,
         t.created_at,
         1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")
-                ->From("{$trackData::getTrackTable()} t")
-                ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
-                ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
-                // join cte if it is for filtering
-                ->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings) {
-                    $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id");
-                })
-                ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
-                ->when($this->isFiltering(), function (TonicsQuery $db) use ($trackData) {
-                    // -- join with the filter table
-                    $db->LeftJoin("{$trackData::getTrackDefaultFiltersTrackTable()} tdft", "t.track_id", "tdft.fk_track_id")
-                    // -- join with the filter values
-                    ->LeftJoin("{$trackData::getTrackDefaultFiltersTable()} tdf", "tdft.fk_tdf_id", "tdf.tdf_id");
-                    $this->dbWhenForCommonFieldKey($db);
-                })
-                // if it is not for filtering, use the current category
-                // also, we won't be returning track_categories result set
-                // though, if there are tracks in the inner track_categories that satisfies the filter, it would get the track appropriately
-                // just not the track_category data
-                ->when($this->isFiltering() === false, function (TonicsQuery $db) use ($trackData, $fieldSettings) {
-                    $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id'])
-                        ->Raw('UNION')
-                        ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name, null as plays, null as bpm, 
+                    ->From("{$trackData::getTrackTable()} t")
+                    ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
+                    ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
+                    // join cte if it is for filtering
+                    ->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings) {
+                        $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id");
+                    })
+                    ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
+                    ->when($this->isFiltering(), function (TonicsQuery $db) use ($trackData) {
+                        // -- join with the filter table
+                        $db->LeftJoin("{$trackData::getTrackDefaultFiltersTrackTable()} tdft", "t.track_id", "tdft.fk_track_id")
+                            // -- join with the filter values
+                            ->LeftJoin("{$trackData::getTrackDefaultFiltersTable()} tdf", "tdft.fk_tdf_id", "tdf.tdf_id");
+                        $this->dbWhenForCommonFieldKey($db);
+                    })
+                    // if it is not for filtering, use the current category
+                    // also, we won't be returning track_categories result set
+                    // though, if there are tracks in the inner track_categories that satisfies the filter, it would get the track appropriately
+                    // just not the track_category data
+                    ->when($this->isFiltering() === false, function (TonicsQuery $db) use ($trackData, $fieldSettings) {
+                        $db->WhereEquals('ct.track_cat_id', $fieldSettings['track_cat_id'])
+                            ->Raw('UNION')
+                            ->Select("ct.track_cat_id as id, ct.slug_id, ct.track_cat_name as _name, null as plays, null as bpm, 
                         null as image_url, null as audio_url, null as license_attr, ct.track_cat_status as _status,
                         ct.created_at as created_at,0 as is_track, CONCAT_WS('/', '/track_categories', ct.slug_id, ct.track_cat_slug) as _link")
-                        ->From("{$trackData::getTrackCategoryTable()} ct")
-                        // join cte if it is for filtering, else, we use only the current category
-                        ->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings) {
-                            $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id")
-                                // we do not need to include the main category in the result set
-                                ->WhereNotEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
-                        }, function (TonicsQuery $db) use ($fieldSettings) {
-                            $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
-                        });
-                })
-            ) // End Sub query
-            ->As('track_results')
-                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                    $db->WhereLike('_name', url()->getParam('query'));
-                });
+                            ->From("{$trackData::getTrackCategoryTable()} ct")
+                            // join cte if it is for filtering, else, we use only the current category
+                            ->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings) {
+                                $db->Join("category_tree ct2", "ct.track_cat_id", "ct2.track_cat_id")
+                                    // we do not need to include the main category in the result set
+                                    ->WhereNotEquals('ct.track_cat_id', $fieldSettings['track_cat_id']);
+                            }, function (TonicsQuery $db) use ($fieldSettings) {
+                                $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
+                            });
+                    })
+                ) // End Sub query
+                ->As('track_results')
+                    ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                        $db->WhereLike('_name', url()->getParam('query'));
+                    });
 
-            $data = $db
-                ->WhereEquals('_status', 1)
-                ->Where('created_at', '<=', helper()->date())
-                ->GroupBy("slug_id")
-                ->OrderByAsc("is_track")
-                ->OrderByDesc("created_at")
-                ->SimplePaginate(AppConfig::getAppPaginationMax());
+                $data = $db
+                    ->WhereEquals('_status', 1)
+                    ->Where('created_at', '<=', helper()->date())
+                    ->GroupBy("slug_id")
+                    ->OrderByAsc("is_track")
+                    ->OrderByDesc("created_at")
+                    ->SimplePaginate(AppConfig::getAppPaginationMax());
+            });
 
             $fieldSettings['ThemeFolder'] = $data;
             $tonicsView->addToVariableData('Data', $fieldSettings);
@@ -249,25 +253,29 @@ class ThemeFolderViewHandler implements HandlerInterface
     {
         /** @var TrackData $trackData */
         $trackData = container()->get(TrackData::class);
-        $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
-        $uniqueSlugID = $routeParams[0] ?? null;
 
         try {
-            $track = db()->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
+            $track = null;
+            db(onGetDB: function (TonicsQuery $db) use ($trackData, &$track){
+                $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
+                $uniqueSlugID = $routeParams[0] ?? null;
+
+                $track = $db->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
         t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings,
         ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
         t.created_at,
         1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")->From("{$trackData::getTrackTable()} t")
-                ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
-                ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
-                ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
-                ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
-                ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
-                ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
-                ->Where('t.created_at', '<=', helper()->date())
-                ->WhereEquals('t.track_status', 1)
-                ->WhereEquals("t.slug_id", $uniqueSlugID)
-                ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
+                    ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
+                    ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
+                    ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
+                    ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
+                    ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
+                    ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
+                    ->Where('t.created_at', '<=', helper()->date())
+                    ->WhereEquals('t.track_status', 1)
+                    ->WhereEquals("t.slug_id", $uniqueSlugID)
+                    ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
+            });
 
             if (!is_array($track)) {
                 return [];
@@ -387,7 +395,9 @@ SQL;
             }
         }
 
-        $filterOptions = db()->run(<<<FILTER_OPTION
+        $filterOptions = null;
+        db(onGetDB: function (TonicsQuery $db) use ($filterType, $trackCatID, $trackData, &$filterOptions){
+            $filterOptions = $db->run(<<<FILTER_OPTION
 SELECT tdf_type, JSON_ARRAYAGG(DISTINCT tdf.tdf_name) as filter_values
 FROM {$trackData::getTrackDefaultFiltersTable()} tdf
 JOIN {$trackData::getTrackDefaultFiltersTrackTable()} tdft ON tdf.tdf_id = tdft.fk_tdf_id
@@ -401,6 +411,7 @@ JOIN (
 WHERE t.track_status = 1 AND tdf.tdf_type IN ($filterType)
 GROUP BY tdf_type;
 FILTER_OPTION, $trackCatID, $trackCatID);
+        });
 
         $newFilterOptions = [];
         foreach ($filterOptions as $filterOption) {

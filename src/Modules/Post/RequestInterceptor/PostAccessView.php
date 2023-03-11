@@ -124,26 +124,29 @@ class PostAccessView
 
             # GET CORRESPONDING POST IN CATEGORY
             $postTbl = Tables::getTable(Tables::POSTS);
-            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-            $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-            $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
-                . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
-                . ", $postTbl.post_excerpt AS _excerpt";
+            $relatedPost = null;
+            db(onGetDB: function ($db) use ($post, $catID, $postTbl, &$relatedPost){
+                $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+                $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
+                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
+                    . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
+                    . ", $postTbl.post_excerpt AS _excerpt";
 
-            $relatedPost = db()->Select($tblCol)
-                ->From($postCatTbl)
-                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-                ->addRawString("WHERE MATCH(post_title) AGAINST(?)")->addParam($post['post_title'])->setLastEmittedType('WHERE')
-                ->WhereEquals('post_status', 1)
-                ->when(!empty($catID), function (TonicsQuery $db) use ($catID) {
-                    $db->WhereIn('cat_id', $catID);
-                })
-                ->WhereNotIn('post_id', $post['post_id'])
-                ->Where("$postTbl.created_at", '<=', helper()->date())
-                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(6);
+                $relatedPost = $db->Select($tblCol)
+                    ->From($postCatTbl)
+                    ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                    ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                    ->addRawString("WHERE MATCH(post_title) AGAINST(?)")->addParam($post['post_title'])->setLastEmittedType('WHERE')
+                    ->WhereEquals('post_status', 1)
+                    ->when(!empty($catID), function (TonicsQuery $db) use ($catID) {
+                        $db->WhereIn('cat_id', $catID);
+                    })
+                    ->WhereNotIn('post_id', $post['post_id'])
+                    ->Where("$postTbl.created_at", '<=', helper()->date())
+                    ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(6);
+            });
 
             $post['related_post'] = $relatedPost;
 
@@ -173,30 +176,32 @@ class PostAccessView
 
             # GET CORRESPONDING POST IN CATEGORY
             $postTbl = Tables::getTable(Tables::POSTS);
-            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-            $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
             $postData = [];
             try {
-                $postFieldSettings = $postTbl . '.field_settings';
-                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
-                    . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
-                    . ", $postTbl.post_excerpt AS _excerpt";
-
                 $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($category['cat_id']);
                 $catIDS = [];
                 foreach ($catIDSResult as $catID){
                     $catIDS[] = $catID->cat_id;
                 }
 
-                $postData = db()->Select($tblCol)
-                    ->From($postCatTbl)
-                    ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-                    ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-                    ->WhereEquals('post_status', 1)
-                    ->WhereIn('cat_id', $catIDS)
-                    ->Where("$postTbl.created_at", '<=', helper()->date())
-                    ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
+                $postData = null;
+                db(onGetDB: function ($db) use ($catIDS, $postTbl, &$postData){
+                    $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+                    $CatTbl = Tables::getTable(Tables::CATEGORIES);
+                    $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
+                        . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
+                        . ", $postTbl.post_excerpt AS _excerpt";
+
+                    $postData = $db->Select($tblCol)
+                        ->From($postCatTbl)
+                        ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                        ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                        ->WhereEquals('post_status', 1)
+                        ->WhereIn('cat_id', $catIDS)
+                        ->Where("$postTbl.created_at", '<=', helper()->date())
+                        ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
+                });
 
                 $postData = ['PostData' => $postData, 'CategoryData' => $catIDSResult];
 

@@ -91,8 +91,11 @@ class MenuControllerItems extends Controller
                 $this->getMenuData()->deleteWithCondition(
                     whereCondition: "fk_menu_id = ?", parameter: [$menuDetails['menuID']], table: $this->getMenuData()->getMenuItemsTable());
                 # Reinsert it
-                db()->Insert($this->getMenuData()->getMenuItemsTable(), $menuDetails['menuItems']);
+                db(onGetDB: function ($db) use ($menuDetails) {
+                    $db->Insert($this->getMenuData()->getMenuItemsTable(), $menuDetails['menuItems']);
+                });
                 $dbTx->commit();
+                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 $error = true;
             } catch (Exception $exception) {
                 // log..

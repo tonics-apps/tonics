@@ -36,11 +36,8 @@ class CreateDriveSystemTable_2022_01_13_195814 extends Migration
             "password" => null,
         ]);
 
-        $db = $this->getDB();
-        $db->run("SHOW TABLES LIKE '{$this->tableName()}'");
-        $tableExist = $db->getRowCount() > 0;
-
-        $this->getDB()->run("
+        db(onGetDB: function ($db) use ($security, $properties) {
+            $db->run("
         CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `drive_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `drive_parent_id` bigint(20) unsigned NULL,
@@ -67,33 +64,41 @@ class CreateDriveSystemTable_2022_01_13_195814 extends Migration
     ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-        if (!$tableExist){
-            $relPath = helper()->getDriveSystemRelativeSignature(DriveConfig::getPrivatePath(), DriveConfig::getUploadsPath());
-            $initFolder = new \SplFileInfo(DriveConfig::getUploadsPath());
-            $rootDir[] = [
-                "drive_id" => 1,
-                "drive_parent_id" => null,
-                "drive_unique_id" => hash('sha256', $relPath . random_int(0000000, PHP_INT_MAX)),
-                "drive_name" => 'local',
-                "type" => "directory",
-                'filename' => $initFolder->getFilename(),
-                "properties" => json_encode([
-                    'ext' => null,
-                    'filename' => $initFolder->getFilename(),
-                    'size' => $initFolder->getSize(),
-                    "time_created" => $initFolder->getCTime(),
-                    "time_modified" => $initFolder->getMTime()
-                ]),
-                "security" => json_encode([
-                    "lock" => false,
-                    "password" => 1 . random_int(0000000, PHP_INT_MAX),
-                ])
-            ];
+            $db->run("SHOW TABLES LIKE '{$this->tableName()}'");
+            $tableExist = $db->getRowCount() > 0;
 
-            $this->getDB()->insertOnDuplicate(
-                table: $this->tableName(), data: $rootDir, update: ['drive_id', 'filename', 'properties'], chunkInsertRate: 1
-            );
-        }
+            if (!$tableExist){
+                $relPath = helper()->getDriveSystemRelativeSignature(DriveConfig::getPrivatePath(), DriveConfig::getUploadsPath());
+                $initFolder = new \SplFileInfo(DriveConfig::getUploadsPath());
+                $rootDir[] = [
+                    "drive_id" => 1,
+                    "drive_parent_id" => null,
+                    "drive_unique_id" => hash('sha256', $relPath . random_int(0000000, PHP_INT_MAX)),
+                    "drive_name" => 'local',
+                    "type" => "directory",
+                    'filename' => $initFolder->getFilename(),
+                    "properties" => json_encode([
+                        'ext' => null,
+                        'filename' => $initFolder->getFilename(),
+                        'size' => $initFolder->getSize(),
+                        "time_created" => $initFolder->getCTime(),
+                        "time_modified" => $initFolder->getMTime()
+                    ]),
+                    "security" => json_encode([
+                        "lock" => false,
+                        "password" => 1 . random_int(0000000, PHP_INT_MAX),
+                    ])
+                ];
+
+                db(onGetDB: function ($db) use ($rootDir){
+                    $db->insertOnDuplicate(
+                        table: $this->tableName(), data: $rootDir, update: ['drive_id', 'filename', 'properties'], chunkInsertRate: 1
+                    );
+                });
+
+            }
+
+        });
     }
 
     /**

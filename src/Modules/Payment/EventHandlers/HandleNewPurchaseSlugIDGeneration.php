@@ -48,7 +48,10 @@ class HandleNewPurchaseSlugIDGeneration implements HandlerInterface
          */
         $slugGen = helper()->generateUniqueSlugID($event->getPurchaseID());
         $purchaseToUpdate['slug_id'] = $slugGen;
-        db()->FastUpdate(Tables::getTable(Tables::PURCHASES), $purchaseToUpdate, db()->Where('purchase_id', '=', $event->getPurchaseID()));
+        db(onGetDB: function ($db) use ($event, $purchaseToUpdate) {
+            $db->FastUpdate(Tables::getTable(Tables::PURCHASES), $purchaseToUpdate, db()->Where('purchase_id', '=', $event->getPurchaseID()));
+        });
+
         $event->getPurchase()->slug_id = $slugGen;
     }
 }

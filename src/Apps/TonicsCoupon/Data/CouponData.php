@@ -59,9 +59,11 @@ class CouponData extends AbstractDataLayer
      */
     public function getCouponType(): mixed
     {
-        $couponTypeTable = $this->getCouponTypeTable();
-        // tcs stands for tonics category system ;)
-        return db()->run("
+        $result = null;
+        db(onGetDB: function ($db) use (&$result){
+            $couponTypeTable = $this->getCouponTypeTable();
+            // tcs stands for tonics category system ;)
+            $result = $db->run("
         WITH RECURSIVE coupon_type_recursive AS 
 	( SELECT coupon_type_id, coupon_type_parent_id, coupon_type_slug, coupon_type_name, CAST(coupon_type_slug AS VARCHAR (255))
             AS path
@@ -72,6 +74,9 @@ class CouponData extends AbstractDataLayer
       ) 
      SELECT * FROM coupon_type_recursive;
         ");
+        });
+
+        return $result;
     }
     
     /**
@@ -231,14 +236,16 @@ HTML;
      */
     public function getChildCouponTypesOfParent(string|int $idSlug): bool|array
     {
-        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+        $result = null;
+        db(onGetDB: function ($db) use ($idSlug, &$result){
+            $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
 
-        $where = "coupon_type_slug = ?";
-        if (is_numeric($idSlug)) {
-            $where = "coupon_type_id = ?";
-        }
-        $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
-        return db()->run("
+            $where = "coupon_type_slug = ?";
+            if (is_numeric($idSlug)) {
+                $where = "coupon_type_id = ?";
+            }
+            $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+            $result = $db->run("
         WITH RECURSIVE coupon_type_recursive AS 
 	( SELECT coupon_type_id, coupon_type_parent_id, coupon_type_slug, coupon_type_name, slug_id, field_settings, 
 	        JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.seo_description')) AS _description,
@@ -252,6 +259,10 @@ HTML;
       ) 
      SELECT *, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link FROM coupon_type_recursive;
         ", $idSlug);
+        });
+
+        return $result;
+
     }
 
     /**
@@ -259,13 +270,15 @@ HTML;
      */
     public function getCouponTypesParent(string|int $idSlug)
     {
-        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
-        $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
-        $where = "coupon_type_slug = ?";
-        if (is_numeric($idSlug)) {
-            $where = "coupon_type_id = ?";
-        }
-        return db()->run("
+        $result = null;
+        db(onGetDB: function ($db) use ($idSlug, &$result){
+            $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+            $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+            $where = "coupon_type_slug = ?";
+            if (is_numeric($idSlug)) {
+                $where = "coupon_type_id = ?";
+            }
+            $result = $db->run("
         WITH RECURSIVE child_to_parent AS 
 	( SELECT coupon_type_id, coupon_type_parent_id, slug_id, coupon_type_slug, coupon_type_status, coupon_type_name, CAST(coupon_type_slug AS VARCHAR (255))
             AS path
@@ -276,6 +289,9 @@ HTML;
       ) 
      SELECT *, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link FROM child_to_parent;
         ", $idSlug);
+        });
+
+        return $result;
     }
 
     /**
@@ -287,31 +303,35 @@ HTML;
      */
     public function getCouponUniqueID($ID, string $column = 'slug_id'): mixed
     {
-        $userTable = Tables::getTable(Tables::USERS);
         $couponTableName = TonicsCouponActivator::couponTableName();
-        $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
-        $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
 
         # verify coupon column
         if (!table()->hasColumn($couponTableName, $column)){
             return [];
         }
 
-        # Role ACCESS Key
-        $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
+        $couponData = null;
+        db(onGetDB: function ($db) use ($ID, $column, $couponTableName, &$couponData){
+            $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
+            $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
+            $userTable = Tables::getTable(Tables::USERS);
 
-        $couponData = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())
-            ->From($couponToTypeTableName)
-            ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
-            ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
-            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
-            ->WhereEquals('coupon_type_status', 1)
-            ->WhereEquals(table()->pickTable($couponTableName, [$column]), $ID)
-            # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
-            ->when(Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ)) === false, function (TonicsQuery $db) use ($couponTableName) {
-                $db->Where(table()->pickTable($couponTableName, ['created_at']), '<=', helper()->date());
-            })
-            ->FetchFirst();
+            # Role ACCESS Key
+            $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
+
+            $couponData = $db->Select(CouponData::getCouponTableJoiningRelatedColumns())
+                ->From($couponToTypeTableName)
+                ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+                ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+                ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
+                ->WhereEquals('coupon_type_status', 1)
+                ->WhereEquals(table()->pickTable($couponTableName, [$column]), $ID)
+                # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
+                ->when(Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ)) === false, function (TonicsQuery $db) use ($couponTableName) {
+                    $db->Where(table()->pickTable($couponTableName, ['created_at']), '<=', helper()->date());
+                })
+                ->FetchFirst();
+        });
 
         if (empty($couponData) || $couponData?->coupon_status === null){
             return [];
@@ -403,9 +423,13 @@ HTML;
      */
     public function findDefaultCouponType()
     {
-        return db()->Select(table()->pickTable($this->getCouponTypeTable(), ['coupon_type_slug', 'coupon_type_id']))
-            ->From($this->getCouponTypeTable())->WhereEquals('coupon_type_slug', 'default-coupon')
-            ->FetchFirst();
+        $result = null;
+        db(onGetDB: function ($db) use (&$result){
+            $result = $db->Select(table()->pickTable($this->getCouponTypeTable(), ['coupon_type_slug', 'coupon_type_id']))
+                ->From($this->getCouponTypeTable())->WhereEquals('coupon_type_slug', 'default-coupon')
+                ->FetchFirst();
+        });
+        return $result;
     }
 
     /**
@@ -429,7 +453,12 @@ HTML;
             $primaryKey = 'id';
         }
 
-        return db()->insertReturning($table, $data, $return, $primaryKey);
+        $result = null;
+        db(onGetDB: function ($db) use ($primaryKey, $return, $data, $table, &$result){
+            $result = $db->insertReturning($table, $data, $return, $primaryKey);
+        });
+
+        return $result;
     }
 
     /**

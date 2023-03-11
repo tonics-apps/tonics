@@ -34,7 +34,9 @@ class HandleNewCouponToCouponTypeMapping implements HandlerInterface
             ];
         }
 
-        $table = $event->getCouponData()->getCouponToTypeTable();
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($toInsert, $event) {
+            $table = $event->getCouponData()->getCouponToTypeTable();
+            $db->Insert($table, $toInsert);
+        });
     }
 }

@@ -35,7 +35,9 @@ class HandleUpdateTrackToGenreMapping implements HandlerInterface
         }
 
         $table = $event->getTrackData()->getTrackToGenreTable();
-        db()->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($event, $table, $toInsert){
+            $db->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
+            $db->Insert($table, $toInsert);
+        });
     }
 }

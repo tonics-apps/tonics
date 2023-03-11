@@ -59,46 +59,48 @@ class TracksController extends Controller
             ['type' => 'date_time_local', 'slug' => Tables::TRACKS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $trackTable = Tables::getTable(Tables::TRACKS);
+        $data = null;
+        db(onGetDB: function ($db) use ($genreURLParam, &$data){
+            $trackTable = Tables::getTable(Tables::TRACKS);
+            $tblCol = table()->pick([$trackTable => ['track_id', 'track_title', 'track_slug', 'updated_at']])
+                . ', CONCAT("/admin/tracks/", track_slug, "/edit") as _edit_link, CONCAT_WS("/", "/tracks", track_slug) as _preview_link ';
 
-        $tblCol = table()->pick([$trackTable => ['track_id', 'track_title', 'track_slug', 'updated_at']])
-            . ', CONCAT("/admin/tracks/", track_slug, "/edit") as _edit_link, CONCAT_WS("/", "/tracks", track_slug) as _preview_link ';
+            $data = $db->Select($tblCol)
+                ->From($trackTable)
+                // we only join the table when we have query, that is user is filtering...
+                ->when(url()->hasParam('query'), function (TonicsQuery $query){
+                    $trackTable = Tables::getTable(Tables::TRACKS);
+                    $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
+                    $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
+                    $genreTable = Tables::getTable(Tables::GENRES);
+                    $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
 
-        $data = db()->Select($tblCol)
-            ->From($trackTable)
-            // we only join the table when we have query, that is user is filtering...
-            ->when(url()->hasParam('query'), function (TonicsQuery $query){
-                $trackTable = Tables::getTable(Tables::TRACKS);
-                $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
-                $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
-                $genreTable = Tables::getTable(Tables::GENRES);
-                $trackGenreTable = Tables::getTable(Tables::TRACK_GENRES);
+                    $query
+                        ->Join($trackGenreTable, "$trackGenreTable.fk_track_id", "$trackTable.track_id")
+                        ->Join($genreTable, "$genreTable.genre_id", "$trackGenreTable.fk_genre_id")
+                        ->Join($trackTracksCategoriesTable, "$trackTracksCategoriesTable.fk_track_id", "$trackTable.track_id")
+                        ->Join($trackCategoriesTable, "$trackCategoriesTable.track_cat_id", "$trackTracksCategoriesTable.fk_track_cat_id");
+                })
+                ->when(url()->hasParamAndValue('status'),
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('track_status', url()->getParam('status'));
+                    },
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('track_status', 1);
 
-                $query
-                    ->Join($trackGenreTable, "$trackGenreTable.fk_track_id", "$trackTable.track_id")
-                    ->Join($genreTable, "$genreTable.genre_id", "$trackGenreTable.fk_genre_id")
-                    ->Join($trackTracksCategoriesTable, "$trackTracksCategoriesTable.fk_track_id", "$trackTable.track_id")
-                    ->Join($trackCategoriesTable, "$trackCategoriesTable.track_cat_id", "$trackTracksCategoriesTable.fk_track_cat_id");
-            })
-            ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('track_status', url()->getParam('status'));
-                },
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('track_status', 1);
+                    })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('track_title', url()->getParam('query'));
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('track_title', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('genre'), function (TonicsQuery $db) use ($genreURLParam) {
+                    $db->WhereIn('genre_id', $genreURLParam);
 
-            })->when(url()->hasParamAndValue('genre'), function (TonicsQuery $db) use ($genreURLParam) {
-                $db->WhereIn('genre_id', $genreURLParam);
-
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($trackTable) {
-                $db->WhereBetween(table()->pickTable($trackTable, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-            })
-            ->GroupBy("$trackTable.track_id")
-            ->OrderByDesc(table()->pickTable($trackTable, ['updated_at']))
-            ->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($trackTable) {
+                    $db->WhereBetween(table()->pickTable($trackTable, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+                })
+                ->GroupBy("$trackTable.track_id")
+                ->OrderByDesc(table()->pickTable($trackTable, ['updated_at']))
+                ->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         $genreSettings = ['genres' => $genres, 'selected' => $genreURLParam, 'type' => 'checkbox', 'inputName' => 'genre[]'];
         view('Modules::Track/Views/index', [
@@ -210,7 +212,11 @@ class TracksController extends Controller
         try {
             $dbTx->beginTransaction();
             $track = $this->getTrackData()->createTrack(['token']);
-            $trackReturning = db()->insertReturning($this->getTrackData()::getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
+            $trackReturning = null;
+            db(onGetDB: function ($db) use ($track, &$trackReturning){
+                $trackReturning = $db->insertReturning($this->getTrackData()::getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
+            });
+
             if (is_object($trackReturning)) {
                 $trackReturning->fk_track_cat_id = input()->fromPost()->retrieve('fk_track_cat_id', '');
                 $trackReturning->fk_genre_id = input()->fromPost()->retrieve('fk_genre_id', '');
@@ -218,6 +224,7 @@ class TracksController extends Controller
             $onTrackCreate = new OnTrackCreate($trackReturning, $this->getTrackData());
             event()->dispatch($onTrackCreate);
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             if (!$this->isUserInCLI){
                 session()->flash(['Track Created'], type: Session::SessionCategories_FlashMessageSuccess);
                 redirect(route('tracks.edit', ['track' => $onTrackCreate->getTrackSlug()]));
@@ -225,6 +232,7 @@ class TracksController extends Controller
         } catch (Exception $exception){
             // Log..
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             if (!$this->isUserInCLI){
                 session()->flash(['An Error Occurred, Creating Track'], input()->fromPost()->all());
                 redirect(route('tracks.create'));
@@ -241,19 +249,23 @@ class TracksController extends Controller
      */
     public function edit(string $slug)
     {
-        $trackData = TrackData::class;
-        $select = "{$trackData::getTrackTable()}.*, {$trackData::getLicenseTable()}.*,
+        $track = null;
+        db(onGetDB: function ($db) use ($slug, &$track){
+            $trackData = TrackData::class;
+            $select = "{$trackData::getTrackTable()}.*, {$trackData::getLicenseTable()}.*,
        GROUP_CONCAT(DISTINCT {$trackData::getGenreTable()}.genre_id) AS `fk_genre_id[]`,
        GROUP_CONCAT(DISTINCT {$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id) AS fk_track_cat_id";
 
-        $track = db()->Select($select)->From($trackData::getTrackTable())
-            ->Join($trackData::getTrackToGenreTable(), "{$trackData::getTrackToGenreTable()}.fk_track_id", "{$trackData::getTrackTable()}.track_id")
-            ->Join($trackData::getGenreTable(), "{$trackData::getGenreTable()}.genre_id", "{$trackData::getTrackToGenreTable()}.fk_genre_id")
-            ->Join($trackData::getTrackTracksCategoryTable(), "{$trackData::getTrackTracksCategoryTable()}.fk_track_id", "{$trackData::getTrackTable()}.track_id")
-            ->Join($trackData::getTrackCategoryTable(), "{$trackData::getTrackCategoryTable()}.track_cat_id", "{$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id")
-            ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
-            ->WhereEquals("{$trackData::getTrackTable()}.track_slug", $slug)
-            ->GroupBy("{$trackData::getTrackTable()}.track_id")->FetchFirst();
+            $track = $db->Select($select)->From($trackData::getTrackTable())
+                ->Join($trackData::getTrackToGenreTable(), "{$trackData::getTrackToGenreTable()}.fk_track_id", "{$trackData::getTrackTable()}.track_id")
+                ->Join($trackData::getGenreTable(), "{$trackData::getGenreTable()}.genre_id", "{$trackData::getTrackToGenreTable()}.fk_genre_id")
+                ->Join($trackData::getTrackTracksCategoryTable(), "{$trackData::getTrackTracksCategoryTable()}.fk_track_id", "{$trackData::getTrackTable()}.track_id")
+                ->Join($trackData::getTrackCategoryTable(), "{$trackData::getTrackCategoryTable()}.track_cat_id", "{$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id")
+                ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
+                ->WhereEquals("{$trackData::getTrackTable()}.track_slug", $slug)
+                ->GroupBy("{$trackData::getTrackTable()}.track_id")
+                ->FetchFirst();
+        });
 
         if (!is_object($track)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -343,7 +355,9 @@ class TracksController extends Controller
         $trackToUpdate = $this->getTrackData()->createTrack(['token']);
         try {
             $trackToUpdate['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_slug'));
-            db()->FastUpdate($this->getTrackData()::getTrackTable(), $trackToUpdate, db()->Where('track_slug', '=', $slug));
+            db(onGetDB: function ($db) use ($slug, $trackToUpdate) {
+                $db->FastUpdate($this->getTrackData()::getTrackTable(), $trackToUpdate, db()->Where('track_slug', '=', $slug));
+            });
 
             $trackToUpdate['fk_track_cat_id'] = input()->fromPost()->retrieve('fk_track_cat_id', '');
             $trackToUpdate['track_id'] = input()->fromPost()->retrieve('track_id', '');
@@ -352,6 +366,7 @@ class TracksController extends Controller
             event()->dispatch($onTrackToUpdate);
 
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
 
             $slug = $trackToUpdate['track_slug'];
             if (!$this->isUserInCLI){
@@ -366,6 +381,7 @@ class TracksController extends Controller
         } catch (\Exception $exception){
             // Log..
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             if (!$this->isUserInCLI){
                 session()->flash($validator->getErrors(), input()->fromPost()->all());
                 redirect(route('tracks.edit', [$slug]));
@@ -411,15 +427,22 @@ class TracksController extends Controller
 
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
-                $track = db()->Select('*')->From(Tables::getTable(Tables::TRACKS))
-                    ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                $track = null;
+                db(onGetDB: function ($db) use ($slugID, &$track){
+                    $track = $db->Select('*')->From(Tables::getTable(Tables::TRACKS))
+                        ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                });
                 if (isset($track->slug_id) && isset($track->track_slug)) {
                     return TrackRedirection::getTrackAbsoluteURLPath((array)$track);
                 }
                 return false;
             }, onSlugState: function ($slug) {
-            $track = db()->Select('*')->From(Tables::getTable(Tables::TRACKS))
-                ->WhereEquals('track_slug', $slug)->FetchFirst();
+            $track = null;
+            db(onGetDB: function ($db) use ($slug, &$track){
+                $track = $db->Select('*')->From(Tables::getTable(Tables::TRACKS))
+                    ->WhereEquals('track_slug', $slug)->FetchFirst();
+            });
+
             if (isset($track->slug_id) && isset($track->track_slug)) {
                 return TrackRedirection::getTrackAbsoluteURLPath((array)$track);
             }

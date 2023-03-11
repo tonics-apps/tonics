@@ -33,12 +33,16 @@ class OrderController
 
         $authInfo = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
         if (isset($authInfo->user_id)){
-            $data = db()->Select('*, CONCAT("/customer/order/", LOWER(JSON_UNQUOTE(JSON_EXTRACT(others, "$.tonics_solution"))), "/", slug_id ) as _view')
-                ->From($purchaseTable)
-                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                    $db->WhereLike('slug_id', url()->getParam('query'));
-                })->WhereEquals('fk_customer_id', $authInfo->user_id)
-                ->OrderByDesc(table()->pickTable($purchaseTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+            $data = null;
+            db(onGetDB: function ($db) use ($authInfo, $purchaseTable, &$data){
+                $data = db()->Select('*, CONCAT("/customer/order/", LOWER(JSON_UNQUOTE(JSON_EXTRACT(others, "$.tonics_solution"))), "/", slug_id ) as _view')
+                    ->From($purchaseTable)
+                    ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                        $db->WhereLike('slug_id', url()->getParam('query'));
+                    })->WhereEquals('fk_customer_id', $authInfo->user_id)
+                    ->OrderByDesc(table()->pickTable($purchaseTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+            });
+
         }
 
         view('Modules::Customer/Views/Orders/order_index', [
@@ -52,18 +56,23 @@ class OrderController
     }
 
 
-
+    /**
+     * @throws \Exception
+     */
     public function audioTonicsPurchaseDetails($slugID)
     {
-        $purchaseTable = Tables::getTable(Tables::PURCHASES);
-        $customerTable = Tables::getTable(Tables::CUSTOMERS);
-        $select = "total_price, email, $purchaseTable.others, $purchaseTable.slug_id, invoice_id";
-        $purchaseRecord = db()->row(<<<SQL
+        $purchaseRecord = null;
+        db(onGetDB: function ($db) use ($slugID, &$purchaseRecord){
+            $purchaseTable = Tables::getTable(Tables::PURCHASES);
+            $customerTable = Tables::getTable(Tables::CUSTOMERS);
+            $select = "total_price, email, $purchaseTable.others, $purchaseTable.slug_id, invoice_id";
+            $purchaseRecord = $db->row(<<<SQL
 SELECT $select
 FROM $purchaseTable
 JOIN {$customerTable} c ON c.user_id = $purchaseTable.fk_customer_id
 WHERE $purchaseTable.`slug_id` = ? AND `payment_status` = ?
 SQL, $slugID, 'completed');
+        });
 
         if (isset($purchaseRecord->others)){
             $purchaseRecord->others = json_decode($purchaseRecord->others);

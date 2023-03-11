@@ -113,12 +113,14 @@ FORM;
         $postTbl = Tables::getTable(Tables::POSTS);
         $postData = [];
         try {
-            $tblCol = table()->pickTableExcept($postTbl,  ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
-            $postData = db()->Select($tblCol)
-                ->From($postTbl)
-                ->WhereEquals('post_status', 1)
-                ->Where("$postTbl.created_at", '<=', helper()->date())
-                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->Limit($postTake)->FetchResult();
+            db(onGetDB: function ($db) use ($postTake, $postTbl, &$postData){
+                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
+                $postData = $db->Select($tblCol)
+                    ->From($postTbl)
+                    ->WhereEquals('post_status', 1)
+                    ->Where("$postTbl.created_at", '<=', helper()->date())
+                    ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->Limit($postTake)->FetchResult();
+            });
         }catch (\Exception $exception){
             // log..
         }

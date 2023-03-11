@@ -23,8 +23,12 @@ class CouponSitemap extends AbstractSitemapInterface implements HandlerInterface
     public function getSitemapDataCount(): ?int
     {
         if (is_null($this->dataCount)){
-            $table = TonicsCouponActivator::couponTableName();
-            $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE coupon_status = 1 AND NOW() >= created_at");
+            $result = null;
+            db(onGetDB: function ($db) use (&$result){
+                $table = TonicsCouponActivator::couponTableName();
+                $result = $db->row("SELECT COUNT(*) as count FROM $table WHERE coupon_status = 1 AND NOW() >= created_at");
+            });
+
             $this->setDataCount((isset($result->count)) ? (int)$result->count : 0);
         }
 
@@ -36,16 +40,22 @@ class CouponSitemap extends AbstractSitemapInterface implements HandlerInterface
      */
     public function getSitemapData(): array
     {
-        $data = db()->paginate(
-            tableRows: $this->getSitemapDataCount(),
-            callback: function ($perPage, $offset){
-                $table = TonicsCouponActivator::couponTableName();
-                $root = CouponSettingsController::getTonicsCouponRootPath();
-                $select = "CONCAT_WS( '/', '/$root', slug_id, coupon_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
-                return db()->run(<<<SQL
+        $data = null;
+        db(onGetDB: function ($db) use (&$data){
+            $data = $db->paginate(
+                tableRows: $this->getSitemapDataCount(),
+                callback: function ($perPage, $offset){
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($offset, $perPage, &$cbData){
+                        $table = TonicsCouponActivator::couponTableName();
+                        $root = CouponSettingsController::getTonicsCouponRootPath();
+                        $select = "CONCAT_WS( '/', '/$root', slug_id, coupon_slug ) AS `_link`, image_url as '_image', updated_at as '_lastmod'";
+                        $cbData = $db->run(<<<SQL
 SELECT $select FROM $table WHERE coupon_status = 1 AND NOW() >= created_at ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
-            }, perPage: $this->getLimit());
+                    });
+                }, perPage: $this->getLimit());
+        });
 
         return $data->data;
     }
@@ -56,11 +66,14 @@ SQL, $perPage, $offset);
     public function getSitemapNewsDataCount(): ?int
     {
         if (is_null($this->dataCount)){
-            $table = TonicsCouponActivator::couponTableName();
-            $result = db()->row("SELECT COUNT(*) as count FROM $table WHERE coupon_status = 1 
+            $result = null;
+            db(onGetDB: function ($db) use (&$result){
+                $table = TonicsCouponActivator::couponTableName();
+                $result = $db->row("SELECT COUNT(*) as count FROM $table WHERE coupon_status = 1 
                                       AND created_at >= DATE_SUB(NOW(), INTERVAL 2 DAY) 
                                       AND TRIM(JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.app_tonics_seo_structured_data_article_article_type'))) = 'NewsArticle'
                                       ");
+            });
             $this->setDataCount((isset($result->count)) ? (int)$result->count : 0);
         }
 
@@ -73,23 +86,29 @@ SQL, $perPage, $offset);
      */
     public function getSitemapNewsData(): array
     {
-        $data = db()->paginate(
-            tableRows: $this->getSitemapNewsDataCount(),
-            callback: function ($perPage, $offset){
-                $table = TonicsCouponActivator::couponTableName();
-                $root = CouponSettingsController::getTonicsCouponRootPath();
-                $select = "CONCAT_WS( '/', '/$root', slug_id, coupon_slug ) AS `_link`, 
+        $data = null;
+        db(onGetDB: function ($db) use (&$data){
+            $data = $db->paginate(
+                tableRows: $this->getSitemapNewsDataCount(),
+                callback: function ($perPage, $offset){
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($offset, $perPage, &$cbData){
+                        $table = TonicsCouponActivator::couponTableName();
+                        $root = CouponSettingsController::getTonicsCouponRootPath();
+                        $select = "CONCAT_WS( '/', '/$root', slug_id, coupon_slug ) AS `_link`, 
                 image_url AS '_image', 
                 coupon_name AS '_title', 
                 DATE_FORMAT(created_at, '%Y-%m-%d') AS '_published_date', 
                 DATE_FORMAT(updated_at, '%Y-%m-%d') AS '_lastmod'";
-                return db()->run(<<<SQL
+                        $cbData = $db->run(<<<SQL
 SELECT $select FROM $table WHERE coupon_status = 1 
                           AND created_at >= DATE_SUB(NOW(), INTERVAL 2 DAY) 
                           AND TRIM(JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.app_tonics_seo_structured_data_article_article_type'))) = 'NewsArticle'
                           ORDER BY updated_at DESC LIMIT ? OFFSET ? 
 SQL, $perPage, $offset);
-            }, perPage: $this->getLimit());
+                    });
+                }, perPage: $this->getLimit());
+        });
 
         return $data->data ?? [];
     }

@@ -36,7 +36,9 @@ class HandleNewTrackToTrackCategoryMapping implements HandlerInterface
         }
 
         $table = $event->getTrackData()->getTrackTracksCategoryTable();
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($toInsert, $table){
+            $db->Insert($table, $toInsert);
+        });
 
     }
 }

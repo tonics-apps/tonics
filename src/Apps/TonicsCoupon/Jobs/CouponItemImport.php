@@ -37,9 +37,12 @@ class CouponItemImport extends AbstractJobInterface implements JobHandlerInterfa
         if (isset($coupon['coupon_slug'])) {
             $this->getCouponController()->setIsUserInCLI(True);
             $_POST = $coupon;
-            $couponData = db()->Select("coupon_slug, coupon_id")->From(TonicsCouponActivator::couponTableName())
-                ->WhereEquals('coupon_slug', $coupon['coupon_slug'])
-                ->FetchFirst();
+            $couponData = null;
+            db(onGetDB: function ($db) use ($coupon, &$couponData){
+                $couponData = $db->Select("coupon_slug, coupon_id")->From(TonicsCouponActivator::couponTableName())
+                    ->WhereEquals('coupon_slug', $coupon['coupon_slug'])
+                    ->FetchFirst();
+            });
             if (isset($couponData->coupon_slug)) {
                 $_POST['coupon_id'] = $couponData->coupon_id;
                 $this->getCouponController()->update($couponData->coupon_slug);

@@ -45,10 +45,13 @@ class OEmbedController
                     $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'slug_id', 'post_slug', 'field_settings', 'created_at', 'updated_at', 'image_url']])
                         . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link, post_title as _title '
                         . ", JSON_UNQUOTE(JSON_EXTRACT($postFieldSettings, '$.seo_description')) as _description";
-                    $data = db()->Select($tblCol)->From($postTbl)
-                        ->WhereEquals('slug_id', $slugID)
-                        ->WhereEquals('post_status', 1)
-                        ->FetchFirst();
+
+                    db(onGetDB: function ($db) use ($postTbl, $slugID, $tblCol, &$data){
+                        $data = $db->Select($tblCol)->From($postTbl)
+                            ->WhereEquals('slug_id', $slugID)
+                            ->WhereEquals('post_status', 1)
+                            ->FetchFirst();
+                    });
                 }
 
                 if (is_object($data)){

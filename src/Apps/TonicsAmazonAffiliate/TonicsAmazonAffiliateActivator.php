@@ -12,6 +12,7 @@ use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnEditorFieldSelection;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class TonicsAmazonAffiliateActivator implements ExtensionConfig, FieldItemsExtensionConfig
@@ -98,11 +99,14 @@ class TonicsAmazonAffiliateActivator implements ExtensionConfig, FieldItemsExten
      */
     public function onDelete(): void
     {
-        $toDelete = ['app-tonicsamazonaffiliate-product-box', 'app-tonicsamazonaffiliate-product-individually', 'app-tonicsamazonaffiliate-settings'];
-        $tb = $this->fieldData->getFieldTable();
-        db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
-        $tableName = self::tableName();
-        db()->run("DROP TABLE IF EXISTS `$tableName`");
+        db(onGetDB: function (TonicsQuery $db){
+            $toDelete = ['app-tonicsamazonaffiliate-product-box', 'app-tonicsamazonaffiliate-product-individually', 'app-tonicsamazonaffiliate-settings'];
+            $tb = $this->fieldData->getFieldTable();
+            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+            $tableName = self::tableName();
+            $db->run("DROP TABLE IF EXISTS `$tableName`");
+        });
+
     }
 
     /**
@@ -261,9 +265,9 @@ JSON;
      */
     public function createDatabaseTable()
     {
-        $tableName = self::tableName();
-
-        db()->run("
+        db(onGetDB: function (TonicsQuery $db){
+            $tableName = self::tableName();
+            $db->run("
 CREATE TABLE IF NOT EXISTS `$tableName` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT,     
     `asin` varchar(10) NOT NULL,
@@ -273,6 +277,7 @@ CREATE TABLE IF NOT EXISTS `$tableName` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_key` (`asin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        });
     }
 
 

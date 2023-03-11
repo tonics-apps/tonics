@@ -52,22 +52,25 @@ class PostCategoryController
 
         $tblCol = '*, CONCAT("/admin/posts/category/", cat_slug, "/edit" ) as _edit_link, CONCAT("/categories/", cat_slug) as _preview_link';
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('cat_status', url()->getParam('status'));
-                },
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('cat_status', 1);
+        $data = null;
+        db(onGetDB: function ($db) use ($table, $tblCol, &$data){
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('status'),
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('cat_status', url()->getParam('status'));
+                    },
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('cat_status', 1);
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('cat_name', url()->getParam('query'));
+                    })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('cat_name', url()->getParam('query'));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Post/Views/Category/index', [
             'DataTable' => [
@@ -154,6 +157,7 @@ class PostCategoryController
             $onPostCategoryCreate = new OnPostCategoryCreate($categoryReturning, $this->postData);
             event()->dispatch($onPostCategoryCreate);
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
 
             apcu_clear_cache();
             session()->flash(['Post Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -161,6 +165,7 @@ class PostCategoryController
         }catch (Exception $exception){
             // Log..
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             session()->flash(['An Error Occurred, Creating Post Category'], input()->fromPost()->all());
             redirect(route('posts.category.create'));
         }
@@ -247,7 +252,11 @@ class PostCategoryController
         if (input()->fromPost()->hasValue('cat_parent_id') && input()->fromPost()->hasValue('cat_id')){
             $catParentID = input()->fromPost()->retrieve('cat_parent_id');
             $catID = input()->fromPost()->retrieve('cat_id');
-            $category = db()->Select('*')->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $slug)->FetchFirst();
+            $category = null;
+            db(onGetDB: function ($db) use ($slug, &$category){
+                $category = $db->Select('*')->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $slug)->FetchFirst();
+            });
+
             // Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
             if ($catParentID === $catID){
                 $_POST['cat_parent_id'] = $category->cat_parent_id;
@@ -259,7 +268,10 @@ class PostCategoryController
         $categoryToUpdate = $this->postData->createCategory();
         $categoryToUpdate['cat_slug'] = helper()->slug(input()->fromPost()->retrieve('cat_slug'));
 
-        db()->FastUpdate($this->postData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
+        db(onGetDB: function ($db) use ($slug, $categoryToUpdate) {
+            $db->FastUpdate($this->postData->getCategoryTable(), $categoryToUpdate, db()->Where('cat_slug', '=', $slug));
+        });
+
         $slug = $categoryToUpdate['cat_slug'];
 
         apcu_clear_cache();

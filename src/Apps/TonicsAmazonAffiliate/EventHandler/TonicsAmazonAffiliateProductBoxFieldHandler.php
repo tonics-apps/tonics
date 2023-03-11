@@ -16,6 +16,7 @@ use App\Apps\TonicsToc\Controller\TonicsTocController;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileInterface
 {
@@ -61,17 +62,23 @@ class TonicsAmazonAffiliateProductBoxFieldHandler implements FieldTemplateFileIn
             $asin = trim($asin);
             if (!empty($asin)) {
                 $itemIds = [$asin];
-                $asinDataFromDB = db()->Select('*')->From($TAATable)->WhereEquals('asin', $asin)->FetchFirst();
+                $asinDataFromDB = null;
+                db(onGetDB: function (TonicsQuery $db) use ($asin, $TAATable, &$asinDataFromDB){
+                    $asinDataFromDB = $db->Select('*')->From($TAATable)->WhereEquals('asin', $asin)->FetchFirst();
+                });
+
                 if (empty($asinDataFromDB)) {
                     $responseList = $tonicsAmazonAffiliateController->searchAmazonByASIN($itemIds);
                     if (isset($responseList[$asin])) {
                         $serialize = serialize($responseList[$asin]);
-                        db()->InsertOnDuplicate($TAATable,
-                            [
-                                'asin' => $asin,
-                                'others' => json_encode(['serialized' => $serialize])
+                        db(onGetDB: function (TonicsQuery $db) use ($serialize, $TAATable, $asin) {
+                            $db->InsertOnDuplicate($TAATable,
+                                [
+                                    'asin' => $asin,
+                                    'others' => json_encode(['serialized' => $serialize])
 
-                            ], ['others']);
+                                ], ['others']);
+                        });
                         $item = $responseList[$asin];
                         $fieldData = $tonicsAmazonAffiliateController->collateItems([$item]);
                     }

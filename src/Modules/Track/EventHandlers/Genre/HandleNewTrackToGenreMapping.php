@@ -36,7 +36,9 @@ class HandleNewTrackToGenreMapping implements HandlerInterface
             ];
         }
 
-        $table = $event->getTrackData()->getTrackToGenreTable();
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($toInsert, $event){
+            $table = $event->getTrackData()->getTrackToGenreTable();
+            $db->Insert($table, $toInsert);
+        });
     }
 }

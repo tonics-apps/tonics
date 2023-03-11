@@ -141,6 +141,23 @@ function utility(): TonicsHelpers
  * If you pass a callable func in `$onGetDB`, you would get an instance of the db connection, and
  * it would be cleaned up or destroyed after you are done using it. A new call to it would throw an error, be warned.
  * This is a good option to keep unused connection closed and tidy up.
+ *
+ * <br>
+ * Also by default, if any function accept an instance of TonicsQuery, it would automatically be cleaned at the end of the function,
+ * an example is as follows:
+ *
+ * <br>
+ *
+ * `db()->FastUpdate('table', $updateChanges, db()->Where('coupon_slug', '=', $slug));`
+ *
+ * <br>
+ * the `db()->Where` is a new instance
+ * of TonicQuery, it would also be cleaned at the end of the Where function, this is so, mysql/mariadb process doesn't sleep unnecessarily, if for some
+ * reason, you don't want an automatically clean up when a TonicsQuery is passed to function param, you can disable it this way:
+ *
+ * <br>
+ *
+ * `$db->Select('')->setCloseTonicQueryPassedToParam(false)...`
  * @param bool $newConnection
  * @param callable|null $onGetDB
  * @return TonicsQuery|null

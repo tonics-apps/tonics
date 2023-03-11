@@ -18,8 +18,9 @@ class CreateTonicsCouponTypeTable_2022_12_07_132233 extends Migration {
      */
     public function up()
     {
-        ## This would be the category for the Post table. it is not related to track table
-        $this->getDB()->run("
+        db(onGetDB: function ($db){
+            ## This would be the category for the Post table. it is not related to track table
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `coupon_type_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(16) DEFAULT NULL,
@@ -34,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   KEY `coupon_type_parent_id_foreign` (`coupon_type_parent_id`),
   CONSTRAINT `coupon_type_parent_id_foreign` FOREIGN KEY (`coupon_type_parent_id`) REFERENCES `{$this->tableName()}` (`coupon_type_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-
+        });
     }
 
     /**

@@ -13,6 +13,7 @@ namespace App\Apps\TonicsSeo\EventHandler;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Events\OnAfterPreSavePostEditorFieldItems;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class HandleOldSeoURLForSEORedirection implements HandlerInterface
 {
@@ -53,11 +54,13 @@ class HandleOldSeoURLForSEORedirection implements HandlerInterface
             }
 
             try {
-                db()->InsertOnDuplicate(
-                    Tables::getTable(Tables::BROKEN_LINKS),
-                    $toInsert,
-                    ['to']
-                );
+                db(onGetDB: function (TonicsQuery $db) use ($toInsert) {
+                    $db->InsertOnDuplicate(
+                        Tables::getTable(Tables::BROKEN_LINKS),
+                        $toInsert,
+                        ['to']
+                    );
+                });
             } catch (\Exception $exception){
                 // Log..
             }

@@ -50,31 +50,35 @@ class CouponTypeController
      */
     public function index()
     {
-        $table = TonicsCouponActivator::couponTypeTableName();
         $dataTableHeaders = [
             ['type' => '', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'coupon_type_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'coupon_type_id'],
             ['type' => 'text', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'coupon_type_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'coupon_type_name'],
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'created_at', 'title' => 'Created', 'minmax' => '50px, .8fr', 'td' => 'created_at'],
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON_TYPE . '::' . 'updated_at', 'title' => 'Updated', 'minmax' => '50px, .8fr', 'td' => 'updated_at'],
         ];
-        $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
-        $tblCol = "*, CONCAT('/admin/tonics_coupon/type/', coupon_type_slug, '/edit' ) as _edit_link, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link";
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('coupon_type_status', url()->getParam('status'));
-                },
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('coupon_type_status', 1);
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('coupon_type_name', url()->getParam('query'));
+        $data = null;
+        db(onGetDB: function ($db) use (&$data){
+            $table = TonicsCouponActivator::couponTypeTableName();
+            $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+            $tblCol = "*, CONCAT('/admin/tonics_coupon/type/', coupon_type_slug, '/edit' ) as _edit_link, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link";
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('status'),
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('coupon_type_status', url()->getParam('status'));
+                    },
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('coupon_type_status', 1);
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+                    })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('coupon_type_name', url()->getParam('query'));
 
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Apps::TonicsCoupon/Views/CouponType/index', [
             'DataTable' => [
@@ -169,6 +173,7 @@ class CouponTypeController
         }catch (Exception $exception){
             // Log..
             $db->rollBack();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
             session()->flash(['An Error Occurred, Creating Coupon Type'], input()->fromPost()->all());
             redirect(route('tonicsCoupon.Type.create'));
         }
@@ -303,15 +308,22 @@ class CouponTypeController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
-                $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTypeTableName())
-                    ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                $coupon = null;
+                db(onGetDB: function ($db) use ($slugID, &$coupon){
+                    $coupon = $db->Select('*')->From(TonicsCouponActivator::couponTypeTableName())
+                        ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                });
                 if (isset($coupon->slug_id) && isset($coupon->coupon_type_slug)) {
                     return TonicsCouponActivator::getCouponTypeAbsoluteURLPath((array)$coupon);
                 }
                 return false;
             }, onSlugState: function ($slug) {
-            $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTypeTableName())
-                ->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
+            $coupon = null;
+            db(onGetDB: function ($db) use ($slug, &$coupon){
+                $coupon = $db->Select('*')->From(TonicsCouponActivator::couponTypeTableName())
+                    ->WhereEquals('coupon_type_slug', $slug)->FetchFirst();
+            });
+
             if (isset($coupon->slug_id) && isset($coupon->coupon_type_slug)) {
                 return TonicsCouponActivator::getCouponTypeAbsoluteURLPath((array)$coupon);
             }
@@ -342,9 +354,13 @@ class CouponTypeController
         $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
         $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
 
-        $couponTypeData = db()
-            ->Select('*, JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.seo_description")) as coupon_type_description')
-            ->From($couponTypeTableName)->WhereEquals('coupon_type_slug', $couponTypeName)->FetchFirst();
+        $couponTypeData = null;
+        db(onGetDB: function ($db) use ($couponTypeName, $couponTypeTableName, &$couponTypeData){
+            $couponTypeData = $db
+                ->Select('*, JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.seo_description")) as coupon_type_description')
+                ->From($couponTypeTableName)->WhereEquals('coupon_type_slug', $couponTypeName)
+                ->FetchFirst();
+        });
 
         if ($couponTypeData){
             $settings = TonicsSeoController::getSettingsData();
@@ -370,14 +386,16 @@ class CouponTypeController
                 $couponTypeIDS[] = $couponTypeItem->coupon_type_id;
             }
 
-            $rssSettingsData['Query'] = db()->Select($tblCol)
-                ->From($couponToTypeTableName)
-                ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
-                ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
-                ->WhereEquals('coupon_status', 1)
-                ->Where("$couponTableName.created_at", '<=', helper()->date())
-                ->WhereIn('coupon_type_id', $couponTypeIDS)->GroupBy('coupon_id')
-                ->OrderByDesc(table()->pickTable($couponTableName, ['created_at']))->SimplePaginate(50);
+            db(onGetDB: function ($db) use ($couponTypeIDS, $tblCol, $couponTypeTableName, $couponTableName, $couponToTypeTableName, &$rssSettingsData){
+                $rssSettingsData['Query'] = $db->Select($tblCol)
+                    ->From($couponToTypeTableName)
+                    ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+                    ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+                    ->WhereEquals('coupon_status', 1)
+                    ->Where("$couponTableName.created_at", '<=', helper()->date())
+                    ->WhereIn('coupon_type_id', $couponTypeIDS)->GroupBy('coupon_id')
+                    ->OrderByDesc(table()->pickTable($couponTableName, ['created_at']))->SimplePaginate(50);
+            });
 
             response()->header("content-type: text/xml; charset=UTF-8");
 

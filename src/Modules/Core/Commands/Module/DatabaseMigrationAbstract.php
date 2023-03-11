@@ -84,13 +84,16 @@ abstract class DatabaseMigrationAbstract
         db(onGetDB: function (TonicsQuery $db){
             $db->query("SET foreign_key_checks = 0");
 
-            $stm = db()->getPdo()->prepare("SHOW TABLES");
-            $stm->execute();
-            if ($tables = $stm->fetchAll(\PDO::FETCH_COLUMN, 0)){
-                foreach ($tables as $table){
-                    $db->query("DROP TABLE IF EXISTS `$table`");
+            db(onGetDB: function ($db) {
+                $stm = $db->getPdo()->prepare("SHOW TABLES");
+                $stm->execute();
+                if ($tables = $stm->fetchAll(\PDO::FETCH_COLUMN, 0)){
+                    foreach ($tables as $table){
+                        $db->query("DROP TABLE IF EXISTS `$table`");
+                    }
                 }
-            }
+            });
+
             $db->query("SET foreign_key_checks = 1");
         });
     }

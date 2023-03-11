@@ -16,6 +16,7 @@ use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
 use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class TonicsNinetySevenWriTonicsPostPageTemplate implements PageTemplateInterface, HandlerInterface
 {
@@ -87,8 +88,11 @@ class TonicsNinetySevenWriTonicsPostPageTemplate implements PageTemplateInterfac
 
                     $fieldSettings['NinetySeven_WriTonics_EnableCategorySelect'] = true;
 
-                    $categories = db()->Select(table()->pickTableExcept($CatTbl, ['field_settings', 'created_at', 'updated_at']))
-                        ->From(Tables::getTable(Tables::CATEGORIES))->FetchResult();
+                    $categories = null;
+                    db(onGetDB: function (TonicsQuery $db) use ($CatTbl, &$categories){
+                        $categories = $db->Select(table()->pickTableExcept($CatTbl, ['field_settings', 'created_at', 'updated_at']))
+                            ->From(Tables::getTable(Tables::CATEGORIES))->FetchResult();
+                    });
                     $fieldSettings['NinetySeven_WriTonics_PostCategoryData'] = (new PostData())->categoryCheckBoxListing($categories, url()->getParam('cat') ?? [], type: 'checkbox');
                 }
 

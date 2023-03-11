@@ -34,8 +34,10 @@ class HandleUpdateCouponToCouponTypeMapping implements HandlerInterface
             ];
         }
 
-        $table = $event->getCouponData()->getCouponToTypeTable();
-        db()->FastDelete($table, db()->WhereIn('fk_coupon_id', $event->getCouponID()));
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($toInsert, $event) {
+            $table = $event->getCouponData()->getCouponToTypeTable();
+            $db->FastDelete($table, db()->WhereIn('fk_coupon_id', $event->getCouponID()));
+            $db->Insert($table, $toInsert);
+        });
     }
 }

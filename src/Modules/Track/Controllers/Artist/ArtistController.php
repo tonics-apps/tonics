@@ -47,18 +47,21 @@ class ArtistController
             ['type' => 'date_time_local', 'slug' => Tables::ARTISTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/artists/", artist_slug, "/edit" ) as _edit_link, CONCAT("/artists/", artist_slug) as _preview_link';
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data){
+            $tblCol = '*, CONCAT("/admin/artists/", artist_slug, "/edit" ) as _edit_link, CONCAT("/artists/", artist_slug) as _preview_link';
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('artist_name', url()->getParam('query'));
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('artist_name', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
-        
+        });
+
         view('Modules::Track/Views/Artist/index', [
             'DataTable' => [
                 'headers' => $dataTableHeaders,
@@ -120,7 +123,10 @@ class ArtistController
 
         try {
             $artist = $this->getTrackData()->createArtist();
-            $artistReturning = db()->insertReturning($this->getTrackData()::getArtistTable(), $artist, $this->getTrackData()->getArtistColumns(), 'artist_id');
+            $artistReturning = null;
+            db(onGetDB: function ($db) use ($artist, &$artistReturning){
+                $artistReturning = $db->insertReturning($this->getTrackData()::getArtistTable(), $artist, $this->getTrackData()->getArtistColumns(), 'artist_id');
+            });
 
             $onArtistCreate = new OnArtistCreate($artistReturning, $this->getTrackData());
             event()->dispatch($onArtistCreate);
@@ -167,7 +173,9 @@ class ArtistController
             $artistToUpdate = $this->getTrackData()->createArtist();
             $artistToUpdate['artist_slug'] = helper()->slug(input()->fromPost()->retrieve('artist_slug'));
 
-            db()->FastUpdate($this->getTrackData()::getArtistTable(), $artistToUpdate, db()->Where('artist_slug', '=', $slug));
+            db(onGetDB: function ($db) use ($slug, $artistToUpdate){
+                $db->FastUpdate($this->getTrackData()::getArtistTable(), $artistToUpdate, db()->Where('artist_slug', '=', $slug));
+            });
 
             $slug = $artistToUpdate['artist_slug'];
             $onArtistUpdate = new OnArtistUpdate((object)$artistToUpdate, $this->getTrackData());
@@ -209,8 +217,12 @@ class ArtistController
             'table' => $table,
             'entityBag' => $entityBag,
             'onBeforeDelete' => function($artistIDS) use ($table) {
-                $artists = db()->Select('artist_slug, artist_name, artist_id')->From($table)
-                    ->WhereIn('artist_id', $artistIDS)->FetchResult();
+                $artists = null;
+                db(onGetDB: function ($db) use ($table, $artistIDS, &$artists){
+                    $artists = $db->Select('artist_slug, artist_name, artist_id')->From($table)
+                        ->WhereIn('artist_id', $artistIDS)->FetchResult();
+                });
+
                 foreach ($artists as $artist){
                     $onArtistDelete = new OnArtistDelete($artist, $this->getTrackData());
                     event()->dispatch($onArtistDelete);

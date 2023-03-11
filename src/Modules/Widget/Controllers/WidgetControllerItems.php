@@ -87,12 +87,17 @@ class WidgetControllerItems extends Controller
                 $this->getWidgetData()->deleteWithCondition(
                     whereCondition: "fk_widget_id = ?", parameter: [$menuDetails['menuWidgetID']], table: $this->getWidgetData()->getWidgetItemsTable());
                 # Reinsert it
-                db()->Insert($this->getWidgetData()->getWidgetItemsTable(), $menuDetails['menuWidgetItems']);
+                db(onGetDB: function ($db) use ($menuDetails){
+                    $db->Insert($this->getWidgetData()->getWidgetItemsTable(), $menuDetails['menuWidgetItems']);
+                });
+
                 $dbTx->commit();
+                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 $error = true;
             }catch (\Exception){
                 // Log..
                 $dbTx->rollBack();
+                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             }
         }
 

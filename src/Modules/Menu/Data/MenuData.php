@@ -49,8 +49,12 @@ class MenuData extends AbstractDataLayer
      */
     public function getMenuID(string $slug): mixed
     {
-        $table = $this->getMenuTable();
-        return db()->row("SELECT `menu_id` FROM $table WHERE `menu_slug` = ?", $slug)->menu_id ?? null;
+        $menu = null;
+        db(onGetDB: function ($db) use ($slug, &$menu){
+            $table = $this->getMenuTable();
+            $menu = $db->row("SELECT `menu_id` FROM $table WHERE `menu_slug` = ?", $slug)->menu_id ?? null;
+        });
+        return $menu;
     }
 
     /**
@@ -59,7 +63,11 @@ class MenuData extends AbstractDataLayer
     public function getMenus(): mixed
     {
         $table = $this->getMenuTable();
-        return db()->run("SELECT * FROM $table");
+        $menu = null;
+        db(onGetDB: function ($db) use ($table, &$menu){
+            $menu = $db->run("SELECT * FROM $table");
+        });
+        return $menu;
     }
 
     /**
@@ -67,18 +75,22 @@ class MenuData extends AbstractDataLayer
      */
     public function getMenuItems(int|string $menuIDOrSlug, bool $generateTree = true): mixed
     {
-        $menuItemsTable = $this->getMenuItemsTable();
-        $menuTable = $this->getMenuTable();
-        $data = db()->Select('*')->From($menuItemsTable)
-            ->Join($menuTable, table()->pickTable($menuTable, ['menu_id']), table()->pickTable($menuItemsTable, ['fk_menu_id']))
-            ->when(is_string($menuIDOrSlug),
-                function (TonicsQuery $db) use ($menuIDOrSlug) {
-                    $db->WhereEquals('menu_slug', $menuIDOrSlug);
-                },
-                function (TonicsQuery $db) use ($menuIDOrSlug) {
-                    $db->WhereEquals('fk_menu_id', $menuIDOrSlug);
-                })
-            ->FetchResult();
+        $data = null;
+        db(onGetDB: function ($db) use ($menuIDOrSlug, &$data){
+            $menuItemsTable = $this->getMenuItemsTable();
+            $menuTable = $this->getMenuTable();
+            $data = $db->Select('*')->From($menuItemsTable)
+                ->Join($menuTable, table()->pickTable($menuTable, ['menu_id']), table()->pickTable($menuItemsTable, ['fk_menu_id']))
+                ->when(is_string($menuIDOrSlug),
+                    function (TonicsQuery $db) use ($menuIDOrSlug) {
+                        $db->WhereEquals('menu_slug', $menuIDOrSlug);
+                    },
+                    function (TonicsQuery $db) use ($menuIDOrSlug) {
+                        $db->WhereEquals('fk_menu_id', $menuIDOrSlug);
+                    })
+                ->FetchResult();
+        });
+
         if ($data){
             if ($generateTree){
                 return helper()->generateTree(['parent_id' => 'mt_parent_id', 'id' => 'mt_id'], $data);

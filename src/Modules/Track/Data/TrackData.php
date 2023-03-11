@@ -164,8 +164,12 @@ HTML;
      */
     public function artistSelectListing(int $currentArtistSelectorID = null): string
     {
-        $table = self::getArtistTable();
-        $artists = db()->Select('*')->From($table)->FetchResult();
+        $artists = null;
+        db(onGetDB: function ($db) use (&$artists){
+            $table = self::getArtistTable();
+            $artists = $db->Select('*')->From($table)->FetchResult();
+        });
+
         $htmlFrag = '';
         foreach ($artists as $artist){
             if ($currentArtistSelectorID === $artist->artist_id){
@@ -217,7 +221,11 @@ HTML;
                 }
 
                 if (!empty($selected)){
-                    $selectedGenres = db()->Select('*')->From(Tables::getTable(Tables::GENRES))->WhereIn('genre_id', $selected)->FetchResult();
+                    $selectedGenres = null;
+                    db(onGetDB: function ($db) use ($selected, &$selectedGenres){
+                        $selectedGenres = $db->Select('*')->From(Tables::getTable(Tables::GENRES))->WhereIn('genre_id', $selected)->FetchResult();
+                    });
+
                     $selected = array_combine($selected, $selected);
                     foreach ($selectedGenres as $genre){
                         $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
@@ -277,8 +285,13 @@ HTML;
     public function licenseSelectListing(int $currentLicenseID = null): string
     {
         $htmlFrag = '';
-        $table = self::getLicenseTable();
-        $licenses = db()->run("SELECT * FROM $table");
+
+        $licenses = null;
+        db(onGetDB: function ($db) use (&$licenses){
+            $table = self::getLicenseTable();
+            $licenses = $db->run("SELECT * FROM $table");
+        });
+
         foreach ($licenses as $license){
             if ($currentLicenseID === $license->license_id){
                 $htmlFrag .=<<<HTML
@@ -509,8 +522,13 @@ HTML;
      */
     public function getLicenseID(string $slug): mixed
     {
-        $table = self::getLicenseTable();
-        return db()->row("SELECT `license_id` FROM $table WHERE `license_slug` = ?", $slug)->license_id ?? null;
+        $result = null;
+        db(onGetDB: function ($db) use ($slug, &$result){
+            $table = self::getLicenseTable();
+            $result = $db->row("SELECT `license_id` FROM $table WHERE `license_slug` = ?", $slug)->license_id ?? null;
+        });
+
+        return $result;
     }
 
     /**
@@ -592,7 +610,11 @@ HTML;
                 'track_cat_status' => 1,
             ];
 
-            $returning = db()->insertReturning(self::getTrackCategoryTable(), $defaultCategory, $this->getTrackCategoryColumns(), 'track_cat_id');
+            $returning = null;
+            db(onGetDB: function ($db) use ($defaultCategory, &$returning){
+                $returning = $db->insertReturning(self::getTrackCategoryTable(), $defaultCategory, $this->getTrackCategoryColumns(), 'track_cat_id');
+            });
+
             $_POST['fk_track_cat_id'] = [$returning->track_cat_id];
             $onTrackCategoryCreate = new OnTrackCategoryCreate($returning, $this);
             event()->dispatch($onTrackCategoryCreate);
@@ -604,9 +626,14 @@ HTML;
      */
     public function findDefaultTrackCategory()
     {
-        return db()->Select(table()->pickTable(self::getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
-            ->From(self::getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-track-category')
-            ->FetchFirst();
+        $result = null;
+        db(onGetDB: function ($db) use (&$result){
+            $result = $db->Select(table()->pickTable(self::getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
+                ->From(self::getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-track-category')
+                ->FetchFirst();
+        });
+
+        return $result;
     }
     
 
@@ -664,8 +691,10 @@ HTML;
      */
     public function getCategory(): mixed
     {
-        $categoryTable = $this->getTrackCategoryTable();
-        return db()->run("
+        $result = null;
+        db(onGetDB: function ($db) use (&$result){
+            $categoryTable = $this->getTrackCategoryTable();
+            $result = $db->run("
         WITH RECURSIVE track_cat_recursive AS 
 	( SELECT track_cat_id, track_cat_parent_id, track_cat_slug, track_cat_name, CAST(track_cat_slug AS VARCHAR (255))
             AS path
@@ -676,6 +705,9 @@ HTML;
       ) 
      SELECT * FROM track_cat_recursive;
         ");
+        });
+
+        return $result;
     }
 
     /**

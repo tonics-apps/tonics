@@ -267,11 +267,11 @@ SQL, $this->getCookieID());
         if ($this->sessionExist()) {
 
             $res = null;
-            db(onGetDB: function () use ($key, &$res){
+            db(onGetDB: function ($db) use ($key, &$res){
                 $sessionID = $this->getCookieID();
                 $jsonPath = '$.' . $key;
                 try {
-                    $res = db()->row(<<<SQL
+                    $res = $db->row(<<<SQL
 SELECT JSON_EXISTS(session_data , ?) AS row FROM {$this->getTable()} WHERE session_id = ?;
 SQL, $jsonPath, $sessionID);
                 }catch (\Exception $exception){
@@ -538,10 +538,16 @@ SQL, $jsonPath, $sessionID);
             }
         }
 
-        $dbTx = db();
-        $dbTx->beginTransaction();
-        db()->run("DELETE FROM {$this->getTable()} WHERE `session_id` = ?", $sessionID);
-        return $dbTx->commit();
+        try {
+            db(onGetDB: function (TonicsQuery $db) use ($sessionID){
+               $db->run("DELETE FROM {$this->getTable()} WHERE `session_id` = ?", $sessionID);
+            });
+
+            return true;
+        }catch (\Exception $exception){
+            // Log..
+            return false;
+        }
     }
 
     /**

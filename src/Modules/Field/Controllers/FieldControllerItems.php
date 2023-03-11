@@ -82,19 +82,24 @@ class FieldControllerItems extends Controller
         # Stage Two: Working On The Extracted Data and Dumping In DB...
         $error = false;
         if ($validator->passes()){
+            $dbTx = db();
             try {
-                $dbTx = db();
                 $dbTx->beginTransaction();
                 # Delete All the Field Items Related to $fieldDetails->fieldID
                 $this->getFieldData()->deleteWithCondition(
                     whereCondition: "fk_field_id = ?", parameter: [$fieldDetails['fieldID']], table: $this->getFieldData()->getFieldItemsTable());
                 # Reinsert it
-                db()->Insert($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
+                db(onGetDB: function ($db) use ($fieldDetails) {
+                    $db->Insert($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
+                });
+
                 $dbTx->commit();
+                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 event()->dispatch(new OnFieldItemsSave($fieldDetails));
                 $error = true;
             }catch (\Exception $exception){
                 $dbTx->rollBack();
+                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 // log..
             }
         }

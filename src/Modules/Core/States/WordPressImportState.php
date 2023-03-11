@@ -22,6 +22,7 @@ use App\Modules\Post\Controllers\PostsController;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Post\Events\OnPostCreate;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateArrayLoader;
 use SimpleXMLElement;
 
@@ -94,8 +95,13 @@ class WordPressImportState extends SimpleState
                 helper()->sendMsg(self::getCurrentState(), "Failed To Create WordPress Import Directory", 'issue');
                 return self::ERROR;
             }
-            $table =  $this->getLocalDriver()->getDriveTable();
-            $rootID = db()->row("Select `drive_id` FROM $table WHERE `drive_parent_id` IS NULL");
+
+            $rootID = null;
+            db(onGetDB: function (TonicsQuery $db) use (&$rootID){
+                $table =  $this->getLocalDriver()->getDriveTable();
+                $rootID = $db->row("Select `drive_id` FROM $table WHERE `drive_parent_id` IS NULL");
+            });
+
             if (!isset($rootID->drive_id)){
                 helper()->deleteFileOrDirectory(DriveConfig::getWordPressImportPath());
                 helper()->sendMsg(self::getCurrentState(), "Failed To Create WordPress Import Directory", 'issue');
@@ -229,7 +235,10 @@ class WordPressImportState extends SimpleState
     {
         helper()->sendMsg(self::getCurrentState(), 'Getting Set To Import Categories');
         $table = Tables::getTable(Tables::CATEGORIES);
-        $lastHighestID = db()->row("SELECT cat_id FROM $table ORDER BY cat_id DESC LIMIT 1;");
+        $lastHighestID = null;
+        db(onGetDB: function ($db) use ($table, &$lastHighestID){
+            $lastHighestID = $db->row("SELECT cat_id FROM $table ORDER BY cat_id DESC LIMIT 1;");
+        });
         $lastHighestID = (isset($lastHighestID->cat_id)) ? $lastHighestID->cat_id + 1: 1;
         $cat = [];
         $postData = container()->get(PostData::class);
@@ -288,7 +297,9 @@ class WordPressImportState extends SimpleState
         $attachment = [];
         $noNameID = 1;
         $currentUserID = UserData::getCurrentUserID() ??  1;
-        db()->run("SET SQL_MODE='ALLOW_INVALID_DATES';");
+        db(onGetDB: function (TonicsQuery $db){
+            $db->run("SET SQL_MODE='ALLOW_INVALID_DATES';");
+        });
 
         # Build Attachment
         foreach ($this->xmlObject->channel->item as $post) {
@@ -400,14 +411,16 @@ class WordPressImportState extends SimpleState
                         $lastCat = isset($postCatParents[array_key_last($postCatParents)]) ? $postCatParents[array_key_last($postCatParents)]->path. '/' : '';
                         $fromURL = "/{$lastCat}$postSlug";
                         $toURL = "/posts/{$result->getSlugID()}/$postSlug";
-                        db()->InsertOnDuplicate(
-                            Tables::getTable(Tables::BROKEN_LINKS),
-                            [
-                                'from' => $fromURL,
-                                'to'   => $toURL,
-                            ],
-                            ['to']
-                        );
+                        db(onGetDB: function (TonicsQuery $db) use ($toURL, $fromURL) {
+                            $db->InsertOnDuplicate(
+                                Tables::getTable(Tables::BROKEN_LINKS),
+                                [
+                                    'from' => $fromURL,
+                                    'to'   => $toURL,
+                                ],
+                                ['to']
+                            );
+                        });
                     }
                 }
             }

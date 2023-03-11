@@ -47,9 +47,11 @@ trait UniqueSlug
      */
     public function slugExist($tableName, $columnToCheckAgainst, $slugName): bool
     {
-
-        $slug = db()
-            ->row("SELECT * FROM $tableName WHERE $columnToCheckAgainst = ?", $slugName);
+        $slug = null;
+        db(onGetDB: function ($db) use ($slugName, $columnToCheckAgainst, $tableName, &$slug){
+            $slug = $db
+                ->row("SELECT * FROM $tableName WHERE $columnToCheckAgainst = ?", $slugName);
+        });
 
         if (!empty($slug)) {
             return true;

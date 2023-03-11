@@ -300,9 +300,7 @@ JSON;
     {
         $toDelete = ['app-ninety-seven-settings', 'app-ninety-seven-post-home-page', 'app-ninety-seven-writonics-post-page-settings'];
         db(onGetDB: function (TonicsQuery $db) use ($toDelete) {
-            $newDB = db();
-            $db->FastDelete($this->getFieldTable(), $newDB->WhereIn(table()->getColumn($this->getFieldTable(), 'field_slug'), $toDelete));
-            $newDB->getTonicsQueryBuilder()->destroyPdoConnection();
+            $db->FastDelete($this->getFieldTable(), db()->WhereIn(table()->getColumn($this->getFieldTable(), 'field_slug'), $toDelete));
         });
     }
 

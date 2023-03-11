@@ -46,17 +46,19 @@ class WidgetController
             ['type' => 'date_time_local', 'slug' => Tables::WIDGETS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/tools/widget/", widget_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/widget/items/", widget_slug, "/builder") as _builder_link';
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data){
+            $tblCol = '*, CONCAT("/admin/tools/widget/", widget_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/widget/items/", widget_slug, "/builder") as _builder_link';
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('widget_name', url()->getParam('query'));
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('widget_name', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Widget/Views/index', [
             'DataTable' => [
@@ -118,8 +120,10 @@ class WidgetController
 
         try {
             $widget = $this->getWidgetData()->createWidget();
-            $widgetReturning = db()->insertReturning($this->getWidgetData()->getWidgetTable(), $widget, $this->getWidgetData()->getWidgetColumns(), 'widget_id');
-
+            $widgetReturning = null;
+            db(onGetDB: function ($db) use ($widget, &$widgetReturning){
+                $widgetReturning = $db->insertReturning($this->getWidgetData()->getWidgetTable(), $widget, $this->getWidgetData()->getWidgetColumns(), 'widget_id');
+            });
             $onWidgetCreate = new OnWidgetCreate($widgetReturning, $this->getWidgetData());
             event()->dispatch($onWidgetCreate);
 
@@ -165,7 +169,10 @@ class WidgetController
         try {
             $widgetToUpdate = $this->getWidgetData()->createWidget();
             $widgetToUpdate['widget_slug'] = helper()->slug(input()->fromPost()->retrieve('widget_slug'));
-            db()->FastUpdate($this->getWidgetData()->getWidgetTable(), $widgetToUpdate, db()->Where('widget_slug', '=', $slug));
+
+            db(onGetDB: function ($db) use ($slug, $widgetToUpdate) {
+                $db->FastUpdate($this->getWidgetData()->getWidgetTable(), $widgetToUpdate, db()->Where('widget_slug', '=', $slug));
+            });
 
             $slug = $widgetToUpdate['widget_slug'];
             helper()->clearAPCUCache();

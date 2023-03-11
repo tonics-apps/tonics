@@ -46,7 +46,7 @@ class TrackItemImport extends AbstractJobInterface implements JobHandlerInterfac
             $_POST = $track;
             $trackData = null;
             db(onGetDB: function ($db) use($track, &$trackData) {
-                $trackData = db()->Select("track_slug, track_id")->From(TrackData::getTrackTable())
+                $trackData = $db->Select("track_slug, track_id")->From(TrackData::getTrackTable())
                     ->WhereEquals('track_slug', $track['track_slug'])
                     ->FetchFirst();
             });

@@ -52,19 +52,18 @@ class PostsController
      */
     public function index()
     {
-        $categoryTable = Tables::getTable(Tables::CATEGORIES);
-        $categories = db()->Select(table()->pickTableExcept($categoryTable, ['field_settings', 'created_at', 'updated_at']))
-            ->From(Tables::getTable(Tables::CATEGORIES))->FetchResult();
+        $categories = null;
+        db(onGetDB: function ($db) use (&$categories){
+            $categoryTable = Tables::getTable(Tables::CATEGORIES);
+            $categories = $db->Select(table()->pickTableExcept($categoryTable, ['field_settings', 'created_at', 'updated_at']))
+                ->From(Tables::getTable(Tables::CATEGORIES))
+                ->FetchResult();
+        });
 
         $categoriesSelectDataAttribute = '';
         foreach ($categories as $category) {
             $categoriesSelectDataAttribute .= $category->cat_id . '::' . $category->cat_slug . ',';
         }
-
-        $postTbl = Tables::getTable(Tables::POSTS);
-        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-        $CatTbl = Tables::getTable(Tables::CATEGORIES);
-        $userTable = Tables::getTable(Tables::USERS);
 
         $categoriesSelectDataAttribute = rtrim($categoriesSelectDataAttribute, ',');
         $dataTableHeaders = [
@@ -75,30 +74,38 @@ class PostsController
             ['type' => 'date_time_local', 'slug' => Tables::POSTS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $postData = db()->Select(PostData::getPostTableJoiningRelatedColumns(false))
-            ->From($postCatTbl)
-            ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-            ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($postTbl, ['user_id']))
-            ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('post_status', url()->getParam('status'));
-                },
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('post_status', 1);
+        $postData = null;
+        db(onGetDB: function ($db) use (&$postData){
+            $postTbl = Tables::getTable(Tables::POSTS);
+            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+            $CatTbl = Tables::getTable(Tables::CATEGORIES);
+            $userTable = Tables::getTable(Tables::USERS);
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('post_title', url()->getParam('query'));
+            $postData = $db->Select(PostData::getPostTableJoiningRelatedColumns(false))
+                ->From($postCatTbl)
+                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($postTbl, ['user_id']))
+                ->when(url()->hasParamAndValue('status'),
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('post_status', url()->getParam('status'));
+                    },
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('post_status', 1);
 
-            })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
-                $db->WhereIn('cat_id', url()->getParam('cat'));
+                    })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('post_title', url()->getParam('query'));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($postTbl) {
-                $db->WhereBetween(table()->pickTable($postTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+                })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
+                    $db->WhereIn('cat_id', url()->getParam('cat'));
 
-            })
-            ->GroupBy('post_id')
-            ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($postTbl) {
+                    $db->WhereBetween(table()->pickTable($postTbl, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+                })
+                ->GroupBy('post_id')
+                ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Post/Views/index', [
             'DataTable' => [
@@ -197,6 +204,7 @@ class PostsController
             $onPostCreate = new OnPostCreate($postReturning, $this->postData);
             event()->dispatch($onPostCreate);
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
 
             session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
             apcu_clear_cache();
@@ -204,6 +212,7 @@ class PostsController
         } catch (\Exception $exception) {
             // log..
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
             redirect(route('posts.create'));
         }
@@ -246,9 +255,11 @@ class PostsController
             $_POST = $previousPOSTGlobal;
 
             $db->commit();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
             return $onPostCreate;
         } catch (\Exception $e) {
             $db->rollBack();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
             helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');
             return false;
         }
@@ -262,19 +273,23 @@ class PostsController
      */
     public function edit(string $slug)
     {
-        $postTbl = Tables::getTable(Tables::POSTS);
-        $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-        $CatTbl = Tables::getTable(Tables::CATEGORIES);
-        $tblCol = table()->pickTableExcept($postTbl, [])
-            . ', GROUP_CONCAT(CONCAT(cat_id) ) as fk_cat_id'
-            . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
+        $post = null;
+        db(onGetDB: function ($db) use ($slug, &$post){
+            $postTbl = Tables::getTable(Tables::POSTS);
+            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+            $CatTbl = Tables::getTable(Tables::CATEGORIES);
+            $tblCol = table()->pickTableExcept($postTbl, [])
+                . ', GROUP_CONCAT(CONCAT(cat_id) ) as fk_cat_id'
+                . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
 
-        $post = db()->Select($tblCol)
-            ->From($postCatTbl)
-            ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-            ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-            ->WhereEquals('post_slug', $slug)
-            ->GroupBy('post_id')->FetchFirst();
+            $post = $db->Select($tblCol)
+                ->From($postCatTbl)
+                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                ->WhereEquals('post_slug', $slug)
+                ->GroupBy('post_id')
+                ->FetchFirst();
+        });
 
         if (!is_object($post)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -335,7 +350,10 @@ class PostsController
         try {
             $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
             event()->dispatch(new OnBeforePostSave($postToUpdate));
-            db()->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
+
+            db(onGetDB: function ($db) use ($slug, $postToUpdate) {
+                $db->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
+            });
 
             $postToUpdate['fk_cat_id'] = input()->fromPost()->retrieve('fk_cat_id', '');
             $postToUpdate['post_id'] = input()->fromPost()->retrieve('post_id', '');
@@ -343,6 +361,7 @@ class PostsController
             event()->dispatch($onPostUpdate);
 
             $db->commit();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
 
             # For Fields
             apcu_clear_cache();
@@ -356,6 +375,7 @@ class PostsController
 
         } catch (\Exception $exception) {
             $db->rollBack();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
             // log..
             session()->flash(['Error Occur Updating Post'], $postToUpdate);
             redirect(route('posts.edit', ['post' => $slug]));
@@ -379,7 +399,10 @@ class PostsController
                 }
             }
 
-            db()->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('post_id', $toDelete));
+            db(onGetDB: function ($db) use ($toDelete) {
+                $db->FastDelete(Tables::getTable(Tables::POSTS), db()->WhereIn('post_id', $toDelete));
+            });
+
             apcu_clear_cache();
             return true;
         } catch (\Exception $exception) {
@@ -399,7 +422,6 @@ class PostsController
             $updateItems = $this->getPostData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
             $dbTx->beginTransaction();
             foreach ($updateItems as $updateItem) {
-                $db = db();
                 $postUpdate = [];
                 $colForEvent = [];
                 foreach ($updateItem as $col => $value) {
@@ -437,15 +459,19 @@ class PostsController
                 }
 
                 $postID = $postUpdate[table()->getColumn($postTable, 'post_id')];
-                $db->FastUpdate($this->postData->getPostTable(), $postUpdate, db()->Where('post_id', '=', $postID));
+                db(onGetDB: function ($db) use ($postID, $postUpdate) {
+                    $db->FastUpdate($this->postData->getPostTable(), $postUpdate, db()->Where('post_id', '=', $postID));
+                });
 
                 $onPostUpdate = new OnPostUpdate((object)$colForEvent, $this->postData);
                 event()->dispatch($onPostUpdate);
             }
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             return true;
         } catch (\Exception $exception) {
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             return false;
             // log..
         }

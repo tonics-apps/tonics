@@ -48,17 +48,20 @@ class Tonics404HandlerController
             ['type' => '', 'slug' => Tables::BROKEN_LINKS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '100px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $table = Tables::getTable(Tables::BROKEN_LINKS);
-        $data = db()->Select('*')
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('`from`', url()->getParam('query'));
+        $data = null;
+        db(onGetDB: function (TonicsQuery $db) use (&$data){
+            $table = Tables::getTable(Tables::BROKEN_LINKS);
+            $data = $db->Select('*')
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('`from`', url()->getParam('query'));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->OrderByDesc(table()->pickTable($table, ['hit']))->OrderByDesc(table()->pickTable($table, ['updated_at']))
-            ->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->OrderByDesc(table()->pickTable($table, ['hit']))->OrderByDesc(table()->pickTable($table, ['updated_at']))
+                ->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
             [self::TONICS404HANDLER_FIELD_SLUG],
@@ -127,11 +130,13 @@ class Tonics404HandlerController
                 }
 
                 try {
-                    db()->InsertOnDuplicate(
-                        Tables::getTable(Tables::BROKEN_LINKS),
-                        $toInsert,
-                        ['to']
-                    );
+                    db(onGetDB: function (TonicsQuery $db) use ($toInsert) {
+                        $db->InsertOnDuplicate(
+                            Tables::getTable(Tables::BROKEN_LINKS),
+                            $toInsert,
+                            ['to']
+                        );
+                    });
 
                     session()->flash(['Redirect Added or Updated'], type: Session::SessionCategories_FlashMessageSuccess);
                     redirect(route('tonics404Handler.settings'));

@@ -47,21 +47,24 @@ class LocalDriver implements StorageDriverInterface
         $chunksTemp = helper()
             ->generateBlobCollatorsChunksToSend($data['Byteperchunk'], $data['Totalblobsize'], $data['Chunkstosend'], $data['Uploadto'], $f);
 
-        db()->insertOnDuplicate(
-            table: $tbl, data: $chunksTemp, update: ['hash_id', 'moreBlobInfo'], chunkInsertRate: 2000
-        );
+        $preflightData = null;
+        db(onGetDB: function ($db) use ($f, $chunksTemp, $tbl, &$preflightData){
+            $db->insertOnDuplicate(
+                table: $tbl, data: $chunksTemp, update: ['hash_id', 'moreBlobInfo'], chunkInsertRate: 2000
+            );
 
-
-        /**
-         * RETURN ROWS THAT ARE EITHER CORRUPTED OR NEEDS TO BE FILLED
-         * A DATA IS CORRUPTED IF missing_blob_chunk_byte is greater than 0 (The Missing Byte is Due To Connection Outage or Some Weird Shit)
-         * A DATA Hasn't Been Filled If missing_blob_chunk_byte is null
-         */
-        $preflightData = db()
-            ->run(<<<SQL
+            /**
+             * RETURN ROWS THAT ARE EITHER CORRUPTED OR NEEDS TO BE FILLED
+             * A DATA IS CORRUPTED IF missing_blob_chunk_byte is greater than 0 (The Missing Byte is Due To Connection Outage or Some Weird Shit)
+             * A DATA Hasn't Been Filled If missing_blob_chunk_byte is null
+             */
+            $preflightData = $db
+                ->run(<<<SQL
 SELECT `id`, `blob_name`, `blob_chunk_part`, `blob_chunk_size`, `moreBlobInfo` 
                             FROM $tbl WHERE blob_name = ? AND missing_blob_chunk_byte IS NULL OR missing_blob_chunk_byte > 0;
 SQL, $f);
+
+        });
 
         return ['preflightData' => $preflightData, 'filename' => $this->normalizeFileName($fileName, '_')];
     }
@@ -286,9 +289,11 @@ SQL, $f);
         $fileComposed = $this->composeFile($path, $uploadToID, $fileType);
         $exist = $this->doesFileOrDirectoryExistInDB($path, $uploadToID);
         if ($exist === false){
-            db()->insertOnDuplicate(
-                table: $this->getDriveTable(), data: $fileComposed, update: ['properties'], chunkInsertRate: 1
-            );
+            db(onGetDB: function ($db) use ($fileComposed){
+                $db->insertOnDuplicate(
+                    table: $this->getDriveTable(), data: $fileComposed, update: ['properties'], chunkInsertRate: 1
+                );
+            });
         }
 
     }
@@ -336,8 +341,13 @@ SQL, $f);
         }
 
         $currentFileRelPath = str_replace(DriveConfig::getPrivatePath(), '',  DriveConfig::getUploadsPath());
-        $table = $this->getDriveTable();
-        $rootID = db()->row("Select `drive_id` FROM $table WHERE `drive_parent_id` IS NULL");
+
+        $rootID = null;
+        db(onGetDB: function ($db) use (&$rootID){
+            $table = $this->getDriveTable();
+            $rootID = $db->row("Select `drive_id` FROM $table WHERE `drive_parent_id` IS NULL");
+        });
+
         if (!isset($rootID->drive_id)){
             return false;
         }
@@ -373,9 +383,13 @@ SQL, $f);
     ): \stdClass|bool
     {
         $file = $this->composeFile($path, $uploadToID, $fileType);
-        return db()->insertReturning(
-            $this->getDriveTable(), $file, $return, 'drive_id'
-        );
+        $result = null;
+        db(onGetDB: function ($db) use ($return, $file, &$result){
+            $result = $db->insertReturning(
+                $this->getDriveTable(), $file, $return, 'drive_id'
+            );
+        });
+        return $result;
     }
 
     /**
@@ -480,7 +494,9 @@ SQL, $f);
 
         /// this is from create method since we want it to be as fast as possible
         if (isset($blobInfo->id)) {
-            db()->run("UPDATE $tbl SET `live_blob_chunk_size` = ?  WHERE `id` = ?;", strlen($data), $blobInfo->id);
+            db(onGetDB: function ($db) use ($blobInfo, $data, $tbl){
+                $db->run("UPDATE $tbl SET `live_blob_chunk_size` = ?  WHERE `id` = ?;", strlen($data), $blobInfo->id);
+            });
         }
     }
 
@@ -494,7 +510,10 @@ SQL, $f);
     {
         $noOfTimesToLoop = ceil($totalChunks / $chunksToDeleteAtATime);
         for ($i = 1; $i <= $noOfTimesToLoop; $i++) {
-            db()->run("DELETE FROM {$this->getBlobTable()} WHERE `blob_name` = ? ORDER BY `id` DESC LIMIT $chunksToDeleteAtATime", $blob_name);
+            $result = null;
+            db(onGetDB: function ($db) use ($blob_name, $chunksToDeleteAtATime, &$result){
+                $db->run("DELETE FROM {$this->getBlobTable()} WHERE `blob_name` = ? ORDER BY `id` DESC LIMIT $chunksToDeleteAtATime", $blob_name);
+            });
         }
     }
 
@@ -518,9 +537,11 @@ SQL, $f);
                 ++$deleteFiles;
             }
 
-            db()->run(<<<SQL
+            db(onGetDB: function ($db) use ($file) {
+                $db->run(<<<SQL
 DELETE FROM {$this->getDriveTable()} WHERE `drive_id` = ?
 SQL, $file->drive_id);
+            });
         }
         return $deleteFiles;
     }
@@ -586,8 +607,11 @@ SQL, $file->drive_id);
             }
 
             if (helper()->move($fileAbsPath, $dirAbsPath . DIRECTORY_SEPARATOR . $file->filename)) {
-                db()->run("UPDATE {$this->getDriveTable()} SET `drive_parent_id` = ?
+                $result = null;
+                db(onGetDB: function ($db) use ($file, $destinationFolder) {
+                    $db->run("UPDATE {$this->getDriveTable()} SET `drive_parent_id` = ?
                                                         WHERE drive_id = ?", $destinationFolder->drive_id, $file->drive_id);
+                });
             }
         }
 
@@ -661,11 +685,12 @@ SQL, $file->drive_id);
                 }
                 # If the renamed file was successful
                 if (helper()->fileExists($toFileName)) {
-                    db()->run(<<<SQL
+                    db(onGetDB: function ($db) use ($data, $toFileName, $newFilename) {
+                        $db->run(<<<SQL
 UPDATE {$this->getDriveTable()} SET `filename` = ?, properties = JSON_SET(properties, '$.time_modified', ?, '$.filename', ?)
 WHERE drive_id = ?
 SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
-
+                    });
                     #
                     # No point in querying the database for the updated file, we overwrite the $data variable with the updated info and return it.
                     #
@@ -719,7 +744,10 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
             # Path is empty .. Get Default Root Files
         } else {
             $path = helper()->getFileName(DriveConfig::getUploadsPath());
-            $rootID = db()->row("SELECT drive_id FROM {$this->getDriveTable()} WHERE `drive_parent_id` IS NULL");
+            $rootID = null;
+            db(onGetDB: function ($db) use (&$rootID){
+                $rootID = $db->row("SELECT drive_id FROM {$this->getDriveTable()} WHERE `drive_parent_id` IS NULL");
+            });
             if (!$rootID) {
                 return false;
             }
@@ -757,16 +785,25 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
      */
     protected function getDriveIDFilesFromPathAndID($path, $id): ?object
     {
-        $tableRows = db()->run("SELECT COUNT(*) AS 'r' FROM {$this->getDriveTable()} WHERE `drive_parent_id` = ?", $id)[0]->r;
-        return db()->paginate(
-            tableRows: $tableRows,
-            callback: function ($perPage, $offset) use ($id, $path) {
-                $columns = Tables::addColumnsToTable(
-                    Tables::removeColumnFromTable(Tables::$DRIVE_SYSTEM_COLUMN, ['security', 'status']),
-                    ["CONCAT(?, '/', filename) as filepath"], true);
-                return db()
-                    ->run("SELECT $columns FROM {$this->getDriveTable()} WHERE drive_parent_id = ? ORDER BY 'drive_id' LIMIT ? OFFSET ?", $path, $id, $perPage, $offset);
-            }, perPage: url()->getParam('per_page', 50));
+        $result = null;
+        db(onGetDB: function ($db) use ($id, $path, &$result){
+            $tableRows = $db->run("SELECT COUNT(*) AS 'r' FROM {$this->getDriveTable()} WHERE `drive_parent_id` = ?", $id)[0]->r;
+            $result = $db->paginate(
+                tableRows: $tableRows,
+                callback: function ($perPage, $offset) use ($db, $id, $path) {
+                    $columns = Tables::addColumnsToTable(
+                        Tables::removeColumnFromTable(Tables::$DRIVE_SYSTEM_COLUMN, ['security', 'status']),
+                        ["CONCAT(?, '/', filename) as filepath"], true);
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($offset, $perPage, $id, $path, $columns, &$cbData){
+                        $cbData = $db
+                            ->run("SELECT $columns FROM {$this->getDriveTable()} WHERE drive_parent_id = ? ORDER BY 'drive_id' LIMIT ? OFFSET ?", $path, $id, $perPage, $offset);
+                    });
+                    return $cbData;
+                }, perPage: url()->getParam('per_page', 50));
+        });
+
+        return $result;
     }
 
     /**
@@ -781,23 +818,29 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
         if ($validator->fails()) {
             return false;
         }
+
         $id = $data['id'];
         $path = $data['path'];
-        $search = $data['query'];
-        $tableRows = db()->run(<<<SQL
+
+        $searchFiles = null;
+        db(onGetDB: function ($db) use ($path, $id, $data, &$searchFiles){
+            $search = $data['query'];
+            $tableRows = $db->run(<<<SQL
 SELECT COUNT(*) AS 'r' FROM {$this->getDriveTable()} WHERE filename LIKE CONCAT(?, '%')
 SQL, $search)[0]->r;
 
-        $searchFiles = db()->paginate(
-            tableRows: $tableRows,
-            callback: function ($perPage, $offset) use ($id, $path, $search) {
+            $searchFiles = $db->paginate(
+                tableRows: $tableRows,
+                callback: function ($perPage, $offset) use ($id, $path, $search) {
 
-                /**
-                 * We Search File Recursively With CTE, Note: Instead of Searching From The Root Parent, We start the Search By First Grabbing...
-                 * The Result From The Like Operator, We Then Carry That Result Along With The Recursion, This Way, We Know Where The Search Term Came From
-                 */
-                return db()
-                    ->run("
+                    /**
+                     * We Search File Recursively With CTE, Note: Instead of Searching From The Root Parent, We start the Search By First Grabbing...
+                     * The Result From The Like Operator, We Then Carry That Result Along With The Recursion, This Way, We Know Where The Search Term Came From
+                     */
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($offset, $perPage, $id, $path, $search, &$cbData){
+                        $cbData = $db
+                            ->run("
 WITH RECURSIVE search_files_recursively AS (
   SELECT 
 drive_id AS main_drive_id, 
@@ -824,8 +867,11 @@ CONCAT(?, '/', filepath) AS filepath,
 main_status AS status, 
 main_properties AS properties 
 FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
-                        $search, $path, $id, $perPage, $offset);
-            }, perPage: url()->getParam('per_page', 50));
+                                $search, $path, $id, $perPage, $offset);
+                    });
+                    return $cbData;
+                }, perPage: url()->getParam('per_page', 50));
+        });
 
         return [
             'data' => $searchFiles->data ?? [],
@@ -853,12 +899,15 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
         # RECURSIVELY GET THE PARENT OF THE FILE,
         # I HAVE RESTRICTED THIS TO WORK ONLY FOR FILE, MEANING, YOU CAN ONLY DOWNLOAD A FILE AND NOT A FOLDER
         #
-        $fileInfo = db()->run("WITH RECURSIVE child_to_parent AS (
+        $fileInfo = null;
+        db(onGetDB: function ($db) use ($uniqueID, &$fileInfo){
+            $fileInfo = $db->run("WITH RECURSIVE child_to_parent AS (
   SELECT drive_id, drive_parent_id, drive_unique_id, filename, CAST(filename AS VARCHAR (255)) AS filepath, status, properties, security
   FROM {$this->getDriveTable()} WHERE drive_unique_id = ? AND type = 'file' UNION ALL 
   SELECT  f.drive_id, f.drive_parent_id, f.drive_unique_id, f.filename, CONCAT(f.filename, '/', filepath),  f.status, f.properties, f.security 
   FROM {$this->getDriveTable()} AS f INNER JOIN child_to_parent cp on f.drive_id = cp.drive_parent_id
 ) SELECT * FROM child_to_parent;", $uniqueID);
+        });
 
         if (!is_array($fileInfo) || empty($fileInfo)) {
             return null;
@@ -929,10 +978,13 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
         $numberOfQ = $this->getQuestionMarks(sizeof($pathTrail));
 
         # Note: Ordering by the `drive_parent_id` gives us higher probability to find the childID quickly, it's a quick optimization but not necessary at all.
-        $pathTrailRows = db()->run(<<<SQL
+        $pathTrailRows = null;
+        db(onGetDB: function ($db) use ($numberOfQ, $pathTrail, &$pathTrailRows){
+            $pathTrailRows = $db->run(<<<SQL
 SELECT drive_id, drive_parent_id, filename  FROM {$this->getDriveTable()} 
 WHERE type = 'directory' AND filename IN($numberOfQ) ORDER BY drive_parent_id
 SQL, ...$pathTrail);
+        });
 
         if (empty($pathTrailRows)) {
             return false;

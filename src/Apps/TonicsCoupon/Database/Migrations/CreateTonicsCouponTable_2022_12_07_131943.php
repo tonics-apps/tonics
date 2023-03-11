@@ -15,8 +15,9 @@ class CreateTonicsCouponTable_2022_12_07_131943 extends Migration {
      */
     public function up()
     {
-        $couponTableName = TonicsCouponActivator::couponTableName();
-        $this->getDB()->run("
+        db(onGetDB: function ($db){
+            $couponTableName = TonicsCouponActivator::couponTableName();
+            $db->run("
 CREATE TABLE IF NOT EXISTS `{$couponTableName}` (
   `coupon_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `slug_id` char(16) DEFAULT NULL,
@@ -35,6 +36,8 @@ CREATE TABLE IF NOT EXISTS `{$couponTableName}` (
   UNIQUE KEY `coupon_slug_unique` (`coupon_slug`),
   FULLTEXT KEY `coupon_fulltext_index` (`coupon_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+        });
     }
 
     /**

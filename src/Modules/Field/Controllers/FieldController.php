@@ -41,24 +41,29 @@ class FieldController
      */
     public function index()
     {
-        $table = Tables::getTable(Tables::FIELD);
+
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::FIELD . '::' . 'field_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'field_id'],
             ['type' => 'text', 'slug' => Tables::FIELD . '::' . 'field_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'field_name'],
             ['type' => 'date_time_local', 'slug' => Tables::FIELD . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/tools/field/", field_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/field/items/", field_slug, "/builder") as _builder_link';
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('field_name', url()->getParam('query'));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+        $data = null;
+        db(onGetDB: function (TonicsQuery $db) use (&$data){
+            $table = Tables::getTable(Tables::FIELD);
+            $tblCol = '*, CONCAT("/admin/tools/field/", field_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/field/items/", field_slug, "/builder") as _builder_link';
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('field_name', url()->getParam('query'));
 
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
         
         view('Modules::Field/Views/index', [
             'DataTable' => [
@@ -120,7 +125,10 @@ class FieldController
 
         try {
             $widget = $this->getFieldData()->createField();
-            $widgetReturning = db()->insertReturning($this->getFieldData()->getFieldTable(), $widget, $this->getFieldData()->getFieldColumns(), 'field_id');
+            $widgetReturning = null;
+            db(onGetDB: function ($db) use ($widget, &$widgetReturning){
+                $widgetReturning = $db->insertReturning($this->getFieldData()->getFieldTable(), $widget, $this->getFieldData()->getFieldColumns(), 'field_id');
+            });
 
             $onFieldCreate = new OnFieldCreate($widgetReturning, $this->getFieldData());
             event()->dispatch($onFieldCreate);
@@ -167,7 +175,9 @@ class FieldController
         try {
             $widgetToUpdate = $this->getFieldData()->createField();
             $widgetToUpdate['field_slug'] = helper()->slug(input()->fromPost()->retrieve('field_slug'));
-            db()->FastUpdate($this->getFieldData()->getFieldTable(), $widgetToUpdate, db()->Where('field_slug', '=', $slug));
+            db(onGetDB: function (TonicsQuery $db) use ($widgetToUpdate) {
+                $db->FastUpdate($this->getFieldData()->getFieldTable(), $widgetToUpdate, db()->Where('field_slug', '=', $slug));
+            });
 
             $slug = $widgetToUpdate['field_slug'];
             session()->flash(['Field Updated'], type: Session::SessionCategories_FlashMessageSuccess);

@@ -60,13 +60,13 @@ class CouponController
      */
     public function index()
     {
-        $couponTableName = TonicsCouponActivator::couponTableName();
         $couponTypeTableName = TonicsCouponActivator::couponTypeTableName();
-        $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
-        $userTable = Tables::getTable(Tables::USERS);
 
-        $couponTypes = db()->Select(table()->pickTableExcept($couponTypeTableName, ['field_settings', 'created_at', 'updated_at']))
-            ->From($couponTypeTableName)->FetchResult();
+        $couponTypes = null;
+        db(onGetDB: function (TonicsQuery $db) use ($couponTypeTableName, &$couponTypes) {
+            $couponTypes = $db->Select(table()->pickTableExcept($couponTypeTableName, ['field_settings', 'created_at', 'updated_at']))
+                ->From($couponTypeTableName)->FetchResult();
+        });
 
         $categoriesSelectDataAttribute = '';
         foreach ($couponTypes as $couponType) {
@@ -84,31 +84,37 @@ class CouponController
             ['type' => 'date_time_local', 'slug' => TonicsCouponActivator::COUPON . '::' . 'expired_at', 'title' => 'Expired', 'minmax' => '50px, .7fr', 'td' => 'expired_at'],
         ];
 
-        $couponData = db()->Select(CouponData::getCouponTableJoiningRelatedColumns())
-            ->From($couponToTypeTableName)
-            ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
-            ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
-            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
-            ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('coupon_status', url()->getParam('status'));
-                },
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('coupon_status', 1);
+        $couponData = null;
+        db(onGetDB: function (TonicsQuery $db) use ($couponTypeTableName, &$couponData) {
+            $couponTableName = TonicsCouponActivator::couponTableName();
+            $couponToTypeTableName = TonicsCouponActivator::couponToTypeTableName();
+            $userTable = Tables::getTable(Tables::USERS);
+            $couponData = $db->Select(CouponData::getCouponTableJoiningRelatedColumns())
+                ->From($couponToTypeTableName)
+                ->Join($couponTableName, table()->pickTable($couponTableName, ['coupon_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_id']))
+                ->Join($couponTypeTableName, table()->pickTable($couponTypeTableName, ['coupon_type_id']), table()->pickTable($couponToTypeTableName, ['fk_coupon_type_id']))
+                ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($couponTableName, ['user_id']))
+                ->when(url()->hasParamAndValue('status'),
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('coupon_status', url()->getParam('status'));
+                    },
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('coupon_status', 1);
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('coupon_name', url()->getParam('query'));
+                    })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('coupon_name', url()->getParam('query'));
 
-            })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
-                $db->WhereIn('coupon_type_id', url()->getParam('cat'));
+                })->when(url()->hasParamAndValue('cat'), function (TonicsQuery $db) {
+                    $db->WhereIn('coupon_type_id', url()->getParam('cat'));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($couponTableName) {
-                $db->WhereBetween(table()->pickTable($couponTableName, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($couponTableName) {
+                    $db->WhereBetween(table()->pickTable($couponTableName, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })
-            ->GroupBy('coupon_id')
-            ->OrderByDesc(table()->pickTable($couponTableName, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })
+                ->GroupBy('coupon_id')
+                ->OrderByDesc(table()->pickTable($couponTableName, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
 
+        });
 
         view('Apps::TonicsCoupon/Views/index', [
             'DataTable' => [
@@ -229,6 +235,7 @@ class CouponController
         } catch (\Exception $exception) {
             // log..
             $db->rollBack();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
             if (!$this->isUserInCLI){
                 session()->flash(['An Error Occurred, Creating Coupon'], input()->fromPost()->all());
                 redirect(route('tonicsCoupon.create'));
@@ -246,19 +253,23 @@ class CouponController
     public function edit(string $slug)
     {
         $couponTable = $this->getCouponData()->getCouponTable();
-        $couponToCouponTypeTable = $this->getCouponData()->getCouponToTypeTable();
-        $couponTypeTable = $this->getCouponData()->getCouponTypeTable();
 
-        $tblCol = table()->pickTableExcept($couponTable, [])
-            . ', GROUP_CONCAT(CONCAT(coupon_type_id) ) as fk_coupon_type_id'
-            . ', CONCAT_WS("/", "/coupon", coupon_slug) as _preview_link ';
+        $coupon = null;
+        db(onGetDB: function ($db) use ($slug, $couponTable, &$coupon){
+            $couponToCouponTypeTable = $this->getCouponData()->getCouponToTypeTable();
+            $couponTypeTable = $this->getCouponData()->getCouponTypeTable();
 
-        $coupon = db()->Select($tblCol)
-            ->From($couponToCouponTypeTable)
-            ->Join($couponTable, table()->pickTable($couponTable, ['coupon_id']), table()->pickTable($couponToCouponTypeTable, ['fk_coupon_id']))
-            ->Join($couponTypeTable, table()->pickTable($couponTypeTable, ['coupon_type_id']), table()->pickTable($couponToCouponTypeTable, ['fk_coupon_type_id']))
-            ->WhereEquals('coupon_slug', $slug)
-            ->GroupBy('coupon_id')->FetchFirst();
+            $tblCol = table()->pickTableExcept($couponTable, [])
+                . ', GROUP_CONCAT(CONCAT(coupon_type_id) ) as fk_coupon_type_id'
+                . ', CONCAT_WS("/", "/coupon", coupon_slug) as _preview_link ';
+
+            $coupon = $db->Select($tblCol)
+                ->From($couponToCouponTypeTable)
+                ->Join($couponTable, table()->pickTable($couponTable, ['coupon_id']), table()->pickTable($couponToCouponTypeTable, ['fk_coupon_id']))
+                ->Join($couponTypeTable, table()->pickTable($couponTypeTable, ['coupon_type_id']), table()->pickTable($couponToCouponTypeTable, ['fk_coupon_type_id']))
+                ->WhereEquals('coupon_slug', $slug)
+                ->GroupBy('coupon_id')->FetchFirst();
+        });
 
         if (!is_object($coupon)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -338,7 +349,10 @@ class CouponController
         try {
             $updateChanges['coupon_slug'] = helper()->slug(input()->fromPost()->retrieve('coupon_slug'));
             event()->dispatch(new OnBeforePostSave($updateChanges));
-            db()->FastUpdate($this->couponData->getCouponTable(), $updateChanges, db()->Where('coupon_slug', '=', $slug));
+
+            db(onGetDB: function ($db) use ($slug, $updateChanges) {
+                $db->FastUpdate($this->couponData->getCouponTable(), $updateChanges, db()->Where('coupon_slug', '=', $slug));
+            });
 
             $updateChanges['fk_coupon_type_id'] = input()->fromPost()->retrieve('fk_coupon_type_id', '');
             $updateChanges['coupon_id'] = input()->fromPost()->retrieve('coupon_id', '');
@@ -346,6 +360,7 @@ class CouponController
             event()->dispatch($onPostUpdate);
 
             $db->commit();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
 
             # For Fields
             $slug = $updateChanges['coupon_slug'];
@@ -359,6 +374,7 @@ class CouponController
             }
         } catch (\Exception $exception) {
             $db->rollBack();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
             // log..
             if (!$this->isUserInCLI){
                 session()->flash(['Error Occur Updating Coupon'], $updateChanges);
@@ -386,7 +402,10 @@ class CouponController
                 }
             }
 
-            db()->FastDelete(TonicsCouponActivator::couponTableName(), db()->WhereIn('coupon_id', $toDelete));
+            db(onGetDB: function ($db) use ($toDelete) {
+                $db->FastDelete(TonicsCouponActivator::couponTableName(), db()->WhereIn('coupon_id', $toDelete));
+            });
+
             return true;
         } catch (\Exception $exception) {
             // log..
@@ -452,14 +471,17 @@ class CouponController
 
                 $couponID = $updateChanges[table()->getColumn($couponTable, 'coupon_id')];
                 $db->FastUpdate($this->couponData->getCouponTable(), $updateChanges, db()->Where('coupon_id', '=', $couponID));
+                $db->getTonicsQueryBuilder()->destroyPdoConnection();
 
                 $onPostUpdate = new OnCouponUpdate((object)$colForEvent, $this->couponData);
                 event()->dispatch($onPostUpdate);
             }
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             return true;
         } catch (\Exception $exception) {
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             return false;
             // log..
         }
@@ -539,15 +561,23 @@ class CouponController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
-                $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTableName())
-                    ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                $coupon = null;
+                db(onGetDB: function ($db) use ($slugID, &$coupon){
+                    $coupon = $db->Select('*')->From(TonicsCouponActivator::couponTableName())
+                        ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                });
+
                 if (isset($coupon->slug_id) && isset($coupon->coupon_slug)) {
                     return TonicsCouponActivator::getCouponAbsoluteURLPath((array)$coupon);
                 }
                 return false;
             }, onSlugState: function ($slug) {
-            $coupon = db()->Select('*')->From(TonicsCouponActivator::couponTableName())
-                ->WhereEquals('coupon_slug', $slug)->FetchFirst();
+            $coupon = null;
+            db(onGetDB: function ($db) use ($slug, &$coupon){
+                $coupon = $db->Select('*')->From(TonicsCouponActivator::couponTableName())
+                    ->WhereEquals('coupon_slug', $slug)
+                    ->FetchFirst();
+            });
             if (isset($coupon->slug_id) && isset($coupon->coupon_slug)) {
                 return TonicsCouponActivator::getCouponAbsoluteURLPath((array)$coupon);
             }

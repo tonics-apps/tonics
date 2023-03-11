@@ -47,17 +47,19 @@ class LicenseController
             ['type' => 'date_time_local', 'slug' => Tables::LICENSES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/tools/license/", license_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/license/items/", license_slug, "/builder") as _builder_link';
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data){
+            $tblCol = '*, CONCAT("/admin/tools/license/", license_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/license/items/", license_slug, "/builder") as _builder_link';
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('license_name', url()->getParam('query'));
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('license_name', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Track/Views/License/index', [
             'DataTable' => [
@@ -119,7 +121,10 @@ class LicenseController
 
         try {
             $widget = $this->getTrackData()->createLicense();
-            $insertReturning = db()->insertReturning($this->getTrackData()::getLicenseTable(), $widget, $this->getTrackData()->getLicenseColumns(), 'license_id');
+            $insertReturning = null;
+            db(onGetDB: function ($db) use ($widget, &$insertReturning){
+                $insertReturning = $db->insertReturning($this->getTrackData()::getLicenseTable(), $widget, $this->getTrackData()->getLicenseColumns(), 'license_id');
+            });
 
             $onLicenseCreate = new OnLicenseCreate($insertReturning, $this->getTrackData());
             event()->dispatch($onLicenseCreate);
@@ -165,7 +170,10 @@ class LicenseController
         try {
             $licenseToUpdate = $this->getTrackData()->createLicense();
             $licenseToUpdate['license_slug'] = helper()->slug(input()->fromPost()->retrieve('license_slug'));
-            db()->FastUpdate($this->getTrackData()::getLicenseTable(), $licenseToUpdate, db()->Where('license_slug', '=', $slug));
+
+            db(onGetDB: function ($db) use ($slug, $licenseToUpdate) {
+                $db->FastUpdate($this->getTrackData()::getLicenseTable(), $licenseToUpdate, db()->Where('license_slug', '=', $slug));
+            });
 
             $slug = $licenseToUpdate['license_slug'];
             session()->flash(['License Updated'], type: Session::SessionCategories_FlashMessageSuccess);

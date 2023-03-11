@@ -47,17 +47,19 @@ class GenreController
             ['type' => 'date_time_local', 'slug' => Tables::GENRES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/genres/", genre_slug, "/edit" ) as _edit_link, CONCAT("/genres/", genre_slug) as _preview_link';
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data){
+            $tblCol = '*, CONCAT("/admin/genres/", genre_slug, "/edit" ) as _edit_link, CONCAT("/genres/", genre_slug) as _preview_link';
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('genre_name', url()->getParam('query'));
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('genre_name', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Track/Views/Genre/index', [
             'DataTable' => [
@@ -121,7 +123,10 @@ class GenreController
         try {
             $genre = $this->getTrackData()->createGenre();
             $genre['can_delete'] = 1;
-            $genreReturning = db()->insertReturning($this->getTrackData()::getGenreTable(), $genre, $this->getTrackData()->getGenreColumns(), 'genre_id');
+            $genreReturning = null;
+            db(onGetDB: function ($db) use ($genre, &$genreReturning){
+                $genreReturning = $db->insertReturning($this->getTrackData()::getGenreTable(), $genre, $this->getTrackData()->getGenreColumns(), 'genre_id');
+            });
 
             $onGenreCreate = new OnGenreCreate($genreReturning, $this->getTrackData());
             event()->dispatch($onGenreCreate);
@@ -168,7 +173,9 @@ class GenreController
             $genreToUpdate = $this->getTrackData()->createGenre();
             $genreToUpdate['genre_slug'] = helper()->slug(input()->fromPost()->retrieve('genre_slug'));
 
-            db()->FastUpdate($this->getTrackData()::getGenreTable(), $genreToUpdate, db()->Where('genre_slug', '=', $slug));
+            db(onGetDB: function ($db) use ($slug, $genreToUpdate) {
+                $db->FastUpdate($this->getTrackData()::getGenreTable(), $genreToUpdate, db()->Where('genre_slug', '=', $slug));
+            });
 
             $slug = $genreToUpdate['genre_slug'];
             $onGenreUpdate = new OnGenreUpdate((object)$genreToUpdate, $this->getTrackData());
@@ -210,8 +217,12 @@ class GenreController
             'table' => $table,
             'entityBag' => $entityBag,
             'onBeforeDelete' => function($genreIDS) use ($table) {
-                $genres = db()->Select('genre_slug, genre_name, genre_id')->From($table)
-                    ->WhereIn('genre_id', $genreIDS)->FetchResult();
+                $genres = null;
+                db(onGetDB: function ($db) use ($table, $genreIDS, &$genres){
+                    $genres = $db->Select('genre_slug, genre_name, genre_id')->From($table)
+                        ->WhereIn('genre_id', $genreIDS)->FetchResult();
+                });
+
                 foreach ($genres as $genre){
                     $onGenreDelete = new OnGenreDelete($genre, $this->getTrackData());
                     event()->dispatch($onGenreDelete);

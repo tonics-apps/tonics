@@ -18,6 +18,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Page\Database\Migrations\CreatePagesTable_2022_01_13_202136;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 
 /**
@@ -52,13 +53,15 @@ class HttpMessageProvider implements ServiceProvider
                 if ($redirect_to === false) {
                     if (AppConfig::canLog404()) {
                         try {
-                            db()->Insert(
-                                Tables::getTable(Tables::BROKEN_LINKS),
-                                [
-                                    'from' => $reURL,
-                                    'to' => null,
-                                ]
-                            );
+                            db(onGetDB: function (TonicsQuery $db) use ($reURL) {
+                                $db->Insert(
+                                    Tables::getTable(Tables::BROKEN_LINKS),
+                                    [
+                                        'from' => $reURL,
+                                        'to' => null,
+                                    ]
+                                );
+                            });
                         } catch (\Exception $exception) {
                             // Log..
                         }
@@ -70,15 +73,17 @@ class HttpMessageProvider implements ServiceProvider
                         if (!empty($reURL)) {
                             $hit = $redirect_to->hit ?? 1;
                             try {
-                                db()->FastUpdate(
-                                    Tables::getTable(Tables::BROKEN_LINKS),
-                                    [
-                                        '`from`' => $reURL,
-                                        '`to`' => null,
-                                        '`hit`' => ++$hit,
-                                    ],
-                                    db()->WhereEquals('`from`', $reURL)
-                                );
+                                db(onGetDB: function (TonicsQuery $db) use ($hit, $reURL) {
+                                    $db->FastUpdate(
+                                        Tables::getTable(Tables::BROKEN_LINKS),
+                                        [
+                                            '`from`' => $reURL,
+                                            '`to`' => null,
+                                            '`hit`' => ++$hit,
+                                        ],
+                                        db()->WhereEquals('`from`', $reURL)
+                                    );
+                                });
                             } catch (\Exception $exception) {
                                 // Log..
                             }
@@ -100,8 +105,11 @@ class HttpMessageProvider implements ServiceProvider
     public function tryURLRedirection(): object|bool
     {
         try {
-            $table = Tables::getTable(Tables::BROKEN_LINKS);
-            $result = db()->Select('*')->From($table)->WhereEquals(table()->pickTable($table, ['from']), url()->getRequestURL())->FetchFirst();
+            $result = null;
+            db(onGetDB: function (TonicsQuery $db) use (&$result){
+                $table = Tables::getTable(Tables::BROKEN_LINKS);
+                $result = $db->Select('*')->From($table)->WhereEquals(table()->pickTable($table, ['from']), url()->getRequestURL())->FetchFirst();
+            });
             if (is_object($result)) {
                 return $result;
             }

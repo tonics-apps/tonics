@@ -293,13 +293,15 @@ class PaymentSettingsController
             "webhook_event" => $webhookEvent
         ];
 
-        db()->insertOnDuplicate(
-            Tables::getTable(Tables::GLOBAL),
-            [
-                'key' => 'WebHook_Data_' . helper()->randomString(5),
-                'value' => json_encode($data)
-            ],
-            ['value']);
+        db(onGetDB: function ($db) use ($data){
+            $db->insertOnDuplicate(
+                Tables::getTable(Tables::GLOBAL),
+                [
+                    'key' => 'WebHook_Data_' . helper()->randomString(5),
+                    'value' => json_encode($data)
+                ],
+                ['value']);
+        });
 
         $data_string = json_encode($data);
         $access_token = self::getAccessToken();
@@ -319,14 +321,16 @@ class PaymentSettingsController
 
         if ($http_status == 200) {
             $result = json_decode($result, true);
+            db(onGetDB: function ($db) use ($result){
+                $db->insertOnDuplicate(
+                    Tables::getTable(Tables::GLOBAL),
+                    [
+                        'key' => 'WebHook_Verification'  . helper()->randomString(5),
+                        'value' => json_encode($result)
+                    ],
+                    ['value']);
 
-            db()->insertOnDuplicate(
-                Tables::getTable(Tables::GLOBAL),
-                [
-                    'key' => 'WebHook_Verification'  . helper()->randomString(5),
-                    'value' => json_encode($result)
-                ],
-                ['value']);
+            });
 
             if (isset($result['verification_status'])){
                 return $result['verification_status'] === 'SUCCESS';

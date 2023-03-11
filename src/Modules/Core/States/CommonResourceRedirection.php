@@ -82,7 +82,7 @@ class CommonResourceRedirection extends SimpleState
             # If the above fails, then it could be that the actual slug has a len of 16, so, let's go check it
             return $this->switchState(self::OnStringIDState, self::NEXT);
 
-        } catch (\Exception){
+        } catch (\Exception $exception){
             ## Okay, if postID contains a dash, then we guess wrong, it is probably a literal post_slug
             if (str_contains('-', $this->getSlugID())){
                 return $this->switchState(self::OnStringIDState, self::NEXT);
@@ -101,7 +101,7 @@ class CommonResourceRedirection extends SimpleState
                 return $this->switchState(self::OnRedirectToIntendedState, self::NEXT);
             }
             return $this->switchState(self::OnResourceErrorState, self::NEXT);
-        } catch (\Exception){
+        } catch (\Exception $exception){
             return $this->switchState(self::OnResourceErrorState, self::NEXT);
         }
     }

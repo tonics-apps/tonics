@@ -42,17 +42,21 @@ class Unique extends Rule implements RuleInterface
             $uniqueInfo =  explode(':', $k);
             $result = null;
             if (sizeof($uniqueInfo) === 2){
-                $result = db()->run(<<<SQL
+                db(onGetDB: function ($db) use ($param, $uniqueInfo, &$result){
+                    $result = $db->run(<<<SQL
 SELECT * FROM $uniqueInfo[0] WHERE $uniqueInfo[1] = ?
 SQL, $param->itemData);
+                });
 
                 if (count($result) > 0) break;
 
             } elseif (sizeof($uniqueInfo) === 3 ){
-                $result = db()
-                    ->run(<<<SQL
+                db(onGetDB: function ($db) use ($v, $param, $uniqueInfo, &$result){
+                    $result = $db
+                        ->run(<<<SQL
 SELECT * FROM $uniqueInfo[0] WHERE $uniqueInfo[1] = ? AND $uniqueInfo[2] != ?
 SQL, $param->itemData, $v);
+                });
 
                 if (count($result) > 0) break;
             }

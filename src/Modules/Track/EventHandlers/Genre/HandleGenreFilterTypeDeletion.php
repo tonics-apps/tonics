@@ -22,8 +22,10 @@ class HandleGenreFilterTypeDeletion implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        /** @var GenreDataAccessor $event */
-        $trackDefaultFiltersValueTable = TrackData::getTrackDefaultFiltersTable();
-        db()->FastDelete($trackDefaultFiltersValueTable, db()->WhereEquals('tdf_type', 'genre')->WhereEquals('tdf_name', $event->getGenreSlug()));
+        db(onGetDB: function ($db){
+            /** @var GenreDataAccessor $event */
+            $trackDefaultFiltersValueTable = TrackData::getTrackDefaultFiltersTable();
+            $db->FastDelete($trackDefaultFiltersValueTable, db()->WhereEquals('tdf_type', 'genre')->WhereEquals('tdf_name', $event->getGenreSlug()));
+        });
     }
 }

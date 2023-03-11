@@ -35,7 +35,10 @@ class HandleNewPostToCategoryMapping implements HandlerInterface
             ];
         }
 
-        $table = $event->getPostData()->getPostToCategoryTable();
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($event, $toInsert){
+            $table = $event->getPostData()->getPostToCategoryTable();
+            $db->Insert($table, $toInsert);
+        });
+
     }
 }

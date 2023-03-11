@@ -14,6 +14,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\View\Extensions\Interfaces\QueryModeHandlerInterface;
 use App\Modules\Core\Library\View\Extensions\Traits\TonicsTemplateSystemHelper;
 use App\Modules\Post\Helper\PostLoop;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateInvalidNumberOfArgument;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeInterface;
@@ -88,21 +89,32 @@ class QueryModeHandler extends TonicsTemplateViewAbstract implements TonicsModeI
         try {
             $sql = $sqlStorage[$table_count]['sql'];
             $params = $this->expandArgs($sqlStorage[$table_count]['params']);
-            $result = (array)db()->row($sql, ...$params);
+            $result = null;
+            db(onGetDB: function (TonicsQuery $db) use ($params, $sql, &$result){
+                $result = (array)$db->row($sql, ...$params);
+            });
+
             $tableRows = $result[array_key_first($result)];
-            $data = db()->paginate(
-                tableRows: $tableRows,
-                callback: function ($perPage, $offset) use ($get_row_with_offset_limit, $sqlStorage) {
-                    $variable = $this->getTonicsView()->getVariableData();
-                    $variable['QUERY_MODE'] = [
-                        'LIMIT' => $perPage,
-                        'OFFSET' => $offset
-                    ];
-                    $this->getTonicsView()->setVariableData($variable);
-                    $sql = $sqlStorage[$get_row_with_offset_limit]['sql'];
-                    $params = $this->expandArgs($sqlStorage[$get_row_with_offset_limit]['params']);
-                    return db()->run($sql, ...$params);
-                }, perPage: AppConfig::getAppPaginationMax());
+            $data = null;
+            db(onGetDb: function($db) use ($sqlStorage, $get_row_with_offset_limit, $tableRows, &$data){
+                $data = $db->paginate(
+                    tableRows: $tableRows,
+                    callback: function ($perPage, $offset) use ($get_row_with_offset_limit, $sqlStorage) {
+                        $variable = $this->getTonicsView()->getVariableData();
+                        $variable['QUERY_MODE'] = [
+                            'LIMIT' => $perPage,
+                            'OFFSET' => $offset
+                        ];
+                        $this->getTonicsView()->setVariableData($variable);
+                        $sql = $sqlStorage[$get_row_with_offset_limit]['sql'];
+                        $params = $this->expandArgs($sqlStorage[$get_row_with_offset_limit]['params']);
+                        $result = null;
+                        db(onGetDB: function (TonicsQuery $db) use ($params, $sql, &$result){
+                            $result = $db->run($sql, ...$params);
+                        });
+                        return $result;
+                    }, perPage: AppConfig::getAppPaginationMax());
+            });
 
             $variable = $this->getTonicsView()->getVariableData();
             $variable['QUERY_MODE']['Result'] = $data;

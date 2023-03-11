@@ -59,11 +59,13 @@ class UpdateLocalDriveFilesInDb implements ConsoleCommand
             return;
         }
 
-        $tbl = Tables::getTable(Tables::DRIVE_SYSTEM);
-        $files = $this->scanAndProcessFiles($this->getPath());
-        db()->insertOnDuplicate(
-            table: $tbl, data: $files, update: ['drive_id', 'drive_parent_id', 'type', 'filename', 'properties'], chunkInsertRate: 2000
-        );
+        db(onGetDB: function ($db){
+            $tbl = Tables::getTable(Tables::DRIVE_SYSTEM);
+            $files = $this->scanAndProcessFiles($this->getPath());
+            $db->insertOnDuplicate(
+                table: $tbl, data: $files, update: ['drive_id', 'drive_parent_id', 'type', 'filename', 'properties'], chunkInsertRate: 2000
+            );
+        });
     }
 
     /**

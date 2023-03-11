@@ -57,7 +57,6 @@ class PagesController
             $pageTemplateSelectDataAttribute .= $templateName . ',';
         }
 
-        $table = Tables::getTable(Tables::PAGES);
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::PAGES . '::' . 'page_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'page_id'],
             ['type' => 'text', 'slug' => Tables::PAGES . '::' . 'page_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'page_title'],
@@ -65,24 +64,27 @@ class PagesController
             ['type' => 'date_time_local', 'slug' => Tables::PAGES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
+        $data = null;
+        db(onGetDB: function (TonicsQuery $db) use (&$data){
+            $tblCol = '*, CONCAT("/admin/pages/", page_id, "/edit" ) as _edit_link, page_slug as _preview_link';
+            $table = Tables::getTable(Tables::PAGES);
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('status'),
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('page_status', url()->getParam('status'));
+                    },
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('page_status', 1);
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('page_status', url()->getParam('status'));
-                },
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('page_status', 1);
+                    })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('page_title', url()->getParam('query'));
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('page_title', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Page/Views/index', [
             'DataTable' => [
@@ -163,7 +165,10 @@ class PagesController
         }
 
         $page = $this->pageData->createPage(['token']);
-        $pageReturning = db()->insertReturning($this->getPageData()->getPageTable(), $page, $this->getPageData()->getPageColumns(), 'page_id');
+        $pageReturning = null;
+        db(onGetDB: function ($db) use ($page, &$pageReturning){
+            $pageReturning = $db->insertReturning($this->getPageData()->getPageTable(), $page, $this->getPageData()->getPageColumns(), 'page_id');
+        });
 
         $onPageCreated = new OnPageCreated($pageReturning, $this->pageData);
         event()->dispatch($onPageCreated);
@@ -239,7 +244,11 @@ class PagesController
         try {
             $pageToUpdate = $this->pageData->createPage(['token']);
             $pageToUpdate['page_slug'] = helper()->slugForPage(input()->fromPost()->retrieve('page_slug'), '-');
-            db()->FastUpdate($this->pageData->getPageTable(), $pageToUpdate, db()->Where('page_id', '=', $id));
+
+            db(onGetDB: function ($db) use ($id, $pageToUpdate){
+                $db->FastUpdate($this->pageData->getPageTable(), $pageToUpdate, db()->Where('page_id', '=', $id));
+            });
+
         } catch (Exception) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('pages.edit', [$id]));

@@ -65,8 +65,12 @@ HTML;
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
-        $table = Tables::getTable(Tables::FIELD);
-        $fields = db()->run("SELECT * FROM $table");
+        $fields = null;
+        db(onGetDB: function ($db) use (&$fields){
+            $table = Tables::getTable(Tables::FIELD);
+            $fields = $db->run("SELECT * FROM $table");
+        });
+
         $fieldFrag = '';
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug";
@@ -134,10 +138,14 @@ FORM;
         $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
 
         if ($expandField === '1') {
-            $originalFieldItems = db()->Select($fieldAndFieldItemsCols)
-                ->From($fieldItemsTable)
-                ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                ->WhereEquals('field_slug', $fieldSlug)->OrderBy('fk_field_id')->FetchResult();
+            $originalFieldItems = null;
+            db(onGetDB: function ($db) use ($fieldSlug, $fieldTable, $fieldItemsTable, $fieldAndFieldItemsCols, &$originalFieldItems){
+                $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
+                    ->From($fieldItemsTable)
+                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                    ->WhereEquals('field_slug', $fieldSlug)
+                    ->OrderBy('fk_field_id')->FetchResult();
+            });
 
             foreach ($originalFieldItems as $originalFieldItem){
                 $fieldOption = json_decode($originalFieldItem->field_options);
@@ -162,7 +170,11 @@ FORM;
 
             $frag .= $htmlFrag;
         } else {
-            $fields = db()->Select('*')->From($fieldTable)->FetchResult();
+            $fields = null;
+            db(onGetDB: function ($db) use ($fieldTable, &$fields){
+                $fields = $db->Select('*')->From($fieldTable)->FetchResult();
+            });
+
             $fieldFrag = '';
             foreach ($fields as $field) {
                 $uniqueSlug = "$field->field_slug";

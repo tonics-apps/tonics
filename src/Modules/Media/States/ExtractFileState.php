@@ -86,9 +86,13 @@ class ExtractFileState extends SimpleState
                     $this->currentParent->drive_id,
                     'directory', ['drive_id']);
         } else {
-            $data = db()->row(<<<SQL
+            $data = null;
+            db(onGetDB: function ($db) use ($pathID, &$data){
+                $data = $db->row(<<<SQL
 SELECT * FROM {$this->getLocalDriver()->getDriveTable()} WHERE `drive_id` = ?
 SQL, $pathID);
+            });
+
         }
         $this->handledPath[$currentFileRelPath] = $data;
         $this->currentParent = $data;

@@ -14,6 +14,7 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Page\Events\AbstractClasses\PageTemplateInterface;
 use App\Modules\Page\Events\OnPageTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class TonicsNinetySevenAudioTonicsThemeFolderTrackCategoryTemplate implements PageTemplateInterface, HandlerInterface
 {
@@ -34,12 +35,16 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackCategoryTemplate implements Pa
      */
     public function handleTemplate(OnPageTemplate $pageTemplate): void
     {
-        # For Tracks Category
-        $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
-        $uniqueSlugID = $routeParams[0] ?? null;
+        $mainTrackData = null;
 
-        $mainTrackData = db()->Select('*')->From(Tables::getTable(Tables::TRACK_CATEGORIES))
-            ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
+        db(onGetDB: function (TonicsQuery $db) use (&$mainTrackData){
+            # For Tracks Category
+            $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
+            $uniqueSlugID = $routeParams[0] ?? null;
+
+            $mainTrackData = $db->Select('*')->From(Tables::getTable(Tables::TRACK_CATEGORIES))
+                ->WhereEquals('slug_id', $uniqueSlugID)->FetchFirst();
+        });
 
         if (isset($mainTrackData->slug_id)) {
             $isFolder = url()->getHeaderByKey('type') === 'isTonicsNavigation';

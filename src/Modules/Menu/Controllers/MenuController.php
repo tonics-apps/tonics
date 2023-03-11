@@ -46,18 +46,19 @@ class MenuController
             ['type' => 'date_time_local', 'slug' => Tables::MENUS . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/tools/menu/", menu_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/menu/items/", menu_slug, "/builder") as _builder_link';
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data){
+            $tblCol = '*, CONCAT("/admin/tools/menu/", menu_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/menu/items/", menu_slug, "/builder") as _builder_link';
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('menu_name', url()->getParam('query'));
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('menu_name', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
-
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Menu/Views/index', [
             'DataTable' => [
@@ -117,7 +118,10 @@ class MenuController
             redirect(route('menus.create'));
         }
         $menu = $this->getMenuData()->createMenu();
-        $menuReturning = db()->insertReturning($this->getMenuData()->getMenuTable(), $menu, $this->getMenuData()->getMenuColumns(), 'menu_id');
+        $menuReturning = null;
+        db(onGetDB: function ($db) use ($menu, &$menuReturning){
+            $menuReturning = $db->insertReturning($this->getMenuData()->getMenuTable(), $menu, $this->getMenuData()->getMenuColumns(), 'menu_id');
+        });
 
         $onMenuCreate = new OnMenuCreate($menuReturning, $this->getMenuData());
         event()->dispatch($onMenuCreate);
@@ -158,7 +162,10 @@ class MenuController
 
         $menuToUpdate = $this->getMenuData()->createMenu();
         $menuToUpdate['menu_slug'] = helper()->slug(input()->fromPost()->retrieve('menu_slug'));
-        db()->FastUpdate($this->getMenuData()->getMenuTable(), $menuToUpdate, db()->Where('menu_slug', '=', $slug));
+
+        db(onGetDB: function ($db) use ($slug, $menuToUpdate) {
+            $db->FastUpdate($this->getMenuData()->getMenuTable(), $menuToUpdate, db()->Where('menu_slug', '=', $slug));
+        });
 
         $slug = $menuToUpdate['menu_slug'];
         session()->flash(['Menu Updated'], type: Session::SessionCategories_FlashMessageSuccess);

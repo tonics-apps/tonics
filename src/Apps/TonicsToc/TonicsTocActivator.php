@@ -12,6 +12,7 @@ use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnEditorFieldSelection;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
@@ -193,8 +194,10 @@ JSON;
      */
     public function onDelete(): void
     {
-        $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
-        $tb = $this->fieldData->getFieldTable();
-        db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+        db(onGetDB: function (TonicsQuery $db){
+            $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
+            $tb = $this->fieldData->getFieldTable();
+            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+        });
     }
 }

@@ -49,7 +49,6 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
 
         try {
             $db = db();
-
             if (isset($fieldSettings->fk_genre_id)){
                 $genres = null;
                 db(onGetDB: function (TonicsQuery $query) use($fieldSettings, &$genres){
@@ -82,14 +81,19 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
 
             $tdfIDS = $db->FetchResult();
             $toInsert = [];
-            db()->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
+            db(onGetDB: function ($db) use ($event, $table) {
+                $db->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
+            });
             foreach ($tdfIDS as $tdfID){
                 $toInsert[] = [
                     'fk_track_id' => $event->getTrackID(),
                     'fk_tdf_id' => $tdfID->tdf_id,
                 ];
             }
-            db()->Insert($table, $toInsert);
+
+            db(onGetDB: function ($db) use ($toInsert, $table){
+                $db->Insert($table, $toInsert);
+            });
         } catch (\Exception $exception){
             // Log..
         }

@@ -27,6 +27,9 @@ class HandleGenreFilterTypeCreation implements HandlerInterface
         $data = [
             ['tdf_name' => $event->getGenreSlug(), 'tdf_type' => 'genre']
         ];
-        db()->insertOnDuplicate($trackDefaultFiltersValueTable, $data, update: ['tdf_name']);
+
+        db(onGetDB: function ($db) use ($data, $trackDefaultFiltersValueTable){
+            $db->insertOnDuplicate($trackDefaultFiltersValueTable, $data, update: ['tdf_name']);
+        });
     }
 }

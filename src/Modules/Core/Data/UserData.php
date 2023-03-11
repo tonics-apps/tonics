@@ -73,7 +73,11 @@ class UserData extends AbstractDataLayer
         }
 
         try {
-            return db()->insertReturning($this->getUsersTable(), $userData, $return, 'user_id');
+            $returning = null;
+            db(onGetDB: function ($db) use ($return, $userData, &$returning){
+                $returning = $db->insertReturning($this->getUsersTable(), $userData, $return, 'user_id');
+            });
+            return $returning;
         } catch (\Exception $exception) {
             // Log..
         }
@@ -93,7 +97,11 @@ class UserData extends AbstractDataLayer
         }
 
         try {
-            return db()->insertReturning($this->getCustomersTable(), $userData, $return, 'customer_id');
+            $returning = null;
+            db(onGetDB: function ($db) use ($return, $userData, &$returning){
+                $returning = $db->insertReturning($this->getCustomersTable(), $userData, $return, 'customer_id');
+            });
+            return $returning;
         } catch (\Exception $exception) {
             // Log..
         }
@@ -111,13 +119,16 @@ class UserData extends AbstractDataLayer
      */
     public function validateUser(string $email, string $pass): bool
     {
-        $userTable = $this->getUsersTable();
-        $rolesTable = $this->getRolesTable();
+        $userInfo = null;
+        db(onGetDB: function ($db) use ($email, &$userInfo){
+            $userTable = $this->getUsersTable();
+            $rolesTable = $this->getRolesTable();
 
-        $userInfo =   db()->Select('*, role_id as role')->From($userTable)
-            ->Join($rolesTable, "{$rolesTable}.id", "{$userTable}.role")
-            ->WhereEquals('email', $email)
-            ->FetchFirst();
+            $userInfo = $db->Select('*, role_id as role')->From($userTable)
+                ->Join($rolesTable, "{$rolesTable}.id", "{$userTable}.role")
+                ->WhereEquals('email', $email)
+                ->FetchFirst();
+        });
 
         $verifyPass = false;
         if ($userInfo instanceof \stdClass) {
@@ -144,7 +155,9 @@ class UserData extends AbstractDataLayer
                 $settings->active_sessions[] = session()->getCookieID(session()->sessionName());
             }
 
-            db()->FastUpdate($this->getUsersTable(), ['settings' => json_encode($settings)], db()->Where('email', '=', $userInfo->email));
+            db(onGetDB: function ($db) use ($userInfo, $settings) {
+                $db->FastUpdate($this->getUsersTable(), ['settings' => json_encode($settings)], db()->Where('email', '=', $userInfo->email));
+            });
         }
         return true;
     }
@@ -154,13 +167,15 @@ class UserData extends AbstractDataLayer
      */
     public function validateCustomer(string $email, string $pass): bool
     {
-        $userTable = $this->getCustomersTable();
-        $rolesTable = $this->getRolesTable();
-
-        $userInfo =  db()->Select('*, role_id as role')->From($userTable)
-            ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
-            ->WhereEquals('email', $email)
-            ->FetchFirst();
+        $userInfo = null;
+        db(onGetDB: function ($db) use ($email, &$userInfo){
+            $userTable = $this->getCustomersTable();
+            $rolesTable = $this->getRolesTable();
+            $userInfo =  $db->Select('*, role_id as role')->From($userTable)
+                ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
+                ->WhereEquals('email', $email)
+                ->FetchFirst();
+        });
 
         $verifyPass = false;
         if ($userInfo instanceof \stdClass) {
@@ -188,7 +203,9 @@ class UserData extends AbstractDataLayer
                 $settings->active_sessions[] = session()->getCookieID(session()->sessionName());
             }
 
-            db()->FastUpdate($this->getCustomersTable(), ['settings' => json_encode($settings)], db()->Where('email', '=', $userInfo->email));
+            db(onGetDB: function ($db) use ($userInfo, $settings) {
+                $db->FastUpdate($this->getCustomersTable(), ['settings' => json_encode($settings)], db()->Where('email', '=', $userInfo->email));
+            });
         }
         return true;
     }
@@ -202,14 +219,16 @@ class UserData extends AbstractDataLayer
      */
     public function doesCustomerExist(string $email): mixed
     {
-        $userTable = $this->getCustomersTable();
-        $rolesTable = $this->getRolesTable();
-
         $queryResult = null;
-        $userInfo =  db()->Select('*, role_id as role')->From($userTable)
-            ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
-            ->WhereEquals('email', $email)
-            ->FetchFirst();
+        $userInfo = null;
+        db(onGetDB: function ($db) use ($email, &$userInfo){
+            $userTable = $this->getCustomersTable();
+            $rolesTable = $this->getRolesTable();
+            $userInfo = $db->Select('*, role_id as role')->From($userTable)
+                ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
+                ->WhereEquals('email', $email)
+                ->FetchFirst();
+        });
 
         if (isset($userInfo->email)){
             $queryResult = $userInfo;
@@ -223,10 +242,13 @@ class UserData extends AbstractDataLayer
      */
     public static function getCurrentUserID()
     {
-        $email = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserEmail);
-        $table = Tables::getTable(Tables::USERS);
         try {
-            $data = db()->row("SELECT user_id, user_name FROM $table WHERE email = ?", $email);
+            $data = null;
+            db(onGetDB: function ($db) use (&$data){
+                $email = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserEmail);
+                $table = Tables::getTable(Tables::USERS);
+                $data = $db->row("SELECT user_id, user_name FROM $table WHERE email = ?", $email);
+            });
             if (is_bool($data)){
                 return null;
             }
@@ -355,7 +377,10 @@ class UserData extends AbstractDataLayer
     public function getPostAuthorHTMLSelect(int $currentSelectAuthorID = null): string
     {
         $table = $this->getUsersTable();
-        $users = db()->run("SELECT user_id, user_name FROM $table");
+        $users = null;
+        db(onGetDB: function ($db) use ($table, &$users){
+            $users = $db->run("SELECT user_id, user_name FROM $table");
+        });
         $authorFrag = '';
         $oldInputPostAuthor = \session()->getOldFormInput('post_author');
         if (count($users) > 0) {

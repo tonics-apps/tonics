@@ -10,7 +10,6 @@
 
 namespace App\Modules\Post\EventHandlers;
 
-use App\Modules\Post\Events\OnPostCreate;
 use App\Modules\Post\Events\OnPostUpdate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -35,8 +34,10 @@ class HandleUpdatePostToCategoryMapping implements HandlerInterface
             ];
         }
 
-        $table = $event->getPostData()->getPostToCategoryTable();
-        db()->FastDelete($table, db()->WhereIn('fk_post_id', $event->getPostID()));
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($toInsert, $event){
+            $table = $event->getPostData()->getPostToCategoryTable();
+            $db->FastDelete($table, db()->WhereIn('fk_post_id', $event->getPostID()));
+            $db->Insert($table, $toInsert);
+        });
     }
 }

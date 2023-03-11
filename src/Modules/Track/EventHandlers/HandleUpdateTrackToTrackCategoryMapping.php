@@ -33,8 +33,11 @@ class HandleUpdateTrackToTrackCategoryMapping implements HandlerInterface
             ];
         }
 
-        $table = $event->getTrackData()->getTrackTracksCategoryTable();
-        db()->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
-        db()->Insert($table, $toInsert);
+        db(onGetDB: function ($db) use ($toInsert, $event) {
+            $table = $event->getTrackData()->getTrackTracksCategoryTable();
+            $db->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
+            $db->Insert($table, $toInsert);
+        });
+        
     }
 }

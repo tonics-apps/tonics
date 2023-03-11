@@ -13,6 +13,7 @@ use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnAfterPreSavePostEditorFieldItems;
 use App\Modules\Field\Events\OnEditorFieldSelection;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
@@ -100,9 +101,11 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
      */
     public function onDelete(): void
     {
-        $toDelete = ['app-tonicsseo-settings'];
-        $tb = $this->fieldData->getFieldTable();
-        db()->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+        db(onGetDB: function (TonicsQuery $db){
+            $toDelete = ['app-tonicsseo-settings'];
+            $tb = $this->fieldData->getFieldTable();
+            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+        });
     }
 
     /**

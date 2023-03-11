@@ -61,9 +61,12 @@ class PostData extends AbstractDataLayer
      */
     public function getCategory(): mixed
     {
-        $categoryTable = $this->getCategoryTable();
-        // tcs stands for tonics category system ;)
-        return db()->run("
+
+        $result = null;
+        db(onGetDB: function ($db) use (&$result){
+            $categoryTable = $this->getCategoryTable();
+            // tcs stands for tonics category system ;)
+            $result = $db->run("
         WITH RECURSIVE cat_recursive AS 
 	( SELECT cat_id, cat_parent_id, cat_slug, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
@@ -74,6 +77,9 @@ class PostData extends AbstractDataLayer
       ) 
      SELECT * FROM cat_recursive;
         ");
+        });
+
+        return $result;
     }
 
     /**
@@ -83,14 +89,17 @@ class PostData extends AbstractDataLayer
      */
     public function getChildCategoriesOfParent(string|int $idSlug): bool|array
     {
-        $categoryTable = $this->getCategoryTable();
 
-        $where = "cat_slug = ?";
-        if (is_numeric($idSlug)) {
-            $where = "cat_id = ?";
-        }
+        $result = null;
+        db(onGetDB: function ($db) use ($idSlug, &$result){
+            $categoryTable = $this->getCategoryTable();
 
-        return db()->run("
+            $where = "cat_slug = ?";
+            if (is_numeric($idSlug)) {
+                $where = "cat_id = ?";
+            }
+
+            $result = $db->run("
         WITH RECURSIVE cat_recursive AS 
 	( SELECT cat_id, cat_parent_id, cat_slug, cat_name, slug_id, field_settings, 
 	        JSON_UNQUOTE(JSON_EXTRACT(field_settings, '$.seo_description')) AS _description,
@@ -104,6 +113,9 @@ class PostData extends AbstractDataLayer
       ) 
      SELECT * FROM cat_recursive;
         ", $idSlug);
+        });
+
+        return $result;
     }
 
     /**
@@ -111,13 +123,15 @@ class PostData extends AbstractDataLayer
      */
     public function getPostCategoryParents(string|int $idSlug)
     {
-        $categoryTable = $this->getCategoryTable();
+        $result = null;
+        db(onGetDB: function ($db) use ($idSlug, &$result){
+            $categoryTable = $this->getCategoryTable();
 
-        $where = "cat_slug = ?";
-        if (is_numeric($idSlug)) {
-            $where = "cat_id = ?";
-        }
-        return db()->run("
+            $where = "cat_slug = ?";
+            if (is_numeric($idSlug)) {
+                $where = "cat_id = ?";
+            }
+            $result = $db->run("
         WITH RECURSIVE child_to_parent AS 
 	( SELECT cat_id, cat_parent_id, slug_id, cat_slug, cat_status, cat_name, CAST(cat_slug AS VARCHAR (255))
             AS path
@@ -128,6 +142,9 @@ class PostData extends AbstractDataLayer
       ) 
      SELECT * FROM child_to_parent;
         ", $idSlug);
+        });
+
+        return $result;
     }
 
     /**
@@ -344,7 +361,12 @@ CAT;
             $primaryKey = 'id';
         }
 
-        return db()->insertReturning($table, $data, $return, $primaryKey);
+        $result = null;
+        db(onGetDB: function ($db) use ($primaryKey, $return, $data, $table, &$result){
+            $result = $db->insertReturning($table, $data, $return, $primaryKey);
+        });
+
+        return $result;
     }
 
     /**
@@ -357,11 +379,6 @@ CAT;
      */
     public function getPostByUniqueID($ID, string $column = 'slug_id', callable $onPostData = null)
     {
-        $postTable = Tables::getTable(Tables::POSTS);
-        $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
-        $categoryTable = Tables::getTable(Tables::CATEGORIES);
-        $userTable = Tables::getTable(Tables::USERS);
-
         # verify post column
         if (!Tables::hasColumn(Tables::POSTS, $column)){
             return [];
@@ -370,19 +387,27 @@ CAT;
         # Role ACCESS Key
         $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
 
-        $postData = db()->Select(PostData::getPostTableJoiningRelatedColumns())
-            ->From($postToCatTable)
-            ->Join($postTable, table()->pickTable($postTable, ['post_id']), table()->pickTable($postToCatTable, ['fk_post_id']))
-            ->Join($categoryTable, table()->pickTable($categoryTable, ['cat_id']), table()->pickTable($postToCatTable, ['fk_cat_id']))
-            ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($postTable, ['user_id']))
-            // ->WhereEquals('post_status', 1)
-            ->WhereEquals('cat_status', 1)
-            ->WhereEquals(table()->pickTable($postTable, [$column]), $ID)
-            # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
-            ->when(Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ)) === false, function (TonicsQuery $db) use ($postTable) {
-                $db->Where(table()->pickTable($postTable, ['created_at']), '<=', helper()->date());
-            })
-            ->FetchFirst();
+        $postData = null;
+        db(onGetDB: function ($db) use ($ID, $column, $role, &$postData){
+            $postTable = Tables::getTable(Tables::POSTS);
+            $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
+            $categoryTable = Tables::getTable(Tables::CATEGORIES);
+            $userTable = Tables::getTable(Tables::USERS);
+
+            $postData = $db->Select(PostData::getPostTableJoiningRelatedColumns())
+                ->From($postToCatTable)
+                ->Join($postTable, table()->pickTable($postTable, ['post_id']), table()->pickTable($postToCatTable, ['fk_post_id']))
+                ->Join($categoryTable, table()->pickTable($categoryTable, ['cat_id']), table()->pickTable($postToCatTable, ['fk_cat_id']))
+                ->Join($userTable, table()->pickTable($userTable, ['user_id']), table()->pickTable($postTable, ['user_id']))
+                // ->WhereEquals('post_status', 1)
+                ->WhereEquals('cat_status', 1)
+                ->WhereEquals(table()->pickTable($postTable, [$column]), $ID)
+                # If User doesn't have read access, then, they are probably not logged in, so, we check if the post is live
+                ->when(Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ)) === false, function (TonicsQuery $db) use ($postTable) {
+                    $db->Where(table()->pickTable($postTable, ['created_at']), '<=', helper()->date());
+                })
+                ->FetchFirst();
+        });
 
         if (empty($postData) || $postData?->post_status === null){
             $postData = [];
@@ -423,18 +448,24 @@ CAT;
      */
     public function selectWithConditionFromCategory(array $colToSelect, string $whereCondition, array $parameter): mixed
     {
-        $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
-        $table = Tables::getTable(Tables::CATEGORIES);
+        $result = null;
+        db(onGetDB: function ($db) use ($parameter, $colToSelect, $whereCondition, &$result){
+            $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
+            $table = Tables::getTable(Tables::CATEGORIES);
 
-        if ($colToSelect === ['*']) {
-            return db()->row(<<<SQL
+            if ($colToSelect === ['*']) {
+                $result = $db->row(<<<SQL
 SELECT * FROM $table WHERE $whereCondition
 SQL, ...$parameter);
-        }
+                return;
+            }
 
-        return db()->row(<<<SQL
+            $result = $db->row(<<<SQL
 SELECT $select FROM $table WHERE $whereCondition
 SQL, ...$parameter);
+        });
+
+        return $result;
     }
 
     /**
@@ -452,22 +483,32 @@ SQL, ...$parameter);
      */
     public function selectWithConditionFromPost(array $colToSelect, string $whereCondition, array $parameter): mixed
     {
-        $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
-        $postTable = Tables::getTable(Tables::POSTS);
-        $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
 
         // Instead of selecting from $postTable, I started the selection from $postToCatTable,
         // this way, it would replace the column that is same from $postToCatTable in $postTable.
         // we do not wanna use the created_at or updated_at of the $postToCatTable
-        if ($colToSelect === ['*']) {
-            return db()->row(<<<SQL
+
+        $result = null;
+        db(onGetDB: function ($db) use ($whereCondition, $parameter, $colToSelect, &$result){
+
+            $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
+            $postTable = Tables::getTable(Tables::POSTS);
+            $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
+
+            if ($colToSelect === ['*']) {
+                $result = $db->row(<<<SQL
 SELECT * FROM $postToCatTable JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id WHERE $whereCondition
 SQL, ...$parameter);
-        }
+                return;
+            }
 
-        return db()->row(<<<SQL
+            $result = $db->row(<<<SQL
 SELECT $select FROM $postToCatTable JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id WHERE $whereCondition
 SQL, ...$parameter);
+        });
+
+        return $result;
+
     }
 
     /**

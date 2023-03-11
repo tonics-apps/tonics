@@ -62,16 +62,19 @@ class JobManagerController
             ELSE ROUND((SUM(j.job_status = 'processed') / COUNT(*)) * 100)
         END AS overall_progress";
 
-        $db = db();
-        $data = $db->Select($select)
-            ->From("$table p")
-            ->LeftJoin("$table j", 'j.job_parent_id', 'p.job_id')
-            ->WhereNull('p.job_parent_id')
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('p.job_name', url()->getParam('query'));
-            })
-            ->GroupBy('p.job_name')->GroupBy('p.job_id')
-            ->OrderByDesc('p.job_priority')->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        $data = null;
+        db(onGetDB: function ($db) use ($table, $select, &$data){
+            $data = $db->Select($select)
+                ->From("$table p")
+                ->LeftJoin("$table j", 'j.job_parent_id', 'p.job_id')
+                ->WhereNull('p.job_parent_id')
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('p.job_name', url()->getParam('query'));
+                })
+                ->GroupBy('p.job_name')->GroupBy('p.job_id')
+                ->OrderByDesc('p.job_priority')->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+
+        });
 
         view('Modules::Core/Views/JobsManager/jobs_index', [
             'DataTable' => [
@@ -119,7 +122,10 @@ class JobManagerController
                 }
             }
 
-            db()->FastDelete(Tables::getTable(Tables::JOBS), db()->WhereIn('job_id', $toDelete));
+            db(onGetDB: function ($db) use ($toDelete) {
+                $db->FastDelete(Tables::getTable(Tables::JOBS), db()->WhereIn('job_id', $toDelete));
+            });
+
             return true;
         } catch (\Exception $exception) {
             // log..
@@ -143,11 +149,14 @@ class JobManagerController
             ['type' => '', 'slug' => Tables::SCHEDULER . '::' . 'schedule_next_run', 'title' => 'Next Run', 'minmax' => '150px, 1fr', 'td' => 'schedule_next_run'],
         ];
 
-        $data = db()->Select('*')
-            ->From($table)
-            ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('schedule_name', url()->getParam('query'));
-            })->OrderByAsc(table()->pickTable($table, ['schedule_next_run']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data){
+            $data = $db->Select('*')
+                ->From($table)
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('schedule_name', url()->getParam('query'));
+                })->OrderByAsc(table()->pickTable($table, ['schedule_next_run']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Core/Views/JobsManager/jobs_scheduler_index', [
             'DataTable' => [

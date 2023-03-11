@@ -50,24 +50,26 @@ class TrackCategoryController
             ['type' => 'date_time_local', 'slug' => Tables::TRACK_CATEGORIES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
-        $tblCol = '*, CONCAT("/admin/tracks/category/", track_cat_slug, "/edit" ) as _edit_link, CONCAT("/track_categories/", track_cat_slug) as _preview_link';
+        $data = null;
+        db(onGetDB: function ($db) use ($table, &$data){
+            $tblCol = '*, CONCAT("/admin/tracks/category/", track_cat_slug, "/edit" ) as _edit_link, CONCAT("/track_categories/", track_cat_slug) as _preview_link';
+            $data = $db->Select($tblCol)
+                ->From($table)
+                ->when(url()->hasParamAndValue('status'),
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('track_cat_status', url()->getParam('status'));
+                    },
+                    function (TonicsQuery $db) {
+                        $db->WhereEquals('track_cat_status', 1);
 
-        $data = db()->Select($tblCol)
-            ->From($table)
-            ->when(url()->hasParamAndValue('status'),
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('track_cat_status', url()->getParam('status'));
-                },
-                function (TonicsQuery $db) {
-                    $db->WhereEquals('track_cat_status', 1);
+                    })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('track_cat_name', url()->getParam('query'));
 
-                })->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                $db->WhereLike('track_cat_name', url()->getParam('query'));
+                })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
+                    $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
 
-            })->when(url()->hasParamAndValue('start_date') && url()->hasParamAndValue('end_date'), function (TonicsQuery $db) use ($table) {
-                $db->WhereBetween(table()->pickTable($table, ['created_at']), db()->DateFormat(url()->getParam('start_date')), db()->DateFormat(url()->getParam('end_date')));
-
-            })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+                })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
 
         view('Modules::Track/Views/Category/index', [
             'DataTable' => [
@@ -151,10 +153,15 @@ class TrackCategoryController
             $dbTx->beginTransaction();
             $category = $this->trackData->createCategory();
             $td = $this->getTrackData();
-            $categoryReturning = db()->insertReturning($td::getTrackCategoryTable(), $category, $td->getTrackCategoryColumns(), 'track_cat_id');
+            $categoryReturning = null;
+            db(onGetDB: function ($db) use ($category, $td, &$categoryReturning){
+                $categoryReturning = $db->insertReturning($td::getTrackCategoryTable(), $category, $td->getTrackCategoryColumns(), 'track_cat_id');
+            });
+
             $onTrackCategoryCreate = new OnTrackCategoryCreate($categoryReturning, $td);
             event()->dispatch($onTrackCategoryCreate);
             $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
 
             apcu_clear_cache();
             session()->flash(['Track Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -162,6 +169,7 @@ class TrackCategoryController
         }catch (Exception $exception){
             // Log..
             $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             session()->flash(['An Error Occurred, Creating Track Category'], input()->fromPost()->all());
             redirect(route('tracks.category.create'));
         }
@@ -174,7 +182,10 @@ class TrackCategoryController
      */
     public function edit(string $slug): void
     {
-        $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+        $category = null;
+        db(onGetDB: function ($db) use ($slug, &$category){
+            $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+        });
 
         if (!is_object($category)){
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -218,7 +229,11 @@ class TrackCategoryController
         if (input()->fromPost()->hasValue('track_cat_parent_id') && input()->fromPost()->hasValue('track_cat_id')){
             $trackCatParentID = input()->fromPost()->retrieve('track_cat_parent_id');
             $trackCatID = input()->fromPost()->retrieve('track_cat_id');
-            $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            $category = null;
+            db(onGetDB: function ($db) use ($slug, &$category){
+                $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            });
+
             // Track Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
             if ($trackCatParentID === $trackCatID){
                 $_POST['track_cat_parent_id'] = $category->track_cat_parent_id;
@@ -229,7 +244,10 @@ class TrackCategoryController
 
         $categoryToUpdate = $this->trackData->createCategory();
         $categoryToUpdate['track_cat_slug'] = helper()->slug(input()->fromPost()->retrieve('track_cat_slug'));
-        db()->FastUpdate($this->trackData::getTrackCategoryTable(), $categoryToUpdate, db()->Where('track_cat_slug', '=', $slug));
+        db(onGetDB: function ($db) use ($slug, $categoryToUpdate) {
+            $db->FastUpdate($this->trackData::getTrackCategoryTable(), $categoryToUpdate, db()->Where('track_cat_slug', '=', $slug));
+        });
+
         $slug = $categoryToUpdate['track_cat_slug'];
 
         apcu_clear_cache();
@@ -277,13 +295,22 @@ class TrackCategoryController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID){
-                $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('slug_id', $slugID)->FetchFirst();
+                $category = null;
+                db(onGetDB: function ($db) use ($slugID, &$category){
+                    $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())
+                        ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                });
+
                 if (isset($category->slug_id) && isset($category->track_cat_slug)){
                     return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
                 }
                 return false;
             }, onSlugState: function ($slug){
-            $category = db()->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            $category = null;
+            db(onGetDB: function ($db) use ($slug, &$category){
+                $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())
+                    ->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            });
             if (isset($category->slug_id) && isset($category->track_cat_slug)){
                 return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
             }

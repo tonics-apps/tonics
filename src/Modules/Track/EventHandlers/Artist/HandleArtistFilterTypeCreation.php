@@ -27,6 +27,10 @@ class HandleArtistFilterTypeCreation implements HandlerInterface
         $data = [
             ['tdf_name' => $event->getArtistSlug(), 'tdf_type' => 'artist']
         ];
-        db()->insertOnDuplicate($trackDefaultFiltersValueTable, $data, update: ['tdf_name']);
+
+        db(onGetDB: function ($db) use ($data, $trackDefaultFiltersValueTable){
+            $db->insertOnDuplicate($trackDefaultFiltersValueTable, $data, update: ['tdf_name']);
+        });
+
     }
 }
