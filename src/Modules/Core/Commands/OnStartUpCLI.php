@@ -49,6 +49,16 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
      */
     public function run(array $commandOptions): void
     {
+        pcntl_async_signals(TRUE);
+
+        // Register signal handler for SIGCHLD
+        pcntl_signal(SIGCHLD, function ($sigNo) {
+            while (($pid = pcntl_waitpid(-1, $status, WNOHANG | WUNTRACED)) > 0) {
+                // Child process completed
+                posix_kill($pid, SIGKILL); // Kill the child process
+            }
+        });
+
         /** @var OnStartUpCLI $event */
         $event = event()->dispatch($this);
         $helper = helper();

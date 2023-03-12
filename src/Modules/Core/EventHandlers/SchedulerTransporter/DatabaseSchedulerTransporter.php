@@ -103,6 +103,20 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     }
 
     /**
+     * Here is a break-down of how the `runSchedule()` works:
+     *
+     * - The while (true) loop is the main event loop that runs continuously.
+     * - The loop checks if the application is in maintenance mode. If so, it sleeps for 5 seconds and continues to the next iteration of the loop.
+     * This ensures that the CPU is not being used unnecessarily when the application is in maintenance mode.
+     *
+     * - If the application is not in maintenance mode, the loop checks for the next scheduled event.
+     * If there are no scheduled events, it sleeps for 0.5 seconds and continues to the next iteration of the loop.
+     * This also ensures that the CPU is not being used unnecessarily when there are no scheduled events to run.
+     *
+     * - If there are scheduled events to run, the loop forks a child process for each event using the `fork` method from the `helper` object.
+     * The child processes are started with a callback that runs the event's handle method.
+     *
+     *
      * @throws \Exception
      */
     public function runSchedule(): void
@@ -120,6 +134,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                 usleep(500000);
                 continue;
             }
+
             foreach ($schedules as $schedule) {
                 $scheduleData = json_decode($schedule->schedule_data);
                 $scheduleClass = $scheduleData->class ?? $scheduleData;
@@ -140,7 +155,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                             cli_set_process_title("$schedule->schedule_name Scheduled Event");
                             try {
                                 $scheduleObject->handle();
-                                exit(0); # Success if not exception is thrown
+                                exit(0); # Success if no exception is thrown
                             } catch (Throwable $exception) {
                                 $this->errorMessage($exception->getMessage());
                                 $this->errorMessage($exception->getTraceAsString());
@@ -157,6 +172,7 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
             }
         }
     }
+
 
     /**
      * @throws \Exception

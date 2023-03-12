@@ -18,6 +18,7 @@ use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Customer\Jobs\CustomerRegistrationVerificationCodeEmail;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
 class RegisterController extends Controller
@@ -118,17 +119,17 @@ class RegisterController extends Controller
                 redirect(route('customer.verifyEmailForm'));
             }
 
-
-            $db = db();
             // Once customer verifies email, if they are a guest, we remove it.
-            $db->FastUpdate(
-                $this->getUsersData()->getCustomersTable(),
-                [
-                    'email_verified_at' => helper()->date(),
-                    'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER),
-                    'is_guest' => 0
-                ],
-                $db->WhereEquals('email', $data->email));
+            db(onGetDB: function (TonicsQuery $db) use ($data) {
+                $db->FastUpdate(
+                    $this->getUsersData()->getCustomersTable(),
+                    [
+                        'email_verified_at' => helper()->date(),
+                        'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER),
+                        'is_guest' => 0
+                    ],
+                    db()->WhereEquals('email', $data->email));
+            });
 
             session()->flash(['Email Successfully Verified, Please Login'], $data, Session::SessionCategories_FlashMessageSuccess);
             redirect(route('customer.login'));

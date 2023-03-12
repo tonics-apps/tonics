@@ -577,7 +577,8 @@ class UserData extends AbstractDataLayer
             $settings->active_sessions = [];
             # Update Password
             db(onGetDB: function ($db) use ($verificationData, $settings, $password, $table) {
-                $db->FastUpdate($table, ['user_password' => $password, 'settings' => json_encode($settings), 'is_guest' => 0, 'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER)],
+                $db->FastUpdate($table,
+                    ['user_password' => $password, 'settings' => json_encode($settings), 'is_guest' => 0, 'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER)],
                     db()->Where('email', '=', $verificationData->email));
             });
 

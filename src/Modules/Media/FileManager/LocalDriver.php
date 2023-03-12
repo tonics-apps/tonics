@@ -22,6 +22,7 @@ use App\Modules\Media\States\DownloadFromURLState;
 use App\Modules\Media\States\ExtractFileState;
 use Devsrealm\TonicsFileManager\StorageDriver\StorageDriverInterface;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
 class LocalDriver implements StorageDriverInterface
@@ -446,18 +447,24 @@ SQL, $f);
         // Returns the count of rows that are either corrupted or needs to be filled
         // A data is corrupted if missing_blob_chunk_byte is greater than 0 (the missing byte is due to connection outage or some weird shit)
         // A data hasn't been filled if missing_blob_chunk_byte is null
-        $totalUploadedChunks = db()
-            ->run("SELECT count(*) as count FROM {$this->getBlobTable()} 
+        $totalUploadedChunks = null;
+        $sum = null;
+        db(onGetDB: function (TonicsQuery $db) use ($blob_name, $blobInfo, &$totalUploadedChunks, &$sum){
+            $totalUploadedChunks = $db
+                ->run("SELECT count(*) as count FROM {$this->getBlobTable()} 
                             WHERE `blob_name` = ? AND missing_blob_chunk_byte = 0", $blob_name)[0];
+
+            // The chunks that has been uploaded so far
+            $totalUploadedChunks = $totalUploadedChunks->count;
+
+            $sum = $db
+                ->run("SELECT SUM(blob_chunk_size) as sum FROM {$this->getBlobTable()} 
+                            WHERE `blob_name` = ? AND missing_blob_chunk_byte = 0", $blob_name)[0];
+        });
 
         // The total no blob chunks that would be uploaded
         $totalChunks = (int)$blobInfo->totalChunks;
-        // The chunks that has been uploaded so far
-        $totalUploadedChunks = $totalUploadedChunks->count;
 
-        $sum = db()
-            ->run("SELECT SUM(blob_chunk_size) as sum FROM {$this->getBlobTable()} 
-                            WHERE `blob_name` = ? AND missing_blob_chunk_byte = 0", $blob_name)[0];
 
         return (object)[
             'totalUploadedChunks' => $totalUploadedChunks,

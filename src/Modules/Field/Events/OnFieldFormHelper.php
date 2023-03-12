@@ -15,6 +15,7 @@ use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\Pure;
 
 class OnFieldFormHelper implements EventInterface
@@ -170,13 +171,19 @@ class OnFieldFormHelper implements EventInterface
             if (empty($fieldIDS)) {
                 return $sortedFieldItems;
             }
-            $fieldTable = $fieldData->getFieldTable(); $fieldItemsTable = $fieldData->getFieldItemsTable();
-            $cols = $fieldData->getFieldAndFieldItemsCols();
 
-            $db = db();
-            $fieldItems = $db->Select($cols)->From($fieldItemsTable)->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('id')->FetchResult();
 
+            $fieldItems = null;
+            db(onGetDB: function (TonicsQuery $db) use ($fieldIDS, $fieldData, &$fieldItems){
+
+                $fieldTable = $fieldData->getFieldTable();
+                $fieldItemsTable = $fieldData->getFieldItemsTable();
+                $cols = $fieldData->getFieldAndFieldItemsCols();
+
+                $fieldItems = $db->Select($cols)->From($fieldItemsTable)
+                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                    ->WhereIn('fk_field_id', $fieldIDS)->OrderBy('id')->FetchResult();
+            });
 
             foreach ($fieldItems as $fieldItem) {
                 $fieldOption = json_decode($fieldItem->field_options);

@@ -35,7 +35,7 @@ class OrderController
         if (isset($authInfo->user_id)){
             $data = null;
             db(onGetDB: function ($db) use ($authInfo, $purchaseTable, &$data){
-                $data = db()->Select('*, CONCAT("/customer/order/", LOWER(JSON_UNQUOTE(JSON_EXTRACT(others, "$.tonics_solution"))), "/", slug_id ) as _view')
+                $data = $db->Select('*, CONCAT("/customer/order/", LOWER(JSON_UNQUOTE(JSON_EXTRACT(others, "$.tonics_solution"))), "/", slug_id ) as _view')
                     ->From($purchaseTable)
                     ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                         $db->WhereLike('slug_id', url()->getParam('query'));

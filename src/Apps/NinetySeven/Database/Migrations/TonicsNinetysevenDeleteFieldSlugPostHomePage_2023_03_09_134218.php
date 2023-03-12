@@ -25,7 +25,7 @@ class TonicsNinetysevenDeleteFieldSlugPostHomePage_2023_03_09_134218 extends Mig
 
     public function down()
     {
-        $this->getDB()->run("");
+        // $this->getDB()->run("");
     }
 
     public function getFieldTable(): string

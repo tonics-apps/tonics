@@ -21,6 +21,7 @@ use App\Modules\Payment\Events\AudioTonicsPaymentInterface;
 use App\Modules\Payment\Events\OnPurchaseCreate;
 use App\Modules\Track\Data\TrackData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentInterface
 {
@@ -86,12 +87,15 @@ FORGET_MESSAGE;
                     }
 
                     $trackData = TrackData::class;
-                    $purchaseTracks = db()->Select('track_id, slug_id, track_slug, track_title, license_attr_id_link, license_attr')
-                        ->From($trackData::getTrackTable())
-                        ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
-                        ->WhereIn("{$trackData::getTrackTable()}.slug_id", $cartItemsSlugID)
-                        ->GroupBy("{$trackData::getTrackTable()}.slug_id")
-                        ->FetchResult();
+                    $purchaseTracks = null;
+                    db(onGetDB: function (TonicsQuery $db) use ($cartItemsSlugID, $trackData, &$purchaseTracks){
+                        $purchaseTracks = $db->Select('track_id, slug_id, track_slug, track_title, license_attr_id_link, license_attr')
+                            ->From($trackData::getTrackTable())
+                            ->Join($trackData::getLicenseTable(), "{$trackData::getLicenseTable()}.license_id", "{$trackData::getTrackTable()}.fk_license_id")
+                            ->WhereIn("{$trackData::getTrackTable()}.slug_id", $cartItemsSlugID)
+                            ->GroupBy("{$trackData::getTrackTable()}.slug_id")
+                            ->FetchResult();
+                    });
 
                     $purchaseInfo = $this->getPurchaseTracksInfo($body->cartItems, $purchaseTracks);
 
@@ -112,7 +116,11 @@ FORGET_MESSAGE;
                             ]),
                         ];
 
-                        $purchaseDataReturn = db()->insertReturning(Tables::getTable(Tables::PURCHASES), $purchaseData, Tables::$TABLES[Tables::PURCHASES], 'purchase_id');
+                        $purchaseDataReturn = null;
+                        db(onGetDB: function ($db) use ($purchaseData, &$purchaseDataReturn){
+                            $purchaseDataReturn = $db->insertReturning(Tables::getTable(Tables::PURCHASES), $purchaseData, Tables::$TABLES[Tables::PURCHASES], 'purchase_id');
+                        });
+
                         $onPurchaseCreate = new OnPurchaseCreate($purchaseDataReturn);
                         event()->dispatch($onPurchaseCreate);
 

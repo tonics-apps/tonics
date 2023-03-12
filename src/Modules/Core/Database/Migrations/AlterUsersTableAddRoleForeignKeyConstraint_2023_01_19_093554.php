@@ -37,6 +37,6 @@ class AlterUsersTableAddRoleForeignKeyConstraint_2023_01_19_093554 extends Migra
 
     public function down()
     {
-        $this->getDB()->run("");
+        // $this->getDB()->run("");
     }
 }
