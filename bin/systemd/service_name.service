@@ -28,11 +28,8 @@ StandardOutput=append:/var/log/tonics.log
 StandardError=append:/var/log/tonics.err
 
 
-# Add graceful shutdown procedure
-# If this is not added, then there might be a time where the service won't be able to pick up changes or
-# it would pick up changes but because some connection (e.g database) as been abruptly shut down, it would take down the rest, meaning
-# it won't carry or pick up some changes
-ExecStop=/bin/bash -c 'kill -SIGTERM $MAINPID && sleep 5 && kill -SIGKILL $MAINPID'
+# By doing the below, it is send a SIGTERM, whatever process is running would gracefully shut down
+ExecStop=/bin/kill -s SIGTERM $MAINPID
 
 [Install]
 WantedBy=multi-user.target

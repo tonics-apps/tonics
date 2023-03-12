@@ -12,6 +12,7 @@ namespace App\Modules\Core\EventHandlers\SchedulerTransporter;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddSchedulerTransporter;
+use App\Modules\Core\Library\AbstractJobOnStartUpCLIHandler;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
@@ -21,7 +22,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Throwable;
 
-class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, HandlerInterface
+class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  implements SchedulerTransporterInterface, HandlerInterface
 {
     use ConsoleColor;
 
@@ -122,19 +123,14 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
     public function runSchedule(): void
     {
         $this->helper = helper();
-        while (true) {
-            if (AppConfig::isMaintenanceMode()) {
-                $this->infoMessage("Site in Maintenance Mode...Sleeping");
-                usleep(5000000); # Sleep for 5 seconds
-                continue;
-            }
+
+        $this->run(function (){
             $schedules = $this->getNextScheduledEvent();
             if (empty($schedules)) {
                 # While the schedule event is empty, we sleep for a 0.5, this reduces the CPU usage, thus giving the CPU the chance to do other things
                 usleep(500000);
-                continue;
+                return;
             }
-
             foreach ($schedules as $schedule) {
                 $scheduleData = json_decode($schedule->schedule_data);
                 $scheduleClass = $scheduleData->class ?? $scheduleData;
@@ -170,9 +166,8 @@ class DatabaseSchedulerTransporter implements SchedulerTransporterInterface, Han
                     );
                 }
             }
-        }
+        });
     }
-
 
     /**
      * @throws \Exception

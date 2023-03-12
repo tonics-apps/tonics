@@ -64,6 +64,9 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
         $helper = helper();
         $parallel = $commandOptions['--onStartUp'] === 'parallel';
 
+        # Set Parent Title
+        cli_set_process_title(get_class($this));
+
         $pIDS = [];
         foreach ($event->getClasses() as $class) {
             if ($helper->classImplements($class, [HandlerInterface::class, ConsoleCommand::class])) {
@@ -90,14 +93,23 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
             }
         }
 
-        # We could have put this in the fork function, but it would wait for the child process to exit making it block
-        # putting it here solves that problem...
-        foreach ($pIDS as $pID) {
-            pcntl_waitpid($pID, $status);
-            if ($status > 0) {
-                posix_kill($pID, SIGKILL);
+        // Set the timeout for the script
+        # reset the script every one hour, this way, we can better prevents memory build up in a long-running task
+        pcntl_alarm(3600);
+
+        // Wait for the child processes to complete or for the timeout to occur
+        while (count($pIDS) > 0) {
+            $pid = pcntl_waitpid(-1, $status);
+            if ($pid > 0) {
+                $index = array_search($pid, $pIDS);
+                if ($index !== false) {
+                    unset($pIDS[$index]);
+                }
             }
         }
+
+        // Cancel the alarm
+        pcntl_alarm(0);
     }
 
     public function event(): static

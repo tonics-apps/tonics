@@ -10,21 +10,18 @@
 
 namespace App\Modules\Core\EventHandlers\JobTransporter;
 
-use App\Apps\RefreshTrackUpdates\Jobs\TrackRefreshUpdateData;
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddJobTransporter;
+use App\Modules\Core\Library\AbstractJobOnStartUpCLIHandler;
 use App\Modules\Core\Library\ConsoleColor;
-use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
-use App\Modules\Core\Library\MyPDO;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterface
+class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements JobTransporterInterface, HandlerInterface
 {
     use ConsoleColor;
 
@@ -103,12 +100,7 @@ class DatabaseJobTransporter implements JobTransporterInterface, HandlerInterfac
     public function runJob(): void
     {
         $table = $this->getTable();
-        while (true) {
-            if (AppConfig::isMaintenanceMode()) {
-                $this->infoMessage("Site in Maintenance Mode...Sleeping");
-                usleep(5000000); # Sleep for 5 seconds
-                continue;
-            }
+        $this->run(function () use ($table) {
 
             /**
              * This query first selects all rows from the jobs table where the job_status is 'queued'.
@@ -130,11 +122,10 @@ FOR UPDATE SKIP LOCKED
 SQL, Job::JobStatus_Queued, 1);
             });
 
-
             if (empty($jobs)) {
                 # While the job is empty, we sleep for a 0.5s, this reduces the CPU usage, thus giving the CPU the chance to do other things
                 usleep(500000);
-                continue;
+                return;
             }
 
             db(onGetDB: function (TonicsQuery $db) use ($jobs, $table) {
@@ -149,7 +140,6 @@ SQL, Job::JobStatus_Queued, 1);
 
                         $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
                         $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
-                        $this->infoMessage("Completed job $job->job_name with an id of $job->job_id");
                     } catch (\Throwable $exception) {
                         $update = ['job_status' => Job::JobStatus_Failed];
                         $this->errorMessage("Job $job->job_name failed, with an id of $job->job_id");
@@ -158,8 +148,7 @@ SQL, Job::JobStatus_Queued, 1);
                     }
                 }
             });
-
-        }
+        });
     }
 
     /**
