@@ -48,8 +48,7 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
         ];
 
         try {
-            $db = db();
-            db(onGetDB: function (TonicsQuery $db) use ($table, $filters, $event) {
+            db(onGetDB: function (TonicsQuery $db) use ($table, $filters, $event, &$fieldSettings) {
 
                 if (isset($fieldSettings->fk_genre_id)){
                     $genres = $db->Select('genre_slug')->From(Tables::getTable(Tables::GENRES))
@@ -61,7 +60,7 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
                 }
 
                 if (isset($fieldSettings->fk_artist_id)){
-                    $artists = $db->Select('artist_slug')->From(Tables::getTable(Tables::ARTISTS))
+                    $artists = $db->Reset()->Select('artist_slug')->From(Tables::getTable(Tables::ARTISTS))
                         ->WhereIn('artist_id', $fieldSettings->fk_artist_id)
                         ->FetchResult();
                     $newArtists = [];
@@ -70,18 +69,14 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
                 }
 
                 $filtersTable = $event->getTrackData()::getTrackDefaultFiltersTable();
-                $tdfIDS = null;
-                db(onGetDB: function ($db) use ($event, $table, $filters, $filtersTable, &$tdfIDS) {
-
-                    $db->Select('tdf_id')->From($filtersTable);
-                    foreach ($filters as $filter => $type){
-                        if (isset($fieldSettings->{$filter})){
-                            $db->OrWhereEquals('tdf_type', $type)->WhereIn('tdf_name', $fieldSettings->{$filter});
-                        }
+                $db->Reset()->Select('tdf_id')->From($filtersTable);
+                foreach ($filters as $filter => $type){
+                    if (isset($fieldSettings->{$filter})){
+                        $db->OrWhereEquals('tdf_type', $type)->WhereIn('tdf_name', $fieldSettings->{$filter});
                     }
+                }
 
-                    $tdfIDS = $db->FetchResult();
-                });
+                $tdfIDS = $db->FetchResult();
 
                 $db->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
 
@@ -93,9 +88,7 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
                     ];
                 }
 
-                db(onGetDB: function ($db) use ($toInsert, $table){
-                    $db->Insert($table, $toInsert);
-                });
+                $db->Insert($table, $toInsert);
             });
 
         } catch (\Exception $exception){
