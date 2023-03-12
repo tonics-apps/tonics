@@ -11,6 +11,8 @@
 namespace App\Modules\Core\Library;
 
 
+use App\Modules\Core\Configs\AppConfig;
+
 trait ConsoleColor
 {
     private array $fgColors = [];
@@ -67,7 +69,7 @@ trait ConsoleColor
     public function coloredText(string $fgColor = 'black', string $bgColor = 'yellow', string $message = ''): string
     {
         $this->initShellColors();
-        $shortClassName = '[' . helper()->getObjectShortClassName($this) . ']:';
+        $shortClassName = '[' . AppConfig::getAppName() . '] ' . '[' . helper()->getObjectShortClassName($this) . ']:';
         if (key_exists($fgColor, $this->fgColors) && key_exists($bgColor, $this->bgColors)){
             $fgColor = $this->fgColors[$fgColor];
             $bgColor = $this->bgColors[$bgColor];
