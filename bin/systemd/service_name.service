@@ -27,7 +27,7 @@ RestartSec=10
 StandardOutput=append:/var/log/tonics.log
 StandardError=append:/var/log/tonics.err
 
-
+# Whenever systemd is called to shut down or restart, we send a SIGTERM
 # By doing the below, it is send a SIGTERM, whatever process is running would gracefully shut down
 ExecStop=/bin/kill -s SIGTERM $MAINPID
 
