@@ -46,7 +46,7 @@ class AbstractJobOnStartUpCLIHandler
     private function registerSignalHandlers(): void
     {
         pcntl_signal(SIGTERM, function () {
-            $this->infoMessage("Gracefully Shutting Down...");
+            $this->infoMessage("Gracefully Shutting Down, ended with a memory of " . helper()->formatBytes(memory_get_usage()));
             $this->exitProcess = true;
         });
     }
