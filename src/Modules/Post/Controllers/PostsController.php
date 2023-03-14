@@ -193,7 +193,7 @@ class PostsController
         $dbTx = db();
         try {
             $dbTx->beginTransaction();
-            $post = $this->postData->createPost(['token', 'post_excerpt']);
+            $post = $this->postData->createPost();
             $onBeforePostSave = new OnBeforePostSave($post);
             event()->dispatch($onBeforePostSave);
             $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
@@ -244,7 +244,7 @@ class PostsController
                 return false;
             }
 
-            $post = $this->postData->createPost(['token']);
+            $post = $this->postData->createPost();
             $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
             if (is_object($postReturning)) {
                 $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
@@ -345,7 +345,7 @@ class PostsController
 
         $db = db();
         $db->beginTransaction();
-        $postToUpdate = $this->postData->createPost(['token', 'post_excerpt']);
+        $postToUpdate = $this->postData->createPost();
 
         try {
             $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));

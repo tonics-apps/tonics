@@ -305,6 +305,10 @@ CAT;
      */
     public function createPost(array $ignore = [], bool $prepareFieldSettings = true): array
     {
+        # Since post_excerpt columns is a generated column, it can be in the column to return since inserting directly does not work and hence, it would throw an error
+        $ignore[] = 'post_excerpt';
+        $ignore[] = 'token'; # there is no such column, so we ignore
+
         $slug = $this->generateUniqueSlug($this->getPostTable(),
             'post_slug', helper()->slug(input()->fromPost()->retrieve('post_slug')));
 

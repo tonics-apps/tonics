@@ -82,7 +82,8 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
      *
      * - When the parent process receives the SIGALRM signal, it triggers the default signal handler for that signal, which in turn terminates the process.
      *
-     * - When the parent process terminates, any child processes that are still running become orphaned processes. Orphaned processes are adopted by the init process (process ID 1),
+     * - When the parent process terminates, any child processes that are still running become orphaned processes. Orphaned processes are adopted by the init process (process ID 1)
+     * or sub-init process depending on how the system is configured,
      * which is responsible for cleaning up any orphaned processes.
      * The init process automatically sends the SIGTERM signal to any orphaned processes, which causes them to terminate
      * (off course, the child can handle the SIGTERM signal to clean up before terminating which is what I do in child processes ).
@@ -146,9 +147,9 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
 
         // Wait for the child processes to complete or for the timeout to occur
         while (count($pIDS) > 0) {
-            $pid = pcntl_waitpid(-1, $status);
-            if ($pid > 0) {
-                $index = array_search($pid, $pIDS);
+            $pID = pcntl_waitpid(-1, $status);
+            if ($pID > 0) {
+                $index = array_search($pID, $pIDS);
                 if ($index !== false) {
                     unset($pIDS[$index]);
                 }
