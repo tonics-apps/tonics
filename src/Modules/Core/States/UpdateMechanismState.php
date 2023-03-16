@@ -309,11 +309,13 @@ class UpdateMechanismState extends SimpleState
                     continue;
                 }
             }
+
             /** @var ExtensionConfig $object */
-            $object = new $classString;
+            $object = container()->get($classString);
             $moduleOrAppTimeStamp = helper()->getTimeStampFromVersion($object->info()['version'] ?? '');
             $updateTimeStamp = $module['release_timestamp'] ?? '';
             $canUpdate = $updateTimeStamp > $moduleOrAppTimeStamp;
+
             if ($canUpdate && !empty($module['download_url'])) {
                 $localDriver = new LocalDriver();
 
