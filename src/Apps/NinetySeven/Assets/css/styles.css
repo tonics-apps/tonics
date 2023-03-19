@@ -1170,6 +1170,7 @@ FOR TONICS TRACK FOLDER
 .tonics-track-body {
     display: grid;
     grid-template-areas:
+        "tt-entry-meta"
         "tt-aside"
         "tt-content";
     gap: 1em;
@@ -1227,9 +1228,15 @@ FOR TONICS TRACK FOLDER
     grid-area: tt-aside;
 }
 
+.tonics-track-entry-meta {
+    grid-area: tt-entry-meta;
+}
+
 @media (min-width: 1200px) {
     .tonics-track-body {
-        grid-template-areas: "tt-aside tt-aside tt-content";
+        grid-template-areas:
+                "tt-entry-meta tt-entry-meta tt-entry-meta"
+                "tt-aside tt-aside tt-content";
     }
 }
 

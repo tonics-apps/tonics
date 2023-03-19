@@ -150,7 +150,7 @@ class ThemeFolderViewHandler implements HandlerInterface
      * @param TonicsView $tonicsView
      * @return void
      */
-    public function handleTrackCategoryFolderQuery(TonicsView $tonicsView)
+    public function handleTrackCategoryFolderQuery(TonicsView $tonicsView): void
     {
         $trackData = TrackData::class;
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
@@ -265,7 +265,8 @@ class ThemeFolderViewHandler implements HandlerInterface
         ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
         t.created_at, 
         GROUP_CONCAT(CONCAT(track_cat_id) ) as fk_cat_id,
-        1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")->From("{$trackData::getTrackTable()} t")
+        1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")
+                    ->From("{$trackData::getTrackTable()} t")
                     ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
                     ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
                     ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
@@ -278,12 +279,13 @@ class ThemeFolderViewHandler implements HandlerInterface
                     ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
             });
 
-
             if (!is_array($track)) {
                 return [];
             } else {
                 if (isset($track['fk_cat_id'])){
                     $categories = explode(',', $track['fk_cat_id']);
+                    $categories = array_combine($categories, $categories);
+                    $categories = array_values($categories);
                     foreach ($categories as $category){
                         $reverseCategory = array_reverse(self::getTrackCategoryParents($category));
                         $track['categories'][] = $reverseCategory;

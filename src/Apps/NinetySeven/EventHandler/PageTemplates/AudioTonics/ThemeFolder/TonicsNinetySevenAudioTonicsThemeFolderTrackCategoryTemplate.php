@@ -66,6 +66,9 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackCategoryTemplate implements Pa
             $fieldSettings[ThemeFolderViewHandler::TonicsAudioTonicsKey] = true;
             $mainTrackData = [...$fieldSettingsForMainTrackData, ...(array)$mainTrackData];
             $fieldSettings = [...$mainTrackData, ...$fieldSettings];
+            if (isset($fieldSettings['track_cat_parent_id'])){
+                $fieldSettings['categories'][] = array_reverse(ThemeFolderViewHandler::getTrackCategoryParents($fieldSettings['track_cat_parent_id']));
+            }
             $pageTemplate->setFieldSettings($fieldSettings);
         }
     }

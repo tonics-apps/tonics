@@ -1,0 +1,54 @@
+[[- --------------------- -]]
+        [[- HOOKS -]]
+[[- --------------------- -]]
+
+[[hook_into('in_head')
+    [[set('StructuredData.BreadCrumbCategories', 'Data.categories')]]
+    [[_use("StructuredData::BreadCrumbJSONLD")]]
+]]
+
+[[- --------------------- -]]
+        [[- BLOCKS -]]
+[[- --------------------- -]]
+
+[[b('StructuredData::BreadCrumbHTML')
+        [[if('v[StructuredData.BreadCrumbCategories]')
+            <div style="font-size: 80%;" class="tonics-track-entry-meta width:100%">
+                <nav>
+                    <style>
+                        .box {
+                            display: flex;
+                            flex-direction: row;
+                            padding: 5px clamp(20px, 2vw, 25px);
+                            align-items: center;
+                            border-radius: 5px;
+                            text-decoration: none;
+                        }
+                    </style>
+                    [[each('_breadCrumbCats in StructuredData.BreadCrumbCategories')
+                    <ol style="margin-bottom: 1em; gap: 0.5em;" class="tonics-breadcrumb d:flex flex-wrap:wrap justify-content:center list:style:none">
+                        [[each('_breadCrumbCat in _breadCrumbCats')
+                        <li class="tonics-breadcrumb-item">
+                            <a href="[[v('_breadCrumbCat._link')]]"
+                               data-slug_id="[[v('_breadCrumbCat.slug_id')]]"
+                               data-tonics_navigate data-is_track="0"
+                               data-url_page="[[v('_breadCrumbCat._link')]]"
+                               class="box flex-gap:small color:white border-width:default border:white text-underline" title="[[v('_breadCrumbCat._name')]]">
+                                <div class="text:no-wrap">[[v('_breadCrumbCat._name')]]</div>
+                            </a>
+                        </li>
+
+                        [[if('v[_breadCrumbCat_loop.last] === bool[false]')
+                        <li class="tonics-breadcrumb-item">
+                            <div class="box flex-gap:small color:white border-width:default border:white" title="is a parent of »">
+                                <div class="text:no-wrap color:white">»»</div>
+                            </div>
+                        </li>
+                        ]]
+                        ]]
+                    </ol>
+                    ]]
+                </nav>
+            </div>
+        ]]
+]]

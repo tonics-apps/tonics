@@ -1,9 +1,11 @@
-[[inherit("Modules::Core/Views/Templates/on_hook_into_event")]] [[- Manually Register On Hook Into Event -]]
+[[inherit("Modules::Core/Views/Templates/on_hook_into_event",
+"Apps::NinetySeven/Views/Block/audioTonics")]] [[- Manually Register On Hook Into Event -]]
 
 [[add_hook('tonics_track_from_api')]]
 
 [[b('tonics_track_main')
-<div class="d:flex tonics-track-body flex-wrap:wrap justify-content:center tonics-folder-main">
+    [[set('StructuredData.BreadCrumbCategories', 'Data.categories')]]
+    [[_use("StructuredData::BreadCrumbHTML")]]
     <aside class="tonics-track-aside">
         <div class="position:sticky top:0">
             <ul class="tonics-files-container list:style:none">
@@ -45,11 +47,11 @@
                     </div>
                     <div class="color:white d:none padding:default border-width:default track-download-buy-container border:white button:box-shadow-variant-2">
                         <ul class="track-download-ul-container"
-                                data-license_loaded="false"
-                                data-slug_id="[[v('Data.slug_id')]]"
-                                data-url_page="[[v('Data._link')]]"
-                                data-audioplayer_title="[[v('Data._name')]]"
-                                data-audioplayer_image="[[v('Data.image_url .. Data.ThemeFolderTrackDefaultImage')]]">
+                            data-license_loaded="false"
+                            data-slug_id="[[v('Data.slug_id')]]"
+                            data-url_page="[[v('Data._link')]]"
+                            data-audioplayer_title="[[v('Data._name')]]"
+                            data-audioplayer_image="[[v('Data.image_url .. Data.ThemeFolderTrackDefaultImage')]]">
                         </ul>
                     </div>
                 </li>
@@ -59,5 +61,4 @@
     <article class="owl tonics-track-content color:white">
         [[_v('Data.track_content')]]
     </article>
-</div>
 ]]

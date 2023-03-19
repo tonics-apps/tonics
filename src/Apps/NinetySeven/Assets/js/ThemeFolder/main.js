@@ -179,7 +179,9 @@ initRouting('body', ({url, type}) => {
 });
 
 function tonicsAudioNavForFolder(data, url) {
-    let tonicsFolderMain = document.querySelector('.tonics-folder-main'),
+
+    let mainTonicsFolderContainer = document.querySelector('.main-tonics-folder-container'),
+        tonicsFolderMain = document.querySelector('.tonics-folder-main'),
         beforeFolderSearchLoading = document.querySelector('.before-folder-search'),
         tonicsFolderAboutContainer = document.querySelector('.tonics-folder-about-container'),
         tonicsFolderSearch = document.querySelector('.tonics-folder-search');
@@ -197,12 +199,17 @@ function tonicsAudioNavForFolder(data, url) {
         tonicsFolderSearch.remove();
     }
 
-    if (beforeFolderSearchLoading) {
+    if (beforeFolderSearchLoading){
         beforeFolderSearchLoading.classList.remove('d:none');
+    }
+
+    if (mainTonicsFolderContainer){
         window.TonicsScript.XHRApi({isAPI: true, type: 'isSearch'}).Get(url, function (err, data) {
             data = JSON.parse(data);
-            beforeFolderSearchLoading.classList.add('d:none');
-            beforeFolderSearchLoading.insertAdjacentHTML('beforebegin', data?.data);
+            if (beforeFolderSearchLoading){
+                beforeFolderSearchLoading.classList.add('d:none');
+            }
+            mainTonicsFolderContainer.insertAdjacentHTML('afterbegin', data?.data);
         });
     }
 }
