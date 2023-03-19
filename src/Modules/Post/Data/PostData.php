@@ -140,7 +140,7 @@ class PostData extends AbstractDataLayer
       SELECT fr.cat_id, fr.cat_parent_id, fr.slug_id, fr.cat_slug, fr.cat_status, fr.cat_name, CONCAT(fr.cat_slug, '/', path)
       FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.cat_id = cp.cat_parent_id
       ) 
-     SELECT * FROM child_to_parent;
+     SELECT *, cat_name as _name, CONCAT_WS('/', '/categories', slug_id, cat_slug) as _link FROM child_to_parent;
         ", $idSlug);
         });
 

@@ -1,4 +1,4 @@
-[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
+[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base", "Apps::NinetySeven/Views/Block/wriTonics")]]
 
 [[hook_into('in_head')
 <meta property="og:type" content="website">
@@ -81,6 +81,7 @@
         </div>
     </div>
 
-    [[_use('Post::Pagination')]]
+    [[set('Link.Pagination', 'Data.NinetySeven_WriTonics_PostData')]]
+    [[_use('Link::Pagination')]]
 </section>
 ]]

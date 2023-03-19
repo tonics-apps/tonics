@@ -1,11 +1,11 @@
-[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base")]]
+[[inherit("Modules::Core/Views/Templates/theme", "Apps::NinetySeven/Views/Block/base", "Apps::NinetySeven/Views/Block/wriTonics")]]
 
 [[hook_into('in_main')
 <section>
     <div class="tonics-category padding:default owl">
         <div class="category-title flex-d:column">
             <h1>[[v('Data.cat_name')]]</h1>
-            [[_use('Post::Breadcrumb')]]
+            [[_use('StructuredData::BreadCrumbHTML')]]
         </div>
         <div class="category-desc owl">[[_v('Data.cat_content')]]</div>
         <div id="sfc" class="category-article">
@@ -38,7 +38,8 @@
         ]]
     </div>
 
-    [[_use('pagination')]]
+    [[set('Link.Pagination', 'Data.PostData')]]
+    [[_use('Link::Pagination')]]
 </section>
 
     [[if("v[Data.CategoryData.1]")

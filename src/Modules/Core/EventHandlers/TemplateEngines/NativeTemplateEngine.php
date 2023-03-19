@@ -22,9 +22,8 @@ use App\Modules\Core\Library\View\Extensions\IfCondition;
 use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
 use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
 use App\Modules\Core\Library\View\Extensions\OnHookIntoEvent;
-use App\Modules\Core\Library\View\Extensions\QueryModeHandler;
 use App\Modules\Core\Library\View\Extensions\SessionView;
-use App\Modules\Core\Library\View\Extensions\SQLSelectModeHandler;
+use App\Modules\Core\Library\View\Extensions\Set;
 use App\Modules\Core\Library\View\Extensions\StringFunctions;
 use App\Modules\Core\Library\View\Extensions\TriggerBlockOnTheFly;
 use App\Modules\Core\Library\View\Extensions\URLModeHandler;
@@ -59,6 +58,7 @@ class NativeTemplateEngine implements HandlerInterface
             'content' => new Content()
         ];
         $view = new TonicsView($settings);
+        $view->addModeHandler('set', Set::class);
         $view->addModeHandler('url', URLModeHandler::class);
         $view->addModeHandler('csrf', CSRFModeHandler::class);
         $view->addModeHandler('menu', MenuModeHandler::class);
@@ -134,30 +134,6 @@ class NativeTemplateEngine implements HandlerInterface
         $view->addModeHandler('place_into', Hook::class); // alias of hook_into
         $view->addModeHandler('on_hook_into_event', OnHookIntoEvent::class);
 
-        // SQL_SELECT
-        $view->addModeHandler('sql', SQLSelectModeHandler::class);
-        $view->addModeHandler('select', SQLSelectModeHandler::class, false);
-        $view->addModeHandler('from', SQLSelectModeHandler::class);
-        $view->addModeHandler('cols', SQLSelectModeHandler::class);
-        $view->addModeHandler('cols', SQLSelectModeHandler::class);
-        $view->addModeHandler('col_as', SQLSelectModeHandler::class);
-        $view->addModeHandler('join', SQLSelectModeHandler::class);
-        $view->addModeHandler('inner_join', SQLSelectModeHandler::class);
-        $view->addModeHandler('left_join', SQLSelectModeHandler::class);
-        $view->addModeHandler('right_join', SQLSelectModeHandler::class);
-        $view->addModeHandler('where', SQLSelectModeHandler::class, false);
-        // Operator
-        $view->addModeHandler('op', SQLSelectModeHandler::class);
-        // others
-        $view->addModeHandler('order', SQLSelectModeHandler::class);
-        $view->addModeHandler('keyword', SQLSelectModeHandler::class);
-        // common functions
-        $view->addModeHandler('sqlFunc', SQLSelectModeHandler::class);
-        $view->addModeHandler('param', SQLSelectModeHandler::class);
-        $view->addModeHandler('sql_block', SQLSelectModeHandler::class);
-        $view->addModeHandler('reuse_sql', SQLSelectModeHandler::class);
-
-        $view->addModeHandler('query', QueryModeHandler::class);
         $event->addTemplateEngine('Native', $view);
     }
 }

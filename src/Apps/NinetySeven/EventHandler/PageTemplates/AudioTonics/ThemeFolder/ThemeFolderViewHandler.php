@@ -263,7 +263,8 @@ class ThemeFolderViewHandler implements HandlerInterface
                 $track = $db->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
         t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings,
         ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
-        t.created_at,
+        t.created_at, 
+        GROUP_CONCAT(CONCAT(track_cat_id) ) as fk_cat_id,
         1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")->From("{$trackData::getTrackTable()} t")
                     ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
                     ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
@@ -277,8 +278,17 @@ class ThemeFolderViewHandler implements HandlerInterface
                     ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
             });
 
+
             if (!is_array($track)) {
                 return [];
+            } else {
+                if (isset($track['fk_cat_id'])){
+                    $categories = explode(',', $track['fk_cat_id']);
+                    foreach ($categories as $category){
+                        $reverseCategory = array_reverse(self::getTrackCategoryParents($category));
+                        $track['categories'][] = $reverseCategory;
+                    }
+                }
             }
 
             $trackData->unwrapForTrack($track);
@@ -287,6 +297,37 @@ class ThemeFolderViewHandler implements HandlerInterface
             // Log..
         }
         return [];
+    }
+
+    /**
+     * @param string|int $idSlug
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public static function getTrackCategoryParents(string|int $idSlug): mixed
+    {
+        $result = null;
+        db(onGetDB: function ($db) use ($idSlug, &$result){
+            $categoryTable = TrackData::getTrackCategoryTable();
+
+            $where = "track_cat_slug = ?";
+            if (is_numeric($idSlug)) {
+                $where = "track_cat_id = ?";
+            }
+            $result = $db->run("
+        WITH RECURSIVE child_to_parent AS 
+	( SELECT track_cat_id, track_cat_parent_id, slug_id, track_cat_slug, track_cat_status, track_cat_name, CAST(track_cat_slug AS VARCHAR (255))
+            AS path
+      FROM $categoryTable WHERE $where
+      UNION ALL
+      SELECT fr.track_cat_id, fr.track_cat_parent_id, fr.slug_id, fr.track_cat_slug, fr.track_cat_status, fr.track_cat_name, CONCAT(fr.track_cat_slug, '/', path)
+      FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.track_cat_id = cp.track_cat_parent_id
+      ) 
+     SELECT *, track_cat_name as _name, CONCAT_WS('/', '/track_categories', slug_id, track_cat_slug) as _link FROM child_to_parent;
+        ", $idSlug);
+        });
+
+        return $result;
     }
 
     /**

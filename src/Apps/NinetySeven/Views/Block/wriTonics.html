@@ -1,0 +1,146 @@
+[[- --------------------- -]]
+        [[- HOOKS -]]
+[[- --------------------- -]]
+
+[[hook_into('in_head')
+  [[set('StructuredData.BreadCrumbCategories', 'Data.categories')]]
+  [[_use("StructuredData::BreadCrumbJSONLD")]]
+]]
+
+[[- --------------------- -]]
+        [[- BLOCKS -]]
+[[- --------------------- -]]
+
+[[b('StructuredData::BreadCrumbHTML')
+    [[if('v[StructuredData.BreadCrumbCategories]')
+        <nav>
+        <style>
+            .box {
+                display: flex;
+                flex-direction: row;
+                padding: 5px clamp(20px, 2vw, 25px);
+                align-items: center;
+                border-radius: 5px;
+                text-decoration: none;
+            }
+        </style>
+        [[each('_breadCrumbCats in StructuredData.BreadCrumbCategories')
+        <ol style="margin-bottom: 1em; gap: 0.5em;" class="tonics-breadcrumb d:flex flex-wrap:wrap justify-content:center list:style:none">
+            [[each('_breadCrumbCat in _breadCrumbCats')
+            <li class="tonics-breadcrumb-item">
+                <a href="[[v('_breadCrumbCat._link')]]"
+                   class="box flex-gap:small color:black border-width:default border:black text-underline" title="[[v('_breadCrumbCat._name')]]">
+                    <div class="text:no-wrap">[[v('_breadCrumbCat._name')]]</div>
+                </a>
+            </li>
+
+            [[if('v[_breadCrumbCat_loop.last] === bool[false]')
+            <li class="tonics-breadcrumb-item">
+                <div class="box flex-gap:small color:black border-width:default border:black" title="is a parent of »">
+                    <div class="text:no-wrap">»»</div>
+                </div>
+            </li>
+            ]]
+
+            ]]
+        </ol>
+        ]]
+    </nav>
+    ]]
+]]
+
+[[b('Post::Single::Header')
+    <header class="owl overflow:hidden text-align:center padding:default bg:gray-two">
+    <h1 class="entry-title"> [[v('Data.post_title .. Data.cat_name')]]</h1>
+    <div class="entry-meta d:flex align-items:center justify-content:center flex-d:column flex-gap:small">
+        [[_use('StructuredData::BreadCrumbHTML')]]
+        <div class="by-line-and-date d:flex justify-content:center flex-gap:small flex-wrap:wrap">
+            [[if('v[Data.user_name]')
+            <div class="by-line d:flex align-items:center flex-gap:small">
+                    <span class="posted-by">
+                        By [[v('Data.user_name')]]
+                    </span>
+            </div>
+            |
+            ]]
+            <div class="date-published d:flex align-items:center flex-gap:small">
+                <span class="date">
+                    Published: [[v('Data.created_at_words')]]
+                </span>
+            </div>
+            |
+            <div class="date-published d:flex align-items:center flex-gap:small">
+                <span class="date">
+                    Updated: [[v('Data.updated_at_words')]]
+                </span>
+            </div>
+        </div>
+    </div>
+    <figure class="featured-image full-bleed">
+        <div class="post-thumbnail">
+            [[if("v[Data.image_url] !== block[empty]")
+            <img [[- width="2000" height="1200" -]]
+                 loading="lazy"
+                 decoding="async"
+                 src="[[v('Data.image_url')]]"
+                 class="" alt="[[v('Data.post_title')]]">
+            ]]
+        </div><!-- .post-thumbnail -->
+    </figure>
+</header>
+]]
+
+[[b('Post::Article::Section')
+    <section class="content-body bg:pure-white d:flex justify-content:space-evenly flex-wrap:wrap">
+        <article class="owl entry-content">
+            [[_v('Data.post_content .. Data.cat_content')]]
+        </article>
+        [[_use('Widget::Sidebar')]]
+    </section>
+    [[_use('Post::RelatedPosts')]]
+]]
+
+[[b('Widget::Sidebar')
+    [[if("v[Widget_sidebar_widget.Data]")
+        <aside class="position:sticky top:0">
+        <div class="owl sidebar-widget position:sticky top:0">
+            <h4 style="text-transform: capitalize;">[[v('Widget_sidebar_widget.Name')]]</h4>
+            <ul class="owl list:style:none">
+                [[each("widgetData in Widget_sidebar_widget.Data")
+                <li style="margin-top: clamp(3rem, 2.5vw, 2rem);" tabindex="0" class="owl width:100% padding:default menu-arranger-li color:black bg:white-one border-width:default border:black position:relative">
+                    <span class="widget-title bg:pure-black color:white padding:small">[[v('widgetData.options.widgetName')]]</span>
+                    [[_v('widgetData.htmlFrag')]]
+                </li>
+                ]]
+            </ul>
+        </div>
+    </aside>
+    ]]
+]]
+
+[[b('Post::RelatedPosts')
+    [[if("v[Data.related_post.data]")
+        <section class="padding:default">
+        <div class="category-title flex-d:column">
+            <h2>Related Post(s)</h2>
+            <ul class="top-best-list padding:default">
+                [[each("_related_post in Data.related_post.data")
+                <li tabindex="0" class="d:flex flex-d:column align-items:center justify-content:center cursor:pointer position:relative justify-content:flex-start border-width:default border:black color:black">
+                    <div class="width:100% d:flex flex-d:column height:100%">
+                        <div class="text-on-admin-util padding:default cursor:text owl margin-top:0">
+                            <h3 class="margin-left:0">[[v('_related_post.post_title')]]</h3>
+                            <p style="max-width:unset;">[[v('_related_post._excerpt')]]</p>
+                        </div>
+                        <div class="form-group d:flex flex-gap:small padding:default ">
+                            <a title="[[v('_related_post.post_title')]]" href="[[v('_related_post._preview_link')]]"
+                               class="text-align:center text:paragraph-fluid-one text:no-wrap no-text-highlight bg:transparent border:none color:black border-width:default border:black padding:default
+                                                  margin-top:0 cursor:pointer">Read More</a>
+                        </div>
+                    </div>
+                </li>
+                ]]
+            </ul>
+        </div>
+    </section>
+    ]]
+]]
