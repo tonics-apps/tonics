@@ -23,7 +23,7 @@ use App\Modules\Core\Library\View\Extensions\MenuModeHandler;
 use App\Modules\Core\Library\View\Extensions\ModuleFunctionModeHandler;
 use App\Modules\Core\Library\View\Extensions\OnHookIntoEvent;
 use App\Modules\Core\Library\View\Extensions\SessionView;
-use App\Modules\Core\Library\View\Extensions\Set;
+use App\Modules\Core\Library\View\Extensions\SetModeHandler;
 use App\Modules\Core\Library\View\Extensions\StringFunctions;
 use App\Modules\Core\Library\View\Extensions\TriggerBlockOnTheFly;
 use App\Modules\Core\Library\View\Extensions\URLModeHandler;
@@ -58,7 +58,7 @@ class NativeTemplateEngine implements HandlerInterface
             'content' => new Content()
         ];
         $view = new TonicsView($settings);
-        $view->addModeHandler('set', Set::class);
+        $view->addModeHandler('set', SetModeHandler::class);
         $view->addModeHandler('url', URLModeHandler::class);
         $view->addModeHandler('csrf', CSRFModeHandler::class);
         $view->addModeHandler('menu', MenuModeHandler::class);

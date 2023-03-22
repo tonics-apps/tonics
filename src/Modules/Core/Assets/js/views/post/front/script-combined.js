@@ -652,11 +652,7 @@ var TableOfContent = class {
           if (header.textContent.length > 0) {
             let headerIDSlug = slug(header.textContent);
             let headerText = header.textContent;
-            if (!header.hasAttribute("id")) {
-              header.id = headerIDSlug;
-            } else if (header.id.trim() === "") {
-              header.id = headerIDSlug;
-            }
+            header.id = headerIDSlug;
             currentLevel = parseInt(header.tagName[1]);
             item = {
               "level": currentLevel,

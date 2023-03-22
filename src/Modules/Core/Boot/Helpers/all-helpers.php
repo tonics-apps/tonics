@@ -258,7 +258,7 @@ function getGlobalVariableData()
 function view(string $viewname, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
     $data = [...$data, ...getGlobalVariableData()];
-    $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data);
+    $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data)->setCachePrefix(AppConfig::getCachePrefix());
     #
     # For Some reason, in CLI, if we call view multiple times, it renders hook_into content that number of times,
     # instead of just once, the below is a work-around until I find a fix

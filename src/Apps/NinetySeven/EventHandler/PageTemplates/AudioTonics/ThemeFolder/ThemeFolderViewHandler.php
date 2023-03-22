@@ -155,14 +155,15 @@ class ThemeFolderViewHandler implements HandlerInterface
         $trackData = TrackData::class;
         $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
         try {
+            $data = null;
             db(onGetDB: function (TonicsQuery $db) use ($trackData, $fieldSettings, &$data) {
 
                 $db->when($this->isFiltering(), function (TonicsQuery $db) use ($fieldSettings, $trackData) {
                     $db->With('category_tree',
-                        $db->Q()->Select('track_cat_id')->From($trackData::getTrackCategoryTable())
+                        db()->Select('track_cat_id')->From($trackData::getTrackCategoryTable())
                             ->WhereEquals('track_cat_id', $fieldSettings['track_cat_id'])
                             ->UnionAll(
-                                $db->Q()->Select(' c.track_cat_id')->From("{$trackData::getTrackCategoryTable()} c")
+                                db()->Select(' c.track_cat_id')->From("{$trackData::getTrackCategoryTable()} c")
                                     ->Join('category_tree ct', 'c.track_cat_parent_id', 'ct.track_cat_id')
                             ),
                         true);

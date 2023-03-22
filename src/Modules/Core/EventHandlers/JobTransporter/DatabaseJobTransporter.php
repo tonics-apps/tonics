@@ -134,16 +134,16 @@ SQL, Job::JobStatus_Queued, 1);
                         $this->infoMessage("Running job $job->job_name with an id of $job->job_id");
                         # Job In_Progress
                         $update = ['job_status' => Job::JobStatus_InProgress];
-                        $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+                        $db->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_id', $job->job_id));
 
                         $this->handleIndividualJob($job);
 
                         $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
-                        $db->FastUpdate($this->getTable(), $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+                        $db->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_id', $job->job_id));
                     } catch (\Throwable $exception) {
                         $update = ['job_status' => Job::JobStatus_Failed];
                         $this->errorMessage("Job $job->job_name failed, with an id of $job->job_id");
-                        $db->FastUpdate($table, $update, $db->Q()->WhereEquals('job_id', $job->job_id));
+                        $db->FastUpdate($table, $update, db()->WhereEquals('job_id', $job->job_id));
                         $this->errorMessage($exception->getMessage() . $exception->getTraceAsString());
                     }
                 }

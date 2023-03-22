@@ -33,7 +33,7 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  * Note: If you are inheriting a template, and you are using the SetMode, the set would only ever work in the context of another ModeHandler,
  * e.g. Block, Hooks, it can't be independent if it is being inherited from another template, hope you get that.
  */
-class Set extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
+class SetModeHandler extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
 
     private string $error = '';
