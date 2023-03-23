@@ -34,7 +34,8 @@ trait Routes
         $route->get('tracks/:id/', [TracksController::class, 'redirect']);
         $route->get('track_categories/:id/', [TrackCategoryController::class, 'redirect']);
 
-        $route->group('', function (Route $route){
+        $route->group('', function (Route $route) {
+
             $route->group('/admin', function (Route $route) {
 
                 ## FOR TRACK
@@ -58,8 +59,9 @@ trait Routes
                     $route->get('import-track-items', [TracksImportController::class, 'importTrackItems'], alias: 'importTrackItems');
                     $route->post('import-track-items', [TracksImportController::class, 'importTrackItemsStore'], alias: 'importTrackItems');
 
-                    #---------------------------------
-                    # TRACK CATEGORIES...
+
+                            #---------------------------------
+                        # TRACK CATEGORIES...
                     #---------------------------------
                     $route->group('/category', function (Route $route){
                         $route->get('', [TrackCategoryController::class, 'index'], alias: 'index');
@@ -79,8 +81,8 @@ trait Routes
                 ## FOR ARTIST
                 $route->group('/artists', function (Route $route) {
 
-                    #---------------------------------
-                    # ARTIST RESOURCES...
+                            #---------------------------------
+                        # ARTIST RESOURCES...
                     #---------------------------------
                     $route->get('', [ArtistController::class, 'index'], alias: 'index');
                     $route->post('', [ArtistController::class, 'dataTable'], alias: 'dataTables');
@@ -95,8 +97,8 @@ trait Routes
 
                 ## FOR GENRE
                 $route->group('/genres', function (Route $route) {
-                    #---------------------------------
-                    # GENRE RESOURCES...
+                            #---------------------------------
+                        # GENRE RESOURCES...
                     #--------------------------------
                     $route->get('', [GenreController::class, 'index'], alias: 'index');
                     $route->post('', [GenreController::class, 'dataTable'], alias: 'dataTables');
@@ -111,8 +113,8 @@ trait Routes
 
                 ## FOR LICENSES
                 $route->group('/tools', function (Route $route) {
-                    #---------------------------------
-                    # LICENSE RESOURCES...
+                            #---------------------------------
+                        # LICENSE RESOURCES...
                     #---------------------------------
                     $route->group('/license', function (Route $route){
                         $route->get('', [LicenseController::class, 'index'],  alias: 'index');
@@ -126,8 +128,8 @@ trait Routes
                         $route->match(['post', 'delete'], 'delete/multiple', [LicenseController::class, 'deleteMultiple'], alias: 'deleteMultiple');
                     });
 
-                    #---------------------------------
-                    # LICENSE ITEMS RESOURCES...
+                            #---------------------------------
+                        # LICENSE ITEMS RESOURCES...
                     #---------------------------------
                     $route->group('/license/items', function (Route $route){
                         $route->get(':license/builder', [LicenseControllerItems::class, 'index'],  alias: 'index');
@@ -136,11 +138,20 @@ trait Routes
                 }, alias: 'licenses');
 
             },[TrackAccess::class]);
+
         }, AuthConfig::getAuthRequestInterceptor());
 
-        $route->group('tracks_payment', function (Route $route){
-            $route->get('/get_request_flow', [TracksPaymentController::class, 'RequestFlow']);
-            $route->post('/post_request_flow', [TracksPaymentController::class, 'RequestFlow']);
+        $route->group('modules/track', function (Route $route){
+
+            $route->group('player', function (Route $route){
+                $route->post('update_plays', [TracksController::class, 'updateTrackPlays'], alias: 'updateTrackPlays');
+            });
+
+            $route->group('payment', function (Route $route){
+                $route->get('/get_request_flow', [TracksPaymentController::class, 'RequestFlow']);
+                $route->post('/post_request_flow', [TracksPaymentController::class, 'RequestFlow']);
+            });
+
         }, AuthConfig::getCSRFRequestInterceptor());
 
         return $route;

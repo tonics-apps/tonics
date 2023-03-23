@@ -14,6 +14,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
@@ -450,6 +451,69 @@ class TracksController extends Controller
         });
 
         $redirection->runStates();
+    }
+
+    const SessionCategories_TrackPlays = 'tonics_track_plays_info';
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function updateTrackPlays(): void
+    {
+        $trackToUpdate = [];
+        try {
+            $incrementPlay = false;
+            $requestBody = json_decode(request()->getEntityBody(), true);
+            $slug = (isset($requestBody['slug_id'])) ? $requestBody['slug_id'] : null;
+            # limit the char to 16 since that is the definition of slug_id
+            $slug = substr($slug, 0, 16);
+            $trackToUpdate['slug_id'] = $slug;
+            $key = self::SessionCategories_TrackPlays . '.' . $slug;
+
+            if (\session()->hasKey($key)){
+                $trackPlaysInfo = \session()->retrieve($key, jsonDecode: true);
+
+                if (is_string($trackPlaysInfo->expire_lock_time)){
+                    $trackPlaysInfo->expire_lock_time = strtotime($trackPlaysInfo->expire_lock_time);
+                }
+
+                // reset if the wait time has elapsed
+                if ($trackPlaysInfo->expire_lock_time < time()) {
+                    $incrementPlay = true;
+                    $trackPlaysInfo->expire_lock_time = time() + Scheduler::everyHour(1);
+                }
+            } else {
+                $incrementPlay = true; # First Time
+                $trackPlaysInfo = (object) [
+                    'expire_lock_time' => time() + Scheduler::everyHour(1),
+                    'slug_id' => $slug,
+                ];
+            }
+
+            session()->append($key, $trackPlaysInfo);
+
+            if ($incrementPlay && isset($trackPlaysInfo->slug_id)) {
+                db(onGetDB: function (TonicsQuery $db) use ($slug, &$trackToUpdate) {
+                    $table = $this->getTrackData()::getTrackTable();
+                    $track = $db->Select('track_plays, track_title')->From($table)
+                        ->WhereEquals('slug_id', $slug)->FetchFirst();
+
+                    if (isset($track->track_title)){
+                        $trackToUpdate['track_plays'] = $track->track_plays + 1;
+                        $db->FastUpdate($table, $trackToUpdate, db()->Where('slug_id', '=', $slug));
+                    }
+
+                });
+
+                response()->onSuccess($trackToUpdate);
+            }
+
+        } catch (Exception $exception){
+            // Log..
+        }
+
+        response()->onSuccess($trackToUpdate);
     }
 
 

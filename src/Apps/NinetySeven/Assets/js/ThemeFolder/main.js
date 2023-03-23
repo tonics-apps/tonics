@@ -55,6 +55,21 @@ try {
         .propagateElements(['[data-tonics_navigate]'])
         .run();
 
+   var getCSRFFromInput = function getCSRFFromInput(csrfNames) {
+
+        let csrf = null;
+        csrfNames.forEach(((value, index) => {
+            let inputCSRF = document.querySelector(`input[name=${value}]`)?.value;
+            if (!inputCSRF){
+                inputCSRF = document.querySelector(`meta[name=${value}]`)?.content;
+            }
+            if (!csrf && inputCSRF){
+                csrf = inputCSRF;
+            }
+        }))
+        return csrf;
+    }
+
 } catch (e) {
     console.error("An Error Occur Setting MenuToggle: Track Audio Page")
 }
@@ -122,7 +137,16 @@ function initRouting(containerSelector, navigateCallback = null) {
     })
 
     // Bind a click event listener to the container using event delegation
+
+    let isClicked = false;
     container.addEventListener('click', e => {
+
+        if (isClicked) return;
+        isClicked = true;
+        setTimeout(() => {
+            isClicked = false;
+        }, 800); // Set the time to wait before allowing another click, in milliseconds
+
         const el = e.target;
         if (el.closest('[data-tonics_navigate]')) {
             e.preventDefault();
@@ -264,9 +288,11 @@ class TonicsAudioPlayHandler {
         const songData = event._songData;
         const url_page = songData?.url_page;
         const url_page_el = document.querySelector(`button[data-url_page="${url_page}"]`);
+        const url_page_el_from_href = document.querySelector(`a[data-url_page="${url_page}"]`);
+
         if (url_page_el.closest('[data-tonics-audioplayer-track]') && !songData.hasOwnProperty('markers')) {
             window.TonicsScript.XHRApi({isAPI: true, type: 'getMarker'}).Get(url_page, function (err, data) {
-                data = JSON.parse(data);
+                data = JSON.parse(data)
                 if (data?.data?.markers) {
                     songData.markers = data.data.markers;
                     event._songData = songData;
@@ -289,6 +315,25 @@ class TonicsAudioPlayHandler {
                 }
             });
         }
+
+        if (url_page_el_from_href?.dataset){
+            this.updateTrackPlays(url_page_el_from_href.dataset);
+        }
+
+    }
+
+    updateTrackPlays(BodyData) {
+        const url_track_update = "/modules/track/player/update_plays"
+        window.TonicsScript.XHRApi({
+            'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+        }).Post(url_track_update, JSON.stringify(BodyData), function (err, data) {
+            if (data) {
+                data = JSON.parse(data);
+            }
+            if (err) {
+
+            }
+        });
     }
 }
 
@@ -427,8 +472,8 @@ class TonicsPaymentEventAbstract {
 
 class OnAudioPlayerPaymentGatewayCollatorEvent {
 
-    get_request_flow_address = "/tracks_payment/get_request_flow";
-    post_request_flow_address = "/tracks_payment/post_request_flow";
+    get_request_flow_address = "/modules/track/payment/get_request_flow";
+    post_request_flow_address = "/modules/track/payment/post_request_flow";
 
     checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
 
@@ -482,7 +527,7 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
         window.TonicsScript.XHRApi({
             PaymentHandlerName: PaymentHandlerName,
             PaymentQueryType: "CapturedPaymentDetails",
-            'Tonics-CSRF-Token': `${this.getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+            'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
         }).Post(this.post_request_flow_address, JSON.stringify(BodyData), function (err, data) {
             if (data) {
                 data = JSON.parse(data);
@@ -524,21 +569,6 @@ class OnAudioPlayerPaymentGatewayCollatorEvent {
                 script.src = $scriptPath;
             }
         });
-    }
-
-    getCSRFFromInput(csrfNames) {
-
-        let csrf = null;
-        csrfNames.forEach(((value, index) => {
-            let inputCSRF = document.querySelector(`input[name=${value}]`)?.value;
-            if (!inputCSRF){
-                inputCSRF = document.querySelector(`meta[name=${value}]`)?.content;
-            }
-            if (!csrf && inputCSRF){
-                csrf = inputCSRF;
-            }
-        }))
-        return csrf;
     }
 }
 
