@@ -4230,12 +4230,14 @@ function addTiny(editorID) {
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
                             target.nextElementSibling.innerHTML = '<span class="loading-animation"></span>';
-                            fieldPreviewFromPostData(OnBeforeTonicsFieldPreview.getPostData(), function (data) {
-                                if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
-                                    target.nextElementSibling.innerHTML = '';
-                                    target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
-                                }
-                            })
+                            if (OnBeforeTonicsFieldPreview.canRequest()){
+                                fieldPreviewFromPostData(OnBeforeTonicsFieldPreview.getPostData(), function (data) {
+                                    if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
+                                        target.nextElementSibling.innerHTML = '';
+                                        target.nextElementSibling.insertAdjacentHTML('afterbegin', data.data);
+                                    }
+                                })
+                            }
                         }
                     }
                 });
@@ -4450,11 +4452,21 @@ class OnBeforeTonicsFieldPreviewEvent {
         this._postData = value;
     }
 
-    postData = null; elementTarget = null;
+    get request() {
+        return this._canRequest;
+    }
+
+    set request(value) {
+        this._canRequest = value;
+    }
 
     constructor(postData, target) {
         this._postData = postData;
         this._elementTarget = target;
+    }
+
+    canRequest() {
+        return this._canRequest;
     }
 
     getPostData() {
@@ -4474,6 +4486,7 @@ class OnBeforeTonicsFieldSubmitEvent {
     set elementTarget(value) {
         this._elementTarget = value;
     }
+
     get postData() {
         return this._postData;
     }

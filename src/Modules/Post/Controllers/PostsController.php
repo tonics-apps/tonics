@@ -441,7 +441,11 @@ class PostsController
 
                         // Set to Default Category If Empty
                         if (empty($colForEvent['fk_cat_id'])){
-                            $findDefault = $this->postData->selectWithConditionFromCategory(['cat_slug', 'cat_id'], "cat_slug = ?", ['default-category']);
+                            $findDefault = null;
+                            db(onGetDB: function (TonicsQuery $db) use (&$findDefault){
+                                $findDefault = $db->Select("slug_id, cat_slug")
+                                    ->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', 'default-category')->FetchFirst();
+                            });
                             if (is_object($findDefault) && isset($findDefault->cat_id)) {
                                 $colForEvent['fk_cat_id'] = [$findDefault->cat_id];
                             }
@@ -485,15 +489,24 @@ class PostsController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
-                $post = $this->getPostData()
-                    ->selectWithConditionFromPost(['*'], "slug_id = ?", [$slugID]);
+                $post = null;
+                db(onGetDB: function (TonicsQuery $db) use ($slugID, &$post){
+                    $post = $db->Select("slug_id, post_slug")
+                        ->From($this->getPostData()->getPostTable())
+                        ->WhereEquals('slug_id', $slugID)->FetchFirst();
+                });
                 if (isset($post->slug_id) && isset($post->post_slug)) {
                      return PostRedirection::getPostAbsoluteURLPath((array)$post);
                 }
                 return false;
             }, onSlugState: function ($slug) {
-            $post = $this->getPostData()
-                ->selectWithConditionFromPost(['*'], "post_slug = ?", [$slug]);
+
+            $post = null;
+            db(onGetDB: function (TonicsQuery $db) use ($slug, &$post){
+                $post = $db->Select("slug_id, post_slug")
+                    ->From($this->getPostData()->getPostTable())
+                    ->WhereEquals('post_slug', $slug)->FetchFirst();
+            });
             if (isset($post->slug_id) && isset($post->post_slug)) {
                 return PostRedirection::getPostAbsoluteURLPath((array)$post);
             }

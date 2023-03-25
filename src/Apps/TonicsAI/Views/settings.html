@@ -1,0 +1,10 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field")]]
+
+[[hook_into('Core::in_head_title') TonicsAI Settings Page ]]
+[[hook_into('Core::in_main_header_title') TonicsAI Settings Page ]]
+
+[[hook_into('Core::before_footer')
+  [[_use("script:core")]]
+  [[_use("script:variables")]]
+  [[_use("session:delete-artifacts")]]
+]]

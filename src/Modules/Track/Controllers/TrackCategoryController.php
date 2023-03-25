@@ -184,7 +184,8 @@ class TrackCategoryController
     {
         $category = null;
         db(onGetDB: function ($db) use ($slug, &$category){
-            $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
+            $category = $db->Select('*, CONCAT("/track_categories/", track_cat_slug) as _preview_link')
+                ->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
         });
 
         if (!is_object($category)){

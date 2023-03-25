@@ -187,9 +187,9 @@ class CouponTypeController
     public function edit(string $slug): void
     {
         $couponType = null;
-
-        db(onGetDB: function ($db) use ($slug, &$couponType){
-            $couponType = $db->Select('*')
+        $couponTypeRootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+        db(onGetDB: function ($db) use ($couponTypeRootPath, $slug, &$couponType){
+            $couponType = $db->Select("*, CONCAT_WS('/', '/$couponTypeRootPath', slug_id, coupon_type_slug) as _preview_link")
                 ->From(TonicsCouponActivator::couponTypeTableName())
                 ->WhereEquals('coupon_type_slug', $slug)
                 ->FetchFirst();

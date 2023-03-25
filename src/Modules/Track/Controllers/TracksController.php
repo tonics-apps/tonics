@@ -255,7 +255,8 @@ class TracksController extends Controller
             $trackData = TrackData::class;
             $select = "{$trackData::getTrackTable()}.*, {$trackData::getLicenseTable()}.*,
        GROUP_CONCAT(DISTINCT {$trackData::getGenreTable()}.genre_id) AS `fk_genre_id[]`,
-       GROUP_CONCAT(DISTINCT {$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id) AS fk_track_cat_id";
+       GROUP_CONCAT(DISTINCT {$trackData::getTrackTracksCategoryTable()}.fk_track_cat_id) AS fk_track_cat_id, 
+       CONCAT_WS('/', '/tracks', track_slug) as _preview_link";
 
             $track = $db->Select($select)->From($trackData::getTrackTable())
                 ->Join($trackData::getTrackToGenreTable(), "{$trackData::getTrackToGenreTable()}.fk_track_id", "{$trackData::getTrackTable()}.track_id")

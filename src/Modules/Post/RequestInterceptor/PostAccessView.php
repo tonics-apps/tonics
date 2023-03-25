@@ -75,11 +75,21 @@ class PostAccessView
     {
         $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $catSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
-        $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "slug_id = ?", [$uniqueSlugID]);
+        $category = null;
+        db(onGetDB: function (TonicsQuery $db) use ($uniqueSlugID, &$category){
+            $category = $db->Select("*")
+                ->From($this->getPostData()->getCategoryTable())->WhereEquals('slug_id', $uniqueSlugID)
+                ->setPdoFetchType(\PDO::FETCH_ASSOC)->FetchFirst();
+        });
 
         # if empty we can check with the cat_slug and do a redirection
         if (empty($category)){
-            $category = (array)$this->getPostData()->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$catSlug]);
+            $category = null;
+            db(onGetDB: function (TonicsQuery $db) use ($catSlug, &$category){
+                $category = $db->Select("*")
+                    ->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $catSlug)
+                    ->setPdoFetchType(\PDO::FETCH_ASSOC)->FetchFirst();
+            });
             if (isset($category['slug_id'])){
                 redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
             }

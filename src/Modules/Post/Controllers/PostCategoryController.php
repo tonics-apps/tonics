@@ -208,7 +208,14 @@ class PostCategoryController
      */
     public function edit(string $slug): void
     {
-        $category = $this->postData->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
+        $tblCol = '*, CONCAT("/admin/posts/category/", cat_slug, "/edit" ) as _edit_link, CONCAT("/categories/", cat_slug) as _preview_link';
+
+        $table = Tables::getTable(Tables::CATEGORIES);
+        $category = null;
+        db(onGetDB: function (TonicsQuery $db) use ($slug, $table, $tblCol, &$category){
+            $category = $db->Select($tblCol)
+                ->From($table)->WhereEquals('cat_slug', $slug)->FetchFirst();
+        });
 
         if (!is_object($category)){
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -319,15 +326,23 @@ class PostCategoryController
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID){
-                $category = $this->getPostData()
-                    ->selectWithConditionFromCategory(['*'], "slug_id = ?", [$slugID]);
+                $category = null;
+                db(onGetDB: function (TonicsQuery $db) use ($slugID, &$category){
+                    $category = $db->Select("slug_id, cat_slug")
+                        ->From($this->getPostData()->getCategoryTable())->WhereEquals('slug_id', $slugID)->FetchFirst();
+                });
+
                 if (isset($category->slug_id) && isset($category->cat_slug)){
                     return "/categories/$category->slug_id/$category->cat_slug";
                 }
                 return false;
             }, onSlugState: function ($slug){
-            $category = $this->getPostData()
-                ->selectWithConditionFromCategory(['*'], "cat_slug = ?", [$slug]);
+
+            $category = null;
+            db(onGetDB: function (TonicsQuery $db) use ($slug, &$category){
+                $category = $db->Select("slug_id, cat_slug")
+                    ->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $slug)->FetchFirst();
+            });
             if (isset($category->slug_id) && isset($category->cat_slug)){
                 return "/categories/$category->slug_id/$category->cat_slug";
             }

@@ -1,3 +1,16 @@
 [[hook_into('Core::before_closing_body')
   [[event('App\Modules\Core\Events\EditorsAsset', 'getEditorsAssets')]]
 ]]
+
+[[hook_into('Core::before_in_main_header_title')
+
+  [[if("v[Data._preview_link]")
+    <div class="width:100% d:flex flex-wrap:wrap justify-content:center flex-gap:small form-search">
+      <a href="[[v('Data._preview_link')]]" target="_blank" class="filter-button-toggle d:flex align-items:center bg:transparent border:none color:black border-width:default border:black padding:tiny cursor:pointer button:box-shadow-variant-1"
+         aria-label="Expand child menu" aria-expanded="false" style="font-size:70%;">
+        <svg class="icon:admin tonics-filter">
+          <use xlink:href="#tonics-link"></use></svg> Preview
+      </a>
+    </div>
+  ]]
+]]

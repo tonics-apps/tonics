@@ -438,90 +438,18 @@ CAT;
     }
 
     /**
-     * Usage:
-     * <br>
-     * `$newUserData->selectWithCondition(['cat_id', 'cat_content'], "cat_slug = ?", ['slug-1']));`
-     *
-     * Note: Make sure you use a question-mark(?) in place u want a user input and pass the actual input in the $parameter
-     * @param array $colToSelect
-     * To select all, use ['*']
-     * @param string $whereCondition
-     * @param array $parameter
-     * @return mixed
-     * @throws \Exception
-     */
-    public function selectWithConditionFromCategory(array $colToSelect, string $whereCondition, array $parameter): mixed
-    {
-        $result = null;
-        db(onGetDB: function ($db) use ($parameter, $colToSelect, $whereCondition, &$result){
-            $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
-            $table = Tables::getTable(Tables::CATEGORIES);
-
-            if ($colToSelect === ['*']) {
-                $result = $db->row(<<<SQL
-SELECT * FROM $table WHERE $whereCondition
-SQL, ...$parameter);
-                return;
-            }
-
-            $result = $db->row(<<<SQL
-SELECT $select FROM $table WHERE $whereCondition
-SQL, ...$parameter);
-        });
-
-        return $result;
-    }
-
-    /**
-     * Usage:
-     * <br>
-     * `$newUserData->selectWithCondition(['post_id', 'post_content'], "slug_id = ?", ['5475353']));`
-     *
-     * Note: Make sure you use a question-mark(?) in place u want a user input and pass the actual input in the $parameter
-     * @param array $colToSelect
-     * To select all, use ['*']
-     * @param string $whereCondition
-     * @param array $parameter
-     * @return mixed
-     * @throws \Exception
-     */
-    public function selectWithConditionFromPost(array $colToSelect, string $whereCondition, array $parameter): mixed
-    {
-
-        // Instead of selecting from $postTable, I started the selection from $postToCatTable,
-        // this way, it would replace the column that is same from $postToCatTable in $postTable.
-        // we do not wanna use the created_at or updated_at of the $postToCatTable
-
-        $result = null;
-        db(onGetDB: function ($db) use ($whereCondition, $parameter, $colToSelect, &$result){
-
-            $select = helper()->returnDelimitedColumnsInBackTick($colToSelect);
-            $postTable = Tables::getTable(Tables::POSTS);
-            $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
-
-            if ($colToSelect === ['*']) {
-                $result = $db->row(<<<SQL
-SELECT * FROM $postToCatTable JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id WHERE $whereCondition
-SQL, ...$parameter);
-                return;
-            }
-
-            $result = $db->row(<<<SQL
-SELECT $select FROM $postToCatTable JOIN $postTable ON $postToCatTable.fk_post_id = $postTable.post_id WHERE $whereCondition
-SQL, ...$parameter);
-        });
-
-        return $result;
-
-    }
-
-    /**
      * @throws \Exception
      */
     public function setDefaultPostCategoryIfNotSet()
     {
         if (input()->fromPost()->hasValue('fk_cat_id') === false) {
-            $findDefault = $this->selectWithConditionFromCategory(['cat_slug', 'cat_id'], "cat_slug = ?", ['default-category']);
+            $findDefault = null;
+            db(onGetDB: function (TonicsQuery $db) use (&$findDefault){
+                $findDefault = $db->Select("cat_slug, cat_id")
+                    ->From($this->getCategoryTable())
+                    ->WhereEquals('cat_slug', 'default-category')
+                    ->FetchFirst();
+            });
             if (is_object($findDefault) && isset($findDefault->cat_id)) {
                 $_POST['fk_cat_id'] = [$findDefault->cat_id];
                 return;

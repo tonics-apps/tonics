@@ -518,7 +518,7 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 }
 
 .button\:box-shadow-variant-1 {
-    box-shadow: 0px 4px 2px rgb(45 35 66 / 40%), 0px 0px 3px 0px rgb(45 35 66 / 30%), inset 0px -5px 0px #89464833;
+    box-shadow: 0 4px 2px rgba(45,35,66,.4), 0 0 3px 0 rgba(45,35,66,.3), inset 0 -5px 0 #54545433;
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
