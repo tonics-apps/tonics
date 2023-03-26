@@ -4014,6 +4014,12 @@ function addTiny(editorID) {
                 editor.getBody().addEventListener('click', (e) => {
                     let target = e.target;
                     onClick = e;
+
+                    if (target.classList.contains('tonicsFieldTabsContainer')) {
+                        let tabContainer = target.closest('.tabs');
+                        tabContainer.dataset.tonics_selected = '1';
+                    }
+
                     if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
                         if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
@@ -4022,8 +4028,8 @@ function addTiny(editorID) {
                             const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(jsonValue, target);
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
-                            target.nextElementSibling.innerHTML = '<span class="loading-animation"></span>';
                             if (OnBeforeTonicsFieldPreview.canRequest()){
+                                OnBeforeTonicsFieldPreview.loadAnimation(target)
                                 fieldPreviewFromPostData(OnBeforeTonicsFieldPreview.getPostData(), function (data) {
                                     if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
                                         target.nextElementSibling.innerHTML = '';
@@ -4272,6 +4278,14 @@ class OnBeforeTonicsFieldPreviewEvent {
 
     getElementTarget() {
         return this._elementTarget;
+    }
+
+    loadAnimation(target) {
+        target.nextElementSibling.innerHTML = '<span class="loading-animation"></span>';
+    }
+
+    removeAnimation(target) {
+        target.nextElementSibling.innerHTML = '';
     }
 }
 

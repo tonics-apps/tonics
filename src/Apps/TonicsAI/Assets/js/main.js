@@ -107,6 +107,21 @@ function createEventStream(url, options = {}, onResponseOkay = () => {}, onMessa
 
 
 function handleOpenAIChat(event, fields, elementTarget) {
+
+    // If tonics_selected is equals 1, then it means the user selected the tabsContainer body,
+    // which automatically closes the preview before clicking the preview again, so, when user does that
+    // we assume they just wanna get back to the preview content, so, we return if and only if the target innerText is not empty
+    // however, clicking preview again would do a new chatting
+    let tabContainer = elementTarget.closest('.tabs');
+    if (tabContainer.dataset?.tonics_selected === '1'){
+        if (elementTarget.nextElementSibling.innerText.trim() !== '') {
+            tabContainer.dataset.tonics_selected = '0';
+            return;
+        }
+    }
+
+    event.loadAnimation(elementTarget);
+
     const messagesCollection = [];
     fields.forEach((field) => {
         let fieldOptions = JSON.parse(field.field_options);
