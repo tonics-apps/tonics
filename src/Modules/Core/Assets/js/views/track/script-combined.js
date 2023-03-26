@@ -5710,6 +5710,10 @@ class OnBeforeTonicsFieldPreviewEvent {
         return this._canRequest;
     }
 
+    getCSFRToken(){
+        return getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])
+    }
+
     getPostData() {
         return this._postData;
     }

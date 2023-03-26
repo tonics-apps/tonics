@@ -14,13 +14,16 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Field\Data\FieldData;
-use const App\Apps\TonicsCoupon\Controllers\TonicsApp_TonicsCouponSettings;
 
 const TonicsApp_TonicsAISettings = 'TonicsApp_TonicsAISettings';
 
 class TonicsAISettingsController
 {
     private ?FieldData $fieldData;
+
+    const Key_OpenAIKey = 'tonics_ai_open_ai_key';
+    const Key_OpenAIChatModelName = 'tonics_ai_open_ai_models_chat_model_name';
+    const Key_OpenAICompletionModelName = 'tonics_ai_open_ai_models_complete_model_name';
 
     public function __construct(FieldData $fieldData = null)
     {

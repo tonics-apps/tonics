@@ -10,17 +10,13 @@
 
 namespace App\Modules\Core\Boot;
 
-use App\Apps\NinetySeven\NinetySevenActivator;
-use App\Modules\Core\Commands\Module\MigrateAll;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Page\Database\Migrations\CreatePagesTable_2022_01_13_202136;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
-use Symfony\Component\Yaml\Tests\A;
 
 /**
  * Class HttpMessageProvider
