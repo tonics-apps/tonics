@@ -28,10 +28,6 @@ trait Routes
         $route->get('/posts/:slug-id/:slug', [PostsController::class, 'singlePost']);
         $route->get('/categories/:slug-id/:slug', [PostsController::class, 'singleCategory']);
 
-        # For Tracks, No Longer Needed as it has been added from the page create
-      //  $route->get('/tracks/:slug-id/:slug', [PostsController::class, 'singlePost']);
-     //   $route->get('/track_categories/:slug-id/:slug', [PostsController::class, 'singleCategory']);
-
         $route->group('/admin/tools/apps', function (Route $route) {
             $route->get('ninety_seven/settings', [NinetySevenController::class, 'edit'], alias: 'ninetySeven.settings');
             $route->post('ninety_seven/settings', [NinetySevenController::class, 'update']);

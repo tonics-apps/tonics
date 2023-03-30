@@ -17,6 +17,12 @@
         padding: 1rem;
         border: 1px solid gray;
         text-align: center;
+        font-size: 80%;
+        max-width: 25ch;
+        overflow: hidden;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+        word-break: break-all;
     }
 
     table.order-details thead th {
@@ -48,10 +54,12 @@
     <tbody>
     [[each("_order in OrderDetails.others.downloadables")
     <tr>
-        <td>[[v('_order.track_title')]]</td>
+        <td title="[[v('_order.track_title')]]">[[v('_order.track_title')]]</td>
         <td>You Ordered ([[v('_order.license')]]) License of [[v('_order.track_title')]]</td>
         <td>$[[v('_order.price')]]</td>
-        <td><a href="[[v('_order.download_link')]]" target="_blank">Download [[v('_order.track_title')]]  ([[v('_order.license')]])</a></td>
+        <td title="Download [[v('_order.track_title')]]">
+            <a href="[[v('_order.download_link')]]" target="_blank">Download [[v('_order.track_title')]]  ([[v('_order.license')]])</a>
+        </td>
     </tr>
     ]]
     </tbody>

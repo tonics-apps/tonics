@@ -22,6 +22,7 @@ use App\Modules\Field\Data\FieldData;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Post\Events\OnPostCategoryDefaultField;
+use App\Modules\Post\Helper\PostRedirection;
 use App\Modules\Post\Rules\PostValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
@@ -333,7 +334,7 @@ class PostCategoryController
                 });
 
                 if (isset($category->slug_id) && isset($category->cat_slug)){
-                    return "/categories/$category->slug_id/$category->cat_slug";
+                    return PostRedirection::getCategoryAbsoluteURLPath((array)$category);
                 }
                 return false;
             }, onSlugState: function ($slug){
@@ -344,7 +345,7 @@ class PostCategoryController
                     ->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $slug)->FetchFirst();
             });
             if (isset($category->slug_id) && isset($category->cat_slug)){
-                return "/categories/$category->slug_id/$category->cat_slug";
+                return PostRedirection::getCategoryAbsoluteURLPath((array)$category);
             }
             return false;
         });

@@ -2334,7 +2334,8 @@ class TonicsAudioPlayerClickHandler {
     }
 
     trackDownloadList(data) {
-        let price = parseInt(data.price),
+        // The Price is only for mere display
+        let price = parseFloat(data.price),
             name = data.name,
             currency = '$',
             uniqueID = data.unique_id;

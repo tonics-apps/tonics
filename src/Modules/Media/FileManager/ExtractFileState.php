@@ -18,8 +18,6 @@ class ExtractFileState extends SimpleState
 
     private LocalDriver $localDriver;
     private string $extractedFilePath = '';
-    private array $handledPath = [];
-    private ?\stdClass $currentParent = null;
 
 
     # States For ExtractFileState
@@ -35,73 +33,8 @@ class ExtractFileState extends SimpleState
      */
     public function ExtractFileStateInitial(): string
     {
-        $files = explode(DIRECTORY_SEPARATOR, str_replace(DriveConfig::getPrivatePath(), '', $this->extractedFilePath));
-        if (empty($files)){
-            return self::ERROR;
-        }
-
-        $files = array_filter($files);
-        $currentFileRelPath = '';
-        try {
-            array_map(function ($file) use (&$currentFileRelPath) {
-                $currentFileRelPath .= DIRECTORY_SEPARATOR . $file;
-
-                if (key_exists($currentFileRelPath, $this->handledPath)){
-                    $this->currentParent = $this->handledPath[$currentFileRelPath];
-                }
-
-                if (helper()->isDirectory(DriveConfig::getPrivatePath() . $currentFileRelPath)){
-                    if (!key_exists($currentFileRelPath, $this->handledPath)){
-                        $pathID = $this->getLocalDriver()->findChildRealID(array_filter(explode(DIRECTORY_SEPARATOR, $currentFileRelPath)));
-                        $this->insertDirectory($pathID, $currentFileRelPath);
-                    }
-                }
-
-                if (helper()->isFile(DriveConfig::getPrivatePath() . $currentFileRelPath)){
-                    $exist = $this->getLocalDriver()->doesFileOrDirectoryExistInDB(DriveConfig::getPrivatePath() . $currentFileRelPath, $this->currentParent->drive_id);
-                    if ($exist === false){
-                        $this->insertFile($currentFileRelPath);
-                    }
-                }
-                return $file;
-            }, $files);
-        }catch (\Exception){
-            return self::ERROR;
-        }
-
-        return self::DONE;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function insertDirectory($pathID, $currentFileRelPath)
-    {
-        ## Meaning No Such Path Exist
-        if ($pathID === false){
-            $data = $this->getLocalDriver()
-                ->insertFileToDBReturning(
-                    DriveConfig::getPrivatePath() . $currentFileRelPath,
-                    $this->currentParent->drive_id,
-                    'directory', ['drive_id']);
-        } else {
-            $data = null;
-            db(onGetDB: function ($db) use ($pathID, &$data){
-                $data = $db->row(<<<SQL
-SELECT * FROM {$this->getLocalDriver()->getDriveTable()} WHERE `drive_id` = ?
-SQL, $pathID);
-            });
-        }
-        $this->handledPath[$currentFileRelPath] = $data;
-        $this->currentParent = $data;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function insertFile($currentFileRelPath)
-    {
-        $this->getLocalDriver()->insertFileToDB(DriveConfig::getPrivatePath() .$currentFileRelPath, $this->currentParent->drive_id);
+        $result = $this->localDriver->recursivelyCreateFileOrDirectory($this->extractedFilePath);
+        return ($result === true) ? self::DONE: self::ERROR;
     }
 
     /**

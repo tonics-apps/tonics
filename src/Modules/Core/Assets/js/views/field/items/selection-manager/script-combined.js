@@ -4433,6 +4433,7 @@ class OnBeforeTonicsFieldPreviewEvent {
     constructor(postData, target) {
         this._postData = postData;
         this._elementTarget = target;
+        this._canRequest = true;
     }
 
     canRequest() {

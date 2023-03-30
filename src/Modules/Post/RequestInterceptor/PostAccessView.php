@@ -98,8 +98,7 @@ class PostAccessView
             redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
         }
 
-
-        if (key_exists('cat_status', $category)) {
+        if (is_array($category) && key_exists('cat_status', $category)) {
             $category['categories'][] = array_reverse($this->postData->getPostCategoryParents($category['cat_parent_id'] ?? ''));
             $catCreatedAtTimeStamp = strtotime($category['created_at']);
             if ($category['cat_status'] === 1 && time() >= $catCreatedAtTimeStamp) {
@@ -196,7 +195,7 @@ class PostAccessView
                 }
 
                 $postData = null;
-                db(onGetDB: function ($db) use ($catIDS, $postTbl, &$postData){
+                db(onGetDB: function (TonicsQuery $db) use ($catIDS, $postTbl, &$postData){
                     $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
                     $CatTbl = Tables::getTable(Tables::CATEGORIES);
                     $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
@@ -210,7 +209,7 @@ class PostAccessView
                         ->WhereEquals('post_status', 1)
                         ->WhereIn('cat_id', $catIDS)
                         ->Where("$postTbl.created_at", '<=', helper()->date())
-                        ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
+                        ->OrderByAsc(table()->pickTable($postTbl, ['created_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
                 });
 
                 $postData = ['PostData' => $postData, 'CategoryData' => $catIDSResult];

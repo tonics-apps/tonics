@@ -53,7 +53,9 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate implements Page
                 $licenseAttr = json_decode($fieldSettings['license_attr'] ?? []);
                 $licenseAttrIDLink = json_decode($fieldSettings['license_attr_id_link'] ?? []);
 
-                if ($this->checkLicenseObjectEquality($licenseAttr, $trackLicense)){
+                // If LicenseObjectEquality from Request is same as the one in the db and the price is 0,
+                // get the artifact, else, user is trying something crazy
+                if ($this->checkLicenseObjectEquality($licenseAttr, $trackLicense) && helper()->checkMoneyEquality($trackLicense->price, 0)){
                     $uniqueID = $trackLicense->unique_id; $downloadArtifact = $licenseAttrIDLink->{$uniqueID} ?? null;
                     helper()->onSuccess([
                         'artifact' => $downloadArtifact,

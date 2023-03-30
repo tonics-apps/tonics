@@ -17,6 +17,10 @@ body#tinymce > * + * {
     padding: 0 1em;
 }
 
+.fieldsPreviewContent:hover {
+    outline: 2px dashed #5a5656 !important;
+}
+
 .mce-content-body .tonicsFieldWrapper[contentEditable=false],
 .mce-content-body .tonicsFieldWrapper[contentEditable=true] {
     outline: 1px solid rgba(86, 95, 104, 0) !important;
@@ -69,6 +73,7 @@ body#tinymce > .tabs label, .tonicsFieldTabsContainer label {
 
 body#tinymce > .tabs label + *, .tonicsFieldTabsContainer label + * {
     padding: 1em;
+    margin: 0.5rem 0;
 }
 
 body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [type=radio]:checked + label {
