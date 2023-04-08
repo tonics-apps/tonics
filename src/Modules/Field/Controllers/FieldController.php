@@ -100,6 +100,15 @@ class FieldController
             } else {
                 response()->onError(500);
             }
+        } elseif ($this->getFieldData()->isDataTableType(AbstractDataLayer::DataTableEventTypeCopyFieldItems,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if (( $data = $this->copyFieldItemsJSON($entityBag))) {
+                response()->onSuccess($data, "Copied Field Item(s)", more: AbstractDataLayer::DataTableEventTypeCopyFieldItems);
+            } else {
+                response()->onError(500);
+            }
         }
     }
 
@@ -217,6 +226,40 @@ class FieldController
             'table' => Tables::getTable(Tables::FIELD),
             'entityBag' => $entityBag,
         ]);
+    }
+
+    /**
+     * @param $entityBag
+     * @return bool|array|null
+     */
+    public function copyFieldItemsJSON($entityBag): bool|array|null
+    {
+        try {
+            $fieldIDS = [];
+            $fieldItems = $this->getFieldData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveCopyFieldItems, $entityBag);
+            foreach ($fieldItems as $fieldItem){
+                if (isset($fieldItem->{"fields::field_id"})){
+                    $fieldIDS[] = $fieldItem->{"fields::field_id"};
+                }
+            }
+
+            $fields = null;
+            // dd($fieldIDS);
+            db(onGetDB: function (TonicsQuery $db) use ($fieldIDS, &$fields) {
+                $fields = $db->Select("tf.field_name AS fk_field_id, tft.field_name AS field_name, tft.field_id AS field_id, field_parent_id, field_options")
+                    ->From("{$this->getFieldData()->getFieldItemsTable()} tft")
+                    ->Join("{$this->getFieldData()->getFieldTable()} tf", 'tf.field_id', 'tft.fk_field_id')
+                    ->WhereIn('tf.field_id', $fieldIDS)->FetchResult();
+            });
+
+            return $fields;
+
+        } catch (\Exception $exception) {
+            // log..
+        }
+
+        return false;
+
     }
 
     /**

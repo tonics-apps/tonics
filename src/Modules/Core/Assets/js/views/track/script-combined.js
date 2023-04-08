@@ -5360,26 +5360,30 @@ function hookTinyMCE() {
         const tinyDialogObserver = new MutationObserver(((mutationsList, observer) => {
             for (const mutation of mutationsList) {
                 // added nodes.
-                let addedNode = mutation.addedNodes[0];
-                if (mutation.addedNodes.length > 0 && addedNode.nodeType === Node.ELEMENT_NODE) {
-                    let tinyArea = addedNode.querySelector('.tinyMCEBodyArea');
-                    if (tinyArea) {
-                        // if tinyInstance is available, re-initialize it
-                        if (tinyArea.dataset.tinyinstance === 'true') {
-                            let allTinyArea = document.querySelectorAll('.tinyMCEBodyArea');
-                            allTinyArea.forEach(tinyArea => {
-                                tinymce.execCommand("mceRemoveEditor", false, tinyArea.id);
+                if (mutation.addedNodes.length > 0){
+                    mutation.addedNodes.forEach((addedNode =>  {
+                        if (addedNode.nodeType === Node.ELEMENT_NODE){
+                            let tinyArea = addedNode.querySelector('.tinyMCEBodyArea');
+                            if (tinyArea) {
+                                // if tinyInstance is available, re-initialize it
+                                if (tinyArea.dataset.tinyinstance === 'true') {
+                                    let allTinyArea = document.querySelectorAll('.tinyMCEBodyArea');
+                                    allTinyArea.forEach(tinyArea => {
+                                        tinymce.execCommand("mceRemoveEditor", false, tinyArea.id);
+                                        tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
+                                        addTiny('#' + tinyArea.id);
+                                    });
+                                    return;
+                                }
+
+                                // else...
+                                tinyArea.dataset.tinyinstance = 'true';
                                 tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
                                 addTiny('#' + tinyArea.id);
-                            });
-                            return;
+                            }
                         }
 
-                        // else...
-                        tinyArea.dataset.tinyinstance = 'true';
-                        tinyArea.id = 'tinyMCEBodyArea' + new Date().valueOf();
-                        addTiny('#' + tinyArea.id);
-                    }
+                    }));
                 }
             }
         }));

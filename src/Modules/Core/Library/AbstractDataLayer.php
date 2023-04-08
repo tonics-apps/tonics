@@ -25,10 +25,12 @@ class AbstractDataLayer
     const DataTableEventTypeUpdate = 'UpdateEvent';
     const DataTableEventTypeAppUpdate = 'AppUpdateEvent';
     const DataTableEventTypeUpsert = 'UpsertEvent';
+    const DataTableEventTypeCopyFieldItems = 'CopyFieldItemsEvent';
 
     const DataTableRetrieveHeaders = 'headers';
     const DataTableRetrievePageSize = 'pageSize';
     const DataTableRetrieveDeleteElements = 'deleteElements';
+    const DataTableRetrieveCopyFieldItems = 'copyFieldItemsElements';
     const DataTableRetrieveUpdateElements = 'updateElements';
     const DataTableRetrieveAppUpdateElements = 'appUpdateElements';
     const DataTableRetrieveFilterOption = 'filterOption';

@@ -4143,6 +4143,18 @@ class DataTable {
         return this.parentElement.querySelector('table > thead > tr').querySelectorAll('th');
     }
 
+    /**
+     * Returns an array of the Table headers name
+     * @returns {*[]}
+     */
+    getThHeaders() {
+        let headers = [];
+        this.getAllThElements().forEach(header => {
+            headers.push(header.dataset?.slug)
+            });
+        return headers;
+    }
+
     getAllSelectTableRow() {
         return this.parentElement.querySelectorAll('.highlight');
     }
@@ -4188,6 +4200,7 @@ class DataTable {
             DELETE_EVENT: "DeleteEvent",
             UPDATE_EVENT: "UpdateEvent",
             APP_UPDATE_EVENT: "AppUpdateEvent",
+            COPY_FIELD_ITEMS_EVENT: "CopyFieldItemsEvent",
         }
     }
 
@@ -4200,6 +4213,7 @@ class DataTable {
             APP_UPDATE_EVENT: "AppUpdateEvent",
             UPSERT_EVENT: "UpsertEvent",
             FILTER_EVENT: "FilterEvent",
+            COPY_FIELD_ITEMS_EVENT: "CopyFieldItemsEvent",
         }
     }
 
@@ -4901,6 +4915,50 @@ class CanActivateCancelEventHandler {
     }
 }
 
+class CanActivateCopyFieldItemsEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        if(dataTable.hasTrElement){
+            dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
+        } else {
+            dataTable.deActivateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
+        }
+    }
+}
+
+class CopyFieldItemsEventHandler {
+    constructor(event) {
+        let saveData = {
+            type: [],
+            headers: [],
+            copyFieldItemsElements: [],
+        };
+        let dataTable = event.dataTable;
+        let isCopyFieldItemsEventEvent = event.getElementTarget().closest(`[data-menu-action="CopyFieldItemsEvent"]`);
+        if (isCopyFieldItemsEventEvent){
+            dataTable.collateTdFromTrAndPushToSaveTo(dataTable.getAllSelectTableRow(), saveData.copyFieldItemsElements, dataTable.getThHeaders());
+            dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
+            saveData.type.push(dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT);
+            dataTable.sendPostRequest(saveData, (data) => {
+                if (data.status === 200){
+                    if (data?.more === dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT){
+                        return copyToClipBoard(JSON.stringify(data?.data, null, "\t")).then(() => {
+                            successToast(data.message);
+                        }).catch(() => {
+                            errorToast('Failed To Copy');
+                        });
+                    }
+                }
+            }, (err) => {
+                let errMsg = err?.message ?? 'An error occurred copying field items';
+                errorToast(errMsg);
+            });
+        }
+    }
+}
+
+
+
 class CancelEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
@@ -4947,14 +5005,8 @@ class SaveEventHandler {
 
         let dataTable = event.dataTable;
         let saveEvent = event.getElementTarget().closest(`[data-menu-action="SaveEvent"]`);
-        let headers = [];
         if (saveEvent) {
-
-            dataTable.getAllThElements().forEach(header => {
-                headers.push(header.dataset?.slug)
-            });
-
-            saveData.headers = headers;
+            saveData.headers = dataTable.getThHeaders();
 
             if (dataTable.deletingElements.size > 0){
                 dataTable.collateTdFromTrAndPushToSaveTo(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
@@ -5038,7 +5090,8 @@ if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
             CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, ReloadEventHandler, MultiEditEventHandler, SaveEventHandler
+            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, ReloadEventHandler, MultiEditEventHandler, SaveEventHandler,
+            CanActivateCopyFieldItemsEventHandler, CopyFieldItemsEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(

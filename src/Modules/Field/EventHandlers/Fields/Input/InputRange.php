@@ -141,13 +141,18 @@ FORM;
             $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
 
+        if (empty($defaultValue)){
+            $defaultValue = '0';
+        }
+
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
 $error
      <label class="menu-settings-handle-name d:flex align-items:center flex-gap:small" for="fieldName-$changeID">$fieldName
             <input style="width: unset; transform: unset;" id="fieldName-$changeID" $min $max $step  name="$inputName" type="$textType" $maxChar
             class="menu-name color:black placeholder-color:gray volume-slider"
-            value="$defaultValue">
+            value="$defaultValue" oninput="this.nextElementSibling.value = this.value">
+            <output>$defaultValue</output>
     </label>
 </div>
 FORM;
