@@ -23,14 +23,25 @@ class PaymentSettingsController
     const TonicsSolution_TonicsCommerce = 'TonicsCommerce'; // not yet available
     const GlobalTableKey = 'AudioTonics_PayPal_AccessToken_Info';
 
-    const Key_IsLive = 'tonics_payment_settings_paypal_live';
-    const Key_LiveClientID = 'tonics_payment_settings_apiCredentials_Live_ClientID';
-    const Key_LiveSecretKey = 'tonics_payment_settings_apiCredentials_Live_SecretKey';
+    // For FlutterWave
+    const FlutterWave_Enabled = 'tonics_payment_settings_flutterWave_enabled';
+    const FlutterWave_Key_IsLive = 'tonics_payment_settings_flutterWave_live';
+    const FlutterWave_Key_LivePublicKey = 'tonics_payment_settings_flutterWave_apiCredentials_Live_PublicKey';
+    const FlutterWave_Key_LiveSecretKey = 'tonics_payment_settings_flutterWave_apiCredentials_Live_SecretKey';
 
-    const Key_SandBoxClientID = 'tonics_payment_settings_apiCredentials_SandBox_ClientID';
-    const Key_SandBoxSecretKey = 'tonics_payment_settings_apiCredentials_SandBox_SecretKey';
+    const FlutterWave_Key_SandBoxPublicKey = 'tonics_payment_settings_flutterWave_apiCredentials_SandBox_PublicKey';
+    const FlutterWave_Key_SandBoxSecretKey = 'tonics_payment_settings_flutterWave_apiCredentials_SandBox_SecretKey';
 
-    const Key_WebHookID = 'tonics_payment_settings_apiCredentials_WebHook_ID';
+    // For PayPal...
+    const PayPal_Enabled = 'tonics_payment_settings_paypal_enabled';
+    const PayPal_Key_IsLive = 'tonics_payment_settings_paypal_live';
+    const PayPal_Key_LiveClientID = 'tonics_payment_settings_apiCredentials_Live_ClientID';
+    const PayPal_Key_LiveSecretKey = 'tonics_payment_settings_apiCredentials_Live_SecretKey';
+
+    const PayPal_Key_SandBoxClientID = 'tonics_payment_settings_apiCredentials_SandBox_ClientID';
+    const PayPal_Key_SandBoxSecretKey = 'tonics_payment_settings_apiCredentials_SandBox_SecretKey';
+
+    const PayPal_Key_WebHookID = 'tonics_payment_settings_apiCredentials_WebHook_ID';
 
     private ?FieldData $fieldData;
 
@@ -90,6 +101,28 @@ class PaymentSettingsController
         return $settings;
     }
 
+    /**
+     * @param string $key
+     * @param array|null $data
+     * Add the data or I default to getSettingsData()
+     * @return bool
+     * @throws \Exception
+     */
+    public static function isPaymentEnabled(string $key, array $data = null): bool
+    {
+        if ($data){
+            $settingsData = $data;
+        } else {
+            $settingsData = self::getSettingsData();
+        }
+
+        if (isset($settingsData[$key])){
+            return $settingsData[$key] === '1';
+        }
+
+        return false;
+    }
+
     public static function getCacheKey(): string
     {
         return AppConfig::getAppCacheKey() . self::TonicsModule_TonicsPaymentSettings;
@@ -147,18 +180,18 @@ class PaymentSettingsController
         }
 
         if ($generateNewToken){
-            if (key_exists(self::Key_IsLive, $settings) && $settings[self::Key_IsLive] === '1'){
+            if (key_exists(self::PayPal_Key_IsLive, $settings) && $settings[self::PayPal_Key_IsLive] === '1'){
                 $live = true;
             }
 
-            $client_id = $settings[self::Key_LiveClientID];
-            $secret = $settings[self::Key_LiveSecretKey];
+            $client_id = $settings[self::PayPal_Key_LiveClientID];
+            $secret = $settings[self::PayPal_Key_LiveSecretKey];
             $url = 'https://api.paypal.com/v1/oauth2/token';
 
             if (!$live){
                 $url = 'https://api.sandbox.paypal.com/v1/oauth2/token';
-                $client_id = $settings[self::Key_SandBoxClientID];
-                $secret = $settings[self::Key_SandBoxSecretKey];
+                $client_id = $settings[self::PayPal_Key_SandBoxClientID];
+                $secret = $settings[self::PayPal_Key_SandBoxSecretKey];
             }
 
             $headers = [
@@ -202,7 +235,7 @@ class PaymentSettingsController
     public static function confirmOrder($accessToken, $orderId) {
         $settings = self::getSettingsData();
         $live = false;
-        if (key_exists(self::Key_IsLive, $settings) && $settings[self::Key_IsLive] === '1'){
+        if (key_exists(self::PayPal_Key_IsLive, $settings) && $settings[self::PayPal_Key_IsLive] === '1'){
             $live = true;
         }
         $checkoutOrderURL = 'https://api.paypal.com/v2/checkout/orders/';
@@ -243,7 +276,7 @@ class PaymentSettingsController
     {
         $settings = self::getSettingsData();
         $live = false;
-        if (key_exists(self::Key_IsLive, $settings) && $settings[self::Key_IsLive] === '1'){
+        if (key_exists(self::PayPal_Key_IsLive, $settings) && $settings[self::PayPal_Key_IsLive] === '1'){
             $live = true;
         }
         $checkoutOrderURL = 'https://api.paypal.com/v2/checkout/orders/';
@@ -271,18 +304,18 @@ class PaymentSettingsController
     {
         $settings = self::getSettingsData();
         $live = false;
-        if (key_exists(self::Key_IsLive, $settings) && $settings[self::Key_IsLive] === '1'){
+        if (key_exists(self::PayPal_Key_IsLive, $settings) && $settings[self::PayPal_Key_IsLive] === '1'){
             $live = true;
         }
         $webhook_verify_url = 'https://api.sandbox.paypal.com/v1/notifications/verify-webhook-signature';
         if ($live){
             $webhook_verify_url = 'https://api.paypal.com/v1/notifications/verify-webhook-signature';
         }
-        if (!isset($settings[self::Key_WebHookID])){
+        if (!isset($settings[self::PayPal_Key_WebHookID])){
             return false;
         }
 
-        $webhook_id = $settings[self::Key_WebHookID];
+        $webhook_id = $settings[self::PayPal_Key_WebHookID];
         $data = [
             "transmission_id" => $_SERVER['HTTP_PAYPAL_TRANSMISSION_ID'] ?? '',
             "transmission_time" => $_SERVER['HTTP_PAYPAL_TRANSMISSION_TIME'] ?? '',

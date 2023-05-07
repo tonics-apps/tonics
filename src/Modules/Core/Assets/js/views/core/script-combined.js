@@ -573,7 +573,21 @@ class OnSubmitFieldEditorsFormEvent {
         return settings;
     }
 
-}var __defProp = Object.defineProperty;
+}
+/*
+ * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
+
+var siteURL = document.querySelector('body')?.getAttribute('data-tonics_siteURL');
+var siteTimeZone = document.querySelector('body')?.getAttribute('data-tonics_siteTimeZone');
+var tonicsFileManagerURL = document.querySelector('body')?.getAttribute('data-tonics_fileManagerURL');
+
+var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/Util/Element/Abstract/ElementAbstract.ts
@@ -5250,7 +5264,6 @@ if (fieldMenuUL) {
                 let mainFieldSlug = el?.closest('.tonics-field-selection-dropper-form-group').querySelector(`input[name="main_field_slug"]`);
                 if (mainFieldSlug.value === selectedFieldSlugValue){
                     fieldMenuULFieldSelectionDropperMap.set(selectedFieldSlugValue, tonicsFieldSelectionDropperUL.cloneNode(true));
-                    console.log(fieldMenuULFieldSelectionDropperMap);
                 }
             }
         }
@@ -5326,26 +5339,29 @@ function insertFieldItems(data, checkedSlug) {
     }
 }
 try {
-    if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
-        tonicsErrorMessages.forEach((value) => {
-            errorToast(value, 6000);
-        });
-    }
+    let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
+    if (tonicsFlashMessages) {
+        tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
+        if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
+            tonicsFlashMessages.successMessage.forEach((value) => {
+                successToast(value, 6000);
+            });
+        }
 
-    if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
-        tonicsInfoMessages.forEach((value) => {
-            infoToast(value, 6000);
-        });
-    }
-
-    if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
-        tonicsSuccesssMessages.forEach((value) => {
-            successToast(value, 6000);
-        });
+        if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
+            tonicsFlashMessages.errorMessage.forEach((value) => {
+                errorToast(value, 6000);
+            });
+        }
+        if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
+            tonicsFlashMessages.infoMessage.forEach((value) => {
+                infoToast(value, 6000);
+            });
+        }
     }
 
 } catch (e) {
-   // console.log(e.toLocaleString());
+    // console.log(e.toLocaleString());
 }
 try {
     new MenuToggle('.site-nav', new Query())
@@ -5359,26 +5375,29 @@ try {
     console.error("An Error Occur Setting MenuToggle: Site-Nav")
 }
 try {
-    if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
-        tonicsErrorMessages.forEach((value) => {
-            errorToast(value, 6000);
-        });
-    }
+    let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
+    if (tonicsFlashMessages) {
+        tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
+        if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
+            tonicsFlashMessages.successMessage.forEach((value) => {
+                successToast(value, 6000);
+            });
+        }
 
-    if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
-        tonicsInfoMessages.forEach((value) => {
-            infoToast(value, 6000);
-        });
-    }
-
-    if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
-        tonicsSuccesssMessages.forEach((value) => {
-            successToast(value, 6000);
-        });
+        if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
+            tonicsFlashMessages.errorMessage.forEach((value) => {
+                errorToast(value, 6000);
+            });
+        }
+        if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
+            tonicsFlashMessages.infoMessage.forEach((value) => {
+                infoToast(value, 6000);
+            });
+        }
     }
 
 } catch (e) {
-   // console.log(e.toLocaleString());
+    // console.log(e.toLocaleString());
 }
 // FOR FEATURED IMAGE
 let featuredMain = document.querySelector('main');

@@ -12,7 +12,6 @@ namespace App\Modules\Payment;
 
 
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\EventHandlers\HandleNewPurchaseSlugIDGeneration;
 use App\Modules\Payment\EventHandlers\PayPal\HandleAudioTonicsPaymentCaptureCompletedEvent;
@@ -40,6 +39,7 @@ class PaymentActivator implements ExtensionConfig
     public function events(): array
     {
         return [
+
             OnAddTrackPaymentEvent::class => [
 
             ],

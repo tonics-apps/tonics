@@ -35,7 +35,7 @@ ARTIST ROUTES
                 <!-- Text Title Section -->
                 <div class="form-group">
                     <label for="post-title" class="screen-reader-text">Artist Name</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.artist_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.artist_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[session('getOldFormInput', 'old_form_input.artist_name', '')]]"
                            name="artist_name" id="artist_name" required="" placeholder="Enter Artist Name Here" type="text">
@@ -70,7 +70,7 @@ ARTIST ROUTES
                 <!-- Text Title Section -->
                 <div class="form-group">
                     <label for="post-title" class="screen-reader-text">Enter Title Here</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.artist_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.artist_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[v('Data.artist_name')]]"
                            name="artist_name" id="artist_name" required="" placeholder="Enter Title Here" type="text">

@@ -94,7 +94,7 @@ final class Roles
     ];
 
     /**
-     * This gets the ID of the role, not that this is not the role bit-shifted number but just the auto-incremented id,
+     * This gets the ID of the role, note that this is not the role bit-shifted number but just the auto-incremented id,
      * this way, you can use it as a foreign key
      * @throws \Exception
      */

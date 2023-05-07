@@ -7,7 +7,6 @@
 [[hook_into('Core::form_action')[[use('Track::Category::route::posts.store')]]]]
 
 [[hook_into('Core::before_footer')
-    [[_use("script:variables")]]
     [[_use("script:tinymce")]]
     [[_use("script:post-category")]]
     [[_use("session:delete-artifacts")]]

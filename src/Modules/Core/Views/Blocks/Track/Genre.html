@@ -35,7 +35,7 @@ GENRE ROUTES
                 <!-- Text Title Section -->
                 <div class="form-group">
                     <label for="genre_name" class="screen-reader-text">Genre Name</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.genre_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.genre_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[session('getOldFormInput', 'old_form_input.genre_name', '')]]"
                            name="genre_name" id="genre_name" required="" placeholder="Enter Genre Name Here" type="text">
@@ -69,7 +69,7 @@ GENRE ROUTES
                 <!-- Text Title Section -->
                 <div class="form-group">
                     <label for="genre_name" class="screen-reader-text">Enter Title Here</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.genre_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.genre_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[v('Data.genre_name')]]"
                            name="genre_name" id="genre_name" required="" placeholder="Enter Title Here" type="text">

@@ -36,7 +36,7 @@ MENU FORMS
                 <!-- Text Title Section -->
                 <div class="form-group margin-top:0">
                     <label for="menu_name" class="screen-reader-text">Enter Title Here</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.menu_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.menu_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[session('getOldFormInput', 'old_form_input.menu_name', '')]]"
                            name="menu_name" id="menu_name" required="" placeholder="Enter Title Here" type="text">
@@ -64,7 +64,7 @@ MENU FORMS
                 <!-- Text Title Section -->
                 <div class="form-group margin-top:0">
                     <label for="menu_name" class="screen-reader-text">Enter Title Here</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.menu_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.menu_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[v('Data.menu_name')]]"
                            name="menu_name" id="menu_name" required="" placeholder="Enter Title Here" type="text">

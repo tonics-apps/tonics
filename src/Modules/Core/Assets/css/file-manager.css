@@ -1,5 +1,6 @@
 
 @import "base/beat-player.css";
+@import "base/essential.css";
 
 :root {
     box-sizing: border-box;
@@ -52,38 +53,6 @@
     font-display: swap;
 }
 
-
-html {
-    font-size: 100%;
-}
-
-*, *::before, *::after {
-    box-sizing: inherit;
-}
-
-input:focus {
-    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
-    outline: 2px solid #727272;
-}
-
-input.placeholder-color\:gray::placeholder {
-    color: darkgray;
-    font-size: 80%;
-}
-
-.owl > * + * {
-    margin-top: 1rem;
-}
-
-a:focus {
-    outline: dotted 2px;
-    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-}
 
 .overflow\:hidden {
     overflow: hidden;

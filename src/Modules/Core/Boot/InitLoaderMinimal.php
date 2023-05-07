@@ -13,6 +13,7 @@ namespace App\Modules\Core\Boot;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\IsAppInstalled;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Database;
 use App\Modules\Core\Library\MyPDO;
@@ -68,7 +69,6 @@ class InitLoaderMinimal
         #-----------------------------------
         AppConfig::includeHelpers();
         self::initGlobalVariables();
-
     }
 
     /**
@@ -88,10 +88,28 @@ class InitLoaderMinimal
             'SERVE_MODULE_PATH' => DriveConfig::serveModuleFilePath()
         ]);
 
+        self::DRIVE_CONFIG_GlobalVariable();
+        self::URL_GlobalVariable();
         self::addToGlobalVariable('Auth', [
             'Logged_In' => !empty(UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))
         ]);
 
+        # Push Structured Data That Relies on the Post Editor Here
+        self::addToGlobalVariable('Structured_Data', [
+            'FAQ' => []
+        ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function noInstallationGlobalVariable(): void
+    {
+        self::DRIVE_CONFIG_GlobalVariable();
+    }
+
+    public static function URL_GlobalVariable(): void
+    {
         url()->reset();
         self::addToGlobalVariable('URL', [
             'FULL_URL' => url()->getFullURL(),
@@ -99,10 +117,13 @@ class InitLoaderMinimal
             'PARAMS' => url()->getParams(),
             'REFERER' => url()->getReferer()
         ]);
+    }
 
-        # Push Structured Data That Relies on the Post Editor Here
-        self::addToGlobalVariable('Structured_Data', [
-            'FAQ' => []
+    public static function DRIVE_CONFIG_GlobalVariable(): void
+    {
+        self::addToGlobalVariable('Drive_Config', [
+            'SERVE_APP_PATH' => DriveConfig::serveAppFilePath(),
+            'SERVE_MODULE_PATH' => DriveConfig::serveModuleFilePath()
         ]);
     }
 

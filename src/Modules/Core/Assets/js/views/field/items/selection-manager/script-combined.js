@@ -573,7 +573,21 @@ class OnSubmitFieldEditorsFormEvent {
         return settings;
     }
 
-}var __defProp = Object.defineProperty;
+}
+/*
+ * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
+
+var siteURL = document.querySelector('body')?.getAttribute('data-tonics_siteURL');
+var siteTimeZone = document.querySelector('body')?.getAttribute('data-tonics_siteTimeZone');
+var tonicsFileManagerURL = document.querySelector('body')?.getAttribute('data-tonics_fileManagerURL');
+
+var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/Util/Element/Abstract/ElementAbstract.ts
@@ -4796,6 +4810,11 @@ function nativeFieldModules() {
                 }
             }
 
+            if (el.closest('input[type="range"]')){
+                let inputRange = el.closest('input[type="range"]');
+                inputRange.nextElementSibling.value = inputRange.value;
+            }
+
             if (el.closest('[name="grid_template_col"]')){
                 let gridTemplateCol = el.closest('[name="grid_template_col"]');
                 let rowColParent =  el.closest('[name="grid_template_col"]').closest('.row-col-parent'),
@@ -4910,26 +4929,29 @@ if (inputTitle) {
 
 nativeFieldModules();
 try {
-    if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
-        tonicsErrorMessages.forEach((value) => {
-            errorToast(value, 6000);
-        });
-    }
+    let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
+    if (tonicsFlashMessages) {
+        tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
+        if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
+            tonicsFlashMessages.successMessage.forEach((value) => {
+                successToast(value, 6000);
+            });
+        }
 
-    if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
-        tonicsInfoMessages.forEach((value) => {
-            infoToast(value, 6000);
-        });
-    }
-
-    if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
-        tonicsSuccesssMessages.forEach((value) => {
-            successToast(value, 6000);
-        });
+        if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
+            tonicsFlashMessages.errorMessage.forEach((value) => {
+                errorToast(value, 6000);
+            });
+        }
+        if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
+            tonicsFlashMessages.infoMessage.forEach((value) => {
+                infoToast(value, 6000);
+            });
+        }
     }
 
 } catch (e) {
-   // console.log(e.toLocaleString());
+    // console.log(e.toLocaleString());
 }
 let containerForSelection = document.querySelector('[data-container_for_selection="true"]');
     let singleFileStringName = '[data-list_id]';

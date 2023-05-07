@@ -36,7 +36,7 @@ WIDGET FORMS
                 <!-- Text Title Section -->
                 <div class="form-group margin-top:0">
                     <label for="widget_name" class="screen-reader-text">Enter Title Here</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.widget_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.widget_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[session('getOldFormInput', 'old_form_input.widget_name', '')]]"
                            name="widget_name" id="widget_name" required="" placeholder="Enter Title Here" type="text">
@@ -64,7 +64,7 @@ WIDGET FORMS
                 <!-- Text Title Section -->
                 <div class="form-group margin-top:0">
                     <label for="widget_name" class="screen-reader-text">Enter Title Here</label>
-                    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.widget_name')]]
+                    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.widget_name')]]
                     <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
                            value="[[v('Data.widget_name')]]"
                            name="widget_name" id="widget_name" required="" placeholder="Enter Title Here" type="text">

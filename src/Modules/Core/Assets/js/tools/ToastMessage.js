@@ -1,23 +1,26 @@
 
 try {
-    if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
-        tonicsErrorMessages.forEach((value) => {
-            errorToast(value, 6000);
-        });
-    }
+    let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
+    if (tonicsFlashMessages) {
+        tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
+        if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
+            tonicsFlashMessages.successMessage.forEach((value) => {
+                successToast(value, 6000);
+            });
+        }
 
-    if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
-        tonicsInfoMessages.forEach((value) => {
-            infoToast(value, 6000);
-        });
-    }
-
-    if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
-        tonicsSuccesssMessages.forEach((value) => {
-            successToast(value, 6000);
-        });
+        if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
+            tonicsFlashMessages.errorMessage.forEach((value) => {
+                errorToast(value, 6000);
+            });
+        }
+        if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
+            tonicsFlashMessages.infoMessage.forEach((value) => {
+                infoToast(value, 6000);
+            });
+        }
     }
 
 } catch (e) {
-   // console.log(e.toLocaleString());
+    // console.log(e.toLocaleString());
 }

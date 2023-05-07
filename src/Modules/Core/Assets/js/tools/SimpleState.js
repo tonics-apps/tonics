@@ -19,6 +19,8 @@ class SimpleState {
         this.errorMessage = "";
         this.sucessMessage = "";
         this.stateResult = "";
+
+        this.eventListeners = new Map();
     }
 
     static DONE = 'DONE';
@@ -73,10 +75,27 @@ class SimpleState {
             console.log(`State Switched To ${state}`);
         }
 
+        this.triggerEvent('stateSwitched', state, stateResult);
         if (stateResult !== null) {
             return stateResult;
         }
         return this;
+    }
+
+    on(eventName, listener) {
+        if (!this.eventListeners.has(eventName)) {
+            this.eventListeners.set(eventName, []);
+        }
+        this.eventListeners.get(eventName).push(listener);
+    }
+
+    triggerEvent(eventName, ...args) {
+        if (this.eventListeners.has(eventName)) {
+            const listeners = this.eventListeners.get(eventName);
+            listeners.forEach((listener) => {
+                listener.apply(null, args);
+            });
+        }
     }
 
     getCurrentState() {

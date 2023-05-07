@@ -81,7 +81,9 @@ class PageActivator implements ExtensionConfig
      */
     public function route(Route $routes): Route
     {
-        AppConfig::autoResolvePageRoutes(PagesController::class, $routes);
+        if (AppConfig::TonicsIsReady()){
+            AppConfig::autoResolvePageRoutes(PagesController::class, $routes);
+        }
         return $this->routeWeb($routes);
     }
 

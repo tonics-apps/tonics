@@ -3887,7 +3887,21 @@ class OnSubmitFieldEditorsFormEvent {
         return settings;
     }
 
-}/*
+}
+/*
+ * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
+
+var siteURL = document.querySelector('body')?.getAttribute('data-tonics_siteURL');
+var siteTimeZone = document.querySelector('body')?.getAttribute('data-tonics_siteTimeZone');
+var tonicsFileManagerURL = document.querySelector('body')?.getAttribute('data-tonics_fileManagerURL');
+
+/*
  * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
  *
  * While this program can be used free of charge,
@@ -5279,26 +5293,29 @@ if (formFilter) {
     })
 }
 try {
-    if (tonicsErrorMessages instanceof Array && tonicsErrorMessages.length > 0){
-        tonicsErrorMessages.forEach((value) => {
-            errorToast(value, 6000);
-        });
-    }
+    let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
+    if (tonicsFlashMessages) {
+        tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
+        if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
+            tonicsFlashMessages.successMessage.forEach((value) => {
+                successToast(value, 6000);
+            });
+        }
 
-    if (tonicsInfoMessages instanceof Array && tonicsInfoMessages.length > 0){
-        tonicsInfoMessages.forEach((value) => {
-            infoToast(value, 6000);
-        });
-    }
-
-    if (tonicsSuccesssMessages instanceof Array && tonicsSuccesssMessages.length > 0){
-        tonicsSuccesssMessages.forEach((value) => {
-            successToast(value, 6000);
-        });
+        if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
+            tonicsFlashMessages.errorMessage.forEach((value) => {
+                errorToast(value, 6000);
+            });
+        }
+        if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
+            tonicsFlashMessages.infoMessage.forEach((value) => {
+                infoToast(value, 6000);
+            });
+        }
     }
 
 } catch (e) {
-   // console.log(e.toLocaleString());
+    // console.log(e.toLocaleString());
 }
 const trashButtons = document.querySelectorAll('[data-click-onconfirmtrash="true"]');
 const deleteButtons = document.querySelectorAll('[data-click-onconfirmdelete="true"]');

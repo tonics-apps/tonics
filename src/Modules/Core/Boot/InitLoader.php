@@ -10,7 +10,6 @@
 
 namespace App\Modules\Core\Boot;
 
-use App\Library;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
@@ -71,12 +70,19 @@ class InitLoader
                 #-----------------------------------
             # HEADERS SETTINGS TEST
         #-----------------------------------
-        response()->headers([
-            'Access-Control-Allow-Origin: ' . AppConfig::getAppUrl(),
-            'Access-Control-Allow-Credentials: true',
-            'Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers: Origin, Accept, X-Requested-With, Content-Type, Authorization',
-        ]);
+        if (AppConfig::TonicsIsReady()){
+            response()->headers([
+                'Access-Control-Allow-Origin: ' . AppConfig::getAppUrl(),
+                'Access-Control-Allow-Credentials: true',
+                'Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers: Origin, Accept, X-Requested-With, Content-Type, Authorization',
+                'X-Content-Type-Options: nosniff',
+                'X-Frame-Options: SAMEORIGIN',
+                'Referrer-Policy: strict-origin-when-cross-origin',
+                'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
+                'Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
+            ]);
+        }
 
                 #----------------------------------------------------
             # GATHER ROUTES AND PREPARE FOR PROCESSING
@@ -221,10 +227,10 @@ class InitLoader
     /**
      * Register the route for the module
      *
-     * @param Library\ModuleRegistrar\Interfaces\ExtensionConfig $module
+     * @param ExtensionConfig $module
      * @return Route
      */
-    protected function registerRoutes(Library\ModuleRegistrar\Interfaces\ExtensionConfig $module): Route
+    protected function registerRoutes(ExtensionConfig $module): Route
     {
         return $module->route($this->getRouter()->getRoute());
     }

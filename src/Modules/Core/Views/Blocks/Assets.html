@@ -27,6 +27,7 @@
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/views/dashboard/home/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
@@ -45,19 +46,6 @@
 <script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=js/views/app/main.js"></script>
 ]]
 
-[[b('script:variables')
-
-<script>
-    var siteURL = `[[v('App_Config.SiteURL')]]`;
-    var siteTimeZone = `[[v('App_Config.TimeZone')]]`;
-    var tonicsErrorMessages = JSON.parse(`[[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage', 'true')]]`);
-    var tonicsSuccesssMessages = JSON.parse(`[[session('renderFlashMessages', 'bt_flash_message_tonicsSuccessMessage', 'true')]]`);
-    var tonicsInfoMessages = JSON.parse(`[[session('renderFlashMessages', 'bt_flash_message_tonicsInfoMessage', 'true')]]`);
-    var tonicsFileManagerURL = `[[url('media.show')]]`;
-</script>
-
-]]
-
 [[b('script:track-index')
     [[combine('MODULE::/Core/Assets/js/views/track/index/script-combined.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
@@ -69,6 +57,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/tools/DataTable/DataTable.js',
 
@@ -89,6 +78,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
@@ -121,6 +111,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
@@ -146,6 +137,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
@@ -191,6 +183,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
@@ -217,6 +210,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
@@ -241,6 +235,7 @@
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Others/Draggables.js',
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/views/post/category/index/main.js',
         'MODULE::/Core/Assets/js/tools/FormFilter.js',
@@ -261,6 +256,7 @@
         'MODULE::/Core/Assets/js/modules/Http/XHRApi.js'
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
         'MODULE::/Core/Assets/js/tools/SwapNodes.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/views/menu/items/index/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
@@ -279,6 +275,7 @@
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
         'MODULE::/Core/Assets/js/tools/SwapNodes.js',
         'MODULE::/Core/Assets/js/tools/TinyMCEHooker.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/views/widget/items/index/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
@@ -293,6 +290,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedImage.js',
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedAudio.js',
@@ -321,6 +319,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Http/XHRApi.js'
@@ -341,6 +340,7 @@
         'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedImage.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
@@ -368,6 +368,8 @@
         'MODULE::/Core/Assets/js/audio/howler/howler.core.min.js',
         'MODULE::/Core/Assets/js/tools/AudioPlayer.js',
         'MODULE::/Core/Assets/js/views/track/main.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
     )]]
 <script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/media/script-combined.min.js"></script>
 ]]
@@ -379,6 +381,7 @@
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
         'MODULE::/Core/Assets/js/modules/Http/XHRApi.js',
         'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
 
         'MODULE::/Core/Assets/js/views/import/wordpress/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
@@ -403,6 +406,7 @@
 
 [[b('default-secure-meta')
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf_token" content="[[csrf()]]">
 ]]

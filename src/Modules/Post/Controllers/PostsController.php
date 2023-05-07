@@ -371,6 +371,7 @@ class PostsController
             } else {
                 session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             }
+
             redirect(route('posts.edit', ['post' => $slug]));
 
         } catch (\Exception $exception) {

@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      -- Whenever we have changes in any column, the next_run gets computed, this would usually be when we increment the tick
       `schedule_next_run` timestamp GENERATED ALWAYS AS (DATE_ADD(updated_at, INTERVAL schedule_every SECOND)) VIRTUAL, 
       `created_at` timestamp DEFAULT current_timestamp(),
-       `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+      `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
      PRIMARY KEY (`schedule_id`),
      UNIQUE KEY `schedule_name_index` (`schedule_name`),
      KEY `schedule_parent_name_index` (`schedule_parent_name`),
@@ -47,7 +47,7 @@ SQL;
     /**
      * @throws \Exception
      */
-    public function down()
+    public function down(): void
     {
         $this->dropTable($this->tableName());
     }

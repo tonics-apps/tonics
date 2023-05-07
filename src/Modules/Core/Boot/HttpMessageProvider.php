@@ -13,6 +13,8 @@ namespace App\Modules\Core\Boot;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Payment\Controllers\PaymentSettingsController;
+use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsContainer\Interfaces\ServiceProvider;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -41,6 +43,10 @@ class HttpMessageProvider implements ServiceProvider
      */
     public function provide(Container $container): void
     {
+        /** @var OnAddTrackPaymentEvent $paymentObject */
+//        $paymentObject = event()->dispatch(new OnAddTrackPaymentEvent())->event();
+//        $audiotonicspaypalhandler = $paymentObject->getPayments()['audiotonicspaypalhandler'];
+//        dd($paymentObject->getPayments(), $audiotonicspaypalhandler->enabled());
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception|\Throwable $e) {

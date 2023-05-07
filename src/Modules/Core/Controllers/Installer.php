@@ -79,6 +79,7 @@ class Installer extends SimpleState
     {
         $requestBody = request()->getEntityBody();
         $requestBody = json_decode($requestBody);
+        dd($requestBody);
 
         try {
             if ($this->validateInstallationProperties($requestBody)->fails()){
@@ -106,6 +107,7 @@ class Installer extends SimpleState
      */
     public function install()
     {
+        dd('stop');
         helper()->addEventStreamHeader();
         $runningInstallerFile = AppConfig::getAppRoot() . DIRECTORY_SEPARATOR . 'runningInstaller.json';
         if (helper()->fileExists($runningInstallerFile)){

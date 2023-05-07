@@ -109,11 +109,11 @@ class FieldConfig
      */
     public static function getSettingsHTMLFrag(FieldData $fieldData, $settingsData, array $slugs = []): string
     {
-        if (isset($settingsData['_fieldDetails'])){
+        if (isset($settingsData['_fieldDetails'])) {
             $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(json_decode($settingsData['_fieldDetails']));
             $htmlFrag = $fieldData->getUsersFormFrag($fieldCategories);
         } else {
-            $htmlFrag =  $fieldData->generateFieldWithFieldSlug(
+            $htmlFrag = $fieldData->generateFieldWithFieldSlug(
                 $slugs,
                 $settingsData
             )->getHTMLFrag();
@@ -134,7 +134,7 @@ class FieldConfig
     {
         db(onGetDB: function ($db) use ($key, $data) {
             $key = 'App_Settings_' . $key;
-            if (isset($data['token'])){
+            if (isset($data['token'])) {
                 unset($data['token']);
             }
             $globalTable = Tables::getTable(Tables::GLOBAL);
@@ -157,7 +157,10 @@ class FieldConfig
      */
     public static function loadPluginSettings($key): array
     {
-        if (!str_starts_with($key, 'App_Settings_')){
+        if (AppConfig::TonicsIsReady() === false){
+            return [];
+        }
+        if (!str_starts_with($key, 'App_Settings_')) {
             $key = 'App_Settings_' . $key;
         }
         $globalTable = Tables::getTable(Tables::GLOBAL);
@@ -166,13 +169,12 @@ class FieldConfig
         db(onGetDB: function ($db) use ($key, $globalTable, &$updates) {
             try {
                 $updates = $db->row("SELECT * FROM $globalTable WHERE `key` = ?", $key);
-            } catch (\Exception $exception){
+            } catch (\Exception $exception) {
                 $updates = [];
             }
-
         });
 
-        if (isset($updates->value) && !empty($updates->value)){
+        if (isset($updates->value) && !empty($updates->value)) {
             return json_decode($updates->value, true);
         }
         return [];
@@ -180,7 +182,7 @@ class FieldConfig
 
     public static function DefaultFieldItems(): array
     {
-        $json =<<<'JSON'
+        $json = <<<'JSON'
 [
   {
     "fk_field_id": "Post Page",

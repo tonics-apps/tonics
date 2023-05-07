@@ -251,7 +251,7 @@ HTML; $first = false;
                             }
                             if (!$first){ $first = true; $checked = 'checked'; } else $checked = '';
                             $fieldOptionName = $child->field_options->fieldName;
-                            $fieldOptionNameID = helper()->slug($fieldOptionName, '_');
+                            $fieldOptionNameID = helper()->slug($fieldOptionName, '_')  . '_' . $fieldNameTabUnique;
                             $frag .= <<<HTML
 <input tabindex="0" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
 <label tabindex="0" for="{$fieldOptionNameID}_field">$fieldOptionName</label>

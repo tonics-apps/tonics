@@ -185,6 +185,11 @@ function nativeFieldModules() {
                 }
             }
 
+            if (el.closest('input[type="range"]')){
+                let inputRange = el.closest('input[type="range"]');
+                inputRange.nextElementSibling.value = inputRange.value;
+            }
+
             if (el.closest('[name="grid_template_col"]')){
                 let gridTemplateCol = el.closest('[name="grid_template_col"]');
                 let rowColParent =  el.closest('[name="grid_template_col"]').closest('.row-col-parent'),

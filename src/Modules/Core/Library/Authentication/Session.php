@@ -11,6 +11,7 @@
 namespace App\Modules\Core\Library\Authentication;
 
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\Pure;
@@ -28,9 +29,9 @@ class Session
     const SessionCategories_AuthInfo_Role = 'role';
 
     const SessionCategories_OldFormInput = 'old_form_input';
-    const SessionCategories_FlashMessageError = 'bt_flash_message_tonicsErrorMessage';
-    const SessionCategories_FlashMessageInfo = 'bt_flash_message_tonicsInfoMessage';
-    const SessionCategories_FlashMessageSuccess = 'bt_flash_message_tonicsSuccessMessage';
+    const SessionCategories_FlashMessageError = 'tonics_flash_message.errorMessage';
+    const SessionCategories_FlashMessageInfo = 'tonics_flash_message.infoMessage';
+    const SessionCategories_FlashMessageSuccess = 'tonics_flash_message.successMessage';
 
     const SessionCategories_CSRFToken = 'tonics_csrf_token';
     const SessionCategories_URLReferer = 'tonics_url_referer';
@@ -91,7 +92,7 @@ class Session
      */
     public function read(bool $array = false): mixed
     {
-        if ($this->sessionExist() === false) {
+        if ($this->sessionExist() === false || AppConfig::TonicsIsNotReady()) {
             return '';
         }
 
@@ -264,7 +265,7 @@ SQL, $this->getCookieID());
      */
     public function hasKey(string $key): bool
     {
-        if ($this->sessionExist()) {
+        if ($this->sessionExist() && AppConfig::TonicsIsReady()) {
 
             $res = null;
             db(onGetDB: function ($db) use ($key, &$res){
@@ -338,18 +339,20 @@ SQL, $jsonPath, $sessionID);
     private function getValue(string $key): mixed
     {
         $res = null;
-        db(onGetDB: function ($db) use ($key, &$res) {
-            $sessionID = $this->getCookieID();
-            try {
-                $res =  $db->Select()->JsonExtract('session_data', $key)
-                    ->As('row')
-                    ->From($this->getTable())
-                    ->WhereEquals('session_id', $sessionID)->FetchFirst();
-            }catch (\Exception $exception){
-                $res = false;
-            }
+        if (AppConfig::TonicsIsReady()){
+            db(onGetDB: function ($db) use ($key, &$res) {
+                $sessionID = $this->getCookieID();
+                try {
+                    $res =  $db->Select()->JsonExtract('session_data', $key)
+                        ->As('row')
+                        ->From($this->getTable())
+                        ->WhereEquals('session_id', $sessionID)->FetchFirst();
+                }catch (\Exception $exception){
+                    $res = false;
+                }
 
-        });
+            });
+        }
 
         return $res;
     }
@@ -363,7 +366,7 @@ SQL, $jsonPath, $sessionID);
     public function write(array $sessionData): bool
     {
         $stm = null;
-        if ($this->sessionExist()) {
+        if ($this->sessionExist() && AppConfig::TonicsIsReady()) {
             db(onGetDB: function ($db) use ($sessionData, &$stm){
                 $sessionID = $this->getCookieID();
                 ## Add 1 hours to the current time
@@ -450,43 +453,30 @@ SQL, $jsonPath, $sessionID);
      */
     public function renderFlashMessages(string $key, string $js = 'false'): string
     {
-        $keyExploded = explode('.', $key);
         $js = strtolower($js);
-        $keyExplodedCount = count($keyExploded);
-        $root = array_shift($keyExploded);
-        $messages = $this->retrieve($root, default: true, jsonDecode: true);
-
-        if (!empty($messages)) {
-            if (is_object($messages)) {
-                $messages = json_decode(json_encode($messages), true) ?? [];
-            }elseif (is_array($messages)){
-                foreach ($keyExploded as $k) {
-                    if (key_exists($k, $messages)) {
-                        $messages = $messages[$k];
-                        // nested key, doesn't exist, return empty string
-                    } elseif ($keyExplodedCount > 1){
-                        return '';
-                    }
-                }
-            }
-        }
-
-        if (is_array($messages)) {
-            // flatten nested array
-            $messages = iterator_to_array(new RecursiveIteratorIterator(new RecursiveArrayIterator($messages)), 0);
-        }
-
-        if (!is_array($messages)) {
-            $messages = [];
-        }
+        $messages = $this->retrieve($key, default: true, jsonDecode: true);
 
         if ($js === 'true') {
             return json_encode($messages);
         }
 
+        if (is_object($messages)){
+            $messages = (array)$messages;
+        }
+
+        if (!is_array($messages)){
+            return '';
+        }
+
         $output = "<ul class='form-error'>";
         foreach ($messages as $msg) {
-            $output .= "<li><span class='text list-error-span'>⚠</span>$msg</li>";
+            if (str_starts_with($key, self::SessionCategories_FlashMessageError)){
+                $output .= "<li><span class='text list-error-span'>⚠</span>$msg</li>";
+            } elseif (str_starts_with($key, self::SessionCategories_FlashMessageInfo)){
+                $output .= "<li><span class='text list-info-span'>⚠</span>$msg</li>";
+            } else {
+                $output .= "<li><span class='text list-success-span'>⚠</span>$msg</li>";
+            }
         }
         $output .= "</ul>";
         return $output;
@@ -506,7 +496,7 @@ SQL, $jsonPath, $sessionID);
     public function regenerate(): bool
     {
         $result = false;
-        if ($this->sessionExist()) {
+        if ($this->sessionExist() && AppConfig::TonicsIsReady()) {
             db(onGetDB: function (TonicsQuery $db) use (&$result){
                 $db->beginTransaction();
                 $oldSessionID = $this->getCookieID();
@@ -530,6 +520,11 @@ SQL, $jsonPath, $sessionID);
      */
     public function clear($sessionID = null): bool
     {
+
+        if (AppConfig::TonicsIsNotReady()){
+            return false;
+        }
+
         if ($sessionID === null) {
             if ($this->sessionExist()) {
                 $sessionID = $this->getCookieID();

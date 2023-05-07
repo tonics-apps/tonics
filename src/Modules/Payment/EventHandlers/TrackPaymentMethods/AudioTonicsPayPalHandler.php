@@ -13,7 +13,6 @@ namespace App\Modules\Payment\EventHandlers\TrackPaymentMethods;
 use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Roles;
-use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
 use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
@@ -38,6 +37,12 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
     public function name(): string
     {
         return 'AudioTonicsPayPalHandler';
+    }
+
+    public function enabled(): bool
+    {
+
+        dd(PaymentSettingsController::isPaymentEnabled(PaymentSettingsController::FlutterWave_Enabled));
     }
 
     /**
@@ -155,17 +160,17 @@ MESSAGE;
             $settings = PaymentSettingsController::getSettingsData();
             $credentials = '';
             $live = false;
-            if (key_exists(PaymentSettingsController::Key_IsLive, $settings) && $settings[PaymentSettingsController::Key_IsLive] === '1') {
+            if (key_exists(PaymentSettingsController::PayPal_Key_IsLive, $settings) && $settings[PaymentSettingsController::PayPal_Key_IsLive] === '1') {
                 $live = true;
             }
 
             if ($live) {
-                if (isset($settings[PaymentSettingsController::Key_LiveClientID])) {
-                    $credentials = $settings[PaymentSettingsController::Key_LiveClientID];
+                if (isset($settings[PaymentSettingsController::PayPal_Key_LiveClientID])) {
+                    $credentials = $settings[PaymentSettingsController::PayPal_Key_LiveClientID];
                 }
             } else {
-                if (isset($settings[PaymentSettingsController::Key_SandBoxClientID])) {
-                    $credentials = $settings[PaymentSettingsController::Key_SandBoxClientID];
+                if (isset($settings[PaymentSettingsController::PayPal_Key_SandBoxClientID])) {
+                    $credentials = $settings[PaymentSettingsController::PayPal_Key_SandBoxClientID];
                 }
             }
 

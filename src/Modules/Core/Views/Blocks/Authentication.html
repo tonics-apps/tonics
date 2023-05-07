@@ -31,28 +31,28 @@
 ---FOR EMAIL FLASH ERROR MESSAGE---
 -----------------------------------
 [[b('body.main.form-get-email-flash-error-message')
-    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.email')]]
+    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.email')]]
 ]]
 
 --------------------------------------
 ---FOR PASSWORD FLASH ERROR MESSAGE---
 --------------------------------------
 [[b('body.main.form-get-password-flash-error-message')
-    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.password')]]
+    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.password')]]
 ]]
 
 ------------------------------------------
 ---FOR VERIFICATION FLASH ERROR MESSAGE---
 ------------------------------------------
 [[b('body.main.form-get-verification-code-flash-error-message')
-    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.verification-code')]]
+    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.verification-code')]]
 ]]
 
 --------------------------------------
 ---FOR USERNAME FLASH ERROR MESSAGE---
 --------------------------------------
 [[b('body.main.form-get-username-flash-error-message')
-    [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.username')]]
+    [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.username')]]
 ]]
 
 ---------------------------
@@ -122,7 +122,7 @@
         <label style="margin-inline-end: auto;" for="app_key">
             <span class="field-label">App Key</span>
         </label>
-        [[session('renderFlashMessages', 'bt_flash_message_tonicsErrorMessage.app_key')]]
+        [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.app_key')]]
         <input class="bg:white-one color:black border-width:default border:black" type="text" id="app_key" placeholder="Enter App Key" name="app_key"
                value="[[session('getOldFormInput', 'old_form_input.app_key', '')]]">
     </div>

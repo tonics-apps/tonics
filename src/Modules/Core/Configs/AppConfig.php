@@ -34,6 +34,7 @@ use Devsrealm\TonicsRouterSystem\RouteNode;
 use Devsrealm\TonicsRouterSystem\RouteTreeGenerator;
 use Devsrealm\TonicsRouterSystem\State\RouteTreeGeneratorState;
 use Exception;
+use Symfony\Component\Yaml\Tests\A;
 
 class AppConfig
 {
@@ -83,23 +84,26 @@ class AppConfig
                     }
                 }
 
-                ## Apps Would Only Appear if they have .installed (which would be added programmatically on installation)
-                foreach ($apps as $app) {
-                    /** @var $app ExtensionConfig */
-                    if ($app->enabled()) {
-                        $app->route($router->getRoute());
-                        $appEvents = $app->events();
-                        foreach ($appEvents as $appEvent => $appEventHandler) {
-                            #
-                            # if the apps event array has something in common with the module event($events)
-                            # we Merger 'em, else, we create a new event.
-                            #
-                            if (key_exists($appEvent, $events)) {
-                                $moduleEventHandler = $events[$appEvent];
-                                $moduleEventHandler = [...$moduleEventHandler, ...$appEventHandler];
-                                $events[$appEvent] = $moduleEventHandler;
-                            } else {
-                                $events[$appEvent] = $appEventHandler;
+                ## Apps Would Only Appear if one, TonicsIsReady (meaning TonicsCMS has been installed) and each app
+                # have .installed (which would be added programmatically on app installation)
+                if (AppConfig::TonicsIsReady()){
+                    foreach ($apps as $app) {
+                        /** @var $app ExtensionConfig */
+                        if ($app->enabled()) {
+                            $app->route($router->getRoute());
+                            $appEvents = $app->events();
+                            foreach ($appEvents as $appEvent => $appEventHandler) {
+                                #
+                                # if the apps event array has something in common with the module event($events)
+                                # we Merger 'em, else, we create a new event.
+                                #
+                                if (key_exists($appEvent, $events)) {
+                                    $moduleEventHandler = $events[$appEvent];
+                                    $moduleEventHandler = [...$moduleEventHandler, ...$appEventHandler];
+                                    $events[$appEvent] = $moduleEventHandler;
+                                } else {
+                                    $events[$appEvent] = $appEventHandler;
+                                }
                             }
                         }
                     }
@@ -240,6 +244,15 @@ class AppConfig
      * For throttling pagination on the frontend
      * @return string
      */
+    public static function getAppInstalled(): string
+    {
+        return env('APP_INSTALLED', 1);
+    }
+
+    /**
+     * For throttling pagination on the frontend
+     * @return string
+     */
     public static function getAppPaginationMax(): string
     {
         return env('APP_PAGINATION_MAX_LIMIT', 100);
@@ -273,6 +286,29 @@ class AppConfig
     {
         return 'initLoader_' . env('APP_KEY', 'Tonics');
     }
+
+    /**
+     * TonicsIsReady means the tonics application has been installed (plus the db migrations has been generated),
+     * we check by checking if getAppKey does not return xxx (xxx is the default when tonics env is newly uploaded).
+     *
+     * You might need to use this, to be sure you can use the database
+     * @return bool
+     */
+    public static function TonicsIsReady(): bool
+    {
+        return AppConfig::getAppKey() !== 'xxx';
+    }
+
+    /**
+     * The opposite of TonicsIsReady, it means Tonics is not installed, so, calling any db function or anything that relies on db is not safe.
+     * Use this to check is Tonics is ready or not
+     * @return bool
+     */
+    public static function TonicsIsNotReady(): bool
+    {
+        return AppConfig::getAppKey() === 'xxx';
+    }
+
 
     public static function getAppKey(): string
     {

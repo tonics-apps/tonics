@@ -12,7 +12,6 @@ namespace App\Modules\Track;
 
 
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;

@@ -9,6 +9,7 @@
 </head>
 
 <body>
+
 <section class="tonics-fm-body">
     [[_use("default-inline-svg")]]
     <header class="tonics-main-header-menu position-sticky">
@@ -219,7 +220,6 @@
     <input type="hidden" name="tonics_csrf_token" value="[[csrf()]]">
 </footer>
 
-[[_use("script:variables")]]
 [[_use("script:fm-modules")]]
 <script type="module">
     import {TonicsFileManagerExcrete} from "[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/media/script-combined.min.js";
@@ -247,6 +247,7 @@ class="audioplayer-track border:none act-like-button icon:audio bg:transparent c
         }
     }
 
+    let siteURL = `[[v('App_Config.SiteURL')]]`;
     const $localDrive = new TonicsFileManagerExcrete('LocalDiskDrive')('Local', 'xxxxxx', siteURL);
     // const $dropboxDrive = new TonicsFileManagerExcrete('DropboxDiskDrive')('Dropbox', `[[v('DropboxDiskDriveKey')]]`);
     const $storageDriverManager = new TonicsFileManagerExcrete('StorageDriversManager');

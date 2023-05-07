@@ -24,6 +24,7 @@ use App\Modules\Core\States\UpdateMechanismState;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
 use JetBrains\PhpStorm\NoReturn;
+use function GuzzleHttp\Psr7\str;
 
 class AppsController
 {
@@ -216,12 +217,16 @@ class AppsController
      */
     #[NoReturn] public function install(): void
     {
+        $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
         if (input()->fromPost()->has('activator')){
-            $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
             $appSystem->setCurrentState(AppsSystem::OnAppActivateState);
             $appSystem->runStates(false);
         }
-        session()->flash(['An Error Occurred Installing App'], []);
+
+        if ($appSystem->getStateResult() !== SimpleState::DONE){
+            session()->flash(['An Error Occurred Installing App'], []);
+        }
+
         redirect(route('apps.index'));
     }
 
@@ -230,12 +235,16 @@ class AppsController
      */
     #[NoReturn] public function uninstall(): void
     {
+        $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
         if (input()->fromPost()->has('activator')){
-            $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
             $appSystem->setCurrentState(AppsSystem::OnAppDeActivateState);
             $appSystem->runStates(false);
         }
-        session()->flash(['An Error Occurred UnInstalling App: Go Back'], []);
+
+        if ($appSystem->getStateResult() !== SimpleState::DONE){
+            session()->flash(['An Error Occurred UnInstalling App: Go Back'], []);
+        }
+
         redirect(route('apps.index'));
     }
 
@@ -359,12 +368,27 @@ class AppsController
 
 
     /**
+     * Normalizes the given pathname by removing control characters and other invalid characters.
+     *
+     * @param string $string The pathname to normalize.
+     * @return string The normalized pathname.
      * @throws \Exception
      */
     private function normalizePathname(string $string): string
     {
         // the preg_replace change multiple slashes to one
-        return preg_replace("#//+#", "\\1/", $string);
+        $string = preg_replace("#//+#", "\\1/", $string);
+
+        // Define control characters and other invalid characters to be removed
+        $controlChar = range(chr(0), chr(31));
+        $controlChar[] = chr(127);
+        $invalidChars = [
+            '?', '[', ']', '\\',  '=', '<', '>', ':', ';', ',', "'",
+            '"', '&', '$', '#', '*', '(', ')', '|', '~', '`', '!',
+            '{', '}', '%', '+', '’', '«', '»', '”', '“', ...$controlChar];
+
+        // Remove control characters and other invalid characters
+        return str_ireplace($invalidChars, '', $string);
     }
 
 

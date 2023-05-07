@@ -228,12 +228,25 @@ export class TrackCart extends SimpleState {
         }
     }
 
+    /**
+     * This method calculates the total price of all items in the cart, taking into account the quantity of each item.
+     * @returns {unknown}
+     */
     getTotalItemPrice() {
-        let price = 0;
-        for (let [key, value] of this.getCart().entries()) {
-            price = price + (parseFloat(value.price));
-        }
-        return price;
+        // Convert the Map returned by `this.getCart()` into an array using `Array.from()`, and then use the `Array.reduce()` method to calculate the total price.
+        return Array.from(this.getCart().values())
+            // if quantity is not available, we default to 1
+            .reduce((total, { price, quantity = 1 }) => {
+                // For each item in the cart, check if it has a valid `price` property, and if so, calculate the item price by multiplying the price by the quantity.
+                if (price) {
+                    total += parseFloat(price) * parseInt(quantity);
+                } else {
+                    // If the item is missing a `price` property, log an error message to the console with details of the invalid item.
+                    console.error(`Invalid item in cart: ${JSON.stringify({ price, quantity })}`);
+                }
+
+                return total; // Return the running total of item prices.
+            }, 0); // The initial value of the total is set to 0.
     }
 
     getLicenseFrag(data) {
@@ -262,7 +275,6 @@ export class TrackCart extends SimpleState {
                 cartButton.classList.remove("jello-diagonal-1");
             }, 1000);
         }
-
     }
 }
 

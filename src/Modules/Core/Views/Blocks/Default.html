@@ -1,5 +1,5 @@
 [[b('session:delete-artifacts')
-    [[__session('delete', 'bt_flash_message,old_form_input', 'true')]]
+    [[__session('delete', 'tonics_flash_message,old_form_input', 'true')]]
 ]]
 
 [[b('empty')]]
@@ -332,13 +332,15 @@
             <label style="margin-inline-end: auto;" for="username">
                 <span class="field-label">Username</span>
             </label>
-            <input class="color:black border-width:default border:black placeholder-color:gray" type="text" id="username" placeholder="Enter Username" name="username" value="" required autocomplete="username">
+            <input class="color:black border-width:default border:black placeholder-color:gray" type="text" id="username"
+                   placeholder="Enter Username" name="username" value="" required autocomplete="username">
         </div>
         <div class="form-group row">
             <label style="margin-inline-end: auto;" for="email">
                 <span class="field-label">E-Mail Address</span>
             </label>
-            <input class="color:black border-width:default border:black placeholder-color:gray" type="email" id="email" placeholder="Enter E-mail Address" name="email" value="" required autocomplete="email">
+            <input class="color:black border-width:default border:black placeholder-color:gray" type="email" id="email"
+                   placeholder="Enter E-mail Address" name="email" value="" required autocomplete="email">
         </div>
         <div class="form-group row">
             <label style="margin-inline-end: auto;" for="password">
@@ -398,7 +400,8 @@
             <label style="margin-inline-end: auto;" for="DB_PREFIX">
                 <span class="field-label">Database Prefix</span>
             </label>
-            <input class="color:black border-width:default border:black placeholder-color:gray" maxlength="7" type="text" id="DB_PREFIX" name="DB_PREFIX" value="tonics_" required autocomplete="DB_PREFIX">
+            <input class="color:black border-width:default border:black placeholder-color:gray"
+                   maxlength="7" type="text" id="DB_PREFIX" name="DB_PREFIX" value="tonics_" required autocomplete="DB_PREFIX">
         </div>
     </fieldset>
     <fieldset class="owl padding:default max-width:900">
@@ -407,13 +410,15 @@
             <label style="margin-inline-end: auto;" for="INSTALL_KEY">
                 <span class="field-label">Installation Key</span>
             </label>
-            <input class="color:black border-width:default border:black placeholder-color:gray" placeholder="Enter Installation Key"  type="text" id="INSTALL_KEY" name="INSTALL_KEY" value="" required>
+            <input class="color:black border-width:default border:black placeholder-color:gray"
+                   placeholder="Enter Installation Key"  type="text" id="INSTALL_KEY" name="INSTALL_KEY" value="" required>
         </div>
         <div class="form-group row">
             <label style="margin-inline-end: auto;" for="APP_URL">
                 <span class="field-label">Site URL</span>
             </label>
-            <input class="color:black border-width:default border:black placeholder-color:gray" placeholder="Enter Site URL" type="url" id="APP_URL" name="APP_URL" required autocomplete="APP_URL">
+            <input class="color:black border-width:default border:black placeholder-color:gray"
+                   placeholder="Enter Site URL" type="url" id="APP_URL" name="APP_URL" required autocomplete="APP_URL">
             <ul class="form-error">
                 <li class="text-decoration:underline"><span class="text list-info-span">!</span>Cache Clearing Won't Work With an Invalid Site URL</li>
             </ul>

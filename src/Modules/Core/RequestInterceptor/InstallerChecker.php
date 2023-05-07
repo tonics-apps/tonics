@@ -15,6 +15,7 @@ use App\Modules\Core\Library\Authentication\IsAppInstalled;
 use App\Modules\Core\Library\SimpleState;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
+use Symfony\Component\Yaml\Tests\A;
 
 /**
  * The InstallerChecker Interceptor would only let the request pass if the app hasn't been installed,
@@ -29,6 +30,9 @@ class InstallerChecker implements TonicsRouterRequestInterceptorInterface
     public function handle(OnRequestProcess $request): void
     {
        $urlPath = $request->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()->getFullRoutePath();
+       if (AppConfig::TonicsIsReady() === false){
+           return;
+       }
        $isAppInstalled = new IsAppInstalled();
        # Meaning the app hasn't been installed
 

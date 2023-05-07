@@ -118,7 +118,6 @@ if (fieldMenuUL) {
                 let mainFieldSlug = el?.closest('.tonics-field-selection-dropper-form-group').querySelector(`input[name="main_field_slug"]`);
                 if (mainFieldSlug.value === selectedFieldSlugValue){
                     fieldMenuULFieldSelectionDropperMap.set(selectedFieldSlugValue, tonicsFieldSelectionDropperUL.cloneNode(true));
-                    console.log(fieldMenuULFieldSelectionDropperMap);
                 }
             }
         }

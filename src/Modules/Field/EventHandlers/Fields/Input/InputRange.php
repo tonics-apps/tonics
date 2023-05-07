@@ -151,7 +151,7 @@ $error
      <label class="menu-settings-handle-name d:flex align-items:center flex-gap:small" for="fieldName-$changeID">$fieldName
             <input style="width: unset; transform: unset;" id="fieldName-$changeID" $min $max $step  name="$inputName" type="$textType" $maxChar
             class="menu-name color:black placeholder-color:gray volume-slider"
-            value="$defaultValue" oninput="this.nextElementSibling.value = this.value">
+            value="$defaultValue">
             <output>$defaultValue</output>
     </label>
 </div>

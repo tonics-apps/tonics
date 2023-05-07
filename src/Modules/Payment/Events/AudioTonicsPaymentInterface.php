@@ -19,6 +19,11 @@ interface AudioTonicsPaymentInterface
     public function name(): string;
 
     /**
+     * @return bool
+     */
+    public function enabled(): bool;
+
+    /**
      * @return void
      */
     public function handlePayment(): void;
