@@ -11,7 +11,10 @@
 namespace App\Apps\TonicsCloud\Controllers;
 
 use App\Apps\TonicsCloud\Interfaces\CloudServerInterface;
-use App\Apps\TonicsCloud\Jobs\CreateInstance;
+use App\Apps\TonicsCloud\Jobs\Instance\CreateInstance;
+use App\Apps\TonicsCloud\Jobs\Instance\DestroyInstance;
+use App\Apps\TonicsCloud\Jobs\Instance\ResizeInstance;
+use App\Apps\TonicsCloud\Jobs\Instance\UpdateInstanceStatus;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
@@ -64,15 +67,13 @@ class InstanceController
             ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'provider_instance_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'provider_instance_id'],
 
             [
-                'type' => 'text',
+                'type' => '',
                 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_name',
                 'title' => 'Instance', 'desc' => 'Name of the instance',
                 'minmax' => '85px, 1fr', 'td' => 'service_instance_name'
             ],
 
             ['type' => 'text', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICES . '::' . 'service_description', 'title' => 'PLan', 'desc' => 'Current Plan', 'minmax' => '50px, .5fr', 'td' => 'service_description'],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'start_time', 'title' => 'Start Time', 'minmax' => '70px, .6fr', 'td' => 'start_time'],
         ];
 
         $authInfo = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
@@ -81,7 +82,7 @@ class InstanceController
             $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
             $serviceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
 
-            $data = $db->Select('service_instance_status, provider_instance_id, service_instance_name, start_time, 
+            $data = $db->Select('service_instance_status, provider_instance_id, service_instance_name, 
                 CONCAT("/customer/tonics_cloud/instances/", provider_instance_id, "/edit" ) as _edit_link, service_description')
                 ->From("$serviceInstanceTable")
                 ->Join("$serviceTable", "$serviceInstanceTable.fk_service_id", "$serviceTable.service_id")
@@ -91,7 +92,6 @@ class InstanceController
                 })
                 ->OrderByDesc(table()->pickTable($serviceInstanceTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
         });
-
 
         view('Apps::TonicsCloud/Views/Instance/index', [
             'DataTable' => [
@@ -115,7 +115,7 @@ class InstanceController
                 $entityBag = $decodedBag;
             })) {
             if ($this->deleteMultiple($entityBag)) {
-                response()->onSuccess([], "Records Deleted", more: AbstractDataLayer::DataTableEventTypeDelete);
+                response()->onSuccess([], "Records Deletion Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
                 response()->onError(500);
             }
@@ -124,7 +124,7 @@ class InstanceController
                 $entityBag = $decodedBag;
             })) {
             if ($this->updateMultiple($entityBag)) {
-                response()->onSuccess([], "Records Updated, Reload For Changes", more: AbstractDataLayer::DataTableEventTypeUpdate);
+                response()->onSuccess([], "Records Update Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeUpdate);
             } else {
                 response()->onError(500, 'An Error Occurred Updating Records');
             }
@@ -159,20 +159,42 @@ class InstanceController
         $validator->changeErrorMessage(['service_plan:required' => 'Please Choose a Plan']);
 
         $validation = $validator->make(input()->fromPost()->all(), $this->getInstanceCreateRule());
-        if ($validation->fails()){
+        $service = InstanceController::getServicePlan(input()->fromPost()->retrieve('service_plan'));
+
+        if ($validation->fails() || !isset($service->service_name)){
             session()->flash($validation->getErrors(), input()->fromPost()->all());
             redirect(route('tonicsCloud.instances.create'));
         }
 
-        unset($_POST['_fieldDetails']);
+        $insertedInstance = null;
+        db(onGetDB: function (TonicsQuery $db) use ($service, &$insertedInstance) {
+            $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
+            $authInfo = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
+            if (isset($authInfo->user_id)){
+                $insertedInstance = $db->InsertReturning($serviceInstanceTable, [
+                    'service_instance_name' => input()->fromPost()->retrieve('service_instance_name'),
+                    'fk_customer_id' => $authInfo->user_id, 'fk_service_id' => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
+                ], ['service_instance_id'], 'service_instance_id'
+                );
+            }
+        });
+
+        if ($insertedInstance === null){
+            session()->flash(['An Error Occurred Creating an Instance'], input()->fromPost()->all());
+            redirect(route('tonicsCloud.instances.create'));
+        }
+
 
         $instanceJob = new CreateInstance();
+        $_POST['service_instance_id'] = $insertedInstance->service_instance_id;
         $instanceJob->setJobName('TonicsCloud_CreateContainer');
+        unset($_POST['_fieldDetails']); # Clean Rubbish
         $instanceJob->setData($_POST);
         job()->enqueue($instanceJob);
 
+
         session()->flash(['Instance Creation Enqueued, Refresh For Changes in a Minute'], [], Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tonicsCloud.containers.index'));
+        redirect(route('tonicsCloud.instances.index'));
     }
 
     /**
@@ -213,18 +235,30 @@ class InstanceController
             redirect(route('tonicsCloud.instances.edit', [$providerInstanceID]));
         }
 
+        # If this returns false, then user want to change the name
         if (input()->fromPost()->hasValue('service_plan')){
-            /** @var CloudServerInterface $handler */
-            $handler = TonicsCloudActivator::getCloudServerHandler(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudServerIntegrationType));
-            $_POST['provider_instance_id'] = $providerInstanceID;
-            if ($handler->resizeInstance($_POST)){
-                session()->flash(['Instance Updated Successful'], [], Session::SessionCategories_FlashMessageSuccess);
+            $authInfo = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
+            if (isset($authInfo->user_id)){
+                $instanceJob = new ResizeInstance();
+                $instanceJob->setJobName('TonicsCloud_UpdateInstance');
+                $_POST['provider_instance_id'] = $providerInstanceID;
+                $_POST['customer_id'] = $authInfo->user_id;
+                unset($_POST['_fieldDetails']); # Clean Rubbish
+                $instanceJob->setData($_POST);
+                job()->enqueue($instanceJob);
+                session()->flash(['Instance Update Enqueued, Refresh For Changes in a Minute'], [], Session::SessionCategories_FlashMessageSuccess);
                 redirect(route('tonicsCloud.instances.index'));
             }
         }
 
-        session()->flash(['An Error Occurred Updating Instance'], input()->fromPost()->all());
-        redirect(route('tonicsCloud.instances.edit', [$providerInstanceID]));
+        db(onGetDB: function (TonicsQuery $db) use ($providerInstanceID) {
+            $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
+            $db->FastUpdate($serviceInstanceTable, ['service_instance_name' => input()->fromPost()->retrieve('service_instance_name')],
+                db()->Q()->WhereEquals('provider_instance_id', $providerInstanceID)->WhereNull('end_time'));
+        });
+
+        session()->flash(['Update Successful'], [], Session::SessionCategories_FlashMessageSuccess);
+        redirect(route('tonicsCloud.instances.index'));
     }
 
     /**
@@ -235,9 +269,11 @@ class InstanceController
     public function updateMultiple($entityBag): bool
     {
         $updateItems = $this->getAbstractDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
-        /** @var CloudServerInterface $handler */
-        $handler = TonicsCloudActivator::getCloudServerHandler(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudServerIntegrationType));
-        return $handler->changeInstanceStatus($updateItems);
+        $instanceJob = new UpdateInstanceStatus();
+        $instanceJob->setJobName('TonicsCloud_UpdateInstanceStatus');
+        $instanceJob->setData($updateItems);
+        job()->enqueue($instanceJob);
+        return true;
     }
 
     /**
@@ -248,9 +284,11 @@ class InstanceController
     public function deleteMultiple($entityBag): bool
     {
         $deleteItems = $this->getAbstractDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
-        /** @var CloudServerInterface $handler */
-        $handler = TonicsCloudActivator::getCloudServerHandler(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudServerIntegrationType));
-        return $handler->destroyInstance($deleteItems);
+        $instanceJob = new DestroyInstance();
+        $instanceJob->setJobName('TonicsCloud_DestroyInstance');
+        $instanceJob->setData($deleteItems);
+        job()->enqueue($instanceJob);
+        return true;
     }
 
     /**
@@ -275,6 +313,23 @@ class InstanceController
         });
 
         return $serviceInstance;
+    }
+
+    /**
+     * @param $servicePlan
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public static function getServicePlan($servicePlan): mixed
+    {
+        $service = null;
+        db(onGetDB: function (TonicsQuery $db) use ($servicePlan, &$service) {
+            $service = $db->Select("service_name, service_id, service_provider_id")
+                ->From(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES))
+                ->WhereEquals('service_id', $servicePlan)->FetchFirst();
+        });
+
+        return $service;
     }
 
     /**

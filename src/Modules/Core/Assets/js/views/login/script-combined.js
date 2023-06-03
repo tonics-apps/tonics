@@ -3069,19 +3069,19 @@ try {
         tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
         if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
             flattenTonicsFlashMessagesArray(tonicsFlashMessages.successMessage).forEach((value) => {
-                successToast(value, 6000);
+                successToast(value, 10000);
             });
         }
 
         if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
             flattenTonicsFlashMessagesArray(tonicsFlashMessages.errorMessage).forEach((value) => {
-                errorToast(value, 6000);
+                errorToast(value, 10000);
             });
         }
 
         if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
             flattenTonicsFlashMessagesArray(tonicsFlashMessages.infoMessage).forEach((value) => {
-                infoToast(value, 6000);
+                infoToast(value, 10000);
             });
         }
     }

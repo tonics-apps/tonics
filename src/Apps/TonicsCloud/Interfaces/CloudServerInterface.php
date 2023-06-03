@@ -14,13 +14,13 @@ interface CloudServerInterface
 {
     public function name(): string;
 
-    public function createInstance(array $data = []): bool;
+    public function createInstance(array $data);
 
-    public function destroyInstance(array $data = []): bool;
+    public function destroyInstance(array $data);
 
-    public function resizeInstance(array $data = []): bool;
+    public function resizeInstance(array $data);
 
-    public function changeInstanceStatus(array $data = []): bool;
+    public function changeInstanceStatus(array $data);
 
     /**
      * Fetches Linode instances using pagination and returns a generator.
@@ -39,7 +39,7 @@ interface CloudServerInterface
      *
      * @return \Generator The generator that yields instances.
      */
-    public function getInstances(array $data = []): \Generator;
+    public function getInstances(array $data): \Generator;
 
     /**
      * Return an array of region id and label, e.g:

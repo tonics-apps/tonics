@@ -10,6 +10,7 @@
 
 namespace App\Apps\TonicsCloud\EventHandlers\CloudServersHandler;
 
+use App\Apps\TonicsCloud\Controllers\InstanceController;
 use App\Apps\TonicsCloud\Controllers\TonicsCloudSettingsController;
 use App\Apps\TonicsCloud\Events\OnAddCloudServerEvent;
 use App\Apps\TonicsCloud\Interfaces\CloudServerInterface;
@@ -31,6 +32,7 @@ class LinodeCloudServerHandler implements HandlerInterface, CloudServerInterface
 {
     const API_INSTANCES = '/linode/instances';
     const API_STACK_SCRIPTS = '/linode/stackscripts';
+
     /**
      * @inheritDoc
      */
@@ -48,193 +50,145 @@ class LinodeCloudServerHandler implements HandlerInterface, CloudServerInterface
     /**
      * @throws \Exception
      */
-    public function createInstance(array $data = []): bool
+    public function createInstance(array $data): void
     {
         $client = $this->getLinodeClient();
-        $cloudRegion = input()->fromPost()->retrieve('cloud_region');
-        $instanceName = input()->fromPost()->retrieve('service_instance_name');
-        $servicePlan = input()->fromPost()->retrieve('service_plan');
+        $cloudRegion = $data['cloud_region'] ?? '';
+        $instanceName = $data['service_instance_name'] ?? '';
+        $servicePlan = $data['service_plan'] ?? '';
+        $serviceInstanceID = $data['service_instance_id'] ?? '';
 
-        $service = null;
-        db(onGetDB: function (TonicsQuery $db) use ($servicePlan, &$service) {
-            $service = $db->Select("service_name, service_id, service_provider_id")
-                ->From(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES))
-                ->WhereEquals('service_id', $servicePlan)->FetchFirst();
-        });
-
-        if ($this->regionExist($cloudRegion) === false || !isset($service->service_name)) {
-            return false;
+        $service = InstanceController::getServicePlan($servicePlan);
+        if (empty($serviceInstanceID) && $this->regionExist($cloudRegion) === false || !isset($service->service_name)) {
+            throw new Exception("One or More Field Required To Create Instance is Missing");
         }
 
         $repository = $client->linodes;
-
-        // We would be using the SSH key here, this is just a testing stage, ensure to remove it and also use a stackscript that doesn't have ssh enabled
-        // at all
         $parameters = [
             Linode::FIELD_TYPE => $service->service_name,
             Linode::FIELD_REGION => $cloudRegion,
             Linode::FIELD_BACKUPS_ENABLED => true,
             Linode::FIELD_IMAGE => 'private/20349386',
-            Linode::FIELD_ROOT_PASS => 'Horlayemi111',
+            Linode::FIELD_ROOT_PASS => helper()->randString(),
         ];
 
-        try {
-            $authInfo = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
-            if (isset($authInfo->user_id)){
-                $linode = $repository->create($parameters);
-                if (!empty($linode->toArray())){
-                    $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
-                    db(onGetDB: function (TonicsQuery $db) use ($authInfo, $instanceName, $linode, $serviceInstanceTable, $service) {
-                        $db->Insert($serviceInstanceTable, [
-                                'provider_instance_id' => $linode->id, 'service_instance_name' => $instanceName,
-                                'fk_service_id' => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
-                                'fk_customer_id' => $authInfo->user_id, 'others' => json_encode(
-                                    [
-                                        'instance' => $linode->toArray(),
-                                        'security' => ['cert' => LXDHelper::generateCertificateEncrypted(), 'added' => false]
-                                    ])
-                            ]
-                        );
-                    });
-                }
-            }
-        } catch (LinodeException $exception){
-            return false;
+        $linode = $repository->create($parameters);
+        if (!empty($linode->toArray())) {
+            db(onGetDB: function (TonicsQuery $db) use ($serviceInstanceID, $instanceName, $linode, $service) {
+                $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
+                $db->FastUpdate($serviceInstanceTable, [
+                    'provider_instance_id' => $linode->id,
+                    'service_instance_name' => $instanceName,
+                    'others' => json_encode(
+                        [
+                            'instance' => $linode->toArray(),
+                            'security' => ['cert' => LXDHelper::generateCertificateEncrypted(), 'added' => false]
+                        ])
+                ], db()->Q()->WhereEquals('service_instance_id', $serviceInstanceID));
+            });
         }
-
-        return true;
     }
 
     /**
      * @throws LinodeException
      * @throws Exception
      */
-    public function resizeInstance(array $data = []): bool
+    public function resizeInstance(array $data): void
     {
-        $instanceName = input()->fromPost()->retrieve('service_instance_name');
-        $servicePlan = input()->fromPost()->retrieve('service_plan');
-        $providerInstanceID = input()->fromPost()->retrieve('provider_instance_id');
+        $instanceName = $data['service_instance_name'] ?? '';
+        $servicePlan = $data['service_plan'] ?? '';
+        $providerInstanceID = $data['provider_instance_id'] ?? '';
+        $customerID = $data['customer_id'] ?? '';
 
-        $service = null;
-        try {
-            db( onGetDB: function (TonicsQuery $db) use ($servicePlan, &$service) {
-                $service = $db->Select("service_name, service_id, service_provider_id")
-                    ->From(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES))
-                    ->WhereEquals('service_id', $servicePlan)->FetchFirst();
-            });
-
-            if (!isset($service->service_name)) {
-                return false;
-            }
-
-            $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
-
-            $client = $this->getLinodeClient();
-            $authInfo = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
-
-            db(onGetDB: function (TonicsQuery $db) use ($serviceInstanceTable, $providerInstanceID, $service) {
-                $endTime = date('Y-m-d H:i:s');
-                $db->FastUpdate($serviceInstanceTable, ['end_time' => $endTime, 'service_instance_status' => 'Resized'],
-                    db()->Q()->WhereEquals('provider_instance_id', $providerInstanceID)->WhereNull('end_time'));
-            });
-
-            $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
-            db(onGetDB: function (TonicsQuery $db) use ($providerInstanceID, $authInfo, $instanceName, $serviceInstanceTable, $service) {
-                $db->Insert($serviceInstanceTable, [
-                        'provider_instance_id' => $providerInstanceID, 'service_instance_name' => $instanceName,
-                        'service_instance_status' => 'Resizing',
-                        'fk_service_id' => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
-                        'fk_customer_id' => $authInfo->user_id,
-                    ]
-                );
-            });
-
-            $client->linodes->resize($providerInstanceID, $service->service_name);
-
-            return true;
-        } catch (\Throwable $exception){
-            // Log..
+        $service = InstanceController::getServicePlan($servicePlan);
+        if (!isset($service->service_name) && empty($customerID)) {
+            throw new Exception("One or More Field Required To Update or Resize Instance is Missing");
         }
 
-        return false;
+        $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
+        $client = $this->getLinodeClient();
 
+        # End The Previous Instance
+        db(onGetDB: function (TonicsQuery $db) use ($serviceInstanceTable, $providerInstanceID, $service) {
+            $endTime = date('Y-m-d H:i:s');
+            $db->FastUpdate($serviceInstanceTable, ['end_time' => $endTime, 'service_instance_status' => 'Resized'],
+                db()->Q()->WhereEquals('provider_instance_id', $providerInstanceID)->WhereNull('end_time'));
+        });
+
+        # Create a new one with the same property somewhat
+        db(onGetDB: function (TonicsQuery $db) use ($providerInstanceID, $customerID, $instanceName, $serviceInstanceTable, $service) {
+            $db->Insert($serviceInstanceTable, [
+                    'provider_instance_id' => $providerInstanceID, 'service_instance_name' => $instanceName,
+                    'service_instance_status' => 'Resizing',
+                    'fk_service_id' => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
+                    'fk_customer_id' => $customerID,
+                ]
+            );
+        });
+
+        $client->linodes->resize($providerInstanceID, $service->service_name);
     }
 
     /**
      * @throws Exception
      */
-    public function destroyInstance(array $data = []): bool
+    public function destroyInstance(array $data): void
     {
         $items = $data;
         $client = $this->getLinodeClient();
         $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
-        try {
-            foreach ($items as $item){
-                $item = (array)$item;
-                $serviceInstancePrefix = TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::';
-                $instanceID = $item[$serviceInstancePrefix . 'provider_instance_id'] ?? '';
-                if (empty($instanceID)){
-                    continue;
-                }
-
-                db(onGetDB: function (TonicsQuery $db) use ($serviceInstanceTable, $instanceID) {
-                    $endTime = date('Y-m-d H:i:s');
-                    $db->FastUpdate($serviceInstanceTable, ['end_time' => $endTime, 'service_instance_status' => 'Destroyed'], db()->Q()->WhereEquals('provider_instance_id', $instanceID)->WhereNull('end_time'));
-                });
-                $client->linodes->delete($instanceID);
+        foreach ($items as $item) {
+            $item = (array)$item;
+            $serviceInstancePrefix = TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::';
+            $instanceID = $item[$serviceInstancePrefix . 'provider_instance_id'] ?? '';
+            if (empty($instanceID)) {
+                throw new Exception("One or More Field Required To Destroy Instance is Missing");
             }
-        } catch (\Throwable $linodeException){
-            // Log..
-            return false;
-        }
 
-        return true;
+            db(onGetDB: function (TonicsQuery $db) use ($serviceInstanceTable, $instanceID) {
+                $endTime = date('Y-m-d H:i:s');
+                $db->FastUpdate($serviceInstanceTable, ['end_time' => $endTime, 'service_instance_status' => 'Destroyed'], db()->Q()->WhereEquals('provider_instance_id', $instanceID)->WhereNull('end_time'));
+            });
+            $client->linodes->delete($instanceID);
+        }
     }
 
     /**
      * @param array $data
-     * @return bool
      * @throws LinodeException
      * @throws Exception
      */
-    public function changeInstanceStatus(array $data = []): bool
+    public function changeInstanceStatus(array $data): void
     {
         $updates = $data;
         $client = $this->getLinodeClient();
-        try {
-            foreach ($updates as $update){
-                $update = (array)$update;
-                $serviceInstancePrefix = TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::';
-                $status = $update[$serviceInstancePrefix . 'service_instance_status'] ?? '';
-                $statusAction = $update[$serviceInstancePrefix . 'service_instance_status_action'] ?? '';
-                $instanceID = $update[$serviceInstancePrefix . 'provider_instance_id'] ?? '';
+        foreach ($updates as $update) {
+            $update = (array)$update;
+            $serviceInstancePrefix = TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::';
+            $status = $update[$serviceInstancePrefix . 'service_instance_status'] ?? '';
+            $statusAction = $update[$serviceInstancePrefix . 'service_instance_status_action'] ?? '';
+            $instanceID = $update[$serviceInstancePrefix . 'provider_instance_id'] ?? '';
 
-                if (empty($instanceID)){
-                    continue;
-                }
-
-                if (($status === 'Running' && $statusAction === 'Start') || ($status === 'Rebooting' && $statusAction === 'Reboot')){
-                    continue;
-                }
-
-                if ($statusAction === 'Reboot'){
-                    $client->linodes->reboot($instanceID);
-                }
-
-                if ($statusAction === 'ShutDown'){
-                    $client->linodes->shutdown($instanceID);
-                }
-
-                if ($statusAction === 'Start'){
-                    $client->linodes->boot($instanceID);
-                }
+            if (empty($instanceID)) {
+                continue;
             }
-        } catch (LinodeException|Exception $linodeException){
-            // Log..
-            return false;
-        }
 
-        return true;
+            if (($status === 'Running' && $statusAction === 'Start') || ($status === 'Rebooting' && $statusAction === 'Reboot')) {
+                continue;
+            }
+
+            if ($statusAction === 'Reboot') {
+                $client->linodes->reboot($instanceID);
+            }
+
+            if ($statusAction === 'ShutDown') {
+                $client->linodes->shutdown($instanceID);
+            }
+
+            if ($statusAction === 'Start') {
+                $client->linodes->boot($instanceID);
+            }
+        }
     }
 
     /**
@@ -243,7 +197,7 @@ class LinodeCloudServerHandler implements HandlerInterface, CloudServerInterface
      * @throws LinodeException
      * @throws Exception
      */
-    public function getInstances(array $data = []): Generator
+    public function getInstances(array $data): Generator
     {
         $json = null;
         $page = $data['page'] ?? 1;
@@ -257,7 +211,7 @@ class LinodeCloudServerHandler implements HandlerInterface, CloudServerInterface
             $response = null;
             try {
                 $response = $client->api($client::REQUEST_GET, $uri, ['page' => $page, 'page_size' => 200]);
-            }catch (LinodeException $exception){
+            } catch (LinodeException $exception) {
                 if (is_callable($errorHandler)) {
                     $errorHandler($response, $exception->getMessage());
                 }

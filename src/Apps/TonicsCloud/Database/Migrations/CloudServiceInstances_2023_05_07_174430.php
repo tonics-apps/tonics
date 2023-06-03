@@ -27,14 +27,14 @@ class CloudServiceInstances_2023_05_07_174430 extends Migration {
             $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     `service_instance_id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `provider_instance_id` varchar(100) NOT NULL, -- id of the instance from the provider, e.g, id return by AWS or Linode, etc
+    `provider_instance_id` varchar(100) DEFAULT NULL, -- id of the instance from the provider, e.g, id return by AWS or Linode, etc
     `service_instance_name` varchar(255) NOT NULL DEFAULT uuid(),
     `service_instance_status` varchar(30) DEFAULT 'Provisioning',
-    `fk_provider_id` int(10) unsigned NOT NULL,
-    `fk_service_id` int(10) unsigned NOT NULL,
+    `fk_provider_id` int(10) unsigned DEFAULT NULL,
+    `fk_service_id` int(10) unsigned DEFAULT NULL,
     `fk_customer_id` BIGINT NOT NULL,
-    `start_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `end_time` DATETIME,
+    `start_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `end_time` DATETIME DEFAULT NULL,
     `others` longtext DEFAULT '{}' CHECK (json_valid(`others`)),
     `created_at` timestamp DEFAULT current_timestamp(),
     `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),

@@ -10,10 +10,7 @@
 
 namespace App\Apps\TonicsCloud\Controllers;
 
-use App\Apps\TonicsCloud\Jobs\CreateContainer;
-use App\Apps\TonicsCloud\Library\LXD\Client;
-use App\Apps\TonicsCloud\Library\LXD\LXDHelper;
-use App\Apps\TonicsCloud\Library\LXD\URL;
+use App\Apps\TonicsCloud\Jobs\Container\CreateContainer;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
