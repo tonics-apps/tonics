@@ -33,7 +33,7 @@ class PostMenus implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_POST), $event->userRole()), function ($event) {
+        $event->if(UserData::canAccess(Roles::CAN_ACCESS_POST, $event->userRole()), function ($event) {
             return $event->addMenu(OnAdminMenu::BlogMenuID, 'Blog', helper()->getIcon('note', 'icon:admin'), route('posts.create'))
                 ->addMenu(OnAdminMenu::BlogMenuID + 1, 'New Post', helper()->getIcon('plus', 'icon:admin'), route('posts.create'), parent: OnAdminMenu::BlogMenuID)
                 ->addMenu(OnAdminMenu::BlogMenuID + 2, 'All Posts', helper()->getIcon('notes', 'icon:admin'), route('posts.index'), parent: OnAdminMenu::BlogMenuID)

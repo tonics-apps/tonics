@@ -35,12 +35,6 @@ class AbstractDataLayer
     const DataTableRetrieveAppUpdateElements = 'appUpdateElements';
     const DataTableRetrieveFilterOption = 'filterOption';
 
-    /**
-     * Database you wanna Interact With...
-     * This would by default connect with the db in the config
-     */
-    protected MyPDO $DB;
-
 
     /**
      * @param string $table

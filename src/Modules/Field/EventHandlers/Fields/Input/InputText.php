@@ -219,7 +219,7 @@ FORM;
 <div class="form-group margin-top:0">
     $error
      <label class="menu-settings-handle-name screen-reader-text" for="fieldName-$changeID">$fieldName</label>
-            <input id="fieldName-$changeID" autocomplete="new-password" $readOnly $required name="$inputName" type="$textType" $maxChar
+            <input id="fieldName-$changeID" $readOnly $required name="$inputName" type="$textType" $maxChar
             class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$defaultValue" placeholder="$placeholder">
 </div>

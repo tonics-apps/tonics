@@ -586,7 +586,7 @@ class ConditionalTokenizerState extends TonicsTemplateTokenizerStateAbstract
                 } elseif ($nextChar['type'] === 'digit' || $nextChar['type'] === 'boolean'){
                     self::$operandB = $nextChar['value'];
                 }
-            }else {
+            } else {
                 $nextChar = isset($nextChar['type']) ? $nextChar['type'] : $nextChar;
                 $tv->exception(TonicsTemplateRuntimeException::class, ["Invalid Operand Type:  `$opA {$token['value']} {$nextChar}`"]);
             }

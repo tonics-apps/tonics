@@ -21,13 +21,14 @@ class CloudCredits_2023_05_07_174435 extends Migration {
         db(onGetDB: function (TonicsQuery $db) use ($customerTable) {
             $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
-  `credit_id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `credit_description` text DEFAULT NULL,
-  `credit_amount` decimal(15, 2) DEFAULT NULL,
-  `fk_customer_id` BIGINT NOT NULL,
-  `created_at` timestamp DEFAULT current_timestamp(),
-  `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  CONSTRAINT `cloud_credits_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customerTable` (`user_id`) ON UPDATE CASCADE
+    `credit_id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `credit_amount` decimal(15, 2) DEFAULT NULL,
+    `credit_description` text DEFAULT NULL,
+    `others` longtext DEFAULT '{}' CHECK (json_valid(`others`)),
+    `fk_customer_id` BIGINT NOT NULL,
+    `created_at` timestamp DEFAULT current_timestamp(),
+    `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    CONSTRAINT `cloud_credits_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customerTable` (`user_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         });
     }

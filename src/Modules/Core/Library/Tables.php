@@ -43,7 +43,11 @@ final class Tables
         self::TRACK_DEFAULT_FILTERS_TRACKS => ['id', 'fk_track_id', 'fk_tdf_id'],
 
         self::USERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'role', 'settings', 'created_at', 'updated_at'],
-        self::ROLES => ['id', 'role_name', 'role_id', 'created_at', 'updated_at'],
+
+        self::ROLES => ['role_id', 'role_name', 'created_at', 'updated_at'],
+        self::PERMISSIONS => ['permission_id', 'permission_display_name', 'permission_name', 'created_at', 'updated_at'],
+        self::ROLE_PERMISSIONS => ['id', 'fk_role_id', 'fk_permission_id'],
+
         self::CUSTOMERS => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'is_guest', 'role', 'settings', 'created_at', 'updated_at'],
         self::WIDGET_ITEMS => ['id', 'fk_widget_id', 'wgt_id', 'wgt_name', 'wgt_options', 'created_at', 'updated_at'],
         self::WIDGETS => ['widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at'],
@@ -97,6 +101,8 @@ final class Tables
 
 
     const ROLES = 'roles';
+    const PERMISSIONS = 'permissions';
+    const ROLE_PERMISSIONS = 'role_permissions';
     const USERS = 'user';
     const CUSTOMERS = 'customer';
 

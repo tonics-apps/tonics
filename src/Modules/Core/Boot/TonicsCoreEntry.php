@@ -17,24 +17,6 @@ class TonicsCoreEntry
 {
     public static function entry()
     {
-/*        $message = 'The quick brown fox jumped over the lazy dog.';
-
-        # Generate keypair
-        $keyPair = sodium_crypto_sign_keypair();
-        # The PubKey
-        $pubKey = sodium_crypto_sign_publickey($keyPair);
-        $pubKeyBaseEncoded = sodium_bin2base64($pubKey, SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING);
-        dd($pubKeyBaseEncoded, base64_decode($pubKeyBaseEncoded) === $pubKey);
-        $privateKey = sodium_crypto_sign_secretkey($keyPair);
-
-
-        # Sign a message By Using the Private or Secret Key
-        $signature = sodium_crypto_sign_detached($message, $privateKey);
-
-        # Verify a message
-        $verifyResult = sodium_crypto_sign_verify_detached($signature, $message, base64_decode($pubKeyBaseEncoded));
-        dd([$signature, $pubKeyBaseEncoded], $verifyResult);*/
-
                 #-----------------------------
             # LOAD ENV FILE
         #---------------------------------
@@ -52,7 +34,7 @@ class TonicsCoreEntry
             AppConfig::initLoaderMinimal()->init();
             AppConfig::initLoaderOthers()->BootDaBoot();
         } catch (\Exception $e) {
-            die($e->getMessage());
+            echo $e->getMessage();
             // Log..
         }
     }

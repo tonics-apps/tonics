@@ -12,6 +12,9 @@ namespace App\Modules\Core\Commands;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\ConsoleColor;
+use App\Modules\Core\Library\ForkProcessTrait;
+use App\Modules\Core\Library\SharedMemory;
+use App\Modules\Core\Library\SharedMemoryInterface;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
@@ -26,7 +29,7 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
  */
 class OnStartUpCLI implements ConsoleCommand, EventInterface
 {
-    use ConsoleColor;
+    use ConsoleColor, ForkProcessTrait;
 
     private array $classes = [];
 
@@ -47,11 +50,9 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
     /**
      * Here is a breakdown of how the run command works:
      *
-     * - The first line calls the `pcntl_async_signals()` function with TRUE as the argument. This enables asynchronous signal handling.
-     *
-     * - The next block of code registers a signal handler for the SIGCHLD signal. This signal is sent to the parent process when a child process terminates.
-     * The signal handler waits for child processes to complete and kills them with the SIGKILL signal. Without this, zombie process would build as children process runs, so,
-     * by killing then when they are done, we avoid that scenario.
+     * - The first line calls the cleanHandleZombieProcess, this deals with properly cleaning of child process that can clean properly, which in turns
+     * avoids zombie processes. Note: You do not need to use the cleanHandleZombieProcess in any other classes that is also doing their own fork, as long as
+     * they are been spunned from this class, it would handle the zombie cleaning in all of them, wink.
      *
      * - The `$event` variable dispatches an OnStartUpCLI event using the `event()` function, this is used to gather the command that should be run on `StartUp`.
      * The `$helper` variable gets a helper instance using the `helper()` function.
@@ -97,15 +98,7 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
      */
     public function run(array $commandOptions): void
     {
-        pcntl_async_signals(TRUE);
-
-        // Register signal handler for SIGCHLD
-        pcntl_signal(SIGCHLD, function ($sigNo) {
-            while (($pid = pcntl_waitpid(-1, $status, WNOHANG | WUNTRACED)) > 0) {
-                // Child process completed
-                posix_kill($pid, SIGKILL); // Kill the child process
-            }
-        });
+        $this->cleanHandleZombieProcess();
 
         /** @var OnStartUpCLI $event */
         $event = event()->dispatch($this);
@@ -120,14 +113,15 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
             if ($helper->classImplements($class, [HandlerInterface::class, ConsoleCommand::class])) {
                 /** @var ConsoleCommand $command */
                 $command = new $class;
+
                 $this->infoMessage("Running $class");
                 if ($parallel) {
-                    $helper->fork(AppConfig::getAppCLIForkLimit(),
+                    $helper->fork(
                         onChild: function () use ($class, $command) {
                             cli_set_process_title("$class");
                             $command->run([]);
                         },
-                        beforeOnChild: function ($pid) use (&$pIDS) {
+                        onParent: function ($pid) use (&$pIDS) {
                             $pIDS[] = $pid;
                         },
                         onForkError: function () {

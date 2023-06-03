@@ -10,7 +10,6 @@
 
 namespace App\Modules\Core\EventHandlers\SchedulerTransporter;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Library\AbstractJobOnStartUpCLIHandler;
 use App\Modules\Core\Library\ConsoleColor;

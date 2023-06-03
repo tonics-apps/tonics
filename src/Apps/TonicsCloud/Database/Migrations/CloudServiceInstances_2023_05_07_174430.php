@@ -5,6 +5,7 @@
 
 namespace App\Apps\TonicsCloud\Database\Migrations;
 
+use App\Apps\TonicsCloud\Schedules\UpdateServiceInstanceInfo;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
@@ -17,20 +18,43 @@ class CloudServiceInstances_2023_05_07_174430 extends Migration {
      */
     public function up(): void
     {
-        $servicesTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
-        $customerTable = Tables::getTable(Tables::CUSTOMERS);
-        db(onGetDB: function (TonicsQuery $db) use ($customerTable, $servicesTable) {
+
+        db(onGetDB: function (TonicsQuery $db){
+            $servicesTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
+            $customerTable = Tables::getTable(Tables::CUSTOMERS);
+            $providerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_PROVIDER);
+
             $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
-  `service_instance_id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `fk_service_id` int(10) unsigned NOT NULL,
-  `fk_customer_id` BIGINT NOT NULL,
-   start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   end_time DATETIME,
-  CONSTRAINT `service_provider_id_foreign` FOREIGN KEY (`fk_service_id`) REFERENCES `$servicesTable` (`service_id`) ON UPDATE CASCADE,
-  CONSTRAINT `service_instances_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customerTable` (`user_id`) ON UPDATE CASCADE
+    `service_instance_id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `provider_instance_id` varchar(100) NOT NULL, -- id of the instance from the provider, e.g, id return by AWS or Linode, etc
+    `service_instance_name` varchar(255) NOT NULL DEFAULT uuid(),
+    `service_instance_status` varchar(30) DEFAULT 'Provisioning',
+    `fk_provider_id` int(10) unsigned NOT NULL,
+    `fk_service_id` int(10) unsigned NOT NULL,
+    `fk_customer_id` BIGINT NOT NULL,
+    `start_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `end_time` DATETIME,
+    `others` longtext DEFAULT '{}' CHECK (json_valid(`others`)),
+    `created_at` timestamp DEFAULT current_timestamp(),
+    `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `has_null_end_time` tinyint(1) AS (CASE WHEN `end_time` IS NULL THEN 1 ELSE NULL END) STORED,
+    -- a generated column has_null_end_time is added, which stores a value of 1 if the end_time is NULL and NULL otherwise. 
+    -- The UNIQUE constraint (`provider_instance_id`, `fk_provider_id`, `has_null_end_time`) ensures, 
+    -- that the combination of provider_instance_id, fk_provider_id, and has_null_end_time is unique.
+    -- this way, we can guarantee that only one instance of the instance is running from a provider
+    INDEX `provider_instance_id_idx` (`provider_instance_id`),
+    INDEX `service_instance_status_idx` (`service_instance_status`),
+    FULLTEXT KEY `service_instance_name_fulltext_index` (`service_instance_name`),
+    CONSTRAINT `service_instances_fk_service_id_foreign` FOREIGN KEY (`fk_service_id`) REFERENCES `$servicesTable` (`service_id`) ON UPDATE CASCADE,
+    CONSTRAINT `service_instances_fk_customer_id_foreign` FOREIGN KEY (`fk_customer_id`) REFERENCES `$customerTable` (`user_id`) ON UPDATE CASCADE,
+    CONSTRAINT `services_instances_fk_provider_id_foreign` FOREIGN KEY (`fk_provider_id`) REFERENCES `$providerTable` (`provider_id`) ON UPDATE CASCADE,
+    CONSTRAINT `uc_provider_instance_id_fk_provider_id` UNIQUE (`provider_instance_id`, `fk_provider_id`, `has_null_end_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         });
+
+        $updateServiceInstanceInfoSchedule = new UpdateServiceInstanceInfo();
+        schedule()->enqueue($updateServiceInstanceInfoSchedule);
     }
 
     /**

@@ -7,22 +7,8 @@
  */
 
 use Ahc\Env\Loader;
-use App\Modules\Core\Commands\ClearCache;
-use App\Modules\Core\Commands\Environmental\SetEnvironmentalPepper;
 use App\Modules\Core\Commands\InitConsole;
-use App\Modules\Core\Commands\Module\MigrateAll;
-use App\Modules\Core\Commands\Module\MigrateAllFresh;
-use App\Modules\Core\Commands\Module\ModuleMakeConsole;
-use App\Modules\Core\Commands\Module\ModuleMakeMigration;
-use App\Modules\Core\Commands\Module\ModuleMigrate;
-use App\Modules\Core\Commands\Module\ModuleMigrateDown;
-use App\Modules\Core\Commands\PreInstall\PreInstallerManager;
-use App\Modules\Core\Commands\Scheduler\ScheduleManager;
-use App\Modules\Core\Commands\Sync\SyncDirectory;
-use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Configs\AppConfig;
-use Devsrealm\TonicsConsole\CommandRegistrar;
-use Devsrealm\TonicsConsole\Console;
 use Devsrealm\TonicsConsole\ProcessCommandLineArgs;
 use Devsrealm\TonicsContainer\Container;
 

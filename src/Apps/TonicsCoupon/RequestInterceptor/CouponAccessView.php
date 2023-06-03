@@ -64,7 +64,7 @@ class CouponAccessView
 
             ## Else, post is in draft or trash or in the future, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
-            if (Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ))) {
+            if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ)) {
                 $this->coupon = $coupon; return;
             }
         }
@@ -109,7 +109,7 @@ class CouponAccessView
 
             ## Else, category is in draft, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
-            if (Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ))) {
+            if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ)) {
                 $this->couponType = $couponType; return;
             }
         }

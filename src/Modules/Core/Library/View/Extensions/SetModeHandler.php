@@ -58,7 +58,11 @@ class SetModeHandler extends TonicsTemplateViewAbstract implements TonicsModeInt
     public function render(string $content, array $args, array $nodes = []): string
     {
         $view = $this->getTonicsView();
-        $view->addToVariableData($args[0], $view->accessArrayWithSeparator($args[1]));
+        if ($view->checkArrayKeyExistence($args[1])){
+            $view->addToVariableData($args[0], $view->accessArrayWithSeparator($args[1]));
+        } else {
+            $view->addToVariableData($args[0], $args[1]);
+        }
         return '';
     }
 }

@@ -8,7 +8,7 @@
         <tr>
             [[add_hook('Core::before_data_table_header')]]
             [[each("dtHeader in DataTable.headers")
-                <th title="[[v('dtHeader.title')]]" [[each("dtHeaderKeyValue in dtHeader") data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"]]>
+                <th title="[[v('dtHeader.desc .. dtHeader.title')]]" [[each("dtHeaderKeyValue in dtHeader") data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"]]>
                     [[v('dtHeader.title')]]
                 </th>
             ]]
@@ -20,7 +20,11 @@
         <tr>
             [[add_hook('Core::before_data_table_data')]]
 
-            [[add_hook('Core::on_data_table_data')]]
+            [[each("dtHeader in DataTable.headers")
+                [[if("v[dtRow->dtHeader.td] || v[__current_var_key_exist]")
+                    <td tabindex="-1" data-td="[[v('dtHeader.td')]]">[[add_hook('Core::on_data_table_data')[[_v('dtRow->dtHeader.td')]]]]</td>
+                ]]
+            ]]
 
             [[add_hook('Core::after_data_table_data')]]
         </tr>

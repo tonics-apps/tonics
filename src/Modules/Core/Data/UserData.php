@@ -16,6 +16,7 @@ use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\ArrayShape;
 
 class UserData extends AbstractDataLayer
@@ -124,8 +125,8 @@ class UserData extends AbstractDataLayer
             $userTable = $this->getUsersTable();
             $rolesTable = $this->getRolesTable();
 
-            $userInfo = $db->Select('*, role_id as role')->From($userTable)
-                ->Join($rolesTable, "{$rolesTable}.id", "{$userTable}.role")
+            $userInfo = $db->Select('*, role_name as role')->From($userTable)
+                ->Join($rolesTable, "{$rolesTable}.role_id", "{$userTable}.role")
                 ->WhereEquals('email', $email)
                 ->FetchFirst();
         });
@@ -172,7 +173,7 @@ class UserData extends AbstractDataLayer
             $userTable = $this->getCustomersTable();
             $rolesTable = $this->getRolesTable();
             $userInfo =  $db->Select('*, role_id as role')->From($userTable)
-                ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
+                ->Join($rolesTable, "$rolesTable.role_id", "$userTable.role")
                 ->WhereEquals('email', $email)
                 ->FetchFirst();
         });
@@ -224,8 +225,8 @@ class UserData extends AbstractDataLayer
         db(onGetDB: function ($db) use ($email, &$userInfo){
             $userTable = $this->getCustomersTable();
             $rolesTable = $this->getRolesTable();
-            $userInfo = $db->Select('*, role_id as role')->From($userTable)
-                ->Join($rolesTable, "$rolesTable.id", "$userTable.role")
+            $userInfo = $db->Select('*, role_name as role')->From($userTable)
+                ->Join($rolesTable, "$rolesTable.role_id", "$userTable.role")
                 ->WhereEquals('email', $email)
                 ->FetchFirst();
         });
@@ -298,76 +299,32 @@ class UserData extends AbstractDataLayer
     }
 
     /**
-     * @param int $permission
+     * @param string $permission
      * e.g. Roles::CAN_ACCESS_CORE, Roles::CAN_ACCESS_CUSTOMER, Roles::CAN_ACCESS_MEDIA, Roles::CAN_READ, Roles::CAN_DELETE, ETC
      * @param null $roleAuthenticationInfo
-     * - If you want to use this method multiple times, save roleAuthenticationInfo in a variable and pass it here
+     * - (Optional) If you want to use this method multiple times, save roleAuthenticationInfo in a variable and pass it here
      * @return bool
      * @throws \Exception
      */
-    public static function canAccess(int $permission, $roleAuthenticationInfo = null): bool
+    public static function canAccess(string $permission, $roleAuthenticationInfo = null): bool
     {
         if ($roleAuthenticationInfo !== null) {
-            return Roles::RoleHasPermission($roleAuthenticationInfo, $permission);
+            return Roles::ROLE_HAS_PERMISSIONS($roleAuthenticationInfo, $permission);
         }
 
-        return Roles::RoleHasPermission(UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role), $permission);
+        return Roles::ROLE_HAS_PERMISSIONS(UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role), $permission);
     }
 
     /**
      * If user role doesn't have a permission
-     * @param int $permission
+     * @param string $permission
      * e.g Roles::CAN_ACCESS_CORE, Roles::CAN_ACCESS_CUSTOMER, Roles::CAN_ACCESS_MEDIA, Roles::CAN_READ, Roles::CAN_DELETE, ETC
      * @return bool
      * @throws \Exception
      */
-    public static function canNotAccess(int $permission): bool
+    public static function canNotAccess(string $permission): bool
     {
-        return !Roles::RoleHasPermission(UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role), $permission);
-    }
-
-    /**
-     * If user can't use the write permission, we return and un-auth error
-     * @throws \Exception
-     */
-    public static function canNotAccessWritePermissionBoiler()
-    {
-        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_WRITE))) {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
-        }
-    }
-
-    /**
-     * If user can't use the update permission, we return and un-auth error
-     * @throws \Exception
-     */
-    public static function canNotAccessUpdatePermissionBoiler()
-    {
-        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_UPDATE))) {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
-        }
-    }
-
-    /**
-     * If user can't use the delete permission, we return and un-auth error
-     * @throws \Exception
-     */
-    public static function canNotAccessDeletePermissionBoiler()
-    {
-        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_DELETE))) {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
-        }
-    }
-
-    /**
-     * If user can't use the read permission, we return and un-auth error
-     * @throws \Exception
-     */
-    public static function canNotAccessReadPermissionBoiler()
-    {
-        if (UserData::canNotAccess(Roles::getPermission(Roles::CAN_READ))) {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_UNAUTHORIZED_ACCESS__CODE, SimpleState::ERROR_UNAUTHORIZED_ACCESS__MESSAGE);
-        }
+        return !Roles::ROLE_HAS_PERMISSIONS(UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role), $permission);
     }
 
 
@@ -556,6 +513,7 @@ class UserData extends AbstractDataLayer
             $verificationCodeFromUser = input()->fromPost()->retrieve('verification-code');
             $password = helper()->securePass(input()->fromPost()->retrieve('password'));
 
+
             # If verification code is in-valid
             if (!hash_equals((string)$verification->verification_code, $verificationCodeFromUser)){
                 $this->verificationInvalid($onError);
@@ -576,15 +534,16 @@ class UserData extends AbstractDataLayer
 
             $settings->active_sessions = [];
             # Update Password
-            db(onGetDB: function ($db) use ($verificationData, $settings, $password, $table) {
-                $db->FastUpdate($table,
+            db(onGetDB: function (TonicsQuery $db) use ($verificationData, $settings, $password, $table) {
+                $db->FastUpdate(
+                    $table,
                     ['user_password' => $password, 'settings' => json_encode($settings), 'is_guest' => 0, 'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER)],
                     db()->Where('email', '=', $verificationData->email));
             });
 
             session()->flash(['Password Successfully Changed, Login'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('customer.login'));
-        }catch (\Exception){
+        }catch (\Exception $exception){
             session()->flash(['Verification code is invalid, request a new one']);
             $this->verificationInvalid($onError);
         }

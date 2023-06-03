@@ -55,7 +55,7 @@ class PostAccessView
                 redirect(PostRedirection::getPostAbsoluteURLPath($postData), 302);
             }
 
-            if (Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ)) === false){
+            if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ) === false){
                 if (key_exists('post_status', $postData)) {
                     if ($postData['post_status'] === 1) {
                         $this->post = $postData; return;
@@ -107,7 +107,7 @@ class PostAccessView
 
             ## Else, category is in draft, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
-            if (Roles::RoleHasPermission($role, Roles::getPermission(Roles::CAN_READ))) {
+            if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ)) {
                 $this->category = $category; return;
             }
         }

@@ -26,7 +26,7 @@ class CoreAccess implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_CORE)) === false){
+        if (UserData::canAccess(Roles::CAN_ACCESS_CORE) === false){
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

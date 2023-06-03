@@ -81,7 +81,7 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
                         $tag->setContent($handlerInit);
                         $storage[$hook_into]['nodes'] = [...$storage[$hook_into]['nodes'], $tag];
                     }
-                    break;
+                    // break;
                 }
             }
         } else {

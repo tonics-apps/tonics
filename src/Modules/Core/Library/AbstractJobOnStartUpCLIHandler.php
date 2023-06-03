@@ -21,10 +21,9 @@ class AbstractJobOnStartUpCLIHandler
     /**
      * @throws \Exception
      */
-    public function run(callable $onRunning)
+    public function run(callable $onRunning, callable $shutDown = null)
     {
         $this->registerSignalHandlers();
-
         while (!$this->exitProcess) {
 
             if (AppConfig::isMaintenanceMode()) {
@@ -34,6 +33,12 @@ class AbstractJobOnStartUpCLIHandler
             }
 
             $onRunning();
+        }
+
+        # Don't take forever here please, this callable give you the chance to
+        # do clean up of variables opened outside the run method
+        if ($shutDown){
+            $shutDown();
         }
 
         exit(0);
@@ -46,7 +51,7 @@ class AbstractJobOnStartUpCLIHandler
     private function registerSignalHandlers(): void
     {
         pcntl_signal(SIGTERM, function () {
-            $this->infoMessage("Gracefully Shutting Down, ended with a memory of " . helper()->formatBytes(memory_get_usage()));
+            $this->infoMessage("Gracefully Shutting Down, ending with a memory of " . helper()->formatBytes(memory_get_usage()));
             $this->exitProcess = true;
         });
     }

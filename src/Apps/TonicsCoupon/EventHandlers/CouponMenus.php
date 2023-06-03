@@ -33,7 +33,7 @@ class CouponMenus implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_APPS), $event->userRole()), function ($event) {
+        $event->if(UserData::canAccess(Roles::CAN_ACCESS_APPS, $event->userRole()), function ($event) {
             $lastMenuID = $event->getLastMenuID() + 5;
             return $event->addMenu($lastMenuID, 'Coupon', helper()->getIcon('offer', 'icon:admin'), route('tonicsCoupon.create'))
                 ->addMenu($lastMenuID + 1, 'New Coupon', helper()->getIcon('plus', 'icon:admin'), route('tonicsCoupon.create'), parent: $lastMenuID)

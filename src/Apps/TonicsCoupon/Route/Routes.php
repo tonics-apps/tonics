@@ -68,7 +68,7 @@ trait Routes
                 $route->match(['post', 'delete'], ':couponType/delete', [CouponTypeController::class, 'delete']);
             }, alias: 'Type');
 
-        },AuthConfig::getAuthRequestInterceptor([AppAccess::class]), 'tonicsCoupon');
+        }, AuthConfig::getAuthRequestInterceptor([AppAccess::class]), 'tonicsCoupon');
 
         $route->group('/admin/tools/apps', function (Route $route) {
             $route->get('tonics_coupon/settings', [CouponSettingsController::class, 'edit'], alias: 'tonicsCoupon.settings');

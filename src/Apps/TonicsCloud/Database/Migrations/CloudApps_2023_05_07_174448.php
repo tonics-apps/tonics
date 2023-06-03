@@ -12,19 +12,23 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CloudApps_2023_05_07_174448 extends Migration {
 
-    public function up()
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public function up(): void
     {
         db(onGetDB: function (TonicsQuery $db)  {
             $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
-  `app_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `app_name` int(10) unsigned NOT NULL,
+  `app_id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `app_name` varchar(255) NOT NULL DEFAULT uuid(),
   `app_description` text DEFAULT NULL,
-  app_version VARCHAR(255) NOT NULL,
+  `app_version` VARCHAR(255) NOT NULL,
   `others` longtext DEFAULT '{}' CHECK (json_valid(`others`)),
   `created_at` timestamp DEFAULT current_timestamp() ,
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`app_id`)
+   INDEX (`app_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         });
     }

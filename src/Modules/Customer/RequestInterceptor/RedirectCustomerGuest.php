@@ -25,7 +25,7 @@ class RedirectCustomerGuest implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_GUEST))){
+        if (UserData::canAccess(Roles::CAN_ACCESS_GUEST)){
             redirect(route('customer.verifyEmailForm'));
         }
     }

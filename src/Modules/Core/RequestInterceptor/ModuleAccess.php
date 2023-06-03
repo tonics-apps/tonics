@@ -25,7 +25,7 @@ class ModuleAccess implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_MODULE)) === false){
+        if (UserData::canAccess(Roles::CAN_ACCESS_MODULE) === false){
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

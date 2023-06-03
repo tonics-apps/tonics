@@ -16,7 +16,6 @@
   "minimum-stability": "dev",
   "require": {
     "adhocore/env": "^0.1.0",
-    "paragonie/easydb": "^2.11",
     "ext-zip": "*",
     "ext-intl": "*",
     "ext-pdo": "*",
@@ -29,6 +28,8 @@
     "ext-gd": "*",
     "ext-pcntl": "*",
     "ext-posix": "*",
+    "ext-sysvsem": "*",
+    "ext-sysvshm": "*",
     "devsrealm/tonics-template-system": "*",
     "devsrealm/tonics-dom-parser": "*",
     "devsrealm/tonics-file-manager": "*",
@@ -41,7 +42,8 @@
     "devsrealm/tonics-query-builder": "*",
     "mpratt/embera": "~2.0",
     "halaxa/json-machine": "dev-master",
-    "phpmailer/phpmailer": "^6.7.1"
+    "phpmailer/phpmailer": "^6.7.1",
+    "defuse/php-encryption": "^2.3.1",
   },
   "repositories": [
     {

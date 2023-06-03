@@ -25,7 +25,7 @@ class WidgetAccess implements TonicsRouterRequestInterceptorInterface
      */
     public function handle(OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_WIDGET)) === false){
+        if (UserData::canAccess(Roles::CAN_ACCESS_WIDGET) === false){
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

@@ -30,7 +30,7 @@ class HookIntoAdminMenuTree implements HandlerInterface
         $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView){
             try {
                 # For Admin User
-                if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_CORE), UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
+                if (UserData::canAccess(Roles::CAN_ACCESS_CORE, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
                     $adminCacheClearRoute = route('admin.cache.clear');
                     if (!empty($adminCacheClearRoute)){
                         $adminCacheClearRoute = $adminCacheClearRoute . "?token=" . AppConfig::getAppKey();
@@ -77,7 +77,7 @@ HTML;
                 }
 
                 # For Customer User
-                if (UserData::canAccess(Roles::getPermission(Roles::CAN_ACCESS_CUSTOMER), UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
+                if (UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
                     $token = session()->getCSRFToken();
                     $logout = route('customer.logout');
                     return <<<HTML

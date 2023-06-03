@@ -376,7 +376,6 @@ SQL, $jsonPath, $sessionID);
                     'session_data' => json_encode($sessionData),
                 ];
 
-
                 $stm = $db->insertOnDuplicate(
                     table: $this->getTable(),
                     data: $toSave,
@@ -457,7 +456,7 @@ SQL, $jsonPath, $sessionID);
         $messages = $this->retrieve($key, default: true, jsonDecode: true);
 
         if ($js === 'true') {
-            return json_encode($messages);
+            return helper()->htmlSpecChar(json_encode($messages));
         }
 
         if (is_object($messages)){

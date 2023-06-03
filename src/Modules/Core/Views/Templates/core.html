@@ -23,7 +23,7 @@
         data-tonics_siteURL = '[[v('App_Config.SiteURL')]]'
         data-tonics_siteTimeZone = '[[v('App_Config.TimeZone')]]'
         data-tonics_fileManagerURL= '[[url('media.show')]]'
-        data-tonics_flashMessages = '[[session('renderFlashMessages', 'tonics_flash_message', 'true')]]'
+        data-tonics_flashMessages = "[[session('renderFlashMessages', 'tonics_flash_message', 'true')]]"
         [[add_hook('Core::in_body_attribute')]]>
 
     [[_use("default-inline-svg")]]

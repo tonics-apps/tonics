@@ -42,7 +42,7 @@ class AudioTonicsPayPalHandler implements HandlerInterface, AudioTonicsPaymentIn
     public function enabled(): bool
     {
 
-        dd(PaymentSettingsController::isPaymentEnabled(PaymentSettingsController::FlutterWave_Enabled));
+        // dd(PaymentSettingsController::isPaymentEnabled(PaymentSettingsController::FlutterWave_Enabled));
     }
 
     /**

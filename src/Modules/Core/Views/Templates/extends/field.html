@@ -1,4 +1,5 @@
 [[hook_into('Core::in_main')
+[[set('Field.ButtonName', 'Save Changes')]]
 <form method="post" class="EditorsForm" id="EditorsForm"  action="[[add_hook('Core::form_action')]]" accept-charset="UTF-8" enctype="multipart/form-data">
   <input type="hidden" name="token" value="[[csrf()]]" >
   [[add_hook('Core::before_form_section')]]
@@ -20,8 +21,10 @@
   <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
     <button name="save_changes" class="tonics-save-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
                         margin-top:0 cursor:pointer button:box-shadow-variant-2">
-      Save Changes
+      [[add_hook('Core::in_form_button_name')]]
     </button>
   </div>
 </form>
 ]]
+
+[[hook_into('Core::in_form_button_name')Save Changes]]

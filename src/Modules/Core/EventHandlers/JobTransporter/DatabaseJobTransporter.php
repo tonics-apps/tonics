@@ -10,6 +10,7 @@
 
 namespace App\Modules\Core\EventHandlers\JobTransporter;
 
+use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Events\OnAddJobTransporter;
 use App\Modules\Core\Library\AbstractJobOnStartUpCLIHandler;
 use App\Modules\Core\Library\ConsoleColor;
@@ -17,13 +18,22 @@ use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
+use App\Modules\Core\Library\SharedMemory;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
+use Throwable;
 
 class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements JobTransporterInterface, HandlerInterface
 {
     use ConsoleColor;
+
+    private int $maxForks = 10;
+    private int $forkCount  = 0;
+    private array $pIDS  = [];
+    private ?TonicsHelpers $helper = null;
+    private ?SharedMemory $sharedMemory = null;
 
     /**
      * @inheritDoc
@@ -95,61 +105,129 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
     }
 
     /**
+     * @return void
      * @throws \Exception
      */
     public function runJob(): void
     {
-        $table = $this->getTable();
-        $this->run(function () use ($table) {
+       $this->helper = helper();
+       $this->sharedMemory = new SharedMemory(JobManager::masterKey(), JobManager::semaphoreID(), JobManager::sharedMemorySize());
+
+        $this->run(function (){
+            $job = $this->getNextJob();
+            if (empty($job)) {
+                # While the schedule event is empty, we sleep for a 0.2s, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(200000);
+                return;
+            }
 
             /**
-             * This query first selects all rows from the jobs table where the job_status is 'queued'.
-             * It then uses a subquery to select all job_parent_id values from the jobs table that are not NULL.
-             *
-             * This effectively gets a list of all job_id values for jobs that have child jobs.
-             * The outer query then filters out any jobs whose job_id is in the list of job_parent_id values, effectively excluding any jobs that have child jobs.
-             *
+             * As long as we haven't reached maxForks and there are jobs to process, it would keep forking,
+             * the good thing about this is that we now have the luxury of handle multiple jobs at a go in batches,
+             * isn't that awesome, and to put an icing on the cake, it is fork process safe.
              */
-            $jobs = null;
-            db(onGetDB: function ($db) use ($table, &$jobs) {
-                $jobs = $db->run(<<<SQL
+            $this->helper->fork(
+                onChild: function () use ($job) {
+                    try {
+                        cli_set_process_title("$job->job_name Job Event");
+                        $this->prepJobHandle($job);
+                        exit(0); # Success if no exception is thrown
+                    } catch (Throwable $exception) {
+                        $this->errorMessage($exception->getMessage());
+                        exit(1); # Failed
+                    }
+                },
+                onParent: function ($pid){
+                    $this->pIDS[] = $pid; # store the child pid
+                    // here is where we limit the number of forked process,
+                    // if the maxed forked has been reached, we wait for any child fork to exit,
+                    // once it does, we remove the pid that exited from the list (queue) so another one can come in.
+                    // this effectively limit
+                    if (count($this->pIDS) >= $this->maxForks) {
+                        $pid = pcntl_waitpid(-1, $status);
+                        unset($this->pIDS[$pid]); // Remove PID that exited from the list
+                        $this->infoMessage("Maximum Number of {$this->maxForks} Job Forks Reached, Opening For New Fork");
+                    }
+                },
+                onForkError: function () {
+                    // handle the fork error here for the parent, this is because when a fork error occurs
+                    // it propagates to the parent which abruptly stop the script execution
+                    $this->errorMessage("Unable to Fork");
+                }
+            );
+        }, shutDown: function (){
+            $this->sharedMemory->cleanSharedMemory();
+        });
+    }
+
+    /**
+     * This query first selects all rows from the jobs table where the job_status is 'queued'.
+     * It then uses a sub-query to select all job_parent_id values from the jobs table that are not NULL.
+     *
+     * This effectively gets a list of all job_id values for jobs that have child jobs.
+     * The outer query then filters out any jobs whose job_id is in the list of job_parent_id values, effectively excluding any jobs that have child jobs.
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public function getNextJob(): mixed
+    {
+        return $this->sharedMemory->ensureAtomicity(function (SharedMemory $sharedMemory){
+            $nextJob = null;
+            db(onGetDB: function (TonicsQuery $db) use (&$nextJob){
+                $table = $this->getTable();
+                $nextJob = $db->row(<<<SQL
 SELECT * 
 FROM $table
 WHERE `job_status` = ? AND `job_id` NOT IN (SELECT `job_parent_id` FROM $table WHERE `job_parent_id` IS NOT NULL)
 ORDER BY `job_priority` DESC
 LIMIT ?
-FOR UPDATE SKIP LOCKED
 SQL, Job::JobStatus_Queued, 1);
-            });
 
-            if (empty($jobs)) {
-                # While the job is empty, we sleep for a 0.5s, this reduces the CPU usage, thus giving the CPU the chance to do other things
-                usleep(500000);
-                return;
-            }
-
-            db(onGetDB: function (TonicsQuery $db) use ($jobs, $table) {
-                foreach ($jobs as $job) {
-                    try {
-                        $this->infoMessage("Running job $job->job_name with an id of $job->job_id");
-                        # Job In_Progress
-                        $update = ['job_status' => Job::JobStatus_InProgress];
-                        $db->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_id', $job->job_id));
-
-                        $this->handleIndividualJob($job);
-
-                        $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
-                        $db->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_id', $job->job_id));
-                    } catch (\Throwable $exception) {
-                        $update = ['job_status' => Job::JobStatus_Failed];
-                        $this->errorMessage("Job $job->job_name failed, with an id of $job->job_id");
-                        $db->FastUpdate($table, $update, db()->WhereEquals('job_id', $job->job_id));
-                        $this->errorMessage($exception->getMessage() . $exception->getTraceAsString());
-                    }
+                # Since we have gotten access to semaphore, let's use this opportunity to quickly update the job status
+                # this completely solves the challenge of parallel or concurrent job handling
+                if ($nextJob){
+                    $this->infoMessage("Running job $nextJob->job_name with an id of $nextJob->job_id");
+                    # Job In_Progress
+                    $update = ['job_status' => Job::JobStatus_InProgress];
+                    $db->Q()->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_id', $nextJob->job_id));
                 }
             });
+
+            # Since we are done, we should remove semaphore, if we do not do this, it would be impossible to
+            # kill child process which in theory might have completed but since its semaphore is not releases, it isn't considered completed
+            # so by removing it, the child can close with ease or the respective SIGCHILD signal handler can handle the child zombie cleaning
+            $sharedMemory->detachSemaphore();
+            $sharedMemory->removeSemaphore();
+
+            return $nextJob;
         });
     }
+
+    /**
+     * @param $job
+     * @return void
+     * @throws \Exception
+     */
+    public function prepJobHandle($job): void
+    {
+        try {
+            $this->handleIndividualJob($job);
+            db(onGetDB: function (TonicsQuery $db) use ($job) {
+                $update = ['job_status' => Job::JobStatus_Processed, 'time_completed' => helper()->date()];
+                $db->Q()->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_id', $job->job_id));
+            });
+
+        } catch (\Throwable $exception) {
+            $this->errorMessage("Job $job->job_name failed, with an id of $job->job_id");
+            db(onGetDB: function (TonicsQuery $db) use ($job) {
+                $update = ['job_status' => Job::JobStatus_Failed];
+                $db->Q()->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_id', $job->job_id));
+            });
+            throw new \Exception($exception->getMessage() . $exception->getTraceAsString());
+        }
+
+    }
+
 
     /**
      * @param $job

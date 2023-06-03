@@ -12,13 +12,14 @@ namespace App\Modules\Core\Commands\Job;
 
 use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Library\ConsoleColor;
+use App\Modules\Core\Library\SharedMemoryInterface;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 /**
  * RUN: `php bin/console --run --job` to start working on jobs
  */
-class JobManager implements ConsoleCommand, HandlerInterface
+class JobManager implements ConsoleCommand, HandlerInterface, SharedMemoryInterface
 {
     use ConsoleColor;
 
@@ -43,5 +44,20 @@ class JobManager implements ConsoleCommand, HandlerInterface
     {
         /** @var $event OnStartUpCLI */
         $event->addClass(get_class($this));
+    }
+
+    public static function masterKey(): string
+    {
+        return self::class;
+    }
+
+    public static function semaphoreID(): int
+    {
+        return ftok(__FILE__, 't');
+    }
+
+    public static function sharedMemorySize(): string
+    {
+        return '500kb';
     }
 }

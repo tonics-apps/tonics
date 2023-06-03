@@ -927,3 +927,37 @@ fieldset {
     opacity: 50%;
     pointer-events: none;
 }
+
+.dataTable-status-stopped {
+    background-color: #E91E63;
+}
+
+.dataTable-status-started {
+    background-color: rgb(23, 207, 115);
+}
+
+.dataTable-status-progress {
+    background-color: rgb(255, 179, 26);
+    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    animation: 1.5s ease-in-out 0s infinite normal none running dataTableStatusPulse;
+}
+
+@keyframes dataTableStatusPulse {
+    to {
+        background-color: #ffb31a00
+    }
+}
+
+.dataTable-status-info {
+    background-color: rgb(219, 221, 225);
+}
+
+.dataTable-status {
+    display: inline-block;
+    border-radius: 50%;
+    height: 10px;
+    width: 10px;
+    margin-right: 6px;
+    position: relative;
+    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}

@@ -263,11 +263,6 @@ class AppConfig
         return env('JOB_TRANSPORTER', 'DATABASE');
     }
 
-    public static function getAppCLIForkLimit(): int
-    {
-        return (int)env('APP_STARTUP_CLI_FORK_LIMIT', 1);
-    }
-
     public static function getSchedulerTransporter(): string
     {
         return env('SCHEDULE_TRANSPORTER', 'DATABASE');

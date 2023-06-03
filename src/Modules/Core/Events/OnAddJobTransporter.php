@@ -11,9 +11,8 @@
 namespace App\Modules\Core\Events;
 
 use App\Modules\Core\Library\JobSystem\JobTransporterInterface;
-use Devsrealm\TonicsEventSystem\Interfaces\EventDispatcherInterface;
+use App\Modules\Core\Library\SharedMemoryInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class OnAddJobTransporter implements EventInterface
 {
@@ -64,4 +63,5 @@ class OnAddJobTransporter implements EventInterface
     {
         $this->transporters = $transporters;
     }
+
 }

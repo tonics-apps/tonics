@@ -16,19 +16,21 @@ class CloudContainers_2023_05_07_174444 extends Migration {
      */
     public function up()
     {
-        $serviceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
-        db(onGetDB: function (TonicsQuery $db) use ($serviceTable) {
+        $serviceInstance = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
+        db(onGetDB: function (TonicsQuery $db) use ($serviceInstance) {
             $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
-  `container_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `container_name` int(10) unsigned NOT NULL,
+  `container_id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `container_name` varchar(255) NOT NULL DEFAULT uuid(),
   `container_description` text DEFAULT NULL,
-  `container_service_id` int(10) unsigned NOT NULL,
+   `container_status` varchar(30) DEFAULT 'Provisioning',
+  `service_instance_id` int(10) unsigned NOT NULL,
   `others` longtext DEFAULT '{}' CHECK (json_valid(`others`)),
   `created_at` timestamp DEFAULT current_timestamp() ,
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`container_id`),
-  CONSTRAINT `container_service_id_foreign` FOREIGN KEY (`container_service_id`) REFERENCES `$serviceTable` (`service_id`) ON UPDATE CASCADE
+  INDEX `container_status_idx` (`container_status`),
+  INDEX (`container_name`),
+  CONSTRAINT `container_service_id_foreign` FOREIGN KEY (`service_instance_id`) REFERENCES `$serviceInstance` (`service_instance_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         });
 

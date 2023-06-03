@@ -35,14 +35,9 @@ class CustomerRegistrationVerificationCodeEmail extends AbstractJobInterface imp
         $mail->Subject = AppConfig::getAppName() . ' - Verify Your Email';
         $mail->msgHTML($messageToSend);
 
-        try {
-            $mail->send();
-            $mail->clearAddresses();
-            $mail->clearAttachments();
-        } catch (\Exception $e) {
-            // Log...
-            $this->infoMessage('Mailer Error (' . htmlspecialchars($this->getData()->email) . ') ' . $mail->ErrorInfo);
-        }
+        $mail->send();
+        $mail->clearAddresses();
+        $mail->clearAttachments();
 
     }
 }

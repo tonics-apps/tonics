@@ -11,12 +11,15 @@
 namespace App\Modules\Core\Library\Authentication;
 
 use App\Modules\Core\Library\Tables;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\Pure;
 
 final class Roles
 {
 
     #
+    # NOTE: THE BELOW WARNING NO LONGER APPLIES AS I HAVE SWITCHED FROM MANAGING THE ROLES AND PERMISSION FROM BITS SHIFT TO USING DATABASE TABLES
+
     # DON'T FALL FOR A TRAP: If you want to add extra permission, add it below the last CAN_,
     # e.g. if you add CAN_NEW = 2 between CAN_READ = 1 and CAN_WRITE = 2, and you gave CAN_NEW number 2,
     # while updating the rest of the number incrementally (meaning CAN_WRITE would now start from 3, and you bump the rest by one),
@@ -28,7 +31,7 @@ final class Roles
     const CAN_READ = 'CAN_READ';
     const CAN_WRITE = 'CAN_WRITE';
     const CAN_UPDATE = 'CAN_UPDATE';
-    const CAN_DELETE= 'CAN_DELETE';
+    const CAN_DELETE = 'CAN_DELETE';
 
     # MODULES...
     const CAN_ACCESS_CORE = 'CAN_ACCESS_CORE';
@@ -55,39 +58,15 @@ final class Roles
     const CAN_UPDATE_MODULES = 'CAN_UPDATE_MODULES';
     const CAN_UPDATE_APPS = 'CAN_UPDATE_APPS';
 
-    // Since this is bit-shift, I need to ensure the array index starts at 1
-    static array $PERMISSIONS = [
-        1 => self::CAN_READ, self::CAN_WRITE, self::CAN_UPDATE, self::CAN_DELETE, self::CAN_ACCESS_CORE, self::CAN_ACCESS_GUEST, self::CAN_ACCESS_CUSTOMER, self::CAN_ACCESS_MEDIA,
-        self::CAN_ACCESS_MENU, self::CAN_ACCESS_PAGE, self::CAN_ACCESS_PAYMENT, self::CAN_ACCESS_POST, self::CAN_ACCESS_TRACK, self::CAN_ACCESS_WIDGET,
-        self::CAN_ACCESS_MODULE, self::CAN_ACCESS_APPS, self::CAN_ACCESS_FIELD, self::CAN_UPDATE_MODULES, self::CAN_UPDATE_APPS
-    ];
-
-    public static function getPermission(string $permissionName): int
-    {
-        $roles = array_flip(self::$PERMISSIONS);
-        if (!key_exists($permissionName, $roles)){
-            throw new \InvalidArgumentException("`$permissionName` is an invalid permission name");
-        }
-
-        return $roles[$permissionName];
-    }
 
     # THE ABOVE IS FOR PERMISSION
 
     # THE BELOW IS FOR ROLE
-    const ROLE_READ = 'ROLE_READ';
-    const ROLE_WRITE = 'ROLE_WRITE';
-    const ROLE_UPDATE = 'ROLE_UPDATE';
-    const ROLE_DELETE = 'ROLE_DELETE';
     const ROLE_ADMIN = 'ROLE_ADMIN';
     const ROLE_GUEST = 'ROLE_GUEST';
     const ROLE_CUSTOMER = 'ROLE_CUSTOMER';
 
     static array $ROLES = [
-        self::ROLE_READ,
-        self::ROLE_WRITE,
-        self::ROLE_UPDATE,
-        self::ROLE_DELETE,
         self::ROLE_ADMIN,
         self::ROLE_GUEST,
         self::ROLE_CUSTOMER
@@ -101,164 +80,110 @@ final class Roles
     public static function getRoleIDFromDB(string $roleName): ?int
     {
         $roles = array_flip(self::$ROLES);
-        if (!key_exists($roleName, $roles)){
+        if (!key_exists($roleName, $roles)) {
             throw new \InvalidArgumentException("`$roleName` is an invalid role name");
         }
 
         $roleData = null;
-        db(onGetDB: function ($db) use ($roleName, &$roleData){
-            $roleData = $db->Select('id')->From(Tables::getTable(Tables::ROLES))
+        db(onGetDB: function ($db) use ($roleName, &$roleData) {
+            $roleData = $db->Select('role_id')->From(Tables::getTable(Tables::ROLES))
                 ->WhereEquals('role_name', $roleName)
                 ->FetchFirst();
         });
 
-        if (isset($roleData->id)){
-            return $roleData->id;
+        if (isset($roleData->role_id)) {
+            return $roleData->role_id;
         }
 
         return null;
     }
 
-    public static function ROLE_READ(): string
+    public static function ROLE_ADMIN(): array
     {
-        $adminPermissions = [
-            self::shiftLeft(self::getPermission(self::CAN_READ)),
+        return [
+            self::CAN_READ,
+            self::CAN_WRITE,
+            self::CAN_UPDATE,
+            self::CAN_DELETE,
+            self::CAN_ACCESS_CORE,
+            self::CAN_ACCESS_MEDIA,
+            self::CAN_ACCESS_MENU,
+            self::CAN_ACCESS_PAGE,
+            self::CAN_ACCESS_PAYMENT,
+            self::CAN_ACCESS_POST,
+            self::CAN_ACCESS_TRACK,
+            self::CAN_ACCESS_WIDGET,
+            self::CAN_ACCESS_FIELD,
+            self::CAN_ACCESS_APPS,
+            self::CAN_ACCESS_MODULE,
+            self::CAN_UPDATE_MODULES,
+            self::CAN_UPDATE_APPS,
         ];
-        return self::gmpOr($adminPermissions);
     }
 
-    public static function ROLE_WRITE(): string
+    public static function ROLE_GUEST(): array
     {
-        $adminPermissions = [
-            self::shiftLeft(self::getPermission(self::CAN_WRITE)),
+        return [
+            self::CAN_READ,
+            self::CAN_ACCESS_GUEST,
         ];
-        return self::gmpOr($adminPermissions);
     }
 
-    public static function ROLE_UPDATE(): string
+    public static function ROLE_CUSTOMER(): array
     {
-        $adminPermissions = [
-            self::shiftLeft(self::getPermission(self::CAN_UPDATE)),
+        return [
+            self::CAN_READ,
+            self::CAN_ACCESS_CUSTOMER,
         ];
-        return self::gmpOr($adminPermissions);
     }
-
-    public static function ROLE_DELETE(): string
-    {
-        $adminPermissions = [
-            self::shiftLeft(self::getPermission(self::CAN_DELETE)),
-        ];
-        return self::gmpOr($adminPermissions);
-    }
-
-    public static function ROLE_ADMIN(): string
-    {
-        $adminPermissions = [
-            self::shiftLeft(self::getPermission(self::CAN_READ)),
-            self::shiftLeft(self::getPermission(self::CAN_WRITE)),
-            self::shiftLeft(self::getPermission(self::CAN_UPDATE)),
-            self::shiftLeft(self::getPermission(self::CAN_DELETE)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_CORE)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_MEDIA)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_MENU)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_PAGE)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_PAYMENT)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_POST)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_TRACK)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_WIDGET)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_FIELD)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_APPS)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_MODULE)),
-            self::shiftLeft(self::getPermission(self::CAN_UPDATE_MODULES)),
-            self::shiftLeft(self::getPermission(self::CAN_UPDATE_APPS)),
-        ];
-        return self::gmpOr($adminPermissions);
-    }
-
-    public static function ROLE_GUEST(): string
-    {
-        $permissions = [
-            self::shiftLeft(self::getPermission(self::CAN_READ)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_GUEST)),
-        ];
-        return self::gmpOr($permissions);
-    }
-
-    public static function ROLE_CUSTOMER(): string
-    {
-        $permissions = [
-            self::shiftLeft(self::getPermission(self::CAN_READ)),
-            self::shiftLeft(self::getPermission(self::CAN_ACCESS_CUSTOMER)),
-        ];
-        return self::gmpOr($permissions);
-    }
-
 
     /**
-     * Check if Role have access to permissions
+     * Returns true if roles has permission or permissions
+     *
      * @param string|int $role
-     * Example of role Roles::ADMIN(), Roles::Customer() or a numeric roleID stored in a database
-     * @param int $permission
-     * example of permission: CAN_ACCESS_WIDGET
+     * If string, then an example is: Roles::ROLE_ADMIN
+     * @param array|string $permissions
+     * Can be an array or just a string, e.g: CAN_READ, or for array: ['CAN_READ', 'CAN_WRITE', ...]
      * @return bool
+     * @throws \Exception
      */
-    #[Pure] public static function RoleHasPermission(string|int $role, int $permission): bool
+    public static function ROLE_HAS_PERMISSIONS(string|int $role, array|string $permissions): bool
     {
-        if (empty($role)){
+        if (empty($role)) {
             return false;
         }
-        $permission = self::shiftLeft($permission);
-        $result = gmp_strval(gmp_and($role, $permission));
-        return !empty($result);
-    }
 
-    /**
-     * Return true if role has all the permission in $perms, otherwise, false
-     *
-     * @param string $role
-     * Example of role Roles::ADMIN(), Roles::Customer() or a numeric roleID stored in a database
-     * @param array $perms
-     * @return bool
-     */
-    #[Pure] public static function RoleHasMultiplePermission(string $role, array $perms): bool
-    {
-        $result = true;
-        foreach ($perms as $p){
-            if (self::RoleHasPermission($role, $p) === false){
-                $result = false;
-                break;
-            }
+        if (is_string($permissions)){
+            $permissions = [$permissions];
         }
+
+        $result = false;
+        db( onGetDB: function (TonicsQuery $db) use ($permissions, &$role, &$result) {
+            $rpTable = Tables::getTable(Tables::ROLE_PERMISSIONS);
+            $pTable = Tables::getTable(Tables::PERMISSIONS);
+            $rTable = Tables::getTable(Tables::ROLES);
+
+            if (is_string($role)){
+                $role = $db->Q()->Select('role_id')
+                    ->From($rTable)
+                    ->WhereEquals('role_name', $role)->FetchFirst()?->role_id;
+            }
+
+            $hasPermission = $db->Q()->Select()->Count()->As('count_perm')->From("$rTable r")
+                ->Join("$rpTable rp", "r.role_id", "rp.fk_role_id")
+                ->Join("$pTable p", "rp.fk_permission_id", "p.permission_id")
+                ->WhereEquals("r.role_id", $role)->WhereIn("p.permission_name", $permissions)->FetchFirst();
+
+            if(isset($hasPermission->count_perm)){
+                $result = $hasPermission->count_perm === count($permissions);
+            }
+        });
 
         return $result;
     }
 
     /**
-     * Arbitrary binary shift left operation
-     * @param int $exp
-     * @return string
-     */
-    public static function shiftLeft(int $exp): string
-    {
-        // This is same as 1 << $exp (except that the below can perform arbitrary shift left)
-        return bcmul('1', bcpow(2, $exp));
-    }
-
-    /**
-     * BITWISE OF MULTIPLE NUMBERS
-     * @param array $numbers
-     * @return string
-     */
-    public static function gmpOr(array $numbers): string
-    {
-        $total = 0;
-        foreach($numbers as $num){
-            $total = gmp_or($total, $num);
-        }
-        return gmp_strval($total);
-    }
-
-    /**
+     * Deprecated
      * It is important, you re-login or invalidate existing session roles after calling this function,
      * otherwise, the old session roles would be used.
      * @return void
@@ -267,8 +192,8 @@ final class Roles
     public static function updateRolesInDatabase(): void
     {
         $rolesToInsert = [];
-        foreach (Roles::$ROLES as $roleName){
-            if (method_exists(Roles::class, $roleName)){
+        foreach (Roles::$ROLES as $roleName) {
+            if (method_exists(Roles::class, $roleName)) {
                 $rolesToInsert[] = [
                     'role_id' => Roles::$roleName(),
                     'role_name' => $roleName,
@@ -279,5 +204,95 @@ final class Roles
         db(onGetDB: function ($db) use ($rolesToInsert) {
             $db->insertOnDuplicate(Tables::getTable(Tables::ROLES), $rolesToInsert, ['role_id']);
         });
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public static function UPDATE_DEFAULT_ROLES(): void
+    {
+        $rolesToInsert = [];
+        foreach (self::DEFAULT_ROLES() as $ROLE) {
+            $rolesToInsert[] = [
+                'role_name' => $ROLE,
+            ];
+        }
+
+        db(onGetDB: function (TonicsQuery $db) use ($rolesToInsert) {
+            $db->insertOnDuplicate(Tables::getTable(Tables::ROLES), $rolesToInsert, ['role_name']);
+        });
+    }
+
+    /**
+     * @param array $defaultPermissions
+     * @return void
+     * @throws \Exception
+     */
+    public static function UPDATE_DEFAULT_PERMISSIONS(array $defaultPermissions = []): void
+    {
+        if (empty($defaultPermissions)){
+            $defaultPermissions = self::DEFAULT_PERMISSIONS();
+        }
+
+        $rolesToInsert = [];
+        foreach ($defaultPermissions as $PERMISSION) {
+            $rolesToInsert[] = [
+                'permission_display_name' => $PERMISSION,
+                'permission_name' => $PERMISSION,
+            ];
+        }
+
+        db(onGetDB: function (TonicsQuery $db) use ($rolesToInsert) {
+            $db->insertOnDuplicate(Tables::getTable(Tables::PERMISSIONS), $rolesToInsert, ['permission_name']);
+        });
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public static function UPDATE_DEFAULT_ROLES_PERMISSIONS(): void
+    {
+        db( onGetDB: function (TonicsQuery $db){
+            $rolesToInsert = [];
+            $table = Tables::getTable(Tables::ROLE_PERMISSIONS);
+            foreach (self::DEFAULT_ROLES() as $ROLE){
+                if (method_exists(Roles::class, $ROLE)) {
+                    $roleID = $db->Q()->Select('role_id')
+                        ->From(Tables::getTable(Tables::ROLES))
+                        ->WhereEquals('role_name', $ROLE)->FetchFirst()?->role_id;
+
+                    $permissions = $db->Q()->Select('permission_id')
+                        ->From(Tables::getTable(Tables::PERMISSIONS))
+                        ->WhereIn('permission_name', Roles::$ROLE())->FetchResult();
+
+                    if (!empty($roleID) && (is_array($permissions) && !empty($permissions))){
+                        $db->Q()->FastDelete($table, db()->WhereIn('fk_role_id', $roleID));
+                        foreach ($permissions as $permission) {
+                            $rolesToInsert[] = [
+                                'fk_role_id' => $roleID,
+                                'fk_permission_id' => $permission->permission_id,
+                            ];
+                        }
+                    }
+                }
+            }
+            $db->Q()->Insert($table, $rolesToInsert);
+        });
+    }
+
+    public static function DEFAULT_ROLES(): array
+    {
+        return self::$ROLES;
+    }
+
+    public static function DEFAULT_PERMISSIONS(): array
+    {
+        return [
+            self::CAN_READ, self::CAN_WRITE, self::CAN_UPDATE, self::CAN_DELETE, self::CAN_ACCESS_CORE, self::CAN_ACCESS_GUEST, self::CAN_ACCESS_CUSTOMER, self::CAN_ACCESS_MEDIA,
+            self::CAN_ACCESS_MENU, self::CAN_ACCESS_PAGE, self::CAN_ACCESS_PAYMENT, self::CAN_ACCESS_POST, self::CAN_ACCESS_TRACK, self::CAN_ACCESS_WIDGET,
+            self::CAN_ACCESS_MODULE, self::CAN_ACCESS_APPS, self::CAN_ACCESS_FIELD, self::CAN_UPDATE_MODULES, self::CAN_UPDATE_APPS
+        ];
     }
 }

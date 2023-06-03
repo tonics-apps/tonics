@@ -114,7 +114,7 @@ class EachLoop extends TonicsTemplateViewAbstract implements TonicsModeInterface
         }
 
         if (is_object($loopVariable)){
-            $loopVariable = (array)$loopVariable;
+          $loopVariable = (array)$loopVariable;
         }
 
         $lastKey = array_key_last($loopVariable ?? []);
