@@ -116,7 +116,7 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
         $this->run(function (){
             $job = $this->getNextJob();
             if (empty($job)) {
-                # While the schedule event is empty, we sleep for a 0.2s, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                # While the job event is empty, we sleep for a 0.2s, this reduces the CPU usage, thus giving the CPU the chance to do other things
                 usleep(200000);
                 return;
             }
@@ -184,7 +184,7 @@ LIMIT ?
 SQL, Job::JobStatus_Queued, 1);
 
                 # Since we have gotten access to semaphore, let's use this opportunity to quickly update the job status
-                # this completely solves the challenge of parallel or concurrent job handling
+                # this completely prevents different jobs from stepping on each other toes for concurrent job
                 if ($nextJob){
                     $this->infoMessage("Running job $nextJob->job_name with an id of $nextJob->job_id");
                     # Job In_Progress
@@ -194,7 +194,7 @@ SQL, Job::JobStatus_Queued, 1);
             });
 
             # Since we are done, we should remove semaphore, if we do not do this, it would be impossible to
-            # kill child process which in theory might have completed but since its semaphore is not releases, it isn't considered completed
+            # kill child process which in theory might have completed but since its semaphore is not released, it isn't considered completed
             # so by removing it, the child can close with ease or the respective SIGCHILD signal handler can handle the child zombie cleaning
             $sharedMemory->detachSemaphore();
             $sharedMemory->removeSemaphore();

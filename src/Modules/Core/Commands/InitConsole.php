@@ -26,6 +26,7 @@ use App\Modules\Core\Commands\Scheduler\ScheduleManager;
 use App\Modules\Core\Commands\Sync\SyncDirectory;
 use App\Modules\Core\Commands\UpdateMechanism\AutoUpdate;
 use App\Modules\Core\Commands\UpdateMechanism\Updates;
+use App\Modules\Core\Events\OnAddConsoleCommand;
 use Devsrealm\TonicsConsole\CommandRegistrar;
 use Devsrealm\TonicsConsole\Console;
 use Devsrealm\TonicsConsole\ProcessCommandLineArgs;
@@ -40,33 +41,41 @@ class InitConsole
         # REGISTER COMMANDS
         #
         try {
-            // We should prob use an event here, so, user could hook into this and create their own comman
+            /** @var OnAddConsoleCommand $otherConsoleCommands */
+            # Third-Party Console Commands
+            $otherConsoleCommands = event()->dispatch(new OnAddConsoleCommand())->event();
+            $coreConsoleCommands = [
+                SetupTonics::class,
+                OnStartUpCLI::class,
+                PreInstallerManager::class,
+                ScheduleManager::class,
+                JobManager::class,
+                ModuleMakeConsole::class,
+                ModuleMakeMigration::class,
+                ModuleMigrate::class,
+                MigrateAllFresh::class,
+                MigrateAll::class,
+                ModuleMigrateDown::class,
+                // SetEnvironmentalKey::class, <- No Longer Needed
+                SetEnvironmentalPepper::class,
+                ClearCache::class,
+                SyncDirectory::class,
+                Updates::class,
+                AutoUpdate::class,
+                // For Apps
+                AppBoilerPlate::class,
+                AppMakeMigration::class,
+                AppMigrate::class
+            ];
+
+            foreach ($otherConsoleCommands->getConsoleCommands() as $consoleCommand){
+                $coreConsoleCommands[] = $consoleCommand;
+            }
+
             $commandRegistrar = new CommandRegistrar(
-                $container->resolveMany([
-                    SetupTonics::class,
-                    OnStartUpCLI::class,
-                    PreInstallerManager::class,
-                    ScheduleManager::class,
-                    JobManager::class,
-                    ModuleMakeConsole::class,
-                    ModuleMakeMigration::class,
-                    ModuleMigrate::class,
-                    MigrateAllFresh::class,
-                    MigrateAll::class,
-                    ModuleMigrateDown::class,
-                    // SetEnvironmentalKey::class, <- No Longer Needed
-                    SetEnvironmentalPepper::class,
-                    ClearCache::class,
-                    SyncDirectory::class,
-                    Updates::class,
-                    AutoUpdate::class,
-                    // For Apps
-                    AppBoilerPlate::class,
-                    AppMakeMigration::class,
-                    AppMigrate::class
-                ])
+                $container->resolveMany($coreConsoleCommands)
             );
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException|\Exception $e) {
             exit(1);
         }
 

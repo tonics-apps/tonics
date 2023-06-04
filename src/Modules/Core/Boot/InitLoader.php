@@ -10,6 +10,9 @@
 
 namespace App\Modules\Core\Boot;
 
+use App\Apps\TonicsCloud\Library\LXD\Client;
+use App\Apps\TonicsCloud\Library\LXD\URL;
+use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;

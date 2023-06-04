@@ -21,7 +21,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventDispatcherInterface;
  * The way the `JobEventDispatcher` works is you first enqueue a possible job you are planning to dispatch,
  * then depending on whether the transporter is async or sync, the object is then dispatched to handlers that want to handle the event.
  *
- * If async, you call them with a worker or directly if you prefer...
+ * If async, you call them and it would be place in queue waiting to process or directly if you prefer sync call perhaps for testing...
  *
  */
 class Job

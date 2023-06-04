@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
      `created_at` timestamp DEFAULT current_timestamp(),
      `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
      `time_completed` timestamp NULL DEFAULT NULL,
+     -- KEY AND INDEX ARE THE SAME THING IN MARIADB
      KEY `job_group_name_idx` (`job_name`),
      INDEX `job_status_idx` (`job_status`),
      INDEX jobs_parent_id_status_idx (job_parent_id, job_status),

@@ -29,6 +29,7 @@ use App\Modules\Core\EventHandlers\TemplateEngines\DeactivateCombiningFilesInPro
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeTemplateEngine;
 use App\Modules\Core\EventHandlers\TemplateEngines\WordPressTemplateEngine;
 use App\Modules\Core\Events\EditorsAsset;
+use App\Modules\Core\Events\OnAddConsoleCommand;
 use App\Modules\Core\Events\OnAddJobTransporter;
 use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Events\OnAdminMenu;
@@ -64,6 +65,9 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             OnStartUpCLI::class => [
                 ScheduleManager::class,
                 JobManager::class,
+            ],
+
+            OnAddConsoleCommand::class => [
             ],
 
             OnAddJobTransporter::class => [
