@@ -27,17 +27,6 @@
         [[add_hook('Core::in_body_attribute')]]>
 
     [[_use("default-inline-svg")]]
-
-    [[- Inline SVG -]]
-    [[-
-    <svg class="tonics-inline-svg" style="position: absolute; width: 0; height: 0; overflow: hidden"
-         xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            [[add_hook('Core::in_svg_defs')]]
-        </defs>
-    </svg>
-    -]]
-
     [[add_hook('Core::in_body')]]
 
     [[add_hook('Core::before_header')]]

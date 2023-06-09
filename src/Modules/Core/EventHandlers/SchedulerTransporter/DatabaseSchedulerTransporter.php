@@ -55,21 +55,21 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
      */
     public function enqueue(AbstractSchedulerInterface $scheduleObject): void
     {
-        if ($scheduleObject->chainsEmpty()) {
-            $insert = $this->getToInsert($scheduleObject);
-        } else {
-            $insertChild = $this->getToInsert($scheduleObject);
-            $insertChild['schedule_parent_name'] = null;
-            $insert = [$insertChild];
+
+        $inserts = $this->getToInsert($scheduleObject);
+        if ($scheduleObject->chainsEmpty() === false){
+            $inserts['schedule_parent_name'] = null;
+            $inserts = [$inserts];
+            /** @var AbstractSchedulerInterface $child */
             foreach ($this->recursivelyGetChildObject($scheduleObject) as $child) {
                 $insertChild = $this->getToInsert($child);
-                $insertChild['schedule_parent_name'] = $child->getParent()?->getName();
-                $insert[] = $insertChild;
+                $insertChild['schedule_parent_name'] = $child->getParentObject()?->getName();
+                $inserts[] = $insertChild;
             }
         }
 
-        db(onGetDB: function ($db) use ($insert) {
-            $db->insertOnDuplicate($this->getTable(), $insert, $this->updateKeyOnUpdate());
+        db(onGetDB: function ($db) use ($inserts) {
+            $db->insertOnDuplicate($this->getTable(), $inserts, $this->updateKeyOnUpdate());
         });
 
     }
@@ -87,10 +87,14 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
             // when a scheduleObject has a parent,
             // then schedule_every should be 0 since it is tied to a parent
             // (it has no business in scheduling anything, it is directly called after parent)
-            'schedule_every' => (is_null($scheduleObject->getParent())) ? $scheduleObject->getEvery() : 0,
+            'schedule_every' => (is_null($scheduleObject->getParentObject())) ? $scheduleObject->getEvery() : 0,
         ];
     }
 
+    /**
+     * @param AbstractSchedulerInterface $scheduleObject
+     * @return \Generator
+     */
     public function recursivelyGetChildObject(AbstractSchedulerInterface $scheduleObject): \Generator
     {
         foreach ($scheduleObject->getChains() as $chain) {
@@ -226,7 +230,7 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
                 $scheduleObject = new $scheduleClass;
                 $scheduleObject->setName($schedule->schedule_name);
                 /** @var $scheduleObject AbstractSchedulerInterface */
-                $scheduleObject->setParent($parent);
+                $scheduleObject->setParentObject($parent);
                 $scheduleObject->setData($scheduleData->data ?? []);
                 if (isset($schedule->_children)) {
                     $this->recursivelyCollateScheduleObject($schedule->_children, $scheduleObject);

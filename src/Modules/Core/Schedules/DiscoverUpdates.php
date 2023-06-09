@@ -29,7 +29,7 @@ class DiscoverUpdates extends AbstractSchedulerInterface implements ScheduleHand
         $this->setEvery(Scheduler::everyMinute(30));
 
         $autoUpdates = new AutoUpdates();
-        $autoUpdates->setName('Core_AutoUpdateAfterDiscovering')->setParent($this);
+        $autoUpdates->setName('Core_AutoUpdateAfterDiscovering')->setParentObject($this);
         $this->setChains([$autoUpdates]);
     }
 

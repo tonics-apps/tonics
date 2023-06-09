@@ -19,7 +19,7 @@ class AbstractSchedulerInterface
     private array $chains = [];
     private mixed $data = null;
 
-    private ?AbstractSchedulerInterface $parent = null;
+    private ?AbstractSchedulerInterface $parentObject = null;
 
     /**
      * @return string
@@ -119,18 +119,18 @@ class AbstractSchedulerInterface
     /**
      * @return AbstractSchedulerInterface|null
      */
-    public function getParent(): ?AbstractSchedulerInterface
+    public function getParentObject(): ?AbstractSchedulerInterface
     {
-        return $this->parent;
+        return $this->parentObject;
     }
 
     /**
-     * @param AbstractSchedulerInterface|null $parent
+     * @param AbstractSchedulerInterface|null $parentObject
      * @return AbstractSchedulerInterface
      */
-    public function setParent(?AbstractSchedulerInterface $parent): AbstractSchedulerInterface
+    public function setParentObject(?AbstractSchedulerInterface $parentObject): AbstractSchedulerInterface
     {
-        $this->parent = $parent;
+        $this->parentObject = $parentObject;
         return $this;
     }
 

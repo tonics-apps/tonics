@@ -50,6 +50,7 @@ class TrackFileImporter extends AbstractJobInterface implements JobHandlerInterf
      */
     protected function handleFileImporting(string $filePath = null, $settings = null): void
     {
+        /** @var TrackItemImport $trackItemImport */
         $trackItemImport = container()->get(TrackItemImport::class);
         $trackItemImport->setJobName('TrackItemImport');
         $trackItemImport->setJobStatus(Job::JobStatus_InProgress);
@@ -72,7 +73,7 @@ class TrackFileImporter extends AbstractJobInterface implements JobHandlerInterf
             foreach ($items as $item) {
                 $trackItemImport->setJobName('TrackItemImport_Child');
                 $trackItemImport->setJobStatus(Job::JobStatus_Queued);
-                $trackItemImport->setJobParentID($parentData->job_id);
+                $trackItemImport->setJobParent($parentData->job_id);
                 $trackItemImport->setData($item);
                 $job->enqueue($trackItemImport);
             }

@@ -61,26 +61,13 @@ class SharedMemory
     }
 
     /**
-     * Remove and reattach can help you clean corrupted shared memory, please use this on the first ever instance of the class,
-     * do not try to use in a forked process as you would lose the shared memory and cause havoc across all other processes trying to access
-     * something that does not exist
-     * @throws \Exception
-     */
-    public function removeAndReAttach(): void
-    {
-        $this->removeSharedMemory();
-        $this->removeSemaphore();
-        $this->attachSharedMemory();
-    }
-
-    /**
      * @throws \Exception
      */
     protected function attachSharedMemory(): void
     {
         // get a handle to the semaphore associated with the shared memory
         // segment we want
-        $this->sem = sem_get($this->semaphoreID,1,0600);
+        $this->sem = sem_get($this->semaphoreID,1,0600); // caution: don't ever set the auto_release to false, leave it as is
         if (sem_acquire($this->sem) === false){
             throw new \Exception("Can't acquire semaphore");
         }

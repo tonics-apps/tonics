@@ -46,6 +46,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
      */
     protected function handleFileImporting(string $filePath, $settings): void
     {
+        /** @var CouponItemImport $couponItemImport */
         $couponItemImport = container()->get(CouponItemImport::class);
         $couponItemImport->setJobName('CouponItemImport');
         $couponItemImport->setJobStatus(Job::JobStatus_InProgress);
@@ -76,7 +77,7 @@ class CouponFileImporter extends AbstractJobInterface implements JobHandlerInter
             foreach ($items as $item) {
                 $couponItemImport->setJobName('CouponItemImport_Child');
                 $couponItemImport->setJobStatus(Job::JobStatus_Queued);
-                $couponItemImport->setJobParentID($parentData->job_id);
+                $couponItemImport->setJobParent($parentData->job_id);
                 $newItem = [];
                 if (isset($item->{$couponNameField})){
                     $newItem['coupon_name'] = $item->{$couponNameField};

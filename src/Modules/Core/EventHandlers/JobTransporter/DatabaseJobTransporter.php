@@ -60,6 +60,7 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
      */
     public function enqueue(AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
     {
+        $this->helper = helper();
         $toInsert = $this->getToInsert($jobEvent);
         if ($beforeEnqueue) {
             $beforeEnqueue($toInsert);
@@ -84,8 +85,8 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
     public function getToInsert(AbstractJobInterface $jobEvent): array
     {
         return [
-            'job_name' => $jobEvent->getJobName(),
-            'job_parent_id' => $jobEvent->getJobParentID(),
+            'job_name' => $jobEvent->getJobName() ?: $this->helper->getObjectShortClassName($jobEvent),
+            'job_parent_id' => $jobEvent->getJobParent(),
             'job_status' => $jobEvent->getJobStatus(),
             'job_priority' => $jobEvent->getPriority(),
             'job_data' => json_encode([

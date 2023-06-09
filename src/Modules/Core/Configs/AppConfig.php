@@ -47,6 +47,7 @@ class AppConfig
      * @param bool $failSilently
      * @return InitLoader
      * @throws Exception
+     * @throws \Throwable
      */
     public static function initLoaderOthers(bool $failSilently = false): InitLoader
     {
@@ -130,7 +131,7 @@ class AppConfig
             }
 
             return self::$init;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($failSilently) {
                 ## Fail Silently
                 exit(1);

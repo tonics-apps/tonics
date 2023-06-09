@@ -17,10 +17,17 @@ class AbstractJobInterface
     use ConsoleColor;
 
     private string $jobName = '';
-    private ?int $jobParentID = null;
+    private mixed $jobParent = null;
     private string $jobStatus = Job::JobStatus_Queued;
-    private int $priority = Scheduler::PRIORITY_MEDIUM;
+    private string $jobStatusAfterJobHandled = Job::JobStatus_Processed;
+    private array $chains = [];
+    private int $priority = Scheduler::PRIORITY_URGENT;
     private mixed $data = null;
+
+    private ?int $retryAfter = null;
+    private ?int $maxAttempts = 30;
+
+    private ?AbstractJobInterface $parentObject = null;
 
     /**
      * @return string
@@ -37,6 +44,163 @@ class AbstractJobInterface
     public function setJobName(string $jobName): AbstractJobInterface
     {
         $this->jobName = $jobName;
+        return $this;
+    }
+
+    /**
+     * If chains is empty, meaning there are no nested or child job
+     * @return bool
+     */
+    public function chainsEmpty(): bool
+    {
+        return empty($this->chains);
+    }
+
+    /**
+     * If chains is not empty, meaning there are nested or child job
+     * @return bool
+     */
+    public function chainsIsNotEmpty(): bool
+    {
+        return !empty($this->chains);
+    }
+
+
+    /**
+     * @param AbstractJobInterface $childJob
+     * @return AbstractJobInterface
+     */
+    protected function addJobToChain(AbstractJobInterface $childJob): AbstractJobInterface
+    {
+        $this->chains[] = $childJob;
+        return $this;
+    }
+
+
+
+    /**
+     * Adds the job relationships recursively based on the $jobs array structure.
+     *
+     * <br>
+     * Here is an example:
+     *
+     * ```
+     *     $jobs = [
+     *         [
+     *             'job' => new Job1(),
+     *             'children' => [
+     *                 [
+     *                     'job' => new Job2(),
+     *                     'children' => []
+     *                 ],
+     *                 [
+     *                     'job' => new Job3(),
+     *                     'children' => []
+     *                 ],
+     *             ]
+     *         ],
+     *         [
+     *             'job' => new Job4(),
+     *             'children' => [
+     *                 [
+     *                     'job' => new Job5(),
+     *                     'children' => []
+     *                 ],
+     *                 [
+     *                     'job' => new Job6(),
+     *                     'children' => []
+     *                 ]
+     *             ]
+     *         ]
+     *     ];
+     *
+     *     ...->addChains($jobs);
+     *```
+     *
+     * // The job relationships will be processed in the following order:
+     *      1. Job1
+     *         1.1 Job2
+     *         1.2 Job3
+     *      2. Job4
+     *         2.1 Job5
+     *         2.2 Job6
+     *
+     * <br>
+     *
+     * Keep in mind since `Job2` and `Job3` are both the child of `Job1` they can be processed concurrently if the transporter has that option, same applies to
+     * `Job5` and `Job6`, and the same even applies to `Job1` and `Job4` (They are both separate parent).
+     *
+     * If you hae multiple parents like in the example above, you can enqueue them like so:
+     *
+     * ```
+     * $chains = $jobInterface->addChains($jobs);
+     * try {
+     *  foreach ($chains as $chain){
+     *      jobs()->enqueue($chain['job']); // or for TonicsCloud // TonicsCloudActivator::getJobQueue()->enqueue($chain['job']);
+     *  }
+     *  } catch (\Throwable $exception){
+     *      // Log Exception or Whatever
+     *  }
+     * ```
+     * @param array $jobs
+     * An array representing the job relationships.
+     * Each element should have a 'job' property for the job instance
+     * and a 'children' property for an array of child jobs.
+     * @param AbstractJobInterface|null $parentJob
+     * The parent job object. Default is null for top-level jobs.
+     * @param null $defaultData adds the defaultData to job if job doesn't have data
+     * @return array
+     * An array of the representations arranged, then you can just loop the root, get the parent job, and enqueue that,
+     * depending on your transporter, the enqueue should hande the handling of the childObjects
+     * @throws \Exception
+     */
+    public static function addChains(array $jobs, ?AbstractJobInterface $parentJob = null, $defaultData = null): array
+    {
+        foreach ($jobs as $job) {
+            /** @var AbstractJobInterface $job */
+            if (!isset($job['job'])){
+                throw new \Exception("The job property/key is missing");
+            }
+
+            if (!($job['job'] instanceof AbstractJobInterface)){
+                throw new \Exception("The job value is not an instance of AbstractJobInterface");
+            }
+
+            $jobObject = $job['job'];
+            $children = $job['children'] ?? null;
+
+            if ($parentJob !== null) {
+                $parentJob->addJobToChain($jobObject);
+                $jobObject->setParentObject($parentJob);
+            }
+
+            if (empty($jobObject->getData())){
+                $jobObject->setData($defaultData);
+            }
+
+            if (!empty($children)) {
+                self::addChains($children, $jobObject, $defaultData);
+            }
+        }
+
+        return $jobs;
+    }
+
+    /**
+     * @return array
+     */
+    public function getChains(): array
+    {
+        return $this->chains;
+    }
+
+    /**
+     * @param array $chains
+     * @return $this
+     */
+    public function setChains(array $chains): static
+    {
+        $this->chains = $chains;
         return $this;
     }
 
@@ -111,19 +275,97 @@ class AbstractJobInterface
     }
 
     /**
-     * @return int|null
+     * @return mixed
      */
-    public function getJobParentID(): ?int
+    public function getJobParent(): mixed
     {
-        return $this->jobParentID;
+        return $this->jobParent;
     }
 
     /**
-     * @param int|null $jobParentID
+     * @param mixed $jobParent
      */
-    public function setJobParentID(?int $jobParentID): void
+    public function setJobParent(mixed $jobParent): void
     {
-        $this->jobParentID = $jobParentID;
+        $this->jobParent = $jobParent;
+    }
+
+    /**
+     * @return AbstractJobInterface|null
+     */
+    public function getParentObject(): ?AbstractJobInterface
+    {
+        return $this->parentObject;
+    }
+
+    /**
+     * @param AbstractJobInterface|null $parentObject
+     * @return AbstractJobInterface
+     */
+    public function setParentObject(?AbstractJobInterface $parentObject): AbstractJobInterface
+    {
+        $this->parentObject = $parentObject;
+        return $this;
+    }
+
+    /**
+     * Status to set job after the completion of the handle method, by default it would be set to processed
+     * @return string
+     */
+    public function getJobStatusAfterJobHandled(): string
+    {
+        return $this->jobStatusAfterJobHandled;
+    }
+
+    /**
+     * @param string $jobStatusAfterJobHandled
+     * @return AbstractJobInterface
+     */
+    public function setJobStatusAfterJobHandled(string $jobStatusAfterJobHandled): AbstractJobInterface
+    {
+        $this->jobStatusAfterJobHandled = $jobStatusAfterJobHandled;
+        return $this;
+    }
+
+    /**
+     * If null, it would default to 10 seconds
+     * @return int|null
+     */
+    public function getRetryAfter(): ?int
+    {
+        if ($this->retryAfter === null){
+            return Scheduler::everySecond(10);
+        }
+        return $this->retryAfter;
+    }
+
+    /**
+     * @param int|null $retryAfter
+     * @return AbstractJobInterface
+     */
+    public function setRetryAfter(?int $retryAfter = null): AbstractJobInterface
+    {
+        $this->retryAfter = $retryAfter;
+        return $this;
+    }
+
+    /**
+     * If timeout is null, it defaults to 5 minutes
+     * @return int|null
+     */
+    public function getMaxAttempts(): ?int
+    {
+        return $this->maxAttempts;
+    }
+
+    /**
+     * @param int $maxAttempts
+     * @return AbstractJobInterface
+     */
+    public function setMaxAttempts(int $maxAttempts): AbstractJobInterface
+    {
+        $this->maxAttempts = $maxAttempts;
+        return $this;
     }
 
 }

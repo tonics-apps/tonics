@@ -51,19 +51,21 @@ trait Routes
 
             $route->group('', function (Route $route){
 
-                        #---------------------------------
-                    # Core Settings
-                #---------------------------------
-                $route->group('/core/', function (Route $route){
-                    $route->get('settings', [CoreSettingsController::class, 'edit'], alias: 'settings');
-                    $route->post('settings', [CoreSettingsController::class, 'update']);
-                }, [CoreAccess::class], alias: 'core');
-
                 $route->group('', function (Route $route){
+
+                            #---------------------------------
+                        # Core Settings
+                    #---------------------------------
+                    $route->group('/core/', function (Route $route){
+                        $route->get('settings', [CoreSettingsController::class, 'edit'], alias: 'settings');
+                        $route->post('settings', [CoreSettingsController::class, 'update']);
+                    }, alias: 'core');
+
                             #---------------------------------
                         # DASHBOARD PANEL...
                     #---------------------------------
                     $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
+
                 }, [Authenticated::class, CoreAccess::class]);
 
                         #---------------------------------
@@ -116,7 +118,7 @@ trait Routes
                     $route->match(['get'], 'wordpress-events', [ImportController::class, 'wordpressEvent'], alias: 'wordpressEvent');
                     $route->match(['get', 'post'],'beatstars', [ImportController::class, 'beatstars'], alias: 'beatstars');
                     $route->match(['get', 'post'],'airbit', [ImportController::class, 'airbit'], alias: 'airbit');
-                }, [CoreAccess::class], alias: 'imports');
+                }, alias: 'imports');
 
                 $route->group('/job_manager', function (Route $route) {
 
@@ -130,7 +132,7 @@ trait Routes
                         $route->get('', [JobManagerController::class, 'jobsSchedulerIndex'], alias: 'jobsSchedulerIndex');
                     });
 
-                }, [CoreAccess::class], alias: 'jobs');
+                },  alias: 'jobs');
 
 
             }, [CoreAccess::class]);
@@ -151,7 +153,7 @@ trait Routes
                 $route->post('/upload', [AppsController::class, 'upload'], alias: 'upload');
             }, [AppAccess::class], alias: 'apps');
 
-        }, AuthConfig::getAuthRequestInterceptor());
+        }, AuthConfig::getAuthRequestInterceptor([Authenticated::class,]));
 
                 #---------------------------------
             # APPS ASSETS...
