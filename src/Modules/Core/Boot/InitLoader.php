@@ -67,7 +67,6 @@ class InitLoader
         if (AppConfig::isMaintenanceMode()){
             die("Temporarily down for schedule maintenance, check back in few minutes");
         }
-
                 #-----------------------------------
             # HEADERS SETTINGS TEST
         #-----------------------------------

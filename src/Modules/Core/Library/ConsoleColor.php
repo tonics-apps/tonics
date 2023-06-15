@@ -114,7 +114,7 @@ trait ConsoleColor
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        if ($this->isCLI){
+        if ($this->isCLI()){
             echo $this->coloredText("black", "light_gray", "$message !");
         }
     }
@@ -127,7 +127,7 @@ trait ConsoleColor
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        if ($this->isCLI){
+        if ($this->isCLI()){
             echo $this->coloredText("black", "yellow", "$message...");
         }
     }

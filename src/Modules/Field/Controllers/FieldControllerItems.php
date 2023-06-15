@@ -79,34 +79,35 @@ class FieldControllerItems extends Controller
             redirect(route('fields.items.index', ['field' => $fieldSlug]));
         }
 
+        $errorMessages = [];
         # Stage Two: Working On The Extracted Data and Dumping In DB...
         $error = false;
         if ($validator->passes()){
             $dbTx = db();
             try {
                 $dbTx->beginTransaction();
-                # Delete All the Field Items Related to $fieldDetails->fieldID
-                $this->getFieldData()->deleteWithCondition(
-                    whereCondition: "fk_field_id = ?", parameter: [$fieldDetails['fieldID']], table: $this->getFieldData()->getFieldItemsTable());
-                # Reinsert it
-                db(onGetDB: function ($db) use ($fieldDetails) {
-                    $db->Insert($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
-                });
 
+                # Delete All the Field Items Related to $fieldDetails->fieldID
+                $dbTx->Q()->FastDelete($this->getFieldData()->getFieldItemsTable(), db()->WhereIn('fk_field_id', $fieldDetails['fieldID']));
+                # Reinsert it
+                $dbTx->Q()->Insert($this->getFieldData()->getFieldItemsTable(), $fieldDetails['fieldItems']);
                 $dbTx->commit();
                 $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 event()->dispatch(new OnFieldItemsSave($fieldDetails));
                 $error = true;
-            }catch (\Exception $exception){
+            } catch (\Exception $exception){
+                $errorMessages[] = $exception->getMessage();
                 $dbTx->rollBack();
                 $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 // log..
             }
+        } else {
+            $errorMessages = $validator->getErrors();
         }
 
         if ($error === false) {
             $fieldDetails = json_decode(input()->fromPost()->retrieve('fieldDetails'), true);
-            session()->flash($validator->getErrors(), $fieldDetails ?? []);
+            session()->flash($errorMessages, $fieldDetails ?? []);
             redirect(route('fields.items.index', ['field' => $fieldSlug]));
         }
         session()->flash(['Field Items Successfully Saved'], $fieldDetails ?? [], type: Session::SessionCategories_FlashMessageSuccess);
@@ -117,7 +118,7 @@ class FieldControllerItems extends Controller
     /**
      * @throws \Exception
      */
-    public function fieldSelectionManager()
+    public function fieldSelectionManager(): void
     {
         $this->getFieldData()->getFieldItemsAPIForEditor();
 

@@ -23,6 +23,7 @@ class AbstractJobInterface
     private array $chains = [];
     private int $priority = Scheduler::PRIORITY_URGENT;
     private mixed $data = null;
+    private string $jobInfoMessage = '';
 
     private ?int $retryAfter = null;
     private ?int $maxAttempts = 30;
@@ -365,6 +366,24 @@ class AbstractJobInterface
     public function setMaxAttempts(int $maxAttempts): AbstractJobInterface
     {
         $this->maxAttempts = $maxAttempts;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJobInfoMessage(): string
+    {
+        return $this->jobInfoMessage;
+    }
+
+    /**
+     * @param string $jobInfoMessage
+     * @return AbstractJobInterface
+     */
+    public function setJobInfoMessage(string $jobInfoMessage): AbstractJobInterface
+    {
+        $this->jobInfoMessage = $jobInfoMessage;
         return $this;
     }
 

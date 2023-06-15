@@ -274,7 +274,15 @@ class FieldController
         try {
             apcu_clear_cache();
             foreach ($modules as $module){
-                $module->onInstall();
+                $fieldItems = $module->fieldItems();
+
+                if (helper()->isJSON($fieldItems)){
+                    $fieldItems = json_decode($fieldItems);
+                }
+
+                if (is_array($fieldItems)){
+                    $this->getFieldData()->importFieldItems($fieldItems);
+                }
             }
             session()->flash(['Field Items Reset Successful'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('fields.index'));

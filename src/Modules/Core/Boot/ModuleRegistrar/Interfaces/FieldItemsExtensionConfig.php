@@ -12,5 +12,5 @@ namespace App\Modules\Core\Boot\ModuleRegistrar\Interfaces;
 
 interface FieldItemsExtensionConfig
 {
-    function fieldItems(): array;
+    function fieldItems(): array|string;
 }
