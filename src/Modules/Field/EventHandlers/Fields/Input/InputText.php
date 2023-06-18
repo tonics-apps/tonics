@@ -160,8 +160,11 @@ HTML);
 
 <div class="form-group">
      <label class="menu-settings-handle-name" for="default-value-$changeID">Default Value
-            <input id="default-value-$changeID" name="defaultValue" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$defaultValue" placeholder="a default value">
+     
+      <textarea style="height: 60px;" id="default-value-$changeID"  name="defaultValue"
+            class="menu-name color:black border-width:default border:black placeholder-color:gray" 
+            placeholder="Enter Default Value">$defaultValue</textarea>
+            
     </label>
 </div>
 

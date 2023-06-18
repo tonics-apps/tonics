@@ -184,7 +184,7 @@ class FieldController
         try {
             $widgetToUpdate = $this->getFieldData()->createField();
             $widgetToUpdate['field_slug'] = helper()->slug(input()->fromPost()->retrieve('field_slug'));
-            db(onGetDB: function (TonicsQuery $db) use ($widgetToUpdate) {
+            db(onGetDB: function (TonicsQuery $db) use ($slug, $widgetToUpdate) {
                 $db->FastUpdate($this->getFieldData()->getFieldTable(), $widgetToUpdate, db()->Where('field_slug', '=', $slug));
             });
 

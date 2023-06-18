@@ -341,6 +341,7 @@ HTML;
         }
 
         if ($this->getSettingsType() === $this::OnUserSettingsType){
+            $info = (isset($data->info)) ? $data->info : '';
             $result .=<<<HTML
 <li $isEditorLi tabIndex="0"
 class="width:100% field-builder-items overflow:auto"
@@ -351,6 +352,7 @@ $scriptPath>
             <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
             </legend>
+            <span class="cursor:text">$info</span>
             <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
 HTML;
         }
@@ -427,6 +429,8 @@ HTML;
     public function generateMoreSettingsFrag($data = null, string $more = ''): string
     {
         $hideFrag = (isset($data->hideInUserEditForm)) ? $data->hideInUserEditForm : '';
+        $info = (isset($data->info)) ? $data->info : '';
+
         if ($hideFrag === '1') {
             $hideFrag = <<<HTML
 <option value="0">False</option>
@@ -452,6 +456,11 @@ HTML;
             </button>
             </legend>
             <div class="menu-widget-information width:100% flex-d:column owl d:none">
+                 <div class="form-group">
+                     <label class="menu-settings-handle-name" for="info-$changeID">Info
+                     <textarea id="info-$changeID" placeholder="Further Information on The Field(s) Usage" name="info">$info</textarea>
+                    </label>
+                </div>
                 <div class="form-group">
                      <label class="menu-settings-handle-name" for="hideInUserEditForm-$changeID">Hide In User Edit Form
                          <select name="hideInUserEditForm" class="default-selector mg-b-plus-1" id="hideInUserEditForm-$changeID">

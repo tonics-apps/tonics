@@ -34,34 +34,40 @@ trait Routes
             #---------------------------------
             $route->group('/field', function (Route $route){
 
-                $route->get('', [FieldController::class, 'index'],  alias: 'index');
-                $route->post('', [FieldController::class, 'dataTable'],  alias: 'dataTables');
+                $route->group('', function (Route $route){
 
-                $route->post('store', [FieldController::class, 'store']);
-                $route->get('create', [FieldController::class, 'create'], alias: 'create');
-                $route->get(':field/edit', [FieldController::class, 'edit'], alias: 'edit');
-                $route->match(['post', 'put'], ':field/update', [FieldController::class, 'update']);
-                $route->match(['post', 'delete'], ':field/delete', [FieldController::class, 'delete']);
-                $route->match(['post', 'delete'], 'delete/multiple', [FieldController::class, 'deleteMultiple'], alias: 'deleteMultiple');
+                    $route->get('', [FieldController::class, 'index'],  alias: 'index');
+                    $route->post('', [FieldController::class, 'dataTable'],  alias: 'dataTables');
 
-                // for resetting field items
-                $route->get('/reset-field-items', [FieldController::class, 'fieldResetItems'],  alias: 'fieldResetItems');
+                    $route->post('store', [FieldController::class, 'store']);
+                    $route->get('create', [FieldController::class, 'create'], alias: 'create');
+                    $route->get(':field/edit', [FieldController::class, 'edit'], alias: 'edit');
+                    $route->match(['post', 'put'], ':field/update', [FieldController::class, 'update']);
+                    $route->match(['post', 'delete'], ':field/delete', [FieldController::class, 'delete']);
+                    $route->match(['post', 'delete'], 'delete/multiple', [FieldController::class, 'deleteMultiple'], alias: 'deleteMultiple');
+
+                    // for resetting field items
+                    $route->get('/reset-field-items', [FieldController::class, 'fieldResetItems'],  alias: 'fieldResetItems');
+
+                            #---------------------------------
+                        # field ITEMS RESOURCES...
+                    #---------------------------------
+                    $route->group('/items', function (Route $route){
+                        $route->get(':field/builder', [FieldControllerItems::class, 'index'],  alias: 'index');
+                        $route->post('store', [FieldControllerItems::class, 'store']);
+                    }, alias: 'items');
+
+                    // for post editors
+                    $route->match(['post', 'get'], '/selection-manager', [FieldControllerItems::class, 'fieldSelectionManager']);
+                    $route->post('/field-preview', [FieldControllerItems::class, 'fieldPreview']);
+
+                }, [FieldAccess::class]);
+
+                # This doesn't have FieldAccess, meaning logged-in user can access this route, is that fine?
                 $route->get('/get-field-items', [FieldController::class, 'getFieldItemsAPI'],  alias: 'getFieldItemsAPI');
-
-                        #---------------------------------
-                    # field ITEMS RESOURCES...
-                #---------------------------------
-                $route->group('/items', function (Route $route){
-                    $route->get(':field/builder', [FieldControllerItems::class, 'index'],  alias: 'index');
-                    $route->post('store', [FieldControllerItems::class, 'store']);
-                }, alias: 'items');
-
-                // for post editors
-                $route->match(['post', 'get'], '/selection-manager', [FieldControllerItems::class, 'fieldSelectionManager']);
-                $route->post('/field-preview', [FieldControllerItems::class, 'fieldPreview']);
             });
 
-        }, AuthConfig::getAuthRequestInterceptor([FieldAccess::class]), alias: 'fields');
+        }, AuthConfig::getAuthRequestInterceptor(), alias: 'fields');
 
         return $route;
     }

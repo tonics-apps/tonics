@@ -11,7 +11,6 @@
 namespace App\Modules\Customer\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
@@ -31,13 +30,12 @@ class OrderController
             ['type' => '', 'slug' => Tables::PURCHASES . '::' . 'created_at', 'title' => 'Created At', 'minmax' => '70px, .6fr', 'td' => 'created_at'],
         ];
 
-        $authInfo = session()->retrieve(Session::SessionCategories_AuthInfo, jsonDecode: true);
-        if (isset($authInfo->user_id)){
+        if (\session()::getUserID() !== null){
             $data = null;
-            db(onGetDB: function ($db) use ($authInfo, $purchaseTable, &$data){
+            db(onGetDB: function ($db) use ($purchaseTable, &$data){
                 $data = $db->Select('*, CONCAT("/customer/order/", LOWER(JSON_UNQUOTE(JSON_EXTRACT(others, "$.tonics_solution"))), "/", slug_id ) as _view')
                     ->From($purchaseTable)
-                    ->WhereEquals('fk_customer_id', $authInfo->user_id)
+                    ->WhereEquals('fk_customer_id', \session()::getUserID())
                     ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                         $db->WhereLike('slug_id', url()->getParam('query'));
                     })->OrderByDesc(table()->pickTable($purchaseTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));

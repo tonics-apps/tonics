@@ -88,8 +88,13 @@ class InitLoaderMinimal
 
         self::DRIVE_CONFIG_GlobalVariable();
         self::URL_GlobalVariable();
+        $authInfo = UserData::getAuthenticationInfo();
         self::addToGlobalVariable('Auth', [
-            'Logged_In' => !empty(UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))
+            'Logged_In' => !empty($authInfo?->role),
+            'User_Role_Name' => $authInfo?->role,
+            'User_Role_ID' => $authInfo?->role_id,
+            'User_ID' => $authInfo?->user_id,
+            'User_Email' => $authInfo?->email
         ]);
 
         # Push Structured Data That Relies on the Post Editor Here

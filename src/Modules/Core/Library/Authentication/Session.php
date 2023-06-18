@@ -592,4 +592,37 @@ SQL, $jsonPath, $sessionID);
         $this->updateSessionIDInCookie($this->generateSessionID());
     }
 
+    # QUICK HELPERS
+
+    /**
+     * @throws \Exception
+     */
+    public static function getUserID()
+    {
+        return getGlobalVariableData()['Auth']['User_ID'];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getUserEmail()
+    {
+        return getGlobalVariableData()['Auth']['User_Email'];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getUserRoleID()
+    {
+        return getGlobalVariableData()['Auth']['User_Role_ID'];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getUserRoleName()
+    {
+        return getGlobalVariableData()['Auth']['User_Role_Name'];
+    }
 }

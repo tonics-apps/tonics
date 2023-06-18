@@ -69,7 +69,7 @@ class InputSelect implements HandlerInterface
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="selectData-$changeID">SelectsData (format: k1:kv, k2:v2), (uses key as value if kv is empty)
+     <label class="menu-settings-handle-name" for="selectData-$changeID">SelectsData (format: v1:k1, v2:k2), (uses key as value if kv is empty)
      <textarea name="selectData" id="selectData-$changeID" placeholder="Key and Value should be separated by comma">$selectData</textarea>
     </label>
 </div>
