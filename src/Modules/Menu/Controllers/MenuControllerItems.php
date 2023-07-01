@@ -18,6 +18,7 @@ use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Menu\Data\MenuData;
 use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Menu\Rules\MenuValidationRules;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 
 class MenuControllerItems extends Controller
@@ -76,7 +77,7 @@ class MenuControllerItems extends Controller
         try {
             $menuDetails = json_decode(input()->fromPost()->retrieve('menuDetails'), true);
             $validator = $this->getValidator()->make($menuDetails ?? [], $this->menuItemsStoreRule());
-        }catch (\Exception){
+        } catch (\Exception){
             session()->flash(['An Error Occurred Extracting Menu Data'], []);
             redirect(route('menus.items.index', ['menu' => $menuSlug]));
         }
@@ -85,17 +86,18 @@ class MenuControllerItems extends Controller
         $error = false;
         if ($validator->passes()) {
             try {
-                $dbTx = db();
-                $dbTx->beginTransaction();
-                # Delete All the Menu Items Related to $menuDetails->menuID
-                $this->getMenuData()->deleteWithCondition(
-                    whereCondition: "fk_menu_id = ?", parameter: [$menuDetails['menuID']], table: $this->getMenuData()->getMenuItemsTable());
-                # Reinsert it
-                db(onGetDB: function ($db) use ($menuDetails) {
+                db(onGetDB: function (TonicsQuery $db) use ($menuDetails) {
+                    $db->beginTransaction();
+                    # Delete All the Menu Items Related to $menuDetails->menuID
+                    $db->FastDelete($this->getMenuData()->getMenuItemsTable(), db()->WhereEquals('fk_menu_id', $menuDetails['menuID']));
+                    # Reinsert it
                     $db->Insert($this->getMenuData()->getMenuItemsTable(), $menuDetails['menuItems']);
+                    # Insert Permissions
+                    if (!empty($menuDetails['menuItemPermissions'])){
+                        $db->Insert($this->getMenuData()->getMenuItemPermissionsTable(), $menuDetails['menuItemPermissions']);
+                    }
+                    $db->commit();
                 });
-                $dbTx->commit();
-                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 $error = true;
             } catch (Exception $exception) {
                 // log..

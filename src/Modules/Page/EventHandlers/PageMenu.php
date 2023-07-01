@@ -10,25 +10,35 @@
 
 namespace App\Modules\Page\EventHandlers;
 
-use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\AdminMenuPaths;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsTreeSystem\Tree;
 
 class PageMenu implements HandlerInterface
 {
 
     /**
      * @inheritDoc
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public function handleEvent(object $event): void
     {
-        /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_PAGE, $event->userRole()), function ($event) {
-            return $event->addMenu(OnAdminMenu::PageMenuID, 'Pages', helper()->getIcon('archive', 'icon:admin'), route('pages.create'))
-                ->addMenu(OnAdminMenu::PageMenuID + 1, 'New Page', helper()->getIcon('plus', 'icon:admin'), route('pages.create'), parent: OnAdminMenu::PageMenuID)
-                ->addMenu(OnAdminMenu::PageMenuID + 2, 'All Pages', helper()->getIcon('archive', 'icon:admin'), route('pages.index'), parent: OnAdminMenu::PageMenuID);
-        });
+
+        tree()->group('', function (Tree $tree){
+
+            $tree->add(AdminMenuPaths::PAGE, [
+                'mt_name' => 'Pages',
+                'mt_url_slug' => route('pages.index'),
+                'mt_icon' => helper()->getIcon('archive', 'icon:admin')
+            ]);
+
+            $tree->add(AdminMenuPaths::PAGE_NEW, [
+                'mt_name' => 'New Page',
+                'mt_url_slug' => route('pages.create'),
+                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+            ]);
+        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_PAGE])], AdminMenuPaths::PRIORITY_EXTREME);
+
     }
 }

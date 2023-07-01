@@ -28,7 +28,7 @@ class CreateMenuItemsTable_2022_01_13_200954 extends Migration {
             $menuTable = Tables::getTable(Tables::MENUS);
             $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `fk_menu_id` int(10) unsigned NOT NULL,
   `mt_id` int(10) unsigned NOT NULL,
   `mt_parent_id` int(10) unsigned DEFAULT NULL,
@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `mt_url_slug` varchar(255) DEFAULT NULL,
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
   KEY `menu_items_fk_menu_id_foreign` (`fk_menu_id`),
   CONSTRAINT `menu_items_fk_menu_id_foreign` FOREIGN KEY (`fk_menu_id`) REFERENCES `$menuTable` (`menu_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");

@@ -10,10 +10,10 @@
 
 namespace App\Modules\Menu\EventHandlers;
 
-use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\AdminMenuPaths;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsTreeSystem\Tree;
 
 class MenuMenus implements HandlerInterface
 {
@@ -24,11 +24,20 @@ class MenuMenus implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
-        /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_MENU, $event->userRole()), function ($event) {
-            return $event->addMenu(OnAdminMenu::MenusMenuID, 'Menu', helper()->getIcon('menu', 'icon:admin'), route('menus.create'), parent:  OnAdminMenu::ToolsMenuID)
-                ->addMenu(OnAdminMenu::MenusMenuID + 1, 'New Menu', helper()->getIcon('plus', 'icon:admin'), route('menus.create'), parent: OnAdminMenu::MenusMenuID)
-                ->addMenu(OnAdminMenu::MenusMenuID + 2, 'All Menus', helper()->getIcon('notes', 'icon:admin'), route('menus.index'), parent: OnAdminMenu::MenusMenuID);
-        });
+        tree()->group('', function (Tree $tree){
+
+            $tree->add(AdminMenuPaths::MENU, [
+                'mt_name' => 'Menu',
+                'mt_url_slug' => route('menus.index'),
+                'mt_icon' => helper()->getIcon('menu', 'icon:admin')
+            ]);
+
+            $tree->add(AdminMenuPaths::MENU_NEW, [
+                'mt_name' => 'New Menu',
+                'mt_url_slug' => route('menus.create'),
+                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+            ]);
+
+        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_MENU])], AdminMenuPaths::PRIORITY_MEDIUM);
     }
 }

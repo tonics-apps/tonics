@@ -47,10 +47,11 @@ class MenuController
         ];
 
         $data = null;
-        db(onGetDB: function ($db) use ($table, &$data){
+        db(onGetDB: function (TonicsQuery $db) use ($table, &$data){
             $tblCol = '*, CONCAT("/admin/tools/menu/", menu_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/menu/items/", menu_slug, "/builder") as _builder_link';
             $data = $db->Select($tblCol)
                 ->From($table)
+                ->WhereEquals('menu_can_edit', 1)
                 ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
                     $db->WhereLike('menu_name', url()->getParam('query'));
 

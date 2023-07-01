@@ -15,16 +15,19 @@ use App\Modules\Core\Boot\InitLoader;
 use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Controllers\CoreSettingsController;
+use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Jobs\UpdateMigrations;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Router\RouteResolver;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Menu\Data\MenuData;
 use Devsrealm\TonicsContainer\Container;
 use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
 use Devsrealm\TonicsEventSystem\EventQueue;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 use Devsrealm\TonicsRouterSystem\RequestInput;
@@ -33,6 +36,10 @@ use Devsrealm\TonicsRouterSystem\Route;
 use Devsrealm\TonicsRouterSystem\RouteNode;
 use Devsrealm\TonicsRouterSystem\RouteTreeGenerator;
 use Devsrealm\TonicsRouterSystem\State\RouteTreeGeneratorState;
+use Devsrealm\TonicsTreeSystem\Node;
+use Devsrealm\TonicsTreeSystem\Tree;
+use Devsrealm\TonicsTreeSystem\TreeGenerator;
+use Devsrealm\TonicsTreeSystem\TreeGeneratorState;
 use Exception;
 use Symfony\Component\Yaml\Tests\A;
 
@@ -64,6 +71,9 @@ class AppConfig
                             new RouteTreeGeneratorState(), new RouteNode())
                     )
                 );
+
+                $treeGenerator = new TreeGenerator(new TreeGeneratorState(), new Node());
+                $tree = new Tree($treeGenerator);
 
                 $router = new Router($onRequestProcess,
                     $onRequestProcess->getRouteObject(),
@@ -115,15 +125,23 @@ class AppConfig
 
                 /**@var TonicsTemplateEngines $tonicsTemplateEngine */
                 $tonicsTemplateEngine = $eventDispatcher->dispatch(new TonicsTemplateEngines());
+
                 ## Construct The GrandFather...
                 $initLoader = new InitLoader();
                 $initLoader
                     ->setRouter($router)
                     ->setTonicsView($tonicsTemplateEngine->getTemplateEngine('Native'))
                     ->setTonicsTemplateEngines($tonicsTemplateEngine)
+                    ->setTree($tree)
                     ->setEventDispatcher($eventDispatcher);
+
                 if (function_exists('apcu_enabled')) {
                     apcu_store($initKey, $initLoader);
+                }
+
+                if (helper()->isNotCLI()){
+                    $eventDispatcher->dispatch(new OnAdminMenu());
+                    self::initAdminMenu();
                 }
             }
             if (!self::$init) {
@@ -137,6 +155,67 @@ class AppConfig
                 exit(1);
             }
             throw $e;
+        }
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public static function initAdminMenu(): void
+    {
+        if (isset(getGlobalVariableData()['Auth']['Logged_In']) && getGlobalVariableData()['Auth']['Logged_In']){
+            $menuData = new MenuData();
+            $tree = \tree()->getTreeGenerator()->getNodeTree();
+            $menuID = $menuData->getCoreMenuID();
+            $menuItems = [];
+            $permissions = [];
+            foreach ($tree->getChildrenRecursive() as $node) {
+                $parentID = null;
+                if (!empty($node?->parentNode()->getSettings()['settings'])){
+                    $parentID = $node->parentNode()->getNameID();
+                }
+
+                if (empty($node->getSettings()['settings'])){
+                    continue;
+                }
+
+                /**@var Node $node */
+                $uuid = $node->uuid4();
+                $settings = $node->getSettings()['settings'] ?? null;
+                $menuItems[] = [
+                    'fk_menu_id' => $menuID,
+                    'mt_id' => $node->getNameID(),
+                    'mt_parent_id' => $parentID,
+                    'slug_id' => $uuid,
+                    'mt_name' => $settings['mt_name'] ?? '',
+                    'mt_icon' => $settings['mt_icon'] ?? '',
+                    'mt_classes' => $settings['mt_classes'] ?? '',
+                    'mt_target' => $settings['mt_target'] ?? '',
+                    'mt_url_slug' => $settings['mt_url_slug'] ?? '',
+                ];
+
+                if (isset($settings['permission'])){
+                    foreach ($settings['permission'] as $permission){
+                        $permissions[] = [
+                            'fk_menu_item_slug_id' => $uuid,
+                            'fk_permission_id' => $permission,
+                        ];
+                    }
+                }
+            }
+
+            db(onGetDB: function (TonicsQuery $db) use ($menuData, $menuID, $permissions, $menuItems) {
+                $db->beginTransaction();
+                # Delete All the Menu Items Related to $menuDetails->menuID
+                $db->FastDelete($menuData->getMenuItemsTable(), db()->WhereEquals('fk_menu_id', $menuID));
+                # Reinsert it
+                $db->Insert($menuData->getMenuItemsTable(), $menuItems);
+                # Insert Permissions
+                if (!empty($permissions)){
+                    $db->Insert($menuData->getMenuItemPermissionsTable(), $permissions);
+                }
+                $db->commit();
+            });
         }
     }
 

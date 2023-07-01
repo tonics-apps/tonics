@@ -91,7 +91,7 @@ class InitLoaderMinimal
         $authInfo = UserData::getAuthenticationInfo();
         self::addToGlobalVariable('Auth', [
             'Logged_In' => !empty($authInfo?->role),
-            'User_Role_Name' => $authInfo?->role,
+            'User_Role_Name' => $authInfo?->role_name,
             'User_Role_ID' => $authInfo?->role_id,
             'User_ID' => $authInfo?->user_id,
             'User_Email' => $authInfo?->email

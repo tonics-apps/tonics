@@ -42,6 +42,7 @@ function session(): Session
  *
  * @return OnRequestProcess
  * @throws Exception
+ * @throws Throwable
  */
 function url(): OnRequestProcess
 {
@@ -53,6 +54,7 @@ function url(): OnRequestProcess
  *
  * @return OnRequestProcess
  * @throws Exception
+ * @throws Throwable
  */
 function request(): OnRequestProcess
 {
@@ -62,6 +64,7 @@ function request(): OnRequestProcess
 /**
  * @return Response
  * @throws Exception
+ * @throws Throwable
  */
 function response(): Response
 {
@@ -70,6 +73,7 @@ function response(): Response
 
 /**
  * @throws Exception
+ * @throws Throwable
  */
 function input(): TonicsRouterRequestInputInterface
 {
@@ -106,6 +110,7 @@ function input(): TonicsRouterRequestInputInterface
  * @param array $parameters
  * @return string
  * @throws Exception
+ * @throws Throwable
  */
 function route(string $name,  array $parameters = []): string
 {
@@ -186,6 +191,7 @@ function table(): Tables
 
 /**
  * @throws Exception
+ * @throws Throwable
  */
 function templateEngines(): TonicsTemplateEngines
 {
@@ -194,6 +200,7 @@ function templateEngines(): TonicsTemplateEngines
 
 /**
  * @throws Exception
+ * @throws Throwable
  */
 function job(string $transporterName = ''): Job
 {
@@ -236,7 +243,7 @@ function getPostData()
 /**
  * @throws Exception
  */
-function getGlobalVariableData()
+function getGlobalVariableData(): array
 {
     return AppConfig::initLoaderMinimal()::getGlobalVariable();
 }
@@ -253,7 +260,7 @@ function getGlobalVariableData()
  * @param array|stdClass $data
  * @param int $condition
  * @return mixed
- * @throws Exception
+ * @throws Exception|Throwable
  */
 function view(string $viewname, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
@@ -289,6 +296,7 @@ function container(): Container
 
 /**
  * @throws Exception
+ * @throws Throwable
  */
 function event(): EventDispatcher
 {
@@ -301,4 +309,13 @@ function event(): EventDispatcher
 function dom(): \Devsrealm\TonicsDomParser\DomParser
 {
     return AppConfig::initLoaderMinimal()->getDomParser();
+}
+
+/**
+ * @throws Exception
+ * @throws Throwable
+ */
+function tree(): \Devsrealm\TonicsTreeSystem\Tree
+{
+    return AppConfig::initLoaderOthers()->getTree();
 }

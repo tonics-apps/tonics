@@ -23,6 +23,7 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Handler\Router;
 use Devsrealm\TonicsRouterSystem\Route;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
+use Devsrealm\TonicsTreeSystem\Tree;
 use Exception;
 
 /**
@@ -35,6 +36,7 @@ class InitLoader
     private TonicsView $tonicsView;
     private TonicsTemplateEngines $tonicsTemplateEngines;
     private EventDispatcher $eventDispatcher;
+    private ?Tree $tree = null;
     private static ?Job $jobEventDispatcher = null;
     private static ?Scheduler $scheduler = null;
 
@@ -60,8 +62,9 @@ class InitLoader
     /**
      * Yh, Boot up the application
      * @throws Exception
+     * @throws \Throwable
      */
-    public function BootDaBoot()
+    public function BootDaBoot(): void
     {
         if (AppConfig::isMaintenanceMode()){
             die("Temporarily down for schedule maintenance, check back in few minutes");
@@ -182,6 +185,24 @@ class InitLoader
     public function setTonicsTemplateEngines(TonicsTemplateEngines $tonicsTemplateEngines): InitLoader
     {
         $this->tonicsTemplateEngines = $tonicsTemplateEngines;
+        return $this;
+    }
+
+    /**
+     * @return Tree|null
+     */
+    public function getTree(): ?Tree
+    {
+        return $this->tree;
+    }
+
+    /**
+     * @param Tree|null $tree
+     * @return InitLoader
+     */
+    public function setTree(?Tree $tree): InitLoader
+    {
+        $this->tree = $tree;
         return $this;
     }
 

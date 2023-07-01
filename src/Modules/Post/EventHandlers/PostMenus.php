@@ -12,8 +12,10 @@ namespace App\Modules\Post\EventHandlers;
 
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\AdminMenuPaths;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsTreeSystem\Tree;
 
 /**
  * This Listens to the OnAdminMenu and Whenever the event fires, we call this listener
@@ -29,16 +31,36 @@ class PostMenus implements HandlerInterface
     /**
      * @param object $event
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handleEvent(object $event): void
     {
-        /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_POST, $event->userRole()), function ($event) {
-            return $event->addMenu(OnAdminMenu::BlogMenuID, 'Blog', helper()->getIcon('note', 'icon:admin'), route('posts.create'))
-                ->addMenu(OnAdminMenu::BlogMenuID + 1, 'New Post', helper()->getIcon('plus', 'icon:admin'), route('posts.create'), parent: OnAdminMenu::BlogMenuID)
-                ->addMenu(OnAdminMenu::BlogMenuID + 2, 'All Posts', helper()->getIcon('notes', 'icon:admin'), route('posts.index'), parent: OnAdminMenu::BlogMenuID)
-                ->addMenu(OnAdminMenu::BlogMenuID + 3, 'New Category', helper()->getIcon('plus', 'icon:admin'), route('posts.category.create'), parent: OnAdminMenu::BlogMenuID)
-                ->addMenu(OnAdminMenu::BlogMenuID + 4, 'All Categories', helper()->getIcon('category', 'icon:admin'), route('posts.category.index'), parent: OnAdminMenu::BlogMenuID);
-        });
+        tree()->group('', function (Tree $tree){
+
+            $tree->add(AdminMenuPaths::POST, [
+                'mt_name' => 'Blog',
+                'mt_url_slug' => route('posts.index'),
+                'mt_icon' => helper()->getIcon('note', 'icon:admin')
+            ]);
+
+            $tree->add(AdminMenuPaths::POST_NEW, [
+                'mt_name' => 'New Post',
+                'mt_url_slug' => route('posts.create'),
+                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+            ]);
+
+            $tree->add(AdminMenuPaths::POST_CATEGORY_NEW, [
+                'mt_name' => 'New Category',
+                'mt_url_slug' => route('posts.category.create'),
+                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+            ]);
+
+            $tree->add(AdminMenuPaths::POST_CATEGORY_ALL, [
+                'mt_name' => 'All Categories',
+                'mt_url_slug' => route('posts.category.index'),
+                'mt_icon' => helper()->getIcon('category', 'icon:admin')
+            ]);
+
+        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_POST])], AdminMenuPaths::PRIORITY_MEDIUM);
     }
 }

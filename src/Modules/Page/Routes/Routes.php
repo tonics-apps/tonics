@@ -11,10 +11,7 @@
 namespace App\Modules\Page\Routes;
 
 use App\Modules\Core\Configs\AuthConfig;
-use App\Modules\Core\RequestInterceptor\Authenticated;
-use App\Modules\Core\RequestInterceptor\CSRFGuard;
 use App\Modules\Core\RequestInterceptor\PreProcessFieldDetails;
-use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Page\Controllers\PagesController;
 use App\Modules\Page\RequestInterceptor\PageAccess;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -48,6 +45,7 @@ trait Routes
             }, alias: 'pages');
 
         }, AuthConfig::getAuthRequestInterceptor([PageAccess::class]));
+
         return $route;
     }
 }

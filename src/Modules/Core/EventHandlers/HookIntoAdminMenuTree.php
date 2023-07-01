@@ -15,6 +15,7 @@ use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Menu\Data\MenuData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
@@ -29,6 +30,9 @@ class HookIntoAdminMenuTree implements HandlerInterface
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView){
             try {
+                $menuData = new MenuData();
+                $menuHTMLFRag = $menuData->generateMenuTree();
+
                 # For Admin User
                 if (UserData::canAccess(Roles::CAN_ACCESS_CORE, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
                     $adminCacheClearRoute = route('admin.cache.clear');
@@ -38,6 +42,7 @@ class HookIntoAdminMenuTree implements HandlerInterface
                     $token = session()->getCSRFToken();
                     $logout = route('admin.logout');
                     return <<<HTML
+$menuHTMLFRag
 <li class="menu-block" data-menu-depth="0">
             <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
                 <svg class="icon:admin tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>
@@ -81,6 +86,7 @@ HTML;
                     $token = session()->getCSRFToken();
                     $logout = route('customer.logout');
                     return <<<HTML
+$menuHTMLFRag
 <li class="menu-block" data-menu-depth="0">
             <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
                 <svg class="icon:admin tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>

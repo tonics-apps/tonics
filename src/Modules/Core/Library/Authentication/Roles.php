@@ -17,6 +17,8 @@ use JetBrains\PhpStorm\Pure;
 final class Roles
 {
 
+    private static $permissions = null;
+
     #
     # NOTE: THE BELOW WARNING NO LONGER APPLIES AS I HAVE SWITCHED FROM MANAGING THE ROLES AND PERMISSION FROM BITS SHIFT TO USING DATABASE TABLES
 
@@ -294,5 +296,46 @@ final class Roles
             self::CAN_ACCESS_MENU, self::CAN_ACCESS_PAGE, self::CAN_ACCESS_PAYMENT, self::CAN_ACCESS_POST, self::CAN_ACCESS_TRACK, self::CAN_ACCESS_WIDGET,
             self::CAN_ACCESS_MODULE, self::CAN_ACCESS_APPS, self::CAN_ACCESS_FIELD, self::CAN_UPDATE_MODULES, self::CAN_UPDATE_APPS
         ];
+    }
+
+    /**
+     * Returns permissions ID
+     * @param array $permissions
+     * An Array of Permissions you want its IDS: ['CAN_READ', 'CAN_WRITE', ...]
+     * @return array
+     * @throws \Exception
+     */
+    public static function GET_PERMISSIONS_ID(array $permissions): array
+    {
+        $perm = [];
+        $collatedPermissions = self::GET_ALL_PERMISSIONS();
+        foreach ($permissions as $permission){
+            if (isset($collatedPermissions[$permission])){
+                $perm[] = $collatedPermissions[$permission];
+            }
+        }
+
+        return $perm;
+    }
+
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function GET_ALL_PERMISSIONS(): mixed
+    {
+        if (!self::$permissions) {
+            $permission = null;
+            db(onGetDB: function (TonicsQuery $db) use (&$permission){
+                $table = Tables::getTable(Tables::PERMISSIONS);
+                $permission = $db->Select('permission_name, permission_id')
+                    ->From($table)->setPdoFetchType(\PDO::FETCH_KEY_PAIR)
+                    ->FetchResult();
+            });
+
+            self::$permissions = $permission;
+        }
+
+        return self::$permissions;
     }
 }

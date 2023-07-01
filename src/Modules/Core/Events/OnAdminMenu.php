@@ -13,6 +13,7 @@ namespace App\Modules\Core\Events;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Session;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
+use Devsrealm\TonicsTreeSystem\Tree;
 
 /**
  * Listen to this event if you want to add menu to the admin dashboard
@@ -22,6 +23,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
  */
 class OnAdminMenu implements EventInterface
 {
+
     const DashboardMenuID = 100;
     const PageMenuID = 200;
     const BlogMenuID = 300;
@@ -47,7 +49,6 @@ class OnAdminMenu implements EventInterface
 
     private array $MenuSettings = [];
     private mixed $userRole;
-
 
     /**
      * @throws \Exception

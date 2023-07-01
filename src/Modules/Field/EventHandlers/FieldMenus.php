@@ -10,24 +10,26 @@
 
 namespace App\Modules\Field\EventHandlers;
 
-use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Events\OnAdminMenu;
+use App\Modules\Core\Library\AdminMenuPaths;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
+use Devsrealm\TonicsTreeSystem\Tree;
 
 class FieldMenus implements HandlerInterface
 {
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handleEvent(object $event): void
     {
-        /** @var OnAdminMenu $event */
-        $event->if(UserData::canAccess(Roles::CAN_ACCESS_FIELD, $event->userRole()), function ($event) {
-            return $event->addMenu(OnAdminMenu::FieldMenuID, 'Field', helper()->getIcon('widget', 'icon:admin'), route('fields.create'), parent:  OnAdminMenu::ToolsMenuID)
-                ->addMenu(OnAdminMenu::FieldMenuID + 1, 'New Field', helper()->getIcon('plus', 'icon:admin'), route('fields.create'), parent: OnAdminMenu::FieldMenuID)
-                ->addMenu(OnAdminMenu::FieldMenuID + 2, 'All Fields', helper()->getIcon('notes', 'icon:admin'), route('fields.index'), parent: OnAdminMenu::FieldMenuID);
-        });
+        \tree()->group('', function (Tree $tree){
+
+            $tree->add(AdminMenuPaths::FIELD, ['mt_name' => 'Field','mt_url_slug' => route('fields.create'), 'mt_icon' => helper()->getIcon('widget','icon:admin') ]);
+            $tree->add(AdminMenuPaths::FIELD_NEW, ['mt_name' => 'New Field','mt_url_slug' => route('fields.create'), 'mt_icon' => helper()->getIcon('plus','icon:admin') ]);
+            $tree->add(AdminMenuPaths::FIELD_ALL, ['mt_name' => 'All Field','mt_url_slug' => route('fields.index'), 'mt_icon' => helper()->getIcon('notes','icon:admin') ]);
+
+        }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_FIELD])]);
     }
 }

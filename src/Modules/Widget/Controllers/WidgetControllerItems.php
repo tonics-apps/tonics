@@ -33,7 +33,7 @@ class WidgetControllerItems extends Controller
     /**
      * @throws \Exception
      */
-    public function index(string $slug)
+    public function index(string $slug): void
     {
 
         $widgetID = $this->getWidgetData()->getWidgetID($slug);
@@ -64,7 +64,7 @@ class WidgetControllerItems extends Controller
     /**
      * @throws \Exception
      */
-    public function store()
+    public function store(): void
     {
         $menuWidgetSlug = input()->fromPost()->retrieve('menuWidgetSlug', '');
 
@@ -80,24 +80,19 @@ class WidgetControllerItems extends Controller
         # Stage Two: Working On The Extracted Data and Dumping In DB...
         $error = false;
         if ($validator->passes()){
-            $dbTx = db();
             try {
-                $dbTx->beginTransaction();
-                # Delete All the Menu Items Related to $menuDetails->menuID
-                $this->getWidgetData()->deleteWithCondition(
-                    whereCondition: "fk_widget_id = ?", parameter: [$menuDetails['menuWidgetID']], table: $this->getWidgetData()->getWidgetItemsTable());
                 # Reinsert it
                 db(onGetDB: function ($db) use ($menuDetails){
+                    $db->beginTransaction();
+                    # Delete All the Menu Items Related to $menuDetails->menuID
+                    $db->FastDelete($this->getWidgetData()->getWidgetItemsTable(), db()->WhereEquals('fk_widget_id', $menuDetails['menuWidgetID']));
+                    # Reinsert it
                     $db->Insert($this->getWidgetData()->getWidgetItemsTable(), $menuDetails['menuWidgetItems']);
+                    $db->commit();
                 });
-
-                $dbTx->commit();
-                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 $error = true;
             }catch (\Exception){
                 // Log..
-                $dbTx->rollBack();
-                $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             }
         }
 

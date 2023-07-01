@@ -115,6 +115,7 @@ function setListDataArray() {
 function getListDataArray() {
     if(draggable){
         let ListArray = []
+        let ListPermissions = []
         let ID = null, parentID = null, menuName = null, classes = null, urlSlug = null, svgIcon = null, linkTarget = null, defaultMenuName = null;
         for(let i = 0, len = draggable.length ; i < len ; i++) {
             ID = draggable[i].getAttribute('data-id');
@@ -128,20 +129,39 @@ function getListDataArray() {
             urlSlug = draggable[i].querySelector('input[name="url-slug"]').value;
             svgIcon = draggable[i].querySelector('input[name="svg-icon"]').value;
             linkTarget = draggable[i].querySelector('select[name="linkTarget"]').value;
+            let menuPermission = draggable[i].querySelector('select[name="menuPermissions"]');
+            let permissions = [...menuPermission.options].filter(option => option.selected).map(option => option.value);
+
             // This gets the data ID and ParentID of each list ;)
-            ListArray.push({
+            let menuObject = {
                 "fk_menu_id": menuID,
                 "mt_id": i+1,
                 "mt_parent_id": (draggable[i].parentElement.classList.contains('menu-arranger-li-sub')) ? parentID : null,
+                "slug_id": crypto.randomUUID(),
                 "mt_name": menuName,
                 "mt_icon": svgIcon,
                 "mt_url_slug": urlSlug,
                 "mt_classes": classes,
                 // 0 stands for same tab, and 1 stands for new tab
                 "mt_target": linkTarget,
-            });
+            }
+            ListArray.push(menuObject);
+
+            if (permissions.length > 0){
+                permissions.forEach((perm) => {
+                    ListPermissions.push({
+                        "fk_menu_item_slug_id": menuObject.slug_id,
+                        "fk_permission_id": perm,
+                    });
+                })
+            }
+
         }
-        return ListArray;
+
+        return {
+          menuItems: ListArray,
+          permissions: ListPermissions,
+        };
     }
 }
 
@@ -203,38 +223,36 @@ if(menuPickerContainer){
                 </legend>
                 <div class="d:none flex-d:column menu-widget-information pointer-events:all owl width:100%">
 
-                    <div class="form-group">
-                        <label class="menu-settings-handle-name" for="menu-name">Overwrite Name
+                    <div class="form-group d:flex flex-gap:small">
+                        <label class="menu-settings-handle-name width:100%">Overwrite Name
                             <input id="menu-name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" 
                             name="menu-name" value='${name}' placeholder="Overwrite the menu name">
                         </label>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="menu-settings-handle-name" for="menu-name">SVG Icon Name
+                        
+                        <label class="menu-settings-handle-name width:100%">SVG Icon Name
                             <input id="menu-name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="svg-icon" value="" placeholder="e.g toggle-right">
                         </label>
                     </div>
 
-                    <div class="form-group">
-                        <label class="menu-settings-handle-name" for="menu-url-slug">Overwrite URL Slug
+                    <div class="form-group d:flex flex-gap:small">
+                        <label class="menu-settings-handle-name width:100%">Overwrite URL Slug
                             <input id="menu-url-slug" type="text" class="menu-url-slug color:black border-width:default border:black placeholder-color:gray" 
                             name="url-slug" value='${url}' placeholder="Only Overwrite For a Custom Link">
                         </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="menu-settings-handle-name" for="edit-menu-item">Optional CSS Classes
+                        
+                        <label class="menu-settings-handle-name width:100%">Optional CSS Classes
                             <input id="edit-menu-item" type="text" class="edit-menu-item-classes color:black border-width:default border:black placeholder-color:gray" name="menu-item-classes" value="" placeholder="Separate By Spaces, e.g class-1 class-2">
                         </label>
                     </div>
 
                     <div class="form-group">
-                        <select name="linkTarget" class="default-selector" id="link-target">
-                            <option value="0" selected="selected" disabled="">Link Target</option>
-                            <option value="0">Same Tab</option>
-                            <option value="1">New Tab</option>
-                        </select>
+                        <label> Link Target
+                            <select name="linkTarget" class="default-selector">
+                                <option value="0" selected="selected" disabled="">Link Target</option>
+                                <option value="0">Same Tab</option>
+                                <option value="1">New Tab</option>
+                            </select>
+                        </label>
                     </div>
 
                     <div class="form-group">
@@ -329,10 +347,12 @@ if(saveAllMenu && saveMenuChangesForm){
         e.preventDefault();
         setListDataArray();
         addHiddenInputToForm(saveMenuChangesForm, 'menuSlug', menuSlug);
+        let listDataArray = getListDataArray();
         addHiddenInputToForm(saveMenuChangesForm, 'menuDetails', JSON.stringify({
             menuID: menuID, // This is the menu_slug that houses the menu items
             menuSlug: menuSlug, // This is the menu_slug that houses the menu items
-            menuItems: getListDataArray(),
+            menuItems: listDataArray.menuItems,
+            menuItemPermissions: listDataArray.permissions,
         }));
         saveMenuChangesForm.submit();
     })

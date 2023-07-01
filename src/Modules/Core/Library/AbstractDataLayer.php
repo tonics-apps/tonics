@@ -37,6 +37,7 @@ class AbstractDataLayer
 
 
     /**
+     * DON'T USE, USE THE STANDALONE db() funcion instead
      * @param string $table
      * @return mixed
      * @throws Exception
@@ -51,6 +52,7 @@ class AbstractDataLayer
     }
 
     /**
+     * DON'T USE, USE THE STANDALONE db() funcion instead
      * @param string $searchTerm
      * @param string $table
      * @param string $colToSearch
@@ -70,6 +72,7 @@ SQL, $searchTerm)[0]->r;
     }
 
     /**
+     * DON'T USE, USE THE STANDALONE db() funcion instead
      * @param string $table
      * @param $offset
      * @param $limit
@@ -95,6 +98,7 @@ SQL, $searchTerm)[0]->r;
     }
 
     /**
+     * DON'T USE, USE THE STANDALONE db() funcion instead
      * @param string $searchTerm
      * @param $offset
      * @param $limit
@@ -125,6 +129,7 @@ SQL, $searchTerm, $limit, $offset);
     }
 
     /**
+     * DON'T USE, USE THE STANDALONE db() funcion instead
      * Usage:
      * <br>
      * `$data->selectWithCondition('tablename', ['post_id', 'post_content'], "slug_id = ?", ['5475353']));`
@@ -176,21 +181,6 @@ SQL, ...$parameter);
 
     }
 
-    /**
-     * Usage: `$newUserData->deleteWithCondition([], "slug_id = ?", ['php-dev'], 'posts_table');`
-     * @param string $whereCondition
-     * @param array $parameter
-     * @param string $table
-     * @throws \Exception
-     */
-    public function deleteWithCondition(string $whereCondition, array $parameter, string $table): void
-    {
-        db(onGetDB: function (TonicsQuery $db) use ($parameter, $whereCondition, $table) {
-            $db->run(<<<SQL
-DELETE FROM $table WHERE $whereCondition
-SQL, ...$parameter);
-        });
-    }
 
     /**
      * The settings can have:

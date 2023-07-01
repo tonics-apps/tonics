@@ -52,7 +52,7 @@
     ]]
     [[hook_into('Core::in_header_section_class')site-header:admin d:flex flex-wrap:wrap flex-gap bg:white-one padding:default justify-content:space-around]]
     [[hook_into('Core::in_site_navigation_ul')
-        [[event('\App\Modules\Core\Events\OnAdminMenu', 'generateMenuTree')]]
+        [[- [[event('\App\Modules\Core\Events\OnAdminMenu', 'generateMenuTree')]] -]]
         [[add_hook('Core::after_admin_menu_tree')]]
     ]]
 

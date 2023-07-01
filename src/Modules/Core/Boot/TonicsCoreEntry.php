@@ -36,6 +36,10 @@ class TonicsCoreEntry
         } catch (\Exception $e) {
             echo $e->getMessage();
             // Log..
+        } catch (\Throwable $e) {
+            echo $e->getMessage();
+            echo $e->getTraceAsString();
+            // Log..
         }
     }
 }

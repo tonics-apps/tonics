@@ -137,6 +137,8 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
                 Tables::getTable(Tables::BROKEN_LINKS) => Tables::$TABLES[Tables::BROKEN_LINKS],
                 Tables::getTable(Tables::JOBS) => Tables::$TABLES[Tables::JOBS],
                 Tables::getTable(Tables::SCHEDULER) => Tables::$TABLES[Tables::SCHEDULER],
+                Tables::getTable(Tables::PERMISSIONS) => Tables::$TABLES[Tables::PERMISSIONS],
+                Tables::getTable(Tables::ROLE_PERMISSIONS) => Tables::$TABLES[Tables::ROLE_PERMISSIONS],
             ];
     }
 

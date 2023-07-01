@@ -21,8 +21,11 @@ final class Tables
         self::CATEGORIES => ['cat_id', 'cat_parent_id', 'slug_id', 'cat_name', 'cat_slug', 'cat_status', 'field_settings', 'created_at', 'updated_at'],
         self::GENRES => ['genre_id', 'genre_name', 'genre_slug', 'genre_description', 'genre_status', 'created_at', 'updated_at'],
         self::LICENSES => ['license_id', 'license_name', 'license_slug', 'license_status', 'license_attr', 'created_at', 'updated_at'],
-        self::MENU_ITEMS => ['id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at'],
-        self::MENUS => ['menu_id', 'menu_name', 'menu_slug', 'created_at', 'updated_at'],
+
+        self::MENU_ITEMS => ['id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'slug_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at'],
+        self::MENUS => ['menu_id', 'menu_name', 'menu_slug', 'menu_can_edit', 'created_at', 'updated_at'],
+        self::MENU_ITEM_PERMISSION => ['menu_item_permissions_id', 'fk_menu_item_slug_id', 'fk_permission_id'],
+
         self::FIELD_ITEMS => ['id', 'fk_field_id', 'field_id', 'field_parent_id', 'field_name', 'field_options', 'created_at', 'updated_at'],
         self::FIELD => ['field_id', 'field_name', 'field_slug', 'created_at', 'updated_at'],
         self::MIGRATIONS => ['id', 'migration'],
@@ -75,6 +78,7 @@ final class Tables
 
     const MENU_ITEMS = 'menu_items';
     const MENUS = 'menus';
+    const MENU_ITEM_PERMISSION = 'menu_item_permission';
 
     const MIGRATIONS = 'migrations';
     const POST_CATEGORIES = 'post_categories';
