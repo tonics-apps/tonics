@@ -41,12 +41,16 @@ use Devsrealm\TonicsTreeSystem\Tree;
 use Devsrealm\TonicsTreeSystem\TreeGenerator;
 use Devsrealm\TonicsTreeSystem\TreeGeneratorState;
 use Exception;
-use Symfony\Component\Yaml\Tests\A;
 
 class AppConfig
 {
     private static InitLoader|null $init = null;
     private static InitLoaderMinimal|null $initLoaderMinimal = null;
+
+    private static function getInitKey(): string
+    {
+        return AppConfig::getCachePrefix() . self::getAppCacheKey();
+    }
 
     /**
      * The second entry point into our app after initialization of minimal dependencies, this uses injection sort of to construct all the
@@ -59,7 +63,7 @@ class AppConfig
     public static function initLoaderOthers(bool $failSilently = false): InitLoader
     {
         try {
-            $initKey = AppConfig::getCachePrefix() . self::getAppCacheKey();
+            $initKey = self::getInitKey();
             if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
                 $initLoader = apcu_fetch($initKey);
             } else {
@@ -139,11 +143,14 @@ class AppConfig
                     apcu_store($initKey, $initLoader);
                 }
 
-                if (helper()->isNotCLI()){
-                    $eventDispatcher->dispatch(new OnAdminMenu());
+                if (helper()->isNotCLI() && self::isLoggedIn()){
                     self::initAdminMenu();
+                    $initLoader->setTree(tree());
+                    apcu_delete($initKey);
+                    apcu_store($initKey, $initLoader);
                 }
             }
+
             if (!self::$init) {
                 self::$init = $initLoader;
             }
@@ -159,26 +166,41 @@ class AppConfig
     }
 
     /**
+     * @throws Exception
+     */
+    private static function isLoggedIn(): bool
+    {
+        return isset(getGlobalVariableData()['Auth']['Logged_In']) && getGlobalVariableData()['Auth']['Logged_In'];
+    }
+
+    /**
      * @throws \Throwable
      */
-    public static function initAdminMenu(): void
+    public static function initAdminMenu(bool $dumpDB = true): void
     {
-        if (isset(getGlobalVariableData()['Auth']['Logged_In']) && getGlobalVariableData()['Auth']['Logged_In']){
-            $menuData = new MenuData();
-            $tree = \tree()->getTreeGenerator()->getNodeTree();
-            $menuID = $menuData->getCoreMenuID();
-            $menuItems = [];
-            $permissions = [];
-            foreach ($tree->getChildrenRecursive() as $node) {
-                $parentID = null;
-                if (!empty($node?->parentNode()->getSettings()['settings'])){
-                    $parentID = $node->parentNode()->getNameID();
-                }
+        event()->dispatch(new OnAdminMenu());
+        $menuData = new MenuData();
+        $tree = \tree()->getTreeGenerator()->getNodeTree();
+        $menuID = $menuData->getCoreMenuID();
+        $menuItems = []; $permissions = [];
+        $mapper = [];
 
-                if (empty($node->getSettings()['settings'])){
-                    continue;
-                }
+        foreach ($tree->getChildrenRecursive() as $node) {
+            $parentID = null;
+            if (!empty($node?->parentNode()->getSettings()['settings'])){
+                $parentID = $node->parentNode()->getNameID();
+            }
 
+            if (isset($node->getSettings()['settings']['mt_url_slug'])){
+                $mapper[$node->getSettings()['settings']['mt_url_slug']] = $node->getFullNodePath();
+            }
+
+            if (empty($node->getSettings()['settings']) || isset($node->getSettings()['settings']['ignore'])){
+                $node->setNameID(null);
+                continue;
+            }
+
+            if ($dumpDB){
                 /**@var Node $node */
                 $uuid = $node->uuid4();
                 $settings = $node->getSettings()['settings'] ?? null;
@@ -204,6 +226,11 @@ class AppConfig
                 }
             }
 
+        }
+
+        \tree()->getTreeGenerator()->setAnyData(['BreadCrumbMapper' => $mapper]);
+
+        if ($dumpDB){
             db(onGetDB: function (TonicsQuery $db) use ($menuData, $menuID, $permissions, $menuItems) {
                 $db->beginTransaction();
                 # Delete All the Menu Items Related to $menuDetails->menuID

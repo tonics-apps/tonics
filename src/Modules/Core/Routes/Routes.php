@@ -27,6 +27,7 @@ use App\Modules\Core\RequestInterceptor\CoreAccess;
 use App\Modules\Core\RequestInterceptor\InstallerChecker;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\RequestInterceptor\AppAccess;
+use App\Modules\Core\RequestInterceptor\RedirectAuthenticatedToCorrectDashboard;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait Routes
@@ -64,7 +65,7 @@ trait Routes
                             #---------------------------------
                         # DASHBOARD PANEL...
                     #---------------------------------
-                    $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
+                    $route->get('dashboard', [DashboardController::class, 'index'], requestInterceptor: [RedirectAuthenticatedToCorrectDashboard::class], alias: 'dashboard');
 
                 }, [Authenticated::class, CoreAccess::class]);
 

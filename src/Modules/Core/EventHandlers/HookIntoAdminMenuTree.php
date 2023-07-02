@@ -12,6 +12,7 @@ namespace App\Modules\Core\EventHandlers;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
@@ -28,6 +29,73 @@ class HookIntoAdminMenuTree implements HandlerInterface
     public function handleEvent(object $event): void
     {
         /** @var $event OnHookIntoTemplate */
+        $event->hookInto('Core::before_in_main_header_title', function (TonicsView $tonicsView){
+            $foundNode = request()->getRouteObject()->getRouteTreeGenerator()?->getFoundURLNode();
+            $path = $foundNode->getFullRoutePath();
+
+            $findURL = request()->getRouteObject()->getRouteTreeGenerator()->findURL($path);
+            $breadCrumb = '';
+
+            if (empty(tree()->getTreeGenerator()->getAnyData())){
+                AppConfig::initAdminMenu(false);
+            }
+
+             dd(tree());
+            if (isset(tree()->getTreeGenerator()->getAnyData()['BreadCrumbMapper'][$path])){
+                $urlNodePath = tree()->getTreeGenerator()->getAnyData()['BreadCrumbMapper'][$path];
+                $node = tree()->getTreeGenerator()->findURL($urlNodePath);
+                $frag = '';
+                foreach ($node->getParentRecursive() as $nodeP){
+
+                    if (!isset($nodeP->getSettings()['settings']['mt_url_slug'])){
+                        continue;
+                    }
+
+                    $url = $nodeP->getSettings()['settings']['mt_url_slug'];
+                    $name = $nodeP->getSettings()['settings']['mt_name'];
+
+                    if (isset($nodeP->getSettings()['settings']['route'])){
+                        $url = route('tonicsCloud.containers.apps.index', $findURL->getFoundURLRequiredParams());
+                    }
+                    $frag = <<<FRAG
+            <li class="tonics-breadcrumb-item">
+                <a href="$url" class="box color:black border-width:default border:black text-underline button:box-shadow-variant-2" title="$name">
+                    <div class="text:no-wrap">$name</div>
+                </a>
+            </li>
+FRAG . $frag;
+
+                    if (!isset($nodeP->getSettings()['settings']['home'])){
+                        $frag = <<<FRAG
+           <li class="tonics-breadcrumb-item">
+                <div class="box d:flex color:black border-width:default border:black button:box-shadow-variant-2" title="is a parent of »">
+                    <div class="text:no-wrap">/</div>
+                </div>
+            </li>
+FRAG . $frag;
+                    }
+                }
+
+                $breadCrumb = <<<HTML
+<ol style="gap: 0.5em;padding-left: 10px; justify-content: flex-start; align-items: center; font-size: 80%; margin-top:5px;" class="tonics-breadcrumb d:flex flex-wrap:wrap justify-content:center list:style:none">
+<style>
+.box {
+    display: flex;
+    flex-direction: row;
+    padding: 5px clamp(15px, 2vw, 20px);
+    align-items: center;
+    border-radius: 5px;
+    text-decoration: none;
+}
+</style>
+$frag
+</ol>
+HTML;
+            }
+
+            return $breadCrumb;
+        });
+
         $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView){
             try {
                 $menuData = new MenuData();

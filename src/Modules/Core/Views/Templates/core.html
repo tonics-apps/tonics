@@ -60,8 +60,10 @@
     </header>
     [[add_hook('Core::after_header')]]
 
-    <main style="margin-bottom: 2em;" id="main" class="flex:one owl" tabindex="-1" data-container_for_selection="true">
-        [[add_hook('Core::before_in_main_header_title')]]
+    <main style="margin-bottom: 2em;" id="main" class="flex:one owl position:relative" tabindex="-1" data-container_for_selection="true">
+        <div class="d:flex flex-d:column-reverse align-items:center flex-gap:small">
+            [[add_hook('Core::before_in_main_header_title')]]
+        </div>
         <header class="main-header text-align:center padding:default">[[add_hook('Core::in_main_header_title')]]</header>
         [[add_hook('Core::in_main')]]
     </main>

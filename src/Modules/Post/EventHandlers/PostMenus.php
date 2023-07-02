@@ -12,7 +12,7 @@ namespace App\Modules\Post\EventHandlers;
 
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Events\OnAdminMenu;
-use App\Modules\Core\Library\AdminMenuPaths;
+use App\Modules\Core\Library\AdminMenuHelper;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTreeSystem\Tree;
@@ -37,30 +37,42 @@ class PostMenus implements HandlerInterface
     {
         tree()->group('', function (Tree $tree){
 
-            $tree->add(AdminMenuPaths::POST, [
+            $tree->add(AdminMenuHelper::POST, [
                 'mt_name' => 'Blog',
                 'mt_url_slug' => route('posts.index'),
                 'mt_icon' => helper()->getIcon('note', 'icon:admin')
             ]);
 
-            $tree->add(AdminMenuPaths::POST_NEW, [
+            $tree->add(AdminMenuHelper::POST_NEW, [
                 'mt_name' => 'New Post',
                 'mt_url_slug' => route('posts.create'),
                 'mt_icon' => helper()->getIcon('plus', 'icon:admin')
             ]);
 
-            $tree->add(AdminMenuPaths::POST_CATEGORY_NEW, [
+            $tree->add(AdminMenuHelper::POST_EDIT, [
+                'mt_name' => 'Edit Post',
+                'mt_url_slug' => '/admin/posts/:post/edit',
+                'ignore' => true,
+            ]);
+
+            $tree->add(AdminMenuHelper::POST_CATEGORY_NEW, [
                 'mt_name' => 'New Category',
                 'mt_url_slug' => route('posts.category.create'),
                 'mt_icon' => helper()->getIcon('plus', 'icon:admin')
             ]);
 
-            $tree->add(AdminMenuPaths::POST_CATEGORY_ALL, [
+            $tree->add(AdminMenuHelper::POST_CATEGORY_ALL, [
                 'mt_name' => 'All Categories',
                 'mt_url_slug' => route('posts.category.index'),
                 'mt_icon' => helper()->getIcon('category', 'icon:admin')
             ]);
 
-        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_POST])], AdminMenuPaths::PRIORITY_MEDIUM);
+            $tree->add(AdminMenuHelper::POST_CATEGORY_EDIT, [
+                'mt_name' => 'Edit Category',
+                'mt_url_slug' => '/admin/posts/category/:category/edit',
+                'ignore' => true,
+            ]);
+
+        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_POST])], AdminMenuHelper::PRIORITY_MEDIUM);
     }
 }

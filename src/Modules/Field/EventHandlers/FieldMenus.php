@@ -10,7 +10,7 @@
 
 namespace App\Modules\Field\EventHandlers;
 
-use App\Modules\Core\Library\AdminMenuPaths;
+use App\Modules\Core\Library\AdminMenuHelper;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTreeSystem\Tree;
@@ -26,9 +26,11 @@ class FieldMenus implements HandlerInterface
     {
         \tree()->group('', function (Tree $tree){
 
-            $tree->add(AdminMenuPaths::FIELD, ['mt_name' => 'Field','mt_url_slug' => route('fields.create'), 'mt_icon' => helper()->getIcon('widget','icon:admin') ]);
-            $tree->add(AdminMenuPaths::FIELD_NEW, ['mt_name' => 'New Field','mt_url_slug' => route('fields.create'), 'mt_icon' => helper()->getIcon('plus','icon:admin') ]);
-            $tree->add(AdminMenuPaths::FIELD_ALL, ['mt_name' => 'All Field','mt_url_slug' => route('fields.index'), 'mt_icon' => helper()->getIcon('notes','icon:admin') ]);
+            $tree->add(AdminMenuHelper::FIELD, ['mt_name' => 'Field','mt_url_slug' => route('fields.index'), 'mt_icon' => helper()->getIcon('widget','icon:admin') ]);
+            $tree->add(AdminMenuHelper::FIELD_NEW, ['mt_name' => 'New Field','mt_url_slug' => route('fields.create'), 'mt_icon' => helper()->getIcon('plus','icon:admin') ]);
+
+          //  AdminMenuHelper::addToRouteMapper(route('fields.index'), AdminMenuHelper::FIELD);
+           // AdminMenuHelper::addToRouteMapper(route('fields.create'), AdminMenuHelper::FIELD_NEW);
 
         }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_FIELD])]);
     }

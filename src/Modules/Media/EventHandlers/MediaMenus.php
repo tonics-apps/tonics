@@ -10,7 +10,7 @@
 
 namespace App\Modules\Media\EventHandlers;
 
-use App\Modules\Core\Library\AdminMenuPaths;
+use App\Modules\Core\Library\AdminMenuHelper;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTreeSystem\Tree;
@@ -25,8 +25,8 @@ class MediaMenus implements HandlerInterface
     {
         \tree()->group('', function (Tree $tree){
 
-            $tree->add(AdminMenuPaths::MEDIA, ['mt_name' => 'Media','mt_url_slug' => '#0', 'mt_icon' => helper()->getIcon('play','icon:admin') ]);
-            $tree->add(AdminMenuPaths::FILE_MANAGER, ['mt_name' => 'File Manager','mt_url_slug' => route('media.show'), 'mt_icon' => helper()->getIcon('media-file','icon:admin') ]);
+            $tree->add(AdminMenuHelper::MEDIA, ['mt_name' => 'Media','mt_url_slug' => '#0', 'mt_icon' => helper()->getIcon('play','icon:admin') ]);
+            $tree->add(AdminMenuHelper::FILE_MANAGER, ['mt_name' => 'File Manager','mt_url_slug' => route('media.show'), 'mt_icon' => helper()->getIcon('media-file','icon:admin') ]);
 
         }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_MEDIA])]);
     }

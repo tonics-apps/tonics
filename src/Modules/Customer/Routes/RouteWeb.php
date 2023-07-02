@@ -14,6 +14,7 @@ namespace App\Modules\Customer\Routes;
 use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
+use App\Modules\Core\RequestInterceptor\RedirectAuthenticatedToCorrectDashboard;
 use App\Modules\Customer\Controllers\CustomerAuth\ForgotPasswordController;
 use App\Modules\Customer\Controllers\CustomerAuth\LoginController;
 use App\Modules\Customer\Controllers\CustomerAuth\RegisterController;
@@ -80,7 +81,7 @@ trait RouteWeb
                         #---------------------------------
                     # CUSTOMER DASHBOARD CONTROLLER...
                 #---------------------------------
-                $route->get('dashboard', [DashboardController::class, 'index'], alias: 'dashboard');
+                $route->get('dashboard', [DashboardController::class, 'index'], requestInterceptor: [RedirectAuthenticatedToCorrectDashboard::class], alias: 'dashboard');
                 $route->get('orders', [OrderController::class, 'index'], alias: 'order.index');
                 $route->get('order/audiotonics/:slug_id', [OrderController::class, 'audioTonicsPurchaseDetails'], alias: 'order.audiotonics.details');
             }, [Authenticated::class, RedirectCustomerGuest::class, CustomerAccess::class]);

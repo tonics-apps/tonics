@@ -10,7 +10,7 @@
 
 namespace App\Modules\Menu\EventHandlers;
 
-use App\Modules\Core\Library\AdminMenuPaths;
+use App\Modules\Core\Library\AdminMenuHelper;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTreeSystem\Tree;
@@ -26,18 +26,18 @@ class MenuMenus implements HandlerInterface
     {
         tree()->group('', function (Tree $tree){
 
-            $tree->add(AdminMenuPaths::MENU, [
+            $tree->add(AdminMenuHelper::MENU, [
                 'mt_name' => 'Menu',
                 'mt_url_slug' => route('menus.index'),
                 'mt_icon' => helper()->getIcon('menu', 'icon:admin')
             ]);
 
-            $tree->add(AdminMenuPaths::MENU_NEW, [
+            $tree->add(AdminMenuHelper::MENU_NEW, [
                 'mt_name' => 'New Menu',
                 'mt_url_slug' => route('menus.create'),
                 'mt_icon' => helper()->getIcon('plus', 'icon:admin')
             ]);
 
-        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_MENU])], AdminMenuPaths::PRIORITY_MEDIUM);
+        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_MENU])], AdminMenuHelper::PRIORITY_MEDIUM);
     }
 }

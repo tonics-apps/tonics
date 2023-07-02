@@ -58,7 +58,6 @@ class MenuData extends AbstractDataLayer
     {
         $menus = null;
         db(onGetDB: function (TonicsQuery $db) use (&$menus){
-
             $permissionTable = Tables::getTable(Tables::PERMISSIONS);
             $rolePermissionTable = Tables::getTable(Tables::ROLE_PERMISSIONS);
             $roleTable = Tables::getTable(Tables::ROLES);

@@ -10,7 +10,7 @@
 
 namespace App\Modules\Widget\EventHandlers;
 
-use App\Modules\Core\Library\AdminMenuPaths;
+use App\Modules\Core\Library\AdminMenuHelper;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsTreeSystem\Tree;
@@ -27,13 +27,13 @@ class WidgetMenus implements HandlerInterface
 
         tree()->group('', function (Tree $tree){
 
-            $tree->add(AdminMenuPaths::WIDGET, [
+            $tree->add(AdminMenuHelper::WIDGET, [
                 'mt_name' => 'Widget',
                 'mt_url_slug' => route('widgets.index'),
                 'mt_icon' => helper()->getIcon('widget', 'icon:admin')
             ]);
 
-            $tree->add(AdminMenuPaths::WIDGET_NEW, [
+            $tree->add(AdminMenuHelper::WIDGET_NEW, [
                 'mt_name' => 'Widget',
                 'mt_url_slug' => route('widgets.create'),
                 'mt_icon' => helper()->getIcon('plus', 'icon:admin')

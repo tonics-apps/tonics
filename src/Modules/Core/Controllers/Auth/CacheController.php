@@ -34,7 +34,7 @@ class CacheController
      */
     #[NoReturn] public function clear()
     {
-        $cacheKey = input()->fromGet()->retrieve('cache-key');
+        $cacheKey = input()->fromGet()->retrieve('cache-key', '');
         $result = helper()->clearAPCUCache($cacheKey);
 
         response()->header('Cache-Result: ' . $result);

@@ -438,6 +438,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     flex-direction: column;
 }
 
+.flex-d\:column-reverse {
+    flex-direction: column-reverse;
+}
+
 .flex-d\:row {
     flex-direction: row;
 }
