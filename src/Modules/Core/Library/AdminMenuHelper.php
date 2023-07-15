@@ -27,6 +27,7 @@ final class AdminMenuHelper
     const FIELD = self::TOOL . '/FIELD';
     const FIELD_NEW = self::FIELD . '/NEW_FIELD';
     const FIELD_EDIT = self::FIELD . '/EDIT_FIELD';
+    const FIELD_ITEMS_EDIT = self::FIELD . '/EDIT_FIELD_ITEMS';
 
     const APPS = self::TOOL . '/APPS';
     const APP_FORCE_UPDATE_CHECK = self::APPS . '/FORCE_UPDATE_CHECK_APP';

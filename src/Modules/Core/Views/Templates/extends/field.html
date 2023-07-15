@@ -18,13 +18,18 @@
       ]]
     </div>
   </section>
-  <div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
-    <button name="save_changes" class="tonics-save-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
-      [[add_hook('Core::in_form_button_name')]]
-    </button>
-  </div>
+
+  [[add_hook('Core::form_button')]]
 </form>
+]]
+
+[[hook_into('Core::form_button')
+<div class="form-group d:flex flex-gap flex-wrap:wrap justify-content:center padding:default">
+  <button name="save_changes" class="tonics-save-changes text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer button:box-shadow-variant-2">
+    [[add_hook('Core::in_form_button_name')]]
+  </button>
+</div>
 ]]
 
 [[hook_into('Core::in_form_button_name')Save Changes]]

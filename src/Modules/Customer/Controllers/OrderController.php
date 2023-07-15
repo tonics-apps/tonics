@@ -18,8 +18,9 @@ class OrderController
 {
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function index()
+    public function index(): void
     {
         $purchaseTable = Tables::getTable(Tables::PURCHASES);
         $dataTableHeaders = [
@@ -40,7 +41,6 @@ class OrderController
                         $db->WhereLike('slug_id', url()->getParam('query'));
                     })->OrderByDesc(table()->pickTable($purchaseTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
             });
-
         }
 
         view('Modules::Customer/Views/Orders/order_index', [
@@ -56,8 +56,9 @@ class OrderController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function audioTonicsPurchaseDetails($slugID)
+    public function audioTonicsPurchaseDetails($slugID): void
     {
         $purchaseRecord = null;
         db(onGetDB: function ($db) use ($slugID, &$purchaseRecord){
@@ -67,7 +68,7 @@ class OrderController
             $purchaseRecord = $db->row(<<<SQL
 SELECT $select
 FROM $purchaseTable
-JOIN {$customerTable} c ON c.user_id = $purchaseTable.fk_customer_id
+JOIN $customerTable c ON c.user_id = $purchaseTable.fk_customer_id
 WHERE $purchaseTable.`slug_id` = ? AND `payment_status` = ?
 SQL, $slugID, 'completed');
         });
@@ -81,6 +82,36 @@ SQL, $slugID, 'completed');
             'SlugID' => $slugID,
             'SiteURL' => AppConfig::getAppUrl(),
         ]);
+    }
 
+    /**
+     * @param $slugID
+     * @return void
+     * @throws \Throwable
+     */
+    public function tonicsCloudPurchaseDetails($slugID): void
+    {
+        $purchaseRecord = null;
+        db(onGetDB: function ($db) use ($slugID, &$purchaseRecord){
+            $purchaseTable = Tables::getTable(Tables::PURCHASES);
+            $customerTable = Tables::getTable(Tables::CUSTOMERS);
+            $select = "total_price, email, $purchaseTable.others, $purchaseTable.slug_id, invoice_id";
+            $purchaseRecord = $db->row(<<<SQL
+SELECT $select
+FROM $purchaseTable
+JOIN $customerTable c ON c.user_id = $purchaseTable.fk_customer_id
+WHERE $purchaseTable.`slug_id` = ? AND `payment_status` = ?
+SQL, $slugID, 'completed');
+        });
+
+        if (isset($purchaseRecord->others)){
+            $purchaseRecord->others = json_decode($purchaseRecord->others);
+        }
+
+        view('Modules::Customer/Views/Orders/TonicsCloud/order_details', [
+            'OrderDetails' => $purchaseRecord,
+            'SlugID' => $slugID,
+            'SiteURL' => AppConfig::getAppUrl(),
+        ]);
     }
 }

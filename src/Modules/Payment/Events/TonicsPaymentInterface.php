@@ -10,7 +10,7 @@
 
 namespace App\Modules\Payment\Events;
 
-interface AudioTonicsPaymentInterface
+interface TonicsPaymentInterface
 {
     /**
      * Transporters Name

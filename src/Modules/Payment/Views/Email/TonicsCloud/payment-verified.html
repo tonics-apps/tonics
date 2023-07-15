@@ -1,0 +1,16 @@
+[[inherit("Modules::Core/Views/Templates/email")]]
+
+[[hook_into('CoreEmail::in_head_title') [[v('Subject')]] ]]
+
+
+[[hook_into('CoreEmail::in_body')
+<div class="container">
+  <h1>Payment Verified</h1>
+  <p>[[v('Username')]], Thanks for your support 🙏, $[[v('OrderAmount')]] has been added to your cloud credit</p>
+  <p></p>
+
+  <p>Your Order ID is {Order #[[v('SlugID')]]}</p>
+
+  <p style="text-align: center; font-size: 12px; color: #999; margin-top: 20px;">This email was generated automatically by Tonics.</p>
+</div>
+]]

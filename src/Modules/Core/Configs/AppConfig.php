@@ -178,6 +178,8 @@ class AppConfig
      */
     public static function initAdminMenu(bool $dumpDB = true): void
     {
+        \tree()->getTreeGenerator()->reset(new Node());
+
         event()->dispatch(new OnAdminMenu());
         $menuData = new MenuData();
         $tree = \tree()->getTreeGenerator()->getNodeTree();
@@ -229,7 +231,6 @@ class AppConfig
         }
 
         \tree()->getTreeGenerator()->setAnyData(['BreadCrumbMapper' => $mapper]);
-
         if ($dumpDB){
             db(onGetDB: function (TonicsQuery $db) use ($menuData, $menuID, $permissions, $menuItems) {
                 $db->beginTransaction();

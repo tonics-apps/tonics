@@ -490,7 +490,9 @@ const EventsConfig = {
     OnAudioPlayerPreviousEvent: [],
     OnAudioPlayerNextEvent: [],
     OnAudioPlayerClickEvent: [],
-    OnAudioPlayerPaymentGatewayCollatorEvent: [],
+
+    // Event For Payment Gateway
+    OnPaymentGatewayCollatorEvent: [],
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;

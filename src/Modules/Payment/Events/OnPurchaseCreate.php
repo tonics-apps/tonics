@@ -10,7 +10,6 @@
 
 namespace App\Modules\Payment\Events;
 
-use App\Modules\Post\Events\AbstractClasses\PostDataAccessor;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
 class OnPurchaseCreate implements EventInterface

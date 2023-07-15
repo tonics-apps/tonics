@@ -11,18 +11,20 @@
 namespace App\Modules\Payment\Controllers;
 
 use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
+use App\Modules\Payment\Library\Helper;
 
 class PayPalWebHookController
 {
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handleWebHook(): void
     {
         $entityBody = request()->getEntityBody();
         if (helper()->isJSON($entityBody)){
             $webhook = json_decode($entityBody);
-            if (PaymentSettingsController::verifyWebHookSignature($webhook)){
+            if (Helper::PayPalVerifyWebHookSignature($webhook)){
                 $eventType = $webhook->event_type;
                 /** @var $webHookEventObject OnAddPayPalWebHookEvent */
                 $payPalWebHookEventObject = new OnAddPayPalWebHookEvent();

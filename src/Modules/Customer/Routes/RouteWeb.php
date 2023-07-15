@@ -67,23 +67,16 @@ trait RouteWeb
             $route->get('verifyEmail', [RegisterController::class, 'showVerifyEmailForm'], alias: 'verifyEmailForm');
             $route->post('verifyEmail', [RegisterController::class, 'verifyEmail'], alias: 'verifyEmail');
 
-                    #---------------------------------
-                # CUSTOMER DASHBOARD CONTROLLER...
-            #---------------------------------
-            /*$route->group('', function (Route $route) {
-                $route->get('purchase/:puchaseSlugID', [CustomerDashboardController::class, 'purchaseHistory'], alias: 'purchase.history');
-                $route->get('settings', [CustomerDashboardController::class, 'index'], alias: 'settings');
-                $route->match(['put', 'patch'], 'settings', [CustomerDashboardController::class, 'update'], alias: 'settings.update');
-                $route->get('dashboard', [CustomerDashboardController::class, 'dashboard'], alias: 'dashboard');
-            }, [Customer::class, VerifyCustomer::class]);*/
-
             $route->group('', function (Route $route){
+
                         #---------------------------------
                     # CUSTOMER DASHBOARD CONTROLLER...
                 #---------------------------------
                 $route->get('dashboard', [DashboardController::class, 'index'], requestInterceptor: [RedirectAuthenticatedToCorrectDashboard::class], alias: 'dashboard');
                 $route->get('orders', [OrderController::class, 'index'], alias: 'order.index');
                 $route->get('order/audiotonics/:slug_id', [OrderController::class, 'audioTonicsPurchaseDetails'], alias: 'order.audiotonics.details');
+                $route->get('order/tonicscloud/:slug_id', [OrderController::class, 'tonicsCloudPurchaseDetails'], alias: 'order.tonicscloud.details');
+
             }, [Authenticated::class, RedirectCustomerGuest::class, CustomerAccess::class]);
         }, AuthConfig::getCSRFRequestInterceptor(),  'customer');
 

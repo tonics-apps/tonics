@@ -32,6 +32,7 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackCategoryTemplate implements Pa
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handleTemplate(OnPageTemplate $pageTemplate): void
     {

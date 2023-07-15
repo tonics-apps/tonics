@@ -15,9 +15,10 @@ use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Payment\EventHandlers\HandleNewPurchaseSlugIDGeneration;
 use App\Modules\Payment\EventHandlers\PayPal\HandleAudioTonicsPaymentCaptureCompletedEvent;
-use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
+use App\Modules\Payment\Events\AudioTonics\OnAddTrackPaymentEvent;
 use App\Modules\Payment\Events\OnPurchaseCreate;
 use App\Modules\Payment\Events\PayPal\OnAddPayPalWebHookEvent;
+use App\Modules\Payment\Events\TonicsCloud\OnAddTonicsCloudPaymentEvent;
 use App\Modules\Payment\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -41,6 +42,10 @@ class PaymentActivator implements ExtensionConfig
         return [
 
             OnAddTrackPaymentEvent::class => [
+
+            ],
+
+            OnAddTonicsCloudPaymentEvent::class => [
 
             ],
 

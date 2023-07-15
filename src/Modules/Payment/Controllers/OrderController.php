@@ -19,6 +19,7 @@ class OrderController
 {
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function index(): void
     {
@@ -40,7 +41,6 @@ class OrderController
                     $db->WhereLike('slug_id', url()->getParam('query'));
                 })
                 ->OrderByDesc(table()->pickTable($purchaseTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
-
         });
 
         view('Modules::Payment/Views/Orders/order_index', [

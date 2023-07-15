@@ -27,10 +27,19 @@ class FieldMenus implements HandlerInterface
         \tree()->group('', function (Tree $tree){
 
             $tree->add(AdminMenuHelper::FIELD, ['mt_name' => 'Field','mt_url_slug' => route('fields.index'), 'mt_icon' => helper()->getIcon('widget','icon:admin') ]);
-            $tree->add(AdminMenuHelper::FIELD_NEW, ['mt_name' => 'New Field','mt_url_slug' => route('fields.create'), 'mt_icon' => helper()->getIcon('plus','icon:admin') ]);
+            $tree->add(AdminMenuHelper::FIELD_NEW, ['mt_name' => 'New Field','mt_url_slug' => route('fields.create'), 'mt_icon' => helper()->getIcon('plus','icon:admin') ]);;
 
-          //  AdminMenuHelper::addToRouteMapper(route('fields.index'), AdminMenuHelper::FIELD);
-           // AdminMenuHelper::addToRouteMapper(route('fields.create'), AdminMenuHelper::FIELD_NEW);
+            $tree->add(AdminMenuHelper::FIELD_EDIT, [
+                'mt_name' => 'Edit Field',
+                'mt_url_slug' => '/admin/tools/field/:field/edit',
+                'ignore' => true,
+            ]);
+
+            $tree->add(AdminMenuHelper::FIELD_ITEMS_EDIT, [
+                'mt_name' => 'Edit Field Items',
+                'mt_url_slug' => '/admin/tools/field/items/:field/builder',
+                'ignore' => true,
+            ]);
 
         }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_FIELD])]);
     }

@@ -15,12 +15,7 @@ interface PayPalWebHookEventInterface
     public function EventType(): string;
 
     /**
-     * E.g AudioTonics, TonicsCommerce (not yet available), etc
-     * @return string
-     */
-    public function TonicsSolutionType(): string;
-
-    /**
+     * @param OnAddPayPalWebHookEvent $payPalWebHookEvent
      * @return void
      */
     public function HandleWebHookEvent(OnAddPayPalWebHookEvent $payPalWebHookEvent): void;

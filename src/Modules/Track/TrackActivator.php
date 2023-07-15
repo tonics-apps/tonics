@@ -16,8 +16,9 @@ use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Menu\Events\OnMenuMetaBox;
-use App\Modules\Payment\EventHandlers\TrackPaymentMethods\AudioTonicsPayPalHandler;
-use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
+use App\Modules\Payment\EventHandlers\AudioTonicsPaymentHandler\AudioTonicsFlutterWaveHandler;
+use App\Modules\Payment\EventHandlers\AudioTonicsPaymentHandler\AudioTonicsPayPalHandler;
+use App\Modules\Payment\Events\AudioTonics\OnAddTrackPaymentEvent;
 use App\Modules\Track\EventHandlers\Artist\HandleArtistFilterTypeCreation;
 use App\Modules\Track\EventHandlers\Artist\HandleArtistFilterTypeDeletion;
 use App\Modules\Track\EventHandlers\DefaultTrackCategoryFieldHandler;
@@ -138,6 +139,7 @@ class TrackActivator implements ExtensionConfig
 
             OnAddTrackPaymentEvent::class => [
                 AudioTonicsPayPalHandler::class,
+                AudioTonicsFlutterWaveHandler::class,
             ]
         ];
     }

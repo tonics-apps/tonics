@@ -405,11 +405,13 @@
 ]]
 
 [[b('default-secure-meta')
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="Content-Security-Policy" content="script-src 'self'">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="csrf_token" content="[[csrf()]]">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    [[add_hook('Core::meta_csp')]]
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf_token" content="[[csrf()]]">
 ]]
+
+[[hook_into('Core::meta_csp')<meta http-equiv="Content-Security-Policy" content="script-src 'self'">]]
 
 [[b('csrf-meta')
     <meta name="csrf_token" content="[[csrf()]]">

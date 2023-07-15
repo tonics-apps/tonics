@@ -209,6 +209,7 @@ trait TrackValidationRules
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function trackCategoryStoreRule(): array
     {
@@ -225,6 +226,7 @@ trait TrackValidationRules
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function trackCategoryUpdateRule(): array
     {

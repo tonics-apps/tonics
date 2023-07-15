@@ -10,22 +10,24 @@
 
 namespace App\Modules\Track\Controllers;
 
-use App\Modules\Payment\Events\AudioTonicsPaymentInterface;
-use App\Modules\Payment\Events\OnAddTrackPaymentEvent;
+use App\Modules\Payment\Events\AudioTonics\OnAddTrackPaymentEvent;
+use App\Modules\Payment\Events\TonicsPaymentInterface;
 
 class TracksPaymentController
 {
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    function RequestFlow()
+    public function RequestFlow(): void
     {
         $paymentHandlerName = url()->getHeaderByKey('PaymentHandlerName');
+
         /** @var $paymentObject OnAddTrackPaymentEvent */
         $paymentObject = event()->dispatch(new OnAddTrackPaymentEvent())->event();
         if ($paymentObject->exist($paymentHandlerName)){
-            /** @var $paymentHandler AudioTonicsPaymentInterface */
+            /** @var $paymentHandler TonicsPaymentInterface */
             $paymentHandler = $paymentObject->getPaymentHandler($paymentHandlerName);
             $paymentHandler->handlePayment();
         } else {

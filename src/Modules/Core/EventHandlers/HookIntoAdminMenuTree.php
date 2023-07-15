@@ -40,7 +40,6 @@ class HookIntoAdminMenuTree implements HandlerInterface
                 AppConfig::initAdminMenu(false);
             }
 
-             dd(tree());
             if (isset(tree()->getTreeGenerator()->getAnyData()['BreadCrumbMapper'][$path])){
                 $urlNodePath = tree()->getTreeGenerator()->getAnyData()['BreadCrumbMapper'][$path];
                 $node = tree()->getTreeGenerator()->findURL($urlNodePath);
@@ -123,12 +122,12 @@ $menuHTMLFRag
             </a>
             <!-- The child menu-->
             <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
-                <li class="menu-block" data-menu-depth="1">
+<!--                <li class="menu-block" data-menu-depth="1">
                     <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
                         <svg class="icon:admin tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>
                         <div class="text:paragraph-fluid-one text:no-wrap">General</div>
                     </a>
-                </li>
+                </li>-->
                 <li class="menu-block" data-menu-depth="1">
                     <form method="post" class="d:flex height:100%" action="$logout">
                         <input type="hidden" name="token" value="$token">
@@ -167,12 +166,12 @@ $menuHTMLFRag
             </a>
             <!-- The child menu-->
             <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
-                <li class="menu-block" data-menu-depth="1">
+<!--                <li class="menu-block" data-menu-depth="1">
                     <a href="" class="menu-box flex-gap:small color:black bg:white-one border-width:default border:black" title="">
                         <svg class="icon:admin tonics-cog"> <use xlink:href="#tonics-cog"></use></svg>
                         <div class="text:paragraph-fluid-one text:no-wrap">Profile</div>
                     </a>
-                </li>
+                </li>-->
                 <li class="menu-block" data-menu-depth="1">
                     <form method="post" class="d:flex height:100%" action="$logout">
                         <input type="hidden" name="token" value="$token">

@@ -79,17 +79,18 @@ class OnAddPayPalWebHookEvent implements EventInterface
     }
 
     /**
-     * @return null
+     * @return \stdClass|null
      */
-    public function getWebHookData()
+    public function getWebHookData(): ?\stdClass
     {
         return $this->webHookData;
     }
 
     /**
-     * @param null $webHookData
+     * @param mixed $webHookData
+     * @return OnAddPayPalWebHookEvent
      */
-    public function setWebHookData($webHookData): OnAddPayPalWebHookEvent
+    public function setWebHookData(mixed $webHookData): OnAddPayPalWebHookEvent
     {
         $this->webHookData = $webHookData;
         return $this;

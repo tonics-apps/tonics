@@ -1,0 +1,68 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/customer")]]
+
+[[hook_into('Core::in_head_title') Order [[v('SlugID')]] ]]
+[[hook_into('Core::in_main_header_title') {Order #[[v('SlugID')]]} ]]
+
+[[hook_into('Core::in_main')
+<style>
+    table.order-details {
+        width: 80%;
+        margin: 2rem auto;
+        border-collapse: collapse;
+        font-size: 1.2rem;
+    }
+
+    table.order-details th,
+    table.order-details td {
+        padding: 1rem;
+        border: 1px solid gray;
+        text-align: center;
+        font-size: 80%;
+        max-width: 25ch;
+        overflow: hidden;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+        word-break: break-all;
+    }
+
+    table.order-details thead th {
+        font-weight: bold;
+        background-color: lightgray;
+    }
+
+    table.order-details tfoot td {
+        font-weight: bold;
+        background-color: lightgray;
+        text-align: right;
+    }
+
+    table.order-details a {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+</style>
+<table class="order-details">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td title="Cloud Credit">Cloud Credit</td>
+        <td>Credit Top-up</td>
+        [[if('v[OrderDetails.total_price]')
+            <td>$[[v('OrderDetails.total_price')]]</td>
+        ]]
+    </tr>
+    </tbody>
+</table>
+]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:core")]]
+    [[_use("session:delete-artifacts")]]
+]]

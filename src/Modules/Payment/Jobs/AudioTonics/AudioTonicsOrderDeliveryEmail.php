@@ -21,29 +21,31 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handle(): void
     {
         $appURL = AppConfig::getAppUrl();
         $helper = helper();
-        $name = $helper->extractNameFromEmail($this->getData()->email);
+        $email = $this->getData()->email;
+        $name = $helper->extractNameFromEmail($email);
         $subject = AppConfig::getAppName() . " - Audio Order Delivery {Order #{$this->getData()->slug_id}}";
         $messageToSend = view('Modules::Payment/Views/Email/AudioTonics/ordered-files', [
             'Username' => ucfirst($name),
             'Subject' => $subject,
             'SlugID' => $this->getData()->slug_id,
-            'Email' => $this->getData()->email,
+            'Email' => $email,
             'OrderDetails' => $this->getData(),
             'OrderDetailsURL' => $appURL . route('customer.order.audiotonics.details', ['slug_id' => $this->getData()->slug_id]),
             'ForgetPasswordLink' => $appURL . route('customer.password.request'),
         ], TonicsView::RENDER_CONCATENATE);
 
         $mail = MailConfig::getMailer();
-        $mail->addAddress($this->getData()->email, $name);
+        $mail->addAddress($email, $name);
         #
         # In case the user registers mail is incorrect, we also send the order details to the PaymentEmailAddress
         #
-        if (isset($this->getData()->others->payment_email_address) && $this->getData()->others->payment_email_address !== $this->getData()->email){
+        if (isset($this->getData()->others->payment_email_address) && $this->getData()->others->payment_email_address !== $email){
             $mail->addAddress($this->getData()->others->payment_email_address, $name);
         }
         $mail->Subject = $subject;
@@ -55,7 +57,7 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
             $mail->clearAttachments();
         } catch (\Exception $e) {
             // Log...
-            $this->infoMessage('Mailer Error (' . htmlspecialchars($this->getData()->email) . ') ' . $mail->ErrorInfo);
+            $this->infoMessage('Mailer Error (' . htmlspecialchars($email) . ') ' . $mail->ErrorInfo);
         }
     }
 }

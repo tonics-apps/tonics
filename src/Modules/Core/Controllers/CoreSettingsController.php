@@ -13,9 +13,7 @@ namespace App\Modules\Core\Controllers;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Payment\Schedules\AudioTonics\ManuallyConfirmAudioTonicsPaymentPayPal;
 
 class CoreSettingsController
 {

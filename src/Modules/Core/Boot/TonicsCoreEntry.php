@@ -38,7 +38,6 @@ class TonicsCoreEntry
             // Log..
         } catch (\Throwable $e) {
             echo $e->getMessage();
-            echo $e->getTraceAsString();
             // Log..
         }
     }

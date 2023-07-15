@@ -341,7 +341,13 @@ HTML;
         }
 
         if ($this->getSettingsType() === $this::OnUserSettingsType){
+            $text = '';
             $info = (isset($data->info)) ? $data->info : '';
+            if (!empty($info)){
+                $text = <<<HTML
+<span class="cursor:text">$info</span>
+HTML;
+            }
             $result .=<<<HTML
 <li $isEditorLi tabIndex="0"
 class="width:100% field-builder-items overflow:auto"
@@ -352,7 +358,7 @@ $scriptPath>
             <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
             </legend>
-            <span class="cursor:text">$info</span>
+            $text
             <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
 HTML;
         }
