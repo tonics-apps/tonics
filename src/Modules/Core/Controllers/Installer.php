@@ -260,6 +260,7 @@ class Installer extends SimpleState
 
     /**
      * @throws Exception
+     * @throws \Throwable
      */
     public function InstallGenerateAdminUser()
     {
@@ -295,6 +296,7 @@ class Installer extends SimpleState
 
         $this->deleteArtifacts();
         helper()->sendMsg(self::getCurrentState(), "> Step 6 of 6: Installation Completed, Refreshing... ✔");
+        if (apcu_enabled()){ apcu_clear_cache(); }
         $adminPage = ['page' => route('admin.login')];
         helper()->sendMsg(self::getCurrentState(), json_encode($adminPage), 'redirect');
     }

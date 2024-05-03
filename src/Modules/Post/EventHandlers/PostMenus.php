@@ -10,8 +10,6 @@
 
 namespace App\Modules\Post\EventHandlers;
 
-use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\AdminMenuHelper;
 use App\Modules\Core\Library\Authentication\Roles;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;

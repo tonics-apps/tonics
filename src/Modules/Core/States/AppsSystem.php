@@ -228,6 +228,7 @@ class AppsSystem extends SimpleState
             $errorActivatorName = implode(', ', $errorActivatorName);
             $this->setErrorMessage("An Error Occurred Deleting App: [$errorActivatorName]");
         } elseif (!empty($deletedApp)){
+            apcu_clear_cache();
             $deletedApp = implode(', ', $deletedApp);
             $this->setSucessMessage("[$deletedApp] App Deleted");
             AppConfig::updateRestartService();

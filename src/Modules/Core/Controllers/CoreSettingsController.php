@@ -52,6 +52,7 @@ class CoreSettingsController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function edit(): void
     {
@@ -62,7 +63,8 @@ class CoreSettingsController
     }
 
     /**
-     * @throws \Exception
+     * @return void
+     * @throws \Throwable
      */
     public function update()
     {

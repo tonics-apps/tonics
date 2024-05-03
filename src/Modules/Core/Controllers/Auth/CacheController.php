@@ -46,10 +46,11 @@ class CacheController
     /**
      * @throws TonicsTemplateLoaderError
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] public function warmTemplateCache()
+    #[NoReturn] public function warmTemplateCache(): void
     {
-        $templateLoader = new TonicsTemplateFileLoader('html');
+        $templateLoader = new TonicsTemplateFileLoader('html', [AppConfig::getComposerPath()]);
         $templateLoader->resolveTemplateFiles(AppConfig::getModulesPath());
         $templateLoader->resolveTemplateFiles(AppConfig::getAppsPath());
 

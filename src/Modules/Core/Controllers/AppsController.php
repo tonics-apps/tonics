@@ -214,6 +214,7 @@ class AppsController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function install(): void
     {
@@ -232,6 +233,7 @@ class AppsController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function uninstall(): void
     {

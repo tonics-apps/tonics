@@ -141,13 +141,12 @@ class AppConfig
 
                 if (function_exists('apcu_enabled')) {
                     apcu_store($initKey, $initLoader);
+                    self::$init = $initLoader;
                 }
 
                 if (helper()->isNotCLI() && self::isLoggedIn()){
                     self::initAdminMenu();
-                    $initLoader->setTree(tree());
-                    apcu_delete($initKey);
-                    apcu_store($initKey, $initLoader);
+                    apcu_store($initKey, $initLoader->setTree(tree()));
                 }
             }
 
@@ -176,11 +175,11 @@ class AppConfig
     /**
      * @throws \Throwable
      */
-    public static function initAdminMenu(bool $dumpDB = true): void
+    public static function initAdminMenu(bool $dumpDB = true, EventDispatcher $eventDispatcher = null): void
     {
         \tree()->getTreeGenerator()->reset(new Node());
-
         event()->dispatch(new OnAdminMenu());
+
         $menuData = new MenuData();
         $tree = \tree()->getTreeGenerator()->getNodeTree();
         $menuID = $menuData->getCoreMenuID();
@@ -227,7 +226,6 @@ class AppConfig
                     }
                 }
             }
-
         }
 
         \tree()->getTreeGenerator()->setAnyData(['BreadCrumbMapper' => $mapper]);
@@ -551,6 +549,11 @@ class AppConfig
     public static function getModulesPath(): string
     {
         return APP_ROOT . '/src/Modules';
+    }
+
+    public static function getComposerPath(): string
+    {
+        return APP_ROOT . '/src/Modules/Core/Library/Composer';
     }
 
     public static function getAppsPath(): string
