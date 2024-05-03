@@ -1,0 +1,63 @@
+
+/*
+ * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *
+ * While this program can be used free of charge,
+ * you shouldn't and can't freely copy, modify, merge,
+ * publish, distribute, sublicense,
+ * and/or sell copies of this program without written permission to me.
+ */
+
+html {
+    font-size: 100%;
+    scroll-behavior: smooth;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+    background-color: black;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #000000!important;
+    border-radius: 10px!important;
+    outline: 1px solid #000!important;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: #e7e7e7;
+    height: 10px;
+}
+
+input:focus {
+    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
+    outline: 2px solid #727272;
+}
+
+input.placeholder-color\:gray::placeholder {
+    color: darkgray;
+    font-size: 80%;
+}
+
+.owl > * + * {
+    margin-top: 1rem;
+}
+
+
+a:focus {
+    outline: dotted 2px;
+    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
+}

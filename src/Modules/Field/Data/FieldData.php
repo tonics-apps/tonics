@@ -171,6 +171,7 @@ COLUMNS;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function createField(array $ignore = []): array
     {
@@ -932,9 +933,18 @@ HTML;
                     $userFieldItem->field_data = (array)$fieldData;
                     $sorted[] = $userFieldItem;
                     $match = true;
+
                     // For Nested Children
-                    if (isset($originalFieldItem->_children) && isset($userFieldItem->_children)) {
-                        $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
+                    // If Original Field Items has a Children and the UserFieldItem Has a Children, sortFieldWalkerTree,
+                    // Otherwise, something is wrong in userFieldItem, fix it by adding the children from the original to it,
+                    // nothing is really wrong though, it could be a situation where it is a repeatable field, and user has deleted all the repeated fields,
+                    // that is the reason why it appears that $userFieldItem has no children
+                    if (isset($originalFieldItem->_children)) {
+                        if (isset($userFieldItem->_children)){
+                            $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
+                        } else {
+                            $userFieldItem->_children = $originalFieldItem->_children;
+                        }
                     }
                 }
             }

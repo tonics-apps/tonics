@@ -408,6 +408,7 @@ class ThemeFolderViewHandler implements HandlerInterface
      * @param $fieldSettings
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handleFilterFromFieldSettingsKeyForCategorySubCategory($mainTrackData, &$fieldSettings): void
     {
@@ -583,15 +584,15 @@ LI;
      * @param string $param
      * @param $filterOptions
      * @return string
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public function createCheckboxFilterFragmentFromFieldSettings(string $param, $filterOptions): string
     {
         $frag = '';
         $filterOptionsToLoop = [];
-        if (is_array($filterOptions->{$param})) {
+        if (isset($filterOptions->{$param}) && is_array($filterOptions->{$param})) {
             $filterOptionsToLoop = $filterOptions->{$param};
-        } elseif (is_array($filterOptions[$param])) {
+        } elseif (isset($filterOptions[$param]) && is_array($filterOptions[$param])) {
             $filterOptionsToLoop = $filterOptions[$param];
         }
 

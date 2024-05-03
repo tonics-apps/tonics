@@ -10,3 +10,5 @@ src/Apps/*.installed
 /src/Apps/TestApp/
 /src/Apps/RefreshTrackUpdates/
 /src/Apps/TonicsCloud/
+/bin/console_test
+/bin/console_test_dump

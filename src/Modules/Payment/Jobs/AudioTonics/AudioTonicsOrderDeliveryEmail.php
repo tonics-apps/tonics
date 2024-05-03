@@ -45,9 +45,11 @@ class AudioTonicsOrderDeliveryEmail extends AbstractJobInterface implements JobH
         #
         # In case the user registers mail is incorrect, we also send the order details to the PaymentEmailAddress
         #
-        if (isset($this->getData()->others->payment_email_address) && $this->getData()->others->payment_email_address !== $email){
+        if ((isset($this->getData()->others->payment_email_address) && !empty($this->getData()->others->payment_email_address))
+            && $this->getData()->others->payment_email_address !== $email){
             $mail->addAddress($this->getData()->others->payment_email_address, $name);
         }
+
         $mail->Subject = $subject;
         $mail->msgHTML($messageToSend);
 

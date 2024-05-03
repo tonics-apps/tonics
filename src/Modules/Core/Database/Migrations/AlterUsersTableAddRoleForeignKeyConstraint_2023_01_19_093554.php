@@ -21,7 +21,6 @@ class AlterUsersTableAddRoleForeignKeyConstraint_2023_01_19_093554 extends Migra
             $db->run("ALTER TABLE `{$this->tableUser()}` DROP COLUMN `role`;");
             $db->run("ALTER TABLE `{$this->tableUser()}` ADD COLUMN `role` INT AFTER `user_password`");
             $db->run("ALTER TABLE `{$this->tableUser()}` ADD FOREIGN KEY (`role`) REFERENCES `{$this->tableRole()}`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT;");
-            Roles::updateRolesInDatabase();
         });
     }
 

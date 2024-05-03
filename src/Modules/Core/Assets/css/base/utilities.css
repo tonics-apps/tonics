@@ -605,7 +605,6 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     text-decoration: overline;
 }
 
-
 .text-decoration-style\:wavy {
     text-decoration-style: wavy;
 }

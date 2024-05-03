@@ -21,7 +21,6 @@ class AlterCustomersTableAddRoleForeignKeyConstraint_2023_01_19_099554 extends M
             $db->run("ALTER TABLE `{$this->tableCustomer()}` DROP COLUMN `role`;");
             $db->run("ALTER TABLE `{$this->tableCustomer()}` ADD COLUMN `role` INT AFTER `user_password`");
             $db->run("ALTER TABLE `{$this->tableCustomer()}` ADD FOREIGN KEY (`role`) REFERENCES `{$this->tableRole()}`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT;");
-            Roles::updateRolesInDatabase();
         });
     }
 

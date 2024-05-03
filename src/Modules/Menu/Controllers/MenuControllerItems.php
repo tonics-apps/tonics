@@ -35,12 +35,19 @@ class MenuControllerItems extends Controller
     /**
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     public function index(string $slug)
     {
 
         $onMenuMetaBox = new OnMenuMetaBox();
         $dispatched = event()->dispatch($onMenuMetaBox);
+
+        if (url()->getHeaderByKey('action') === 'default-menu') {
+            $name = url()->getHeaderByKey('name');
+            $url = url()->getHeaderByKey('url');
+            helper()->onSuccess($this->getMenuData()->getDefaultMenuListingFrag($name, $url));
+        }
 
         /** @var OnMenuMetaBox $dispatched */
         if (url()->getHeaderByKey('menuboxname')) {
@@ -60,6 +67,7 @@ class MenuControllerItems extends Controller
         view('Modules::Menu/Views/Items/index', [
             'MetaBox' => $dispatched->generateMenuMetaBox(),
             'MenuItems' => $this->getMenuData()->getMenuItemsListing($this->getMenuData()->getMenuItems($menuID)),
+            'MenuDefault' => $this->getMenuData()->getDefaultMenuListingFrag('Example Menu'),
             'MenuBuilderName' => ucwords(str_replace('-', ' ', $slug)),
             'MenuSlug' => $slug,
             'MenuID' => $menuID,
@@ -68,8 +76,9 @@ class MenuControllerItems extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function store()
+    public function store(): void
     {
         $menuSlug = input()->fromPost()->retrieve('menuSlug', '');
 

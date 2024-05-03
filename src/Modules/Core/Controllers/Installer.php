@@ -54,7 +54,6 @@ class Installer extends SimpleState
      */
     public function showInstallerForm()
     {
-
         $timeZoneList = DateTimeZone::listIdentifiers();
         $timeZoneListOutput = null;
         foreach ($timeZoneList as $tz) {
@@ -74,6 +73,7 @@ class Installer extends SimpleState
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function preInstall()
     {
@@ -92,7 +92,7 @@ class Installer extends SimpleState
             }
             response()->onSuccess([], message: 'success');
 
-        } catch (Exception){
+        } catch (\Throwable){
             # This means there is a name in the $requestBody that shouldn't be there or malformed data was supplied to make() method
             # (someone is trying something funny). Those are the only thing that can raise exceptions
             SimpleState::displayErrorMessage(400, "An Issue Occurred in Pre-Install Validation", true);
@@ -103,6 +103,7 @@ class Installer extends SimpleState
     /***
      * @return void
      * @throws Exception
+     * @throws \Throwable
      */
     public function install()
     {

@@ -15,8 +15,6 @@ After=network.target
 #  - You can check the status if everything is fine: systemctl status service_name
 #
 #
-#
-#
 
 [Service]
 Type=simple

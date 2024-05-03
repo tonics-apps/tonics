@@ -97,59 +97,7 @@ MENU VIEWS
 ]]
 
 [[b('Menu::Items-Data-Default')
-<li tabindex="0" class="width:100%  draggable menu-arranger-li d:flex flex-d:column align-items:center justify-content:center cursor:move no-text-highlight">
-    <fieldset class="width:100% padding:default d:flex justify-content:center pointer-events:none">
-        <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
-            <span class="menu-arranger-text-head">Example Menu</span>
-            <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
-                <svg class="icon:admin tonics-arrow-down color:white">
-                    <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
-                </svg>
-            </button>
-        </legend>
-        <div class="d:none flex-d:column menu-widget-information pointer-events:all owl width:100%">
-
-            <div class="form-group d:flex flex-gap:small">
-                <label class="menu-settings-handle-name width:100%">Overwrite Name
-                    <input id="menu-name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="menu-name"
-                           value="Remove This Menu" placeholder="Overwrite the menu name">
-                </label>
-                <label class="menu-settings-handle-name width:100%">SVG Icon Name
-                    <input type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="svg-icon" value="" placeholder="e.g toggle-right">
-                </label>
-            </div>
-
-            <div class="form-group d:flex flex-gap:small">
-                <label class="menu-settings-handle-name width:100%">Overwrite URL Slug
-                    <input id="menu-url-slug" type="text" class="menu-url-slug color:black border-width:default border:black placeholder-color:gray" name="url-slug" value='' placeholder="Only Overwrite For a Custom Link">
-                </label>
-
-                <label class="menu-settings-handle-name width:100%">Optional CSS Classes
-                    <input id="edit-menu-item" type="text" class="edit-menu-item-classes color:black border-width:default border:black placeholder-color:gray" name="menu-item-classes" value="" placeholder="Separate By Spaces, e.g class-1 class-2">
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label> Link Target
-                    <select name="linkTarget" class="default-selector" id="link-target">
-                        <option value="0" selected="selected" disabled="">Link Target</option>
-                        <option value="0">Same Tab</option>
-                        <option value="1">New Tab</option>
-                    </select>
-                </label>
-            </div>
-
-            <div class="form-group">
-                <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cursor:pointer act-like-button">
-                    Delete Menu Item
-                </button>
-            </div>
-        </div>
-    </fieldset>
-    <ul class="menu-arranger-li-sub width:90%">
-    </ul>
-</li>
+    [[_v('MenuDefault')]]
 ]]
 
 [[b('Menu::Items::view::index')

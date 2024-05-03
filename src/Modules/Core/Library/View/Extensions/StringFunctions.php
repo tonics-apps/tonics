@@ -101,23 +101,27 @@ class StringFunctions extends TonicsTemplateViewAbstract implements TonicsModeIn
             }],
             'string_html_entity_decode' => ['min_arg' => 1, 'max_arg' => 3, 'name' => 'html_entity_decode', 'handle' => function ($args) use ($htmlFlag) {
                 $flag = (isset($htmlFlag[$args[1]])) ? $htmlFlag[$args[1]] : ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401;
-                return html_entity_decode($args[0], $flag, $args[2] ?? 'ISO-8859-1');
+                $string = (is_null($args[0])) ? '' : $args[0];
+                return html_entity_decode($string, $flag, $args[2] ?? 'ISO-8859-1');
             }],
             'string_htmlentities' => ['min_arg' => 1, 'max_arg' => 4, 'name' => 'htmlentities', 'handle' => function ($args) use ($htmlFlag) {
                 $flag = $htmlFlag;
                 $flag[ENT_DISALLOWED] = ENT_DISALLOWED;
                 $flag = (isset($flag[$args[1]])) ? $flag[$args[1]] : ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401;
-                return htmlentities($args[0], $flag, $args[2] ?? 'ISO-8859-1', (bool)$args[3] ?? true);
+                $string = (is_null($args[0])) ? '' : $args[0];
+                return htmlentities($string, $flag, $args[2] ?? 'ISO-8859-1', (bool)$args[3] ?? true);
             }],
             'string_htmlspecialchars_decode' => ['min_arg' => 1, 'max_arg' => 2, 'name' => 'htmlspecialchars_decode', 'handle' => function ($args) {
                 $flag = (isset($htmlFlag[$args[1]])) ? $htmlFlag[$args[1]] : ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401;
-                return htmlspecialchars_decode($args[0], $flag);
+                $string = (is_null($args[0])) ? '' : $args[0];
+                return htmlspecialchars_decode($string, $flag);
             }],
             'string_htmlspecialchars' => ['min_arg' => 1, 'max_arg' => 4, 'name' => 'htmlspecialchars', 'handle' => function ($args) use ($htmlFlag) {
                 $flag = $htmlFlag;
                 $flag[ENT_DISALLOWED] = ENT_DISALLOWED;
                 $flag = (isset($flag[$args[1]])) ? $flag[$args[1]] : ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401;
-                return htmlspecialchars($args[0], $flag, $args[2] ?? 'ISO-8859-1', (bool)$args[3] ?? true);
+                $string = (is_null($args[0])) ? '' : $args[0];
+                return htmlspecialchars($string, $flag, $args[2] ?? 'ISO-8859-1', (bool)$args[3] ?? true);
             }],
             'string_implode' => ['min_arg' => 1, 'max_arg' => 2, 'name' => 'implode', 'handle' => function ($args) {
                 return implode($args[0] ?? '', $args[1] ?? null);

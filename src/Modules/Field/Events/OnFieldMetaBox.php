@@ -602,7 +602,9 @@ HTML;
         foreach ($this->fieldSanitization->getFieldsSanitization() as $fieldSanitizationName => $fieldSanitizationObject) {
             if ($sanitizationName === $fieldSanitizationName){
                 /** @var FieldValueSanitizationInterface|DefaultSanitizationAbstract $fieldSanitizationObject */
-                $fieldSanitizationObject->setEvent($this)->setData($data);
+                if ($fieldSanitizationObject instanceof DefaultSanitizationAbstract) {
+                    $fieldSanitizationObject->setEvent($this)->setData($data);
+                }
                 $sanitizationValue = $fieldSanitizationObject->sanitize($sanitizationValue);
             }
         }

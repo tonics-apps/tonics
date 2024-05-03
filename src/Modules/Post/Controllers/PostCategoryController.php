@@ -54,7 +54,7 @@ class PostCategoryController
         $tblCol = '*, CONCAT("/admin/posts/category/", cat_slug, "/edit" ) as _edit_link, CONCAT("/categories/", cat_slug) as _preview_link';
 
         $data = null;
-        db(onGetDB: function ($db) use ($table, $tblCol, &$data){
+        db(onGetDB: function (TonicsQuery $db) use ($table, $tblCol, &$data){
             $data = $db->Select($tblCol)
                 ->From($table)
                 ->when(url()->hasParamAndValue('status'),

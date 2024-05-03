@@ -31,7 +31,6 @@ class DefaultSlugFieldSanitization implements HandlerInterface, FieldValueSaniti
 
     /**
      * @param $value
-     * @param $data
      * @return string
      * @throws \Exception
      */

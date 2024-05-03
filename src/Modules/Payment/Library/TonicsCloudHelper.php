@@ -63,6 +63,10 @@ MESSAGE;
                 ->WhereEquals('fk_customer_id', $customerID)->FetchFirst();
         });
 
+        if (empty($credit)) {
+            $credit = null;
+        }
+
         return $credit;
     }
 
@@ -107,7 +111,7 @@ MESSAGE;
 
         $db->row(<<<SQL
 UPDATE $creditsTable
-SET credit_amount = credit_amount + ?
+SET credit_amount = COALESCE(credit_amount, 0) + ?
 WHERE fk_customer_id = ?;
 SQL, $purchaseRecord->total_price, $purchaseRecord->fk_customer_id);
 

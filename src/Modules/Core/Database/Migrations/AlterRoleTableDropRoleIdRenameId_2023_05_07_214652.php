@@ -5,6 +5,7 @@
 
 namespace App\Modules\Core\Database\Migrations;
 
+use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -24,6 +25,8 @@ class AlterRoleTableDropRoleIdRenameId_2023_05_07_214652 extends Migration
             DROP COLUMN `role_id`,
             RENAME COLUMN `id` TO `role_id`,
             DROP INDEX `role_id_unique`");
+
+            Roles::UPDATE_DEFAULT_ROLES();
         });
 
     }

@@ -220,6 +220,7 @@ var MenuToggle = class extends ElementAbstract {
     return animDuration > 0 || transDuration > 0;
   }
 };
+
 __name(MenuToggle, "MenuToggle");
 if (!window.hasOwnProperty("TonicsScript")) {
   window.TonicsScript = {};

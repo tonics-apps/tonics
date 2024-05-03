@@ -24,7 +24,7 @@ class TonicsCloudConfirmPayPalPayment extends AbstractJobInterface implements Jo
 
     public function __construct()
     {
-        $this->setJobName('Core_AudioTonicsConfirmPayPalPayment');
+        $this->setJobName('Core_TonicsCloudConfirmPayPalPayment');
         $this->setPriority(Scheduler::PRIORITY_LOW);
     }
 

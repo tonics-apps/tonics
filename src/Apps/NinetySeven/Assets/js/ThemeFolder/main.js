@@ -137,7 +137,6 @@ function initRouting(containerSelector, navigateCallback = null) {
     })
 
     // Bind a click event listener to the container using event delegation
-
     let isClicked = false;
     container.addEventListener('click', e => {
 

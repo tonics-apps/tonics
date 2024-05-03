@@ -114,7 +114,7 @@ class PageActivator implements ExtensionConfig
             "name" => "Page",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1678926265',
+            "version" => '1-O-Ola.1714604528',
             "description" => "The Page Module",
             "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-page-module/releases/latest",

@@ -171,7 +171,7 @@ FORM;
                     if ($expandField === '1'){
                         $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
                             [$uniqueSlug],
-                            []
+                            getPostData()
                         )->getHTMLFrag();
                     }
                 }

@@ -40,7 +40,7 @@ class TonicsCloudConfirmFlutterWavePayment extends AbstractJobInterface implemen
         $response = Helper::FlutterWaveOrderDetails(Helper::FlutterWaveSecretKey(), $purchaseRecord->others->transaction_id);
         $invoiceID = $purchaseRecord->others->invoice_id;
         if (isset($response->data)){
-            if ($response->data->status === 'successful'){
+            if ($response->data->status === 'successful') {
                 HandleTonicsPaymentCapture::validateTonicsTransactionAndPrepareOrderMail(
                     [
                         'invoice_id' => $invoiceID,

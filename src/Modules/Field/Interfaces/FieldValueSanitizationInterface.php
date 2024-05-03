@@ -10,6 +10,9 @@
 
 namespace App\Modules\Field\Interfaces;
 
+/**
+ * Please extend DefaultSanitizationAbstract if you want to get access to the fields, or field data, otherwise, you good to go ;)
+ */
 interface FieldValueSanitizationInterface
 {
     public function sanitizeName(): string;

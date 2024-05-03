@@ -31,6 +31,7 @@ class CacheController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function clear()
     {

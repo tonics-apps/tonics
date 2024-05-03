@@ -239,6 +239,26 @@ MENU;
         return $htmlFrag;
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function getDefaultMenuListingFrag($name, $url = ''): string
+    {
+        $permissions = $this->getAllPermissions();
+        $menu = new \stdClass();
+        $menu->mt_name = $name;
+        $menu->mt_id = null;
+        $menu->mt_parent_id = null;
+        $menu->mt_icon = null;
+        $menu->mt_url_slug = $url;
+        $menu->mt_classes = null;
+        $menu->mt_target = 0;
+        $menu->fk_permission_id = '';
+
+        return $this->getMenuItemsListingFrag($menu, $permissions);
+
+    }
+
     protected function getMenuItemsListingFrag($menu, $permissions): string
     {
         $frag =<<<HTML
@@ -258,7 +278,7 @@ class="width:100%  draggable menu-arranger-li d:flex flex-d:column align-items:c
                 <div class="d:none flex-d:column menu-widget-information pointer-events:all owl width:100%">
 
                     <div class="form-group d:flex flex-gap:small">
-                        <label class="menu-settings-handle-name width:100%">$menu->mt_name
+                        <label class="menu-settings-handle-name width:100%">Name
                             <input id="menu-name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" name="menu-name" value="$menu->mt_name" placeholder="Overwrite the menu name">
                         </label>
                         
@@ -303,9 +323,9 @@ HTML;
                         <select multiple name="menuPermissions" class="default-selector" id="menuPermissions">
 HTML;
 
-            foreach ($permissions as $permission){
+            foreach ($permissions as $permission) {
                 $select = '';
-                $menuPermission = explode(',', $menu->fk_permission_id);
+                $menuPermission = explode(',', $menu->fk_permission_id ?? '');
                 $menuPermission = array_flip($menuPermission);
                 if (isset($menuPermission[$permission->permission_id])){
                     $select = 'selected';

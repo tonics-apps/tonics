@@ -89,6 +89,16 @@ class InitLoaderMinimal
         self::DRIVE_CONFIG_GlobalVariable();
         self::URL_GlobalVariable();
         $authInfo = UserData::getAuthenticationInfo();
+
+        if (empty($authInfo)){
+            $authInfo = new \stdClass();
+            $authInfo->role = false;
+            $authInfo->role_name = null;
+            $authInfo->role_id = null;
+            $authInfo->user_id = null;
+            $authInfo->email = null;
+        }
+
         self::addToGlobalVariable('Auth', [
             'Logged_In' => !empty($authInfo?->role),
             'User_Role_Name' => $authInfo?->role_name,
@@ -111,6 +121,9 @@ class InitLoaderMinimal
         self::DRIVE_CONFIG_GlobalVariable();
     }
 
+    /**
+     * @throws \Throwable
+     */
     public static function URL_GlobalVariable(): void
     {
         url()->reset();

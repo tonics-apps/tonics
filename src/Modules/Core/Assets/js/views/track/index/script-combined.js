@@ -220,6 +220,7 @@ var MenuToggle = class extends ElementAbstract {
     return animDuration > 0 || transDuration > 0;
   }
 };
+
 __name(MenuToggle, "MenuToggle");
 if (!window.hasOwnProperty("TonicsScript")) {
   window.TonicsScript = {};
@@ -322,6 +323,7 @@ var Query = class extends ElementAbstract {
     }
   }
 };
+
 __name(Query, "Query");
 if (!window.hasOwnProperty("TonicsScript")) {
   window.TonicsScript = {};

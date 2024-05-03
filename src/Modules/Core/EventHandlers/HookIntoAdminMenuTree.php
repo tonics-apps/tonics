@@ -28,6 +28,10 @@ class HookIntoAdminMenuTree implements HandlerInterface
      */
     public function handleEvent(object $event): void
     {
+        if (AppConfig::TonicsIsReady() === false) {
+            return;
+        }
+
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('Core::before_in_main_header_title', function (TonicsView $tonicsView){
             $foundNode = request()->getRouteObject()->getRouteTreeGenerator()?->getFoundURLNode();
@@ -97,6 +101,7 @@ HTML;
 
         $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView){
             try {
+
                 $menuData = new MenuData();
                 $menuHTMLFRag = $menuData->generateMenuTree();
 

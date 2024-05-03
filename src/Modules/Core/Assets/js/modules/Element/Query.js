@@ -92,6 +92,7 @@ var Query = class extends ElementAbstract {
     }
   }
 };
+
 __name(Query, "Query");
 if (!window.hasOwnProperty("TonicsScript")) {
   window.TonicsScript = {};

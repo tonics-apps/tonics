@@ -9,7 +9,7 @@ use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class CreateMenuItemPermissions_2023_06_29_155855 extends Migration {
+class CreateMenuItemPermissions_2023_07_01_155855 extends Migration {
 
     /**
      * @throws \Exception

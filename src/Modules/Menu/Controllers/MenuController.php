@@ -74,6 +74,7 @@ class MenuController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function dataTable(): void
     {
