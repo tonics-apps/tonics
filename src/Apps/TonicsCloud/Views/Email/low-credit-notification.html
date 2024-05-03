@@ -1,0 +1,13 @@
+[[inherit("Modules::Core/Views/Templates/email")]]
+
+[[hook_into('CoreEmail::in_head_title') [[v('Subject')]] ]]
+
+[[hook_into('CoreEmail::in_body')
+<div class="container">
+    <p>[[v('Username')]], You have a credit of $[[v('RemainingCredit')]] left, add more credit to avoid service disruption</p>
+    <p></p>
+    <p>You can do that through [[v('BillingAddress')]]</p>
+    <p></p>
+    <p style="text-align: center; font-size: 12px; color: #999; margin-top: 20px;">This email was generated automatically by Tonics.</p>
+</div>
+]]

@@ -1,0 +1,14 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
+
+[[reset_hook('Core::in_form_button_name')]]
+[[hook_into('Core::in_form_button_name')Deploy Instance]]
+
+[[hook_into('Core::in_head_title')Instance Create]]
+[[hook_into('Core::in_main_header_title')Add New Instance]]
+
+[[hook_into('Core::form_action')/customer/tonics_cloud/instances/store]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:post")]]
+    [[_use("session:delete-artifacts")]]
+]]

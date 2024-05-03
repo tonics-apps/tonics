@@ -1,0 +1,14 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
+
+[[reset_hook('Core::in_form_button_name')]]
+[[hook_into('Core::in_form_button_name')Update Domain Records]]
+
+[[hook_into('Core::in_head_title')Domain Records Edit]]
+[[hook_into('Core::in_main_header_title')Edit Domain Records]]
+
+[[hook_into('Core::form_action')/customer/tonics_cloud/domains/[[v('DomainData.slug_id')]]/update]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:post")]]
+    [[_use("session:delete-artifacts")]]
+]]

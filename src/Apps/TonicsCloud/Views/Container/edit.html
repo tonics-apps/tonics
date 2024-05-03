@@ -1,0 +1,18 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field", "Modules::Core/Views/Templates/extends/editors_page")]]
+
+[[reset_hook('Core::in_form_button_name')]]
+[[hook_into('Core::in_form_button_name')Update Container]]
+
+[[hook_into('Core::in_head_title')Container Edit]]
+[[hook_into('Core::in_main_header_title')Edit Container]]
+
+[[hook_into('Core::form_action')/customer/tonics_cloud/containers/[[v('ContainerData.container_id')]]/update]]
+
+[[hook_into('Core::before_form_section')
+    <input type="hidden" name="slug_id" value="[[v('ContainerData.slug_id')]]">
+]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:post")]]
+    [[_use("session:delete-artifacts")]]
+]]
