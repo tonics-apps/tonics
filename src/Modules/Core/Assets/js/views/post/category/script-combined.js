@@ -1,3 +1,20 @@
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -99,6 +116,23 @@ window.TonicsEvent.EventDispatcher = new EventDispatcher();
 export {
   EventDispatcher
 };
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -143,12 +177,20 @@ export {
 };
 
 /*
- * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
- * While this program can be used free of charge,
- * you shouldn't and can't freely copy, modify, merge,
- * publish, distribute, sublicense,
- * and/or sell copies of this program without written permission to me.
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 const EventsConfig = {
@@ -182,12 +224,20 @@ window.TonicsEvent.EventConfig = EventsConfig;
 
 
 /*
- * Copyright (c) 2022. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
- * While this program can be used free of charge,
- * you shouldn't and can't freely copy, modify, merge,
- * publish, distribute, sublicense,
- * and/or sell copies of this program without written permission to me.
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 if (typeof tonicsFieldSaveChangesButton === 'undefined') {
@@ -260,17 +310,42 @@ class OnSubmitFieldEditorsFormEvent {
 
 }
 /*
- * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
  *
- * While this program can be used free of charge,
- * you shouldn't and can't freely copy, modify, merge,
- * publish, distribute, sublicense,
- * and/or sell copies of this program without written permission to me.
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 var siteURL = document.querySelector('body')?.getAttribute('data-tonics_siteURL');
 var siteTimeZone = document.querySelector('body')?.getAttribute('data-tonics_siteTimeZone');
 var tonicsFileManagerURL = document.querySelector('body')?.getAttribute('data-tonics_fileManagerURL');
+
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
@@ -503,6 +578,23 @@ window.TonicsScript.MenuToggle = ($parentElement, $queryAdapter) => new MenuTogg
 export {
   MenuToggle
 };
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -606,6 +698,23 @@ window.TonicsScript.Query = () => new Query();
 export {
   Query
 };
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -879,6 +988,23 @@ window.TonicsScript.Draggables = ($draggableContainer) => new Draggables($dragga
 export {
   Draggables
 };
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -3905,7 +4031,41 @@ export {
 * sweetalert2 v11.1.10
 * Released under the MIT License.
 */
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
+
+
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 let scripts = document.querySelectorAll("[data-script_path]");
 scripts.forEach((script) => {
@@ -4100,6 +4260,23 @@ function insertFieldItems(data, checkedSlug) {
         });
     }
 }
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 try {
     let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
     function flattenTonicsFlashMessagesArray(messages) {
@@ -4141,6 +4318,23 @@ try {
 } catch (e) {
     console.log(e.toLocaleString());
 }
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 hookTinyMCE();
 
 function hookTinyMCE() {
@@ -4569,6 +4763,23 @@ class OnBeforeTonicsFieldSubmitEvent {
         return this._elementTarget;
     }
 }
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 try {
     new MenuToggle('.site-nav', new Query())
         .settings('.menu-block', '.dropdown-toggle', '.child-menu')
@@ -4580,6 +4791,23 @@ try {
 }catch (e) {
     console.error("An Error Occur Setting MenuToggle: Site-Nav")
 }
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
     let x1, y1, x2, y2;
 
@@ -4624,6 +4852,23 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
 
 if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
 window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 let adminWidgetItemEl = document.querySelector('[class ^=admin-widget-item]');
 if (adminWidgetItemEl){
     let adminWidgetItemClassList = adminWidgetItemEl.classList;
@@ -4662,6 +4907,23 @@ if (adminWidgetItemEl){
     }
 
 }
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 let widgetDateInput = document.querySelector('[data-widget-date="true"]'),
     widgetDateInputForPost = document.querySelector('[data-widget-date-forpost="true"]'),
     isWidgetDateInputChangedByHuman = false;
@@ -4719,6 +4981,23 @@ if (widgetDateInput) {
     }, {threshold: [0.10]});
     observerWidgetInputInView.observe(widgetDateInput);
 }
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // For SLUG TITLE AND DATE
 let inputTitle = document.querySelector('[data-widget-title-slugtochange="true"]'),
     widgetSlugToUpdate = document.querySelector('[data-widget-title-slugtoupdate="true"]');
@@ -4732,6 +5011,23 @@ if (inputTitle){
         }
     });
 }
+/*
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // ************************ Auto-Generate Cat Slug For Category Create/Edit ***************** //
 let categorySelector = document.querySelector('[data-widget-select-category="true"]');
 let mainURLSlug = document.querySelector('input[name=cat_url_slug]');

@@ -1,11 +1,19 @@
 <?php
 /*
- * Copyright (c) 2023. Ahmed Olayemi Faruq <faruq@devsrealm.com>
+ *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
  *
- * While this program can be used free of charge,
- * you shouldn't and can't freely copy, modify, merge,
- * publish, distribute, sublicense,
- * and/or sell copies of this program without written permission to me.
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace App\Apps\TonicsCloud\EventHandlers\CloudServersHandler;
@@ -80,14 +88,14 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
             $stackScriptMode = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeStackScriptMode);
 
-            $parameters[ Linode::FIELD_IMAGE] = 'linode/debian12';
+            $parameters[Linode::FIELD_IMAGE] = 'linode/debian12';
             if ($stackScriptMode === 'Production'){
-                $parameters[ Linode::FIELD_STACKSCRIPT_ID] = 1196483;
+                $parameters[Linode::FIELD_STACKSCRIPT_ID] = 1196483;
                 $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
                     'CERT' => $certs['cert'] // the client cert to be added to the server on deployment
                 ];
             } else {
-                $parameters[ Linode::FIELD_STACKSCRIPT_ID] = 1196477;
+                $parameters[Linode::FIELD_STACKSCRIPT_ID] = 1196477;
                 $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
                     'USERNAME' => 'tonics-cloud',
                     'PASSWORD' => 'tonics-cloud',
@@ -98,7 +106,7 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
         } else {
 
-            $parameters[ Linode::FIELD_IMAGE] = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeImage);
+            $parameters[Linode::FIELD_IMAGE] = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeImage);
 
         }
 
