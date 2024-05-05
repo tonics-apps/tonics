@@ -61,6 +61,7 @@ class Updates implements ConsoleCommand
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function run(array $commandOptions): void
     {
@@ -71,7 +72,8 @@ class Updates implements ConsoleCommand
         $updateMechanismState->setCurrentState(UpdateMechanismState::InitialState);
         $updateMechanismState->runStates(false);
         if ($updateMechanismState->getStateResult() === SimpleState::DONE){
-            if ($actions === 'update'){
+            if ($actions === 'update') {
+                AppConfig::addUpdateMigrationsJob();
                 AppConfig::updateRestartService();
                 helper()->sendMsg($updateMechanismState->getStateResult(), "Update SuccessFull", 'close');
                 session()->flash(["Update SuccessFull"], [], type: Session::SessionCategories_FlashMessageSuccess);

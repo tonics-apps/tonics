@@ -88,7 +88,7 @@ trait Routes
                         #---------------------------------
                     # Authentication Routes...
                 #---------------------------------
-                $route->group('', function (Route $route){
+                $route->group('', function (Route $route) {
                     $route->get('login', [LoginController::class, 'showLoginForm'], requestInterceptor: [RedirectAuthenticated::class], alias: 'login');
                     $route->post('login', [LoginController::class, 'login']);
                     $route->post('logout', [LoginController::class, 'logout'], alias: 'logout');

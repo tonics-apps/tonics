@@ -19,6 +19,9 @@
 namespace App\Modules\Core\Controllers\Auth;
 
 use App\Modules\Core\Controllers\Controller;
+use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\Validation\Traits\Validator;
 use JetBrains\PhpStorm\ArrayShape;
@@ -32,6 +35,7 @@ class LoginController extends Controller
     /***
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     public function showLoginForm()
     {
@@ -41,6 +45,7 @@ class LoginController extends Controller
     /**
      * @throws \ReflectionException
      * @throws \Exception
+     * @throws \Throwable
      */
     public function login()
     {
@@ -55,15 +60,18 @@ class LoginController extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function logout()
     {
+        UserData::DeleteActiveSessions( Tables::getTable(Tables::USERS), UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserEmail));
         session()->logout();
         redirect(route('admin.login'));
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[ArrayShape(['email' => "string[]", 'password' => "array"])] public function getLoginRules(): array
     {

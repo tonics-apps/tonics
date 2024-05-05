@@ -1,3 +1,4 @@
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -116,6 +117,7 @@ window.TonicsEvent.EventDispatcher = new EventDispatcher();
 export {
   EventDispatcher
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -221,6 +223,7 @@ const EventsConfig = {
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
+
 
 
 /*
@@ -802,6 +805,7 @@ window.TonicsScript.Query = () => new Query();
 export {
   Query
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -1246,6 +1250,7 @@ window["TonicsScript"].XHRApi = (headers = {}) => new XHRApi(headers);
 export {
   XHRApi
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *

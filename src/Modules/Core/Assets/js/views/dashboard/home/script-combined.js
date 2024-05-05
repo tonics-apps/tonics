@@ -366,6 +366,7 @@ window.TonicsScript.Query = () => new Query();
 export {
   Query
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -3409,6 +3410,7 @@ export {
 * sweetalert2 v11.1.10
 * Released under the MIT License.
 */
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *

@@ -220,6 +220,23 @@ class UserData extends AbstractDataLayer
     }
 
     /**
+     * @param string $table
+     * @param string $email
+     * @return void
+     * @throws \Exception
+     */
+    public static function DeleteActiveSessions(string $table, string $email): void
+    {
+        db(onGetDB: function ($db) use ($table, $email){
+            $db->Update($table)
+                ->Set('settings', db()->JsonSet('settings', '$.active_sessions', db()->JsonCompact(json_encode([]))))
+                ->WhereEquals('email', $email)
+                ->Exec();
+
+        });
+    }
+
+    /**
      * If customer does exist, we return the customer data, including its role_id
      * else, you get null
      * @param string $email

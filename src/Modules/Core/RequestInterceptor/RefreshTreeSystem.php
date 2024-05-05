@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -16,27 +16,31 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Jobs;
+namespace App\Modules\Core\RequestInterceptor;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\MailConfig;
-use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
-use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
+use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
+use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 
-class HandleAppOrModuleOnUpdate extends AbstractJobInterface implements JobHandlerInterface
+class RefreshTreeSystem implements TonicsRouterRequestInterceptorInterface
 {
 
     /**
-     * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle(OnRequestProcess $request): void
     {
-        try {
+        self::RefreshTreeSystem();
+    }
 
-        } catch (\Exception $e) {
-            // Log...
-
-        }
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    public static function RefreshTreeSystem(): void
+    {
+        $initLoaderTree = AppConfig::initLoaderTree();
+        AppConfig::initAdminMenu(true, AppConfig::initLoaderOthers()->getEventDispatcher());
+        apcu_store(AppConfig::getInitTreeKey(), $initLoaderTree);
     }
 }

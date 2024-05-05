@@ -19,6 +19,9 @@
 namespace App\Modules\Customer\Controllers\CustomerAuth;
 
 use App\Modules\Core\Controllers\Controller;
+use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\Validation\Traits\Validator;
 use JetBrains\PhpStorm\ArrayShape;
@@ -54,9 +57,11 @@ class LoginController extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function logout()
     {
+        UserData::DeleteActiveSessions( Tables::getTable(Tables::CUSTOMERS), UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_UserEmail));
         session()->logout();
         redirect(route('customer.login'));
     }

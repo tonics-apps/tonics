@@ -54,10 +54,38 @@ class AppConfig
 {
     private static InitLoader|null $init = null;
     private static InitLoaderMinimal|null $initLoaderMinimal = null;
+    private static Tree|null $treeSystem = null;
 
-    private static function getInitKey(): string
+    public static function getInitKey(): string
     {
         return AppConfig::getCachePrefix() . self::getAppCacheKey();
+    }
+
+    public static function getInitTreeKey(): string
+    {
+        return self::getInitKey() . '__treeSystem';
+    }
+
+    public static function initLoaderTree()
+    {
+        $initKey = self::getInitTreeKey();
+        if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
+            $initLoaderTree = apcu_fetch($initKey);
+        } else {
+            $treeGenerator = new TreeGenerator(new TreeGeneratorState(), new Node());
+            $initLoaderTree = new Tree($treeGenerator);
+
+            if (function_exists('apcu_enabled')) {
+                apcu_store($initKey, $initLoaderTree);
+                self::$treeSystem = $initLoaderTree;
+            }
+        }
+
+        if (!self::$treeSystem) {
+            self::$treeSystem = $initLoaderTree;
+        }
+
+        return self::$treeSystem;
     }
 
     /**
@@ -83,9 +111,6 @@ class AppConfig
                             new RouteTreeGeneratorState(), new RouteNode())
                     )
                 );
-
-                $treeGenerator = new TreeGenerator(new TreeGeneratorState(), new Node());
-                $tree = new Tree($treeGenerator);
 
                 $router = new Router($onRequestProcess,
                     $onRequestProcess->getRouteObject(),
@@ -144,7 +169,6 @@ class AppConfig
                     ->setRouter($router)
                     ->setTonicsView($tonicsTemplateEngine->getTemplateEngine('Native'))
                     ->setTonicsTemplateEngines($tonicsTemplateEngine)
-                    ->setTree($tree)
                     ->setEventDispatcher($eventDispatcher);
 
                 if (function_exists('apcu_enabled')) {
@@ -152,10 +176,6 @@ class AppConfig
                     self::$init = $initLoader;
                 }
 
-                if (helper()->isNotCLI() && self::isLoggedIn()){
-                    self::initAdminMenu();
-                    apcu_store($initKey, $initLoader->setTree(tree()));
-                }
             }
 
             if (!self::$init) {
@@ -185,16 +205,20 @@ class AppConfig
      */
     public static function initAdminMenu(bool $dumpDB = true, EventDispatcher $eventDispatcher = null): void
     {
+
         \tree()->getTreeGenerator()->reset(new Node());
-        event()->dispatch(new OnAdminMenu());
+        if ($eventDispatcher === null) {
+            $eventDispatcher = event();
+        }
+        $eventDispatcher->dispatch(new OnAdminMenu());
 
         $menuData = new MenuData();
-        $tree = \tree()->getTreeGenerator()->getNodeTree();
+        $nodeTree = \tree()->getTreeGenerator()->getNodeTree();
         $menuID = $menuData->getCoreMenuID();
         $menuItems = []; $permissions = [];
         $mapper = [];
 
-        foreach ($tree->getChildrenRecursive() as $node) {
+        foreach ($nodeTree->getChildrenRecursive() as $node) {
             $parentID = null;
             if (!empty($node?->parentNode()->getSettings()['settings'])){
                 $parentID = $node->parentNode()->getNameID();
@@ -281,7 +305,10 @@ class AppConfig
                 if (function_exists('apcu_enabled')) {
                     apcu_store($initKey, $initLoader);
                 }
+
+                self::$initLoaderMinimal = $initLoader;
             }
+
             if (!self::$initLoaderMinimal) {
                 self::$initLoaderMinimal = $initLoader;
             }
@@ -551,7 +578,7 @@ class AppConfig
 
     public static function getKey(): string
     {
-        return env('APP_KEY');
+        return env('APP_KEY', '');
     }
 
     public static function getModulesPath(): string
@@ -596,10 +623,7 @@ class AppConfig
                 if (isset($json->timestamp)){
                     $json->timestamp = time();
                 }
-               $result = @file_put_contents(AppConfig::getBinRestartServiceJSONFile(), json_encode($json));
-                if ($result === true){
-                    self::addUpdateMigrationsJob();
-                }
+                @file_put_contents(AppConfig::getBinRestartServiceJSONFile(), json_encode($json));
             }
         }
 
@@ -608,6 +632,7 @@ class AppConfig
     /**
      * @return void
      * @throws Exception
+     * @throws \Throwable
      */
     public static function addUpdateMigrationsJob(): void
     {

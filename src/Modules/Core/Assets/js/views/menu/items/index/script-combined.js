@@ -366,6 +366,7 @@ window.TonicsScript.Query = () => new Query();
 export {
   Query
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -810,6 +811,7 @@ window["TonicsScript"].XHRApi = (headers = {}) => new XHRApi(headers);
 export {
   XHRApi
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *

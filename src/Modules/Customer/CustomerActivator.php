@@ -80,7 +80,7 @@ class CustomerActivator implements ExtensionConfig
             "name" => "Customer",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714673088',
+            "version" => '1-O-Ola.1714917517',
             // "version" => '1-O-Ola.943905600', // fake old date
             "description" => "The Customer Module",
             "info_url" => '',

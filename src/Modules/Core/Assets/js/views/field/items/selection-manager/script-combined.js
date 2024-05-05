@@ -1,3 +1,4 @@
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -349,7 +350,8 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
 }
 
 if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
-window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);/*
+window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);
+/*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -467,6 +469,7 @@ window.TonicsEvent.EventDispatcher = new EventDispatcher();
 export {
   EventDispatcher
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -572,6 +575,7 @@ const EventsConfig = {
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
+
 
 
 /*
@@ -1203,6 +1207,7 @@ window["TonicsScript"].XHRApi = (headers = {}) => new XHRApi(headers);
 export {
   XHRApi
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *

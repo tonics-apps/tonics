@@ -64,6 +64,7 @@ class InitLoaderMinimal
     /**
      * Yh, Boot up the application
      * @throws Exception
+     * @throws \Throwable
      */
     public function init()
     {
@@ -79,6 +80,7 @@ class InitLoaderMinimal
 
     /**
      * @throws Exception
+     * @throws \Throwable
      */
     public static function initGlobalVariables(): void
     {

@@ -53,6 +53,7 @@ class AppsController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function index(): void
     {
@@ -81,6 +82,7 @@ class AppsController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function dataTable(): void
     {
@@ -260,6 +262,7 @@ class AppsController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function discover_updates(): void
     {
@@ -292,6 +295,7 @@ class AppsController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function upload(): void
     {

@@ -45,6 +45,7 @@ class AutoUpdate implements ConsoleCommand
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function run(array $commandOptions): void
     {
@@ -71,6 +72,7 @@ class AutoUpdate implements ConsoleCommand
         }
 
         if ($autoUpdateApps || $autoUpdateModules){
+            AppConfig::addUpdateMigrationsJob();
             AppConfig::updateRestartService();
         }
 

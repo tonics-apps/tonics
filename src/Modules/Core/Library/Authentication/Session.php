@@ -546,7 +546,7 @@ SQL, $jsonPath, $sessionID);
             });
 
             return true;
-        }catch (\Exception $exception){
+        }catch (\Exception $exception) {
             // Log..
             return false;
         }

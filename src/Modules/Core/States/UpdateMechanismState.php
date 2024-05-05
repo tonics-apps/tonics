@@ -21,6 +21,7 @@ namespace App\Modules\Core\States;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
+use App\Modules\Core\Jobs\HandleOnUpdate;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
@@ -155,7 +156,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function ModuleUpdateState()
+    public function ModuleUpdateState(): void
     {
         $tonicsHelper = helper();
         # Discover Module Releases...
@@ -167,7 +168,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function AppUpdateState()
+    public function AppUpdateState(): void
     {
         $tonicsHelper = helper();
         # Discover Applications Releases...
@@ -221,7 +222,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadAppsState()
+    public function DownloadAppsState(): void
     {
         try {
             $this->downloadExtractCopy('app', DriveConfig::getTempPathForApps(), AppConfig::getAppsPath());
@@ -235,7 +236,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadModulesState()
+    public function DownloadModulesState(): void
     {
         try {
             $this->downloadExtractCopy('module', DriveConfig::getTempPathForModules(), AppConfig::getModulesPath());
@@ -300,6 +301,7 @@ class UpdateMechanismState extends SimpleState
      * @param string $dirPath
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     private function downloadExtractCopy($type, string $tempPath, string $dirPath): void
     {
@@ -376,8 +378,13 @@ class UpdateMechanismState extends SimpleState
                         $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
                         break;
                     } else {
+                        # Fire OnUpdate App/Module
+                        $onUpdateMigration = new HandleOnUpdate($classString, self::getBinRestartServiceTimestamp());
+                        job()->enqueue($onUpdateMigration);
+
                         $this->collate[$type][$classString]['can_update'] = false;
                         $tonicsHelper->tonicsChmodRecursive($appModulePathFolder);
+
                     }
                 } else {
                     $error = "Failed To Extract: '$name'";
@@ -388,6 +395,22 @@ class UpdateMechanismState extends SimpleState
                 }
             }
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getBinRestartServiceTimestamp()
+    {
+        $json = file_get_contents(AppConfig::getBinRestartServiceJSONFile());
+        if (helper()->isJSON($json)) {
+            $json = json_decode($json);
+            if (isset($json->timestamp)) {
+                return $json->timestamp;
+            }
+        }
+
+        return null;
     }
 
     /**

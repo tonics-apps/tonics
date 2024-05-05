@@ -23,6 +23,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\RequestInterceptor\RefreshTreeSystem;
 use App\Modules\Media\FileManager\LocalDriver;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -88,6 +89,7 @@ class AppsSystem extends SimpleState
     /**
      * @throws \ReflectionException
      * @throws \Exception
+     * @throws \Throwable
      */
     public function OnAppProcessActivationState(): string
     {
@@ -120,11 +122,12 @@ class AppsSystem extends SimpleState
             redirect(route('apps.index'));
         }
 
-        if (!empty($installedApp)){
+        if (!empty($installedApp)) {
             apcu_clear_cache();
             $installedApp = implode(',', $installedApp);
             session()->flash(["[$installedApp] App Installed"], [], type: Session::SessionCategories_FlashMessageSuccess);
             AppConfig::updateRestartService();
+            RefreshTreeSystem::RefreshTreeSystem();
             return self::DONE;
         }
 
@@ -144,6 +147,7 @@ class AppsSystem extends SimpleState
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function OnAppProcessDeActivationState(): string
     {
@@ -171,11 +175,12 @@ class AppsSystem extends SimpleState
             redirect(route('apps.index'));
         }
 
-        if (!empty($unInstalledApp)){
+        if (!empty($unInstalledApp)) {
             apcu_clear_cache();
             $unInstalledApp = implode(',', $unInstalledApp);
             session()->flash(["[$unInstalledApp] App UnInstalled"], [], type: Session::SessionCategories_FlashMessageSuccess);
             AppConfig::updateRestartService();
+            RefreshTreeSystem::RefreshTreeSystem();
             return self::DONE;
         }
 
@@ -195,11 +200,12 @@ class AppsSystem extends SimpleState
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function OnAppProcessDeletionState(): string
     {
         $errorActivatorName = []; $deletedApp = [];
-        foreach ($this->activatorsFromPost as $activatorPost){
+        foreach ($this->activatorsFromPost as $activatorPost) {
             if (isset($this->allActivators[$activatorPost])){
                 /** @var ExtensionConfig $activator */
                 $activator = $this->allActivators[$activatorPost];
@@ -240,6 +246,7 @@ class AppsSystem extends SimpleState
             $deletedApp = implode(', ', $deletedApp);
             $this->setSucessMessage("[$deletedApp] App Deleted");
             AppConfig::updateRestartService();
+            RefreshTreeSystem::RefreshTreeSystem();
             return self::DONE;
         }
 
@@ -259,6 +266,7 @@ class AppsSystem extends SimpleState
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function OnAppProcessUpdateState(): string
     {
@@ -280,11 +288,11 @@ class AppsSystem extends SimpleState
                     }
 
                     # is app
-                    if (str_starts_with($appDirPath, AppConfig::getAppsPath())){
+                    if (str_starts_with($appDirPath, AppConfig::getAppsPath())) {
                         $appUpdate = new UpdateMechanismState();
                         $appUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['app'])->setAction('update')
                             ->runStates(false);
-                        if ($appUpdate->getStateResult() === SimpleState::ERROR){
+                        if ($appUpdate->getStateResult() === SimpleState::ERROR) {
                             return self::ERROR;
                         }
                     }
@@ -294,9 +302,11 @@ class AppsSystem extends SimpleState
             }
         }
 
+        AppConfig::addUpdateMigrationsJob();
         AppConfig::updateRestartService();
         $appOrModuleToUpdate = implode(', ', $appOrModuleToUpdate);
         $this->setSucessMessage("[$appOrModuleToUpdate] Updated: Reload Page (If Any, Migrations Scheduled)");
+        RefreshTreeSystem::RefreshTreeSystem();
         return self::DONE;
     }
 
@@ -314,6 +324,7 @@ class AppsSystem extends SimpleState
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function OnAppProcessUploadState(): string
     {
@@ -343,6 +354,7 @@ class AppsSystem extends SimpleState
      * @param $dir
      * @return string
      * @throws \Exception
+     * @throws \Throwable
      */
     public function OnAppFinalizeUpload($dir): string
     {
@@ -357,6 +369,7 @@ class AppsSystem extends SimpleState
                     $appName = helper()->getFileName($appTempPath);
                     $copyResult = helper()->copyFolder($appTempPath, AppConfig::getAppsPath() . DIRECTORY_SEPARATOR . $appName);
                     if ($copyResult === true) {
+                        AppConfig::addUpdateMigrationsJob();
                         AppConfig::updateRestartService();
                         $this->setSucessMessage("[$appName] Uploaded: Go To App List Page, Ignore if on App Page");
                         return self::DONE;

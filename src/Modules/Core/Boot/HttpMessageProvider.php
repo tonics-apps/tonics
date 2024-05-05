@@ -45,7 +45,8 @@ class HttpMessageProvider implements ServiceProvider
 
     /**
      * @param Container $container
-     * @throws \Exception
+     * @return void
+     * @throws \Throwable
      */
     public function provide(Container $container): void
     {

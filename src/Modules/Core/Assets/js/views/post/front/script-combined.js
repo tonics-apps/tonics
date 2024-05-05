@@ -1,3 +1,4 @@
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -116,6 +117,7 @@ window.TonicsEvent.EventDispatcher = new EventDispatcher();
 export {
   EventDispatcher
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *

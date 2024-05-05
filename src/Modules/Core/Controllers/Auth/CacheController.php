@@ -19,6 +19,7 @@
 namespace App\Modules\Core\Controllers\Auth;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\RequestInterceptor\RefreshTreeSystem;
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateLoaderError;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateFileLoader;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
@@ -29,6 +30,7 @@ class CacheController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function __construct()
     {
@@ -44,6 +46,7 @@ class CacheController
     #[NoReturn] public function clear()
     {
         $cacheKey = input()->fromGet()->retrieve('cache-key', '');
+        RefreshTreeSystem::RefreshTreeSystem();
         $result = helper()->clearAPCUCache($cacheKey);
 
         response()->header('Cache-Result: ' . $result);

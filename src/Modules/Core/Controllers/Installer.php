@@ -59,8 +59,9 @@ class Installer extends SimpleState
     /***
      * @return void
      * @throws Exception
+     * @throws \Throwable
      */
-    public function showInstallerForm()
+    public function showInstallerForm(): void
     {
         $timeZoneList = DateTimeZone::listIdentifiers();
         $timeZoneListOutput = null;
@@ -270,7 +271,7 @@ class Installer extends SimpleState
      * @throws Exception
      * @throws \Throwable
      */
-    public function InstallGenerateAdminUser()
+    public function InstallGenerateAdminUser(): void
     {
         ## Reload ENV FIle
         (new Loader)->load(AppConfig::getEnvFilePath(), true);

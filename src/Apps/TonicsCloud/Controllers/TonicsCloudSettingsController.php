@@ -23,6 +23,7 @@ use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
@@ -193,6 +194,23 @@ class TonicsCloudSettingsController
             }
             $db->Q()->insertOnDuplicate($cloudServiceTable, $services, ['service_description', 'monthly_rate', 'others']);
         });
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    public static function CompressedCloudImages(): string
+    {
+        $images = null;
+        db( onGetDB: function (TonicsQuery $db) use (&$images) {
+            $images = $db->Select("container_image_name, container_image_logo, container_image_description, others")
+                ->From(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINER_IMAGES))
+                ->setPdoFetchType(\PDO::FETCH_ASSOC)
+                ->FetchResult();
+        });
+
+        return base64_encode(gzcompress(serialize($images), 9));
     }
 
     /**

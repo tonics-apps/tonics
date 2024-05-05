@@ -56,6 +56,7 @@ use App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler\TonicsCloudFlutt
 use App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler\TonicsCloudPayPalHandler;
 use App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler\TonicsCloudPayStackHandler;
 use App\Modules\Payment\Events\TonicsCloud\OnAddTonicsCloudPaymentEvent;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
@@ -291,9 +292,13 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
         return;
     }
 
+    /**
+     * @return void
+     * @throws \Exception
+     */
     public function onUpdate(): void
     {
-        return;
+        self::UpdateCloudImages();
     }
     
 
@@ -311,7 +316,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "TonicsCloud",
             "type" => "App", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1714742193',
+            "version" => '1-O-app.1714917517',
             "description" => "This is TonicsCloud",
             "info_url" => '',
             "settings_page" => route('tonicsCloud.settings'), // can be null or a route name
@@ -1339,8 +1344,27 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 	}
 ]
 JSON;
-
         return json_decode($json);
 
+    }
+
+    public static function CloudImages()
+    {
+        $images =<<<IMAGES
+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
+IMAGES;
+        return unserialize(gzuncompress(base64_decode($images)));
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public static function UpdateCloudImages(): void
+    {
+        db(onGetDB: function (TonicsQuery $db) {
+            $cloudImageTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINER_IMAGES);
+            $db->Q()->insertOnDuplicate($cloudImageTable, self::CloudImages(), ['container_image_description', 'container_image_logo', 'others']);
+        });
     }
 }

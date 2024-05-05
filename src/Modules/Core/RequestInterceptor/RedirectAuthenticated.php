@@ -18,7 +18,6 @@
 
 namespace App\Modules\Core\RequestInterceptor;
 
-
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
@@ -90,32 +89,35 @@ class RedirectAuthenticated  extends SimpleState implements TonicsRouterRequestI
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function RedirectAuthenticatedUserTypeAdmin(): string
     {
+        $redirectTo = UserData::USER_REDIRECTION_ADMIN_PAGE()[UserData::ADMIN_REDIRECTION_NAME];
         if (session()->hasValue(Session::SessionCategories_URLReferer)){
             $redirectTo = session()->retrieve(Session::SessionCategories_URLReferer, jsonDecode: true);
             session()->delete(Session::SessionCategories_URLReferer);
-            redirect($redirectTo, 200);
         }
 
         ## Else... Redirect to UserAdminDashboard
-        redirect(UserData::USER_REDIRECTION_ADMIN_PAGE()[UserData::ADMIN_REDIRECTION_NAME], 200);
+        RefreshTreeSystem::RefreshTreeSystem();
+        redirect($redirectTo, 200);
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function RedirectAuthenticatedUserTypeCustomer(): string
     {
+        $redirectTo = UserData::USER_REDIRECTION_ADMIN_PAGE()[UserData::CUSTOMER_REDIRECTION_NAME];
         if (session()->hasValue(Session::SessionCategories_URLReferer)){
             $redirectTo = session()->retrieve(Session::SessionCategories_URLReferer, jsonDecode: true);
             session()->delete(Session::SessionCategories_URLReferer);
-            redirect($redirectTo, 200);
         }
 
         ## Else... Redirect to UserCustomerDashboard
-        redirect(UserData::USER_REDIRECTION_ADMIN_PAGE()[UserData::CUSTOMER_REDIRECTION_NAME], 200);
+        redirect($redirectTo, 200);
     }
 
     /**

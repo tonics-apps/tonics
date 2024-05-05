@@ -325,5 +325,5 @@ function dom(): \Devsrealm\TonicsDomParser\DomParser
  */
 function tree(): \Devsrealm\TonicsTreeSystem\Tree
 {
-    return AppConfig::initLoaderOthers()->getTree();
+    return AppConfig::initLoaderTree();
 }

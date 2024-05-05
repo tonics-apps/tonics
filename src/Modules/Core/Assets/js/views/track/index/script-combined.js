@@ -366,6 +366,7 @@ window.TonicsScript.Query = () => new Query();
 export {
   Query
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -656,6 +657,7 @@ window.TonicsScript.Draggables = ($draggableContainer) => new Draggables($dragga
 export {
   Draggables
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -3699,6 +3701,7 @@ export {
 * sweetalert2 v11.1.10
 * Released under the MIT License.
 */
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -3817,6 +3820,7 @@ window.TonicsEvent.EventDispatcher = new EventDispatcher();
 export {
   EventDispatcher
 };
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -3922,6 +3926,7 @@ const EventsConfig = {
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
+
 
 
 /*
@@ -4030,6 +4035,7 @@ class OnSubmitFieldEditorsFormEvent {
 var siteURL = document.querySelector('body')?.getAttribute('data-tonics_siteURL');
 var siteTimeZone = document.querySelector('body')?.getAttribute('data-tonics_siteTimeZone');
 var tonicsFileManagerURL = document.querySelector('body')?.getAttribute('data-tonics_fileManagerURL');
+
 
 /*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>

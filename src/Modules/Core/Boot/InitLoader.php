@@ -46,7 +46,6 @@ class InitLoader
     private TonicsView $tonicsView;
     private TonicsTemplateEngines $tonicsTemplateEngines;
     private EventDispatcher $eventDispatcher;
-    private ?Tree $tree = null;
     private static ?Job $jobEventDispatcher = null;
     private static ?Scheduler $scheduler = null;
 
@@ -195,24 +194,6 @@ class InitLoader
     public function setTonicsTemplateEngines(TonicsTemplateEngines $tonicsTemplateEngines): InitLoader
     {
         $this->tonicsTemplateEngines = $tonicsTemplateEngines;
-        return $this;
-    }
-
-    /**
-     * @return Tree|null
-     */
-    public function getTree(): ?Tree
-    {
-        return $this->tree;
-    }
-
-    /**
-     * @param Tree|null $tree
-     * @return InitLoader
-     */
-    public function setTree(?Tree $tree): InitLoader
-    {
-        $this->tree = $tree;
         return $this;
     }
 

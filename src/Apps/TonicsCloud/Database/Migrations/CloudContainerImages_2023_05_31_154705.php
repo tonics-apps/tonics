@@ -24,6 +24,9 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CloudContainerImages_2023_05_31_154705 extends Migration {
 
+    /**
+     * @throws \Exception
+     */
     public function up()
     {
         db(onGetDB: function (TonicsQuery $db)  {
@@ -36,9 +39,11 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   `others` longtext DEFAULT '{}' CHECK (json_valid(`others`)),
   `created_at` timestamp DEFAULT current_timestamp() ,
   `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  INDEX (`container_image_name`)
+  UNIQUE `container_image_name_unique` (`container_image_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         });
+
+        TonicsCloudActivator::UpdateCloudImages();
     }
 
     public function down()
