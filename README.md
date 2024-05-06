@@ -16,6 +16,8 @@ Its unique feature is its event-driven approach, where modules communicate with 
 
 Little Sneak-Peak:
 
+https://github.com/tonics-apps/tonics/assets/37757164/f08ed880-67a3-4286-8341-4a3fef7c5779
+
 https://github.com/tonics-apps/tonics/assets/37757164/8611572d-910d-4a33-a0a8-930021ec807b
 
 ## About Tonics
