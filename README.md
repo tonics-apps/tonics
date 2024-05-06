@@ -15,7 +15,9 @@ Tonics CMS is an open-source versatile and flexible content management system th
 Its unique feature is its event-driven approach, where modules communicate with each other through events, making it easy to develop and customize websites.
 
 Little Sneak-Peak:
-![](https://tonics.app/serve_file_path_987654321/8931c1e95d72badefbef3edfd117782c76c580df13f7d7e898a6c981ee3b8050?render)
+
+https://github.com/tonics-apps/tonics/assets/37757164/8611572d-910d-4a33-a0a8-930021ec807b
+
 ## About Tonics
 
 Tonics CMS is born out of frustration with the limitations of traditional CMS platforms that force users to work within a rigid framework, while most CMS platforms are pluggable to a certain extent, there is no option to unplug features of the Core CMS.
