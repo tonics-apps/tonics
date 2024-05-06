@@ -46,8 +46,9 @@ class CacheController
     #[NoReturn] public function clear()
     {
         $cacheKey = input()->fromGet()->retrieve('cache-key', '');
-        RefreshTreeSystem::RefreshTreeSystem();
         $result = helper()->clearAPCUCache($cacheKey);
+
+        RefreshTreeSystem::RefreshTreeSystem();
 
         response()->header('Cache-Result: ' . $result);
         response()->httpResponseCode(200);

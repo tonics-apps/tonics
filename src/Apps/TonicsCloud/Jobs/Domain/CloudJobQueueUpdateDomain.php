@@ -33,13 +33,17 @@ class CloudJobQueueUpdateDomain extends AbstractJobInterface implements JobHandl
      */
     public function handle(): void
     {
-        $data = $this->getDomainData();
-        $data['domain_id'] = $this->getDomainID();
-        $response = $this->getCloudDNSHandler()->updateDomain($data);
-        if (isset($response['id'])) {
-            $this->updateDNSStatusMessage("Updated Domain");
-            $this->enqueueDomainRecordsForDelete();
-            $this->enqueueDomainRecordsForCreate($this->getDomainID());
+        try {
+            $data = $this->getDomainData();
+            $data['domain_id'] = $this->getDomainID();
+            $response = $this->getCloudDNSHandler()->updateDomain($data);
+            if (isset($response['id'])) {
+                $this->updateDNSStatusMessage("Updated Domain");
+                $this->enqueueDomainRecordsForDelete();
+                $this->enqueueDomainRecordsForCreate($this->getDomainID());
+            }
+        } catch (\Throwable $throwable) {
+            $this->updateDNSStatusMessage($throwable->getMessage());
         }
     }
 }

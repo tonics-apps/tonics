@@ -49,6 +49,7 @@ class DomainController
     /**
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     public function index()
     {
