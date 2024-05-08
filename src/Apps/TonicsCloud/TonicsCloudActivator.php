@@ -31,6 +31,7 @@ use App\Apps\TonicsCloud\EventHandlers\Fields\CloudInstanceInfo;
 use App\Apps\TonicsCloud\EventHandlers\Fields\CloudInstances;
 use App\Apps\TonicsCloud\EventHandlers\Fields\CloudPaymentMethods;
 use App\Apps\TonicsCloud\EventHandlers\Fields\CloudRegions;
+use App\Apps\TonicsCloud\EventHandlers\Fields\HandleFieldTopHTMLWrapper;
 use App\Apps\TonicsCloud\EventHandlers\Fields\PricingTable;
 use App\Apps\TonicsCloud\EventHandlers\Fields\Sanitization\RenderTonicsCloudDefaultContainerVariablesStringSanitization;
 use App\Apps\TonicsCloud\EventHandlers\HandleDataTableTemplate;
@@ -52,6 +53,7 @@ use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnAddFieldSanitization;
 use App\Modules\Field\Events\OnFieldMetaBox;
+use App\Modules\Field\Events\OnFieldTopHTMLWrapperUserSettings;
 use App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler\TonicsCloudFlutterWaveHandler;
 use App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler\TonicsCloudPayPalHandler;
 use App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler\TonicsCloudPayStackHandler;
@@ -239,6 +241,9 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
             ],
             OnAddFieldSanitization::class => [
                 RenderTonicsCloudDefaultContainerVariablesStringSanitization::class
+            ],
+            OnFieldTopHTMLWrapperUserSettings::class => [
+                HandleFieldTopHTMLWrapper::class
             ]
         ];
     }
@@ -284,7 +289,6 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     public function onInstall(): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
-        return;
     }
 
     public function onUninstall(): void
@@ -298,6 +302,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
      */
     public function onUpdate(): void
     {
+        $this->fieldData->importFieldItems($this->fieldItems());
         self::UpdateCloudImages();
     }
     
@@ -316,7 +321,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "TonicsCloud",
             "type" => "App", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1714917517',
+            "version" => '1-O-app.1715169220',
             "description" => "This is TonicsCloud",
             "info_url" => '',
             "settings_page" => route('tonicsCloud.settings'), // can be null or a route name
@@ -731,7 +736,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "modular_rowcolumn",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"22wi60ti5ark000000000\",\"field_input_name\":\"\",\"fieldName\":\"ACME Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]</code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[ACME_EMAIL]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[ACME_DOMAIN]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"22wi60ti5ark000000000\",\"field_input_name\":\"\",\"fieldName\":\"ACME Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]<\\/code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[ACME_EMAIL]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[ACME_DOMAIN]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud  [App Config] [ACME]",
@@ -780,7 +785,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "modular_rowcolumn",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"5l2r8ntok740000000000\",\"field_input_name\":\"app_config_nginx_recipe\",\"fieldName\":\"Nginx Recipe\",\"inputName\":\"app_config_nginx_recipe\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]</code> - auto-generates cryptographically secure pseudo-random bytes\\n<br>\\n<code>[[ACME_DOMAIN]]</code> - Pull from the container specific global variable if there is one\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"5l2r8ntok740000000000\",\"field_input_name\":\"app_config_nginx_recipe\",\"fieldName\":\"Nginx Recipe\",\"inputName\":\"app_config_nginx_recipe\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]<\\/code> - auto-generates cryptographically secure pseudo-random bytes\\n<br>\\n<code>[[ACME_DOMAIN]]<\\/code> - Pull from the container specific global variable if there is one\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [App Config] [Nginx]",
@@ -829,7 +834,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "tonicscloud_cloudcontainersofinstance",
 		"field_id": 5,
 		"field_parent_id": 1,
-		"field_options": "{\"field_slug\":\"tonicscloud_cloudcontainersofinstance\",\"tonicscloud_cloudcontainersofinstance_cell\":\"1\",\"field_slug_unique_hash\":\"37x5y9lbsay0000000000\",\"field_input_name\":\"proxy_pass_container\",\"fieldName\":\"Proxy To 👇\",\"inputName\":\"proxy_pass_container\"}"
+		"field_options": "{\"field_slug\":\"tonicscloud_cloudcontainersofinstance\",\"tonicscloud_cloudcontainersofinstance_cell\":\"1\",\"field_slug_unique_hash\":\"37x5y9lbsay0000000000\",\"field_input_name\":\"proxy_pass_container\",\"fieldName\":\"Proxy To \\ud83d\\udc47\",\"inputName\":\"proxy_pass_container\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud Nginx Recipe »» [Reverse Proxy]",
@@ -850,7 +855,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "modular_rowcolumn",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"1v5cxmr6dwbk000000000\",\"field_input_name\":\"\",\"fieldName\":\"Domain Records\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"1v5cxmr6dwbk000000000\",\"field_input_name\":\"tonicsCloud_domain_records_container\",\"fieldName\":\"Domain Records\",\"inputName\":\"tonicsCloud_domain_records_container\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [DNS]",
@@ -864,7 +869,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "tonicscloud_cloudinstances",
 		"field_id": 3,
 		"field_parent_id": 1,
-		"field_options": "{\"field_slug\":\"tonicscloud_cloudinstances\",\"tonicscloud_cloudinstances_cell\":\"1\",\"field_slug_unique_hash\":\"5aacwi5a45s0000000000\",\"field_input_name\":\"dns_cloud_instance\",\"fieldName\":\"Default A/AAAA Value From \\ud83d\\udc47\",\"inputName\":\"dns_cloud_instance\"}"
+		"field_options": "{\"field_slug\":\"tonicscloud_cloudinstances\",\"tonicscloud_cloudinstances_cell\":\"1\",\"field_slug_unique_hash\":\"5aacwi5a45s0000000000\",\"field_input_name\":\"dns_cloud_instance\",\"fieldName\":\"Default A/AAAA Value From 👇\",\"inputName\":\"dns_cloud_instance\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [DNS]",
@@ -948,7 +953,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "tonicscloud_cloudcontainersofinstance",
 		"field_id": 3,
 		"field_parent_id": 1,
-		"field_options": "{\"field_slug\":\"tonicscloud_cloudcontainersofinstance\",\"tonicscloud_cloudcontainersofinstance_cell\":\"1\",\"field_slug_unique_hash\":\"28qg6nik93k0000000000\",\"field_input_name\":\"proxy_pass_container\",\"fieldName\":\"Proxy To 👇\",\"inputName\":\"proxy_pass_container\"}"
+		"field_options": "{\"field_slug\":\"tonicscloud_cloudcontainersofinstance\",\"tonicscloud_cloudcontainersofinstance_cell\":\"1\",\"field_slug_unique_hash\":\"28qg6nik93k0000000000\",\"field_input_name\":\"proxy_pass_container\",\"fieldName\":\"Proxy To \\ud83d\\udc47\",\"inputName\":\"proxy_pass_container\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud Nginx Recipe »» [Reverse Proxy Simple]",
@@ -1011,7 +1016,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "modular_rowcolumn",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"60cd6ovnpho0000000000\",\"field_input_name\":\"MySQL_CONFIG_CONTAINER\",\"fieldName\":\"MySQL-MariaDB Config\",\"inputName\":\"MySQL_CONFIG_CONTAINER\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Deleting database and user here won't remove it from the server, this is to avoid accidental deletion, if you are sure about the deletion, then remove it in this section and list it in the Removal section below.\\n<br>\\n<br>\\nNote: The username can't be root and if you are connecting remotely, ensure the 3306 proxy is set or a proxy is configured to allow the connection\\n<br>\\n<br>\\nGlobal Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]</code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[DB_DATABASE]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_USER]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_PASS]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_HOST]]</code> - Pull from the container specific global variable if there is one or default to localhost.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"60cd6ovnpho0000000000\",\"field_input_name\":\"MySQL_CONFIG_CONTAINER\",\"fieldName\":\"MySQL-MariaDB Config\",\"inputName\":\"MySQL_CONFIG_CONTAINER\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Deleting database and user here won't remove it from the server, this is to avoid accidental deletion, if you are sure about the deletion, then remove it in this section and list it in the Removal section below.\\n<br>\\n<br>\\nNote: The username can't be root and if you are connecting remotely, ensure the 3306 proxy is set or a proxy is configured to allow the connection\\n<br>\\n<br>\\nGlobal Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]<\\/code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[DB_DATABASE]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_USER]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_PASS]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_HOST]]<\\/code> - Pull from the container specific global variable if there is one or default to localhost.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [App Config] [MySQL]",
@@ -1165,7 +1170,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "modular_rowcolumn",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"6yccojv18l40000000000\",\"field_input_name\":\"app_config_env_recipe\",\"fieldName\":\"ENV Recipe\",\"inputName\":\"app_config_env_recipe\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Note that the env path root directory must exist, for example, if the env path is <code>/var/www/.env</code>, the path <code>/var/www</code> should exist beforehand\\n<br>\\n<br>\\nGlobal Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]</code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[DB_DATABASE]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_USER]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_PASS]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_HOST]]</code> - Pull from the container specific global variable if there is one or default to localhost.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"6yccojv18l40000000000\",\"field_input_name\":\"app_config_env_recipe\",\"fieldName\":\"ENV Recipe\",\"inputName\":\"app_config_env_recipe\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Note that the env path root directory must exist, for example, if the env path is <code>\\/var\\/www\\/.env<\\/code>, the path <code>\\/var\\/www<\\/code> should exist beforehand\\n<br>\\n<br>\\nGlobal Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]<\\/code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[DB_DATABASE]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_USER]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_PASS]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_HOST]]<\\/code> - Pull from the container specific global variable if there is one or default to localhost.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "App Tonicscloud App Config ENV",
@@ -1312,14 +1317,14 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "input_text",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"2pd2j1ct2p40000000000\",\"field_input_name\":\"config\",\"fieldName\":\"Static Config\",\"inputName\":\"config\",\"textType\":\"textarea\",\"defaultValue\":\"server {\\n    listen 80;\\n    listen [::]:80;\\n    server_name [[ACME_DOMAIN]];\\n\\n    # Redirect HTTP to HTTPS\\n    location / {\\n        return 301 https://$host$request_uri;\\n    }\\n}\\n\\nserver {\\n    listen 443 ssl;\\n    server_name [[ACME_DOMAIN]];\\n\\n    http2 on;\\n    ssl_certificate /etc/ssl/[[ACME_DOMAIN]]_fullchain.cer;\\n    ssl_certificate_key /etc/ssl/[[ACME_DOMAIN]].key;\\n    ssl_protocols        TLSv1.3 TLSv1.2 TLSv1.1;\\n\\n    location / {\\n        root /var/www/[[ACME_DOMAIN]];\\n        index index.html;\\n    }\\n\\n    # Additional HTTPS configurations if needed\\n}\\n\",\"info\":\"Please ensure you have an SSL before using this recipe, otherwise, use the HTTP version and use the ACME app to generate an SSL, then choose this recipe once you done.\\n<br>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:500px;\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"2pd2j1ct2p40000000000\",\"field_input_name\":\"config\",\"fieldName\":\"Static Config\",\"inputName\":\"config\",\"textType\":\"textarea\",\"defaultValue\":\"server {\\n    listen 80;\\n    listen [::]:80;\\n    server_name [[ACME_DOMAIN]];\\n\\n    # Redirect HTTP to HTTPS\\n    location \\/ {\\n        return 301 https:\\/\\/$host$request_uri;\\n    }\\n}\\n\\nserver {\\n    listen 443 ssl;\\n    server_name [[ACME_DOMAIN]];\\n\\n    http2 on;\\n    ssl_certificate \\/etc\\/ssl\\/[[ACME_DOMAIN]]_fullchain.cer;\\n    ssl_certificate_key \\/etc\\/ssl\\/[[ACME_DOMAIN]].key;\\n    ssl_protocols        TLSv1.3 TLSv1.2 TLSv1.1;\\n\\n    location \\/ {\\n        root \\/var\\/www\\/[[ACME_DOMAIN]];\\n        index index.html;\\n    }\\n\\n    # Additional HTTPS configurations if needed\\n}\\n\",\"info\":\"Please ensure you have an SSL before using this recipe, otherwise, use the HTTP version and use the ACME app to generate an SSL, then choose this recipe once you done.\\n<br>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:500px;\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud Nginx Recipe »» [Static Site (HTTP)]",
 		"field_name": "input_text",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"1gy1i0f12mm8000000000\",\"field_input_name\":\"\",\"fieldName\":\"Static Config\",\"inputName\":\"config\",\"textType\":\"textarea\",\"defaultValue\":\"server {\\n    listen 80;\\n    listen [::]:80;\\n    server_name [[ACME_DOMAIN]];\\n\\n    root /var/www/[[ACME_DOMAIN]];\\n    index index.html;\\n\\n    location / {\\n        try_files $uri $uri/ =404;\\n    }\\n}\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:500px;\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"1gy1i0f12mm8000000000\",\"field_input_name\":\"\",\"fieldName\":\"Static Config\",\"inputName\":\"config\",\"textType\":\"textarea\",\"defaultValue\":\"server {\\n    listen 80;\\n    listen [::]:80;\\n    server_name [[ACME_DOMAIN]];\\n\\n    root \\/var\\/www\\/[[ACME_DOMAIN]];\\n    index index.html;\\n\\n    location \\/ {\\n        try_files $uri $uri\\/ =404;\\n    }\\n}\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:500px;\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud ENV Recipe »» [Tonics Existing Installation]",

@@ -211,4 +211,14 @@ class LinodeCloudDNSHandler implements HandlerInterface, CloudDNSInterface
         return new DomainRecordRepository($linodeClient, $domainID);
     }
 
+    public function nameServers(): array
+    {
+        return [
+            'ns1.linode.com',
+            'ns2.linode.com',
+            'ns3.linode.com',
+            'ns4.linode.com',
+            'ns5.linode.com'
+        ];
+    }
 }

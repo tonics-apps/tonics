@@ -18,6 +18,7 @@
 
 namespace App\Modules\Core\Boot;
 
+use App\Apps\TonicsCloud\Controllers\TonicsCloudSettingsController;
 use App\Apps\TonicsCloud\Library\Incus\IncusHelper;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;

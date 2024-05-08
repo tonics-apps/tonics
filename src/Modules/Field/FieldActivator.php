@@ -199,7 +199,7 @@ class FieldActivator implements ExtensionConfig
             "name" => "Field",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714673088',
+            "version" => '1-O-Ola.1715169220',
             "stable" => 0,
             "description" => "The Field Module",
             "info_url" => '',

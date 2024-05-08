@@ -207,6 +207,8 @@ class DomainController
         $domain = self::getDomain($slugID, 'slug_id');
         $domainOthers = json_decode($domain->others);
 
+        addToGlobalVariable('Data', (array)$domain);
+
         $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems($domainOthers?->fieldData);
         $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
 
@@ -491,7 +493,9 @@ class DomainController
         $domain = null;
         db(onGetDB: function (TonicsQuery $db) use ($col, $domainID, &$domain) {
             $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
+            $providerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_PROVIDER);
             $domain = $db->Select('*')->From($table)
+                ->Join($providerTable, "$providerTable.provider_id", "$table.fk_provider_id")
                 ->WhereEquals("fk_customer_id", \session()::getUserID())
                 ->WhereEquals(table()->pick([TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) => [$col]]), $domainID)
                 ->FetchFirst();
@@ -505,6 +509,7 @@ class DomainController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function getSoaDomainRecord(): array
     {

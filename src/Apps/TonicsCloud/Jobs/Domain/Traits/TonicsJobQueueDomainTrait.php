@@ -162,6 +162,7 @@ trait TonicsJobQueueDomainTrait
     /**
      * @return CloudDNSInterface
      * @throws \Exception
+     * @throws \Throwable
      */
     public function getCloudDNSHandler(): CloudDNSInterface
     {

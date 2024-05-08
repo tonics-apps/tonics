@@ -82,7 +82,7 @@ class OnFieldMetaBox implements EventInterface
         callable $settingsForm = null,
         callable $userForm = null,
         callable $handleViewProcessing = null,
-    )
+    ): void
     {
         $nameKey = helper()->slug($name);
         $category = strtolower($category);
@@ -281,7 +281,7 @@ HTML;
      * @param bool $root
      * @param callable|null $handleTop
      * @return string
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public function _topHTMLWrapper(string $name, $data, bool $root = false, callable $handleTop = null): string
     {
@@ -327,7 +327,7 @@ HTML;
         }
 
         $result = '';
-        if ($this->getSettingsType() === $this::OnBackEndSettingsType){
+        if ($this->getSettingsType() === $this::OnBackEndSettingsType) {
             $toggle = $closeToggle;
             $result .=<<<HTML
 <li $isEditorLi tabIndex="0"
@@ -348,8 +348,13 @@ $scriptPath>
 HTML;
         }
 
-        if ($this->getSettingsType() === $this::OnUserSettingsType){
+        if ($this->getSettingsType() === $this::OnUserSettingsType) {
             $text = '';
+
+            $onFieldTopEvent = new OnFieldTopHTMLWrapperUserSettings($data);
+            event()->dispatch($onFieldTopEvent);
+            $data = $onFieldTopEvent->getData();
+
             $info = (isset($data->info)) ? $data->info : '';
             if (!empty($info)){
                 $text = <<<HTML

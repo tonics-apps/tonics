@@ -178,6 +178,7 @@ class PostsController
     /**
      * Store a newly created resource in storage.
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function store(): void
     {
@@ -230,7 +231,7 @@ class PostsController
     /**
      * @param array $postData
      * @return bool|object
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function storeFromImport(array $postData): bool|object
     {
