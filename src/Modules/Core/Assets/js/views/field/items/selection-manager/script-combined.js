@@ -602,11 +602,20 @@ if (typeof tonicsFieldSaveChangesButton === 'undefined') {
 if (tonicsFieldSaveChangesButton) {
     tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
         e.preventDefault();
+
+        // Disable the submit button to prevent multiple submissions
+        tonicsFieldSaveChangesButton.disabled = true;
+
         let eventDispatcher = window.TonicsEvent.EventDispatcher;
         let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
         eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
         let fieldsEditorsForm = document.getElementById('EditorsForm');
         fieldsEditorsForm.submit();
+
+        // Re-enable the submit button after a specified timeout (e.g., 5 seconds)
+        setTimeout(() => {
+            tonicsFieldSaveChangesButton.disabled = false;
+        }, 5000); // Timeout in milliseconds (e.g., 5000 ms = 5 seconds)
     });
 }
 

@@ -43,8 +43,8 @@ class HandleFieldTopHTMLWrapper  implements HandlerInterface
     {
         if (isset($data->inputName) && $data->inputName === 'tonicsCloud_domain_records_container') {
             $info = '';
-            if (isset(getPostData()['provider_perm_name'])) {
-                $providerName = getPostData()['provider_perm_name'];
+            if (isset(getPostData()['dnsHandler'])) {
+                $providerName = getPostData()['dnsHandler'];
                 $DNSHandler = TonicsCloudActivator::getCloudDNSHandler($providerName);
                 $nameserverList = '';
                 foreach ($DNSHandler->nameServers() as $nameServer){

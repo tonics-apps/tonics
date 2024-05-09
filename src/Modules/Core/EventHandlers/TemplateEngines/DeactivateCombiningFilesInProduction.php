@@ -24,6 +24,9 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class DeactivateCombiningFilesInProduction implements HandlerInterface
 {
+    /**
+     * @throws \Exception
+     */
     public function handleEvent(object $event): void
     {
         /** @var $event BeforeCombineModeOperation */

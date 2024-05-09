@@ -150,7 +150,7 @@ class DomainController
             redirect(route('tonicsCloud.domains.create'));
         }
 
-        db(onGetDB: function (TonicsQuery $db){
+        db(onGetDB: function (TonicsQuery $db) {
             $serviceOthers = null;
             $service = null;
             if (input()->fromPost()->hasValue('dns_cloud_instance')){
@@ -169,10 +169,11 @@ class DomainController
             $db->beginTransaction();
 
             $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
+            $dnsHandler = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudDNSIntegrationType);
             $domainReturning = $db->InsertReturning($table, [
                 'dns_domain' => $domain['domain'],
                 'fk_provider_id' => $service->fk_provider_id, 'fk_customer_id' => \session()::getUserID(),
-                'others' => json_encode(['records' => $records, 'fieldData' => $fields])
+                'others' => json_encode(['records' => $records, 'fieldData' => $fields, 'dnsHandler' => $dnsHandler])
             ], ['dns_id'], 'dns_id');
 
             $jobData = [
@@ -207,7 +208,7 @@ class DomainController
         $domain = self::getDomain($slugID, 'slug_id');
         $domainOthers = json_decode($domain->others);
 
-        addToGlobalVariable('Data', (array)$domain);
+        addToGlobalVariable('Data', (array)$domainOthers);
 
         $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems($domainOthers?->fieldData);
         $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);

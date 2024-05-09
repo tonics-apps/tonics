@@ -53,6 +53,7 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function CSRFGuardInitialStateHandler(): string
     {
@@ -67,6 +68,7 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function CSRFGuardRequestTypePost(): string
     {
@@ -100,6 +102,7 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function CSRFGuardVerifyToken(): string
     {

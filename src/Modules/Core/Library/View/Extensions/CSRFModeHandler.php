@@ -34,7 +34,7 @@ class CSRFModeHandler extends TonicsTemplateViewAbstract implements TonicsModeIn
         return $view->validateMaxArg($tagToken->getArg(), 'csrf', 0, 0);
     }
 
-    public function stickToContent(OnTagToken $tagToken)
+    public function stickToContent(OnTagToken $tagToken): void
     {
         $view = $this->getTonicsView();
         $view->getContent()->addToContent('csrf', '', $tagToken->getArg());

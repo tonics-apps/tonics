@@ -101,7 +101,7 @@ trait Routes
                         #---------------------------------
                     # Password Reset Routes...
                 #---------------------------------
-                $route->group('/password', callback: function (Route $route){
+                $route->group('/password', callback: function (Route $route) {
                     $route->get('/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'request');
                     $route->post('/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'email');
                     $route->get('/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'verifyEmail');
