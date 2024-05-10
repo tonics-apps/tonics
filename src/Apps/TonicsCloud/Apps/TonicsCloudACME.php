@@ -73,12 +73,14 @@ class TonicsCloudACME extends CloudAppInterface implements CloudAppSignalInterfa
     {
         $postFlight = $this->getPostPrepareForFlight();
         $mode = $postFlight->Mode;
-        $sites = '';
+        $commands = [];
         foreach ($postFlight->Sites as $site){
-            $sites .= " -d " . escapeshellarg($site);
+            $site = " -d " . escapeshellarg($site);
+            $commands[] = "{$this->acmeBin()} --issue --$mode $site --log";
         }
 
-        $this->runCommand(null,function (){}, "bash", "-c", "{$this->acmeBin()} --issue --$mode $sites --log");
+        $command = implode(" && ", $commands);
+        $this->runCommand(null,function (){}, "bash", "-c", $command);
         $this->installCert();
     }
 

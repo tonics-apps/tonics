@@ -101,6 +101,9 @@ FORM;
 input[type='radio'] {
     accent-color: #000000;
 }
+.tonics-container-image-version {
+    width: 120px;
+}
 </style>
 <section class="dataTable disable-select owl" data-event-click="true" data-event-dblclick="true" data-event-scroll-bottom="true">
     <table id="dt" style="grid-template-columns: minmax(150px, 1fr) minmax(100px, .7fr) minmax(300px, 1.6fr);">
@@ -164,7 +167,7 @@ Frag;
                 </label>
             </td>
             <td tabindex="-1">
-                <select class=" mg-b-plus-1" name="{$containerImage->container_image_id}_image_version">
+                <select class=" mg-b-plus-1 tonics-container-image-version" name="{$containerImage->container_image_id}_image_version">
                  <option value="">Choose Version</option>
                   {$this->getImageVersions($containerImage)}
                 </select>

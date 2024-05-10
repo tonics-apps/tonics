@@ -23,6 +23,7 @@ use App\Apps\TonicsCloud\Jobs\Domain\CloudJobQueueDeleteDomain;
 use App\Apps\TonicsCloud\Jobs\Domain\CloudJobQueueUpdateDomain;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Validation\Traits\Validator;
@@ -514,11 +515,16 @@ class DomainController
      */
     public function getSoaDomainRecord(): array
     {
+        $soaEmail = MailConfig::getMailFromAddress();
+        if (empty($soaEmail)) {
+            $soaEmail = 'olayemi@tonics.app';
+        }
+
         return [
             'domain' => input()->fromPost()->retrieve('dns_domain'),
             'type' => 'master',
             'ttl_sec' => 3600,
-            'soa_email' => 'olayemi@tonics.app',
+            'soa_email' => $soaEmail,
             "description" => "Managed By TonicsCloud"
         ];
     }
