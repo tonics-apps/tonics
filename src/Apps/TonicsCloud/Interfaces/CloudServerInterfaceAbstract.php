@@ -209,7 +209,8 @@ touch $LOG_FILE
 exec > >(tee -a $LOG_FILE) 2>&1
 
 # Install necessary programs
-DEBIAN_FRONTEND=noninteractive apt-get install -y nano gnupg
+DEBIAN_FRONTEND=noninteractive apt update -y
+DEBIAN_FRONTEND=noninteractive apt install -y gnupg
 
 # Import Public Key
 curl -fsSL https://pkgs.zabbly.com/key.asc | gpg --show-keys --fingerprint
@@ -230,8 +231,8 @@ Signed-By: /etc/apt/keyrings/zabbly.asc
 EOF'
 
 # Update system and Install incus
-DEBIAN_FRONTEND=noninteractive apt-get update -y
-DEBIAN_FRONTEND=noninteractive apt-get install -y incus
+DEBIAN_FRONTEND=noninteractive apt update -y
+DEBIAN_FRONTEND=noninteractive apt install -y incus
 
 # Store The Client Cert in a File
 cat <<EOF > incus-client-cert.txt

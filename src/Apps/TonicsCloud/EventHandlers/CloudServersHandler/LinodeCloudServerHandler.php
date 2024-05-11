@@ -84,27 +84,36 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
         $deploymentOption = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeDeploymentOption);
         $certs = IncusHelper::generateCertificateEncrypted();
-        if ($deploymentOption === 'StackScript'){
+
+
+
+        if ($deploymentOption === 'StackScript') {
 
             $stackScriptMode = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeStackScriptMode);
 
             $parameters[Linode::FIELD_IMAGE] = 'linode/debian12';
-            if ($stackScriptMode === 'Production'){
-                $parameters[Linode::FIELD_STACKSCRIPT_ID] = 1196483;
-                $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
-                    'CERT' => $certs['cert'] // the client cert to be added to the server on deployment
-                ];
-            } else {
-                $parameters[Linode::FIELD_STACKSCRIPT_ID] = 1196477;
-                $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
-                    'USERNAME' => 'tonics-cloud',
-                    'PASSWORD' => 'tonics-cloud',
-                    'SSHKEY' => TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeStackScriptSSHPublicKeyForDevMode),
-                    'CERT' => $certs['cert'] // the client cert to be added to the server on deployment
-                ];
-            }
+            $sshKey = ($stackScriptMode !== 'Production') ? TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeStackScriptSSHPublicKeyForDevMode) : '';
+            $sshUserOrPass = ($stackScriptMode !== 'Production') ? 'tonics-cloud' : '';
+
+            $parameters[Linode::FIELD_STACKSCRIPT_ID] = 1196477;
+            $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
+                'USERNAME' => $sshUserOrPass,
+                'PASSWORD' => $sshUserOrPass,
+                'SSHKEY' => $sshKey,
+                'CERT' => $certs['cert'] // the client cert to be added to the server on deployment
+            ];
 
         } else {
+            $customImageMode = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeCustomImageMode);
+            $sshUserOrPass = ($customImageMode !== 'Production') ? 'tonics-cloud' : '';
+            $sshKey = ($customImageMode !== 'Production') ? TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeCustomImageSSHPublicKeyForDevMode) : '';
+            $parameters[Linode::FIELD_STACKSCRIPT_ID] = 1370391;
+            $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
+                'USERNAME' => $sshUserOrPass,
+                'PASSWORD' => $sshUserOrPass,
+                'SSHKEY' => $sshKey,
+                'CERT' => $certs['cert'] // the client cert to be added to the server on deployment
+            ];
 
             $parameters[Linode::FIELD_IMAGE] = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeImage);
 

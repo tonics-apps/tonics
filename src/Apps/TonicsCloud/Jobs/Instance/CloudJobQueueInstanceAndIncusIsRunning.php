@@ -34,6 +34,11 @@ class CloudJobQueueInstanceAndIncusIsRunning extends AbstractJobInterface implem
 {
     use TonicsJobQueueInstanceTrait;
 
+    public function __construct()
+    {
+        $this->setMaxAttempts(50);
+    }
+
     /**
      * @return void
      * @throws Exception

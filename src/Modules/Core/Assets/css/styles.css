@@ -470,7 +470,7 @@ fieldset {
 }
 
 .row-col-item {
-    border: 2px solid black;
+    /*border: 2px solid black;*/
     padding: 2em;
     min-width: 350px;
 }

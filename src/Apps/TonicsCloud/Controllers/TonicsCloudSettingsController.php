@@ -35,7 +35,9 @@ class TonicsCloudSettingsController
     const LinodeDeploymentOption = 'tonics_cloud_main_container_APITokens_LinodeDeploymentOption';
     const LinodeImage = 'tonics_cloud_main_container_APITokens_LinodeAkamai_LinodeImage';
     const LinodeStackScriptMode = 'tonics_cloud_main_container_APITokens_LinodeAkamai_LinodeStackScript_Mode';
+    const LinodeCustomImageMode = 'tonics_cloud_main_container_APITokens_LinodeAkamai_LinodeCustomImage_Mode';
     const LinodeStackScriptSSHPublicKeyForDevMode = 'tonics_cloud_main_container_APITokens_LinodeAkamai_LinodeStackScript_SSH_PUBLIC_KEY_DEV_MODE';
+    const LinodeCustomImageSSHPublicKeyForDevMode = 'tonics_cloud_main_container_APITokens_LinodeAkamai_LinodeCustomImage_SSH_PUBLIC_KEY_DEV_MODE';
     const LinodePriceList = 'tonics_cloud_main_container_APITokens_LinodeAkamai_PriceList';
     const LinodeRegion = 'tonics_cloud_main_container_APITokens_LinodeAkamai_Region';
     const LinodeBackup = 'tonics_cloud_main_container_APITokens_LinodeAkamai_Backup';
