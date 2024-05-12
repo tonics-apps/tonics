@@ -35,6 +35,9 @@ class IsAppInstalled extends SimpleState
     const IsAppInstalledDatabaseConnectionStateHandler = 'IsAppInstalledDatabaseConnectionStateHandler';
     const IsAppInstalledDatabaseMigrationStateHandler = 'IsAppInstalledDatabaseMigrationStateHandler';
 
+    /**
+     * @throws \Exception
+     */
     public function __construct()
     {
         // Initial State
@@ -98,6 +101,7 @@ class IsAppInstalled extends SimpleState
         foreach ($modules as $module) {
             $requiredTables = [...$requiredTables, ...array_keys($module->tables())];
         }
+
         $intersectionCount = count(array_intersect($tablesInDatabase, $requiredTables));
 
         # We have the required tables...meaning, app is installed

@@ -363,7 +363,7 @@ class Installer extends SimpleState
     /**
      * @throws Exception
      */
-    public function deleteArtifacts()
+    public function deleteArtifacts(): void
     {
         $runningInstallerFile = AppConfig::getAppRoot() . DIRECTORY_SEPARATOR . 'runningInstaller.json';
         helper()->deleteFile(AppConfig::getAppRoot() . DIRECTORY_SEPARATOR . 'install.json');
