@@ -24,6 +24,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Core\RequestInterceptor\RefreshTreeSystem;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
@@ -80,7 +81,7 @@ class TonicsCloudSettingsController
     /**
      * @throws \Exception|\Throwable
      */
-    public function update()
+    public function update(): void
     {
         try {
             $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
@@ -91,9 +92,11 @@ class TonicsCloudSettingsController
             $cloudScheduleCheckCredits = new CloudScheduleCheckCredits();
             schedule()->enqueue($cloudScheduleCheckCredits);
 
+            RefreshTreeSystem::RefreshTreeSystem();
+
             session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tonicsCloud.settings'));
-        }catch (\Exception){
+        } catch (\Exception){
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
             redirect(route('tonicsCloud.settings'));
         }

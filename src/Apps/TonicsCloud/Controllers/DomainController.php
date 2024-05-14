@@ -26,6 +26,7 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
+use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumnRepeater;
@@ -144,59 +145,64 @@ class DomainController
      */
     public function store()
     {
-        $validator = $this->getValidator();
-        $validation = $validator->make(input()->fromPost()->all(), $this->getDomainCreateRule());
-        if ($validator->fails()){
-            session()->flash($validation->getErrors(), input()->fromPost()->all());
-            redirect(route('tonicsCloud.domains.create'));
-        }
-
-        db(onGetDB: function (TonicsQuery $db) {
-            $serviceOthers = null;
-            $service = null;
-            if (input()->fromPost()->hasValue('dns_cloud_instance')){
-                $settings = [
-                    'instance_id' => input()->fromPost()->retrieve('dns_cloud_instance'),
-                    'user_id' => \session()::getUserID()
-                ];
-                $service = InstanceController::GetServiceInstances($settings);
-                $serviceOthers = json_decode($service->others);
+        try {
+            $validator = $this->getValidator();
+            $validation = $validator->make(input()->fromPost()->all(), $this->getDomainRule());
+            if ($validator->fails()){
+                session()->flash($validation->getErrors(), input()->fromPost()->all());
+                redirect(route('tonicsCloud.domains.create'));
             }
 
-            $fields = json_decode(input()->fromPost()->retrieve('_fieldDetails'));
-            $domain = $this->getSoaDomainRecord();
-            $records = self::parseDomainRecordsInfo($fields, $domain, $serviceOthers);
+            db(onGetDB: function (TonicsQuery $db) {
+                $serviceOthers = null;
+                $service = null;
+                if (input()->fromPost()->hasValue('dns_cloud_instance')){
+                    $settings = [
+                        'instance_id' => input()->fromPost()->retrieve('dns_cloud_instance'),
+                        'user_id' => \session()::getUserID()
+                    ];
+                    $service = InstanceController::GetServiceInstances($settings);
+                    $serviceOthers = json_decode($service->others);
+                }
 
-            $db->beginTransaction();
+                $fields = json_decode(input()->fromPost()->retrieve('_fieldDetails'));
+                $domain = $this->getSoaDomainRecord();
+                $records = self::parseDomainRecordsInfo($fields, $domain, $serviceOthers);
 
-            $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
-            $dnsHandler = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudDNSIntegrationType);
-            $domainReturning = $db->InsertReturning($table, [
-                'dns_domain' => $domain['domain'],
-                'fk_provider_id' => $service->fk_provider_id, 'fk_customer_id' => \session()::getUserID(),
-                'others' => json_encode(['records' => $records, 'fieldData' => $fields, 'dnsHandler' => $dnsHandler])
-            ], ['dns_id'], 'dns_id');
+                $db->beginTransaction();
 
-            $jobData = [
-                'domain' => $domain,
-                'records' => $records,
-                'dns_id' => $domainReturning->dns_id
-            ];
+                $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
+                $dnsHandler = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudDNSIntegrationType);
+                $domainReturning = $db->InsertReturning($table, [
+                    'dns_domain' => $domain['domain'],
+                    'fk_provider_id' => $service->fk_provider_id, 'fk_customer_id' => \session()::getUserID(),
+                    'others' => json_encode(['records' => $records, 'fieldData' => $fields, 'dnsHandler' => $dnsHandler])
+                ], ['dns_id'], 'dns_id');
 
-            $jobs = [
-                [
-                    'job' => new CloudJobQueueCreateDomain(),
-                    'children' => []
-                ]
-            ];
+                $jobData = [
+                    'domain' => $domain,
+                    'records' => $records,
+                    'dns_id' => $domainReturning->dns_id
+                ];
 
-            TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
+                $jobs = [
+                    [
+                        'job' => new CloudJobQueueCreateDomain(),
+                        'children' => []
+                    ]
+                ];
 
-            $db->commit();
-        });
+                TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
 
-        session()->flash(['Domain Creation Enqueued'], [], Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tonicsCloud.domains.index'));
+                $db->commit();
+            });
+
+            session()->flash(['Domain Creation Enqueued'], [], Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('tonicsCloud.domains.index'));
+        } catch (\Throwable $exception) {
+            \session()->flash([$exception->getMessage()], input()->fromPost()->all());
+            redirect(route('tonicsCloud.domains.create'));
+        }
     }
 
     /**
@@ -229,91 +235,98 @@ class DomainController
      */
     public function update(string $slugID)
     {
-        $validator = $this->getValidator();
-        $validation = $validator->make(input()->fromPost()->all(), $this->getDomainCreateRule());
-        if ($validator->fails()){
-            session()->flash($validation->getErrors(), input()->fromPost()->all());
+        try {
+            $validator = $this->getValidator();
+            $validation = $validator->make(input()->fromPost()->all(), $this->getDomainRule(true));
+            if ($validator->fails()){
+                session()->flash($validation->getErrors(), input()->fromPost()->all());
+                redirect(route('tonicsCloud.domains.edit', [$slugID]));
+            }
+
+            $domain = self::getDomain($slugID, 'slug_id');
+            $domainOthers = json_decode($domain->others);
+            $serviceOthers = null;
+            if (input()->fromPost()->hasValue('dns_cloud_instance')){
+                $settings = [
+                    'instance_id' => input()->fromPost()->retrieve('dns_cloud_instance'),
+                    'user_id' => \session()::getUserID()
+                ];
+                $service = InstanceController::GetServiceInstances($settings);
+                $serviceOthers = json_decode($service->others);
+            }
+
+            $domainFromPost = $this->getSoaDomainRecord();
+
+            $fields = json_decode(input()->fromPost()->retrieve('_fieldDetails'));
+            $newRecords = self::parseDomainRecordsInfo($fields, $domainFromPost, $serviceOthers);
+
+            # No Changes
+            $oldRecords = json_decode(json_encode($domainOthers->records), true);
+            if ($domain->dns_domain === $domainFromPost['domain'] && $newRecords === $oldRecords){
+                session()->flash(["No Changes, That's Fine"], [], Session::SessionCategories_FlashMessageInfo);
+                redirect(route('tonicsCloud.domains.edit', [$slugID]));
+            }
+
+            $recordsUntouched = [];
+            # Step One, Add Records If It Isn't in The Old Record
+            foreach ($newRecords as $key => $newRecord){
+                if (isset($oldRecords[$key])){
+                    $recordsUntouched[$key] = $oldRecords[$key]; # Using the oldRecords data is important, this way, I can access the record_id
+                    unset($newRecords[$key]);
+                    unset($oldRecords[$key]);
+                }
+            }
+
+            # Step Two, Remove Old Records That Isn't In The New Records
+            foreach ($oldRecords as $key => $oldRecord){
+                if (isset($newRecords[$key])){
+                    unset($oldRecords[$key]);
+                    $recordsUntouched[$key] = $oldRecord;
+                }
+            }
+
+
+            # Step Three, Update The List of Records We Have
+            $recordsUntouched = $recordsUntouched + $newRecords;
+
+            $jobData = [
+                'domain' => $domainFromPost,
+                'records' => $newRecords,
+                'delete_records' => $oldRecords,
+                'dns_id' => $domain->dns_id,
+                'domain_id' => $domainOthers->domain_id
+            ];
+
+            db(onGetDB: function (TonicsQuery $db) use ($recordsUntouched, $fields, $jobData, $domainFromPost, $slugID) {
+                $db->beginTransaction();
+
+                $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
+                $db->Update($table)
+                    ->Set('dns_domain', $domainFromPost['domain'])
+                    ->Set('others', json_encode(['records' => $recordsUntouched, 'deleted_records' => $jobData['delete_records'], 'fieldData' => $fields, 'domain_id' => $jobData['domain_id']]))
+                    ->WhereEquals('slug_id', $slugID)
+                    ->Exec();
+
+                $jobs = [
+                    [
+                        'job' => new CloudJobQueueUpdateDomain(),
+                        'children' => []
+                    ]
+                ];
+
+                TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
+
+                $db->commit();
+            });
+
+            session()->flash(["Domain Update Enqueued Changes"], [], Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('tonicsCloud.domains.index'));
+        } catch (\Throwable $exception) {
+            session()->flash([$exception->getMessage()], input()->fromPost()->all());
             redirect(route('tonicsCloud.domains.edit', [$slugID]));
         }
 
-        $domain = self::getDomain($slugID, 'slug_id');
-        $domainOthers = json_decode($domain->others);
-        $serviceOthers = null;
-        if (input()->fromPost()->hasValue('dns_cloud_instance')){
-            $settings = [
-                'instance_id' => input()->fromPost()->retrieve('dns_cloud_instance'),
-                'user_id' => \session()::getUserID()
-            ];
-            $service = InstanceController::GetServiceInstances($settings);
-            $serviceOthers = json_decode($service->others);
-        }
 
-        $domainFromPost = $this->getSoaDomainRecord();
-
-        $fields = json_decode(input()->fromPost()->retrieve('_fieldDetails'));
-        $newRecords = self::parseDomainRecordsInfo($fields, $domainFromPost, $serviceOthers);
-
-        # No Changes
-        $oldRecords = json_decode(json_encode($domainOthers->records), true);
-        if ($domain->dns_domain === $domainFromPost['domain'] && $newRecords === $oldRecords){
-            session()->flash(["No Changes, That's Fine"], [], Session::SessionCategories_FlashMessageInfo);
-            redirect(route('tonicsCloud.domains.edit', [$slugID]));
-        }
-
-        $recordsUntouched = [];
-        # Step One, Add Records If It Isn't in The Old Record
-        foreach ($newRecords as $key => $newRecord){
-            if (isset($oldRecords[$key])){
-                $recordsUntouched[$key] = $oldRecords[$key]; # Using the oldRecords data is important, this way, I can access the record_id
-                unset($newRecords[$key]);
-                unset($oldRecords[$key]);
-            }
-        }
-
-        # Step Two, Remove Old Records That Isn't In The New Records
-        foreach ($oldRecords as $key => $oldRecord){
-            if (isset($newRecords[$key])){
-                unset($oldRecords[$key]);
-                $recordsUntouched[$key] = $oldRecord;
-            }
-        }
-
-
-        # Step Three, Update The List of Records We Have
-        $recordsUntouched = $recordsUntouched + $newRecords;
-
-        $jobData = [
-            'domain' => $domainFromPost,
-            'records' => $newRecords,
-            'delete_records' => $oldRecords,
-            'dns_id' => $domain->dns_id,
-            'domain_id' => $domainOthers->domain_id
-        ];
-
-        db(onGetDB: function (TonicsQuery $db) use ($recordsUntouched, $fields, $jobData, $domainFromPost, $slugID) {
-            $db->beginTransaction();
-
-            $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
-            $db->Update($table)
-                ->Set('dns_domain', $domainFromPost['domain'])
-                ->Set('others', json_encode(['records' => $recordsUntouched, 'deleted_records' => $jobData['delete_records'], 'fieldData' => $fields, 'domain_id' => $jobData['domain_id']]))
-                ->WhereEquals('slug_id', $slugID)
-                ->Exec();
-
-            $jobs = [
-                [
-                    'job' => new CloudJobQueueUpdateDomain(),
-                    'children' => []
-                ]
-            ];
-
-            TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
-
-            $db->commit();
-        });
-
-        session()->flash(["Domain Update Enqueued Changes"], [], Session::SessionCategories_FlashMessageSuccess);
-        redirect(route('tonicsCloud.domains.index'));
     }
 
     /**
@@ -388,12 +401,22 @@ class DomainController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function getDomainCreateRule(): array
+    public function getDomainRule($updateRule = false): array
     {
+        $slug = 'dns_domain';
+        $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) .':dns_domain';
+        if ($updateRule) {
+            $slug = 'dns_id';
+            $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) .':dns_domain:dns_id';
+        }
+
         return [
-            'dns_domain' => ['required', 'string'],
-            'dns_cloud_instance' => ['string']
+            'dns_domain' => ['required', 'string', 'unique' => [
+                $slugUnique => input()->fromPost()->retrieve($slug, '')]
+            ],
+            'dns_cloud_instance' => ['string'],
         ];
     }
 
