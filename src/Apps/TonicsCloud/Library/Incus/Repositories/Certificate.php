@@ -30,12 +30,8 @@ class Certificate extends AbstractRepository
      * The certificate field can be omitted in which case the TLS client
      * certificate in use for the connection will be retrieved and added to thetrust store.
      *
-     * <br>
-     *
      * Note: Sometimes, you would receive a 404 with the message: The provided certificate isn't valid yet, this is because of sync issue,
      * so, it is your responsibility to check for that error and retry adding it.
-     *
-     * <br>
      *
      * Here is an example
      * ```
@@ -96,7 +92,7 @@ class Certificate extends AbstractRepository
      * @return \stdClass
      * @throws \Exception
      */
-    public function delete(string $fingerPrint)
+    public function delete(string $fingerPrint): \stdClass
     {
         return $this->client->sendRequest($this->getEndPoint($fingerPrint), $this->client->getURL()::REQUEST_DELETE);
 

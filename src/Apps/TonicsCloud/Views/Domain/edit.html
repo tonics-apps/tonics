@@ -8,6 +8,10 @@
 
 [[hook_into('Core::form_action')/customer/tonics_cloud/domains/[[v('DomainData.slug_id')]]/update]]
 
+[[hook_into('Core::before_form_section')
+    <input type="hidden" name="slug_id" value="[[v('DomainData.slug_id')]]">
+]]
+
 [[hook_into('Core::before_footer')
     [[_use("script:post")]]
     [[_use("session:delete-artifacts")]]

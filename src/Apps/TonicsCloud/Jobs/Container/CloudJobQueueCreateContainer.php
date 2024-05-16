@@ -50,7 +50,7 @@ class CloudJobQueueCreateContainer extends AbstractJobInterface implements JobHa
         } else {
             $source = [
                 "protocol" => "simplestreams",
-                "alias" => "debian/bullseye/amd64",
+                "alias" => "debian/bookworm/amd64",
                 "server" => "https://images.linuxcontainers.org",
                 "type" => "image"
             ];
