@@ -408,8 +408,8 @@ class DomainController
         $slug = 'dns_domain';
         $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) .':dns_domain';
         if ($updateRule) {
-            $slug = 'dns_id';
-            $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) .':dns_domain:dns_id';
+            $slug = 'slug_id';
+            $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) .':dns_domain:slug_id';
         }
 
         return [
