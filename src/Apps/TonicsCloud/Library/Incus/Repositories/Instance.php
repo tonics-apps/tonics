@@ -372,11 +372,7 @@ class Instance extends AbstractRepository
     /**
      * Trigger a snapshot restore, use the `rename()` method to rename an instance.
      *
-     * <br>
-     *
      * If you know, all you want to do is update the description, please use the `patch()` method instead
-     *
-     * <br>
      *
      * Here is an example that triggers a snapshot restore:
      *
@@ -384,7 +380,6 @@ class Instance extends AbstractRepository
      * $client->instances()->update('instance-name', ["restore" => "snapshot_name"]);
      * ```
      *
-     * <br>
      * To update a device config, you first need to get the info of the instance, then update it like so, without that, it won't work:
      *
      * ```
@@ -432,8 +427,6 @@ class Instance extends AbstractRepository
 
     /**
      * Creates or replace file in the instance (You can also create a directory).
-     *
-     * <br>
      *
      * Here is an example:
      *
