@@ -36,6 +36,7 @@ use App\Modules\Core\RequestInterceptor\InstallerChecker;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\RequestInterceptor\AppAccess;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticatedToCorrectDashboard;
+use App\Modules\Core\RequestInterceptor\RedirectToInstallerOnTonicsNotReady;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait Routes
@@ -47,18 +48,15 @@ trait Routes
     public function routeWeb(Route $route): Route
     {
 
-        # experiment with table layout
-        //$route->get("/table", [DashboardController::class, 'table']);
-
         ## For WEB
         $route->group('/admin', function (Route $route){
 
                     #---------------------------------
                 # INSTALLER...
             #---------------------------------
-            $route->get('installer', [Installer::class, 'showInstallerForm'], requestInterceptor: [InstallerChecker::class]);
+            $route->get('installer', [Installer::class, 'showInstallerForm'], requestInterceptor: [InstallerChecker::class], alias: 'installer');
 
-            $route->group('', function (Route $route){
+            $route->group('', function (Route $route) {
 
                 $route->group('', function (Route $route){
 
@@ -108,7 +106,7 @@ trait Routes
                     $route->post('/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'update');
                 }, alias: 'password');
 
-            }, AuthConfig::getCSRFRequestInterceptor());
+            }, AuthConfig::getCSRFRequestInterceptor([RedirectToInstallerOnTonicsNotReady::class]));
 
         }, alias: 'admin');
 
