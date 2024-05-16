@@ -72,14 +72,14 @@ class InitLoader
      */
     public function BootDaBoot(): void
     {
-        if (AppConfig::isMaintenanceMode()){
+        if (AppConfig::isMaintenanceMode()) {
             die("Temporarily down for schedule maintenance, check back in few minutes");
         }
 
                 #-----------------------------------
             # HEADERS SETTINGS TEST
         #-----------------------------------
-        if (AppConfig::TonicsIsReady()){
+        if (AppConfig::TonicsIsReady()) {
             response()->headers([
                 'Access-Control-Allow-Origin: ' . AppConfig::getAppUrl(),
                 'Access-Control-Allow-Credentials: true',
@@ -92,6 +92,7 @@ class InitLoader
                 'Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
             ]);
         }
+
                 #----------------------------------------------------
             # GATHER ROUTES AND PREPARE FOR PROCESSING
         #---------------------------------------------------

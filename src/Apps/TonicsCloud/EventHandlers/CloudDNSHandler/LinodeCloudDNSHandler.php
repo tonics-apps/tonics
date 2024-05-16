@@ -197,6 +197,14 @@ class LinodeCloudDNSHandler implements HandlerInterface, CloudDNSInterface
      */
     private function getLinodeClient(): LinodeClient
     {
+        return self::LinodeClient();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function LinodeClient(): LinodeClient
+    {
         return new LinodeClient(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeAPIToken));
     }
 

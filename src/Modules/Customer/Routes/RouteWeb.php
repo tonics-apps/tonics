@@ -23,6 +23,7 @@ use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\Authenticated;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticated;
 use App\Modules\Core\RequestInterceptor\RedirectAuthenticatedToCorrectDashboard;
+use App\Modules\Core\RequestInterceptor\RedirectToInstallerOnTonicsNotReady;
 use App\Modules\Customer\Controllers\CustomerAuth\ForgotPasswordController;
 use App\Modules\Customer\Controllers\CustomerAuth\LoginController;
 use App\Modules\Customer\Controllers\CustomerAuth\RegisterController;
@@ -86,7 +87,7 @@ trait RouteWeb
                 $route->get('order/tonicscloud/:slug_id', [OrderController::class, 'tonicsCloudPurchaseDetails'], alias: 'order.tonicscloud.details');
 
             }, [Authenticated::class, RedirectCustomerGuest::class, CustomerAccess::class]);
-        }, AuthConfig::getCSRFRequestInterceptor(),  'customer');
+        }, AuthConfig::getCSRFRequestInterceptor([RedirectToInstallerOnTonicsNotReady::class]),  'customer');
 
         return $route;
     }

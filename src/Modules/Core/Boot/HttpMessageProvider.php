@@ -53,7 +53,14 @@ class HttpMessageProvider implements ServiceProvider
         try {
             $this->getRouter()->dispatchRequestURL();
         } catch (\Exception|\Throwable $e) {
+
             if ($e->getCode() === 404) {
+
+                # Go-To Installer Page if 404 and tonics is not ready
+                if (AppConfig::TonicsIsNotReady()) {
+                    redirect(\route('admin.installer'));
+                }
+
                 $redirect_to = $this->tryURLRedirection();
                 $reURL = url()->getRequestURL();
                 if ($redirect_to === false) {
