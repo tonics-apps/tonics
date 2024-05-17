@@ -18,7 +18,6 @@
 
 namespace App\Apps\TonicsCloud\Database\Migrations;
 
-use App\Apps\TonicsCloud\Schedules\CloudScheduleCheckCredits;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
@@ -52,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     `others` longtext DEFAULT '{}' CHECK (json_valid(`others`)),
     `created_at` timestamp DEFAULT current_timestamp(),
     `updated_at` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    `has_null_end_time` tinyint(1) AS (CASE WHEN `end_time` IS NULL THEN 1 ELSE NULL END) STORED,
+    `has_null_end_time` tinyint(1) AS (IF(`end_time` IS NULL, 1, NULL)) STORED,
     -- a generated column has_null_end_time is added, which stores a value of 1 if the end_time is NULL and NULL otherwise. 
     -- The UNIQUE constraint (`provider_instance_id`, `fk_provider_id`, `has_null_end_time`) ensures, 
     -- that the combination of provider_instance_id, fk_provider_id, and has_null_end_time is unique.

@@ -18,7 +18,7 @@
 
 namespace App\Apps\TonicsCloud\EventHandlers\Fields;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
+use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
@@ -95,7 +95,7 @@ FORM;
         $keyValue = $event->getKeyValueInData($data, $data->inputName);
 
         $foundURLRequiredParam = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
-        $container = ContainerController::getContainer($foundURLRequiredParam[0]);
+        $container = ContainerService::getContainer($foundURLRequiredParam[0]);
 
 
         if (isset($container->service_instance_id)){

@@ -19,7 +19,6 @@
 namespace App\Apps\TonicsCloud\RequestInterceptor;
 
 use App\Apps\TonicsCloud\TonicsCloudActivator;
-use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;

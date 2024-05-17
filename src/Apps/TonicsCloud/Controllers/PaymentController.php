@@ -18,7 +18,6 @@
 
 namespace App\Apps\TonicsCloud\Controllers;
 
-use App\Modules\Payment\Events\AudioTonics\OnAddTrackPaymentEvent;
 use App\Modules\Payment\Events\TonicsCloud\OnAddTonicsCloudPaymentEvent;
 use App\Modules\Payment\Events\TonicsPaymentInterface;
 

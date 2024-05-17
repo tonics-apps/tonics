@@ -18,8 +18,8 @@
 
 namespace App\Apps\TonicsCloud\Jobs\Container;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
 use App\Apps\TonicsCloud\Jobs\Container\Traits\TonicsJobQueueContainerTrait;
+use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
@@ -38,7 +38,7 @@ class CloudJobQueueImportImage extends AbstractJobInterface implements JobHandle
         $containerOthers = json_decode($container->containerOthers);
         $serviceInstanceOthers = json_decode($container->serviceInstanceOthers);
 
-        $client = ContainerController::getIncusClient($serviceInstanceOthers);
+        $client = ContainerService::getIncusClient($serviceInstanceOthers);
 
         if (isset($this->getDataAsArray()['container_image'])) {
             $image = $this->getImageOthers();

@@ -20,13 +20,11 @@ namespace App\Apps\TonicsCloud\Interfaces;
 
 use App\Apps\TonicsCloud\Controllers\InstanceController;
 use App\Apps\TonicsCloud\Events\OnAddCloudServerEvent;
-use App\Apps\TonicsCloud\Jobs\Instance\CloudJobQueueDestroyInstance;
-use App\Apps\TonicsCloud\Jobs\Instance\CloudJobQueueInstanceHasDeleted;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Exception;
 use Throwable;
 
-class CloudServerInterfaceAbstract extends DefaultJobQueuePaths implements HandlerInterface, CloudServerInterface
+abstract class CloudServerInterfaceAbstract extends DefaultJobQueuePaths implements HandlerInterface, CloudServerInterface
 {
 
     public function handleEvent(object $event): void
@@ -35,70 +33,31 @@ class CloudServerInterfaceAbstract extends DefaultJobQueuePaths implements Handl
         $event->addCloudServerHandler($this);
     }
 
-    public function displayName(): string
-    {
-        // TODO: Implement displayName() method.
-    }
+    abstract public function displayName(): string;
 
-    public function name(): string
-    {
-        // TODO: Implement name() method.
-    }
+    abstract public function name(): string;
 
-    public function createInstance(array $data)
-    {
-        // TODO: Implement createInstance() method.
-    }
+    abstract public function createInstance(array $data);
 
-    public function destroyInstance(array $data)
-    {
-        // TODO: Implement destroyInstance() method.
-    }
+    abstract public function destroyInstance(array $data);
 
-    public function resizeInstance(array $data)
-    {
-        // TODO: Implement resizeInstance() method.
-    }
+    abstract public function resizeInstance(array $data);
 
-    public function changeInstanceStatus(array $data)
-    {
-        // TODO: Implement changeInstanceStatus() method.
-    }
+    abstract public function changeInstanceStatus(array $data);
 
-    public function isStatus(array $data, string $statusString): bool
-    {
-        // TODO: Implement isStatus() method.
-    }
+    abstract public function isStatus(array $data, string $statusString): bool;
 
-    public function instanceStatus(array $data): mixed
-    {
-        // TODO: Implement instanceStatus() method.
-    }
+    abstract public function instanceStatus(array $data): mixed;
 
-    public function instance(array $data): mixed
-    {
-        // TODO: Implement instance() method.
-    }
+    abstract public function instance(array $data): mixed;
 
-    public function info(array $data): array
-    {
-        // TODO: Implement info() method.
-    }
+    abstract public function info(array $data): array;
 
-    public function instances(array $data): \Generator
-    {
-        // TODO: Implement instances() method.
-    }
+    abstract public function instances(array $data): \Generator;
 
-    public function regions(): array
-    {
-        // TODO: Implement regions() method.
-    }
+    abstract public function regions(): array;
 
-    public function prices(): array
-    {
-        // TODO: Implement prices() method.
-    }
+    abstract public function prices(): array;
 
     /**
      * @param string $cert

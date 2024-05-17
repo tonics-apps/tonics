@@ -18,7 +18,7 @@
 
 namespace App\Apps\TonicsCloud\Database\Migrations;
 
-use App\Apps\TonicsCloud\Controllers\AppController;
+use App\Apps\TonicsCloud\Services\AppService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\Migration;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
    UNIQUE KEY (`app_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-            AppController::UPDATE_DEFAULT_APPS();
+            AppService::UPDATE_DEFAULT_APPS();
         });
 
 

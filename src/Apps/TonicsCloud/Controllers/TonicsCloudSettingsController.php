@@ -23,7 +23,6 @@ use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Core\RequestInterceptor\RefreshTreeSystem;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;

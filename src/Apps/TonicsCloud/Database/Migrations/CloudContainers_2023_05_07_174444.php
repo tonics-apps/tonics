@@ -20,7 +20,6 @@ namespace App\Apps\TonicsCloud\Database\Migrations;
 
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\Migration;
-use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CloudContainers_2023_05_07_174444 extends Migration {

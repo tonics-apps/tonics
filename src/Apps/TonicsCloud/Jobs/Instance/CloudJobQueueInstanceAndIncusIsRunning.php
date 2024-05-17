@@ -18,11 +18,9 @@
 
 namespace App\Apps\TonicsCloud\Jobs\Instance;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
-use App\Apps\TonicsCloud\Controllers\TonicsCloudSettingsController;
 use App\Apps\TonicsCloud\Interfaces\CloudServerInterface;
 use App\Apps\TonicsCloud\Jobs\Instance\Traits\TonicsJobQueueInstanceTrait;
-use App\Apps\TonicsCloud\TonicsCloudActivator;
+use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
@@ -70,7 +68,7 @@ class CloudJobQueueInstanceAndIncusIsRunning extends AbstractJobInterface implem
             try {
 
                 $serviceInstanceOthers = $this->getServiceInstanceOthers($this->getServiceInstance());
-                $client = ContainerController::getIncusClient($serviceInstanceOthers);
+                $client = ContainerService::getIncusClient($serviceInstanceOthers);
                 $client->setTimeout(100)->server()->environment();
 
             } catch (Exception $exception) {

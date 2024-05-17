@@ -26,7 +26,6 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\MailConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumnRepeater;
