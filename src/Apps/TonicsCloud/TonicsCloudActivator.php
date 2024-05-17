@@ -321,7 +321,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name" => "TonicsCloud",
             "type" => "App", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1715706022',
+            "version" => '1-O-app.1715951400',
             "description" => "This is TonicsCloud",
             "info_url" => '',
             "settings_page" => route('tonicsCloud.settings'), // can be null or a route name

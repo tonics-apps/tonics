@@ -18,7 +18,6 @@
 
 namespace App\Modules\Customer;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Customer\Routes\RouteWeb;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -80,7 +79,7 @@ class CustomerActivator implements ExtensionConfig
             "name" => "Customer",
             "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714917517',
+            "version" => '1-O-Ola.1715951400',
             // "version" => '1-O-Ola.943905600', // fake old date
             "description" => "The Customer Module",
             "info_url" => '',
