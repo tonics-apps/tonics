@@ -22,7 +22,6 @@ use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Payment\Library\TonicsCloudHelper;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class BillingController

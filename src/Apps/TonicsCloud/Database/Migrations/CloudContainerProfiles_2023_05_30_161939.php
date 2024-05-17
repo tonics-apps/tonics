@@ -18,7 +18,7 @@
 
 namespace App\Apps\TonicsCloud\Database\Migrations;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
+use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\Migration;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
   UNIQUE KEY (`container_profile_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-            $db->Q()->insertOnDuplicate($this->tableName(), ContainerController::DEFAULT_PROFILES(), ['container_profile_description', 'others']);
+            $db->Q()->insertOnDuplicate($this->tableName(), ContainerService::DEFAULT_PROFILES(), ['container_profile_description', 'others']);
         });
     }
 

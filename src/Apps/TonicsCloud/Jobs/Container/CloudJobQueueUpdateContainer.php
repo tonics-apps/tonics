@@ -19,13 +19,10 @@
 namespace App\Apps\TonicsCloud\Jobs\Container;
 
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
 use App\Apps\TonicsCloud\Jobs\Container\Traits\TonicsJobQueueContainerTrait;
-use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
-use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CloudJobQueueUpdateContainer extends AbstractJobInterface implements JobHandlerInterface
 {

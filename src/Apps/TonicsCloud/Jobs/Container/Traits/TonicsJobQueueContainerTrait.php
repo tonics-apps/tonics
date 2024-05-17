@@ -20,6 +20,7 @@ namespace App\Apps\TonicsCloud\Jobs\Container\Traits;
 
 use App\Apps\TonicsCloud\Controllers\ContainerController;
 use App\Apps\TonicsCloud\Library\Incus\Client;
+use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
@@ -61,7 +62,7 @@ trait TonicsJobQueueContainerTrait
 
         $containerID = $this->getContainerID() ?? $this->getContainerUniqueSlugID();
         $col = (!empty($this->getContainerID())) ? 'container_id' : 'slug_id';
-        $container = ContainerController::getContainer($containerID, false, $col);
+        $container = ContainerService::getContainer($containerID, false, $col);
         if (empty($container)){
             throw new \Exception("An Error Occurred While Trying To Get Container For Creation");
         }
@@ -167,7 +168,7 @@ trait TonicsJobQueueContainerTrait
     {
         $slugID = ContainerController::getIncusContainerName($this->getDataAsArray()['container_unique_slug_id']) ?? '';
         if (empty($slugID)){
-            $data = ContainerController::getContainer($this->getContainerID(), false);
+            $data = ContainerService::getContainer($this->getContainerID(), false);
             return $data?->slug_id;
         } else {
             return $slugID;
@@ -263,15 +264,16 @@ trait TonicsJobQueueContainerTrait
      */
     public function getProfiles(array $profileIDS): bool|array|null
     {
-        return ContainerController::getProfiles($profileIDS);
+        return ContainerService::getProfiles($profileIDS);
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function getIncusClient(): Client
     {
         $serviceInstanceOthers = json_decode($this->getContainer()?->serviceInstanceOthers);
-        return ContainerController::getIncusClient($serviceInstanceOthers);
+        return ContainerService::getIncusClient($serviceInstanceOthers);
     }
 }

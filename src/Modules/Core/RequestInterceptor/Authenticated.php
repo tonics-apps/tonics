@@ -38,6 +38,7 @@ class Authenticated implements TonicsRouterRequestInterceptorInterface
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handle(OnRequestProcess $request): void
     {
@@ -48,6 +49,7 @@ class Authenticated implements TonicsRouterRequestInterceptorInterface
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public static function handleUnAuthenticated()
     {

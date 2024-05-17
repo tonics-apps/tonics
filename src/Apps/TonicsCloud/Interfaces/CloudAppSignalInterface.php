@@ -18,9 +18,6 @@
 
 namespace App\Apps\TonicsCloud\Interfaces;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
-use App\Apps\TonicsCloud\Library\Incus\Client;
-
 interface CloudAppSignalInterface
 {
     const STATUS_STOPPED = 'STATUS_STOPPED';

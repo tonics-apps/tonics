@@ -5,6 +5,11 @@
 
 [[hook_into('Core::form_action')/customer/tonics_cloud/containers/[[v('ContainerID')]]/apps/[[v('App.app_id')]]/update]]
 
+[[hook_into('Core::before_form_section')
+    <input type="hidden" name="app_id" value="[[v('App.app_id')]]">
+    <input type="hidden" name="container_id" value="[[v('ContainerID')]]">
+]]
+
 [[hook_into('Core::before_footer')
     [[_use("script:post")]]
     [[_use("session:delete-artifacts")]]

@@ -29,6 +29,7 @@ class CloudJobQueueStopContainer extends AbstractJobInterface implements JobHand
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handle(): void
     {
@@ -42,7 +43,7 @@ class CloudJobQueueStopContainer extends AbstractJobInterface implements JobHand
             $this->updateContainerStatus('Stopping Container');
             $waitResponse = $client->operations()->wait($response->operation, 25);
 
-            if (isset($waitResponse->metadata->err) && $waitResponse->metadata->err === 'The instance is already stopped'){
+            if (isset($waitResponse->metadata->err) && str_contains( $waitResponse->metadata->err, 'is already stopped')){
                 return;
             }
 
@@ -56,6 +57,10 @@ class CloudJobQueueStopContainer extends AbstractJobInterface implements JobHand
             if ($client->errorMessage() === "Instance not found"){
                 return;
             }
+        }
+
+        if (str_contains($client->errorMessage(), 'is already stopped')) {
+            return;
         }
 
         $this->logInfoMessage($client);

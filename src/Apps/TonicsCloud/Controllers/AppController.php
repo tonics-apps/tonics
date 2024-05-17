@@ -18,22 +18,8 @@
 
 namespace App\Apps\TonicsCloud\Controllers;
 
-use App\Apps\TonicsCloud\Apps\TonicsCloudACME;
-use App\Apps\TonicsCloud\Apps\TonicsCloudENV;
-use App\Apps\TonicsCloud\Apps\TonicsCloudHaraka;
-use App\Apps\TonicsCloud\Apps\TonicsCloudMariaDB;
-use App\Apps\TonicsCloud\Apps\TonicsCloudNginx;
-use App\Apps\TonicsCloud\Apps\TonicsCloudPHP;
-use App\Apps\TonicsCloud\Apps\TonicsCloudScript;
-use App\Apps\TonicsCloud\Apps\TonicsCloudUnZip;
-use App\Apps\TonicsCloud\Interfaces\CloudAppInterface;
-use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueAppHasStopped;
-use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueAppIsRunning;
-use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueReloadApp;
-use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueStartApp;
-use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueStopApp;
-use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueUpdateAppSettings;
-use App\Apps\TonicsCloud\Jobs\Container\CloudJobQueueContainerIsRunning;
+use App\Apps\TonicsCloud\Services\AppService;
+use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
@@ -47,15 +33,18 @@ class AppController
 
     private FieldData $fieldData;
     private AbstractDataLayer $abstractDataLayer;
+    private AppService $appService;
 
     /**
      * @param FieldData $fieldData
      * @param AbstractDataLayer $abstractDataLayer
+     * @param AppService $appService
      */
-    public function __construct(FieldData $fieldData, AbstractDataLayer $abstractDataLayer)
+    public function __construct(FieldData $fieldData, AbstractDataLayer $abstractDataLayer, AppService $appService)
     {
         $this->fieldData = $fieldData;
         $this->abstractDataLayer = $abstractDataLayer;
+        $this->appService = $appService;
     }
 
     /**
@@ -112,7 +101,7 @@ class AppController
                 'containerID' => $containerID,
                 'dataTableType' => 'TONICS_CLOUD',
             ],
-            'ContainerData' => ContainerController::getContainer($containerID),
+            'ContainerData' => ContainerService::getContainer($containerID),
             'SiteURL' => AppConfig::getAppUrl(),
         ]);
     }
@@ -130,11 +119,11 @@ class AppController
             })) {
             response()->onSuccess([], "App Deletion is Not Supported At The Moment", more: AbstractDataLayer::DataTableEventTypeDelete);
             return;
-            if ($this->deleteMultiple($entityBag, $containerID)) {
+            /*if ($this->deleteMultiple($entityBag, $containerID)) {
                 response()->onSuccess([], "Records Deletion Enqueued", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
                 response()->onError(500);
-            }
+            }*/
         } elseif ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
@@ -153,8 +142,8 @@ class AppController
      */
     public function edit($containerID, $appID): void
     {
-        $app = self::getApp($appID);
-        $container = ContainerController::getContainer($containerID);
+        $app = AppService::getApp($appID);
+        $container = ContainerService::getContainer($containerID);
 
         db(onGetDB: function (TonicsQuery $db) use ($appID, $containerID, &$appRow) {
             $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS_TO_CONTAINERS);
@@ -200,56 +189,13 @@ class AppController
      */
     public function update($containerID, $appID): void
     {
-        $container = ContainerController::getContainer($containerID);
-        $containerOthers = json_decode($container->containerOthers);
-        $app = self::getApp($appID);
-        $data = json_decode($app->others);
-        if (isset($data->class) && is_a($data->class, CloudAppInterface::class, true)) {
-            $fieldDetails = input()->fromPost()->retrieve('_fieldDetails');
-            /** @var CloudAppInterface $jobObject */
-            $jobObject = container()->get($data->class);
-            $jobObject->setFields(json_decode($fieldDetails));
-            $jobObject->setContainerReplaceableVariables($containerOthers->container_variables ?? []);
-            $jobData = [
-                'update_status' => false,
-                'container_id' => $containerID,
-                'container_variables' => $containerOthers->container_variables,
-                'container_unique_slug_id' => $container->slug_id,
-                'app_id' => $appID,
-                'incus_container_name' => ContainerController::getIncusContainerName($container->slug_id),
-                'app_class' => $data->class,
-                'postFlight' => $jobObject->prepareForFlight($jobObject->getFields())
-            ];
-
-            $jobs = [
-                [
-                    'job' => new CloudJobQueueAppIsRunning(),
-                    'children' => [
-                        [
-                            'job' => new CloudJobQueueUpdateAppSettings(),
-                            'children' => [
-                                ['job' => new CloudJobQueueReloadApp()]
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-
-            db(onGetDB: function (TonicsQuery $db) use ($jobObject, $fieldDetails, $appID, $containerID) {
-                $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS_TO_CONTAINERS);
-                $db->Update($table)
-                    ->Set('others', json_encode(['fieldData' => $jobObject->getFieldsToString()]))
-                    ->WhereEquals('fk_container_id', $containerID)
-                    ->WhereEquals('fk_app_id', $appID)
-                    ->Exec();
-            });
-
-            TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
-            session()->flash(['App Changes Enqueued'], [], Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('tonicsCloud.containers.apps.edit', [$containerID, $appID]));
-        } else {
-            throw new \Exception("Class Should Be An Instance of CloudAppInterface");
+        $this->appService->updateApp(input()->fromPost()->all());
+        if ($this->appService->fails()) {
+            session()->flash($this->appService->getErrors(), input()->fromPost()->all());
+        }  else {
+            session()->flash([$this->appService->getMessage()], [], Session::SessionCategories_FlashMessageSuccess);
         }
+        redirect($this->appService->getRedirectsRoute());
     }
 
     /**
@@ -260,7 +206,7 @@ class AppController
      */
     public function updateMultiple($entityBag, $containerID): bool
     {
-        $container = ContainerController::getContainer($containerID);
+        $container = ContainerService::getContainer($containerID);
         $updateItems = $this->getAbstractDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
         foreach ($updateItems as $update) {
             $update = (array)$update;
@@ -270,94 +216,15 @@ class AppController
             $status = $update[$prefix . 'app_status_action'] ?? '';
 
 
-            $app = self::getApp($appID);
-            $data = json_decode($app->others);
-
-            if ($container && $app){
-                if ($currentStatus === 'Running' && $status === 'Start'){
-                    continue;
-                }
-
-                $jobData = [
-                    'update_status' => false,
-                    'container_id' => $containerID,
-                    'app_id' => $appID,
-                    'container_unique_slug_id' => $container->slug_id,
-                    'incus_container_name' => ContainerController::getIncusContainerName($container->slug_id),
-                    'app_class' => $data->class,
-                ];
-
-                if ($status === 'Start'){
-                    $jobs = [
-                        [
-                            'job' => new CloudJobQueueStartApp(),
-                            'children' => [
-                                [
-                                    'job' => new CloudJobQueueAppIsRunning()
-                                ]
-                            ]
-                        ]
-                    ];
-
-                    TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
-                }
-
-                if ($status === 'ShutDown'){
-                    $jobs = [
-                        [
-                            'job' => new CloudJobQueueStopApp(),
-                            'children' => [
-                                [
-                                    'job' => new CloudJobQueueAppHasStopped()
-                                ]
-                            ]
-                        ]
-                    ];
-
-                    TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
-                }
-
-                if ($status === 'Reboot'){
-                    $jobs = [
-                        [
-                            'job' => new CloudJobQueueStopApp(),
-                            'children' => [
-                                [
-                                    'job' => new CloudJobQueueAppHasStopped(),
-                                    'children' => [
-                                        [
-                                            'job' => new CloudJobQueueStartApp(),
-                                            'children' => [
-                                                [ 'job' => new CloudJobQueueAppIsRunning() ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ];
-
-                    TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
-                }
-
+            $app = AppService::getApp($appID);
+            if (!empty($app)) {
+                $app->app_status = $currentStatus;
             }
+            $this->appService->updateAppStatus($container, $app, $status);
+
 
         }
         return true;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public static function getApp($appID)
-    {
-        $app = null;
-        db(onGetDB: function (TonicsQuery $db) use ($appID, &$app){
-            $appTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS);
-            $app = $db->Select('*')->From($appTable)->WhereEquals('app_id', $appID)->FetchFirst();
-        });
-
-        return $app;
     }
 
 
@@ -385,74 +252,15 @@ class AppController
         $this->fieldData = $fieldData;
     }
 
-
-    public static function DEFAULT_APPS(): array
-    {
-        $defaultConfigField = 'app-tonicscloud-app-config-default';
-
-        return [
-            [
-                'app_name' => 'ACME',
-                'app_description' => 'ACME(Automatically Issue and Renew Certificates), Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-acme", 'class' => TonicsCloudACME::class])
-            ],
-            [
-                'app_name' => 'ENV',
-                'app_description' => 'Generates ENV for common framework, Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-env", 'class' => TonicsCloudENV::class])
-            ],
-            [
-                'app_name' => 'Nginx',
-                'app_description' => 'Nginx, Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-nginx", 'class' => TonicsCloudNginx::class])
-            ],
-            [
-                'app_name' => 'PHP',
-                'app_description' => 'PHP, Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-php", 'class' => TonicsCloudPHP::class])
-            ],
-            [
-                'app_name' => 'UnZip',
-                'app_description' => 'UnZip, Provided By Tonics',
-                'others' => json_encode(['field' => 'app-tonicscloud-app-config-upload-unzip', 'class' => TonicsCloudUnZip::class])
-            ],
-            [
-                'app_name' => 'MariaDB',
-                'app_description' => 'MariaDB, Provided By Tonics',
-                'others' => json_encode(['field' => 'app-tonicscloud-app-config-mysql', 'class' => TonicsCloudMariaDB::class])
-            ],
-            [
-                'app_name' => 'Haraka',
-                'app_description' => 'Haraka, Provided By Tonics',
-                'others' => json_encode(['field' => $defaultConfigField, 'class' => TonicsCloudHaraka::class])
-            ],
-            [
-                'app_name' => 'Script',
-                'app_description' => 'Script(Deployment Bash Script), Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-script", 'class' => TonicsCloudScript::class])
-            ],
-        ];
-    }
-
     /**
      * @throws \Exception
      * @throws \Throwable
      */
     #[NoReturn] public function UpdateDefaultApps(): void
     {
-        self::UPDATE_DEFAULT_APPS();
+        AppService::UPDATE_DEFAULT_APPS();
         session()->flash(['App Settings Refreshed'], [], Session::SessionCategories_FlashMessageSuccess);
         redirect(route('tonicsCloud.admin.images.index'));
     }
 
-    /**
-     * @return void
-     * @throws \Exception
-     */
-    public static function UPDATE_DEFAULT_APPS(): void
-    {
-        db(onGetDB: function ($db){
-            $db->insertOnDuplicate(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS), self::DEFAULT_APPS(), ['app_description', 'others']);
-        });
-    }
 }

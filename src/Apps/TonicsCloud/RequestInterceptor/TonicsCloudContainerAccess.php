@@ -18,7 +18,7 @@
 
 namespace App\Apps\TonicsCloud\RequestInterceptor;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
+use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Modules\Core\Library\SimpleState;
 use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
@@ -34,7 +34,7 @@ class TonicsCloudContainerAccess implements TonicsRouterRequestInterceptorInterf
         $foundURLRequiredParam = $request->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
         $containerID = $foundURLRequiredParam[0];
 
-        $container = ContainerController::getContainer($containerID);
+        $container = ContainerService::getContainer($containerID);
         # If isset, then customer has access, we return, otherwise, we display UnauthorizedErrorMessage
         if (isset($container->container_id)){
             return;

@@ -18,8 +18,8 @@
 
 namespace App\Apps\TonicsCloud\Interfaces;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
 use App\Apps\TonicsCloud\Library\Incus\Client;
+use App\Apps\TonicsCloud\Services\ContainerService;
 
 abstract class CloudAppInterface
 {
@@ -97,12 +97,12 @@ abstract class CloudAppInterface
      */
     public function client(int $containerID = null): Client
     {
-        $container = ContainerController::getContainer($this->getContainerID(), false);
+        $container = ContainerService::getContainer($this->getContainerID(), false);
         if (empty($container)) {
             throw new \Exception("An Error Occurred While Trying To Get Container");
         }
 
-        return ContainerController::getIncusClient(json_decode($container?->serviceInstanceOthers));
+        return ContainerService::getIncusClient(json_decode($container?->serviceInstanceOthers));
     }
 
     /**

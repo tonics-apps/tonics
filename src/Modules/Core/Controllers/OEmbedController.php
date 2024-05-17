@@ -25,6 +25,7 @@ class OEmbedController
 {
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function OEmbed()
     {

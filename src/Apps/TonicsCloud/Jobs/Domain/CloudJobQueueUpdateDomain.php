@@ -19,10 +19,8 @@
 namespace App\Apps\TonicsCloud\Jobs\Domain;
 
 use App\Apps\TonicsCloud\Jobs\Domain\Traits\TonicsJobQueueDomainTrait;
-use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
-use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CloudJobQueueUpdateDomain extends AbstractJobInterface implements JobHandlerInterface
 {
