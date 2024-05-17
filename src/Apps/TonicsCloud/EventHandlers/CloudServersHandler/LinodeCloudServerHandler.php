@@ -85,8 +85,6 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
         $deploymentOption = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeDeploymentOption);
         $certs = IncusHelper::generateCertificateEncrypted();
 
-
-
         if ($deploymentOption === 'StackScript') {
 
             $stackScriptMode = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeStackScriptMode);
@@ -174,14 +172,19 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
                     db()->Q()->WhereEquals('provider_instance_id', $providerInstanceID)->WhereNull('end_time'));
 
                 # Create a new one with the same property somewhat
-                $db->Q()->Insert($serviceInstanceTable, [
+                $insertedInstance = $db->Q()->InsertReturning($serviceInstanceTable, [
                         'provider_instance_id' => $providerInstanceID, 'service_instance_name' => $instanceName,
                         'service_instance_status' => 'Resizing',
                         'fk_service_id' => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
                         'fk_customer_id' => $customerID,
                         'others' => $serviceInstance->others,
-                    ]
+                    ], ['service_instance_id'], 'service_instance_id'
                 );
+
+                $containerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINERS);
+                $db->Q()->FastUpdate($containerTable, ['service_instance_id' => $insertedInstance->service_instance_id],
+                    db()->Q()->WhereEquals('service_instance_id', $serviceInstance->service_instance_id));
+
                 $client = $this->getLinodeClient();
                 $client->linodes->resizeLinodeInstance($providerInstanceID, ['type' =>  $service->service_name]);
                 $db->commit();
