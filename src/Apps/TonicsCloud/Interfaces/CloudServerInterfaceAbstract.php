@@ -155,6 +155,35 @@ incus config trust add-certificate incus-client-cert.txt
 # Remove the preseed file and the client cert file
 rm incus-preseed.yaml incus-client-cert.txt
 
+# Function to create the SystemD services
+systemdServices() {
+    cat <<'EOF' > /etc/systemd/system/auto-run-scripts.service
+[Unit]
+Description=Auto Run Scripts Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'mkdir -p /root/scripts && cd /root/scripts && if [ "$(ls -A)" ]; then for script in *; do [ -f "\$script" ] && /bin/bash "\$script"; done && rm -f *; else exit 0; fi'
+Restart=always
+RestartSec=60s
+SyslogIdentifier=auto-run-scripts
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+
+# Auto script for tc-agent
+systemctl start auto-run-scripts && systemctl enable auto-run-scripts
+
+# Add the tc-agent container
+incus launch images:alpine/3.19/amd64 tc-agent
+}
+
+systemdServices
+
 INCUS;
 
         $script = <<<'RAW'
