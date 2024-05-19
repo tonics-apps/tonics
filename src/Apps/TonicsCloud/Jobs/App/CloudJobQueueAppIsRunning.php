@@ -47,7 +47,9 @@ class CloudJobQueueAppIsRunning extends AbstractJobInterface implements JobHandl
                 }
             }
         } catch (\Throwable $throwable){
-            $this->updateStatusMessage($throwable->getMessage());
+            $this->updateStatusMessage($throwable->getMessage(), function (TonicsQuery $db){
+                $db->Set('app_status', 'Error');
+            });
             throw $throwable;
         }
 
