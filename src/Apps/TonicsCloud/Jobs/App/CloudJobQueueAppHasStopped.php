@@ -41,7 +41,9 @@ class CloudJobQueueAppHasStopped extends AbstractJobInterface implements JobHand
                     $db->Set('app_status', 'Offline');
                 });
             } else {
-                $this->updateStatusMessage("The check for application stopped returns negative");
+                $this->updateStatusMessage("The check for application stopped returns negative", function (TonicsQuery $db){
+                    $db->Set('app_status', 'Error');
+                });
             }
         }
     }

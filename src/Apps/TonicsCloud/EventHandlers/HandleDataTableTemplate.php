@@ -46,7 +46,7 @@ class HandleDataTableTemplate implements HandlerInterface
                     $currentVarKeyName === 'dtRow.container_status'){
                     if (strtolower($data) === 'running'){
                         $data = "<div class='d:flex align-items:center'><div class='dataTable-status dataTable-status-started'></div>$data</div>";
-                    } elseif (strtolower($data) === 'stopped'){
+                    } elseif (strtolower($data) === 'stopped' || strtolower($data) === 'error'){
                         $data = "<div class='d:flex align-items:center'><div class='dataTable-status dataTable-status-stopped'></div>$data</div>";
                     } elseif (strtolower($data) === 'offline'){
                         $data = "<div class='d:flex align-items:center'><div class='dataTable-status dataTable-status-info'></div>$data</div>";

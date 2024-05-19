@@ -81,7 +81,14 @@ class AppService extends AbstractService
                         [
                             'job' => new CloudJobQueueUpdateAppSettings(),
                             'children' => [
-                                ['job' => new CloudJobQueueReloadApp()]
+                                [
+                                    'job' => new CloudJobQueueReloadApp(),
+                                    'children' => [
+                                        [
+                                            'job' => new CloudJobQueueAppIsRunning()
+                                        ],
+                                    ]
+                                ]
                             ]
                         ]
                     ]

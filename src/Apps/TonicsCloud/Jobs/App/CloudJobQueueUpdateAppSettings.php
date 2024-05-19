@@ -21,6 +21,7 @@ namespace App\Apps\TonicsCloud\Jobs\App;
 use App\Apps\TonicsCloud\Jobs\App\Traits\TonicsJobQueueAppTrait;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class CloudJobQueueUpdateAppSettings extends AbstractJobInterface implements JobHandlerInterface
 {
@@ -34,10 +35,18 @@ class CloudJobQueueUpdateAppSettings extends AbstractJobInterface implements Job
     public function handle(): void
     {
         try {
+
+            $this->updateStatusMessage("Updating Settings", function (TonicsQuery $db){
+                $db->Set('app_status', 'Processing');
+            });
+
             $this->appObject()->updateSettings();
             $this->updateStatusMessage("Settings Updated Successfully");
+
         } catch (\Throwable $throwable){
-            $this->updateStatusMessage($throwable->getMessage());
+            $this->updateStatusMessage($throwable->getMessage(), function (TonicsQuery $db){
+                $db->Set('app_status', 'Error');
+            });
             throw $throwable;
         }
     }
