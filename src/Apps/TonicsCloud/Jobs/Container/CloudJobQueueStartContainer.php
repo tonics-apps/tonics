@@ -29,6 +29,7 @@ class CloudJobQueueStartContainer extends AbstractJobInterface implements JobHan
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handle(): void
     {
