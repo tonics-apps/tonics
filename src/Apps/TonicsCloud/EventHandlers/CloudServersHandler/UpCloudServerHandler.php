@@ -106,8 +106,9 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
         $loginUser->setSshKeys($serverSshKey);
         $loginUser->setCreatePassword('no');
 
+        $serverUniqueName = 'tc-uc-' . helper()->randString(15);
         $server = new Server();
-        $server->setTitle($instanceName);
+        $server->setTitle($serverUniqueName);
         $server->setZone($cloudRegion);
         $server->setPlan($servicePlanKey);
         $server->setHostname('tonics-cloud');

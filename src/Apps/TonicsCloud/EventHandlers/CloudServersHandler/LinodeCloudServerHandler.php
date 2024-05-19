@@ -114,6 +114,7 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
             ];
 
             $parameters[Linode::FIELD_IMAGE] = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeImage);
+            $parameters[Linode::FIELD_LABEL] = 'tc-li-' . helper()->randString(15);
 
         }
 

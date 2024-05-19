@@ -259,8 +259,8 @@ class Instance extends AbstractRepository
      *
      *  Here is an example:
      * ```
-     * $client->instances()->changeState([
-     *  "action" => "start", // not optional, it can be one of: state, stop, restart
+     * $client->instances()->changeState('container-name', [
+     *  "action" => "start", // not optional, it can be one of: start, stop, restart
      *  "force" => false, // optional
      *  "stateful" => false, // optional
      *  "timeout" => 30, // optional
