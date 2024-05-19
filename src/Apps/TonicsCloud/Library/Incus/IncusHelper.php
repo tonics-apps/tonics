@@ -18,8 +18,6 @@
 
 namespace App\Apps\TonicsCloud\Library\Incus;
 
-use Defuse\Crypto\Exception\BadFormatException;
-use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
 use Exception;
 
 class IncusHelper
@@ -40,7 +38,7 @@ class IncusHelper
             throw new Exception('OpenSSL functions are not available on this system.');
         }
 
-        $days = $config['days'] ?? 365;
+        $days = $config['days'] ?? 3650;
         $dn = [
             "countryName"            => "NG",
             "stateOrProvinceName"    => "Isle Of Wight",
