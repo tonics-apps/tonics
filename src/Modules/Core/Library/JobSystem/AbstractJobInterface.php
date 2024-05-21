@@ -168,7 +168,7 @@ class AbstractJobInterface
         foreach ($jobs as $job) {
             /** @var AbstractJobInterface $job */
             if (!isset($job['job'])){
-                throw new \Exception("The job property/key is missing");
+                continue;
             }
 
             if (!($job['job'] instanceof AbstractJobInterface)){
