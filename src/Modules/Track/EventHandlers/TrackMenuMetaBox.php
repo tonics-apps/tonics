@@ -29,9 +29,9 @@ class TrackMenuMetaBox implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        $trackData = new TrackData();
+        $trackData = container()->get(TrackData::class);
         $paginationInfo = $trackData->generatePaginationData(
             $trackData->getTrackPaginationColumns(),
             'track_title',
@@ -41,8 +41,8 @@ class TrackMenuMetaBox implements HandlerInterface
         $event->addMenuBox('Tracks', '', $paginationInfo,
             function () use ($paginationInfo, $event) {
                 return $event->moreMenuItems('Tracks', $paginationInfo);
-            }, dataCondition: function ($data){
-                if (isset($data->track_status) && $data->track_status < 0){
+            }, dataCondition: function ($data) {
+                if (isset($data->track_status) && $data->track_status < 0) {
                     return false;
                 }
                 return true;

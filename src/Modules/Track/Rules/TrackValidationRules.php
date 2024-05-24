@@ -22,135 +22,96 @@ use App\Modules\Core\Library\Tables;
 
 trait TrackValidationRules
 {
+
     /**
      * @throws \Exception
      */
-    public function licenseStoreRule(): array
+    public function artistStoreRule (): array
     {
-        $uniqueSlug = Tables::getTable(Tables::LICENSES) .':license_slug';
+        $slugUnique = Tables::getTable(Tables::ARTISTS) . ':artist_slug';
         return [
-            'license_name' => ['required', 'string'],
-            'license_slug' => ['required', 'string', 'unique' => [
-                $uniqueSlug => input()->fromPost()->retrieve('license_slug', '')]
+            'artist_name' => ['required', 'string'],
+            'artist_bio'  => ['string'],
+            'artist_slug' => [
+                'required', 'string', 'unique' => [
+                    $slugUnique => input()->fromPost()->retrieve('artist_slug', ''),
+                ],
             ],
+            'image_url'   => ['string'],
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function licenseUpdateRule(): array
+    public function artistUpdateRule (): array
     {
-        $widgetUniqueSlug = Tables::getTable(Tables::LICENSES) .':license_slug:license_id';
+        $slugUnique = Tables::getTable(Tables::ARTISTS) . ':artist_slug:artist_id';
         return [
-            'license_name' => ['required', 'string'],
-            'license_slug' => ['required', 'string', 'unique' => [
-                $widgetUniqueSlug => input()->fromPost()->retrieve('license_id', '')]
+            'artist_name' => ['required', 'string'],
+            'artist_bio'  => ['string'],
+            'artist_slug' => [
+                'required', 'string', 'unique' => [
+                    $slugUnique => input()->fromPost()->retrieve('artist_id', ''),
+                ],
             ],
+            'image_url'   => ['string'],
         ];
     }
 
     /**
      * @return \string[][]
      */
-    public function licenseUpdateMultipleRule(): array
+    public function artistUpdateMultipleRule (): array
     {
         return [
-            'license_id' => ['numeric'],
-            'license_name' => ['required', 'string'],
-            'updated_at' => ['required', 'string'],
-        ];
-    }
-
-    public function licenseItemsStoreRule(): array
-    {
-        return [
-            'licenseSlug' => ['required', 'string'],
-            'licenseDetails' => ['required', 'string'],
+            'artist_id'   => ['numeric'],
+            'artist_name' => ['required', 'string'],
+            'updated_at'  => ['required', 'string'],
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function artistStoreRule(): array
+    public function genreStoreRule (): array
     {
-        $slugUnique = Tables::getTable(Tables::ARTISTS) .':artist_slug';
+        $slugUnique = Tables::getTable(Tables::GENRES) . ':genre_slug';
         return [
-            'artist_name' => ['required', 'string'],
-            'artist_bio' => ['string'],
-            'artist_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('artist_slug', '')]
-            ],
-            'image_url' => ['string']
-        ];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function artistUpdateRule(): array
-    {
-        $slugUnique = Tables::getTable(Tables::ARTISTS) .':artist_slug:artist_id';
-        return [
-            'artist_name' => ['required', 'string'],
-            'artist_bio' => ['string'],
-            'artist_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('artist_id', '')]
-            ],
-            'image_url' => ['string']
-        ];
-    }
-
-    /**
-     * @return \string[][]
-     */
-    public function artistUpdateMultipleRule(): array
-    {
-        return [
-            'artist_id' => ['numeric'],
-            'artist_name' => ['required', 'string'],
-            'updated_at' => ['required', 'string'],
-        ];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function genreStoreRule(): array
-    {
-        $slugUnique = Tables::getTable(Tables::GENRES) .':genre_slug';
-        return [
-            'genre_name' => ['required', 'string'],
+            'genre_name'        => ['required', 'string'],
             'genre_description' => ['string'],
-            'genre_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('genre_slug', '')]
-            ]
+            'genre_slug'        => [
+                'required', 'string', 'unique' => [
+                    $slugUnique => input()->fromPost()->retrieve('genre_slug', ''),
+                ],
+            ],
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function genreUpdateRule(): array
+    public function genreUpdateRule (): array
     {
-        $slugUnique = Tables::getTable(Tables::GENRES) .':genre_slug:genre_id';
+        $slugUnique = Tables::getTable(Tables::GENRES) . ':genre_slug:genre_id';
         return [
-            'genre_name' => ['required', 'string'],
+            'genre_name'        => ['required', 'string'],
             'genre_description' => ['string'],
-            'genre_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('genre_id', '')]
-            ]
+            'genre_slug'        => [
+                'required', 'string', 'unique' => [
+                    $slugUnique => input()->fromPost()->retrieve('genre_id', ''),
+                ],
+            ],
         ];
     }
 
     /**
      * @return \string[][]
      */
-    public function genreUpdateMultipleRule(): array
+    public function genreUpdateMultipleRule (): array
     {
         return [
-            'genre_id' => ['numeric'],
+            'genre_id'   => ['numeric'],
             'genre_name' => ['required', 'string'],
             'updated_at' => ['required', 'string'],
         ];
@@ -159,24 +120,26 @@ trait TrackValidationRules
     /**
      * @throws \Exception
      */
-    public function trackStoreRule(): array
+    public function trackStoreRule (): array
     {
-        $slugUnique = Tables::getTable(Tables::TRACKS) .':track_slug';
+        $slugUnique = Tables::getTable(Tables::TRACKS) . ':track_slug';
         return [
-            'track_title' => ['required', 'string'],
+            'track_title'   => ['required', 'string'],
             'track_content' => ['string'],
-            'track_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('track_slug', '')]
+            'track_slug'    => [
+                'required', 'string', 'unique' => [
+                    $slugUnique => input()->fromPost()->retrieve('track_slug', ''),
+                ],
             ],
 
-            'fk_genre_id' => ['required', 'array'],
+            'fk_genre_id'     => ['required', 'array'],
             'fk_track_cat_id' => ['array'],
 
-            'fk_license_id' => ['required', 'numeric'],
-            'fk_artist_id' => ['required', 'numeric'],
-            'created_at' => ['required', 'string'],
-            'image_url' => ['string'],
-            'audio_url' => ['string'],
+            'fk_license_id'        => ['required', 'numeric'],
+            'fk_artist_id'         => ['required', 'numeric'],
+            'created_at'           => ['required', 'string'],
+            'image_url'            => ['string'],
+            'audio_url'            => ['string'],
             'license_attr_id_link' => ['required', 'string'],
         ];
     }
@@ -184,21 +147,23 @@ trait TrackValidationRules
     /**
      * @throws \Exception
      */
-    public function trackUpdateRule(): array
+    public function trackUpdateRule (): array
     {
-        $slugUnique = Tables::getTable(Tables::TRACKS) .':track_slug:track_id';
+        $slugUnique = Tables::getTable(Tables::TRACKS) . ':track_slug:track_id';
         return [
-            'track_title' => ['required', 'string'],
-            'track_content' => ['string'],
-            'track_slug' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve('track_id', '')]
+            'track_title'          => ['required', 'string'],
+            'track_content'        => ['string'],
+            'track_slug'           => [
+                'required', 'string', 'unique' => [
+                    $slugUnique => input()->fromPost()->retrieve('track_id', ''),
+                ],
             ],
-            'fk_genre_id' => ['required', 'array'],
-            'fk_license_id' => ['required', 'numeric'],
-            'fk_artist_id' => ['required', 'numeric'],
-            'created_at' => ['required', 'string'],
-            'image_url' => ['string'],
-            'audio_url' => ['string'],
+            'fk_genre_id'          => ['required', 'array'],
+            'fk_license_id'        => ['required', 'numeric'],
+            'fk_artist_id'         => ['required', 'numeric'],
+            'created_at'           => ['required', 'string'],
+            'image_url'            => ['string'],
+            'audio_url'            => ['string'],
             'license_attr_id_link' => ['required', 'string'],
         ];
     }
@@ -206,12 +171,12 @@ trait TrackValidationRules
     /**
      * @return \string[][]
      */
-    public function trackUpdateMultipleRule(): array
+    public function trackUpdateMultipleRule (): array
     {
         return [
-            'track_id' => ['numeric'],
+            'track_id'    => ['numeric'],
             'track_title' => ['required', 'string'],
-            'updated_at' => ['required', 'string'],
+            'updated_at'  => ['required', 'string'],
         ];
     }
 
@@ -219,16 +184,18 @@ trait TrackValidationRules
      * @throws \Exception
      * @throws \Throwable
      */
-    public function trackCategoryStoreRule(): array
+    public function trackCategoryStoreRule (): array
     {
-        $catSlugUnique = Tables::getTable(Tables::TRACK_CATEGORIES) .':track_cat_slug';
+        $catSlugUnique = Tables::getTable(Tables::TRACK_CATEGORIES) . ':track_cat_slug';
         return [
-            'track_cat_name' => ['required', 'string'],
+            'track_cat_name'    => ['required', 'string'],
             'track_cat_content' => ['string'],
-            'track_cat_slug' => ['required', 'string', 'unique' => [
-                $catSlugUnique => input()->fromPost()->retrieve('track_cat_slug', '')]
+            'track_cat_slug'    => [
+                'required', 'string', 'unique' => [
+                    $catSlugUnique => input()->fromPost()->retrieve('track_cat_slug', ''),
+                ],
             ],
-            'created_at' => ['required', 'string'],
+            'created_at'        => ['required', 'string'],
         ];
     }
 
@@ -236,28 +203,30 @@ trait TrackValidationRules
      * @throws \Exception
      * @throws \Throwable
      */
-    public function trackCategoryUpdateRule(): array
+    public function trackCategoryUpdateRule (): array
     {
-        $catSlugUnique = Tables::getTable(Tables::TRACK_CATEGORIES) .':track_cat_slug:track_cat_id';
+        $catSlugUnique = Tables::getTable(Tables::TRACK_CATEGORIES) . ':track_cat_slug:track_cat_id';
         return [
-            'track_cat_name' => ['required', 'string'],
+            'track_cat_name'    => ['required', 'string'],
             'track_cat_content' => ['string'],
-            'track_cat_slug' => ['required', 'string', 'unique' => [
-                $catSlugUnique => input()->fromPost()->retrieve('track_cat_id', '')]
+            'track_cat_slug'    => [
+                'required', 'string', 'unique' => [
+                    $catSlugUnique => input()->fromPost()->retrieve('track_cat_id', ''),
+                ],
             ],
-            'created_at' => ['required', 'string'],
+            'created_at'        => ['required', 'string'],
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function trackCategoryUpdateMultipleRule(): array
+    public function trackCategoryUpdateMultipleRule (): array
     {
         return [
-            'track_cat_id' => ['numeric'],
+            'track_cat_id'   => ['numeric'],
             'track_cat_name' => ['required', 'string'],
-            'updated_at' => ['required', 'string'],
+            'updated_at'     => ['required', 'string'],
         ];
     }
 }

@@ -225,6 +225,42 @@ HTML;
         ];
     }
 
+    public function getLicenseURLDownloadListing ($licenses, $licenseAttrIDLink = null): string
+    {
+        $htmlFrag = '';
+        foreach ($licenses as $license) {
+
+            if ($licenseAttrIDLink !== null && isset($licenseAttrIDLink->{$license->unique_id})) {
+                $downloadLink = $licenseAttrIDLink->{$license->unique_id};
+                $htmlFrag .= <<<HTML
+<div class="form-group position:relative">
+<label class="menu-settings-handle-name screen-reader-text" for="$license->unique_id">$license->name Download Link</label>
+<input type="url" class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="$license->unique_id" 
+name="url_download[]" placeholder="Upload $license->name Download Link" value="$downloadLink">
+<input type="hidden" class="form-control input-checkout bg:white-one color:black border-width:default border:black" name="unique_id[]" value="$license->unique_id">
+<button aria-pressed="false" type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer">Upload Link</button>
+</div>
+HTML;
+            } else {
+                $htmlFrag .= <<<HTML
+<div class="form-group position:relative">
+<label class="menu-settings-handle-name screen-reader-text" for="$license->unique_id">$license->name Download Link</label>
+<input type="url" class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="$license->unique_id" 
+name="url_download[]" placeholder="Upload $license->name Download Link" value="">
+<input type="hidden" class="form-control input-checkout bg:white-one color:black border-width:default border:black" name="unique_id[]" value="$license->unique_id">
+<button aria-pressed="false" type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
+                        margin-top:0 cursor:pointer">Upload Link</button>
+</div>
+HTML;
+            }
+
+        }
+
+        return $htmlFrag;
+    }
+
+
     /**
      * @return \string[][]
      */

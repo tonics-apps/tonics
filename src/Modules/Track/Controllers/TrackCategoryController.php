@@ -41,7 +41,7 @@ class TrackCategoryController
 
     use Validator, TrackValidationRules, UniqueSlug;
 
-    public function __construct(TrackData $trackData)
+    public function __construct (TrackData $trackData)
     {
         $this->trackData = $trackData;
     }
@@ -49,7 +49,7 @@ class TrackCategoryController
     /**
      * @throws Exception
      */
-    public function index()
+    public function index ()
     {
         $table = Tables::getTable(Tables::TRACK_CATEGORIES);
         $dataTableHeaders = [
@@ -59,7 +59,7 @@ class TrackCategoryController
         ];
 
         $data = null;
-        db(onGetDB: function ($db) use ($table, &$data){
+        db(onGetDB: function ($db) use ($table, &$data) {
             $tblCol = '*, CONCAT("/admin/tracks/category/", track_cat_slug, "/edit" ) as _edit_link, CONCAT("/track_categories/", track_cat_slug) as _preview_link';
             $data = $db->Select($tblCol)
                 ->From($table)
@@ -81,19 +81,19 @@ class TrackCategoryController
 
         view('Modules::Track/Views/Category/index', [
             'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $data ?? [],
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'   => AppConfig::getAppUrl(),
         ]);
     }
 
     /**
      * @throws \Exception
      */
-    public function dataTable(): void
+    public function dataTable (): void
     {
         $entityBag = null;
         if ($this->getTrackData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -118,9 +118,48 @@ class TrackCategoryController
     }
 
     /**
+     * @return TrackData
+     */
+    public function getTrackData (): TrackData
+    {
+        return $this->trackData;
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function deleteMultiple ($entityBag): bool
+    {
+        return $this->getTrackData()->dataTableDeleteMultiple([
+            'id'        => 'track_cat_id',
+            'table'     => Tables::getTable(Tables::TRACK_CATEGORIES),
+            'entityBag' => $entityBag,
+        ]);
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws Exception
+     */
+    protected function updateMultiple ($entityBag): bool
+    {
+        return $this->getTrackData()->dataTableUpdateMultiple([
+            'id'        => 'track_cat_id',
+            'table'     => Tables::getTable(Tables::TRACK_CATEGORIES),
+            'rules'     => $this->trackCategoryUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
+    }
+
+    /**
      * @throws \Exception
      */
-    public function create()
+    public function create ()
     {
         event()->dispatch($this->getTrackData()->getOnTrackCategoryDefaultField());
 
@@ -131,25 +170,33 @@ class TrackCategoryController
 
         view('Modules::Track/Views/Category/create', [
             'Categories' => $this->getTrackData()->getCategoryHTMLSelect(),
-            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getTrackData()->getOnTrackCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+            'FieldItems' => $this->getFieldData()->generateFieldWithFieldSlug($this->getTrackData()->getOnTrackCategoryDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
         ]);
+    }
+
+    /**
+     * @return FieldData|null
+     */
+    public function getFieldData (): ?FieldData
+    {
+        return $this->getTrackData()->getFieldData();
     }
 
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function store()
+    #[NoReturn] public function store ()
     {
-        if (input()->fromPost()->hasValue('created_at') === false){
+        if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
         }
 
-        if (input()->fromPost()->hasValue('track_cat_slug') === false){
+        if (input()->fromPost()->hasValue('track_cat_slug') === false) {
             $_POST['track_cat_slug'] = helper()->slug(input()->fromPost()->retrieve('track_cat_name'));
         }
 
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->trackCategoryStoreRule());
-        if ($validator->fails()){
+        if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('tracks.category.create'));
         }
@@ -162,7 +209,7 @@ class TrackCategoryController
             $category = $this->trackData->createCategory();
             $td = $this->getTrackData();
             $categoryReturning = null;
-            db(onGetDB: function ($db) use ($category, $td, &$categoryReturning){
+            db(onGetDB: function ($db) use ($category, $td, &$categoryReturning) {
                 $categoryReturning = $db->insertReturning($td::getTrackCategoryTable(), $category, $td->getTrackCategoryColumns(), 'track_cat_id');
             });
 
@@ -174,7 +221,7 @@ class TrackCategoryController
             apcu_clear_cache();
             session()->flash(['Track Category Created'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tracks.category.edit', ['category' => $onTrackCategoryCreate->getCatSlug()]));
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             // Log..
             $dbTx->rollBack();
             $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
@@ -186,29 +233,30 @@ class TrackCategoryController
 
     /**
      * @param string $slug
+     *
      * @throws \Exception
      */
-    public function edit(string $slug): void
+    public function edit (string $slug): void
     {
         $category = null;
-        db(onGetDB: function ($db) use ($slug, &$category){
+        db(onGetDB: function ($db) use ($slug, &$category) {
             $category = $db->Select('*, CONCAT("/track_categories/", track_cat_slug) as _preview_link')
                 ->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
         });
 
-        if (!is_object($category)){
+        if (!is_object($category)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
         $fieldSettings = json_decode($category->field_settings, true);
-        if (empty($fieldSettings)){
+        if (empty($fieldSettings)) {
             $fieldSettings = (array)$category;
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$category];
         }
 
         event()->dispatch($this->getTrackData()->getOnTrackCategoryDefaultField());
-        if (isset($fieldSettings['_fieldDetails'])){
+        if (isset($fieldSettings['_fieldDetails'])) {
             addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
@@ -227,24 +275,24 @@ class TrackCategoryController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function update(string $slug): void
+    #[NoReturn] public function update (string $slug): void
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->trackCategoryUpdateRule());
-        if ($validator->fails()){
+        if ($validator->fails()) {
             session()->flash($validator->getErrors());
             redirect(route('tracks.category.edit', [$slug]));
         }
 
-        if (input()->fromPost()->hasValue('track_cat_parent_id') && input()->fromPost()->hasValue('track_cat_id')){
+        if (input()->fromPost()->hasValue('track_cat_parent_id') && input()->fromPost()->hasValue('track_cat_id')) {
             $trackCatParentID = input()->fromPost()->retrieve('track_cat_parent_id');
             $trackCatID = input()->fromPost()->retrieve('track_cat_id');
             $category = null;
-            db(onGetDB: function ($db) use ($slug, &$category){
+            db(onGetDB: function ($db) use ($slug, &$category) {
                 $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())->WhereEquals('track_cat_slug', $slug)->FetchFirst();
             });
 
             // Track Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
-            if ($trackCatParentID === $trackCatID){
+            if ($trackCatParentID === $trackCatID) {
                 $_POST['track_cat_parent_id'] = $category->track_cat_parent_id;
                 // Log..
                 // Error Message is: Track Category Parent ID Cant Be a Parent of Itself, Silently Revert it To Initial Parent
@@ -260,7 +308,7 @@ class TrackCategoryController
         $slug = $categoryToUpdate['track_cat_slug'];
 
         apcu_clear_cache();
-        if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+        if (input()->fromPost()->has('_fieldErrorEmitted') === true) {
             session()->flash(['Post Category Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
         } else {
             session()->flash(['Track Category Updated'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -269,80 +317,35 @@ class TrackCategoryController
     }
 
     /**
-     * @param $entityBag
-     * @return bool
-     * @throws Exception
-     */
-    protected function updateMultiple($entityBag): bool
-    {
-        return $this->getTrackData()->dataTableUpdateMultiple([
-            'id' => 'track_cat_id',
-            'table' => Tables::getTable(Tables::TRACK_CATEGORIES),
-            'rules' => $this->trackCategoryUpdateMultipleRule(),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
-     * @param $entityBag
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteMultiple($entityBag): bool
-    {
-        return $this->getTrackData()->dataTableDeleteMultiple([
-            'id' => 'track_cat_id',
-            'table' => Tables::getTable(Tables::TRACK_CATEGORIES),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
      * @throws \Exception
      */
-    #[NoReturn] public function redirect($id): void
+    #[NoReturn] public function redirect ($id): void
     {
         $redirection = new CommonResourceRedirection(
-            onSlugIDState: function ($slugID){
+            onSlugIDState: function ($slugID) {
                 $category = null;
-                db(onGetDB: function ($db) use ($slugID, &$category){
+                db(onGetDB: function ($db) use ($slugID, &$category) {
                     $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())
                         ->WhereEquals('slug_id', $slugID)->FetchFirst();
                 });
 
-                if (isset($category->slug_id) && isset($category->track_cat_slug)){
+                if (isset($category->slug_id) && isset($category->track_cat_slug)) {
                     return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
                 }
                 return false;
-            }, onSlugState: function ($slug){
+            }, onSlugState: function ($slug) {
             $category = null;
-            db(onGetDB: function ($db) use ($slug, &$category){
+            db(onGetDB: function ($db) use ($slug, &$category) {
                 $category = $db->Select('*')->From($this->getTrackData()::getTrackCategoryTable())
                     ->WhereEquals('track_cat_slug', $slug)->FetchFirst();
             });
-            if (isset($category->slug_id) && isset($category->track_cat_slug)){
+            if (isset($category->slug_id) && isset($category->track_cat_slug)) {
                 return TrackRedirection::getTrackCategoryAbsoluteURLPath((array)$category);
             }
             return false;
         });
 
         $redirection->runStates();
-    }
-
-    /**
-     * @return TrackData
-     */
-    public function getTrackData(): TrackData
-    {
-        return $this->trackData;
-    }
-
-    /**
-     * @return FieldData|null
-     */
-    public function getFieldData(): ?FieldData
-    {
-        return $this->getTrackData()->getFieldData();
     }
 
 }

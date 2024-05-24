@@ -187,7 +187,7 @@ class LicenseController
      */
     public function edit (string $slug)
     {
-        $menu = $this->abstractDataLayer->selectWithCondition($this->abstractDataLayer::getLicenseTable(), ['*'], "license_slug = ?", [$slug]);
+        $menu = $this->abstractDataLayer->selectWithCondition($this->licenseService::getLicenseTable(), ['*'], "license_slug = ?", [$slug]);
         if (!is_object($menu)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }

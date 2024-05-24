@@ -29,24 +29,24 @@ class TrackArtistSelect implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('TrackArtistSelect', 'Track Artist Select (Works Only In The Context of Track)', 'Track',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
+            handleViewProcessing: function () {},
         );
     }
 
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Track Artist Select';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Track Artist Select';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -70,14 +70,14 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TrackLicenseSelect';
-        $trackData = new TrackData();
+        $trackData = container()->get(TrackData::class);
         $artistSelectListing = $trackData->artistSelectListing($event->getKeyValueInData($data, $data->inputName) ?: null);
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $frag .= <<<FORM
 <div class="form-group margin-top:0">     
