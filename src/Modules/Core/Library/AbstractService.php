@@ -24,39 +24,39 @@ abstract class AbstractService
 {
     use Validator;
 
-    private bool $fails = false;
-    private string $message = '';
-    private mixed $errors = null;
+    private bool   $fails          = false;
+    private string $message        = '';
+    private mixed  $errors         = null;
     private string $redirectsRoute = '';
 
-    public function fails(): bool
+    public function fails (): bool
     {
         return $this->fails;
     }
 
-    protected function setFails(bool $fails): self
+    public function setFails (bool $fails): self
     {
         $this->fails = $fails;
         return $this;
     }
 
-    public function getMessage(): string
+    public function getMessage (): string
     {
         return $this->message;
     }
 
-    protected function setMessage(string $message): self
+    public function setMessage (string $message): self
     {
         $this->message = $message;
         return $this;
     }
 
-    public function getRedirectsRoute(): string
+    public function getRedirectsRoute (): string
     {
         return $this->redirectsRoute;
     }
 
-    protected function setRedirectsRoute(string $redirectsRoute): self
+    public function setRedirectsRoute (string $redirectsRoute): self
     {
         $this->redirectsRoute = $redirectsRoute;
         return $this;
@@ -66,12 +66,12 @@ abstract class AbstractService
      * When there is fail, use this, if success, use message
      * @return mixed
      */
-    public function getErrors(): mixed
+    public function getErrors (): mixed
     {
         return $this->errors;
     }
 
-    protected function setErrors(mixed $errors): self
+    public function setErrors (mixed $errors): self
     {
         if (is_string($errors)) {
             $errors = [$errors];

@@ -32,8 +32,9 @@ class CloudJobQueueCreateContainer extends AbstractJobInterface implements JobHa
     /**
      * Here are the steps, we add the certificate if it is not already added
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
 
         $container = $this->getContainer();
@@ -41,28 +42,28 @@ class CloudJobQueueCreateContainer extends AbstractJobInterface implements JobHa
 
         $client = $this->getIncusClient();
 
-        if ($this->hasImageHash()){
+        if ($this->hasImageHash()) {
             $source = [
                 "alias" => $this->getImageHash(),
-                "type" => "image"
+                "type"  => "image",
             ];
         } else {
             $source = [
                 "protocol" => "simplestreams",
-                "alias" => "debian/bookworm/amd64",
-                "server" => "https://images.linuxcontainers.org",
-                "type" => "image"
+                "alias"    => "debian/bookworm/amd64",
+                "server"   => "https://images.linuxcontainers.org",
+                "type"     => "image",
             ];
         }
 
         $client->instances()->create([
-            "name" => $this->getContainerUniqueSlugID(),
+            "name"        => $this->getContainerUniqueSlugID(),
             "description" => $container->container_description,
-            "source" => $source,
-            "devices" => $this->getCollatedDevicesOrProfiles($containerOthers)
+            "source"      => $source,
+            "devices"     => $this->getCollatedDevicesOrProfiles($containerOthers),
         ]);
 
-        if ($client->operationIsCreated()){
+        if ($client->operationIsCreated()) {
             $this->updateContainerStatus('Creating Container');
         } else {
             $this->logInfoMessage($client);
@@ -70,6 +71,4 @@ class CloudJobQueueCreateContainer extends AbstractJobInterface implements JobHa
         }
 
     }
-
-
 }

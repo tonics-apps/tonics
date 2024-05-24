@@ -42,12 +42,83 @@ class AppService extends AbstractService
 {
 
     /**
+     * @return void
+     * @throws \Exception
+     */
+    public static function UPDATE_DEFAULT_APPS (): void
+    {
+        db(onGetDB: function ($db) {
+            $db->insertOnDuplicate(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS), self::DEFAULT_APPS(), ['app_description', 'others']);
+        });
+    }
+
+    public static function DEFAULT_APPS (): array
+    {
+        $defaultConfigField = 'app-tonicscloud-app-config-default';
+
+        return [
+            [
+                'app_name'        => 'ACME',
+                'app_description' => 'ACME(Automatically Issue and Renew Certificates), Provided By Tonics',
+                'others'          => json_encode(['field' => "app-tonicscloud-app-config-acme", 'class' => TonicsCloudACME::class]),
+            ],
+            [
+                'app_name'        => 'ENV',
+                'app_description' => 'Generates ENV for common framework, Provided By Tonics',
+                'others'          => json_encode(['field' => "app-tonicscloud-app-config-env", 'class' => TonicsCloudENV::class]),
+            ],
+            [
+                'app_name'        => 'Nginx',
+                'app_description' => 'Nginx, Provided By Tonics',
+                'others'          => json_encode(['field' => "app-tonicscloud-app-config-nginx", 'class' => TonicsCloudNginx::class]),
+            ],
+            [
+                'app_name'        => 'PHP',
+                'app_description' => 'PHP, Provided By Tonics',
+                'others'          => json_encode(['field' => "app-tonicscloud-app-config-php", 'class' => TonicsCloudPHP::class]),
+            ],
+            [
+                'app_name'        => 'UnZip',
+                'app_description' => 'UnZip, Provided By Tonics',
+                'others'          => json_encode(['field' => 'app-tonicscloud-app-config-upload-unzip', 'class' => TonicsCloudUnZip::class]),
+            ],
+            [
+                'app_name'        => 'MariaDB',
+                'app_description' => 'MariaDB, Provided By Tonics',
+                'others'          => json_encode(['field' => 'app-tonicscloud-app-config-mysql', 'class' => TonicsCloudMariaDB::class]),
+            ],
+            [
+                'app_name'        => 'Haraka',
+                'app_description' => 'Haraka, Provided By Tonics',
+                'others'          => json_encode(['field' => $defaultConfigField, 'class' => TonicsCloudHaraka::class]),
+            ],
+            [
+                'app_name'        => 'Script',
+                'app_description' => 'Script(Deployment Bash Script), Provided By Tonics',
+                'others'          => json_encode(['field' => "app-tonicscloud-app-config-script", 'class' => TonicsCloudScript::class]),
+            ],
+        ];
+    }
+
+    /**
+     * Data should contain the following:
+     *
+     * ```
+     * [
+     *     'container_id' => ...,
+     *     'app_id' => ...,
+     *     '_fieldDetails' => ..., // ensure this is json_encoded
+     * ]
+     * ```
+     *
      * @param array $data
+     * @param array $moreJobChildren
+     *
      * @return void
      * @throws \ReflectionException
      * @throws \Throwable
      */
-    public function updateApp(array $data = []): void
+    public function updateApp (array $data = [], array $moreJobChildren = []): void
     {
         $input = input()->fromPost(empty($data) ? $_POST : $data);
         $containerID = $input->retrieve('container_id');
@@ -58,41 +129,20 @@ class AppService extends AbstractService
         $app = self::getApp($appID);
         $data = json_decode($app->others);
         if (isset($data->class) && is_a($data->class, CloudAppInterface::class, true)) {
-            $fieldDetails = $input->fromPost()->retrieve('_fieldDetails');
+            $fieldDetails = $input->retrieve('_fieldDetails');
             /** @var CloudAppInterface $jobObject */
             $jobObject = container()->get($data->class);
             $jobObject->setFields(json_decode($fieldDetails));
             $jobObject->setContainerReplaceableVariables($containerOthers->container_variables ?? []);
             $jobData = [
-                'update_status' => false,
-                'container_id' => $containerID,
-                'container_variables' => $containerOthers->container_variables,
+                'update_status'            => false,
+                'container_id'             => $containerID,
+                'container_variables'      => $containerOthers->container_variables,
                 'container_unique_slug_id' => $container->slug_id,
-                'app_id' => $appID,
-                'incus_container_name' => ContainerController::getIncusContainerName($container->slug_id),
-                'app_class' => $data->class,
-                'postFlight' => $jobObject->prepareForFlight($jobObject->getFields())
-            ];
-
-            $jobs = [
-                [
-                    'job' => new CloudJobQueueAppIsRunning(),
-                    'children' => [
-                        [
-                            'job' => new CloudJobQueueUpdateAppSettings(),
-                            'children' => [
-                                [
-                                    'job' => new CloudJobQueueReloadApp(),
-                                    'children' => [
-                                        [
-                                            'job' => new CloudJobQueueAppIsRunning()
-                                        ],
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
+                'app_id'                   => $appID,
+                'incus_container_name'     => ContainerController::getIncusContainerName($container->slug_id),
+                'app_class'                => $data->class,
+                'postFlight'               => $jobObject->prepareForFlight($jobObject->getFields()),
             ];
 
             db(onGetDB: function (TonicsQuery $db) use ($jobObject, $fieldDetails, $appID, $containerID) {
@@ -104,6 +154,30 @@ class AppService extends AbstractService
                     ->Exec();
             });
 
+            $jobs = [
+                [
+                    'job'      => new CloudJobQueueAppIsRunning(),
+                    'children' => [
+                        [
+                            'job'      => new CloudJobQueueUpdateAppSettings(),
+                            'children' => [
+                                [
+                                    'job'      => new CloudJobQueueReloadApp(),
+                                    'children' => [
+                                        [
+                                            'job'      => new CloudJobQueueAppIsRunning(),
+                                            'children' => [
+                                                $moreJobChildren,
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+
             TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
             $this->setFails(false)->setMessage("App Changes Enqueued")->setRedirectsRoute(route('tonicsCloud.containers.apps.edit', [$containerID, $appID]));
         } else {
@@ -112,13 +186,28 @@ class AppService extends AbstractService
     }
 
     /**
+     * @throws \Exception
+     */
+    public static function getApp ($appID)
+    {
+        $app = null;
+        db(onGetDB: function (TonicsQuery $db) use ($appID, &$app) {
+            $appTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS);
+            $app = $db->Select('*')->From($appTable)->WhereEquals('app_id', $appID)->FetchFirst();
+        });
+
+        return $app;
+    }
+
+    /**
      * @param $container
      * @param $app
      * @param string $status
+     *
      * @return void
      * @throws \Exception
      */
-    public function updateAppStatus($container, $app, string $status): void
+    public function updateAppStatus ($container, $app, string $status): void
     {
         $data = json_decode($app->others);
         $containerID = $container->container_id;
@@ -127,68 +216,68 @@ class AppService extends AbstractService
         if ($container && $app) {
 
             if (isset($app->app_status)) {
-                if ($app->app_status === 'Running' && $status === 'Start'){
+                if ($app->app_status === 'Running' && $status === 'Start') {
                     return;
                 }
             }
 
             $jobData = [
-                'update_status' => false,
-                'container_id' => $containerID,
-                'app_id' => $appID,
+                'update_status'            => false,
+                'container_id'             => $containerID,
+                'app_id'                   => $appID,
                 'container_unique_slug_id' => $container->slug_id,
-                'incus_container_name' => ContainerController::getIncusContainerName($container->slug_id),
-                'app_class' => $data->class,
+                'incus_container_name'     => ContainerController::getIncusContainerName($container->slug_id),
+                'app_class'                => $data->class,
             ];
 
-            if ($status === 'Start'){
+            if ($status === 'Start') {
                 $jobs = [
                     [
-                        'job' => new CloudJobQueueStartApp(),
+                        'job'      => new CloudJobQueueStartApp(),
                         'children' => [
                             [
-                                'job' => new CloudJobQueueAppIsRunning()
-                            ]
-                        ]
-                    ]
+                                'job' => new CloudJobQueueAppIsRunning(),
+                            ],
+                        ],
+                    ],
                 ];
 
                 TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
             }
 
-            if ($status === 'ShutDown'){
+            if ($status === 'ShutDown') {
                 $jobs = [
                     [
-                        'job' => new CloudJobQueueStopApp(),
-                        'children' => [
-                            [
-                                'job' => new CloudJobQueueAppHasStopped()
-                            ]
-                        ]
-                    ]
-                ];
-
-                TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
-            }
-
-            if ($status === 'Reboot'){
-                $jobs = [
-                    [
-                        'job' => new CloudJobQueueStopApp(),
+                        'job'      => new CloudJobQueueStopApp(),
                         'children' => [
                             [
                                 'job' => new CloudJobQueueAppHasStopped(),
+                            ],
+                        ],
+                    ],
+                ];
+
+                TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
+            }
+
+            if ($status === 'Reboot') {
+                $jobs = [
+                    [
+                        'job'      => new CloudJobQueueStopApp(),
+                        'children' => [
+                            [
+                                'job'      => new CloudJobQueueAppHasStopped(),
                                 'children' => [
                                     [
-                                        'job' => new CloudJobQueueStartApp(),
+                                        'job'      => new CloudJobQueueStartApp(),
                                         'children' => [
-                                            [ 'job' => new CloudJobQueueAppIsRunning() ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                            ['job' => new CloudJobQueueAppIsRunning()],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ];
 
                 TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
@@ -196,79 +285,5 @@ class AppService extends AbstractService
 
         }
 
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public static function getApp($appID)
-    {
-        $app = null;
-        db(onGetDB: function (TonicsQuery $db) use ($appID, &$app){
-            $appTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS);
-            $app = $db->Select('*')->From($appTable)->WhereEquals('app_id', $appID)->FetchFirst();
-        });
-
-        return $app;
-    }
-
-
-    public static function DEFAULT_APPS(): array
-    {
-        $defaultConfigField = 'app-tonicscloud-app-config-default';
-
-        return [
-            [
-                'app_name' => 'ACME',
-                'app_description' => 'ACME(Automatically Issue and Renew Certificates), Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-acme", 'class' => TonicsCloudACME::class])
-            ],
-            [
-                'app_name' => 'ENV',
-                'app_description' => 'Generates ENV for common framework, Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-env", 'class' => TonicsCloudENV::class])
-            ],
-            [
-                'app_name' => 'Nginx',
-                'app_description' => 'Nginx, Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-nginx", 'class' => TonicsCloudNginx::class])
-            ],
-            [
-                'app_name' => 'PHP',
-                'app_description' => 'PHP, Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-php", 'class' => TonicsCloudPHP::class])
-            ],
-            [
-                'app_name' => 'UnZip',
-                'app_description' => 'UnZip, Provided By Tonics',
-                'others' => json_encode(['field' => 'app-tonicscloud-app-config-upload-unzip', 'class' => TonicsCloudUnZip::class])
-            ],
-            [
-                'app_name' => 'MariaDB',
-                'app_description' => 'MariaDB, Provided By Tonics',
-                'others' => json_encode(['field' => 'app-tonicscloud-app-config-mysql', 'class' => TonicsCloudMariaDB::class])
-            ],
-            [
-                'app_name' => 'Haraka',
-                'app_description' => 'Haraka, Provided By Tonics',
-                'others' => json_encode(['field' => $defaultConfigField, 'class' => TonicsCloudHaraka::class])
-            ],
-            [
-                'app_name' => 'Script',
-                'app_description' => 'Script(Deployment Bash Script), Provided By Tonics',
-                'others' => json_encode(['field' => "app-tonicscloud-app-config-script", 'class' => TonicsCloudScript::class])
-            ],
-        ];
-    }
-
-    /**
-     * @return void
-     * @throws \Exception
-     */
-    public static function UPDATE_DEFAULT_APPS(): void
-    {
-        db(onGetDB: function ($db){
-            $db->insertOnDuplicate(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS), self::DEFAULT_APPS(), ['app_description', 'others']);
-        });
     }
 }

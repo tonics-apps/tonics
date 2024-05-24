@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -18,21 +18,23 @@
 
 namespace App\Apps\TonicsCloud\EventHandlers\Fields;
 
-use App\Apps\TonicsCloud\Controllers\InstanceController;
+use App\Apps\TonicsCloud\Controllers\ContainerController;
+use App\Apps\TonicsCloud\Events\OnAddCloudAutomationEvent;
+use App\Apps\TonicsCloud\Interfaces\CloudAutomationInterface;
+use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelectionDropper;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class CloudInstances implements HandlerInterface
+class CloudAutomations extends FieldSelectionDropper implements HandlerInterface
 {
 
     /**
      * @inheritDoc
-     * @throws \Exception
      */
     public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
-        $event->addFieldBox('CloudInstances', 'Cloud Instances Pertaining To The Logged in User/Customer', 'TonicsCloud',
+        $event->addFieldBox('CloudAutomations', 'Cloud Automation Handlers', 'TonicsCloud',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
@@ -48,11 +50,11 @@ class CloudInstances implements HandlerInterface
      * @param $data
      *
      * @return string
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Instances';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Automations';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -75,52 +77,67 @@ FORM;
     }
 
     /**
-     * @param OnFieldMetaBox $event
-     * @param $data
-     *
-     * @return string
      * @throws \Exception
      * @throws \Throwable
      */
     public function userForm (OnFieldMetaBox $event, $data): string
     {
-        # Disabled for Non-Customer
-        if (!session()::userTableIsCustomer()) {
+        if (ContainerController::getCurrentControllerMethod() === ContainerController::EDIT_METHOD) {
             return '';
         }
 
-        $customerInstances = InstanceController::getServiceInstances(['user_id' => \session()::getUserID(), 'fetch_all' => true]);
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Instances';
+        $onAddCloudAutomationEvent = new OnAddCloudAutomationEvent();
+        event()->dispatch($onAddCloudAutomationEvent);
+
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Automations';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $slug = $data->field_slug;
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
+        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
         $keyValue = $event->getKeyValueInData($data, $data->inputName);
+        $defaultValue = $keyValue ?: $defaultValue;
 
-        $choiceFrag = '';
-        foreach ($customerInstances as $customerInstance) {
-            $selected = '';
-            if ($customerInstance->provider_instance_id == $keyValue || request()->getParam('instance_id') === $customerInstance->provider_instance_id) {
-                $selected = 'selected';
+        $fieldSelectionFrag = '';
+        $defaultFieldSlugFrag = '';
+        $handlers = $onAddCloudAutomationEvent->getCloudAutomations();
+
+        /** @var CloudAutomationInterface $handler */
+        foreach ($handlers as $handler) {
+            $fieldSelected = '';
+            if ($defaultValue === $handler->name()) {
+                $fieldSelected = 'selected';
+                $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
+                    [$handler->name()],
+                    getPostData(),
+                )->getHTMLFrag();
             }
-            $choiceFrag .= <<<HTML
-<option $selected title="$customerInstance->service_instance_name" value="$customerInstance->provider_instance_id">$customerInstance->service_instance_name</option>
+            $fieldSelectionFrag .= <<<HTML
+<option value="{$handler->name()}" $fieldSelected>{$handler->displayName()}</option>
 HTML;
-
         }
 
-        $frag .= <<<FORM
-<div class="form-group margin-top:0">
-<select class="default-selector mg-b-plus-1" name="$inputName">
-  <option label=" "></option>
-  $choiceFrag
-</select>
+        $fieldSelectDropperFrag = <<<FieldSelectionDropperFrag
+<div class="tonics-field-selection-dropper-container">
+        <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="1" class="tonics-field-selection-dropper-ul row-col-item-user margin-top:0 owl">
+                $defaultFieldSlugFrag
+         </ul>
+    </div>
+FieldSelectionDropperFrag;
+
+        $frag .= <<<HTML
+<div class="form-group tonics-field-selection-dropper-form-group margin-top:0 owl">
+     <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">Choose Automation
+     <select name="$inputName" class="default-selector mg-b-plus-1 tonics-field-selection-dropper-select" id="fieldSlug-$changeID">
+        $fieldSelectionFrag
+     </select>
+    </label>
+    $fieldSelectDropperFrag
 </div>
-FORM;
+HTML;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
     }
-
 }

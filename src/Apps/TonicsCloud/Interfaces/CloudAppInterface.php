@@ -23,263 +23,94 @@ use App\Apps\TonicsCloud\Services\ContainerService;
 
 abstract class CloudAppInterface
 {
-    private ?int $containerID = null;
-    private mixed $postPrepareForFlight = null;
-    private string $incusContainerName = '';
-    private mixed $fields = null;
-    private array $containerReplaceableVariables = [];
-
-    const PREPARATION_TYPE_SETTINGS = 'PREPARATION_TYPE_SETTINGS'; # For The Manual Configuration of The Container App
-    const PREPARATION_TYPE_AUTO = 'PREPARATION_TYPE_AUTO'; # For Auto Configuration of The Container App
-    const PREPARATION_TYPE_INSTALL = 'PREPARATION_TYPE_INSTALL';
+    const PREPARATION_TYPE_SETTINGS  = 'PREPARATION_TYPE_SETTINGS';
+    const PREPARATION_TYPE_AUTO      = 'PREPARATION_TYPE_AUTO';
+    const PREPARATION_TYPE_INSTALL   = 'PREPARATION_TYPE_INSTALL';
     const PREPARATION_TYPE_UNINSTALL = 'PREPARATION_TYPE_UNINSTALL';
+    private ?int   $containerID                   = null;
+    private mixed  $postPrepareForFlight          = null;   # For The Manual Configuration of The Container App
+    private string $incusContainerName            = '';     # For Auto Configuration of The Container App
+    private mixed  $fields                        = null;
+    private array  $containerReplaceableVariables = [];
+
+    /**
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public static function createFieldDetails (array $data = []): mixed
+    {
+        return '';
+    }
+
+    /**
+     * Usage:
+     *
+     * ```
+     * $fieldDetails = 'your_json_string_here'; // Replace with your JSON string
+     * $data = [
+     *     'unzip_extractTo' => 'some_value',
+     *     'unzip_archiveFile' => 'some_other_value'
+     * ];
+     *
+     * $fields = json_decode($fieldDetails);
+     * updateFieldOptions($fields, $data);
+     * ```
+     *
+     * @param $fields
+     * @param $data
+     *
+     * @return mixed
+     */
+    protected static function updateFieldOptions ($fields, $data): mixed
+    {
+        foreach ($fields as $field) {
+            $fieldOptions = json_decode($field->field_options);
+            // Check if the input name exists in the data array
+            if (array_key_exists($field->field_input_name, $data)) {
+                $fieldOptions->{$field->field_input_name} = $data[$field->field_input_name];
+                $field->field_options = json_encode($fieldOptions);
+            }
+        }
+
+        return $fields;
+    }
 
     /**
      * @return mixed
      */
-    public function getFields(): mixed
+    public function getFields (): mixed
     {
         return $this->fields;
     }
 
-    public function getFieldsToString(): false|string
-    {
-        return json_encode($this->fields);
-    }
-
     /**
      * @param mixed $fields
+     *
      * @return CloudAppInterface
      */
-    public function setFields(mixed $fields): CloudAppInterface
+    public function setFields (mixed $fields): CloudAppInterface
     {
         $this->fields = $fields;
         return $this;
     }
 
-    public function getContainerReplaceableVariables(): array
+    public function getFieldsToString (): false|string
     {
-        return $this->containerReplaceableVariables;
-    }
-
-    public function setContainerReplaceableVariables(array|\stdClass $containerReplaceableVariables): void
-    {
-        if (is_object($containerReplaceableVariables)) {
-            $containerReplaceableVariables = (array)$containerReplaceableVariables;
-        }
-
-        $replaceableVariables = [];
-        foreach ($containerReplaceableVariables as $key => $value) {
-            $key = strtoupper($key);
-            $replaceableVariables["[[$key]]"] = function () use ($value) { return $value; };
-        }
-
-        $replaceableVariables["[[RAND_STRING]]"] = function () { return helper()->randString(); };
-
-        $this->containerReplaceableVariables = $replaceableVariables;
+        return json_encode($this->fields);
     }
 
     /**
      * This replaces all variables in the $string content, the variables would be pulled from the
      * containerReplaceableVariables
+     *
      * @param string $content
+     *
      * @return string
      */
-    public function replaceContainerGlobalVariables(string $content): string
+    public function replaceContainerGlobalVariables (string $content): string
     {
         return $this::replaceVariables($content, $this->getContainerReplaceableVariables());
-    }
-
-    /**
-     * Gets the Incus Client
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function client(int $containerID = null): Client
-    {
-        $container = ContainerService::getContainer($this->getContainerID(), false);
-        if (empty($container)) {
-            throw new \Exception("An Error Occurred While Trying To Get Container");
-        }
-
-        return ContainerService::getIncusClient(json_decode($container?->serviceInstanceOthers));
-    }
-
-    /**
-     * This gives the app the opportunity to prepare for flight, for example, when user clicks the save changes in
-     * the app settings, you get the fieldDetails which you can use to extract the relevant details you want.
-     *
-     * I would give you the flightType, this way, you know what you are preparing for. You are free to ignore the flight preparation.
-     * @param array $data - Can be field or global post data when doing auto configuration
-     * @param string $flightType
-     * @return mixed
-     */
-    abstract public function prepareForFlight(array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): mixed;
-
-    /**
-     * Install The App Into The Container
-     */
-    abstract public function install();
-
-    /**
-     * UnInstall The App From The Container
-     */
-    abstract public function uninstall();
-
-    /**
-     * Update App Settings In The Container
-     */
-    abstract public function updateSettings();
-
-    /**
-     * @return int|null
-     */
-    public function getContainerID(): ?int
-    {
-        return $this->containerID;
-    }
-
-    /**
-     * @param int|null $containerID
-     * @return CloudAppInterface
-     */
-    public function setContainerID(?int $containerID): CloudAppInterface
-    {
-        $this->containerID = $containerID;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPostPrepareForFlight(): mixed
-    {
-        return $this->postPrepareForFlight;
-    }
-
-    /**
-     * @param mixed $postPrepareForFlight
-     * @return CloudAppInterface
-     */
-    public function setPostPrepareForFlight(mixed $postPrepareForFlight): CloudAppInterface
-    {
-        $this->postPrepareForFlight = $postPrepareForFlight;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getIncusContainerName(): string
-    {
-        return $this->incusContainerName;
-    }
-
-    /**
-     * @param string $incusContainerName
-     * @return CloudAppInterface
-     */
-    public function setIncusContainerName(string $incusContainerName): CloudAppInterface
-    {
-        $this->incusContainerName = $incusContainerName;
-        return $this;
-    }
-
-    /**
-     * @param string $filePath
-     * @param string $fileContent
-     * @return bool
-     * @throws \Exception
-     */
-    protected function createOrReplaceFile(string $filePath, string $fileContent): bool
-    {
-        $client = $this->client();
-        $client->containers()->createOrReplaceFile($this->getIncusContainerName(), [
-            "path" => $filePath ,
-            "body" => $fileContent,
-            "X-Incus-type" => 'file', // Type of file (file, symlink or directory) (optional)
-            "X-Incus-write" => 'overwrite', // Write mode (overwrite or append)(optional)
-        ]);
-
-        if ($client->isSuccess()){
-            return true;
-        }
-
-        throw new \Exception($client->errorMessage());
-    }
-
-    /**
-     * Run commands, an example:
-     *
-     * - `runCommand(null, null, "/bin/systemctl", "start", "nginx")`;
-     * - `runCommand(null, null, "/bin/systemctl", "restart", "mariadb")`;
-     *
-     * or event better use bash and call the commands and its option in one fell swoop, you also don't need /bin no more:
-     *
-     * - `runCommand(null, null, "bash", "-c", "systemctl restart nginx")`;
-     * - `runCommand(null, null, "bash", "-c", "ls -lah /etc/nginx/conf.d")`;
-     *
-     * To run a command and get an output, you can do (the first callback is for the stdout and the second is for stderr):
-     * - `runCommand(function ($out){}, function ($err){}, "ls", "lah")`;
-     * - `runCommand(function ($out){}, function ($err){}, "cat", "/etc/nginx/conf.d/default.conf")`;
-     * @param callable|null $outputOnSuccess
-     * @param callable|null $outputOnError
-     * @param ...$commands
-     * @return bool
-     * @throws \Exception
-     */
-    protected function runCommand(callable $outputOnSuccess = null, callable $outputOnError = null, ...$commands): bool
-    {
-        $post = [
-            "command" => $commands,
-            "interactive" => false,
-            "record-output" => true,
-        ];
-
-        $client = $this->client();
-        $exec = $client->instances()->execute($this->getIncusContainerName(), $post);
-        $waitResponse = null;
-        if($exec){
-            // wait until the background operation is completed and return the operationResult
-            $waitResponse = $client->operations()->wait($exec->operation);
-            $apiVersion = $client->getURL()::API_VERSION;
-            if (isset($waitResponse->metadata->metadata->output)){
-                if ($outputOnSuccess){
-                    $url = $client->getURL()::getBaseURL() . str_replace("/$apiVersion", '', $waitResponse->metadata->metadata->output->{1});
-                    $out = $client->sendRequest($url, $client->getURL()::REQUEST_GET);
-                    $outputOnSuccess($out);
-                }
-
-                if ($outputOnError){
-                    $url = $client->getURL()::getBaseURL() . str_replace("/$apiVersion", '', $waitResponse->metadata->metadata->output->{2});
-                    $out = $client->sendRequest($url, $client->getURL()::REQUEST_GET);
-                    $outputOnError($out);
-                }
-
-                # If user doesn't handle the errorOutput, and the exit code is not 0, we throw an error:
-                if ($outputOnError === null && isset($waitResponse->metadata->metadata->return)
-                    && $waitResponse->metadata->metadata->return > 0){
-                    $url = $client->getURL()::getBaseURL() . str_replace("/$apiVersion", '', $waitResponse->metadata->metadata->output->{2});
-                    throw new \Exception($client->sendRequest($url, $client->getURL()::REQUEST_GET));
-                }
-            }
-        }
-
-        return isset($waitResponse->metadata->status) &&
-            isset($waitResponse->metadata->metadata->return) &&
-            $waitResponse->metadata->metadata->return === 0 &&
-            strtoupper($waitResponse->metadata->status) === 'SUCCESS';
-    }
-
-    /**
-     * @param string $serviceName
-     * @param string $signal
-     * @return bool
-     * @throws \Exception
-     */
-    protected function signalSystemDService(string $serviceName, string $signal = CloudAppSignalInterface::SystemDSignalRestart): bool
-    {
-        return $this->runCommand( null, null, "bash", "-c", "systemctl $signal $serviceName");
     }
 
     /**
@@ -297,12 +128,13 @@ abstract class CloudAppInterface
      * //  This was a dfff08 exam string. Test me! e549c
      * ```
      *
-     * @param string $content The original content.
+     * @param string $content     The original content.
      * @param array $replacements An associative array where keys are target strings and values are replacer functions.
      *                            Each replacer function should return the replacement string.
+     *
      * @return string The content with replacements applied.
      */
-    public static function replaceVariables(string $content, array $replacements): string
+    public static function replaceVariables (string $content, array $replacements): string
     {
         // Iterate through each target string and its corresponding replacer
         foreach ($replacements as $targetString => $replacer) {
@@ -318,6 +150,232 @@ abstract class CloudAppInterface
         }
 
         return $content;
+    }
+
+    public function getContainerReplaceableVariables (): array
+    {
+        return $this->containerReplaceableVariables;
+    }
+
+    public function setContainerReplaceableVariables (array|\stdClass $containerReplaceableVariables): void
+    {
+        if (is_object($containerReplaceableVariables)) {
+            $containerReplaceableVariables = (array)$containerReplaceableVariables;
+        }
+
+        $replaceableVariables = [];
+        foreach ($containerReplaceableVariables as $key => $value) {
+            $key = strtoupper($key);
+            $replaceableVariables["[[$key]]"] = function () use ($value) { return $value; };
+        }
+
+        $replaceableVariables["[[RAND_STRING]]"] = function () { return helper()->randString(); };
+
+        $this->containerReplaceableVariables = $replaceableVariables;
+    }
+
+    /**
+     * This gives the app the opportunity to prepare for flight, for example, when user clicks the save changes in
+     * the app settings, you get the fieldDetails which you can use to extract the relevant details you want.
+     *
+     * I would give you the flightType, this way, you know what you are preparing for. You are free to ignore the flight preparation.
+     *
+     * @param array $data - Can be field or global post data when doing auto configuration
+     * @param string $flightType
+     *
+     * @return mixed
+     */
+    abstract public function prepareForFlight (array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): mixed;
+
+    /**
+     * Install The App Into The Container
+     */
+    abstract public function install ();
+
+    /**
+     * UnInstall The App From The Container
+     */
+    abstract public function uninstall ();
+
+    /**
+     * Update App Settings In The Container
+     */
+    abstract public function updateSettings ();
+
+    /**
+     * @return mixed
+     */
+    public function getPostPrepareForFlight (): mixed
+    {
+        return $this->postPrepareForFlight;
+    }
+
+    /**
+     * @param mixed $postPrepareForFlight
+     *
+     * @return CloudAppInterface
+     */
+    public function setPostPrepareForFlight (mixed $postPrepareForFlight): CloudAppInterface
+    {
+        $this->postPrepareForFlight = $postPrepareForFlight;
+        return $this;
+    }
+
+    /**
+     * @param string $filePath
+     * @param string $fileContent
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    protected function createOrReplaceFile (string $filePath, string $fileContent): bool
+    {
+        $client = $this->client();
+        $client->containers()->createOrReplaceFile($this->getIncusContainerName(), [
+            "path"          => $filePath,
+            "body"          => $fileContent,
+            "X-Incus-type"  => 'file',       // Type of file (file, symlink or directory) (optional)
+            "X-Incus-write" => 'overwrite',  // Write mode (overwrite or append)(optional)
+        ]);
+
+        if ($client->isSuccess()) {
+            return true;
+        }
+
+        throw new \Exception($client->errorMessage());
+    }
+
+    /**
+     * Gets the Incus Client
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function client (int $containerID = null): Client
+    {
+        $container = ContainerService::getContainer($this->getContainerID(), false);
+        if (empty($container)) {
+            throw new \Exception("An Error Occurred While Trying To Get Container");
+        }
+
+        return ContainerService::getIncusClient(json_decode($container?->serviceInstanceOthers));
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getContainerID (): ?int
+    {
+        return $this->containerID;
+    }
+
+    /**
+     * @param int|null $containerID
+     *
+     * @return CloudAppInterface
+     */
+    public function setContainerID (?int $containerID): CloudAppInterface
+    {
+        $this->containerID = $containerID;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIncusContainerName (): string
+    {
+        return $this->incusContainerName;
+    }
+
+    /**
+     * @param string $incusContainerName
+     *
+     * @return CloudAppInterface
+     */
+    public function setIncusContainerName (string $incusContainerName): CloudAppInterface
+    {
+        $this->incusContainerName = $incusContainerName;
+        return $this;
+    }
+
+    /**
+     * @param string $serviceName
+     * @param string $signal
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    protected function signalSystemDService (string $serviceName, string $signal = CloudAppSignalInterface::SystemDSignalRestart): bool
+    {
+        return $this->runCommand(null, null, "bash", "-c", "systemctl $signal $serviceName");
+    }
+
+    /**
+     * Run commands, an example:
+     *
+     * - `runCommand(null, null, "/bin/systemctl", "start", "nginx")`;
+     * - `runCommand(null, null, "/bin/systemctl", "restart", "mariadb")`;
+     *
+     * or event better use bash and call the commands and its option in one fell swoop, you also don't need /bin no more:
+     *
+     * - `runCommand(null, null, "bash", "-c", "systemctl restart nginx")`;
+     * - `runCommand(null, null, "bash", "-c", "ls -lah /etc/nginx/conf.d")`;
+     *
+     * To run a command and get an output, you can do (the first callback is for the stdout and the second is for stderr):
+     * - `runCommand(function ($out){}, function ($err){}, "ls", "lah")`;
+     * - `runCommand(function ($out){}, function ($err){}, "cat", "/etc/nginx/conf.d/default.conf")`;
+     *
+     * @param callable|null $outputOnSuccess
+     * @param callable|null $outputOnError
+     * @param ...$commands
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    protected function runCommand (callable $outputOnSuccess = null, callable $outputOnError = null, ...$commands): bool
+    {
+        $post = [
+            "command"       => $commands,
+            "interactive"   => false,
+            "record-output" => true,
+        ];
+
+        $client = $this->client();
+        $exec = $client->instances()->execute($this->getIncusContainerName(), $post);
+        $waitResponse = null;
+        if ($exec) {
+            // wait until the background operation is completed and return the operationResult
+            $waitResponse = $client->operations()->wait($exec->operation);
+            $apiVersion = $client->getURL()::API_VERSION;
+            if (isset($waitResponse->metadata->metadata->output)) {
+                if ($outputOnSuccess) {
+                    $url = $client->getURL()::getBaseURL() . str_replace("/$apiVersion", '', $waitResponse->metadata->metadata->output->{1});
+                    $out = $client->sendRequest($url, $client->getURL()::REQUEST_GET);
+                    $outputOnSuccess($out);
+                }
+
+                if ($outputOnError) {
+                    $url = $client->getURL()::getBaseURL() . str_replace("/$apiVersion", '', $waitResponse->metadata->metadata->output->{2});
+                    $out = $client->sendRequest($url, $client->getURL()::REQUEST_GET);
+                    $outputOnError($out);
+                }
+
+                # If user doesn't handle the errorOutput, and the exit code is not 0, we throw an error:
+                if ($outputOnError === null && isset($waitResponse->metadata->metadata->return)
+                    && $waitResponse->metadata->metadata->return > 0) {
+                    $url = $client->getURL()::getBaseURL() . str_replace("/$apiVersion", '', $waitResponse->metadata->metadata->output->{2});
+                    throw new \Exception($client->sendRequest($url, $client->getURL()::REQUEST_GET));
+                }
+            }
+        }
+
+        return isset($waitResponse->metadata->status) &&
+            isset($waitResponse->metadata->metadata->return) &&
+            $waitResponse->metadata->metadata->return === 0 &&
+            strtoupper($waitResponse->metadata->status) === 'SUCCESS';
     }
 
 

@@ -32,20 +32,19 @@ class ContainerController
 {
     use Validator;
 
-    private FieldData $fieldData;
-    private AbstractDataLayer $abstractDataLayer;
-    private ContainerService $containerService;
-    private static string $currentControllerMethod = '';
-
     const CREATE_METHOD = 'CREATE';
-    const EDIT_METHOD = 'EDIT';
+    const EDIT_METHOD   = 'EDIT';
+    private static string     $currentControllerMethod = '';
+    private FieldData         $fieldData;
+    private AbstractDataLayer $abstractDataLayer;
+    private ContainerService  $containerService;
 
     /**
      * @param FieldData $fieldData
      * @param AbstractDataLayer $abstractDataLayer
      * @param ContainerService $containerService
      */
-    public function __construct(FieldData $fieldData, AbstractDataLayer $abstractDataLayer, ContainerService $containerService)
+    public function __construct (FieldData $fieldData, AbstractDataLayer $abstractDataLayer, ContainerService $containerService)
     {
         $this->fieldData = $fieldData;
         $this->abstractDataLayer = $abstractDataLayer;
@@ -53,15 +52,41 @@ class ContainerController
     }
 
     /**
+     * @param string $uuid
+     *
+     * @return string
+     */
+    public static function getIncusContainerName (string $uuid): string
+    {
+        return ContainerService::getIncusContainerName($uuid);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getCurrentControllerMethod (): string
+    {
+        return self::$currentControllerMethod;
+    }
+
+    /**
+     * @param string $currentControllerMethod
+     */
+    public static function setCurrentControllerMethod (string $currentControllerMethod): void
+    {
+        self::$currentControllerMethod = $currentControllerMethod;
+    }
+
+    /**
      * @return void
      * @throws \Exception|\Throwable
      */
-    public function index(): void
+    public function index (): void
     {
         $dataTableHeaders = [
             [
-                'type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status',
-                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'container_status'
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status',
+                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'container_status',
             ],
 
             ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'container_id'],
@@ -69,21 +94,22 @@ class ContainerController
             ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_name', 'title' => 'Instance', 'minmax' => '50px, .5fr', 'td' => 'service_instance_name'],
 
             [
-                'type' => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status_action',
+                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status_action',
                 'select_data' => 'Start, ShutDown, Reboot, Delete, Force Delete', 'desc' => 'Signal Command',
-                'title' => 'Sig', 'minmax' => '40px, .4fr', 'td' => 'container_status_action'
+                'title'       => 'Sig', 'minmax' => '40px, .4fr', 'td' => 'container_status_action',
             ],
 
             [
-                'type' => '',
-                'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_name',
-                'title' => 'Container', 'desc' => 'Name of the Container',
-                'minmax' => '50px, .5fr', 'td' => 'container_name'
+                'type'   => '',
+                'slug'   => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_name',
+                'title'  => 'Container', 'desc' => 'Name of the Container',
+                'minmax' => '50px, .5fr', 'td' => 'container_name',
             ],
 
-            ['type' => '',
-                'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_description',
-                'title' => 'Desc', 'desc' => 'Container Description', 'minmax' => '50px, .5fr', 'td' => 'container_description'
+            [
+                'type'  => '',
+                'slug'  => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_description',
+                'title' => 'Desc', 'desc' => 'Container Description', 'minmax' => '50px, .5fr', 'td' => 'container_description',
             ],
         ];
 
@@ -94,7 +120,7 @@ class ContainerController
 
             $data = $db->Select("container_id, container_name, container_description, 
             $serviceInstanceTable.service_instance_id, $serviceInstanceTable.service_instance_name, container_status,
-            CONCAT('/customer/tonics_cloud/containers/', container_id, '/edit' ) as _edit_link, CONCAT('/customer/tonics_cloud/containers/', container_id, '/apps' ) as _apps_link" )
+            CONCAT('/customer/tonics_cloud/containers/', container_id, '/edit' ) as _edit_link, CONCAT('/customer/tonics_cloud/containers/', container_id, '/apps' ) as _apps_link")
                 ->From($containerTable)
                 ->Join("$serviceInstanceTable", "$serviceInstanceTable.service_instance_id", "$containerTable.service_instance_id")
                 ->WhereNull("$containerTable.end_time")
@@ -107,12 +133,12 @@ class ContainerController
 
         view('Apps::TonicsCloud/Views/Container/index', [
             'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $data ?? [],
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $data ?? [],
                 'dataTableType' => 'TONICS_CLOUD',
-                'controller' => ContainerController::class
+                'controller'    => ContainerController::class,
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'   => AppConfig::getAppUrl(),
         ]);
     }
 
@@ -121,7 +147,7 @@ class ContainerController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function dataTable(): void
+    public function dataTable (): void
     {
         $entityBag = null;
         if ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -146,93 +172,20 @@ class ContainerController
     }
 
     /**
-     * @return void
-     * @throws \Exception
-     * @throws \Throwable
+     * @return AbstractDataLayer
      */
-    public function create(): void
+    public function getAbstractDataLayer (): AbstractDataLayer
     {
-        self::setCurrentControllerMethod(self::CREATE_METHOD);
-        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
-        if (!is_array($oldFormInput)) {
-            $oldFormInput = [];
-        }
-
-        view('Apps::TonicsCloud/Views/Container/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $this->getFieldData()
-                ->generateFieldWithFieldSlug(['app-tonicscloud-container-page'], $oldFormInput)->getHTMLFrag()
-        ]);
-    }
-
-    /**
-     * @throws \ReflectionException
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function store()
-    {
-        $this->containerService->createContainer(input()->fromPost()->all());
-        if ($this->containerService->fails()) {
-            session()->flash($this->containerService->getErrors(), input()->fromPost()->all());
-        } else {
-            session()->flash([$this->containerService->getMessage()], [], Session::SessionCategories_FlashMessageSuccess);
-        }
-        redirect($this->containerService->getRedirectsRoute());
-    }
-
-    /**
-     * @param $containerID
-     * @return void
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function edit($containerID): void
-    {
-        self::setCurrentControllerMethod(self::EDIT_METHOD);
-        $container = ContainerService::getContainer($containerID);
-
-        if (!is_object($container)) {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
-        }
-
-        $containerOthers = json_decode($container->containerOthers, true);
-        $container = [...(array)$container, ...$containerOthers];
-
-        view('Apps::TonicsCloud/Views/Container/edit', [
-            'ContainerData' => $container,
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $this->getFieldData()
-                ->generateFieldWithFieldSlug(['app-tonicscloud-container-page'], $container)->getHTMLFrag()
-        ]);
-    }
-
-    /**d
-     * @param $containerID
-     * @return void
-     * @throws \ReflectionException
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function update($containerID)
-    {
-        $this->containerService->updateContainer(input()->fromPost()->all());
-        if ($this->containerService->fails()) {
-            session()->flash($this->containerService->getErrors(), input()->fromPost()->all());
-        } else {
-            session()->flash([$this->containerService->getMessage()], [], Session::SessionCategories_FlashMessageSuccess);
-        }
-        redirect($this->containerService->getRedirectsRoute());
+        return $this->abstractDataLayer;
     }
 
     /**
      * @param $entityBag
+     *
      * @return true
      * @throws \Exception
      */
-    public function deleteMultiple($entityBag): true
+    public function deleteMultiple ($entityBag): true
     {
         $deleteItems = $this->getAbstractDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
         foreach ($deleteItems as $delete) {
@@ -248,10 +201,11 @@ class ContainerController
 
     /**
      * @param $entityBag
+     *
      * @return bool
      * @throws \Exception
      */
-    public function updateMultiple($entityBag): bool
+    public function updateMultiple ($entityBag): bool
     {
         $updateItems = $this->getAbstractDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
         foreach ($updateItems as $update) {
@@ -266,11 +220,31 @@ class ContainerController
         return true;
     }
 
+    /**
+     * @return void
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function create (): void
+    {
+        self::setCurrentControllerMethod(self::CREATE_METHOD);
+        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
+        if (!is_array($oldFormInput)) {
+            $oldFormInput = [];
+        }
+
+        view('Apps::TonicsCloud/Views/Container/create', [
+            'SiteURL'    => AppConfig::getAppUrl(),
+            'TimeZone'   => AppConfig::getTimeZone(),
+            'FieldItems' => $this->getFieldData()
+                ->generateFieldWithFieldSlug(['app-tonicscloud-container-page'], $oldFormInput)->getHTMLFrag(),
+        ]);
+    }
 
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -278,45 +252,72 @@ class ContainerController
     /**
      * @param FieldData $fieldData
      */
-    public function setFieldData(FieldData $fieldData): void
+    public function setFieldData (FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }
 
     /**
-     * This function must be called whenever you need the container name of the incus container,
-     * this is because when the container was created, we use the slug_id of the container table column which
-     * is a UUID, and since incus container can't start with a number and a UUID can, this function prepends `tc` as a
-     * workaround.
-     * @param string $uuid
-     * @return string
+     * @throws \ReflectionException
+     * @throws \Exception
+     * @throws \Throwable
      */
-    public static function getIncusContainerName(string $uuid): string
+    public function store ()
     {
-        return 'tc-'. $uuid;
+        $this->containerService->createContainer(input()->fromPost()->all());
+        if ($this->containerService->fails()) {
+            session()->flash($this->containerService->getErrors(), input()->fromPost()->all());
+        } else {
+            session()->flash([$this->containerService->getMessage()], [], Session::SessionCategories_FlashMessageSuccess);
+        }
+        redirect($this->containerService->getRedirectsRoute());
     }
 
     /**
-     * @return AbstractDataLayer
+     * @param $containerID
+     *
+     * @return void
+     * @throws \Exception
+     * @throws \Throwable
      */
-    public function getAbstractDataLayer(): AbstractDataLayer
+    public function edit ($containerID): void
     {
-        return $this->abstractDataLayer;
+        self::setCurrentControllerMethod(self::EDIT_METHOD);
+        $container = ContainerService::getContainer($containerID);
+
+        if (!is_object($container)) {
+            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+        }
+
+        $containerOthers = json_decode($container->containerOthers, true);
+        $container = [...(array)$container, ...$containerOthers];
+
+        view('Apps::TonicsCloud/Views/Container/edit', [
+            'ContainerData' => $container,
+            'SiteURL'       => AppConfig::getAppUrl(),
+            'TimeZone'      => AppConfig::getTimeZone(),
+            'FieldItems'    => $this->getFieldData()
+                ->generateFieldWithFieldSlug(['app-tonicscloud-container-page'], $container)->getHTMLFrag(),
+        ]);
     }
 
-    /**
-     * @return string
+    /**d
+     *
+     * @param $containerID
+     *
+     * @return void
+     * @throws \ReflectionException
+     * @throws \Exception
+     * @throws \Throwable
      */
-    public static function getCurrentControllerMethod(): string
+    public function update ($containerID)
     {
-        return self::$currentControllerMethod;
-    }
-
-    /**
-     * @param string $currentControllerMethod
-     */
-    public static function setCurrentControllerMethod(string $currentControllerMethod): void
-    {
-        self::$currentControllerMethod = $currentControllerMethod;
+        $this->containerService->updateContainer(input()->fromPost()->all());
+        if ($this->containerService->fails()) {
+            session()->flash($this->containerService->getErrors(), input()->fromPost()->all());
+        } else {
+            session()->flash([$this->containerService->getMessage()], [], Session::SessionCategories_FlashMessageSuccess);
+        }
+        redirect($this->containerService->getRedirectsRoute());
     }
 }

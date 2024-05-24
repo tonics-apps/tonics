@@ -19,9 +19,7 @@
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
 use App\Modules\Core\Library\Tables;
-use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Field\Events\OnFieldFormHelper;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class FieldSelectionDropper implements HandlerInterface
@@ -32,7 +30,7 @@ class FieldSelectionDropper implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox(
@@ -46,14 +44,14 @@ class FieldSelectionDropper implements HandlerInterface
         },
             handleViewProcessing: function ($data) use ($event) {
                 return '';
-            }
+            },
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
@@ -74,7 +72,7 @@ HTML;
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $fields = null;
-        db(onGetDB: function ($db) use (&$fields){
+        db(onGetDB: function ($db) use (&$fields) {
             $table = Tables::getTable(Tables::FIELD);
             $fields = $db->run("SELECT * FROM $table");
         });
@@ -85,7 +83,7 @@ HTML;
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug";
             $fieldSelected = (isset($fieldSlug[$uniqueSlug])) ? 'selected' : '';
-            if ($fieldSelected === 'selected'){
+            if ($fieldSelected === 'selected') {
                 $selectedFields[] = $field;
             }
             $fieldFrag .= <<<HTML
@@ -94,10 +92,10 @@ HTML;
         }
 
         $selectedFieldFrag = '';
-        foreach ($selectedFields as $field){
+        foreach ($selectedFields as $field) {
             $uniqueSlug = "$field->field_slug";
             $selected = '';
-            if ($uniqueSlug === $data?->defaultFieldSlug){
+            if ($uniqueSlug === $data?->defaultFieldSlug) {
                 $selected = 'selected';
             }
             $selectedFieldFrag .= <<<HTML
@@ -114,7 +112,7 @@ HTML;
      </select>
     </label>
 </div>
-HTML
+HTML,
         );
 
         $frag .= <<<FORM
@@ -152,18 +150,19 @@ FORM;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $fieldSlug = array_combine($data?->fieldSlug ?? [], $data?->fieldSlug ?? []);
         $expandField = (isset($data->expandField)) ? $data->expandField : '1';
         $defaultFieldSlug = (empty($keyValue)) ? $data?->defaultFieldSlug : $keyValue;
         $fieldSelectDropperFrag = '';
         $fields = null;
-        db(onGetDB: function ($db) use (&$fields){
+        db(onGetDB: function ($db) use (&$fields) {
             $table = Tables::getTable(Tables::FIELD);
             $fields = $db->run("SELECT * FROM $table");
         });
@@ -172,14 +171,14 @@ FORM;
         $defaultFieldSlugFrag = '';
         foreach ($fields as $field) {
             $uniqueSlug = "$field->field_slug";
-            if (isset($fieldSlug[$field->field_slug])){
+            if (isset($fieldSlug[$field->field_slug])) {
                 $fieldSelected = '';
-                if ($uniqueSlug === $defaultFieldSlug){
+                if ($uniqueSlug === $defaultFieldSlug) {
                     $fieldSelected = 'selected';
-                    if ($expandField === '1'){
+                    if ($expandField === '1') {
                         $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
                             [$uniqueSlug],
-                            getPostData()
+                            getPostData(),
                         )->getHTMLFrag();
                     }
                 }
@@ -189,11 +188,12 @@ HTML;
             }
         }
 
-        if ($expandField === '1'){
-            if (isset($data->_field->_children)){
+        if ($expandField === '1') {
+
+            if (isset($data->_field->_children)) {
 
                 $originalFieldItems = null;
-                db(onGetDB: function ($db) use ($event, $defaultFieldSlug, &$originalFieldItems){
+                db(onGetDB: function ($db) use ($event, $defaultFieldSlug, &$originalFieldItems) {
                     $fieldTable = $event->getFieldData()->getFieldTable();
                     $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
                     $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
@@ -204,14 +204,14 @@ HTML;
                         ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
                 });
 
-                foreach ($originalFieldItems as $originalFieldItem){
+                foreach ($originalFieldItems as $originalFieldItem) {
                     $fieldOption = json_decode($originalFieldItem->field_options);
                     $originalFieldItem->field_options = $fieldOption;
                 }
 
                 // Sort and Arrange OriginalFieldItems
                 $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
-                if (isset($data->_field->_children)){
+                if (isset($data->_field->_children)) {
                     $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
                 } else {
                     $sortedFieldWalkerItems = $originalFieldItems;

@@ -18,56 +18,56 @@
 
 namespace App\Apps\TonicsCloud\Events;
 
-use App\Apps\TonicsCloud\Interfaces\CloudServerInterface;
+use App\Apps\TonicsCloud\Interfaces\CloudAutomationInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 
-class OnAddCloudServerEvent implements EventInterface
+class OnAddCloudAutomationEvent implements EventInterface
 {
-    private array $cloudServers = [];
+    private array $cloudAutomations = [];
 
     public function event (): static
     {
         return $this;
     }
 
-    public function addCloudServerHandler (CloudServerInterface $cloudServer): static
+    public function addCloudAutomationHandler (CloudAutomationInterface $cloudAutomation): static
     {
-        $this->cloudServers[strtolower($cloudServer->name())] = $cloudServer;
+        $this->cloudAutomations[strtolower($cloudAutomation->name())] = $cloudAutomation;
         return $this;
     }
 
     public function exist (string $name): bool
     {
         $name = strtolower($name);
-        return isset($this->cloudServers[$name]);
+        return isset($this->cloudAutomations[$name]);
     }
 
     /**
      * @throws \Exception
      */
-    public function getCloudServerHandler (string $name): mixed
+    public function getCloudAutomationHandler (string $name): mixed
     {
         $name = strtolower($name);
-        if (isset($this->cloudServers[$name])) {
-            return $this->cloudServers[$name];
+        if (isset($this->cloudAutomations[$name])) {
+            return $this->cloudAutomations[$name];
         }
 
-        throw new \Exception("$name is an unknown server handler name");
+        throw new \Exception("$name is an unknown cloud automation handler name");
     }
 
     /**
      * @return array
      */
-    public function getCloudServers (): array
+    public function getCloudAutomations (): array
     {
-        return $this->cloudServers;
+        return $this->cloudAutomations;
     }
 
     /**
-     * @param array $cloudServers
+     * @param array $cloudAutomations
      */
-    public function setCloudServers (array $cloudServers): void
+    public function setCloudAutomations (array $cloudAutomations): void
     {
-        $this->cloudServers = $cloudServers;
+        $this->cloudAutomations = $cloudAutomations;
     }
 }
