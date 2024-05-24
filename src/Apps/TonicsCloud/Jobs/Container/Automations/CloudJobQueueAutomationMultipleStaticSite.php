@@ -64,21 +64,13 @@ class CloudJobQueueAutomationMultipleStaticSite extends AbstractJobInterface imp
                 'unzip_overwrite'   => '1',
             ]),
         ];
-        $nginxHTTPMode = $this->NginxMode($containerID, $apps, <<<'CONFIG'
-server {
-    listen 80;
-    listen [::]:80;
-    server_name [[ACME_DOMAIN]];
 
-    root /var/www/[[ACME_DOMAIN]];
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-CONFIG,
-        );
+        $nginxHTTPMode = $this->NginxMode($containerID, $apps, TonicsCloudNginx::NginxSimple([
+            'serverName' => '[[ACME_DOMAIN]]',
+            'root'       => '/var/www/[[ACME_DOMAIN]]',
+            'ssl'        => false,
+        ]));
+        
         /** @var CloudJobQueueUpdateApp $cloudJobQueueUpdateApp */
         $cloudJobQueueUpdateApp = container()->get(CloudJobQueueUpdateApp::class);
 
