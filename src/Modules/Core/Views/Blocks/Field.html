@@ -22,25 +22,27 @@ FIELD FORMS
 
 
 <form action="[[arg('1')]]" class="width:100% d:flex justify-content:center" method="[[arg('2')]]">
-    <input type="search" required="" class="filter-search-admin border-radius:40px" 
-           name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
+    <input aria-label="Search and Hit Enter" class="filter-search-admin border-radius:40px" name="query"
+           placeholder="Search &amp; Hit Enter" required="" type="search">
 </form>
 ]]
 
 [[b('Field::form::create')
-<form method="post" action="[[use('Field::route::posts.store')]]" accept-charset="UTF-8" enctype="multipart/form-data">
-    <input type="hidden" name="token" value="[[csrf()]]" >
+<form accept-charset="UTF-8" action="[[use('Field::route::posts.store')]]" enctype="multipart/form-data" method="post">
+    <input name="token" type="hidden" value="[[csrf()]]">
     <section class="post-admin-wrapper owl">
         <div class="admin-post-writing-experience">
             <fieldset class="owl padding:default max-width:1350">
                 <legend class="bg:pure-black color:white padding:default">Field Experience</legend>
                 <!-- Text Title Section -->
                 <div class="form-group margin-top:0">
-                    <label for="field_name" class="screen-reader-text">Enter Title Here</label>
+                    <label class="screen-reader-text" for="field_name">Enter Title Here</label>
                     [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.field_name')]]
-                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
-                           value="[[session('getOldFormInput', 'old_form_input.field_name', '')]]"
-                           name="field_name" id="field_name" required="" placeholder="Enter Title Here" type="text">
+                    <input class="color:black border-width:default border:black placeholder-color:gray"
+                           data-widget-title-slugtochange="true"
+                           id="field_name"
+                           name="field_name" placeholder="Enter Title Here" required="" type="text"
+                           value="[[session('getOldFormInput', 'old_form_input.field_name', '')]]">
                 </div>
 
             </fieldset>
@@ -56,19 +58,23 @@ FIELD FORMS
 ]]
 
 [[b('Field::form::edit')
-<form method="post" action="[[func('Field::route::posts.update', 'Field::route::slug')]]" accept-charset="UTF-8" enctype="multipart/form-data">
-    <input type="hidden" name="token" value="[[csrf()]]" >
+<form accept-charset="UTF-8" action="[[func('Field::route::posts.update', 'Field::route::slug')]]"
+      enctype="multipart/form-data"
+      method="post">
+    <input name="token" type="hidden" value="[[csrf()]]">
     <section class="post-admin-wrapper owl">
         <div class="admin-post-writing-experience">
             <fieldset class="owl padding:default max-width:1350">
                 <legend class="bg:pure-black color:white padding:default">Field Experience</legend>
                 <!-- Text Title Section -->
                 <div class="form-group margin-top:0">
-                    <label for="field_name" class="screen-reader-text">Enter Title Here</label>
+                    <label class="screen-reader-text" for="field_name">Enter Title Here</label>
                     [[session('renderFlashMessages', 'tonics_flash_message.errorMessage.field_name')]]
-                    <input data-widget-title-slugtochange="true" class="color:black border-width:default border:black placeholder-color:gray"
-                           value="[[v('Data.field_name')]]"
-                           name="field_name" id="field_name" required="" placeholder="Enter Title Here" type="text">
+                    <input class="color:black border-width:default border:black placeholder-color:gray"
+                           data-widget-title-slugtochange="true"
+                           id="field_name"
+                           name="field_name" placeholder="Enter Title Here" required="" type="text"
+                           value="[[v('Data.field_name')]]">
                 </div>
 
             </fieldset>
@@ -95,7 +101,8 @@ Field VIEWS
 
 [[b('Field::Items::view::index')
 <div class="d:flex justify-content:center flex-wrap:wrap flex-gap padding:default">
-    <ul style="top:0;" class="width:100% menu-field border-width:default border:black align-items:center list:style:none d:flex flex-d:column padding:default flex-gap:small flex:one">
+    <ul class="width:100% menu-field border-width:default border:black align-items:center list:style:none d:flex flex-d:column padding:default flex-gap:small flex:one"
+        style="top:0; height: 650px; overflow: auto;">
         [[_v('MetaBox')]]
     </ul>
     <ul class="width:100% menu-arranger border-width:default border:black list:style:none d:flex flex-wrap:wrap flex-d:column flex-gap padding:default align-items:center flex-basis:min-content flex:four">
