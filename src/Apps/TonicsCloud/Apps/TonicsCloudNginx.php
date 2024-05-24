@@ -26,174 +26,27 @@ class TonicsCloudNginx extends CloudAppInterface implements CloudAppSignalInterf
 {
 
     const NGINX_CONFIG_RECIPE_REVERSE_PROXY_SIMPLE = 'app-tonicscloud-nginx-recipe-reverse-proxy-simple';
-    const NGINX_TONICS_RECIPE_SIMPLE = 'app-tonicscloud-nginx-recipe-tonics-simple';
-    const NGINX_WORDPRESS_RECIPE_SIMPLE = 'app-tonicscloud-nginx-recipe-wordpress-simple';
-
-    private string $phpVersion = '';
-    private static string $backend = '';
-
-    /**
-     * @inheritDoc
-     * @throws \Exception
-     */
-    public function updateSettings(): void
-    {
-        $config = $this->getPostPrepareForFlight()->config;
-        if ($this->getPostPrepareForFlight()->backend === 'php'){
-            $config = helper()->replacePlaceHolders($config, [
-                "[[PHP_VERSION]]" => $this->phpVersion()
-            ]);
-        }
-        $this->createOrReplaceFile("/etc/nginx/conf.d/default.conf", $config);
-    }
+    const NGINX_TONICS_RECIPE_SIMPLE               = 'app-tonicscloud-nginx-recipe-tonics-simple';
+    const NGINX_WORDPRESS_RECIPE_SIMPLE            = 'app-tonicscloud-nginx-recipe-wordpress-simple';
+    private static string $backend    = '';
+    private string        $phpVersion = '';
 
     /**
-     * @throws \Exception
-     */
-    public function isStatus(string $statusString): bool
-    {
-        $status = '';
-        if (CloudAppSignalInterface::STATUS_RUNNING === $statusString){
-            $this->runCommand(function ($out) use (&$status){ $status = $out; }, null, "bash", "-c", "systemctl show nginx -p ActiveState");
-            return str_starts_with($status, 'ActiveState=active');
-        }
-
-        if (CloudAppSignalInterface::STATUS_STOPPED === $statusString){
-            $this->runCommand(function ($out) use (&$status){ $status = $out; }, null, "bash", "-c", "systemctl show nginx -p ActiveState");
-            return str_starts_with($status, 'ActiveState=inactive');
-        }
-
-        return false;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function start(): bool
-    {
-        return $this->signalSystemDService('nginx', self::SystemDSignalStart);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function reload(): bool
-    {
-       return $this->runCommand(null, null, "bash", "-c", "nginx -t && nginx -s reload");
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function stop(): bool
-    {
-        return $this->signalSystemDService('nginx', self::SystemDSignalStop);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function install()
-    {
-        // TODO: Implement install() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function uninstall()
-    {
-        // TODO: Implement uninstall() method.
-    }
-
-    public function prepareForFlight(array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): ?array
-    {
-        if ($flightType === self::PREPARATION_TYPE_SETTINGS) {
-            return $this->extractNginxConfig($data);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param $fields
-     * @return array
-     */
-    private function extractNginxConfig($fields): array
-    {
-        $config = '';
-        $serverName = '';
-        $proxyPassContainer = '';
-        $root = '';
-        $ssl = false;
-        foreach ($fields as $field){
-            if (isset($field->main_field_slug) && $field->field_name !== FieldSelectionDropper::FieldSlug){
-                $fieldOptions = json_decode($field->field_options);
-                $value = $fieldOptions->{$field->field_input_name} ?? null;
-
-                if ($value === null){
-                    continue;
-                }
-
-                if ($field->field_input_name === 'root'){
-                    $root = $value;
-                    continue;
-                }
-
-                if ($field->field_input_name === 'server_name'){
-                    $serverName = $value;
-                    if (!isset($this->dispatchNginxConfig()[$field->main_field_slug])){
-                        $config .= "        server_name $serverName;\n";
-                    }
-                    continue;
-                }
-
-                if ($field->field_input_name === 'proxy_pass_container'){
-                    $proxyPassContainer = $value;
-                    if (!isset($this->dispatchNginxConfig()[$field->main_field_slug])){
-                        $config .= "                proxy_pass http://$proxyPassContainer;\n";
-                    }
-                    continue;
-                }
-
-                if ($field->field_input_name === 'server_ssl'){
-                    $ssl = $value == '1';
-                }
-
-                if (isset($this->dispatchNginxConfig()[$field->main_field_slug])){
-                    $staticFunc = $this->dispatchNginxConfig()[$field->main_field_slug];
-                    $settings = [
-                        'proxyPassContainer' => $proxyPassContainer,
-                        'root' => $root,
-                        'serverName' => $serverName,
-                        'ssl' => $ssl,
-                    ];
-                    $config .= self::$staticFunc($settings);
-                    continue;
-                }
-                $config .= $value;
-            }
-        }
-
-        return [
-            'config' => $this->replaceContainerGlobalVariables($config),
-            'backend' => self::$backend
-        ];
-    }
-
-    private function dispatchNginxConfig(): array
-    {
-        return [
-            self::NGINX_CONFIG_RECIPE_REVERSE_PROXY_SIMPLE => 'NginxConfigReverseProxySimple',
-            self::NGINX_TONICS_RECIPE_SIMPLE => 'TonicsNginxSimple',
-        ];
-    }
-
-    /**
+     * Example usage:
+     *
+     * ```
+     * [
+     *     'serverName' => 'cloud.tonics.app', // siteName
+     *     'proxyPassContainer' => 'tc-UUID', // container to redirect incoming serverName connection to
+     *     'ssl' => false, // set to true if you want SSL
+     * ];
+     * ```
+     *
      * @param array $settings
+     *
      * @return string
      */
-    private static function NginxConfigReverseProxySimple(array $settings): string
+    public static function NginxConfigReverseProxySimple (array $settings): string
     {
         $serverName = $settings['serverName'] ?? '';
         $proxyPassContainer = $settings['proxyPassContainer'] ?? '';
@@ -216,8 +69,8 @@ server {
 }
 
 CONFIG;
-        if ($ssl){
-            $config .=<<<CONFIG
+        if ($ssl) {
+            $config .= <<<CONFIG
 server {
         listen 443 ssl proxy_protocol;
         listen [::]:443 ssl proxy_protocol;
@@ -244,19 +97,113 @@ CONFIG;
     }
 
     /**
+     *  Example usage:
+     *
+     *  ```
+     *  [
+     *      'serverName' => 'cloud.tonics.app', // siteName
+     *      'root' => '/var/www',
+     *      'ssl' => false, // set to true if you want SSL
+     *  ];
+     *  ```
+     *
      * @param $settings
+     *
      * @return string
      */
-    private static function TonicsNginxSimple($settings): string
+    public static function NginxSimple ($settings): string
+    {
+        $serverName = $settings['serverName'] ?: '';
+        $root = $settings['root'] ?: '/var/www/[[ACME_DOMAIN]]';
+        $ssl = $settings['ssl'];
+
+        $config = <<<CONFIG
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $serverName;
+
+    root $root;
+    index index.html;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+
+CONFIG;
+        if ($ssl) {
+            $config .= <<<CONFIG
+server {
+    listen 443 ssl;
+    server_name $serverName;
+
+    http2 on;
+    ssl_certificate /etc/ssl/{$serverName}_fullchain.cer;
+    ssl_certificate_key /etc/ssl/$serverName.key;
+    ssl_protocols        TLSv1.3 TLSv1.2 TLSv1.1;
+
+    location / {
+        root $root;
+        index index.html;
+    }
+
+    # Additional HTTPS configurations if needed
+}
+
+CONFIG;
+        }
+
+        return $config;
+
+    }
+
+    /**
+     * Data should contain:
+     *
+     * ```
+     * [
+     *     'config' => '...' // content of nginx config
+     * ]
+     * ```
+     *
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public static function createFieldDetails (array $data = []): mixed
+    {
+        $fieldDetails = <<<'JSON'
+[{"field_id":1,"field_parent_id":null,"field_name":"modular_rowcolumn","field_input_name":"app_config_nginx_recipe","main_field_slug":"app-tonicscloud-app-config-nginx","field_options":"{\"field_slug\":\"modular_rowcolumn\",\"main_field_slug\":\"app-tonicscloud-app-config-nginx\",\"field_slug_unique_hash\":\"5l2r8ntok740000000000\",\"field_input_name\":\"app_config_nginx_recipe\"}"},{"field_id":2,"field_parent_id":1,"field_name":"modular_rowcolumnrepeater","field_input_name":"","main_field_slug":"app-tonicscloud-app-config-nginx","field_options":"{\"field_slug\":\"modular_rowcolumnrepeater\",\"_moreOptions\":{\"inputName\":\"\",\"field_slug_unique_hash\":\"uwtvd1nvteo000000000\",\"field_slug\":\"modular_rowcolumnrepeater\",\"field_name\":\"Recipe Repeater\",\"depth\":\"0\",\"repeat_button_text\":\"Repeat Recipe\",\"grid_template_col\":\" grid-template-columns: ;\",\"row\":\"1\",\"column\":\"1\",\"_cell_position\":null,\"_can_have_repeater_button\":true},\"main_field_slug\":\"app-tonicscloud-app-config-nginx\",\"field_slug_unique_hash\":\"uwtvd1nvteo000000000\",\"field_input_name\":\"\"}"},{"field_id":3,"field_parent_id":2,"field_name":"modular_fieldselectiondropper","field_input_name":"app_config_nginx_recipe_selected","main_field_slug":"app-tonicscloud-app-config-nginx","field_options":"{\"field_slug\":\"modular_fieldselectiondropper\",\"_cell_position\":\"1\",\"main_field_slug\":\"app-tonicscloud-app-config-nginx\",\"field_slug_unique_hash\":\"5z0rte6xjow0000000000\",\"field_input_name\":\"app_config_nginx_recipe_selected\",\"app_config_nginx_recipe_selected\":\"app-tonicscloud-app-config-default\"}"},{"field_id":4,"field_parent_id":3,"field_name":"input_text","field_input_name":"config","main_field_slug":"app-tonicscloud-app-config-default","field_options":"{\"field_slug\":\"input_text\",\"_cell_position\":\"1\",\"main_field_slug\":\"app-tonicscloud-app-config-default\",\"field_slug_unique_hash\":\"7f9nl332bbo0000000000\",\"field_input_name\":\"config\",\"config\":\"nginx content...\"}"}]
+JSON;
+        $fields = json_decode($fieldDetails);
+        return json_encode(self::updateFieldOptions($fields, $data));
+    }
+
+    /**
+     *  Example usage:
+     *
+     *  ```
+     *  [
+     *      'serverName' => 'cloud.tonics.app', // siteName
+     *      'root' => '/var/www', // container to redirect incoming serverName connection to
+     *      'ssl' => false, // set to true if you want SSL
+     *  ];
+     *  ```
+     *
+     * @param $settings
+     *
+     * @return string
+     */
+    private static function TonicsNginxSimple ($settings): string
     {
         self::$backend = 'php';
-
         $serverName = $settings['serverName'] ?: '';
         $root = $settings['root'] ?: '/var/www';
         $ssl = $settings['ssl'] ?: false;
 
         $root = rtrim($root, '/'); // e.g /var/www
-        if ($ssl === false){
+        if ($ssl === false) {
             $config = <<<CONFIG
 server {
 
@@ -344,17 +291,172 @@ CONFIG;
 
     }
 
+    /**
+     * @inheritDoc
+     * @throws \Exception
+     */
+    public function updateSettings (): void
+    {
+        $config = $this->getPostPrepareForFlight()->config;
+        if ($this->getPostPrepareForFlight()->backend === 'php') {
+            $config = helper()->replacePlaceHolders($config, [
+                "[[PHP_VERSION]]" => $this->phpVersion(),
+            ]);
+        }
+        $this->createOrReplaceFile("/etc/nginx/conf.d/default.conf", $config);
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    private function phpVersion (): string
+    {
+        if (empty($this->phpVersion)) {
+            $this->runCommand(function ($out) { $this->phpVersion = $out; }, function ($err) { $this->phpVersion = ''; }, "bash", "-c", <<<EOF
+php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;'
+EOF,
+            );
+        }
+        return trim($this->phpVersion);
+    }
 
     /**
      * @throws \Exception
      */
-    private function phpVersion(): string
+    public function isStatus (string $statusString): bool
     {
-        if (empty($this->phpVersion)){
-            $this->runCommand(function ($out){ $this->phpVersion = $out;}, function ($err){$this->phpVersion = '';}, "bash", "-c", <<<EOF
-php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;'
-EOF);
+        $status = '';
+        if (CloudAppSignalInterface::STATUS_RUNNING === $statusString) {
+            $this->runCommand(function ($out) use (&$status) { $status = $out; }, null, "bash", "-c", "systemctl show nginx -p ActiveState");
+            return str_starts_with($status, 'ActiveState=active');
         }
-        return trim($this->phpVersion);
+
+        if (CloudAppSignalInterface::STATUS_STOPPED === $statusString) {
+            $this->runCommand(function ($out) use (&$status) { $status = $out; }, null, "bash", "-c", "systemctl show nginx -p ActiveState");
+            return str_starts_with($status, 'ActiveState=inactive');
+        }
+
+        return false;
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function start (): bool
+    {
+        return $this->signalSystemDService('nginx', self::SystemDSignalStart);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function reload (): bool
+    {
+        return $this->runCommand(null, null, "bash", "-c", "nginx -t && nginx -s reload");
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function stop (): bool
+    {
+        return $this->signalSystemDService('nginx', self::SystemDSignalStop);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function install () {}
+
+    /**
+     * @inheritDoc
+     */
+    public function uninstall () {}
+
+    public function prepareForFlight (array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): ?array
+    {
+        if ($flightType === self::PREPARATION_TYPE_SETTINGS) {
+            return $this->extractNginxConfig($data);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $fields
+     *
+     * @return array
+     */
+    private function extractNginxConfig ($fields): array
+    {
+        $config = '';
+        $serverName = '';
+        $proxyPassContainer = '';
+        $root = '';
+        $ssl = false;
+        foreach ($fields as $field) {
+            if (isset($field->main_field_slug) && $field->field_name !== FieldSelectionDropper::FieldSlug) {
+                $fieldOptions = json_decode($field->field_options);
+                $value = $fieldOptions->{$field->field_input_name} ?? null;
+
+                if ($value === null) {
+                    continue;
+                }
+
+                if ($field->field_input_name === 'root') {
+                    $root = $value;
+                    continue;
+                }
+
+                if ($field->field_input_name === 'server_name') {
+                    $serverName = $value;
+                    if (!isset($this->dispatchNginxConfig()[$field->main_field_slug])) {
+                        $config .= "        server_name $serverName;\n";
+                    }
+                    continue;
+                }
+
+                if ($field->field_input_name === 'proxy_pass_container') {
+                    $proxyPassContainer = $value;
+                    if (!isset($this->dispatchNginxConfig()[$field->main_field_slug])) {
+                        $config .= "                proxy_pass http://$proxyPassContainer;\n";
+                    }
+                    continue;
+                }
+
+                if ($field->field_input_name === 'server_ssl') {
+                    $ssl = $value == '1';
+                }
+
+                if (isset($this->dispatchNginxConfig()[$field->main_field_slug])) {
+                    $staticFunc = $this->dispatchNginxConfig()[$field->main_field_slug];
+                    $settings = [
+                        'proxyPassContainer' => $proxyPassContainer,
+                        'root'               => $root,
+                        'serverName'         => $serverName,
+                        'ssl'                => $ssl,
+                    ];
+                    $config .= self::$staticFunc($settings);
+                    continue;
+                }
+                $config .= $value;
+            }
+        }
+
+        return [
+            'config'  => $this->replaceContainerGlobalVariables($config),
+            'backend' => self::$backend,
+        ];
+    }
+
+    private function dispatchNginxConfig (): array
+    {
+        return [
+            self::NGINX_CONFIG_RECIPE_REVERSE_PROXY_SIMPLE => 'NginxConfigReverseProxySimple',
+            self::NGINX_TONICS_RECIPE_SIMPLE               => 'TonicsNginxSimple',
+        ];
+    }
+
+
 }

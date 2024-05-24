@@ -29,39 +29,40 @@ class CloudJobQueueDeleteContainer extends AbstractJobInterface implements JobHa
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
-        if ($this->hasContainerUniqueSlugID() === false){
+        if ($this->hasContainerUniqueSlugID() === false) {
             throw new \Exception("Container Unique Name is Missing");
         }
 
         $client = $this->getIncusClient();
         $response = $client->instances()->delete($this->getContainerUniqueSlugID());
-        if ($client->operationIsCreated()){
+        if ($client->operationIsCreated()) {
             $this->updateContainerStatus('Destroying Container');
             $waitResponse = $client->operations()->wait($response->operation, 25);
-            if (isset($waitResponse->metadata->err) && str_contains($waitResponse->metadata->err, "Instance not found")){
+            if (isset($waitResponse->metadata->err) && str_contains($waitResponse->metadata->err, "Instance not found")) {
                 $this->markContainerHasDestroyed();
                 return;
             }
 
-            if (isset($waitResponse->metadata->status) && strtoupper($waitResponse->metadata->status) === 'SUCCESS'){
+            if (isset($waitResponse->metadata->status) && strtoupper($waitResponse->metadata->status) === 'SUCCESS') {
                 $this->markContainerHasDestroyed();
                 return;
             }
         }
 
         # Meaning The Image Has Been Deleted
-        if ($client->isError()){
-            if (str_contains($client->errorMessage(), "Instance not found")){
+        if ($client->isError()) {
+            if (str_contains($client->errorMessage(), "Instance not found")) {
                 $this->markContainerHasDestroyed();
                 return;
             }
         }
 
         $this->logInfoMessage($client);
-        
+
         # An Error Occurred Somewhere, let's re-queue for a retry if we have the opportunity
         $this->setJobStatusAfterJobHandled(Job::JobStatus_Queued);
 

@@ -25,15 +25,47 @@ class TonicsCloudACME extends CloudAppInterface implements CloudAppSignalInterfa
 {
 
     /**
+     * Data should contain:
+     *
+     * ```
+     * [
+     *     'acme_email' => 'example@email.com',
+     *     'acme_mode' => 'nginx', // can be: nginx, apache2, standalone
+     *     'acme_issuer' => 'Letsencrypt', // can be: Letsencrypt, ZeroSSL
+     *     'acme_sites' => ['siteone.com', 'sitetwo.com']
+     * ]
+     * ```
+     *
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public static function createFieldDetails (array $data = []): mixed
+    {
+        $fieldDetails = <<<'JSON'
+[{"field_id":1,"field_parent_id":null,"field_name":"modular_rowcolumn","field_input_name":"","main_field_slug":"app-tonicscloud-app-config-acme","field_options":"{\"field_slug\":\"modular_rowcolumn\",\"main_field_slug\":\"app-tonicscloud-app-config-acme\",\"field_slug_unique_hash\":\"22wi60ti5ark000000000\",\"field_input_name\":\"\"}"},{"field_id":2,"field_parent_id":1,"field_name":"input_text","field_input_name":"acme_email","main_field_slug":"app-tonicscloud-app-config-acme","field_options":"{\"field_slug\":\"input_text\",\"main_field_slug\":\"app-tonicscloud-app-config-acme\",\"field_slug_unique_hash\":\"777xc71ywjo0000000000\",\"field_input_name\":\"acme_email\",\"acme_email\":\"[[ACME_EMAIL]]\"}"},{"field_id":3,"field_parent_id":1,"field_name":"input_select","field_input_name":"acme_mode","main_field_slug":"app-tonicscloud-app-config-acme","field_options":"{\"field_slug\":\"input_select\",\"main_field_slug\":\"app-tonicscloud-app-config-acme\",\"field_slug_unique_hash\":\"2v741lsnhuo0000000000\",\"field_input_name\":\"acme_mode\",\"acme_mode\":\"nginx\"}"},{"field_id":4,"field_parent_id":1,"field_name":"input_select","field_input_name":"acme_issuer","main_field_slug":"app-tonicscloud-app-config-acme","field_options":"{\"field_slug\":\"input_select\",\"main_field_slug\":\"app-tonicscloud-app-config-acme\",\"field_slug_unique_hash\":\"3heecqdehdk0000000000\",\"field_input_name\":\"acme_issuer\",\"acme_issuer\":\"Letsencrypt\"}"},{"field_id":5,"field_parent_id":1,"field_name":"modular_rowcolumnrepeater","field_input_name":"","main_field_slug":"app-tonicscloud-app-config-acme","field_options":"{\"field_slug\":\"modular_rowcolumnrepeater\",\"_moreOptions\":{\"inputName\":\"\",\"field_slug_unique_hash\":\"3x0h7osnw3q0000000000\",\"field_slug\":\"modular_rowcolumnrepeater\",\"field_name\":\"Domain\",\"depth\":\"0\",\"repeat_button_text\":\"Add New Site\",\"grid_template_col\":\" grid-template-columns: ;\",\"row\":\"1\",\"column\":\"1\",\"_cell_position\":null,\"_can_have_repeater_button\":true},\"main_field_slug\":\"app-tonicscloud-app-config-acme\",\"field_slug_unique_hash\":\"3x0h7osnw3q0000000000\",\"field_input_name\":\"\"}"},{"field_id":6,"field_parent_id":5,"field_name":"input_text","field_input_name":"acme_sites[]","main_field_slug":"app-tonicscloud-app-config-acme","field_options":"{\"field_slug\":\"input_text\",\"_cell_position\":\"1\",\"main_field_slug\":\"app-tonicscloud-app-config-acme\",\"field_slug_unique_hash\":\"1cyuq84gapr4000000000\",\"field_input_name\":\"acme_sites[]\",\"acme_sites[]\":\"[[ACME_DOMAIN]]\"}"}] 
+JSON;
+
+        $fields = self::updateFieldOptions(json_decode($fieldDetails), $data);
+        if (isset($data['acme_sites']) && is_array($data['acme_sites'])) {
+            $data['acme_sites[]'] = implode(', ', $data['acme_sites']);
+            $fields = self::updateFieldOptions(json_decode($fieldDetails), $data);
+        }
+
+        return json_encode($fields);
+    }
+
+    /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function updateSettings(): bool
+    public function updateSettings (): bool
     {
-       return $this->runCommand(
-            function ($out){
+        return $this->runCommand(
+            function ($out) {
                 // install acme
-                if (empty($out)){
+                if (empty($out)) {
                     $this->install();
                 }
                 $this->updateAcmeEmail();
@@ -41,26 +73,78 @@ class TonicsCloudACME extends CloudAppInterface implements CloudAppSignalInterfa
             },
             function ($err) {
                 $err = trim($err);
-                if (str_ends_with($err, "'{$this->acmeBinDir()}': No such file or directory")){
+                if (str_ends_with($err, "'{$this->acmeBinDir()}': No such file or directory")) {
                     $this->install();
                     $this->issueCertificate();
                 }
 
-                }, "bash", "-c", "ls {$this->acmeBinDir()}");
+            }, "bash", "-c", "ls {$this->acmeBinDir()}");
 
     }
 
-    private function acmeRootPath(): string
+    /**
+     * @inheritDoc
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function install (): bool
+    {
+        $email = $this->getAcmeEmail();
+        return $this->runCommand(null, null, "bash", "-c", "apt update && apt-get install -y cron curl socat && curl https://get.acme.sh | sh -s email=$email");
+    }
+
+    /**
+     * @return string
+     */
+    private function getAcmeEmail (): string
+    {
+        $email = $this->getPostPrepareForFlight()->Email ?? '';
+        return escapeshellarg(filter_var($email, FILTER_SANITIZE_EMAIL));
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    private function updateAcmeEmail (): void
+    {
+        $email = $this->getAcmeEmail();
+        $dir = $this->acmeRootPath();
+        $this->runCommand(null, null, "bash", "-c", <<<CM
+sed -i "s/^ACCOUNT_EMAIL='.*'/ACCOUNT_EMAIL=$email/" $dir/account.conf
+CM,
+        );
+    }
+
+    private function acmeRootPath (): string
     {
         return "/root/.acme.sh";
     }
 
-    private function acmeBinDir(): string
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    private function issueCertificate (): void
     {
-        return "/root/.acme.sh/acme.sh";
+        $postFlight = $this->getPostPrepareForFlight();
+        $mode = $postFlight->Mode;
+        $commands = [];
+        foreach ($postFlight->Sites as $site) {
+            $site = " -d " . escapeshellarg($site);
+            $commands[] = "{$this->acmeBin()} --issue --$mode $site --log";
+        }
+
+        $command = implode(" && ", $commands);
+        $this->runCommand(null, function ($err) {
+            if (!empty($err)) {
+                throw new \Exception($err);
+            }
+        }, "bash", "-c", $command);
+        $this->installCert();
     }
 
-    private function acmeBin(): string
+    private function acmeBin (): string
     {
         $issuer = $this->getPostPrepareForFlight()->Issuer;
         return "/root/.acme.sh/acme.sh --server $issuer";
@@ -68,32 +152,15 @@ class TonicsCloudACME extends CloudAppInterface implements CloudAppSignalInterfa
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    private function issueCertificate(): void
+    private function installCert (): void
     {
         $postFlight = $this->getPostPrepareForFlight();
         $mode = $postFlight->Mode;
-        $commands = [];
-        foreach ($postFlight->Sites as $site){
-            $site = " -d " . escapeshellarg($site);
-            $commands[] = "{$this->acmeBin()} --issue --$mode $site --log";
-        }
-
-        $command = implode(" && ", $commands);
-        $this->runCommand(null,function (){}, "bash", "-c", $command);
-        $this->installCert();
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function installCert(): void
-    {
-        $postFlight = $this->getPostPrepareForFlight();
-        $mode = $postFlight->Mode;
-        foreach ($postFlight->Sites as $site){
+        foreach ($postFlight->Sites as $site) {
             $reload = '';
-            if ($mode !== 'standalone'){
+            if ($mode !== 'standalone') {
                 $reload = <<<RELOAD
 --reloadcmd     "service $mode force-reload"
 RELOAD;
@@ -117,118 +184,57 @@ COMMAND;
         }
     }
 
-    /**
-     * @return string
-     */
-    private function getAcmeEmail(): string
+    private function acmeBinDir (): string
     {
-        $email = $this->getPostPrepareForFlight()->Email ?? '';
-        return escapeshellarg(filter_var($email, FILTER_SANITIZE_EMAIL));
-    }
-    /**
-     * @throws \Exception
-     */
-    private function updateAcmeEmail(): void
-    {
-        $email = $this->getAcmeEmail();
-        $dir = $this->acmeRootPath();
-        $this->runCommand(null, null, "bash", "-c", <<<CM
-sed -i "s/^ACCOUNT_EMAIL='.*'/ACCOUNT_EMAIL=$email/" $dir/account.conf
-CM
-);
+        return "/root/.acme.sh/acme.sh";
     }
 
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function install(): bool
-    {
-        $email = $this->getAcmeEmail();
-        return $this->runCommand(null, null, "bash", "-c", "apt update && apt-get install -y cron curl socat && curl https://get.acme.sh | sh -s email=$email");
-    }
-
-    /**
-     * @inheritDoc
-     * @throws \Exception
-     */
-    public function uninstall(): bool
+    public function uninstall (): bool
     {
         return $this->runCommand(null, null, "bash", "-c", "{$this->acmeBin()} --uninstall");
     }
 
-    public function prepareForFlight(array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): array
+    public function prepareForFlight (array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): array
     {
         $settings = [];
         $sites = [];
         $modes = [
             'standalone' => 'standalone',
-            'nginx' => 'nginx',
-            'apache' => 'apache',
+            'nginx'      => 'nginx',
+            'apache'     => 'apache',
         ];
 
         $issuer = [
             'letsencrypt' => 'letsencrypt',
-            'zerossl' => 'zerossl',
+            'zerossl'     => 'zerossl',
         ];
 
-        # Not sure yet if the concept is going to be this way so this condition might be deleted
-        /*if ($flightType === self::PREPARATION_TYPE_AUTO) {
-
-            $acmeEmail = $data['acme_email'] ?? null;
-            $acmeSite = $data['acme_sites[]'] ?? null;
-
-            $data = [
-                [
-                    'main_field_slug' => 'acme_sites',
-                    'field_input_name' => 'acme_sites[]',
-                    'field_options' => <<<JSON
-{"acme_sites[]":"$acmeSite"}
-JSON,
-                ],
-                [
-                    'main_field_slug' => 'acme_email',
-                    'field_input_name' => 'acme_email',
-                    'field_options' => <<<JSON
-{"acme_email":"$acmeEmail"}
-JSON,
-                ],
-                [
-                    'main_field_slug' => 'acme_mode',
-                    'field_input_name' => 'acme_mode',
-                    'field_options' => '{"acme_mode":"nginx"}'
-                ],
-                [
-                    'main_field_slug' => 'acme_issuer',
-                    'field_input_name' => 'acme_issuer',
-                    'field_options' => '{"acme_issuer":"letsencrypt"}'
-                ]
-            ];
-
-            // Convert array of arrays to array of objects
-            $data = array_map(fn($item) => (object)$item, $data);
-        }*/
-
         foreach ($data as $field) {
-            if (isset($field->main_field_slug) && isset($field->field_input_name)){
+            if (isset($field->main_field_slug) && isset($field->field_input_name)) {
                 $fieldOptions = json_decode($field->field_options);
 
                 $value = strtolower($fieldOptions->{$field->field_input_name} ?? '');
 
-                if ($field->field_input_name == 'acme_email'){
+                if ($field->field_input_name == 'acme_email') {
                     $settings['Email'] = $this->replaceContainerGlobalVariables($value);
                 }
 
-                if ($field->field_input_name == 'acme_mode' && isset($modes[$value])){
-                    $settings['Mode']  = $value;
+                if ($field->field_input_name == 'acme_mode' && isset($modes[$value])) {
+                    $settings['Mode'] = $value;
                 }
 
-                if ($field->field_input_name == 'acme_issuer' && isset($issuer[$value])){
-                    $settings['Issuer']  = $value;
+                if ($field->field_input_name == 'acme_issuer' && isset($issuer[$value])) {
+                    $settings['Issuer'] = $value;
                 }
 
-                if ($field->field_input_name == 'acme_sites[]'){
-                    $sites[] = $this->replaceContainerGlobalVariables($value);
+                if ($field->field_input_name == 'acme_sites[]') {
+                    $sitesExploded = explode(',', $value);
+                    $sites = [...$sites, ...array_map(fn($site) => $this->replaceContainerGlobalVariables(trim($site)), $sitesExploded)];
                 }
             }
         }
@@ -237,22 +243,22 @@ JSON,
         return $settings;
     }
 
-    public function reload(): true
+    public function reload (): true
     {
         return true;
     }
 
-    public function stop(): true
+    public function stop (): true
     {
         return true;
     }
 
-    public function start(): true
+    public function start (): true
     {
         return true;
     }
 
-    public function isStatus(string $statusString): bool
+    public function isStatus (string $statusString): bool
     {
         return true;
     }

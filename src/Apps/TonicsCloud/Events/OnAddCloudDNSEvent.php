@@ -25,18 +25,18 @@ class OnAddCloudDNSEvent implements EventInterface
 {
     private array $cloudDNS = [];
 
-    public function event(): static
+    public function event (): static
     {
         return $this;
     }
 
-    public function addCloudServerHandler(CloudDNSInterface $cloudServer): static
+    public function addCloudServerHandler (CloudDNSInterface $cloudServer): static
     {
         $this->cloudDNS[strtolower($cloudServer->name())] = $cloudServer;
         return $this;
     }
 
-    public function exist(string $name): bool
+    public function exist (string $name): bool
     {
         $name = strtolower($name);
         return isset($this->cloudDNS[$name]);
@@ -45,20 +45,20 @@ class OnAddCloudDNSEvent implements EventInterface
     /**
      * @throws \Exception
      */
-    public function getCloudDNSHandler(string $name): mixed
+    public function getCloudDNSHandler (string $name): mixed
     {
         $name = strtolower($name);
-        if (isset($this->cloudDNS[$name])){
+        if (isset($this->cloudDNS[$name])) {
             return $this->cloudDNS[$name];
         }
 
-        throw new \Exception("$name is an unknown payment handler name");
+        throw new \Exception("$name is an unknown dns handler name");
     }
 
     /**
      * @return array
      */
-    public function getCloudDNS(): array
+    public function getCloudDNS (): array
     {
         return $this->cloudDNS;
     }
@@ -66,7 +66,7 @@ class OnAddCloudDNSEvent implements EventInterface
     /**
      * @param array $cloudDNS
      */
-    public function setCloudDNS(array $cloudDNS): void
+    public function setCloudDNS (array $cloudDNS): void
     {
         $this->cloudDNS = $cloudDNS;
     }

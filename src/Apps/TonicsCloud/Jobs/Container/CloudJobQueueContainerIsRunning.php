@@ -29,17 +29,18 @@ class CloudJobQueueContainerIsRunning extends AbstractJobInterface implements Jo
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
-        if ($this->hasContainerUniqueSlugID() === false){
+        if ($this->hasContainerUniqueSlugID() === false) {
             throw new \Exception("Container Unique Name is Missing");
         }
 
         $client = $this->getIncusClient();
         $response = $client->instances()->info($this->getContainerUniqueSlugID());
-        if ($client->isSuccess() && isset($response->metadata->status)){
-            if (strtoupper($response->metadata->status) === 'RUNNING'){
+        if ($client->isSuccess() && isset($response->metadata->status)) {
+            if (strtoupper($response->metadata->status) === 'RUNNING') {
                 $this->updateContainerStatus('Running');
                 return; # Done, By Default, the Status should be processed
             }

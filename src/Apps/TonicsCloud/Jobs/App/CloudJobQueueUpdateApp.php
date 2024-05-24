@@ -18,15 +18,18 @@
 
 namespace App\Apps\TonicsCloud\Jobs\App;
 
-use App\Apps\TonicsCloud\Interfaces\CloudAppSignalInterface;
-use App\Apps\TonicsCloud\Jobs\App\Traits\TonicsJobQueueAppTrait;
+use App\Apps\TonicsCloud\Services\AppService;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
-use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class CloudJobQueueAppIsRunning extends AbstractJobInterface implements JobHandlerInterface
+class CloudJobQueueUpdateApp extends AbstractJobInterface implements JobHandlerInterface
 {
-    use TonicsJobQueueAppTrait;
+    private AppService $appService;
+
+    public function __construct (AppService $appService)
+    {
+        $this->appService = $appService;
+    }
 
     /**
      * @throws \ReflectionException
@@ -35,22 +38,24 @@ class CloudJobQueueAppIsRunning extends AbstractJobInterface implements JobHandl
      */
     public function handle (): void
     {
-        try {
-            $appObject = $this->appObject();
-            if ($appObject instanceof CloudAppSignalInterface) {
-                if ($appObject->isStatus(CloudAppSignalInterface::STATUS_RUNNING)) {
-                    $this->updateStatusMessage("Healthy ✔️", function (TonicsQuery $db) {
-                        $db->Set('app_status', 'Running');
-                    });
-                } else {
-                    $this->updateStatusMessage("The check for application running returns negative");
-                }
+        if (is_array($this->getDataAsArray()['appsToUpdate']) && !empty($this->getDataAsArray()['appsToUpdate'])) {
+
+            $data = $this->getDataAsArray();
+            $appLeftToUpdate = $data['appsToUpdate'];
+            $appData = array_shift($appLeftToUpdate);
+            $appData = (array)$appData;
+            $data['appsToUpdate'] = $appLeftToUpdate;
+            $this->setData($data);
+
+            if (empty($appLeftToUpdate)) {
+                $this->appService->updateApp($appData);
+            } else {
+                $this->appService->updateApp($appData, ['job' => $this]);
             }
-        } catch (\Throwable $throwable) {
-            $this->updateStatusMessage($throwable->getMessage(), function (TonicsQuery $db) {
-                $db->Set('app_status', 'Error');
-            });
-            throw $throwable;
+
+            if ($this->appService->fails()) {
+                throw new \Exception(...$this->appService->getErrors());
+            }
         }
 
     }
