@@ -40,7 +40,7 @@ if ($args->passes()) {
         AppConfig::includeHelpers();
         AppConfig::initLoaderOthers();
     } catch (Exception $e) {
-        echo "Error constructing Console Constructor";
+        echo $e->getMessage();
     }
 
     #

@@ -42,58 +42,65 @@ trait Routes
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function routeWeb(Route $route): Route
+    public function routeWeb (Route $route): Route
     {
         $route->head('tonics_cloud/:id', [ImageController::class, 'getHeaders'], alias: 'tonicsCloud.images.download');
         $route->get('tonics_cloud/:id', [ImageController::class, 'getHeaders'], alias: 'tonicsCloud.images.download');
 
         // WEB ROUTES
-        $route->group('', function (Route $route){
+        $route->group('', function (Route $route) {
 
-                    #---------------------------------
-                # TONICS CLOUD ADMIN RESOURCES...
             #---------------------------------
-            $route->group('/admin/tonics_cloud', function (Route $route){
+            # TONICS CLOUD ADMIN RESOURCES...
+            #---------------------------------
+            $route->group('/admin', function (Route $route) {
 
-                $route->group('/images', function (Route $route){
+                $route->group('tonics_cloud', function (Route $route) {
+                    $route->group('/images', function (Route $route) {
 
-                    $route->get('update_apps', [AppController::class, 'UpdateDefaultApps'], alias: 'updateApps');
-
-                            #---------------------------------
-                        # IMAGE RESOURCES...
-                    #---------------------------------
-                    $route->get('', [ImageController::class, 'index'], alias: 'index');
-                    $route->post('', [ImageController::class, 'dataTable'], alias: 'dataTables');
-
-                    $route->post('store', [ImageController::class, 'store']);
-                    $route->get('create', [ImageController::class, 'create'], alias: 'create');
-
-                    $route->group('', function (Route $route){
-                        $route->get(':image/edit', [ImageController::class, 'edit'], alias: 'edit');
-                        $route->match(['post', 'put'], ':image/update', [ImageController::class, 'update']);
-                    });
-                }, alias: 'admin.images');
+                        $route->get('update_apps', [AppController::class, 'UpdateDefaultApps'], alias: 'updateApps');
 
                         #---------------------------------
-                    # TONICS_CLOUD SETTINGS...
-                #---------------------------------
-                $route->group('/admin/tonics_cloud/settings', function (Route $route){
-                    $route->get('', [TonicsCloudSettingsController::class, 'edit'], alias: 'settings');
-                    $route->post('', [TonicsCloudSettingsController::class, 'update']);
+                        # IMAGE RESOURCES...
+                        #---------------------------------
+                        $route->get('', [ImageController::class, 'index'], alias: 'index');
+                        $route->post('', [ImageController::class, 'dataTable'], alias: 'dataTables');
+
+                        $route->post('store', [ImageController::class, 'store']);
+                        $route->get('create', [ImageController::class, 'create'], alias: 'create');
+
+                        $route->group('', function (Route $route) {
+                            $route->get(':image/edit', [ImageController::class, 'edit'], alias: 'edit');
+                            $route->match(['post', 'put'], ':image/update', [ImageController::class, 'update']);
+                        });
+                    }, alias: 'admin.images');
                 });
-            }, [CoreAccess::class]);
+
+                $route->group('/tools/app/tonics_cloud', function (Route $route) {
 
                     #---------------------------------
-                # TONICS CLOUD CUSTOMER RESOURCES...
+                    # TONICS_CLOUD SETTINGS...
+                    #---------------------------------
+                    $route->group('/settings', function (Route $route) {
+                        $route->get('', [TonicsCloudSettingsController::class, 'edit'], alias: 'settings');
+                        $route->post('', [TonicsCloudSettingsController::class, 'update']);
+                    });
+
+                });
+
+            }, [CoreAccess::class]);
+
             #---------------------------------
-            $route->group('/customer/tonics_cloud', function (Route $route){
+            # TONICS CLOUD CUSTOMER RESOURCES...
+            #---------------------------------
+            $route->group('/customer/tonics_cloud', function (Route $route) {
 
-                $route->group('', function (Route $route){
+                $route->group('', function (Route $route) {
 
-                    $route->group('/instances', function (Route $route){
+                    $route->group('/instances', function (Route $route) {
 
-                                #---------------------------------
-                            # INSTANCE RESOURCES...
+                        #---------------------------------
+                        # INSTANCE RESOURCES...
                         #---------------------------------
                         $route->get('', [InstanceController::class, 'index'], alias: 'index');
                         $route->post('', [InstanceController::class, 'dataTable'], alias: 'dataTables');
@@ -101,17 +108,17 @@ trait Routes
                         $route->post('store', [InstanceController::class, 'store']);
                         $route->get('create', [InstanceController::class, 'create'], alias: 'create');
 
-                        $route->group('', function (Route $route){
+                        $route->group('', function (Route $route) {
                             $route->get(':instance/edit', [InstanceController::class, 'edit'], alias: 'edit');
                             $route->match(['post', 'put'], ':instance/update', [InstanceController::class, 'update']);
                         }, [TonicsCloudInstanceAccess::class]);
 
                     }, alias: 'instances');
 
-                    $route->group('/domains', function (Route $route){
+                    $route->group('/domains', function (Route $route) {
 
-                                #---------------------------------
-                            # DOMAIN RESOURCES...
+                        #---------------------------------
+                        # DOMAIN RESOURCES...
                         #---------------------------------
                         $route->get('', [DomainController::class, 'index'], alias: 'index');
                         $route->post('', [DomainController::class, 'dataTable'], alias: 'dataTables');
@@ -119,17 +126,17 @@ trait Routes
                         $route->post('store', [DomainController::class, 'store']);
                         $route->get('create', [DomainController::class, 'create'], alias: 'create');
 
-                        $route->group('', function (Route $route){
+                        $route->group('', function (Route $route) {
                             $route->get(':domain/edit', [DomainController::class, 'edit'], alias: 'edit');
                             $route->match(['post', 'put'], ':domain/update', [DomainController::class, 'update']);
                         }, [TonicsCloudDomainAccess::class]);
 
                     }, alias: 'domains');
 
-                            #---------------------------------
-                        # CONTAINER RESOURCES...
                     #---------------------------------
-                    $route->group('/containers', function (Route $route){
+                    # CONTAINER RESOURCES...
+                    #---------------------------------
+                    $route->group('/containers', function (Route $route) {
 
                         $route->get('', [ContainerController::class, 'index'], alias: 'index');
                         $route->post('', [ContainerController::class, 'dataTable'], alias: 'dataTables');
@@ -137,7 +144,7 @@ trait Routes
                         $route->post('store', [ContainerController::class, 'store']);
                         $route->get('create', [ContainerController::class, 'create'], alias: 'create');
 
-                        $route->group(':container', function (Route $route){
+                        $route->group(':container', function (Route $route) {
 
                             $route->get('/edit', [ContainerController::class, 'edit'], alias: 'edit');
                             $route->match(['post', 'put'], '/update', [ContainerController::class, 'update']);
@@ -145,7 +152,7 @@ trait Routes
                             #---------------------------------
                             # APP RESOURCES...
                             #---------------------------------
-                            $route->group('/apps', function (Route $route){
+                            $route->group('/apps', function (Route $route) {
                                 $route->get('', [AppController::class, 'index'], alias: 'index');
                                 $route->post('', [AppController::class, 'dataTable'], alias: 'dataTables');
 
@@ -157,10 +164,10 @@ trait Routes
 
                     }, alias: 'containers');
 
-                }, [ TonicsCloudCreditAccess::class]);
+                }, [TonicsCloudCreditAccess::class]);
 
-                        #---------------------------------
-                    # BILLING RESOURCES...
+                #---------------------------------
+                # BILLING RESOURCES...
                 #---------------------------------
                 $route->group('/billings', function (Route $route) {
                     if (TonicsCloudSettingsController::billingEnabled()) {
@@ -172,8 +179,8 @@ trait Routes
 
         }, AuthConfig::getAuthRequestInterceptor(), 'tonicsCloud');
 
-        $route->group('customer/tonics_cloud', function (Route $route){
-            $route->group('payment', function (Route $route){
+        $route->group('customer/tonics_cloud', function (Route $route) {
+            $route->group('payment', function (Route $route) {
                 $route->get('/get_request_flow', [PaymentController::class, 'RequestFlow']);
                 $route->post('/post_request_flow', [PaymentController::class, 'RequestFlow']);
             });
@@ -183,9 +190,9 @@ trait Routes
         return $route;
     }
 
-    public function routeApi(Route $routes): Route
+    public function routeApi (Route $routes): Route
     {
-        $routes->group('/api', function (Route $route){
+        $routes->group('/api', function (Route $route) {
             // API Routes
         });
         return $routes;
