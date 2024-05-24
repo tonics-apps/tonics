@@ -29,9 +29,9 @@ class GenreMenuMetaBox implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        $trackData = new TrackData();
+        $trackData = container()->get(TrackData::class);
         $paginationInfo = $trackData->generatePaginationData(
             $trackData->getGenrePaginationColumn(),
             'genre_name',

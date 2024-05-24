@@ -51,7 +51,6 @@ use App\Modules\Track\Events\Artist\OnArtistUpdate;
 use App\Modules\Track\Events\Genres\OnGenreCreate;
 use App\Modules\Track\Events\Genres\OnGenreDelete;
 use App\Modules\Track\Events\Genres\OnGenreUpdate;
-use App\Modules\Track\Events\OnLicenseCreate;
 use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryDefaultField;
 use App\Modules\Track\Events\OnTrackCreate;
@@ -67,7 +66,7 @@ class TrackActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -75,7 +74,7 @@ class TrackActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             OnTrackCreate::class => [
@@ -92,72 +91,69 @@ class TrackActivator implements ExtensionConfig
             ],
 
             OnGenreCreate::class => [
-                HandleGenreFilterTypeCreation::class
+                HandleGenreFilterTypeCreation::class,
             ],
 
             OnGenreUpdate::class => [
-                HandleGenreFilterTypeCreation::class
+                HandleGenreFilterTypeCreation::class,
             ],
 
             OnGenreDelete::class => [
-                HandleGenreFilterTypeDeletion::class
+                HandleGenreFilterTypeDeletion::class,
             ],
 
             OnArtistCreate::class => [
-                HandleArtistFilterTypeCreation::class
+                HandleArtistFilterTypeCreation::class,
             ],
 
             OnArtistUpdate::class => [
-                HandleArtistFilterTypeCreation::class
+                HandleArtistFilterTypeCreation::class,
             ],
 
             OnArtistDelete::class => [
-                HandleArtistFilterTypeDeletion::class
-            ],
-
-            OnLicenseCreate::class => [
-
+                HandleArtistFilterTypeDeletion::class,
             ],
 
             OnTrackCategoryCreate::class => [
-              HandleNewTrackCategorySlugIDGeneration::class
+                HandleNewTrackCategorySlugIDGeneration::class,
             ],
 
             OnMenuMetaBox::class => [
                 GenreMenuMetaBox::class,
-                TrackMenuMetaBox::class
+                TrackMenuMetaBox::class,
             ],
 
             OnAdminMenu::class => [
-                TrackMenus::class
+                TrackMenus::class,
             ],
 
             OnTrackDefaultField::class => [
-                DefaultTrackFieldHandler::class
+                DefaultTrackFieldHandler::class,
             ],
 
             OnTrackCategoryDefaultField::class => [
-                DefaultTrackCategoryFieldHandler::class
+                DefaultTrackCategoryFieldHandler::class,
             ],
 
             OnAddSitemap::class => [
                 TrackSitemap::class,
-                TrackCategorySitemap::class
+                TrackCategorySitemap::class,
             ],
 
             OnAddTrackPaymentEvent::class => [
                 AudioTonicsPayPalHandler::class,
                 AudioTonicsFlutterWaveHandler::class,
-            ]
+            ],
         ];
     }
 
     /**
      * @param Route $routes
+     *
      * @return Route
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         return $this->routeWeb($routes);
     }
@@ -165,60 +161,59 @@ class TrackActivator implements ExtensionConfig
     /**
      * @return array
      */
-    public function tables(): array
+    public function tables (): array
     {
         return
             [
-                Tables::getTable(Tables::ARTISTS) => Tables::$TABLES[Tables::ARTISTS],
-                Tables::getTable(Tables::GENRES) => Tables::$TABLES[Tables::GENRES],
-                Tables::getTable(Tables::LICENSES) => Tables::$TABLES[Tables::LICENSES],
-                Tables::getTable(Tables::PURCHASE_TRACKS) => Tables::$TABLES[Tables::PURCHASE_TRACKS],
-                Tables::getTable(Tables::TRACKS) => Tables::$TABLES[Tables::TRACKS],
-                Tables::getTable(Tables::TRACK_LIKES) => Tables::$TABLES[Tables::TRACK_LIKES],
-                Tables::getTable(Tables::TRACK_WISH_LIST) => Tables::$TABLES[Tables::TRACK_WISH_LIST],
-                Tables::getTable(Tables::TRACK_CATEGORIES) => Tables::$TABLES[Tables::TRACK_CATEGORIES],
+                Tables::getTable(Tables::ARTISTS)                => Tables::$TABLES[Tables::ARTISTS],
+                Tables::getTable(Tables::GENRES)                 => Tables::$TABLES[Tables::GENRES],
+                Tables::getTable(Tables::PURCHASE_TRACKS)        => Tables::$TABLES[Tables::PURCHASE_TRACKS],
+                Tables::getTable(Tables::TRACKS)                 => Tables::$TABLES[Tables::TRACKS],
+                Tables::getTable(Tables::TRACK_LIKES)            => Tables::$TABLES[Tables::TRACK_LIKES],
+                Tables::getTable(Tables::TRACK_WISH_LIST)        => Tables::$TABLES[Tables::TRACK_WISH_LIST],
+                Tables::getTable(Tables::TRACK_CATEGORIES)       => Tables::$TABLES[Tables::TRACK_CATEGORIES],
                 Tables::getTable(Tables::TRACK_TRACK_CATEGORIES) => Tables::$TABLES[Tables::TRACK_TRACK_CATEGORIES],
-                Tables::getTable(Tables::TRACK_GENRES) => Tables::$TABLES[Tables::TRACK_GENRES],
+                Tables::getTable(Tables::TRACK_GENRES)           => Tables::$TABLES[Tables::TRACK_GENRES],
             ];
     }
 
-    public function onInstall(): void
+    public function onInstall (): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Track",
-            "type" => "Module",
+            "name"                 => "Track",
+            "type"                 => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714604528',
-            "description" => "The Track Module",
-            "info_url" => '',
+            "version"              => '1-O-Ola.1714604528',
+            "description"          => "The Track Module",
+            "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-track-module/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
     /**
      */
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         return;
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }

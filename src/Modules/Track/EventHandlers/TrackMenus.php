@@ -27,90 +27,97 @@ class TrackMenus implements HandlerInterface
 {
     /**
      * @param object $event
+     *
      * @throws \Exception|\Throwable
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        tree()->group('', function (Tree $tree){
+        tree()->group('', function (Tree $tree) {
 
             $tree->add(AdminMenuHelper::TRACK, [
-                'mt_name' => 'Track',
+                'mt_name'     => 'Track',
                 'mt_url_slug' => route('tracks.index'),
-                'mt_icon' => helper()->getIcon('step-forward')
+                'mt_icon'     => helper()->getIcon('step-forward'),
             ]);
 
             $tree->add(AdminMenuHelper::TRACK_NEW, [
-                'mt_name' => 'New Track',
+                'mt_name'     => 'New Track',
                 'mt_url_slug' => route('tracks.create'),
-                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('plus', 'icon:admin'),
             ]);
 
             $tree->add(AdminMenuHelper::TRACK_EDIT, [
-                'mt_name' => 'Edit Track',
+                'mt_name'     => 'Edit Track',
                 'mt_url_slug' => '/admin/tracks/:track/edit',
-                'ignore' => true,
+                'ignore'      => true,
             ]);
 
             $tree->add(AdminMenuHelper::TRACK_CATEGORY, [
-                'mt_name' => 'Track Category',
+                'mt_name'     => 'Track Category',
                 'mt_url_slug' => route('tracks.category.index'),
-                'mt_icon' => helper()->getIcon('category', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('category', 'icon:admin'),
             ]);
             $tree->add(AdminMenuHelper::TRACK_CATEGORY_NEW, [
-                'mt_name' => 'New Track Category',
+                'mt_name'     => 'New Track Category',
                 'mt_url_slug' => route('tracks.category.create'),
-                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('plus', 'icon:admin'),
             ]);
 
             $tree->add(AdminMenuHelper::TRACK_CATEGORY_EDIT, [
-                'mt_name' => 'Edit Track Category',
+                'mt_name'     => 'Edit Track Category',
                 'mt_url_slug' => '/admin/tracks/category/:category/edit',
-                'ignore' => true,
+                'ignore'      => true,
             ]);
 
             $tree->add(AdminMenuHelper::GENRE, [
-                'mt_name' => 'Genres',
+                'mt_name'     => 'Genres',
                 'mt_url_slug' => route('genres.index'),
-                'mt_icon' => helper()->getIcon('archive', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('archive', 'icon:admin'),
             ]);
             $tree->add(AdminMenuHelper::GENRE_NEW, [
-                'mt_name' => 'New Genre',
+                'mt_name'     => 'New Genre',
                 'mt_url_slug' => route('genres.create'),
-                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('plus', 'icon:admin'),
             ]);
 
             $tree->add(AdminMenuHelper::GENRE_EDIT, [
-                'mt_name' => 'Edit Genre',
+                'mt_name'     => 'Edit Genre',
                 'mt_url_slug' => '/admin/genres/:genre/edit',
-                'ignore' => true,
+                'ignore'      => true,
             ]);
 
             $tree->add(AdminMenuHelper::ARTIST, [
-                'mt_name' => 'Artist',
+                'mt_name'     => 'Artist',
                 'mt_url_slug' => route('artists.index'),
-                'mt_icon' => helper()->getIcon('user-solid-circle', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('user-solid-circle', 'icon:admin'),
             ]);
             $tree->add(AdminMenuHelper::ARTIST_NEW, [
-                'mt_name' => 'New Artist',
+                'mt_name'     => 'New Artist',
                 'mt_url_slug' => route('artists.create'),
-                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('plus', 'icon:admin'),
             ]);
 
             $tree->add(AdminMenuHelper::ARTIST_EDIT, [
-                'mt_name' => 'Edit Artist',
+                'mt_name'     => 'Edit Artist',
                 'mt_url_slug' => '/admin/artists/:artist/edit',
-                'ignore' => true,
+                'ignore'      => true,
             ]);
 
-            $tree->add(AdminMenuHelper::TRACK_LICENSE, ['mt_name' => 'License','mt_url_slug' => route('licenses.index'),'mt_icon' => helper()->getIcon('license','icon:admin') ]);
-            $tree->add(AdminMenuHelper::TRACK_LICENSE_NEW, ['mt_name' => 'New License','mt_url_slug' => route('licenses.create'),'mt_icon' => helper()->getIcon('plus', 'icon:admin') ]);
+            $tree->add(AdminMenuHelper::TRACK_LICENSE, ['mt_name' => 'License', 'mt_url_slug' => route('admin.licenses.index'), 'mt_icon' => helper()->getIcon('license', 'icon:admin')]);
+            $tree->add(AdminMenuHelper::TRACK_LICENSE_NEW, ['mt_name' => 'New License', 'mt_url_slug' => route('admin.licenses.create'), 'mt_icon' => helper()->getIcon('plus', 'icon:admin')]);
 
             $tree->add(AdminMenuHelper::TRACK_LICENSE_EDIT, [
-                'mt_name' => 'Edit License',
+                'mt_name'     => 'Edit License',
                 'mt_url_slug' => '/admin/tools/license/:license/edit',
-                'ignore' => true,
+                'ignore'      => true,
             ]);
 
-        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_TRACK])]);
+            $tree->add(AdminMenuHelper::TRACK_LICENSE_ITEMS_EDIT, [
+                'mt_name'     => 'Edit License Items',
+                'mt_url_slug' => '/admin/tools/license/items/:license/builder',
+                'ignore'      => true,
+            ]);
+
+        }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_TRACK])]);
     }
 }

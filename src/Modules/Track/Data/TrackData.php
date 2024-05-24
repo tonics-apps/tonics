@@ -21,8 +21,8 @@ namespace App\Modules\Track\Data;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Core\Services\LicenseService;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryCreate;
 use App\Modules\Track\Events\OnTrackCategoryDefaultField;
 use App\Modules\Track\Events\OnTrackCreate;
@@ -31,781 +31,44 @@ use App\Modules\Track\Events\OnTrackDefaultField;
 class TrackData extends AbstractDataLayer
 {
 
-    private ?OnTrackDefaultField $onTrackDefaultField;
-    private ?FieldData $fieldData;
+    private ?OnTrackDefaultField         $onTrackDefaultField;
+    private ?FieldData                   $fieldData;
     private ?OnTrackCategoryDefaultField $onTrackCategoryDefaultField;
+    private ?LicenseService              $licenseService;
 
-    public function __construct(OnTrackDefaultField $onTrackDefaultField = null, OnTrackCategoryDefaultField $onTrackCategoryDefaultField = null, FieldData $fieldData = null)
+    public function __construct (OnTrackDefaultField $onTrackDefaultField = null, OnTrackCategoryDefaultField $onTrackCategoryDefaultField = null, FieldData $fieldData = null, LicenseService $licenseService = null)
     {
         $this->onTrackDefaultField = $onTrackDefaultField;
         $this->onTrackCategoryDefaultField = $onTrackCategoryDefaultField;
         $this->fieldData = $fieldData;
+        $this->licenseService = $licenseService;
     }
 
     use UniqueSlug;
 
-    public static function getArtistTable(): string
-    {
-        return Tables::getTable(Tables::ARTISTS);
-    }
-
-    public static function getGenreTable(): string
-    {
-        return Tables::getTable(Tables::GENRES);
-    }
-
-    public static function getTrackTable(): string
-    {
-        return Tables::getTable(Tables::TRACKS);
-    }
-
-    public static function getLicenseTable(): string
-    {
-        return Tables::getTable(Tables::LICENSES);
-    }
-
-    public static function getTrackCategoryTable(): string
-    {
-        return Tables::getTable(Tables::TRACK_CATEGORIES);
-    }
-
-    public static function getTrackTracksCategoryTable(): string
+    public static function getTrackTracksCategoryTable (): string
     {
         return Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
     }
 
-    public static function getTrackDefaultFiltersTrackTable(): string
+    public static function getTrackDefaultFiltersTrackTable (): string
     {
         return Tables::getTable(Tables::TRACK_DEFAULT_FILTERS_TRACKS);
     }
 
-    public static function getTrackDefaultFiltersTable(): string
+    public static function getTrackDefaultFiltersTable (): string
     {
         return Tables::getTable(Tables::TRACK_DEFAULT_FILTERS);
     }
 
-    public static function getTrackToGenreTable(): string
+    public static function getTrackToGenreTable (): string
     {
         return Tables::getTable(Tables::TRACK_GENRES);
     }
 
-    public function getTrackCategoryColumns(): array
+    public static function defaultFilterData (): array
     {
-        return Tables::$TABLES[Tables::TRACK_CATEGORIES];
-    }
-
-
-    public function getLicenseColumns(): array
-    {
-        return Tables::$TABLES[Tables::LICENSES];
-    }
-
-    public function getArtistColumns(): array
-    {
-        return Tables::$TABLES[Tables::ARTISTS];
-    }
-
-    public function getGenreColumns(): array
-    {
-        return Tables::$TABLES[Tables::GENRES];
-    }
-
-    public function getTrackColumns(): array
-    {
-        return Tables::$TABLES[Tables::TRACKS];
-    }
-
-    /**
-     * @return string
-     */
-    public function getTrackPaginationColumns(): string
-    {
-        return '`track_id`, `slug_id`, `track_slug`, `track_title`, `track_status`,
-        CONCAT( "/", "tracks", slug_id, track_slug ) AS `_link`, `track_title` AS `_name`, `track_id` AS `_id`';
-    }
-
-    public function getGenrePaginationColumn(): string
-    {
-        return '`genre_id`, `genre_name`, `genre_slug`, `genre_description`, `created_at`, `updated_at`,
-        CONCAT( "", "/genre/", genre_slug ) AS `_link`, `genre_name` AS `_name`, `genre_id` AS `_id`';
-    }
-
-    public function getLicenseURLDownloadListing($licenses, $licenseAttrIDLink = null): string
-    {
-        $htmlFrag = '';
-        foreach ($licenses as $license){
-
-            if ($licenseAttrIDLink !== null && isset($licenseAttrIDLink->{$license->unique_id})){
-                $downloadLink = $licenseAttrIDLink->{$license->unique_id};
-                $htmlFrag .=<<<HTML
-<div class="form-group position:relative">
-<label class="menu-settings-handle-name screen-reader-text" for="$license->unique_id">$license->name Download Link</label>
-<input type="url" class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="$license->unique_id" 
-name="url_download[]" placeholder="Upload $license->name Download Link" value="$downloadLink">
-<input type="hidden" class="form-control input-checkout bg:white-one color:black border-width:default border:black" name="unique_id[]" value="$license->unique_id">
-<button aria-pressed="false" type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer">Upload Link</button>
-</div>
-HTML;
-            } else {
-                $htmlFrag .=<<<HTML
-<div class="form-group position:relative">
-<label class="menu-settings-handle-name screen-reader-text" for="$license->unique_id">$license->name Download Link</label>
-<input type="url" class="input-license-download-url form-control input-checkout bg:white-one color:black border-width:default border:black" id="$license->unique_id" 
-name="url_download[]" placeholder="Upload $license->name Download Link" value="">
-<input type="hidden" class="form-control input-checkout bg:white-one color:black border-width:default border:black" name="unique_id[]" value="$license->unique_id">
-<button aria-pressed="false" type="button" class="upload-license-download-url text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:default
-                        margin-top:0 cursor:pointer">Upload Link</button>
-</div>
-HTML;
-            }
-
-        }
-
-        return $htmlFrag;
-    }
-
-    /**
-     * @param int|null $currentArtistSelectorID
-     * @return string
-     * @throws \Exception
-     */
-    public function artistSelectListing(int $currentArtistSelectorID = null): string
-    {
-        $artists = null;
-        db(onGetDB: function ($db) use (&$artists){
-            $table = self::getArtistTable();
-            $artists = $db->Select('*')->From($table)->FetchResult();
-        });
-
-        $htmlFrag = '';
-        foreach ($artists as $artist){
-            if ($currentArtistSelectorID === $artist->artist_id){
-                $htmlFrag .=<<<HTML
-<option value='$artist->artist_id' selected>$artist->artist_name</option>
-HTML;
-            } else {
-                $htmlFrag .=<<<HTML
-<option value='$artist->artist_id'>$artist->artist_name</option>
-HTML;
-            }
-
-        }
-        return $htmlFrag;
-    }
-
-    /**
-     * @param array $settings
-     * @return string
-     * @throws \Exception
-     */
-    public function genreListing(array $settings): string
-    {
-        # Collate Settings
-        $genres = $settings['genres'] ?? [];
-        $showSearch = $settings['showSearch'] ?? true;
-        $selected = $settings['selected'] ?? [];
-        $inputName = $settings['inputName'] ?? 'fk_genre_id';
-        $type = $settings['type'] ?? 'radio';
-
-        $htmlFrag = ''; $htmlMoreFrag = '';
-
-        #
-        # RADIO-BOX
-        # 
-        if(isset($genres->data) && is_array($genres->data) && !empty($genres->data)){
-
-            if ($type === 'checkbox' || $type === 'radio'){
-                if ($showSearch){
-                    $htmlFrag =<<<HTML
-<input id="genre-search" style="margin-bottom: 1em;"
- data-action ="search" 
- data-query="{$genres->path}&input_name=$inputName&type=$type&genre_query="
- data-menuboxname = "genre"
- data-searchvalue =""
- data-type ="$type"
- class="menu-box-item-search position:sticky top:0" type="search" aria-label="Search Genre and Hit Enter" placeholder="Search Genre &amp; Hit Enter">
-HTML;
-                }
-
-                if (!empty($selected)){
-                    $selectedGenres = null;
-                    db(onGetDB: function ($db) use ($selected, &$selectedGenres){
-                        $selectedGenres = $db->Select('*')->From(Tables::getTable(Tables::GENRES))->WhereIn('genre_id', $selected)->FetchResult();
-                    });
-
-                    $selected = array_combine($selected, $selected);
-                    foreach ($selectedGenres as $genre){
-                        $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
-                        $htmlFrag .= <<<HTML
-<li class="menu-item">
-    <input type="$type"
-    id="$id" checked="checked" name="$inputName" value="$genre->genre_id">
-    <label for="$id">$genre->genre_name</label>
-</li>
-HTML;
-                    }
-                }
-
-                #
-                # BUILD FRAG
-                #
-                foreach ($genres->data as $genre){
-                    $id = 'genre'. $genre->genre_id . '_' . $genre->genre_slug;
-
-                    if (key_exists($genre->genre_id, $selected)) {
-                        continue;
-                    }
-
-                    $htmlFrag .= <<<HTML
-<li class="menu-item">
-    <input type="$type"
-    id="$id" name="$inputName" value="$genre->genre_id">
-    <label for="$id">$genre->genre_name</label>
-</li>
-HTML;
-                }
-            }
-
-            # MORE BUTTON
-            if(isset($genres->has_more) && $genres->has_more){
-                $htmlMoreFrag = <<<HTML
- <button 
- type="button"
- data-morepageUrl="$genres->next_page_url&type=$type&input_name=$inputName" 
- data-menuboxname = "genre"
- data-nextpageid="$genres->next_page"
- data-action = "more"
- data-type="$type"
- class="border:none bg:white-one border-width:default border:black padding:gentle margin-top:0 cursor:pointer act-like-button more-button">More →</button>
-HTML;
-            }
-        }
-
-        return $htmlFrag . $htmlMoreFrag;
-    }
-
-    /**
-     * @param int|null $currentLicenseID
-     * @return string
-     * @throws \Exception
-     */
-    public function licenseSelectListing(int $currentLicenseID = null): string
-    {
-        $htmlFrag = '';
-
-        $licenses = null;
-        db(onGetDB: function ($db) use (&$licenses){
-            $table = self::getLicenseTable();
-            $licenses = $db->run("SELECT * FROM $table");
-        });
-
-        foreach ($licenses as $license){
-            if ($currentLicenseID === $license->license_id){
-                $htmlFrag .=<<<HTML
-<option class="license-selector-value" data-action="license" value='$license->license_id' selected>$license->license_name</option>
-HTML;
-            } else {
-                $htmlFrag .=<<<HTML
-<option class="license-selector-value" data-action="license" value='$license->license_id'>$license->license_name</option>
-HTML;
-            }
-
-        }
-        return $htmlFrag;
-    }
-
-    public function getLicenseItemsListing($licenses): string
-    {
-        $frag = '';
-        foreach ($licenses as $license){
-            $uniqueID = (isset($license->unique_id)) ? $license->unique_id : '';
-            $name = (isset($license->name)) ? $license->name : '';
-            $price = (isset($license->price)) ? $license->price : '';
-            $isEnabled = (isset($license->is_enabled)) ? $license->is_enabled : '';
-            $contract = (isset($license->licence_contract)) ? $license->licence_contract : '';
-
-            if ($isEnabled === '0' || $isEnabled === false){
-                $isEnabledSelect = "<option value='1'>True</option> <option value='0' selected>False</option>";
-            } else {
-                $isEnabledSelect = "<option value='1' selected>True</option> <option value='0'>False</option>";
-            }
-
-            $frag .= <<<HTML
-<li tabIndex="0"
-               class="width:100% draggable menu-arranger-li cursor:move">
-        <fieldset
-            class="width:100% padding:default d:flex justify-content:center pointer-events:none">
-            <legend class="bg:pure-black color:white padding:default pointer-events:none d:flex flex-gap:small align-items:center">
-                <span class="menu-arranger-text-head">$name</span>
-                <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer"
-                        aria-expanded="false" aria-label="Expand child menu">
-                    <svg class="icon:admin tonics-arrow-down color:white">
-                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
-                    </svg>
-                </button>
-            </legend>
-            <form class="widgetSettings d:none flex-d:column license-widget-information pointer-events:all owl width:100%">
-                <div class="form-group">
-                    <label class="menu-settings-handle-name" for="license-name">License Name
-                        <input id="license-name" name="name" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray" 
-                        value="$name" placeholder="Overwrite the license name">
-                        <input name="unique_id" type="hidden" value="$uniqueID" placeholder="Overwrite the license name">
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label class="menu-settings-handle-name" for="license-price">Price
-                        <input id="license-price" name="price" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray" 
-                        value="$price">
-                    </label>
-                </div>        
-                <div class="form-group position:relative">
-                    <label class="menu-settings-handle-name screen-reader-text" for="license-contract">Licence Contract</label>
-                        <input type="url" class="form-control input-checkout bg:white-one color:black border-width:default border:black license-contract" id="license-contract" 
-                        name="licence_contract" placeholder="Upload Licence Contract, Can Be Empty" value="$contract">
-                    <button aria-pressed="false" type="button" class="license-contract-button act-like-button text show-password bg:pure-black color:white cursor:pointer">Upload Contract</button>
-                </div>
-                <div class="form-group">
-                    <label class="menu-settings-handle-name" for="is_enabled">Enable License
-                         <select name="is_enabled" class="default-selector" id="is_enabled">
-                                    $isEnabledSelect
-                          </select>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <button name="delete" class="delete-license-button listing-button border:none bg:white-one border-width:default border:black padding:gentle
-                        margin-top:0 cursor:pointer act-like-button">
-                        Delete License Item
-                    </button>
-                </div>
-            </form>
-        </fieldset>
-    </li>
-HTML;
-
-        }
-
-        return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function createLicense(array $ignore = []): array
-    {
-        $slug = $this->generateUniqueSlug(self::getLicenseTable(),
-            'license_slug', helper()->slug(input()->fromPost()->retrieve('license_slug')));
-
-        $license = []; $postColumns = array_flip($this->getLicenseColumns());
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
-
-                if($inputKey === 'created_at'){
-                    $license[$inputKey] = helper()->date(datetime: $inputValue);
-                    continue;
-                }
-                if ($inputKey === 'license_slug'){
-                    $license[$inputKey] = $slug;
-                    continue;
-                }
-                $license[$inputKey] = $inputValue;
-            }
-        }
-
-        $ignores = array_diff_key($ignore, $license);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
-                unset($license[$v]);
-            }
-        }
-
-        return $license;
-    }
-
-    /**
-     * @param array $ignore
-     * @param bool $prepareFieldSettings
-     * @return array
-     * @throws \Exception
-     */
-    public function createTrack(array $ignore = [], bool $prepareFieldSettings = true): array
-    {
-        $slug = $this->generateUniqueSlug(self::getTrackTable(),
-            'track_slug', helper()->slug(input()->fromPost()->retrieve('track_slug')));
-
-        $track = []; $postColumns = array_flip($this->getTrackColumns());
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
-
-                if($inputKey === 'created_at'){
-                    $track[$inputKey] = helper()->date(datetime: $inputValue);
-                    continue;
-                }
-                if ($inputKey === 'track_slug'){
-                    $track[$inputKey] = $slug;
-                    continue;
-                }
-                $track[$inputKey] = $inputValue;
-            }
-        }
-
-        $ignores = array_diff_key($ignore, $track);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
-                if (isset($track[$v])){
-                    unset($track[$v]);
-                }
-            }
-        }
-
-        if ($prepareFieldSettings){
-            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($track, 'track_title', 'track_content');
-        }
-
-        return $track;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function createArtist(array $ignore = []): array
-    {
-        $slug = $this->generateUniqueSlug(self::getArtistTable(),
-            'artist_slug', helper()->slug(input()->fromPost()->retrieve('artist_slug')));
-
-        $artist = []; $postColumns = array_flip($this->getArtistColumns());
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
-                if ($inputKey === 'artist_slug'){
-                    $artist[$inputKey] = $slug;
-                    continue;
-                }
-                $artist[$inputKey] = $inputValue;
-            }
-        }
-
-        $ignores = array_diff_key($ignore, $artist);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
-                unset($artist[$v]);
-            }
-        }
-
-        return $artist;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function createGenre(array $ignore = [])
-    {
-        $slug = $this->generateUniqueSlug(self::getGenreTable(),
-            'genre_slug', helper()->slug(input()->fromPost()->retrieve('genre_slug')));
-
-        $genre = []; $postColumns = array_flip($this->getGenreColumns());
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
-                if ($inputKey === 'genre_slug'){
-                    $genre[$inputKey] = $slug;
-                    continue;
-                }
-                $genre[$inputKey] = $inputValue;
-            }
-        }
-
-        $ignores = array_diff_key($ignore, $genre);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
-                unset($genre[$v]);
-            }
-        }
-
-        return $genre;
-    }
-
-    /**
-     * @param string $slug
-     * @return mixed
-     * @throws \Exception
-     */
-    public function getLicenseID(string $slug): mixed
-    {
-        $result = null;
-        db(onGetDB: function ($db) use ($slug, &$result){
-            $table = self::getLicenseTable();
-            $result = $db->row("SELECT `license_id` FROM $table WHERE `license_slug` = ?", $slug)->license_id ?? null;
-        });
-
-        return $result;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getGenrePaginationData(): ?object
-    {
-        $settings = [
-            'query_name' => 'genre_query',
-            'page_name' => 'genre_page',
-            'per_page_name' => 'genre_per_page',
-        ];
-       return $this->generatePaginationData(
-            $this->getGenrePaginationColumn(),
-            'genre_name',
-            self::getGenreTable(), 200, $settings);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function genreMetaBox($genre, string $inputName='fk_genre_id', $type = 'radio', $selected = [])
-    {
-        $type = url()->getParam('type', $type);
-        $inputName = url()->getParam('input_name', $inputName);
-
-        if (url()->getHeaderByKey('menuboxname') === 'genre') {
-            if (url()->getHeaderByKey('action') === 'more' || url()->getHeaderByKey('action') === 'search') {
-                $genreSettings = ['genres' => $genre, 'showSearch' => false, 'selected' => $selected, 'type' => $type, 'inputName' => $inputName];
-                $frag = $this->genreListing($genreSettings);
-                helper()->onSuccess($frag);
-            }
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function licenseMetaBox(OnTrackCreate $onTrackCreate = null){
-        if (url()->getHeaderByKey('action') === 'license'){
-            $licenseID = (int)url()->getHeaderByKey('licenseID');
-            $licenseAttrIDLink = null;
-
-            if ($onTrackCreate !== null && $onTrackCreate->getTrackFKLicenseID() === $licenseID){
-                $licenseAttr = $onTrackCreate->getTrackLicenseAttr();
-                $licenseAttrIDLink = (empty($onTrackCreate->getTrackLicenseAttrToIDLink())) ? null : $onTrackCreate->getTrackLicenseAttrToIDLink();
-
-            } else {
-                $licenseAttr = $this->selectWithCondition(self::getLicenseTable(), ['license_attr'], 'license_id = ?', [$licenseID]);
-                $licenseAttr = json_decode($licenseAttr->license_attr);
-            }
-
-            if (is_array($licenseAttr)){
-                helper()->onSuccess($this->getLicenseURLDownloadListing($licenseAttr, $licenseAttrIDLink));
-            }
-        }
-    }
-    
-    /**
-     * @throws \Exception
-     */
-    public function setDefaultTrackCategoryIfNotSet()
-    {
-        if (input()->fromPost()->hasValue('fk_track_cat_id') === false && input()->fromPost()->hasValue('fk_track_cat_id[]')){
-            $_POST['fk_track_cat_id'] = input()->fromPost()->retrieve('fk_track_cat_id[]');
-        }
-
-        if (input()->fromPost()->hasValue('fk_track_cat_id') === false) {
-            $findDefault = $this->findDefaultTrackCategory();
-
-            if (isset($findDefault->track_cat_id)) {
-                $_POST['fk_track_cat_id'] = [$findDefault->track_cat_id];
-                return;
-            }
-
-            $defaultCategory = [
-                'track_cat_name' => 'Default Track Category',
-                'track_cat_slug' => 'default-track-category',
-                'track_cat_status' => 1,
-            ];
-
-            $returning = null;
-            db(onGetDB: function ($db) use ($defaultCategory, &$returning){
-                $returning = $db->insertReturning(self::getTrackCategoryTable(), $defaultCategory, $this->getTrackCategoryColumns(), 'track_cat_id');
-            });
-
-            $_POST['fk_track_cat_id'] = [$returning->track_cat_id];
-            $onTrackCategoryCreate = new OnTrackCategoryCreate($returning, $this);
-            event()->dispatch($onTrackCategoryCreate);
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function findDefaultTrackCategory()
-    {
-        $result = null;
-        db(onGetDB: function ($db) use (&$result){
-            $result = $db->Select(table()->pickTable(self::getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
-                ->From(self::getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-track-category')
-                ->FetchFirst();
-        });
-
-        return $result;
-    }
-    
-
-    /**
-     * @throws \Exception
-     */
-    public function createCategory(array $ignore = [], bool $prepareFieldSettings = true): array
-    {
-        $slug = $this->generateUniqueSlug(self::getTrackCategoryTable(),
-            'track_cat_slug',
-            helper()->slug(input()->fromPost()->retrieve('track_cat_slug')));
-
-        $category = [];
-        $categoryCols = array_flip($this->getTrackCategoryColumns());
-        if (input()->fromPost()->hasValue('track_cat_parent_id')) {
-            $category['track_cat_parent_id'] = input()->fromPost()->retrieve('track_cat_parent_id');
-        }
-
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
-            if (key_exists($inputKey, $categoryCols) && input()->fromPost()->has($inputKey)) {
-                if ($inputKey === 'track_cat_parent_id' && empty($inputValue)) {
-                    $category[$inputKey] = null;
-                    continue;
-                }
-
-                if ($inputKey === 'created_at') {
-                    $category[$inputKey] = helper()->date(datetime: $inputValue);
-                    continue;
-                }
-                if ($inputKey === 'track_cat_slug') {
-                    $category[$inputKey] = $slug;
-                    continue;
-                }
-                $category[$inputKey] = $inputValue;
-            }
-        }
-
-        $ignores = array_diff_key($ignore, $category);
-        if (!empty($ignores)) {
-            foreach ($ignores as $v) {
-                unset($category[$v]);
-            }
-        }
-
-        if ($prepareFieldSettings){
-            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($category, 'track_cat_name', 'track_cat_content');
-        }
-
-        return $category;
-    }
-
-    /**
-     * @return mixed
-     * @throws \Exception
-     */
-    public function getCategory(): mixed
-    {
-        $result = null;
-        db(onGetDB: function ($db) use (&$result){
-            $categoryTable = $this->getTrackCategoryTable();
-            $result = $db->run("
-        WITH RECURSIVE track_cat_recursive AS 
-	( SELECT track_cat_id, track_cat_parent_id, track_cat_slug, track_cat_name, CAST(track_cat_slug AS VARCHAR (255))
-            AS path
-      FROM $categoryTable WHERE track_cat_parent_id IS NULL
-      UNION ALL
-      SELECT tcs.track_cat_id, tcs.track_cat_parent_id, tcs.track_cat_slug, tcs.track_cat_name, CONCAT(path, '/' , tcs.track_cat_slug)
-      FROM track_cat_recursive as fr JOIN $categoryTable as tcs ON fr.track_cat_id = tcs.track_cat_parent_id
-      ) 
-     SELECT * FROM track_cat_recursive;
-        ");
-        });
-
-        return $result;
-    }
-
-    /**
-     * @param null $currentCatData
-     * @return string
-     * @throws \Exception
-     */
-    public function getCategoryHTMLSelect($currentCatData = null): string
-    {
-        $categories = helper()->generateTree(['parent_id' => 'track_cat_parent_id', 'id' => 'track_cat_id'], $this->getCategory());
-        $catSelectFrag = '';
-        if (count($categories) > 0) {
-            foreach ($categories as $category) {
-                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($category, $currentCatData);
-            }
-        }
-
-        return $catSelectFrag;
-    }
-
-    /**
-     * @param $category
-     * @param null $currentCatIDS
-     * @return string
-     * @throws \Exception
-     */
-    private function getCategoryHTMLSelectFragments($category, $currentCatIDS = null): string
-    {
-        $currentCatIDS = (is_object($currentCatIDS) && property_exists($currentCatIDS, 'track_cat_parent_id')) ? $currentCatIDS->track_cat_parent_id : $currentCatIDS;
-
-        if (!is_array($currentCatIDS)){
-            $currentCatIDS = [$currentCatIDS];
-        }
-
-        $catSelectFrag = '';
-        $catID = $category->track_cat_id;
-        if ($category->depth === 0) {
-            $catSelectFrag .= <<<CAT
-    <option data-is-parent="yes" data-depth="$category->depth"
-            data-slug="$category->track_cat_slug" data-path="/$category->path/" value="$catID"
-CAT;
-            foreach ($currentCatIDS as $currentCatID){
-                if ($currentCatID == $category->track_cat_id) {
-                    $catSelectFrag .= 'selected';
-                }
-            }
-
-            $catSelectFrag .= ">" . $category->track_cat_name;
-        } else {
-            $catSelectFrag .= <<<CAT
-    <option data-slug="$category->track_cat_slug" data-depth="$category->depth" data-path="/$category->path/"
-            value="$catID"
-CAT;
-            foreach ($currentCatIDS as $currentCatID){
-                if ($currentCatID == $category->track_cat_id) {
-                    $catSelectFrag .= 'selected';
-                }
-            }
-
-            $catSelectFrag .= ">" . str_repeat("&nbsp;&nbsp;&nbsp;", $category->depth + 1);
-            $catSelectFrag .= $category->track_cat_name;
-        }
-        $catSelectFrag .= "</option>";
-
-        if (isset($category->_children)) {
-            foreach ($category->_children as $catChildren) {
-                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($catChildren, $currentCatIDS);
-            }
-        }
-
-        return $catSelectFrag;
-
-    }
-
-    /**
-     * @param $track
-     * @param string $fieldSettingsKey
-     * @return void
-     * @throws \Exception
-     */
-    public  function unwrapForTrack(&$track, string $fieldSettingsKey = 'field_settings'): void
-    {
-        $fieldSettings = json_decode($track[$fieldSettingsKey], true);
-        $this->getFieldData()->unwrapFieldContent($fieldSettings, contentKey: 'track_content');
-        $track = [...$fieldSettings, ...$track];
-    }
-
-    public static function defaultFilterData(): array
-    {
-        $filterData =  [
+        $filterData = [
             ['tdf_name' => '1', 'tdf_type' => 'bpm'],
             ['tdf_name' => '2', 'tdf_type' => 'bpm'],
             ['tdf_name' => '3', 'tdf_type' => 'bpm'],
@@ -2086,43 +1349,126 @@ CAT;
             ['tdf_name' => 'unknown', 'tdf_type' => 'artist'],
         ];
 
-        foreach (self::defaultGenreData() as $genre){
+        foreach (self::defaultGenreData() as $genre) {
             $filterData[] = [
                 // slug like...
-                'tdf_name' => str_replace(" ", "-", $genre), 'tdf_type' => 'genre'
+                'tdf_name' => str_replace(" ", "-", $genre), 'tdf_type' => 'genre',
             ];
         }
 
         return $filterData;
     }
 
-    public static function defaultGenreData(): array
+    public static function defaultGenreData (): array
     {
         return [
-            "2 tone","2-step garage","4-beat","4x4 garage","8-bit","acapella","acid","acid breaks","acid house","acid jazz","acid rock","acoustic music","acousticana","adult contemporary music","african popular music","african rumba","afrobeat","aleatoric music","alternative country","alternative dance","alternative hip hop","alternative metal","alternative rock","ambient","ambient house","ambient music","americana","anarcho punk","anime music","anti-folk","apala","ape haters","arab pop","arabesque","arabic pop","argentine rock","ars antiqua","ars nova","art punk","art rock","ashiq","asian american jazz","australian country music","australian hip hop","australian pub rock","austropop","avant-garde","avant-garde jazz","avant-garde metal","avant-garde music","axé","bac-bal","bachata","background music","baggy","baila","baile funk","baisha xiyue","baithak gana","baião","bajourou","bakersfield sound","bakou","bakshy","bal-musette","balakadri","balinese gamelan","balkan pop","ballad","ballata","ballet","bamboo band","bambuco","banda","bangsawan","bantowbol","barbershop music","barndance","baroque music","baroque pop","bass music","batcave","batucada","batuco","batá-rumba","beach music","beat","beatboxing","beautiful music","bebop","beiguan","bel canto","bend-skin","benga","berlin school of electronic music","bhajan","bhangra","bhangra-wine","bhangragga","bhangramuffin","big band","big band music","big beat","biguine","bihu","bikutsi","biomusic","bitcore","bitpop","black metal","blackened death metal","blue-eyed soul","bluegrass","blues","blues ballad","blues-rock","boogie","boogie woogie","bossa nova","brass band","brazilian funk","brazilian jazz","breakbeat","breakbeat hardcore","breakcore","breton music","brill building pop","britfunk","british blues","british invasion","britpop","broken beat","brown-eyed soul","brukdown","brutal death metal","bubblegum dance","bubblegum pop","bulerias","bumba-meu-boi","bunraku","burger-highlife","burgundian school","byzantine chant","ca din tulnic","ca pe lunca","ca trù","cabaret","cadence","cadence rampa","cadence-lypso","café-aman","cai luong","cajun music","cakewalk","calenda","calentanos","calgia","calypso","calypso jazz","calypso-style baila","campursari","canatronic","candombe","canon","canrock","cantata","cante chico","cante jondo","canterbury scene","cantiga","cantique","cantiñas","canto livre","canto nuevo","canto popular","cantopop","canzone napoletana","cape jazz","capoeira music","caracoles","carceleras","cardas","cardiowave","carimbó","cariso","carnatic music","carol","cartageneras","cassette culture","casséy-co","cavacha","caveman","caña","celempungan","cello rock","celtic","celtic fusion","celtic metal","celtic punk","celtic reggae","celtic rock","cha-cha-cha","chakacha","chalga","chamamé","chamber jazz","chamber music","chamber pop","champeta","changuí","chanson","chant","charanga","charanga-vallenata","charikawi","chastushki","chau van","chemical breaks","chicago blues","chicago house","chicago soul","chicano rap","chicha","chicken scratch","children's music","chillout","chillwave","chimurenga","chinese music","chinese pop","chinese rock","chip music","cho-kantrum","chongak","chopera","chorinho","choro","chouval bwa","chowtal","christian alternative","christian black metal","christian electronic music","christian hardcore","christian hip hop","christian industrial","christian metal","christian music","christian punk","christian r&b","christian rock","christian ska","christmas carol","christmas music","chumba","chut-kai-pang","chutney","chutney-bhangra","chutney-hip hop","chutney-soca","chylandyk","chzalni","chèo","cigányzene","classic","classic country","classic female blues","classic rock","classical music","classical music era","clicks n cuts","close harmony","club music","cocobale","coimbra fado","coladeira","colombianas","combined rhythm","comedy rap","comedy rock","comic opera","comparsa","compas direct","compas meringue","concert overture","concerto","concerto grosso","congo","conjunto","contemporary christian","contemporary christian music","contemporary r&b","contonbley","contradanza","cool jazz","corrido","corsican polyphonic song","cothoza mfana","country","country blues","country gospel","country music","country pop","country r&b","country rock","country-rap","countrypolitan","couple de sonneurs","coupé-décalé","cowpunk","cretan music","crossover jazz","crossover music","crossover thrash","crossover thrash metal","crunk","crunk&b","crunkcore","crust punk","csárdás","cuarteto","cuban rumba","cuddlecore","cueca","cumbia","cumbia villera","cybergrind","dabka","dadra","daina","dalauna","dance","dance music","dance-pop","dance-punk","dance-rock","dancehall","dangdut","danger music","dansband","danza","danzón","dark ambient","dark cabaret","dark pop","darkcore","darkstep","darkwave","de ascultat la servici","de codru","de dragoste","de jale","de pahar","death industrial","death metal","death rock","death/doom","deathcore","deathgrind","deathrock","deep funk","deep house","deep soul","degung","delta blues","dementia","desert rock","desi","detroit blues","detroit techno","dhamar","dhimotiká","dhrupad","dhun","digital hardcore","dirge","dirty dutch","dirty rap","dirty rap/pornocore","dirty south","disco","disco house","disco polo","disney","disney hardcore","disney pop","diva house","divine rock","dixieland","dixieland jazz","djambadon","djent","dodompa","doina","dombola","dondang sayang","donegal fiddle tradition","dongjing","doo wop","doom metal","doomcore","downtempo","drag","dream pop","drone doom","drone metal","drone music","dronology","drum and bass","dub","dub house","dubanguthu","dubstep","dubtronica","dunedin sound","dunun","dutch jazz","décima","early music","east coast blues","east coast hip hop","easy listening","electric blues","electric folk","electro","electro backbeat","electro hop","electro house","electro punk","electro-industrial","electro-swing","electroclash","electrofunk","electronic","electronic art music","electronic body music","electronic dance","electronic luk thung","electronic music","electronic rock","electronica","electropop","elevator music","emo","emo pop","emo rap","emocore","emotronic","enka","eremwu eu","essential rock","ethereal pop","ethereal wave","euro","euro disco","eurobeat","eurodance","europop","eurotrance","eurourban","exotica","experimental music","experimental noise","experimental pop","experimental rock","extreme metal","ezengileer","fado","falak","fandango","farruca","fife and drum blues","filk","film score","filmi","filmi-ghazal","finger-style","fjatpangarri","flamenco","flamenco rumba","flower power","foaie verde","fofa","folk hop","folk metal","folk music","folk pop","folk punk","folk rock","folktronica","forró","franco-country","freak-folk","freakbeat","free improvisation","free jazz","free music","freestyle","freestyle house","freetekno","french pop","frenchcore","frevo","fricote","fuji","fuji music","fulia","full on","funaná","funeral doom","funk","funk metal","funk rock","funkcore","funky house","furniture music","fusion jazz","g-funk","gaana","gabba","gabber","gagaku","gaikyoku","gaita","galant","gamad","gambang kromong","gamelan","gamelan angklung","gamelan bang","gamelan bebonangan","gamelan buh","gamelan degung","gamelan gede","gamelan kebyar","gamelan salendro","gamelan selunding","gamelan semar pegulingan","gamewave","gammeldans","gandrung","gangsta rap","gar","garage rock","garrotin","gavotte","gelugpa chanting","gender wayang","gending","german folk music","gharbi","gharnati","ghazal","ghazal-song","ghetto house","ghettotech","girl group","glam metal","glam punk","glam rock","glitch","gnawa","go-go","goa","goa trance","gong-chime music","goombay","goregrind","goshu ondo","gospel music","gothic metal","gothic rock","granadinas","grebo","gregorian chant","grime","grindcore","groove metal","group sounds","grunge","grupera","guaguanbo","guajira","guasca","guitarra baiana","guitarradas","gumbe","gunchei","gunka","guoyue","gwo ka","gwo ka moderne","gypsy jazz","gypsy punk","gypsybilly","gyu ke","habanera","hajnali","hakka","halling","hambo","hands up","hapa haole","happy hardcore","haqibah","hard","hard bop","hard house","hard rock","hard trance","hardcore hip hop","hardcore metal","hardcore punk","hardcore techno","hardstyle","harepa","harmonica blues","hasaposérviko","heart attack","heartland rock","heavy beat","heavy metal","hesher","hi-nrg","highlands","highlife","highlife fusion","hillybilly music","hindustani classical music","hip hop","hip hop & rap","hip hop soul","hip house","hiplife","hiragasy","hiva usu","hong kong and cantonese pop","hong kong english pop","honky tonk","honkyoku","hora lunga","hornpipe","horror punk","horrorcore","horrorcore rap","house","house music","hua'er","huasteco","huayno","hula","humppa","hunguhungu","hyangak","hymn","hyphy","hát chau van","hát chèo","hát cãi luong","hát tuồng","ibiza music","icaro","idm","igbo music","ijexá","ilahije","illbient","impressionist music","improvisational","incidental music","indian pop","indie folk","indie music","indie pop","indie rock","indietronica","indo jazz","indo rock","indonesian pop","indoyíftika","industrial death metal","industrial hip-hop","industrial metal","industrial music","industrial musical","industrial rock","instrumental rock","intelligent dance music","international latin","inuit music","iranian pop","irish folk","irish rebel music","iscathamiya","isicathamiya","isikhwela jo","island","isolationist","italo dance","italo disco","italo house","itsmeños","izvorna bosanska muzika","j'ouvert","j-fusion","j-pop","j-rock","jaipongan","jaliscienses","jam band","jam rock","jamana kura","jamrieng samai","jangle pop","japanese pop","jarana","jariang","jarochos","jawaiian","jazz","jazz blues","jazz fusion","jazz metal","jazz rap","jazz-funk","jazz-rock","jegog","jenkka","jesus music","jibaro","jig","jig punk","jing ping","jingle","jit","jitterbug","jive","joged","joged bumbung","joik","jonnycore","joropo","jota","jtek","jug band","jujitsu","juju","juke joint blues","jump blues","jumpstyle","jungle","junkanoo","juré","jùjú","k-pop","kaba","kabuki","kachāshī","kadans","kagok","kagyupa chanting","kaiso","kalamatianó","kalattuut","kalinda","kamba pop","kan ha diskan","kansas city blues","kantrum","kantádhes","kargyraa","karma","kaseko","katajjaq","kawachi ondo","kayōkyoku","ke-kwe","kebyar","kecak","kecapi suling","kertok","khaleeji","khap","khelimaski djili","khene","khoomei","khorovodi","khplam wai","khrung sai","khyal","kilapanda","kinko","kirtan","kiwi rock","kizomba","klape","klasik","klezmer","kliningan","kléftiko","kochare","kolomyjka","komagaku","kompa","konpa","korean pop","koumpaneia","kpanlogo","krakowiak","krautrock","kriti","kroncong","krump","krzesany","kuduro","kulintang","kulning","kumina","kun-borrk","kundere","kundiman","kussundé","kutumba wake","kveding","kvæði","kwaito","kwassa kwassa","kwela","käng","kélé","kĩkũyũ pop","la la","latin american","latin jazz","latin pop","latin rap","lavway","laïko","laïkó","le leagan","legényes","lelio","letkajenkka","levenslied","lhamo","lieder","light music","light rock","likanos","liquid drum&bass","liquid funk","liquindi","llanera","llanto","lo-fi","lo-fi music","loki djili","long-song","louisiana blues","louisiana swamp pop","lounge music","lovers rock","lowercase","lubbock sound","lucknavi thumri","luhya omutibo","luk grung","lullaby","lundu","lundum","m-base","madchester","madrigal","mafioso rap","maglaal","magnificat","mahori","mainstream jazz","makossa","makossa-soukous","malagueñas","malawian jazz","malhun","maloya","maluf","maluka","mambo","manaschi","mandarin pop","manding swing","mango","mangue bit","mangulina","manikay","manila sound","manouche","manzuma","mapouka","mapouka-serré","marabi","maracatu","marga","mariachi","marimba","marinera","marrabenta","martial industrial","martinetes","maskanda","mass","matamuerte","math rock","mathcore","matt bello","maxixe","mazurka","mbalax","mbaqanga","mbube","mbumba","medh","medieval folk rock","medieval metal","medieval music","meditation","mejorana","melhoun","melhûn","melodic black metal","melodic death metal","melodic hardcore","melodic metalcore","melodic music","melodic trance","memphis blues","memphis rap","memphis soul","mento","merengue","merengue típico moderno","merengue-bomba","meringue","merseybeat","metal","metalcore","metallic hardcore","mexican pop","mexican rock","mexican son","meykhana","mezwed","miami bass","microhouse","middle of the road","midwest hip hop","milonga","min'yo","mineras","mini compas","mini-jazz","minimal techno","minimalist music","minimalist trance","minneapolis sound","minstrel show","minuet","mirolóyia","modal jazz","modern classical music","modern laika","modern rock","modinha","mohabelo","montuno","monumental dance","mor lam","mor lam sing","morna","motorpop","motown","mozambique","mpb","mugam","multicultural","murga","musette","museve","mushroom jazz","music drama","music hall","musiqi-e assil","musique concrète","mutuashi","muwashshah","muzak","méringue","música campesina","música criolla","música de la interior","música llanera","música nordestina","música popular brasileira","música tropical","nagauta","nakasi","nangma","nanguan","narcocorrido","nardcore","narodna muzika","nasheed","nashville sound","nashville sound/countrypolitan","national socialist black metal","naturalismo","nederpop","neo soul","neo-classical metal","neo-medieval","neo-prog","neo-psychedelia","neoclassical","neoclassical music","neofolk","neotraditional country","nerdcore","neue deutsche härte","neue deutsche welle","new age music","new beat","new instrumental","new jack swing","new orleans blues","new orleans jazz","new pop","new prog","new rave","new romantic","new school hip hop","new taiwanese song","new wave","new wave of british heavy metal","new wave of new wave","new weird america","new york blues","new york house","newgrass","nganja","niche","nightcore","nintendocore","nisiótika","no wave","noh","noise music","noise pop","noise rock","nongak","norae undong","nordic folk dance music","nordic folk music","nortec","norteño","northern soul","nota","nu breaks","nu jazz","nu metal","nu soul","nueva canción","nyatiti","néo kýma","obscuro","oi!","old school hip hop","old-time","oldies","olonkho","oltului","ondo","opera","operatic pop","oratorio","orchestra","organ trio","organic ambient","organum","orgel","oriental metal","ottava rima","outlaw country","outsider music","p-funk","pagan metal","pagan rock","pagode","paisley underground","palm wine","palm-wine","pambiche","panambih","panchai baja","panchavadyam","pansori","paranda","parang","parody","parranda","partido alto","pasillo","patriotic","peace punk","pelimanni music","petenera","peyote song","philadelphia soul","piano blues","piano rock","piedmont blues","pimba","pinoy pop","pinoy rock","pinpeat orchestra","piphat","piyyutim","plainchant","plena","pleng phua cheewit","pleng thai sakorn","political hip hop","polka","polo","polonaise","pols","polska","pong lang","pop","pop folk","pop music","pop punk","pop rap","pop rock","pop sunda","pornocore","porro","post disco","post-britpop","post-disco","post-grunge","post-hardcore","post-industrial","post-metal","post-minimalism","post-punk","post-rock","post-romanticism","pow-wow","power electronics","power metal","power noise","power pop","powerviolence","ppongtchak","praise song","program symphony","progressive bluegrass","progressive country","progressive death metal","progressive electronic","progressive electronic music","progressive folk","progressive folk music","progressive house","progressive metal","progressive rock","progressive trance","protopunk","psych folk","psychedelic music","psychedelic pop","psychedelic rock","psychedelic trance","psychobilly","punk blues","punk cabaret","punk jazz","punk rock","punta","punta rock","qasidah","qasidah modern","qawwali","quadrille","quan ho","queercore","quiet storm","rada","raga","raga rock","ragga","ragga jungle","raggamuffin","ragtime","rai","rake-and-scrape","ramkbach","ramvong","ranchera","rap","rap metal","rap rock","rapcore","rara","rare groove","rasiya","rave","raw rock","raï","rebetiko","red dirt","reel","reggae","reggae fusion","reggae highlife","reggaefusion","reggaeton","rekilaulu","relax music","religious","rembetiko","renaissance music","requiem","rhapsody","rhyming spiritual","rhythm & blues","rhythm and blues","ricercar","riot grrrl","rock","rock and roll","rock en español","rock opera","rockabilly","rocksteady","rococo","romantic period in music","rondeaux","ronggeng","roots reggae","roots rock","roots rock reggae","rumba","russian pop","rímur","sabar","sacred harp","sadcore","saibara","sakara","salegy","salsa","salsa erotica","salsa romantica","saltarello","samba","samba-canção","samba-reggae","samba-rock","sambai","sanjo","sato kagura","sawt","saya","scat","schlager","schottisch","schranz","scottish baroque music","screamo","scrumpy and western","sea shanty","sean nós","second viennese school","sega music","seggae","seis","semba","sephardic music","serialism","set dance","sevdalinka","sevillana","shabab","shabad","shalako","shan'ge","shango","shape note","shibuya-kei","shidaiqu","shima uta","shock rock","shoegaze","shoegazer","shoka","shomyo","show tune","sica","siguiriyas","silat","sinawi","singer-songwriter","situational","ska","ska punk","skacore","skald","skate punk","skiffle","slack-key guitar","slide","slowcore","sludge metal","slängpolska","smooth jazz","soca","soft rock","son","son montuno","son-batá","sonata","songo","songo-salsa","sophisti-pop","soukous","soul","soul blues","soul jazz","soul music","soundtrack","southern gospel","southern harmony","southern hip hop","southern metal","southern rock","southern soul","space age pop","space music","space rock","spectralism","speed garage","speed metal","speedcore","spirituals","spouge","sprechgesang","square dance","squee","st. louis blues","steelband","stoner metal","stoner rock","straight edge","strathspeys","stride","string","string quartet","sufi music","suite","sunshine pop","suomirock","super eurobeat","surf ballad","surf instrumental","surf music","surf pop","surf rock","swamp blues","swamp pop","swamp rock","swing","swing music","swingbeat","sygyt","symphonic black metal","symphonic metal","symphonic poem","symphonic rock","symphony","synthpop","synthpunk","t'ong guitar","taarab","tai tu","taiwanese pop","tala","talempong","tambu","tamburitza","tamil christian keerthanai","tango","tanguk","tappa","tarana","tarantella","taranto","tech","tech house","tech trance","technical death metal","technical metal","techno","technoid","technopop","techstep","techtonik","teen pop","tejano","tejano music","tekno","tembang sunda","texas blues","thai pop","thillana","thrash metal","thrashcore","thumri","tibetan pop","tiento","timbila","tin pan alley","tinga","tinku","toeshey","togaku","trad jazz","traditional bluegrass","traditional pop music","trallalero","trance","tribal house","trikitixa","trip hop","trip rock","trip-hop","tropicalia","tropicalismo","tropipop","truck-driving country","tumba","turbo-folk","turkish music","turkish pop","turntablism","tuvan throat-singing","twee pop","twist","two tone","táncház","uk garage","uk pub rock","unblack metal","underground music","uplifting","uplifting trance","urban cowboy","urban folk","urban jazz","vallenato","vaudeville","venezuela","verbunkos","verismo","video game music","viking metal","villanella","virelai","vispop","visual kei","visual music","vocal","vocal house","vocal jazz","vocal music","volksmusik","waila","waltz","wangga","warabe uta","wassoulou","weld","were music","west coast hip hop","west coast jazz","western","western blues","western swing","witch house","wizard rock","women's music","wong shadow","wonky pop","wood","work song","world fusion","world fusion music","world music","worldbeat","xhosa music","xoomii","yo-pop","yodeling","yukar","yé-yé","zajal","zapin","zarzuela","zeibekiko","zeuhl","ziglibithy","zouglou","zouk","zouk chouv","zouklove","zulu music","zydeco"
+            "2 tone", "2-step garage", "4-beat", "4x4 garage", "8-bit", "acapella", "acid", "acid breaks", "acid house", "acid jazz", "acid rock", "acoustic music", "acousticana", "adult contemporary music", "african popular music", "african rumba", "afrobeat", "aleatoric music", "alternative country", "alternative dance", "alternative hip hop", "alternative metal", "alternative rock", "ambient", "ambient house", "ambient music", "americana", "anarcho punk", "anime music", "anti-folk", "apala", "ape haters", "arab pop", "arabesque", "arabic pop", "argentine rock", "ars antiqua", "ars nova", "art punk", "art rock", "ashiq", "asian american jazz", "australian country music", "australian hip hop", "australian pub rock", "austropop", "avant-garde", "avant-garde jazz", "avant-garde metal", "avant-garde music", "axé", "bac-bal", "bachata", "background music", "baggy", "baila", "baile funk", "baisha xiyue", "baithak gana", "baião", "bajourou", "bakersfield sound", "bakou", "bakshy", "bal-musette", "balakadri", "balinese gamelan", "balkan pop", "ballad", "ballata", "ballet", "bamboo band", "bambuco", "banda", "bangsawan", "bantowbol", "barbershop music", "barndance", "baroque music", "baroque pop", "bass music", "batcave", "batucada", "batuco", "batá-rumba", "beach music", "beat", "beatboxing", "beautiful music", "bebop", "beiguan", "bel canto", "bend-skin", "benga", "berlin school of electronic music", "bhajan", "bhangra", "bhangra-wine", "bhangragga", "bhangramuffin", "big band", "big band music", "big beat", "biguine", "bihu", "bikutsi", "biomusic", "bitcore", "bitpop", "black metal", "blackened death metal", "blue-eyed soul", "bluegrass", "blues", "blues ballad", "blues-rock", "boogie", "boogie woogie", "bossa nova", "brass band", "brazilian funk", "brazilian jazz", "breakbeat", "breakbeat hardcore", "breakcore", "breton music", "brill building pop", "britfunk", "british blues", "british invasion", "britpop", "broken beat", "brown-eyed soul", "brukdown", "brutal death metal", "bubblegum dance", "bubblegum pop", "bulerias", "bumba-meu-boi", "bunraku", "burger-highlife", "burgundian school", "byzantine chant", "ca din tulnic", "ca pe lunca", "ca trù", "cabaret", "cadence", "cadence rampa", "cadence-lypso", "café-aman", "cai luong", "cajun music", "cakewalk", "calenda", "calentanos", "calgia", "calypso", "calypso jazz", "calypso-style baila", "campursari", "canatronic", "candombe", "canon", "canrock", "cantata", "cante chico", "cante jondo", "canterbury scene", "cantiga", "cantique", "cantiñas", "canto livre", "canto nuevo", "canto popular", "cantopop", "canzone napoletana", "cape jazz", "capoeira music", "caracoles", "carceleras", "cardas", "cardiowave", "carimbó", "cariso", "carnatic music", "carol", "cartageneras", "cassette culture", "casséy-co", "cavacha", "caveman", "caña", "celempungan", "cello rock", "celtic", "celtic fusion", "celtic metal", "celtic punk", "celtic reggae", "celtic rock", "cha-cha-cha", "chakacha", "chalga", "chamamé", "chamber jazz", "chamber music", "chamber pop", "champeta", "changuí", "chanson", "chant", "charanga", "charanga-vallenata", "charikawi", "chastushki", "chau van", "chemical breaks", "chicago blues", "chicago house", "chicago soul", "chicano rap", "chicha", "chicken scratch", "children's music", "chillout", "chillwave", "chimurenga", "chinese music", "chinese pop", "chinese rock", "chip music", "cho-kantrum", "chongak", "chopera", "chorinho", "choro", "chouval bwa", "chowtal", "christian alternative", "christian black metal", "christian electronic music", "christian hardcore", "christian hip hop", "christian industrial", "christian metal", "christian music", "christian punk", "christian r&b", "christian rock", "christian ska", "christmas carol", "christmas music", "chumba", "chut-kai-pang", "chutney", "chutney-bhangra", "chutney-hip hop", "chutney-soca", "chylandyk", "chzalni", "chèo", "cigányzene", "classic", "classic country", "classic female blues", "classic rock", "classical music", "classical music era", "clicks n cuts", "close harmony", "club music", "cocobale", "coimbra fado", "coladeira", "colombianas", "combined rhythm", "comedy rap", "comedy rock", "comic opera", "comparsa", "compas direct", "compas meringue", "concert overture", "concerto", "concerto grosso", "congo", "conjunto", "contemporary christian", "contemporary christian music", "contemporary r&b", "contonbley", "contradanza", "cool jazz", "corrido", "corsican polyphonic song", "cothoza mfana", "country", "country blues", "country gospel", "country music", "country pop", "country r&b", "country rock", "country-rap", "countrypolitan", "couple de sonneurs", "coupé-décalé", "cowpunk", "cretan music", "crossover jazz", "crossover music", "crossover thrash", "crossover thrash metal", "crunk", "crunk&b", "crunkcore", "crust punk", "csárdás", "cuarteto", "cuban rumba", "cuddlecore", "cueca", "cumbia", "cumbia villera", "cybergrind", "dabka", "dadra", "daina", "dalauna", "dance", "dance music", "dance-pop", "dance-punk", "dance-rock", "dancehall", "dangdut", "danger music", "dansband", "danza", "danzón", "dark ambient", "dark cabaret", "dark pop", "darkcore", "darkstep", "darkwave", "de ascultat la servici", "de codru", "de dragoste", "de jale", "de pahar", "death industrial", "death metal", "death rock", "death/doom", "deathcore", "deathgrind", "deathrock", "deep funk", "deep house", "deep soul", "degung", "delta blues", "dementia", "desert rock", "desi", "detroit blues", "detroit techno", "dhamar", "dhimotiká", "dhrupad", "dhun", "digital hardcore", "dirge", "dirty dutch", "dirty rap", "dirty rap/pornocore", "dirty south", "disco", "disco house", "disco polo", "disney", "disney hardcore", "disney pop", "diva house", "divine rock", "dixieland", "dixieland jazz", "djambadon", "djent", "dodompa", "doina", "dombola", "dondang sayang", "donegal fiddle tradition", "dongjing", "doo wop", "doom metal", "doomcore", "downtempo", "drag", "dream pop", "drone doom", "drone metal", "drone music", "dronology", "drum and bass", "dub", "dub house", "dubanguthu", "dubstep", "dubtronica", "dunedin sound", "dunun", "dutch jazz", "décima", "early music", "east coast blues", "east coast hip hop", "easy listening", "electric blues", "electric folk", "electro", "electro backbeat", "electro hop", "electro house", "electro punk", "electro-industrial", "electro-swing", "electroclash", "electrofunk", "electronic", "electronic art music", "electronic body music", "electronic dance", "electronic luk thung", "electronic music", "electronic rock", "electronica", "electropop", "elevator music", "emo", "emo pop", "emo rap", "emocore", "emotronic", "enka", "eremwu eu", "essential rock", "ethereal pop", "ethereal wave", "euro", "euro disco", "eurobeat", "eurodance", "europop", "eurotrance", "eurourban", "exotica", "experimental music", "experimental noise", "experimental pop", "experimental rock", "extreme metal", "ezengileer", "fado", "falak", "fandango", "farruca", "fife and drum blues", "filk", "film score", "filmi", "filmi-ghazal", "finger-style", "fjatpangarri", "flamenco", "flamenco rumba", "flower power", "foaie verde", "fofa", "folk hop", "folk metal", "folk music", "folk pop", "folk punk", "folk rock", "folktronica", "forró", "franco-country", "freak-folk", "freakbeat", "free improvisation", "free jazz", "free music", "freestyle", "freestyle house", "freetekno", "french pop", "frenchcore", "frevo", "fricote", "fuji", "fuji music", "fulia", "full on", "funaná", "funeral doom", "funk", "funk metal", "funk rock", "funkcore", "funky house", "furniture music", "fusion jazz", "g-funk", "gaana", "gabba", "gabber", "gagaku", "gaikyoku", "gaita", "galant", "gamad", "gambang kromong", "gamelan", "gamelan angklung", "gamelan bang", "gamelan bebonangan", "gamelan buh", "gamelan degung", "gamelan gede", "gamelan kebyar", "gamelan salendro", "gamelan selunding", "gamelan semar pegulingan", "gamewave", "gammeldans", "gandrung", "gangsta rap", "gar", "garage rock", "garrotin", "gavotte", "gelugpa chanting", "gender wayang", "gending", "german folk music", "gharbi", "gharnati", "ghazal", "ghazal-song", "ghetto house", "ghettotech", "girl group", "glam metal", "glam punk", "glam rock", "glitch", "gnawa", "go-go", "goa", "goa trance", "gong-chime music", "goombay", "goregrind", "goshu ondo", "gospel music", "gothic metal", "gothic rock", "granadinas", "grebo", "gregorian chant", "grime", "grindcore", "groove metal", "group sounds", "grunge", "grupera", "guaguanbo", "guajira", "guasca", "guitarra baiana", "guitarradas", "gumbe", "gunchei", "gunka", "guoyue", "gwo ka", "gwo ka moderne", "gypsy jazz", "gypsy punk", "gypsybilly", "gyu ke", "habanera", "hajnali", "hakka", "halling", "hambo", "hands up", "hapa haole", "happy hardcore", "haqibah", "hard", "hard bop", "hard house", "hard rock", "hard trance", "hardcore hip hop", "hardcore metal", "hardcore punk", "hardcore techno", "hardstyle", "harepa", "harmonica blues", "hasaposérviko", "heart attack", "heartland rock", "heavy beat", "heavy metal", "hesher", "hi-nrg", "highlands", "highlife", "highlife fusion", "hillybilly music", "hindustani classical music", "hip hop", "hip hop & rap", "hip hop soul", "hip house", "hiplife", "hiragasy", "hiva usu", "hong kong and cantonese pop", "hong kong english pop", "honky tonk", "honkyoku", "hora lunga", "hornpipe", "horror punk", "horrorcore", "horrorcore rap", "house", "house music", "hua'er", "huasteco", "huayno", "hula", "humppa", "hunguhungu", "hyangak", "hymn", "hyphy", "hát chau van", "hát chèo", "hát cãi luong", "hát tuồng", "ibiza music", "icaro", "idm", "igbo music", "ijexá", "ilahije", "illbient", "impressionist music", "improvisational", "incidental music", "indian pop", "indie folk", "indie music", "indie pop", "indie rock", "indietronica", "indo jazz", "indo rock", "indonesian pop", "indoyíftika", "industrial death metal", "industrial hip-hop", "industrial metal", "industrial music", "industrial musical", "industrial rock", "instrumental rock", "intelligent dance music", "international latin", "inuit music", "iranian pop", "irish folk", "irish rebel music", "iscathamiya", "isicathamiya", "isikhwela jo", "island", "isolationist", "italo dance", "italo disco", "italo house", "itsmeños", "izvorna bosanska muzika", "j'ouvert", "j-fusion", "j-pop", "j-rock", "jaipongan", "jaliscienses", "jam band", "jam rock", "jamana kura", "jamrieng samai", "jangle pop", "japanese pop", "jarana", "jariang", "jarochos", "jawaiian", "jazz", "jazz blues", "jazz fusion", "jazz metal", "jazz rap", "jazz-funk", "jazz-rock", "jegog", "jenkka", "jesus music", "jibaro", "jig", "jig punk", "jing ping", "jingle", "jit", "jitterbug", "jive", "joged", "joged bumbung", "joik", "jonnycore", "joropo", "jota", "jtek", "jug band", "jujitsu", "juju", "juke joint blues", "jump blues", "jumpstyle", "jungle", "junkanoo", "juré", "jùjú", "k-pop", "kaba", "kabuki", "kachāshī", "kadans", "kagok", "kagyupa chanting", "kaiso", "kalamatianó", "kalattuut", "kalinda", "kamba pop", "kan ha diskan", "kansas city blues", "kantrum", "kantádhes", "kargyraa", "karma", "kaseko", "katajjaq", "kawachi ondo", "kayōkyoku", "ke-kwe", "kebyar", "kecak", "kecapi suling", "kertok", "khaleeji", "khap", "khelimaski djili", "khene", "khoomei", "khorovodi", "khplam wai", "khrung sai", "khyal", "kilapanda", "kinko", "kirtan", "kiwi rock", "kizomba", "klape", "klasik", "klezmer", "kliningan", "kléftiko", "kochare", "kolomyjka", "komagaku", "kompa", "konpa", "korean pop", "koumpaneia", "kpanlogo", "krakowiak", "krautrock", "kriti", "kroncong", "krump", "krzesany", "kuduro", "kulintang", "kulning", "kumina", "kun-borrk", "kundere", "kundiman", "kussundé", "kutumba wake", "kveding", "kvæði", "kwaito", "kwassa kwassa", "kwela", "käng", "kélé", "kĩkũyũ pop", "la la", "latin american", "latin jazz", "latin pop", "latin rap", "lavway", "laïko", "laïkó", "le leagan", "legényes", "lelio", "letkajenkka", "levenslied", "lhamo", "lieder", "light music", "light rock", "likanos", "liquid drum&bass", "liquid funk", "liquindi", "llanera", "llanto", "lo-fi", "lo-fi music", "loki djili", "long-song", "louisiana blues", "louisiana swamp pop", "lounge music", "lovers rock", "lowercase", "lubbock sound", "lucknavi thumri", "luhya omutibo", "luk grung", "lullaby", "lundu", "lundum", "m-base", "madchester", "madrigal", "mafioso rap", "maglaal", "magnificat", "mahori", "mainstream jazz", "makossa", "makossa-soukous", "malagueñas", "malawian jazz", "malhun", "maloya", "maluf", "maluka", "mambo", "manaschi", "mandarin pop", "manding swing", "mango", "mangue bit", "mangulina", "manikay", "manila sound", "manouche", "manzuma", "mapouka", "mapouka-serré", "marabi", "maracatu", "marga", "mariachi", "marimba", "marinera", "marrabenta", "martial industrial", "martinetes", "maskanda", "mass", "matamuerte", "math rock", "mathcore", "matt bello", "maxixe", "mazurka", "mbalax", "mbaqanga", "mbube", "mbumba", "medh", "medieval folk rock", "medieval metal", "medieval music", "meditation", "mejorana", "melhoun", "melhûn", "melodic black metal", "melodic death metal", "melodic hardcore", "melodic metalcore", "melodic music", "melodic trance", "memphis blues", "memphis rap", "memphis soul", "mento", "merengue", "merengue típico moderno", "merengue-bomba", "meringue", "merseybeat", "metal", "metalcore", "metallic hardcore", "mexican pop", "mexican rock", "mexican son", "meykhana", "mezwed", "miami bass", "microhouse", "middle of the road", "midwest hip hop", "milonga", "min'yo", "mineras", "mini compas", "mini-jazz", "minimal techno", "minimalist music", "minimalist trance", "minneapolis sound", "minstrel show", "minuet", "mirolóyia", "modal jazz", "modern classical music", "modern laika", "modern rock", "modinha", "mohabelo", "montuno", "monumental dance", "mor lam", "mor lam sing", "morna", "motorpop", "motown", "mozambique", "mpb", "mugam", "multicultural", "murga", "musette", "museve", "mushroom jazz", "music drama", "music hall", "musiqi-e assil", "musique concrète", "mutuashi", "muwashshah", "muzak", "méringue", "música campesina", "música criolla", "música de la interior", "música llanera", "música nordestina", "música popular brasileira", "música tropical", "nagauta", "nakasi", "nangma", "nanguan", "narcocorrido", "nardcore", "narodna muzika", "nasheed", "nashville sound", "nashville sound/countrypolitan", "national socialist black metal", "naturalismo", "nederpop", "neo soul", "neo-classical metal", "neo-medieval", "neo-prog", "neo-psychedelia", "neoclassical", "neoclassical music", "neofolk", "neotraditional country", "nerdcore", "neue deutsche härte", "neue deutsche welle", "new age music", "new beat", "new instrumental", "new jack swing", "new orleans blues", "new orleans jazz", "new pop", "new prog", "new rave", "new romantic", "new school hip hop", "new taiwanese song", "new wave", "new wave of british heavy metal", "new wave of new wave", "new weird america", "new york blues", "new york house", "newgrass", "nganja", "niche", "nightcore", "nintendocore", "nisiótika", "no wave", "noh", "noise music", "noise pop", "noise rock", "nongak", "norae undong", "nordic folk dance music", "nordic folk music", "nortec", "norteño", "northern soul", "nota", "nu breaks", "nu jazz", "nu metal", "nu soul", "nueva canción", "nyatiti", "néo kýma", "obscuro", "oi!", "old school hip hop", "old-time", "oldies", "olonkho", "oltului", "ondo", "opera", "operatic pop", "oratorio", "orchestra", "organ trio", "organic ambient", "organum", "orgel", "oriental metal", "ottava rima", "outlaw country", "outsider music", "p-funk", "pagan metal", "pagan rock", "pagode", "paisley underground", "palm wine", "palm-wine", "pambiche", "panambih", "panchai baja", "panchavadyam", "pansori", "paranda", "parang", "parody", "parranda", "partido alto", "pasillo", "patriotic", "peace punk", "pelimanni music", "petenera", "peyote song", "philadelphia soul", "piano blues", "piano rock", "piedmont blues", "pimba", "pinoy pop", "pinoy rock", "pinpeat orchestra", "piphat", "piyyutim", "plainchant", "plena", "pleng phua cheewit", "pleng thai sakorn", "political hip hop", "polka", "polo", "polonaise", "pols", "polska", "pong lang", "pop", "pop folk", "pop music", "pop punk", "pop rap", "pop rock", "pop sunda", "pornocore", "porro", "post disco", "post-britpop", "post-disco", "post-grunge", "post-hardcore", "post-industrial", "post-metal", "post-minimalism", "post-punk", "post-rock", "post-romanticism", "pow-wow", "power electronics", "power metal", "power noise", "power pop", "powerviolence", "ppongtchak", "praise song", "program symphony", "progressive bluegrass", "progressive country", "progressive death metal", "progressive electronic", "progressive electronic music", "progressive folk", "progressive folk music", "progressive house", "progressive metal", "progressive rock", "progressive trance", "protopunk", "psych folk", "psychedelic music", "psychedelic pop", "psychedelic rock", "psychedelic trance", "psychobilly", "punk blues", "punk cabaret", "punk jazz", "punk rock", "punta", "punta rock", "qasidah", "qasidah modern", "qawwali", "quadrille", "quan ho", "queercore", "quiet storm", "rada", "raga", "raga rock", "ragga", "ragga jungle", "raggamuffin", "ragtime", "rai", "rake-and-scrape", "ramkbach", "ramvong", "ranchera", "rap", "rap metal", "rap rock", "rapcore", "rara", "rare groove", "rasiya", "rave", "raw rock", "raï", "rebetiko", "red dirt", "reel", "reggae", "reggae fusion", "reggae highlife", "reggaefusion", "reggaeton", "rekilaulu", "relax music", "religious", "rembetiko", "renaissance music", "requiem", "rhapsody", "rhyming spiritual", "rhythm & blues", "rhythm and blues", "ricercar", "riot grrrl", "rock", "rock and roll", "rock en español", "rock opera", "rockabilly", "rocksteady", "rococo", "romantic period in music", "rondeaux", "ronggeng", "roots reggae", "roots rock", "roots rock reggae", "rumba", "russian pop", "rímur", "sabar", "sacred harp", "sadcore", "saibara", "sakara", "salegy", "salsa", "salsa erotica", "salsa romantica", "saltarello", "samba", "samba-canção", "samba-reggae", "samba-rock", "sambai", "sanjo", "sato kagura", "sawt", "saya", "scat", "schlager", "schottisch", "schranz", "scottish baroque music", "screamo", "scrumpy and western", "sea shanty", "sean nós", "second viennese school", "sega music", "seggae", "seis", "semba", "sephardic music", "serialism", "set dance", "sevdalinka", "sevillana", "shabab", "shabad", "shalako", "shan'ge", "shango", "shape note", "shibuya-kei", "shidaiqu", "shima uta", "shock rock", "shoegaze", "shoegazer", "shoka", "shomyo", "show tune", "sica", "siguiriyas", "silat", "sinawi", "singer-songwriter", "situational", "ska", "ska punk", "skacore", "skald", "skate punk", "skiffle", "slack-key guitar", "slide", "slowcore", "sludge metal", "slängpolska", "smooth jazz", "soca", "soft rock", "son", "son montuno", "son-batá", "sonata", "songo", "songo-salsa", "sophisti-pop", "soukous", "soul", "soul blues", "soul jazz", "soul music", "soundtrack", "southern gospel", "southern harmony", "southern hip hop", "southern metal", "southern rock", "southern soul", "space age pop", "space music", "space rock", "spectralism", "speed garage", "speed metal", "speedcore", "spirituals", "spouge", "sprechgesang", "square dance", "squee", "st. louis blues", "steelband", "stoner metal", "stoner rock", "straight edge", "strathspeys", "stride", "string", "string quartet", "sufi music", "suite", "sunshine pop", "suomirock", "super eurobeat", "surf ballad", "surf instrumental", "surf music", "surf pop", "surf rock", "swamp blues", "swamp pop", "swamp rock", "swing", "swing music", "swingbeat", "sygyt", "symphonic black metal", "symphonic metal", "symphonic poem", "symphonic rock", "symphony", "synthpop", "synthpunk", "t'ong guitar", "taarab", "tai tu", "taiwanese pop", "tala", "talempong", "tambu", "tamburitza", "tamil christian keerthanai", "tango", "tanguk", "tappa", "tarana", "tarantella", "taranto", "tech", "tech house", "tech trance", "technical death metal", "technical metal", "techno", "technoid", "technopop", "techstep", "techtonik", "teen pop", "tejano", "tejano music", "tekno", "tembang sunda", "texas blues", "thai pop", "thillana", "thrash metal", "thrashcore", "thumri", "tibetan pop", "tiento", "timbila", "tin pan alley", "tinga", "tinku", "toeshey", "togaku", "trad jazz", "traditional bluegrass", "traditional pop music", "trallalero", "trance", "tribal house", "trikitixa", "trip hop", "trip rock", "trip-hop", "tropicalia", "tropicalismo", "tropipop", "truck-driving country", "tumba", "turbo-folk", "turkish music", "turkish pop", "turntablism", "tuvan throat-singing", "twee pop", "twist", "two tone", "táncház", "uk garage", "uk pub rock", "unblack metal", "underground music", "uplifting", "uplifting trance", "urban cowboy", "urban folk", "urban jazz", "vallenato", "vaudeville", "venezuela", "verbunkos", "verismo", "video game music", "viking metal", "villanella", "virelai", "vispop", "visual kei", "visual music", "vocal", "vocal house", "vocal jazz", "vocal music", "volksmusik", "waila", "waltz", "wangga", "warabe uta", "wassoulou", "weld", "were music", "west coast hip hop", "west coast jazz", "western", "western blues", "western swing", "witch house", "wizard rock", "women's music", "wong shadow", "wonky pop", "wood", "work song", "world fusion", "world fusion music", "world music", "worldbeat", "xhosa music", "xoomii", "yo-pop", "yodeling", "yukar", "yé-yé", "zajal", "zapin", "zarzuela", "zeibekiko", "zeuhl", "ziglibithy", "zouglou", "zouk", "zouk chouv", "zouklove", "zulu music", "zydeco",
         ];
     }
 
     /**
-     * @return OnTrackDefaultField|null
+     * @return string
      */
-    public function getOnTrackDefaultField(): ?OnTrackDefaultField
+    public function getTrackPaginationColumns (): string
     {
-        return $this->onTrackDefaultField;
+        return '`track_id`, `slug_id`, `track_slug`, `track_title`, `track_status`,
+        CONCAT( "/", "tracks", slug_id, track_slug ) AS `_link`, `track_title` AS `_name`, `track_id` AS `_id`';
     }
 
     /**
-     * @param OnTrackDefaultField|null $onTrackDefaultField
+     * @param int|null $currentArtistSelectorID
+     *
+     * @return string
+     * @throws \Exception
      */
-    public function setOnTrackDefaultField(?OnTrackDefaultField $onTrackDefaultField): void
+    public function artistSelectListing (int $currentArtistSelectorID = null): string
     {
-        $this->onTrackDefaultField = $onTrackDefaultField;
+        $artists = null;
+        db(onGetDB: function ($db) use (&$artists) {
+            $table = self::getArtistTable();
+            $artists = $db->Select('*')->From($table)->FetchResult();
+        });
+
+        $htmlFrag = '';
+        foreach ($artists as $artist) {
+            if ($currentArtistSelectorID === $artist->artist_id) {
+                $htmlFrag .= <<<HTML
+<option value='$artist->artist_id' selected>$artist->artist_name</option>
+HTML;
+            } else {
+                $htmlFrag .= <<<HTML
+<option value='$artist->artist_id'>$artist->artist_name</option>
+HTML;
+            }
+
+        }
+        return $htmlFrag;
+    }
+
+    public static function getArtistTable (): string
+    {
+        return Tables::getTable(Tables::ARTISTS);
+    }
+
+    /**
+     * @param array $ignore
+     * @param bool $prepareFieldSettings
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function createTrack (array $ignore = [], bool $prepareFieldSettings = true): array
+    {
+        $slug = $this->generateUniqueSlug(self::getTrackTable(),
+            'track_slug', helper()->slug(input()->fromPost()->retrieve('track_slug')));
+
+        $track = [];
+        $postColumns = array_flip($this->getTrackColumns());
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
+
+                if ($inputKey === 'created_at') {
+                    $track[$inputKey] = helper()->date(datetime: $inputValue);
+                    continue;
+                }
+                if ($inputKey === 'track_slug') {
+                    $track[$inputKey] = $slug;
+                    continue;
+                }
+                $track[$inputKey] = $inputValue;
+            }
+        }
+
+        $ignores = array_diff_key($ignore, $track);
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
+                if (isset($track[$v])) {
+                    unset($track[$v]);
+                }
+            }
+        }
+
+        if ($prepareFieldSettings) {
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($track, 'track_title', 'track_content');
+        }
+
+        return $track;
+    }
+
+    public static function getTrackTable (): string
+    {
+        return Tables::getTable(Tables::TRACKS);
+    }
+
+    public function getTrackColumns (): array
+    {
+        return Tables::$TABLES[Tables::TRACKS];
     }
 
     /**
      * @return FieldData|null
      */
-    public function getFieldData(): ?FieldData
+    public function getFieldData (): ?FieldData
     {
         return $this->fieldData;
     }
@@ -2130,15 +1476,512 @@ CAT;
     /**
      * @param FieldData|null $fieldData
      */
-    public function setFieldData(?FieldData $fieldData): void
+    public function setFieldData (?FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }
 
     /**
+     * @throws \Exception
+     */
+    public function createArtist (array $ignore = []): array
+    {
+        $slug = $this->generateUniqueSlug(self::getArtistTable(),
+            'artist_slug', helper()->slug(input()->fromPost()->retrieve('artist_slug')));
+
+        $artist = [];
+        $postColumns = array_flip($this->getArtistColumns());
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
+                if ($inputKey === 'artist_slug') {
+                    $artist[$inputKey] = $slug;
+                    continue;
+                }
+                $artist[$inputKey] = $inputValue;
+            }
+        }
+
+        $ignores = array_diff_key($ignore, $artist);
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
+                unset($artist[$v]);
+            }
+        }
+
+        return $artist;
+    }
+
+    public function getArtistColumns (): array
+    {
+        return Tables::$TABLES[Tables::ARTISTS];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function createGenre (array $ignore = [])
+    {
+        $slug = $this->generateUniqueSlug(self::getGenreTable(),
+            'genre_slug', helper()->slug(input()->fromPost()->retrieve('genre_slug')));
+
+        $genre = [];
+        $postColumns = array_flip($this->getGenreColumns());
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
+                if ($inputKey === 'genre_slug') {
+                    $genre[$inputKey] = $slug;
+                    continue;
+                }
+                $genre[$inputKey] = $inputValue;
+            }
+        }
+
+        $ignores = array_diff_key($ignore, $genre);
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
+                unset($genre[$v]);
+            }
+        }
+
+        return $genre;
+    }
+
+    public static function getGenreTable (): string
+    {
+        return Tables::getTable(Tables::GENRES);
+    }
+
+    public function getGenreColumns (): array
+    {
+        return Tables::$TABLES[Tables::GENRES];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getGenrePaginationData (): ?object
+    {
+        $settings = [
+            'query_name'    => 'genre_query',
+            'page_name'     => 'genre_page',
+            'per_page_name' => 'genre_per_page',
+        ];
+        return $this->generatePaginationData(
+            $this->getGenrePaginationColumn(),
+            'genre_name',
+            self::getGenreTable(), 200, $settings);
+    }
+
+    public function getGenrePaginationColumn (): string
+    {
+        return '`genre_id`, `genre_name`, `genre_slug`, `genre_description`, `created_at`, `updated_at`,
+        CONCAT( "", "/genre/", genre_slug ) AS `_link`, `genre_name` AS `_name`, `genre_id` AS `_id`';
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function genreMetaBox ($genre, string $inputName = 'fk_genre_id', $type = 'radio', $selected = [])
+    {
+        $type = url()->getParam('type', $type);
+        $inputName = url()->getParam('input_name', $inputName);
+
+        if (url()->getHeaderByKey('menuboxname') === 'genre') {
+            if (url()->getHeaderByKey('action') === 'more' || url()->getHeaderByKey('action') === 'search') {
+                $genreSettings = ['genres' => $genre, 'showSearch' => false, 'selected' => $selected, 'type' => $type, 'inputName' => $inputName];
+                $frag = $this->genreListing($genreSettings);
+                helper()->onSuccess($frag);
+            }
+        }
+    }
+
+    /**
+     * @param array $settings
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function genreListing (array $settings): string
+    {
+        # Collate Settings
+        $genres = $settings['genres'] ?? [];
+        $showSearch = $settings['showSearch'] ?? true;
+        $selected = $settings['selected'] ?? [];
+        $inputName = $settings['inputName'] ?? 'fk_genre_id';
+        $type = $settings['type'] ?? 'radio';
+
+        $htmlFrag = '';
+        $htmlMoreFrag = '';
+
+        #
+        # RADIO-BOX
+        #
+        if (isset($genres->data) && is_array($genres->data) && !empty($genres->data)) {
+
+            if ($type === 'checkbox' || $type === 'radio') {
+                if ($showSearch) {
+                    $htmlFrag = <<<HTML
+<input id="genre-search" style="margin-bottom: 1em;"
+ data-action ="search" 
+ data-query="{$genres->path}&input_name=$inputName&type=$type&genre_query="
+ data-menuboxname = "genre"
+ data-searchvalue =""
+ data-type ="$type"
+ class="menu-box-item-search position:sticky top:0" type="search" aria-label="Search Genre and Hit Enter" placeholder="Search Genre &amp; Hit Enter">
+HTML;
+                }
+
+                if (!empty($selected)) {
+                    $selectedGenres = null;
+                    db(onGetDB: function ($db) use ($selected, &$selectedGenres) {
+                        $selectedGenres = $db->Select('*')->From(Tables::getTable(Tables::GENRES))->WhereIn('genre_id', $selected)->FetchResult();
+                    });
+
+                    $selected = array_combine($selected, $selected);
+                    foreach ($selectedGenres as $genre) {
+                        $id = 'genre' . $genre->genre_id . '_' . $genre->genre_slug;
+                        $htmlFrag .= <<<HTML
+<li class="menu-item">
+    <input type="$type"
+    id="$id" checked="checked" name="$inputName" value="$genre->genre_id">
+    <label for="$id">$genre->genre_name</label>
+</li>
+HTML;
+                    }
+                }
+
+                #
+                # BUILD FRAG
+                #
+                foreach ($genres->data as $genre) {
+                    $id = 'genre' . $genre->genre_id . '_' . $genre->genre_slug;
+
+                    if (key_exists($genre->genre_id, $selected)) {
+                        continue;
+                    }
+
+                    $htmlFrag .= <<<HTML
+<li class="menu-item">
+    <input type="$type"
+    id="$id" name="$inputName" value="$genre->genre_id">
+    <label for="$id">$genre->genre_name</label>
+</li>
+HTML;
+                }
+            }
+
+            # MORE BUTTON
+            if (isset($genres->has_more) && $genres->has_more) {
+                $htmlMoreFrag = <<<HTML
+ <button 
+ type="button"
+ data-morepageUrl="$genres->next_page_url&type=$type&input_name=$inputName" 
+ data-menuboxname = "genre"
+ data-nextpageid="$genres->next_page"
+ data-action = "more"
+ data-type="$type"
+ class="border:none bg:white-one border-width:default border:black padding:gentle margin-top:0 cursor:pointer act-like-button more-button">More →</button>
+HTML;
+            }
+        }
+
+        return $htmlFrag . $htmlMoreFrag;
+    }
+
+    /**
+     * @param OnTrackCreate|null $onTrackCreate
+     *
+     * @return void
+     * @throws \Throwable
+     */
+    public function licenseMetaBox (OnTrackCreate $onTrackCreate = null)
+    {
+        if (url()->getHeaderByKey('action') === 'license') {
+            $licenseID = (int)url()->getHeaderByKey('licenseID');
+            $licenseAttrIDLink = null;
+
+            if ($onTrackCreate !== null && $onTrackCreate->getTrackFKLicenseID() === $licenseID) {
+                $licenseAttr = $onTrackCreate->getTrackLicenseAttr();
+                $licenseAttrIDLink = (empty($onTrackCreate->getTrackLicenseAttrToIDLink())) ? null : $onTrackCreate->getTrackLicenseAttrToIDLink();
+
+            } else {
+                $licenseAttr = $this->selectWithCondition(self::getLicenseTable(), ['license_attr'], 'license_id = ?', [$licenseID]);
+                $licenseAttr = json_decode($licenseAttr->license_attr);
+            }
+
+            if (is_array($licenseAttr)) {
+                helper()->onSuccess($this->getLicenseURLDownloadListing($licenseAttr, $licenseAttrIDLink));
+            }
+        }
+    }
+
+    public static function getLicenseTable (): string
+    {
+        return Tables::getTable(Tables::LICENSES);
+    }
+
+    /**
+     * @param $licenses
+     * @param $licenseAttrIDLink
+     *
+     * @return string
+     */
+    public function getLicenseURLDownloadListing ($licenses, $licenseAttrIDLink = null): string
+    {
+        return $this->licenseService->getLicenseURLDownloadListing($licenses, $licenseAttrIDLink);
+    }
+
+    /**
+     * @param int|null $currentLicenseID
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function licenseSelectListing (int $currentLicenseID = null): string
+    {
+        return $this->licenseService->licenseSelectListing($currentLicenseID);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function setDefaultTrackCategoryIfNotSet ()
+    {
+        if (input()->fromPost()->hasValue('fk_track_cat_id') === false && input()->fromPost()->hasValue('fk_track_cat_id[]')) {
+            $_POST['fk_track_cat_id'] = input()->fromPost()->retrieve('fk_track_cat_id[]');
+        }
+
+        if (input()->fromPost()->hasValue('fk_track_cat_id') === false) {
+            $findDefault = $this->findDefaultTrackCategory();
+
+            if (isset($findDefault->track_cat_id)) {
+                $_POST['fk_track_cat_id'] = [$findDefault->track_cat_id];
+                return;
+            }
+
+            $defaultCategory = [
+                'track_cat_name'   => 'Default Track Category',
+                'track_cat_slug'   => 'default-track-category',
+                'track_cat_status' => 1,
+            ];
+
+            $returning = null;
+            db(onGetDB: function ($db) use ($defaultCategory, &$returning) {
+                $returning = $db->insertReturning(self::getTrackCategoryTable(), $defaultCategory, $this->getTrackCategoryColumns(), 'track_cat_id');
+            });
+
+            $_POST['fk_track_cat_id'] = [$returning->track_cat_id];
+            $onTrackCategoryCreate = new OnTrackCategoryCreate($returning, $this);
+            event()->dispatch($onTrackCategoryCreate);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function findDefaultTrackCategory ()
+    {
+        $result = null;
+        db(onGetDB: function ($db) use (&$result) {
+            $result = $db->Select(table()->pickTable(self::getTrackCategoryTable(), ['track_cat_slug', 'track_cat_id']))
+                ->From(self::getTrackCategoryTable())->WhereEquals('track_cat_slug', 'default-track-category')
+                ->FetchFirst();
+        });
+
+        return $result;
+    }
+
+    public static function getTrackCategoryTable (): string
+    {
+        return Tables::getTable(Tables::TRACK_CATEGORIES);
+    }
+
+    public function getTrackCategoryColumns (): array
+    {
+        return Tables::$TABLES[Tables::TRACK_CATEGORIES];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function createCategory (array $ignore = [], bool $prepareFieldSettings = true): array
+    {
+        $slug = $this->generateUniqueSlug(self::getTrackCategoryTable(),
+            'track_cat_slug',
+            helper()->slug(input()->fromPost()->retrieve('track_cat_slug')));
+
+        $category = [];
+        $categoryCols = array_flip($this->getTrackCategoryColumns());
+        if (input()->fromPost()->hasValue('track_cat_parent_id')) {
+            $category['track_cat_parent_id'] = input()->fromPost()->retrieve('track_cat_parent_id');
+        }
+
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $categoryCols) && input()->fromPost()->has($inputKey)) {
+                if ($inputKey === 'track_cat_parent_id' && empty($inputValue)) {
+                    $category[$inputKey] = null;
+                    continue;
+                }
+
+                if ($inputKey === 'created_at') {
+                    $category[$inputKey] = helper()->date(datetime: $inputValue);
+                    continue;
+                }
+                if ($inputKey === 'track_cat_slug') {
+                    $category[$inputKey] = $slug;
+                    continue;
+                }
+                $category[$inputKey] = $inputValue;
+            }
+        }
+
+        $ignores = array_diff_key($ignore, $category);
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
+                unset($category[$v]);
+            }
+        }
+
+        if ($prepareFieldSettings) {
+            return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($category, 'track_cat_name', 'track_cat_content');
+        }
+
+        return $category;
+    }
+
+    /**
+     * @param null $currentCatData
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function getCategoryHTMLSelect ($currentCatData = null): string
+    {
+        $categories = helper()->generateTree(['parent_id' => 'track_cat_parent_id', 'id' => 'track_cat_id'], $this->getCategory());
+        $catSelectFrag = '';
+        if (count($categories) > 0) {
+            foreach ($categories as $category) {
+                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($category, $currentCatData);
+            }
+        }
+
+        return $catSelectFrag;
+    }
+
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getCategory (): mixed
+    {
+        $result = null;
+        db(onGetDB: function ($db) use (&$result) {
+            $categoryTable = $this->getTrackCategoryTable();
+            $result = $db->run("
+        WITH RECURSIVE track_cat_recursive AS 
+	( SELECT track_cat_id, track_cat_parent_id, track_cat_slug, track_cat_name, CAST(track_cat_slug AS VARCHAR (255))
+            AS path
+      FROM $categoryTable WHERE track_cat_parent_id IS NULL
+      UNION ALL
+      SELECT tcs.track_cat_id, tcs.track_cat_parent_id, tcs.track_cat_slug, tcs.track_cat_name, CONCAT(path, '/' , tcs.track_cat_slug)
+      FROM track_cat_recursive as fr JOIN $categoryTable as tcs ON fr.track_cat_id = tcs.track_cat_parent_id
+      ) 
+     SELECT * FROM track_cat_recursive;
+        ");
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param $category
+     * @param null $currentCatIDS
+     *
+     * @return string
+     * @throws \Exception
+     */
+    private function getCategoryHTMLSelectFragments ($category, $currentCatIDS = null): string
+    {
+        $currentCatIDS = (is_object($currentCatIDS) && property_exists($currentCatIDS, 'track_cat_parent_id')) ? $currentCatIDS->track_cat_parent_id : $currentCatIDS;
+
+        if (!is_array($currentCatIDS)) {
+            $currentCatIDS = [$currentCatIDS];
+        }
+
+        $catSelectFrag = '';
+        $catID = $category->track_cat_id;
+        if ($category->depth === 0) {
+            $catSelectFrag .= <<<CAT
+    <option data-is-parent="yes" data-depth="$category->depth"
+            data-slug="$category->track_cat_slug" data-path="/$category->path/" value="$catID"
+CAT;
+            foreach ($currentCatIDS as $currentCatID) {
+                if ($currentCatID == $category->track_cat_id) {
+                    $catSelectFrag .= 'selected';
+                }
+            }
+
+            $catSelectFrag .= ">" . $category->track_cat_name;
+        } else {
+            $catSelectFrag .= <<<CAT
+    <option data-slug="$category->track_cat_slug" data-depth="$category->depth" data-path="/$category->path/"
+            value="$catID"
+CAT;
+            foreach ($currentCatIDS as $currentCatID) {
+                if ($currentCatID == $category->track_cat_id) {
+                    $catSelectFrag .= 'selected';
+                }
+            }
+
+            $catSelectFrag .= ">" . str_repeat("&nbsp;&nbsp;&nbsp;", $category->depth + 1);
+            $catSelectFrag .= $category->track_cat_name;
+        }
+        $catSelectFrag .= "</option>";
+
+        if (isset($category->_children)) {
+            foreach ($category->_children as $catChildren) {
+                $catSelectFrag .= $this->getCategoryHTMLSelectFragments($catChildren, $currentCatIDS);
+            }
+        }
+
+        return $catSelectFrag;
+
+    }
+
+    /**
+     * @param $track
+     * @param string $fieldSettingsKey
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function unwrapForTrack (&$track, string $fieldSettingsKey = 'field_settings'): void
+    {
+        $fieldSettings = json_decode($track[$fieldSettingsKey], true);
+        $this->getFieldData()->unwrapFieldContent($fieldSettings, contentKey: 'track_content');
+        $track = [...$fieldSettings, ...$track];
+    }
+
+    /**
+     * @return OnTrackDefaultField|null
+     */
+    public function getOnTrackDefaultField (): ?OnTrackDefaultField
+    {
+        return $this->onTrackDefaultField;
+    }
+
+    /**
+     * @param OnTrackDefaultField|null $onTrackDefaultField
+     */
+    public function setOnTrackDefaultField (?OnTrackDefaultField $onTrackDefaultField): void
+    {
+        $this->onTrackDefaultField = $onTrackDefaultField;
+    }
+
+    /**
      * @return OnTrackCategoryDefaultField|null
      */
-    public function getOnTrackCategoryDefaultField(): ?OnTrackCategoryDefaultField
+    public function getOnTrackCategoryDefaultField (): ?OnTrackCategoryDefaultField
     {
         return $this->onTrackCategoryDefaultField;
     }
@@ -2146,7 +1989,7 @@ CAT;
     /**
      * @param OnTrackCategoryDefaultField|null $onTrackCategoryDefaultField
      */
-    public function setOnTrackCategoryDefaultField(?OnTrackCategoryDefaultField $onTrackCategoryDefaultField): void
+    public function setOnTrackCategoryDefaultField (?OnTrackCategoryDefaultField $onTrackCategoryDefaultField): void
     {
         $this->onTrackCategoryDefaultField = $onTrackCategoryDefaultField;
     }
