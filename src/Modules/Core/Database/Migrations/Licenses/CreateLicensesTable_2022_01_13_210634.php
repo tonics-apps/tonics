@@ -16,14 +16,15 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Track\Database\Migrations;
+namespace App\Modules\Core\Database\Migrations\Licenses;
 
 use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JsonException;
 
-class CreateLicensesTable_2022_01_13_210634 extends Migration {
+class CreateLicensesTable_2022_01_13_210634 extends Migration
+{
 
     /**
      * Run the migrations.
@@ -32,15 +33,15 @@ class CreateLicensesTable_2022_01_13_210634 extends Migration {
      * @throws JsonException
      * @throws \Exception
      */
-    public function up()
+    public function up ()
     {
 
-        db(onGetDB: function (TonicsQuery $db){
+        db(onGetDB: function (TonicsQuery $db) {
             // unique_id should be unique for a single row (it can be the same across different rows)
             $licenseAttrJSON = json_encode([
-                ['name' => 'Basic', 'unique_id' => helper()->randomString(), 'price' => 50.00, 'license_contract' => '', 'is_enabled' => true ],
-                ['name' => 'Premium', 'unique_id' => helper()->randomString(), 'price' => 100.00, 'license_contract' => '', 'is_enabled' => true ],
-                ['name' => 'Unlimited', 'unique_id' => helper()->randomString(), 'price' => 200.00, 'license_contract' => '', 'is_enabled' => true ]
+                ['name' => 'Basic', 'unique_id' => helper()->randomString(), 'price' => 50.00, 'license_contract' => '', 'is_enabled' => true],
+                ['name' => 'Premium', 'unique_id' => helper()->randomString(), 'price' => 100.00, 'license_contract' => '', 'is_enabled' => true],
+                ['name' => 'Unlimited', 'unique_id' => helper()->randomString(), 'price' => 200.00, 'license_contract' => '', 'is_enabled' => true],
             ], JSON_THROW_ON_ERROR);
 
             // This table stands as license groups
@@ -64,19 +65,19 @@ VALUES ('Beat Standard','beat-standard');");
         });
     }
 
+    private function tableName (): string
+    {
+        return Tables::getTable(Tables::LICENSES);
+    }
+
     /**
      * Reverse the migrations.
      *
      * @return void
      * @throws \Exception
      */
-    public function down()
+    public function down ()
     {
         return $this->dropTable($this->tableName());
-    }
-
-    private function tableName(): string
-    {
-        return Tables::getTable(Tables::LICENSES);
     }
 }

@@ -29,19 +29,20 @@ use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 class MigrateAll extends DatabaseMigrationAbstract implements ConsoleCommand
 {
 
-    public function required(): array
+    public function required (): array
     {
-       return [
-           "--migrate:all"
-       ];
+        return [
+            "--migrate:all",
+        ];
     }
 
     /**
      * @param array $commandOptions
+     *
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
         $helper = helper();
         $migrationFiles = $helper->getAllModuleMigrations();
