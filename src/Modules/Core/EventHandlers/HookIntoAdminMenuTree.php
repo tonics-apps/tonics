@@ -20,7 +20,6 @@ namespace App\Modules\Core\EventHandlers;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
@@ -34,56 +33,57 @@ class HookIntoAdminMenuTree implements HandlerInterface
     /**
      * @inheritDoc
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         if (AppConfig::TonicsIsReady() === false) {
             return;
         }
 
         /** @var $event OnHookIntoTemplate */
-        $event->hookInto('Core::before_in_main_header_title', function (TonicsView $tonicsView){
+        $event->hookInto('Core::before_in_main_header_title', function (TonicsView $tonicsView) {
             $foundNode = request()->getRouteObject()->getRouteTreeGenerator()?->getFoundURLNode();
             $path = $foundNode->getFullRoutePath();
 
             $findURL = request()->getRouteObject()->getRouteTreeGenerator()->findURL($path);
             $breadCrumb = '';
 
-            if (empty(tree()->getTreeGenerator()->getAnyData())){
+            if (empty(tree()->getTreeGenerator()->getAnyData())) {
                 AppConfig::initAdminMenu(false);
             }
 
-            if (isset(tree()->getTreeGenerator()->getAnyData()['BreadCrumbMapper'][$path])){
+            if (isset(tree()->getTreeGenerator()->getAnyData()['BreadCrumbMapper'][$path])) {
                 $urlNodePath = tree()->getTreeGenerator()->getAnyData()['BreadCrumbMapper'][$path];
                 $node = tree()->getTreeGenerator()->findURL($urlNodePath);
                 $frag = '';
-                foreach ($node->getParentRecursive() as $nodeP){
+                foreach ($node->getParentRecursive() as $nodeP) {
 
-                    if (!isset($nodeP->getSettings()['settings']['mt_url_slug'])){
+                    if (!isset($nodeP->getSettings()['settings']['mt_url_slug'])) {
                         continue;
                     }
 
                     $url = $nodeP->getSettings()['settings']['mt_url_slug'];
                     $name = $nodeP->getSettings()['settings']['mt_name'];
 
-                    if (isset($nodeP->getSettings()['settings']['route'])){
+                    if (isset($nodeP->getSettings()['settings']['route'])) {
                         $url = route('tonicsCloud.containers.apps.index', $findURL->getFoundURLRequiredParams());
                     }
+
                     $frag = <<<FRAG
             <li class="tonics-breadcrumb-item">
                 <a href="$url" class="box color:black border-width:default border:black text-underline button:box-shadow-variant-2" title="$name">
                     <div class="text:no-wrap">$name</div>
                 </a>
             </li>
-FRAG . $frag;
+FRAG. $frag;
 
-                    if (!isset($nodeP->getSettings()['settings']['home'])){
+                    if (!isset($nodeP->getSettings()['settings']['home'])) {
                         $frag = <<<FRAG
            <li class="tonics-breadcrumb-item">
                 <div class="box d:flex color:black border-width:default border:black button:box-shadow-variant-2" title="is a parent of »">
                     <div class="text:no-wrap">/</div>
                 </div>
             </li>
-FRAG . $frag;
+FRAG. $frag;
                     }
                 }
 
@@ -107,16 +107,16 @@ HTML;
             return $breadCrumb;
         });
 
-        $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView){
+        $event->hookInto('Core::after_admin_menu_tree', function (TonicsView $tonicsView) {
             try {
 
                 $menuData = new MenuData();
                 $menuHTMLFRag = $menuData->generateMenuTree();
 
                 # For Admin User
-                if (UserData::canAccess(Roles::CAN_ACCESS_CORE, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
+                if (UserData::canAccess(Roles::CAN_ACCESS_CORE, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))) {
                     $adminCacheClearRoute = route('admin.cache.clear');
-                    if (!empty($adminCacheClearRoute)){
+                    if (!empty($adminCacheClearRoute)) {
                         $adminCacheClearRoute = $adminCacheClearRoute . "?token=" . AppConfig::getAppKey();
                     }
                     $token = session()->getCSRFToken();
@@ -162,7 +162,7 @@ HTML;
                 }
 
                 # For Customer User
-                if (UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))){
+                if (UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER, UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role))) {
                     $token = session()->getCSRFToken();
                     $logout = route('customer.logout');
                     return <<<HTML
@@ -198,7 +198,7 @@ $menuHTMLFRag
         </li>
 HTML;
                 }
-            } catch (\Exception $exception){
+            } catch (\Exception $exception) {
                 // Log..
             }
             return '';
