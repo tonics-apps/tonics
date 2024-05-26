@@ -16,24 +16,25 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Commands\Module;
+namespace App\Modules\Core\Commands\App;
 
 
+use App\Modules\Core\Commands\Module\DatabaseMigrationAbstract;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
 /**
- * TO MIGRATE A SPECIFIC MODULE DOWN RUN: php bin/console --module:migrate=Core --down
+ * TO MIGRATE A SPECIFIC MODULE DOWN RUN: php bin/console --app:migrate=TonicsCloud --down
  *
  * Class ModuleMigrateDown
  * @package App\Commands\Module
  */
-class ModuleMigrateDown extends DatabaseMigrationAbstract implements ConsoleCommand
+class AppMigrateDown extends DatabaseMigrationAbstract implements ConsoleCommand
 {
 
     public function required (): array
     {
         return [
-            "--module:migrate",
+            "--app:migrate",
             "--down",
         ];
     }
@@ -46,8 +47,8 @@ class ModuleMigrateDown extends DatabaseMigrationAbstract implements ConsoleComm
      */
     public function run (array $commandOptions): void
     {
-        $module = $commandOptions['--module:migrate'];
-        $moduleDir = helper()->findModuleDirectory($module);
-        $this->migrateDown($module, $moduleDir);
+        $appName = $commandOptions['--app:migrate'];
+        $appDirectory = helper()->findAppDirectory($appName);
+        $this->migrateDown($appName, $appDirectory);
     }
 }

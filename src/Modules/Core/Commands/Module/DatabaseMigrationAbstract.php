@@ -31,19 +31,21 @@ abstract class DatabaseMigrationAbstract
     /**
      * @throws \Exception
      */
-    public function __construct()
+    public function __construct ()
     {
         $this->initMigrationTable();
     }
 
     /**
      * Handles the migration up command
+     *
      * @param string $class
      * @param string $migrationName
+     *
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function handleMigrateUp(string $class, string $migrationName): void
+    public function handleMigrateUp (string $class, string $migrationName): void
     {
         ## If migration doesn't already exist
         if (!$this->doesMigrationExist($migrationName) && is_subclass_of($class, Migration::class)) {
@@ -54,62 +56,9 @@ abstract class DatabaseMigrationAbstract
     }
 
     /**
-     * Handles the migration down command
-     * @param $class
-     * @param $migrationName
-     * @throws \ReflectionException
      * @throws \Exception
      */
-    public function handleMigrateDown($class, $migrationName): void
-    {
-        if ($this->doesMigrationExist($migrationName) && is_subclass_of($class, Migration::class)) {
-            container()->get($class)->down(); $tbl = $this->migrationTableName();
-            db(onGetDB: function (TonicsQuery $db) use ($tbl, $migrationName, &$result) {
-                $db->FastDelete($tbl, db()->WhereIn(table()->getColumn($tbl, 'migration'), $migrationName));
-                $this->successMessage("$migrationName Migration Reversed");
-            });
-        }
-    }
-
-    /**
-     * @param $migrationName
-     * @throws \Exception
-     */
-    public function insertMigrationRow($migrationName): void
-    {
-        db(onGetDB: function (TonicsQuery $db) use ($migrationName, &$result) {
-            $db->Insert($this->migrationTableName(), ['migration' => $migrationName]);
-            # Migration message for the console
-            $this->successMessage("$migrationName Migrated");
-        });
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function forceDropTable(): void
-    {
-        db(onGetDB: function (TonicsQuery $db){
-            $db->query("SET foreign_key_checks = 0");
-
-            db(onGetDB: function ($db) {
-                $stm = $db->getPdo()->prepare("SHOW TABLES");
-                $stm->execute();
-                if ($tables = $stm->fetchAll(\PDO::FETCH_COLUMN, 0)){
-                    foreach ($tables as $table){
-                        $db->query("DROP TABLE IF EXISTS `$table`");
-                    }
-                }
-            });
-
-            $db->query("SET foreign_key_checks = 1");
-        });
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function doesMigrationExist($migrationName): bool
+    public function doesMigrationExist ($migrationName): bool
     {
         $result = null;
         db(onGetDB: function (TonicsQuery $db) use ($migrationName, &$result) {
@@ -125,8 +74,87 @@ abstract class DatabaseMigrationAbstract
         }
     }
 
-    private function migrationTableName(): string
+    private function migrationTableName (): string
     {
         return Tables::getTable(Tables::MIGRATIONS);
+    }
+
+    /**
+     * @param $migrationName
+     *
+     * @throws \Exception
+     */
+    public function insertMigrationRow ($migrationName): void
+    {
+        db(onGetDB: function (TonicsQuery $db) use ($migrationName, &$result) {
+            $db->Insert($this->migrationTableName(), ['migration' => $migrationName]);
+            # Migration message for the console
+            $this->successMessage("$migrationName Migrated");
+        });
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function forceDropTable (): void
+    {
+        db(onGetDB: function (TonicsQuery $db) {
+            $db->query("SET foreign_key_checks = 0");
+
+            db(onGetDB: function ($db) {
+                $stm = $db->getPdo()->prepare("SHOW TABLES");
+                $stm->execute();
+                if ($tables = $stm->fetchAll(\PDO::FETCH_COLUMN, 0)) {
+                    foreach ($tables as $table) {
+                        $db->query("DROP TABLE IF EXISTS `$table`");
+                    }
+                }
+            });
+
+            $db->query("SET foreign_key_checks = 1");
+        });
+    }
+
+    /**
+     * @param string $moduleName
+     * @param string $moduleDirectory
+     *
+     * @return void
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    protected function migrateDown (string $moduleName, string $moduleDirectory): void
+    {
+        if ($migrationFiles = helper()->getAllModuleMigrations($moduleDirectory)) {
+            foreach ($migrationFiles as $migrationFile) {
+                $class = helper()->getFullClassName(file_get_contents($migrationFile));
+                # This would reference the dbName in the migration table
+                $dbMigrationName = strtolower(helper()->basePath($migrationFile));
+                $this->handleMigrateDown($class, $dbMigrationName);
+            }
+        } else {
+            $this->errorMessage("Nothing To Migrate in '{$moduleName}' Directory");
+        }
+    }
+
+    /**
+     * Handles the migration down command
+     *
+     * @param $class
+     * @param $migrationName
+     *
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function handleMigrateDown ($class, $migrationName): void
+    {
+        if ($this->doesMigrationExist($migrationName) && is_subclass_of($class, Migration::class)) {
+            container()->get($class)->down();
+            $tbl = $this->migrationTableName();
+            db(onGetDB: function (TonicsQuery $db) use ($tbl, $migrationName, &$result) {
+                $db->FastDelete($tbl, db()->WhereIn('migration', $migrationName));
+                $this->successMessage("$migrationName Migration Reversed");
+            });
+        }
     }
 }

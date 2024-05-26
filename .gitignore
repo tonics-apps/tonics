@@ -11,3 +11,4 @@ src/Apps/*.installed
 /src/Apps/RefreshTrackUpdates/
 /bin/console_test
 /bin/console_test_dump
+/src/Apps/TonicsAppStore/

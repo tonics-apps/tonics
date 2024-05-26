@@ -21,6 +21,7 @@ namespace App\Modules\Core\Commands;
 use App\Modules\Core\Commands\App\AppBoilerPlate;
 use App\Modules\Core\Commands\App\AppMakeMigration;
 use App\Modules\Core\Commands\App\AppMigrate;
+use App\Modules\Core\Commands\App\AppMigrateDown;
 use App\Modules\Core\Commands\Environmental\SetEnvironmentalPepper;
 use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Commands\Module\MigrateAll;
@@ -43,7 +44,7 @@ use ReflectionException;
 
 class InitConsole
 {
-    public function __construct(Container $container, ProcessCommandLineArgs $args)
+    public function __construct (Container $container, ProcessCommandLineArgs $args)
     {
         #
         # REGISTER COMMANDS
@@ -73,15 +74,16 @@ class InitConsole
                 // For Apps
                 AppBoilerPlate::class,
                 AppMakeMigration::class,
-                AppMigrate::class
+                AppMigrate::class,
+                AppMigrateDown::class,
             ];
 
-            foreach ($otherConsoleCommands->getConsoleCommands() as $consoleCommand){
+            foreach ($otherConsoleCommands->getConsoleCommands() as $consoleCommand) {
                 $coreConsoleCommands[] = $consoleCommand;
             }
 
             $commandRegistrar = new CommandRegistrar(
-                $container->resolveMany($coreConsoleCommands)
+                $container->resolveMany($coreConsoleCommands),
             );
         } catch (ReflectionException|\Exception $e) {
             exit(1);
