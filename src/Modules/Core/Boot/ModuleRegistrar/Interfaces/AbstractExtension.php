@@ -48,8 +48,8 @@ abstract class AbstractExtension implements ExtensionConfig, FieldItemsExtension
 
     public function tables (): array
     {
-        return array_reduce(array_keys(self::$TABLES), function ($keys, $key) {
-            $keys[self::getTable($key)] = self::$TABLES[$key];
+        return array_reduce(array_keys(static::$TABLES), function ($keys, $key) {
+            $keys[static::getTable($key)] = static::$TABLES[$key];
             return $keys;
         }, []);
     }
@@ -89,7 +89,7 @@ abstract class AbstractExtension implements ExtensionConfig, FieldItemsExtension
 
     public static function getTable (string $tableName): string
     {
-        if (!key_exists($tableName, self::$TABLES)) {
+        if (!key_exists($tableName, static::$TABLES)) {
             throw new \InvalidArgumentException("`$tableName` is an invalid table name");
         }
 
