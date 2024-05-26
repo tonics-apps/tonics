@@ -28,31 +28,32 @@ class InputSelect implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Select', 'HTML Select',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
             handleViewProcessing: function ($data) use ($event) {
                 $this->viewData($event, $data);
-            }
+            },
         );
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Select';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $selectData =  (isset($data->selectData)) ? helper()->htmlSpecChar($data->selectData) : '';
-        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        $selectData = (isset($data->selectData)) ? helper()->htmlSpecChar($data->selectData) : '';
+        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -61,8 +62,26 @@ class InputSelect implements HandlerInterface
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
 
+        $multiSelect = (isset($data->multiSelect)) ? $data->multiSelect : '0';
+        $multiSelect = $event->booleanOptionSelect($multiSelect);
+
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
         $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);
+
+        $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
+
+<div class="form-group d:flex flex-gap align-items:flex-end">
+
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="required-$changeID">Multi-Select
+        <select name="multiSelect" class="default-selector mg-b-plus-1" id="multiSelect-$changeID">
+        $multiSelect
+        </select>
+    </label>
+    
+</div>
+
+HTML,
+        );
 
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
@@ -89,6 +108,8 @@ class InputSelect implements HandlerInterface
     </label>
 </div>
 
+$moreSettings
+
 <div class="form-group">
     $validationFrag
 </div>
@@ -102,29 +123,31 @@ FORM;
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
 
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultValue = $keyValue;
-        if (mb_strlen($keyValue, 'UTF-8') === 0 && isset($data->defaultValue)){
+        if (mb_strlen($keyValue, 'UTF-8') === 0 && isset($data->defaultValue)) {
             $defaultValue = $data->defaultValue;
         }
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $selectData =  (isset($data->selectData)) ? $data->selectData : '';
+        $selectData = (isset($data->selectData)) ? $data->selectData : '';
+        $multiSelect = (isset($data->multiSelect)) ? $data->multiSelect : '0';
+        $multiple = ($multiSelect === '1') ? 'multiple' : '';
 
         $choiceKeyValue = [];
-        if (!empty($selectData)){
+        if (!empty($selectData)) {
             $selectData = explode(',', $selectData);
         }
-        if (is_array($selectData)){
-            foreach ($selectData as $choice){
+        if (is_array($selectData)) {
+            foreach ($selectData as $choice) {
                 $choice = explode(':', $choice);
-                if (key_exists(0, $choice)){
+                if (key_exists(0, $choice)) {
                     $choiceKeyValue[$choice[0] ?? ''] = $choice[1] ?? $choice[0];
                 }
             }
@@ -132,26 +155,27 @@ FORM;
 
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
 
-        $choiceFrag = ''; $error = '';
-        foreach ($choiceKeyValue as $key => $value){
+        $choiceFrag = '';
+        $error = '';
+        foreach ($choiceKeyValue as $key => $value) {
             $selected = '';
-            if ($key == $defaultValue){
-                if (!empty($fieldValidation)){
+            if ($key == $defaultValue) {
+                if (!empty($fieldValidation)) {
                     $error = $event->validationMake([$inputName => $value], [$inputName => $data->field_validations]);
                 }
 
-                if (!empty($fieldSanitization)){
+                if (!empty($fieldSanitization)) {
                     $value = $event->sanitize($fieldSanitization, $value, $data);
                 }
 
                 $selected = 'selected';
             }
-            $choiceFrag .=<<<HTML
+            $choiceFrag .= <<<HTML
 <option $selected title="$value" value="$key">$value</option>
 HTML;
 
@@ -159,7 +183,7 @@ HTML;
         $frag .= <<<FORM
 <div class="form-group margin-top:0">
 $error
-<select class="default-selector mg-b-plus-1" name="$inputName">
+<select class="default-selector mg-b-plus-1" name="$inputName" $multiple>
     $choiceFrag
 </select>
 </div>
@@ -172,7 +196,7 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewData(OnFieldMetaBox $event, $data)
+    public function viewData (OnFieldMetaBox $event, $data)
     {
         $event->defaultInputViewHandler('InputSelect', $data);
     }
