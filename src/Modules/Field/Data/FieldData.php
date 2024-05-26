@@ -18,9 +18,6 @@
 
 namespace App\Modules\Field\Data;
 
-use App\Modules\Core\Boot\InitLoaderMinimal;
-use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
@@ -36,45 +33,49 @@ class FieldData extends AbstractDataLayer
 {
     use UniqueSlug, Validator;
 
-    public function getFieldTable(): string
+    const UNWRAP_FIELD_CONTENT_PREVIEW_MODE  = 1;
+    const UNWRAP_FIELD_CONTENT_FRONTEND_MODE = 2;
+
+    public function getFieldTable (): string
     {
         return Tables::getTable(Tables::FIELD);
     }
 
-    public function getFieldItemsTable(): string
+    public function getFieldItemsTable (): string
     {
         return Tables::getTable(Tables::FIELD_ITEMS);
     }
 
-    public function getFieldColumns(): array
+    public function getFieldColumns (): array
     {
         return ['field_id', 'field_name', 'field_slug', 'created_at', 'updated_at'];
     }
 
-    public function getFieldItemsColumns(): array
+    public function getFieldItemsColumns (): array
     {
         return [
-            'id', 'fk_field_id', 'field_id', 'field_name', 'field_options', 'created_at', 'updated_at'
+            'id', 'fk_field_id', 'field_id', 'field_name', 'field_options', 'created_at', 'updated_at',
         ];
     }
 
     /**
      * @param string $slug
+     *
      * @return mixed
      * @throws \Exception
      */
-    public function getFieldID(string $slug): mixed
+    public function getFieldID (string $slug): mixed
     {
         $result = null;
-        db(onGetDB: function ($db) use ($slug, &$result){
+        db(onGetDB: function ($db) use ($slug, &$result) {
             $table = $this->getFieldTable();
-            $result =  $db->row("SELECT `field_id` FROM $table WHERE `field_slug` = ?", $slug)->field_id ?? null;
+            $result = $db->row("SELECT `field_id` FROM $table WHERE `field_slug` = ?", $slug)->field_id ?? null;
         });
 
         return $result;
     }
 
-    public function getFieldAndFieldItemsCols(): string
+    public function getFieldAndFieldItemsCols (): string
     {
         $fieldTable = $this->getFieldTable();
         $fieldItemsTable = $this->getFieldItemsTable();
@@ -84,19 +85,19 @@ $fieldItemsTable.field_id as field_id, $fieldItemsTable.field_name as field_name
 COLUMNS;
     }
 
-
     /**
      * @param array $slugs
      * @param array $postData
+     *
      * @return OnFieldFormHelper
      * @throws \Exception
      */
-    public function generateFieldWithFieldSlug(array $slugs, array $postData = []): OnFieldFormHelper
+    public function generateFieldWithFieldSlug (array $slugs, array $postData = []): OnFieldFormHelper
     {
         if (!empty($slugs)) {
             # For Field
             $fields = null;
-            db(onGetDB: function ($db) use ($slugs, &$fields){
+            db(onGetDB: function ($db) use ($slugs, &$fields) {
                 $fields = $db->Select("field_id, field_slug")
                     ->From($this->getFieldTable())->WhereIn('field_slug', $slugs)
                     ->FetchResult();
@@ -104,9 +105,9 @@ COLUMNS;
 
             # For Field Items
             $fieldIDS = [];
-            foreach ($slugs as $slug){
-                foreach ($fields as $field){
-                    if ($field->field_slug === $slug){
+            foreach ($slugs as $slug) {
+                foreach ($fields as $field) {
+                    if ($field->field_slug === $slug) {
                         $fieldIDS[] = $field->field_id;
                         break;
                     }
@@ -120,11 +121,11 @@ COLUMNS;
     /**
      * @throws \Exception
      */
-    public function getFieldSortedItems(array $slugs = []): array
+    public function getFieldSortedItems (array $slugs = []): array
     {
         # For Field
         $fields = null;
-        db(onGetDB: function ($db) use ($slugs, &$fields){
+        db(onGetDB: function ($db) use ($slugs, &$fields) {
             $fields = $db->Select('field_id')
                 ->From($this->getFieldTable())
                 ->WhereIn('field_slug', $slugs)
@@ -144,10 +145,10 @@ COLUMNS;
     /**
      * @throws \Exception
      */
-    public function getFieldItems(int $fkFieldID): array
+    public function getFieldItems (int $fkFieldID): array
     {
         $result = null;
-        db(onGetDB: function ($db) use ($fkFieldID, &$result){
+        db(onGetDB: function ($db) use ($fkFieldID, &$result) {
             $table = $this->getFieldItemsTable();
             $result = $db->run("SELECT * FROM $table WHERE `fk_field_id` = ?", $fkFieldID);
         });
@@ -161,9 +162,10 @@ COLUMNS;
 
     /**
      * @param $fieldData
+     *
      * @return array
      */
-    private function decodeFieldOptions($fieldData): array
+    private function decodeFieldOptions ($fieldData): array
     {
         if (!empty($fieldData) && is_array($fieldData)) {
             $fieldData = array_map(function ($value) {
@@ -181,7 +183,7 @@ COLUMNS;
      * @throws \Exception
      * @throws \Throwable
      */
-    public function createField(array $ignore = []): array
+    public function createField (array $ignore = []): array
     {
         $slug = $this->generateUniqueSlug($this->getFieldTable(),
             'field_slug', helper()->slug(input()->fromPost()->retrieve('field_slug')));
@@ -216,10 +218,11 @@ COLUMNS;
     /**
      * @param array $fieldValidationSlug
      * @param string $uniqueID
+     *
      * @return string
      * @throws \Exception
      */
-    public function getFieldsValidationSelection(array $fieldValidationSlug = [], string $uniqueID = ''): string
+    public function getFieldsValidationSelection (array $fieldValidationSlug = [], string $uniqueID = ''): string
     {
         $fieldValidations = $this->getValidatorRuleNames();
         $fieldsFrag = "";
@@ -269,10 +272,11 @@ HTML;
      * @param OnAddFieldSanitization $fieldSanitization
      * @param string|null $fieldSanitizationSlug
      * @param string $uniqueID
+     *
      * @return string
      * @throws \Exception
      */
-    public function getFieldsSanitizationSelection(OnAddFieldSanitization $fieldSanitization, ?string $fieldSanitizationSlug = '', string $uniqueID = ''): string
+    public function getFieldsSanitizationSelection (OnAddFieldSanitization $fieldSanitization, ?string $fieldSanitizationSlug = '', string $uniqueID = ''): string
     {
         $fieldsFrag = "";
         $hash = helper()->randomString(10);
@@ -319,13 +323,14 @@ HTML;
 
     /**
      * @param array $fieldIDS
+     *
      * @return string
      * @throws \Exception
      */
-    public function getFieldsSelection(array $fieldIDS = []): string
+    public function getFieldsSelection (array $fieldIDS = []): string
     {
         $fields = null;
-        db(onGetDB: function ($db) use (&$fields){
+        db(onGetDB: function ($db) use (&$fields) {
             $table = Tables::getTable(Tables::FIELD);
             $fields = $db->run("SELECT * FROM $table");
         });
@@ -377,10 +382,11 @@ HTML;
 
     /**
      * @param array $fieldItems
+     *
      * @return string
      * @throws \Exception
      */
-    public function getFieldItemsListing(array $fieldItems): string
+    public function getFieldItemsListing (array $fieldItems): string
     {
         # re-dispatch so we can get the form values
         $onFieldMetaBox = new OnFieldMetaBox();
@@ -396,9 +402,10 @@ HTML;
     /**
      * @param $field
      * @param OnFieldMetaBox $onFieldMetaBox
+     *
      * @return string
      */
-    protected function getFieldItemsListingFrag($field, OnFieldMetaBox $onFieldMetaBox): string
+    protected function getFieldItemsListingFrag ($field, OnFieldMetaBox $onFieldMetaBox): string
     {
         $slug = $field->field_name ?? null;
         if (isset($field->field_options)) {
@@ -407,12 +414,12 @@ HTML;
         return $onFieldMetaBox->getSettingsForm($slug, $field->field_options ?? null);
     }
 
-
     /**
      * @param array $fieldSlugs
+     *
      * @return void
      */
-    public function sortAndCacheFieldItemsForFrontEnd(array $fieldSlugs): void
+    public function sortAndCacheFieldItemsForFrontEnd (array $fieldSlugs): void
     {
 
         if (empty($fieldSlugs)) {
@@ -432,14 +439,14 @@ HTML;
             $sortedFieldItems = array_merge(...$sortedFieldItems);
 
             $key = 'sortedField_' . implode('_', $fieldSlugs);
-            db(onGetDB: function ($db) use ($sortedFieldItems, $key){
+            db(onGetDB: function ($db) use ($sortedFieldItems, $key) {
                 $db->insertOnDuplicate(
                     Tables::getTable(Tables::GLOBAL),
                     [
-                        'key' => $key,
-                        'value' => json_encode($sortedFieldItems, JSON_UNESCAPED_SLASHES)
+                        'key'   => $key,
+                        'value' => json_encode($sortedFieldItems, JSON_UNESCAPED_SLASHES),
                     ],
-                    ['value']
+                    ['value'],
                 );
             });
 
@@ -451,7 +458,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function getFieldItemsAPI()
+    public function getFieldItemsAPI ()
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
             url()->removeFromHeader('HTTP_ACTION'); # This fixes the contentEditable appearing in page fields
@@ -464,7 +471,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function getFieldItemsAPIForEditor()
+    public function getFieldItemsAPIForEditor ()
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
             $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);
@@ -477,7 +484,7 @@ HTML;
         }
 
         if (url()->getHeaderByKey('action') === 'unwrapCollatedFieldItems') {
-            if (helper()->isJSON(request()->getEntityBody())){
+            if (helper()->isJSON(request()->getEntityBody())) {
                 $fieldItems = json_decode(request()->getEntityBody());
                 $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
                 $htmlFrag = $this->getUsersFormFrag($fieldCategories);
@@ -491,7 +498,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function wrapFieldsForPostEditor(string $data, string $preview = ''): string
+    public function wrapFieldsForPostEditor (string $data, string $preview = ''): string
     {
         $id = helper()->randomString(10);
         $uniqueRadioName = helper()->randomString(5);
@@ -521,12 +528,18 @@ HTML;
     /**
      * Note: fk_field_id should be the field.field_name and not field_items.fk_field_id,
      * I am assuming you exported it as a json from a db tool, so, I'll re-add the appropriate fk_field_id
+     *
      * @param array $fieldItems
+     *
      * @return void
      * @throws \Exception
      */
-    public function importFieldItems(array $fieldItems): void
+    public function importFieldItems (array $fieldItems): void
     {
+        if (empty($fieldItems)) {
+            return;
+        }
+
         $fieldTable = Tables::getTable(Tables::FIELD);
         $fieldNameToID = [];
         $dbTx = db();
@@ -538,7 +551,7 @@ HTML;
                     if (!isset($fieldNameToID[$item->fk_field_id])) {
                         $result = null;
                         $field = null;
-                        db(onGetDB: function ($db) use ($item, $fieldTable, &$field, &$result){
+                        db(onGetDB: function ($db) use ($item, $fieldTable, &$field, &$result) {
                             $db->FastDelete($fieldTable, db()->Where('field_slug', '=', helper()->slug($item->fk_field_id, '-')));
                             $field = $db->insertReturning($fieldTable, ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id'], 'field_id');
                         });
@@ -569,17 +582,15 @@ HTML;
         }
     }
 
-    const UNWRAP_FIELD_CONTENT_PREVIEW_MODE = 1;
-    const UNWRAP_FIELD_CONTENT_FRONTEND_MODE = 2;
-
     /**
      * @param $fieldSettings
      * @param int $mode
      * @param string $contentKey
+     *
      * @return void
      * @throws \Exception
      */
-    public function unwrapFieldContent(&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
+    public function unwrapFieldContent (&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
     {
         #
         # For _FieldDetails Which is The Sorted Result of All FieldItems
@@ -599,7 +610,7 @@ HTML;
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
             if (helper()->isJSON(request()->getEntityBody())) {
                 $entityBody = json_decode(request()->getEntityBody());
-                if (isset($entityBody->postData) && helper()->isJSON($entityBody->postData)){
+                if (isset($entityBody->postData) && helper()->isJSON($entityBody->postData)) {
                     helper()->onSuccess($this->previewFragForFieldHandler($entityBody->postData));
                 }
             }
@@ -640,27 +651,28 @@ HTML;
     /**
      * @param string $postData
      * @param array $field
+     *
      * @return string
      * @throws \Exception
      */
-    public function previewFragForFieldHandler(string $postData, array $field = []): string
+    public function previewFragForFieldHandler (string $postData, array $field = []): string
     {
         $previewFrag = '';
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
 
         $fieldItems = json_decode($postData);
-        if (!is_array($fieldItems)){
+        if (!is_array($fieldItems)) {
             return $previewFrag;
         }
         $fieldCategories = $this->compareSortAndUpdateFieldItems($fieldItems);
         $fieldHandlers = event()->getHandler()->getEventHandlers(new FieldTemplateFile());
 
-        foreach ($fieldHandlers as $fieldHandler){
-            /** @var $fieldHandler FieldTemplateFileInterface  */
-            if (isset($fieldCategories[$fieldHandler->fieldSlug()])){
+        foreach ($fieldHandlers as $fieldHandler) {
+            /** @var $fieldHandler FieldTemplateFileInterface */
+            if (isset($fieldCategories[$fieldHandler->fieldSlug()])) {
                 $fields = $fieldCategories[$fieldHandler->fieldSlug()];
-                if ($fieldHandler->canPreSaveFieldLogic() && isset($field['previewFrag'])){
+                if ($fieldHandler->canPreSaveFieldLogic() && isset($field['previewFrag'])) {
                     $previewFrag .= $field['previewFrag'];
                 } else {
                     $previewFrag .= $fieldHandler->handleFieldLogic($onFieldMetaBox, $fields);
@@ -674,9 +686,10 @@ HTML;
     /**
      * @param FieldTemplateFileInterface $fieldHandler
      * @param $data
+     *
      * @return string
      */
-    public function handleWithFieldHandler(FieldTemplateFileInterface $fieldHandler, $data): string
+    public function handleWithFieldHandler (FieldTemplateFileInterface $fieldHandler, $data): string
     {
         return $fieldHandler->handleFieldLogic(fields: $data);
     }
@@ -684,10 +697,11 @@ HTML;
     /**
      * @param $fieldSettings
      * @param $contentKey
+     *
      * @return array|mixed
      * @throws \Exception
      */
-    public function preSavePostEditorFieldItems(&$fieldSettings, $contentKey): mixed
+    public function preSavePostEditorFieldItems (&$fieldSettings, $contentKey): mixed
     {
         if (isset($fieldSettings[$contentKey]) && is_array($postEditorsContent = json_decode($fieldSettings[$contentKey], true))) {
             foreach ($postEditorsContent as &$field) {
@@ -707,19 +721,20 @@ HTML;
      * @param array $data
      * @param string $titleKey
      * @param string $contentKey
+     *
      * @return array
      * @throws \Exception
      */
-    public function prepareFieldSettingsDataForCreateOrUpdate(array $data, string $titleKey = 'post_title', string $contentKey = 'post_content'): array
+    public function prepareFieldSettingsDataForCreateOrUpdate (array $data, string $titleKey = 'post_title', string $contentKey = 'post_content'): array
     {
 
         $data['field_settings'] = input()->fromPost()->all();
 
-        if (isset($_POST['field_settings']['token'])){
+        if (isset($_POST['field_settings']['token'])) {
             unset($_POST['field_settings']['token'], $data[$contentKey]);
         }
 
-        if (isset($data[$contentKey])){
+        if (isset($data[$contentKey])) {
             unset($data[$contentKey]);
         }
 
@@ -743,7 +758,7 @@ HTML;
 
         if (isset($_POST['fieldItemsDataFromEditor'])) {
             $data['field_settings'][$contentKey] = $_POST['fieldItemsDataFromEditor'];
-            if (isset($data['field_settings']['fieldItemsDataFromEditor'])){
+            if (isset($data['field_settings']['fieldItemsDataFromEditor'])) {
                 unset($data['field_settings']['fieldItemsDataFromEditor']);
             }
         }
@@ -760,10 +775,11 @@ HTML;
     /**
      * @param $post
      * @param string $fieldSettingsKey
+     *
      * @return void
      * @throws \Exception
      */
-    public function unwrapForPost(&$post, string $fieldSettingsKey = 'field_settings')
+    public function unwrapForPost (&$post, string $fieldSettingsKey = 'field_settings')
     {
         $fieldSettings = json_decode($post[$fieldSettingsKey], true);
         $this->unwrapFieldContent($fieldSettings);
@@ -775,39 +791,43 @@ HTML;
     /**
      * @param array $fieldItems
      * @param array $globalPostData
+     *
      * @return array
      * @throws \Exception
      */
-/*    public function updateFieldsInputNameValue(array $fieldItems, array $globalPostData)
-    {
-        foreach ($fieldItems as $fieldItem){
-            if (isset($fieldItem->field_options) && helper()->isJSON($fieldItem->field_options)) {
-                $fieldOption = json_decode($fieldItem->field_options);
-                if (isset($fieldOption->field_input_name) && key_exists($fieldOption->field_input_name, $globalPostData)){
-                    $fieldOption->{$fieldOption->field_input_name} = $globalPostData[$fieldOption->field_input_name];
+    /*    public function updateFieldsInputNameValue(array $fieldItems, array $globalPostData)
+        {
+            foreach ($fieldItems as $fieldItem){
+                if (isset($fieldItem->field_options) && helper()->isJSON($fieldItem->field_options)) {
+                    $fieldOption = json_decode($fieldItem->field_options);
+                    if (isset($fieldOption->field_input_name) && key_exists($fieldOption->field_input_name, $globalPostData)){
+                        $fieldOption->{$fieldOption->field_input_name} = $globalPostData[$fieldOption->field_input_name];
+                    }
+                    $fieldItem->field_options = json_encode($fieldOption);
                 }
-                $fieldItem->field_options = json_encode($fieldOption);
             }
-        }
 
-        return $fieldItems;
-    }*/
+            return $fieldItems;
+        }*/
 
     /**
      * The purpose of this function is using the $fieldSlugIDS to not only sort the $fieldItems for any updated fields,
      * but also to build its field_options.
      *
      * The $fieldItems is expected to be a decoded field from the POST REQUEST
+     *
      * @param array $fieldItems
      * @param array $slugIDS
+     *
      * @return array
      * @throws \Exception
      */
-    public function compareSortAndUpdateFieldItems(array $fieldItems, array $slugIDS = []): array
+    public function compareSortAndUpdateFieldItems (array $fieldItems, array $slugIDS = []): array
     {
-        $fieldCategories = []; $fieldSlugIDS = [];
+        $fieldCategories = [];
+        $fieldSlugIDS = [];
         $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($slugIDS, &$fieldSlugIDS) {
-            if (isset($field->main_field_slug) && !key_exists($field->main_field_slug, $fieldSlugIDS)){
+            if (isset($field->main_field_slug) && !key_exists($field->main_field_slug, $fieldSlugIDS)) {
                 $fieldSlugIDS[$field->main_field_slug] = $field->main_field_slug;
             }
 
@@ -820,18 +840,18 @@ HTML;
             return $field;
         });
 
-        if (!empty($slugIDS)){
+        if (!empty($slugIDS)) {
             $fieldSlugIDS = $slugIDS;
             $fieldSlugIDS = array_combine($slugIDS, $slugIDS);
         }
 
-        if (!empty($fieldSlugIDS)){
+        if (!empty($fieldSlugIDS)) {
             $fieldTable = $this->getFieldTable();
             $fieldItemsTable = $this->getFieldItemsTable();
             $fieldAndFieldItemsCols = $this->getFieldAndFieldItemsCols();
 
             $originalFieldIDAndSlugs = null;
-            db(onGetDB: function ($db) use ($fieldTable, $fieldSlugIDS, &$originalFieldIDAndSlugs){
+            db(onGetDB: function ($db) use ($fieldTable, $fieldSlugIDS, &$originalFieldIDAndSlugs) {
                 $originalFieldIDAndSlugs = $db->Select("field_id, field_slug")->From($fieldTable)
                     ->WhereIn('field_slug', $fieldSlugIDS)
                     ->OrderBy('field_id')->FetchResult();
@@ -848,7 +868,7 @@ HTML;
             }
 
             $originalFieldItems = null;
-            db(onGetDB: function ($db) use ($fieldItemsTable, $fieldAndFieldItemsCols, $fieldIDS, $fieldTable, &$originalFieldItems){
+            db(onGetDB: function ($db) use ($fieldItemsTable, $fieldAndFieldItemsCols, $fieldIDS, $fieldTable, &$originalFieldItems) {
                 $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
                     ->From($fieldItemsTable)
                     ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
@@ -889,17 +909,18 @@ HTML;
 
     /**
      * @param array $fieldCategories
+     *
      * @return string
      * @throws \Exception
      */
-    public function getUsersFormFrag(array $fieldCategories): string
+    public function getUsersFormFrag (array $fieldCategories): string
     {
         # re-dispatch so we can get the form values
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
 
         $htmlFrag = '';
-        foreach ($fieldCategories as $fieldItems){
+        foreach ($fieldCategories as $fieldItems) {
             foreach ($fieldItems as $fieldItem) {
                 $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
             }
@@ -911,9 +932,10 @@ HTML;
     /**
      * @param $originalFieldItems
      * @param $userFieldItems
+     *
      * @return array
      */
-    public function sortFieldWalkerTree($originalFieldItems, $userFieldItems): array
+    public function sortFieldWalkerTree ($originalFieldItems, $userFieldItems): array
     {
         $sorted = [];
         foreach ($originalFieldItems as $originalFieldItem) {
@@ -921,7 +943,7 @@ HTML;
             $match = false;
             $doneKey = [];
             foreach ($userFieldItems as $userFieldKey => $userFieldItem) {
-                if (isset($userFieldItem->field_data)){
+                if (isset($userFieldItem->field_data)) {
                     $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
                 } else {
                     $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash ?? $userFieldItem->field_options['field_slug_unique_hash'];
@@ -948,7 +970,7 @@ HTML;
                     // nothing is really wrong though, it could be a situation where it is a repeatable field, and user has deleted all the repeated fields,
                     // that is the reason why it appears that $userFieldItem has no children
                     if (isset($originalFieldItem->_children)) {
-                        if (isset($userFieldItem->_children)){
+                        if (isset($userFieldItem->_children)) {
                             $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
                         } else {
                             $userFieldItem->_children = $originalFieldItem->_children;
