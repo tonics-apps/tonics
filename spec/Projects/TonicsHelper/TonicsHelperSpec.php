@@ -18,7 +18,7 @@
 
 use Devsrealm\TonicsHelpers\TonicsHelpers;
 
-describe( "Tonics Helper", function () {
+describe("Tonics Helper", function () {
 
     /** @var TonicsHelpers $helper */
     $helper = $this->helper;
@@ -147,11 +147,11 @@ describe( "Tonics Helper", function () {
         it("should return true", function () use ($sig, $publicKey, $testFile, $helper) {
 
             $verify = $helper->signingVerifyFileSignature([
-                'file' => $testFile,
-                'hash' => 'sha384',
+                'file'       => $testFile,
+                'hash'       => 'sha384',
                 'signatures' => [
-                    ['key' => $publicKey, 'sig' => $sig]
-                ]
+                    ['key' => $publicKey, 'sig' => $sig],
+                ],
             ]);
 
             expect($verify)->toBeTruthy();
@@ -159,10 +159,10 @@ describe( "Tonics Helper", function () {
 
         it("should return true", function () use ($sig, $publicKey, $testFile, $helper) {
             $verify = $helper->signingVerifyFileSignature([
-                'file' => $testFile,
+                'file'       => $testFile,
                 'signatures' => [
-                    ['key' => $publicKey, 'sig' => $sig]
-                ]
+                    ['key' => $publicKey, 'sig' => $sig],
+                ],
             ]);
             expect($verify)->toBeTruthy();
         });
@@ -170,11 +170,11 @@ describe( "Tonics Helper", function () {
         it("should throw exception with no valid sig message", function () use ($publicKey, $testFile, $helper) {
             $closure = function () use ($helper, $publicKey, $testFile) {
                 $helper->signingVerifyFileSignature([
-                    'file' => $testFile,
-                    'hash' => 'sha384',
+                    'file'       => $testFile,
+                    'hash'       => 'sha384',
                     'signatures' => [
-                        ['key' => $publicKey, 'sig' => 'xxx']
-                    ]
+                        ['key' => $publicKey, 'sig' => 'xxx'],
+                    ],
                 ]);
             };
             $fileName = $helper->getFileName($testFile);
@@ -184,17 +184,84 @@ describe( "Tonics Helper", function () {
         it("should throw exception with no valid sig message as the file is not signed by the key", function () use ($sig, $publicKey, $helper) {
             $closure = function () use ($sig, $helper, $publicKey) {
                 $helper->signingVerifyFileSignature([
-                    'file' => __FILE__,
-                    'hash' => 'sha384',
+                    'file'       => __FILE__,
+                    'hash'       => 'sha384',
                     'signatures' => [
-                        ['key' => $publicKey, 'sig' => $sig]
-                    ]
+                        ['key' => $publicKey, 'sig' => $sig],
+                    ],
                 ]);
             };
             $fileName = $helper->getFileName(__FILE__);
             expect($closure)->toThrow(new Exception("The authenticity of $fileName could not be verified as no valid signature was found."));
         });
 
+    });
+
+    describe('VersionChecker', function () use ($helper) {
+
+        describe('->versionPHPUptoVersion();', function () use ($helper) {
+
+            it('should return true if the PHP version is greater than the specified version', function () use ($helper) {
+                expect($helper->versionPHPUptoVersion('7.3.0', '7.4.0'))->toBeTruthy();
+            });
+
+            it('should return true if the PHP version is equal the specified version', function () use ($helper) {
+                expect($helper->versionPHPUptoVersion('7.3.0', '7.3.0'))->toBeTruthy();
+            });
+
+            it('should return false if the PHP version is less than the specified version', function () use ($helper) {
+                expect($helper->versionPHPUptoVersion('7.4.0', '7.3.0'))->toBeFalsy();
+            });
+        });
+
+        describe('->versionPHPLessThan();', function () use ($helper) {
+
+            it('should return true if the version is less than the target version', function () use ($helper) {
+                expect($helper->versionPHPLessThan('7.3.0', '7.4.0'))->toBeTruthy();
+            });
+
+            it('should return false if the version is greater than or equal to the target version', function () use ($helper) {
+                expect($helper->versionPHPLessThan('7.4.0', '7.3.0'))->toBeFalsy();
+            });
+        });
+
+        describe('->versionPHPGreaterThan();', function () use ($helper) {
+
+            it('should return true if the version is greater than the target version', function () use ($helper) {
+                expect($helper->versionPHPGreaterThan('7.4.0', '7.3.0'))->toBeTruthy();
+            });
+
+            it('should return false if the version is less than or equal to the target version', function () use ($helper) {
+                expect($helper->versionPHPGreaterThan('7.3.0', '7.4.0'))->toBeFalsy();
+            });
+
+            it('should return false if the version equal the target version', function () use ($helper) {
+                expect($helper->versionPHPGreaterThan('7.4.0', '7.4.0'))->toBeFalsy();
+            });
+        });
+
+        describe('->versionPHPEqual();', function () use ($helper) {
+
+            it('should return true if the version is equal to the target version', function () use ($helper) {
+                expect($helper->versionPHPEqual('7.3.0', '7.3.0'))->toBeTruthy();
+            });
+
+            it('should return false if the version is not equal to the target version', function () use ($helper) {
+                expect($helper->versionPHPEqual('7.4.0', '7.3.0'))->toBeFalsy();
+            });
+        });
+
+        describe('->versionPHPAtLeast();', function () use ($helper) {
+
+            it('should return true if the version is at least as high as the target version', function () use ($helper) {
+                expect($helper->versionPHPAtLeast('7.3.0', '7.4.0'))->toBeTruthy();
+            });
+
+            it('should return false if the version is lower than the target version', function () use ($helper) {
+                expect($helper->versionPHPAtLeast('7.4.0', '7.3.0'))->toBeFalsy();
+            });
+
+        });
     });
 });
 
