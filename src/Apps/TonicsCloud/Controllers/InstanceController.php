@@ -52,6 +52,115 @@ class InstanceController
     }
 
     /**
+     * @return void
+     * @throws \Exception
+     * @throws Throwable
+     */
+    public function index (): void
+    {
+
+        $dataTableHeaders = [
+            [
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_status',
+                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'service_instance_status',
+            ],
+
+            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'provider_instance_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'provider_instance_id'],
+
+            [
+                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_status_action',
+                'select_data' => 'Start, ShutDown, Reboot, Terminate', 'desc' => 'Signal Command',
+                'title'       => 'Sig', 'minmax' => '40px, .4fr', 'td' => 'service_instance_status_action',
+            ],
+
+            [
+                'type'   => '',
+                'slug'   => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_name',
+                'title'  => 'Instance', 'desc' => 'Name of the instance',
+                'minmax' => '55px, .6fr', 'td' => 'service_instance_name',
+            ],
+
+            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICES . '::' . 'service_description', 'title' => 'PLan', 'desc' => 'Current Plan', 'minmax' => '50px, .5fr', 'td' => 'service_description'],
+        ];
+
+        $data = null;
+        db(onGetDB: function (TonicsQuery $db) use (&$data) {
+            $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
+            $serviceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
+
+            $data = $db->Select('service_instance_status, provider_instance_id, service_instance_name, 
+                CONCAT("/customer/tonics_cloud/instances/", provider_instance_id, "/edit" ) as _edit_link, 
+                service_description')
+                ->From("$serviceInstanceTable")
+                ->Join("$serviceTable", "$serviceInstanceTable.fk_service_id", "$serviceTable.service_id")
+                ->WhereEquals('fk_customer_id', \session()::getUserID())->WhereNull('end_time')
+                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
+                    $db->WhereLike('service_instance_name', url()->getParam('query'));
+                })
+                ->OrderByDesc(table()->pickTable($serviceInstanceTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
+        });
+
+        view('Apps::TonicsCloud/Views/Instance/index', [
+            'DataTable' => [
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $data ?? [],
+                'dataTableType' => 'TONICS_CLOUD',
+            ],
+            'SiteURL'   => AppConfig::getAppUrl(),
+        ]);
+
+    }
+
+    /**
+     * @throws \Exception
+     * @throws Throwable
+     */
+    public function dataTable (): void
+    {
+        $entityBag = null;
+        if ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->deleteMultiple($entityBag)) {
+                response()->onSuccess([], "Records Deletion Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeDelete);
+            } else {
+                response()->onError(500);
+            }
+        } elseif ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if ($this->updateMultiple($entityBag)) {
+                response()->onSuccess([], "Records Update Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeUpdate);
+            } else {
+                response()->onError(500, 'An Error Occurred Updating Records');
+            }
+        }
+    }
+
+    /**
+     * @throws \Exception
+     * @throws Throwable
+     */
+    public function create (): void
+    {
+        self::setCurrentControllerMethod(self::CREATE_METHOD);
+        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
+        if (!is_array($oldFormInput)) {
+            $oldFormInput = [];
+        }
+
+        view('Apps::TonicsCloud/Views/Instance/create', [
+            'SiteURL'    => AppConfig::getAppUrl(),
+            'TimeZone'   => AppConfig::getTimeZone(),
+            'FieldItems' => $this->getFieldData()
+                ->generateFieldWithFieldSlug(['app-tonicscloud-instance-page'], $oldFormInput)->getHTMLFrag(),
+        ]);
+    }
+
+
+    /**
      * @param \stdClass $others
      * @param $serviceInstanceID
      * @param string $col
@@ -221,94 +330,6 @@ class InstanceController
     }
 
     /**
-     * @return void
-     * @throws \Exception
-     * @throws Throwable
-     */
-    public function index (): void
-    {
-
-        $dataTableHeaders = [
-            [
-                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_status',
-                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'service_instance_status',
-            ],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'provider_instance_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'provider_instance_id'],
-
-            [
-                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_status_action',
-                'select_data' => 'Start, ShutDown, Reboot, Terminate', 'desc' => 'Signal Command',
-                'title'       => 'Sig', 'minmax' => '40px, .4fr', 'td' => 'service_instance_status_action',
-            ],
-
-            [
-                'type'   => '',
-                'slug'   => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_name',
-                'title'  => 'Instance', 'desc' => 'Name of the instance',
-                'minmax' => '55px, .6fr', 'td' => 'service_instance_name',
-            ],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICES . '::' . 'service_description', 'title' => 'PLan', 'desc' => 'Current Plan', 'minmax' => '50px, .5fr', 'td' => 'service_description'],
-        ];
-
-        $data = null;
-        db(onGetDB: function (TonicsQuery $db) use (&$data) {
-            $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
-            $serviceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
-
-            $data = $db->Select('service_instance_status, provider_instance_id, service_instance_name, 
-                CONCAT("/customer/tonics_cloud/instances/", provider_instance_id, "/edit" ) as _edit_link, 
-                service_description')
-                ->From("$serviceInstanceTable")
-                ->Join("$serviceTable", "$serviceInstanceTable.fk_service_id", "$serviceTable.service_id")
-                ->WhereEquals('fk_customer_id', \session()::getUserID())->WhereNull('end_time')
-                ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
-                    $db->WhereLike('service_instance_name', url()->getParam('query'));
-                })
-                ->OrderByDesc(table()->pickTable($serviceInstanceTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
-        });
-
-        view('Apps::TonicsCloud/Views/Instance/index', [
-            'DataTable' => [
-                'headers'       => $dataTableHeaders,
-                'paginateData'  => $data ?? [],
-                'dataTableType' => 'TONICS_CLOUD',
-            ],
-            'SiteURL'   => AppConfig::getAppUrl(),
-        ]);
-
-    }
-
-    /**
-     * @throws \Exception
-     * @throws Throwable
-     */
-    public function dataTable (): void
-    {
-        $entityBag = null;
-        if ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
-            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
-                $entityBag = $decodedBag;
-            })) {
-            if ($this->deleteMultiple($entityBag)) {
-                response()->onSuccess([], "Records Deletion Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeDelete);
-            } else {
-                response()->onError(500);
-            }
-        } elseif ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeUpdate,
-            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
-                $entityBag = $decodedBag;
-            })) {
-            if ($this->updateMultiple($entityBag)) {
-                response()->onSuccess([], "Records Update Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeUpdate);
-            } else {
-                response()->onError(500, 'An Error Occurred Updating Records');
-            }
-        }
-    }
-
-    /**
      * @return AbstractDataLayer
      */
     public function getAbstractDataLayer (): AbstractDataLayer
@@ -435,26 +456,6 @@ class InstanceController
         }
 
         return true;
-    }
-
-    /**
-     * @throws \Exception
-     * @throws Throwable
-     */
-    public function create (): void
-    {
-        self::setCurrentControllerMethod(self::CREATE_METHOD);
-        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
-        if (!is_array($oldFormInput)) {
-            $oldFormInput = [];
-        }
-
-        view('Apps::TonicsCloud/Views/Instance/create', [
-            'SiteURL'    => AppConfig::getAppUrl(),
-            'TimeZone'   => AppConfig::getTimeZone(),
-            'FieldItems' => $this->getFieldData()
-                ->generateFieldWithFieldSlug(['app-tonicscloud-instance-page'], $oldFormInput)->getHTMLFrag(),
-        ]);
     }
 
     /**

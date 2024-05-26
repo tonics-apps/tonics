@@ -23,12 +23,12 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 abstract class Migration
 {
-   use InitMigrationTable;
+    use InitMigrationTable;
 
     /**
      * @throws \Exception
      */
-    public function __construct()
+    public function __construct ()
     {
         $this->initMigrationTable();
     }
@@ -37,21 +37,24 @@ abstract class Migration
      * @return TonicsQuery
      * @throws \Exception
      */
-    public function getDB(): TonicsQuery
+    public function getDB (): TonicsQuery
     {
         return db();
     }
 
     /**
      * @param $tableName
+     *
      * @return mixed
      * @throws \Exception
      */
-    public function dropTable($tableName): mixed
+    public function dropTable ($tableName): mixed
     {
         $result = false;
         db(onGetDB: function (TonicsQuery $db) use ($tableName, &$result) {
+            $db->query("SET foreign_key_checks = 0");
             $result = $db->run("DROP TABLE IF EXISTS `$tableName`");
+            $db->query("SET foreign_key_checks = 1");
         });
 
         return $result;
