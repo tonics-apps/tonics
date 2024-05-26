@@ -65,7 +65,10 @@ class HookIntoAdminMenuTree implements HandlerInterface
                     $name = $nodeP->getSettings()['settings']['mt_name'];
 
                     if (isset($nodeP->getSettings()['settings']['route'])) {
-                        $url = route('tonicsCloud.containers.apps.index', $findURL->getFoundURLRequiredParams());
+                        $url = route($nodeP->getSettings()['settings']['route'], $findURL->getFoundURLRequiredParams());
+                        if (empty($url)) {
+                            return '';
+                        }
                     }
 
                     $frag = <<<FRAG
