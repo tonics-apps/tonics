@@ -347,7 +347,7 @@ fieldset {
     background-color: #2e7a31;
 }
 
-.list-error-span, .list-info-span, .list-success-span{
+.list-error-span, .list-info-span, .list-success-span {
     border-radius: 20%;
     color: #fff;
     margin-left: 1rem;
@@ -392,7 +392,7 @@ fieldset {
 
 .admin-post-widget {
     /*IF VIEWPORT IS GREATER THAN 1200PX, USE 6EM, IF IT IS LOWER THAN 1200 USE 1EM*/
-    padding: 0 clamp( (1em), (100vw - 1200px )*1000, 6em);
+    padding: 0 clamp((1em), (100vw - 1200px) * 1000, 6em);
 }
 
 .admin-widget-item {
@@ -855,6 +855,7 @@ fieldset {
     -webkit-user-select: none;
     -ms-user-select: none;
 }
+
 .dataTable table {
     display: grid;
     border-collapse: collapse;
@@ -979,4 +980,9 @@ fieldset {
     position: relative;
     transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
     flex-shrink: 0;
+}
+
+/* Select any element with the data-size attribute set to "large" */
+.dataTable td[data-td="_view_links"] {
+    word-break: normal;
 }
