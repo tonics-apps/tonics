@@ -34,21 +34,45 @@
         </table>
 
         [[- PAGINATION -]]
-        [[if('v[DataTable.paginateData.number_links]')
             <div style="margin: 2em;" class="dataTable-load-more-button d:flex justify-content:center">
-            <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
-                [[each("numberLinks in DataTable.paginateData.number_links")
-                <li class="d:flex">
-                    <a title="[[v('numberLinks.current_text')]]" class="d:flex border:none
-                                    [[if('v[numberLinks.current] === bool[false]') color:black ]]
-                                    [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
-                                    flex-gap:small text-align:center bg:transparent border:none border:black padding:default
-                        margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('numberLinks.link')]]#dt">[[v('numberLinks.number')]]</a>
-                </li>
-                ]]
-            </ul>
-        </div>
-        ]]
+
+                <ul class="d:flex align-items:center flex-gap:small list:style:none flex-wrap:wrap justify-content:center">
+
+                    [[if("v[DataTable.paginateData.prev_page_url]")
+                        <li class="d:flex">
+                            <a class="d:flex border:none color:black flex-gap:small text-align:center bg:transparent border:none border:black padding:default
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('DataTable.paginateData.prev_page_url')]]#dt"
+                               title="Previous">
+                            Previous
+                            </a>
+                        </li>
+                    ]]
+
+                    [[if('v[DataTable.paginateData.number_links]')
+                        [[each("numberLinks in DataTable.paginateData.number_links")
+                        <li class="d:flex">
+                            <a class="d:flex border:none
+                                            [[if('v[numberLinks.current] === bool[false]') color:black ]]
+                                            [[if('v[numberLinks.current] === bool[true]') color:white bg:pure-black ]]
+                                            flex-gap:small text-align:center bg:transparent border:none border:black padding:default
+                                margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('numberLinks.link')]]#dt"
+                               title="[[v('numberLinks.current_text')]]">[[v('numberLinks.number')]]</a>
+                        </li>
+                        ]]
+                    ]]
+
+                    [[if("v[DataTable.paginateData.next_page_url]")
+                        <li class="d:flex">
+                            <a class="d:flex border:none color:black flex-gap:small text-align:center bg:transparent border:none border:black padding:default
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" href="[[v('DataTable.paginateData.next_page_url')]]#dt"
+                               title="Next">
+                            Next
+                            </a>
+                        </li>
+                    ]]
+
+                </ul>
+            </div>
 
         [[- DATA_TABLES ACTION MENU -]]
         <div class="dataTable-menus position:sticky bottom:0">
