@@ -35,15 +35,16 @@ use App\Modules\Field\EventHandlers\Fields\Input\InputRange;
 use App\Modules\Field\EventHandlers\Fields\Input\InputRichText;
 use App\Modules\Field\EventHandlers\Fields\Input\InputSelect;
 use App\Modules\Field\EventHandlers\Fields\Input\InputText;
+use App\Modules\Field\EventHandlers\Fields\Interfaces\Table;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaAudio;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaFileManager;
 use App\Modules\Field\EventHandlers\Fields\Media\MediaImage;
 use App\Modules\Field\EventHandlers\Fields\Menu\Menu;
-use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelectionDropper;
-use App\Modules\Field\EventHandlers\Fields\Modular\RowColumnRepeater;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldFileHandler;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelection;
+use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelectionDropper;
 use App\Modules\Field\EventHandlers\Fields\Modular\RowColumn;
+use App\Modules\Field\EventHandlers\Fields\Modular\RowColumnRepeater;
 use App\Modules\Field\EventHandlers\Fields\Post\PostAuthorSelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostCategorySelect;
 use App\Modules\Field\EventHandlers\Fields\Post\PostRecent;
@@ -73,7 +74,7 @@ class FieldActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -81,12 +82,12 @@ class FieldActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
 
             OnFieldItemsSave::class => [
-              CacheFieldIDItems::class
+                CacheFieldIDItems::class,
             ],
 
             OnFieldMetaBox::class => [
@@ -131,22 +132,25 @@ class FieldActivator implements ExtensionConfig
                 Widget::class,
 
                 # Tools
-                Currency::class
+                Currency::class,
+
+                # Interfaces
+                Table::class,
             ],
 
             OnEditorFieldSelection::class => [
-                TonicsDefaultFieldsSelection::class
+                TonicsDefaultFieldsSelection::class,
             ],
 
             FieldTemplateFile::class => [
-                TonicsOEmbedFieldHandler::class
+                TonicsOEmbedFieldHandler::class,
             ],
 
             OnFieldCreate::class => [
             ],
 
             OnAdminMenu::class => [
-                FieldMenus::class
+                FieldMenus::class,
             ],
 
             OnAfterPreSavePostEditorFieldItems::class => [
@@ -157,16 +161,17 @@ class FieldActivator implements ExtensionConfig
                 PageSlugFieldSanitization::class,
                 DefaultSlugFieldSanitization::class,
                 PostContentEditorFieldSanitization::class,
-            ]
+            ],
         ];
     }
 
     /**
      * @param Route $routes
+     *
      * @return Route
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         return $this->routeWeb($routes);
     }
@@ -174,51 +179,51 @@ class FieldActivator implements ExtensionConfig
     /**
      * @return array
      */
-    public function tables(): array
+    public function tables (): array
     {
         return
             [
-                Tables::getTable(Tables::FIELD) => Tables::$TABLES[Tables::FIELD],
+                Tables::getTable(Tables::FIELD)       => Tables::$TABLES[Tables::FIELD],
                 Tables::getTable(Tables::FIELD_ITEMS) => Tables::$TABLES[Tables::FIELD_ITEMS],
             ];
     }
 
-    public function onInstall(): void
+    public function onInstall (): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Field",
-            "type" => "Module",
+            "name"                 => "Field",
+            "type"                 => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1715169220',
-            "stable" => 0,
-            "description" => "The Field Module",
-            "info_url" => '',
+            "version"              => '1-O-Ola.1715169220',
+            "stable"               => 0,
+            "description"          => "The Field Module",
+            "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-field-module/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         // TODO: Implement onUpdate() method.
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }

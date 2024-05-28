@@ -20,6 +20,7 @@ namespace App\Modules\Core\Library;
 
 use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Validation\Traits\Validator;
+use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 
@@ -701,6 +702,43 @@ SQL, ...$parameter);
             'next_page_cursor' => $hasMore ? $nextCursor : null,
             'prev_page_cursor' => $cursor ? ($previousCursor ?: null) : null,
         ];
+
+    }
+
+    /**
+     * @param FieldData $fieldData
+     * @param $data
+     * @param string $fieldSlug
+     * @param string $fieldLocation
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function controllerUnwrapFieldDetails (FieldData $fieldData, $data, string $fieldSlug, string $fieldLocation = 'others'): string
+    {
+        if (!is_object($data)) {
+            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
+        }
+
+        $fieldSettings = json_decode($data->{$fieldLocation}, true);
+        if (empty($fieldSettings)) {
+            $fieldSettings = (array)$data;
+        } else {
+            $fieldSettings = [...$fieldSettings, ...(array)$data];
+        }
+
+
+        if (isset($fieldSettings['_fieldDetails'])) {
+            addToGlobalVariable('Data', $fieldSettings);
+            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+            $htmlFrag = $fieldData->getUsersFormFrag($fieldCategories);
+        } else {
+            $fieldForm = $fieldData->generateFieldWithFieldSlug([$fieldSlug], $fieldSettings);
+            $htmlFrag = $fieldForm->getHTMLFrag();
+            addToGlobalVariable('Data', $data);
+        }
+
+        return $htmlFrag;
 
     }
 
