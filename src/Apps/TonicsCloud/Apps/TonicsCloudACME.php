@@ -94,6 +94,60 @@ JSON;
     }
 
     /**
+     * @inheritDoc
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function uninstall (): bool
+    {
+        return $this->runCommand(null, null, "bash", "-c", "{$this->acmeBin()} --uninstall");
+    }
+
+    public function prepareForFlight (array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): array
+    {
+        $settings = [];
+        $sites = [];
+        $modes = [
+            'standalone' => 'standalone',
+            'nginx'      => 'nginx',
+            'apache'     => 'apache',
+        ];
+
+        $issuer = [
+            'letsencrypt' => 'letsencrypt',
+            'zerossl'     => 'zerossl',
+        ];
+
+        foreach ($data as $field) {
+            if (isset($field->main_field_slug) && isset($field->field_input_name)) {
+                $fieldOptions = json_decode($field->field_options);
+
+                $value = strtolower($fieldOptions->{$field->field_input_name} ?? '');
+
+                if ($field->field_input_name == 'acme_email') {
+                    $settings['Email'] = $this->replaceContainerGlobalVariables($value);
+                }
+
+                if ($field->field_input_name == 'acme_mode' && isset($modes[$value])) {
+                    $settings['Mode'] = $value;
+                }
+
+                if ($field->field_input_name == 'acme_issuer' && isset($issuer[$value])) {
+                    $settings['Issuer'] = $value;
+                }
+
+                if ($field->field_input_name == 'acme_sites[]') {
+                    $sitesExploded = explode(',', $value);
+                    $sites = [...$sites, ...array_map(fn($site) => $this->replaceContainerGlobalVariables(trim($site)), $sitesExploded)];
+                }
+            }
+        }
+
+        $settings['Sites'] = $sites;
+        return $settings;
+    }
+
+    /**
      * @return string
      */
     private function getAcmeEmail (): string
@@ -161,25 +215,15 @@ CM,
         foreach ($postFlight->Sites as $site) {
             $reload = '';
             if ($mode !== 'standalone') {
-                $reload = <<<RELOAD
---reloadcmd     "service $mode force-reload"
-RELOAD;
+                $reload = " --reloadcmd 'service $mode force-reload' ";
             }
 
             $certCert = escapeshellarg("/etc/ssl/{$site}_cert.cer");
             $key = escapeshellarg("/etc/ssl/$site.key");
-            $fullchainCer = escapeshellarg("/etc/ssl/{$site}_fullchain.cer");
+            $fullChainCer = escapeshellarg("/etc/ssl/{$site}_fullchain.cer");
 
             $siteSafe = escapeshellarg($site);
-
-            $command = <<<COMMAND
-{$this->acmeBin()} --install-cert -d $siteSafe \
---cert-file      $certCert  \
---key-file       $key  \
---fullchain-file $fullchainCer \
-$reload --log
-COMMAND;
-
+            $command = "{$this->acmeBin()} --install-cert -d $siteSafe --cert-file $certCert --key-file $key --fullchain-file $fullChainCer $reload --log ";
             $this->runCommand(null, null, "bash", "-c", $command);
         }
     }
@@ -187,60 +231,6 @@ COMMAND;
     private function acmeBinDir (): string
     {
         return "/root/.acme.sh/acme.sh";
-    }
-
-    /**
-     * @inheritDoc
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function uninstall (): bool
-    {
-        return $this->runCommand(null, null, "bash", "-c", "{$this->acmeBin()} --uninstall");
-    }
-
-    public function prepareForFlight (array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): array
-    {
-        $settings = [];
-        $sites = [];
-        $modes = [
-            'standalone' => 'standalone',
-            'nginx'      => 'nginx',
-            'apache'     => 'apache',
-        ];
-
-        $issuer = [
-            'letsencrypt' => 'letsencrypt',
-            'zerossl'     => 'zerossl',
-        ];
-
-        foreach ($data as $field) {
-            if (isset($field->main_field_slug) && isset($field->field_input_name)) {
-                $fieldOptions = json_decode($field->field_options);
-
-                $value = strtolower($fieldOptions->{$field->field_input_name} ?? '');
-
-                if ($field->field_input_name == 'acme_email') {
-                    $settings['Email'] = $this->replaceContainerGlobalVariables($value);
-                }
-
-                if ($field->field_input_name == 'acme_mode' && isset($modes[$value])) {
-                    $settings['Mode'] = $value;
-                }
-
-                if ($field->field_input_name == 'acme_issuer' && isset($issuer[$value])) {
-                    $settings['Issuer'] = $value;
-                }
-
-                if ($field->field_input_name == 'acme_sites[]') {
-                    $sitesExploded = explode(',', $value);
-                    $sites = [...$sites, ...array_map(fn($site) => $this->replaceContainerGlobalVariables(trim($site)), $sitesExploded)];
-                }
-            }
-        }
-
-        $settings['Sites'] = $sites;
-        return $settings;
     }
 
     public function reload (): true
