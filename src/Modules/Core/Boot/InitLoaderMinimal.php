@@ -43,6 +43,82 @@ class InitLoaderMinimal
     private DomParser               $domParser; # Incomplete, but 95% usable for my use case.
 
     /**
+     * Yh, Boot up the application
+     * @throws Exception
+     * @throws \Throwable
+     */
+    public function init ()
+    {
+        # TimeZone
+        date_default_timezone_set(AppConfig::getTimeZone());
+
+        # INCLUDE THE HELPERS
+        AppConfig::includeHelpers();
+        self::initGlobalVariables();
+    }
+
+    /**
+     * @throws Exception
+     * @throws \Throwable
+     */
+    public static function initGlobalVariables (): void
+    {
+        self::addToGlobalVariable('App_Config', [
+            'SiteURL'              => AppConfig::getAppUrl(),
+            'APP_NAME'             => AppConfig::getAppName(),
+            'APP_URL'              => AppConfig::getAppUrl(),
+            'APP_TIME_ZONE'        => AppConfig::getTimeZone(),
+            'APP_TIME_ZONE_OFFSET' => date('P'),
+            'APP_ENV'              => AppConfig::getAppEnv(),
+            'isProduction'         => AppConfig::isProduction(),
+            'SERVE_APP_PATH'       => DriveConfig::serveAppFilePath(),
+            'SERVE_MODULE_PATH'    => DriveConfig::serveModuleFilePath(),
+        ]);
+
+        self::DRIVE_CONFIG_GlobalVariable();
+        self::URL_GlobalVariable();
+        $authInfo = UserData::getAuthenticationInfo();
+
+        if (empty($authInfo)) {
+            $authInfo = new \stdClass();
+            $authInfo->role = false;
+            $authInfo->role_name = null;
+            $authInfo->role_id = null;
+            $authInfo->user_id = null;
+            $authInfo->email = null;
+            $authInfo->user_table = null;
+        }
+
+        self::addToGlobalVariable('Auth', [
+            'Logged_In'      => !empty($authInfo?->role),
+            'User_Role_Name' => $authInfo?->role_name,
+            'User_Role_ID'   => $authInfo?->role_id,
+            'User_ID'        => $authInfo?->user_id,
+            'User_Email'     => $authInfo?->email,
+            'User_Table'     => $authInfo?->user_table,
+        ]);
+
+        # Push Structured Data That Relies on the Post Editor Here
+        self::addToGlobalVariable('Structured_Data', [
+            'FAQ' => [],
+        ]);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public static function URL_GlobalVariable (): void
+    {
+        url()->reset();
+        self::addToGlobalVariable('URL', [
+            'FULL_URL'    => url()->getFullURL(),
+            'REQUEST_URL' => url()->getRequestURL(),
+            'PARAMS'      => url()->getParams(),
+            'REFERER'     => url()->getReferer(),
+        ]);
+    }
+
+    /**
      * @throws Exception
      */
     public static function noInstallationGlobalVariable (): void
@@ -154,82 +230,6 @@ class InitLoaderMinimal
     {
         $this->tonicsHelpers = $tonicsHelpers;
         return $this;
-    }
-
-    /**
-     * Yh, Boot up the application
-     * @throws Exception
-     * @throws \Throwable
-     */
-    public function init ()
-    {
-        # TimeZone
-        date_default_timezone_set(AppConfig::getTimeZone());
-
-        # INCLUDE THE HELPERS
-        AppConfig::includeHelpers();
-        self::initGlobalVariables();
-    }
-
-    /**
-     * @throws Exception
-     * @throws \Throwable
-     */
-    public static function initGlobalVariables (): void
-    {
-        self::addToGlobalVariable('App_Config', [
-            'SiteURL'              => AppConfig::getAppUrl(),
-            'APP_NAME'             => AppConfig::getAppName(),
-            'APP_URL'              => AppConfig::getAppUrl(),
-            'APP_TIME_ZONE'        => AppConfig::getTimeZone(),
-            'APP_TIME_ZONE_OFFSET' => date('P'),
-            'APP_ENV'              => AppConfig::getAppEnv(),
-            'isProduction'         => AppConfig::isProduction(),
-            'SERVE_APP_PATH'       => DriveConfig::serveAppFilePath(),
-            'SERVE_MODULE_PATH'    => DriveConfig::serveModuleFilePath(),
-        ]);
-
-        self::DRIVE_CONFIG_GlobalVariable();
-        self::URL_GlobalVariable();
-        $authInfo = UserData::getAuthenticationInfo();
-
-        if (empty($authInfo)) {
-            $authInfo = new \stdClass();
-            $authInfo->role = false;
-            $authInfo->role_name = null;
-            $authInfo->role_id = null;
-            $authInfo->user_id = null;
-            $authInfo->email = null;
-            $authInfo->user_table = null;
-        }
-
-        self::addToGlobalVariable('Auth', [
-            'Logged_In'      => !empty($authInfo?->role),
-            'User_Role_Name' => $authInfo?->role_name,
-            'User_Role_ID'   => $authInfo?->role_id,
-            'User_ID'        => $authInfo?->user_id,
-            'User_Email'     => $authInfo?->email,
-            'User_Table'     => $authInfo?->user_table,
-        ]);
-
-        # Push Structured Data That Relies on the Post Editor Here
-        self::addToGlobalVariable('Structured_Data', [
-            'FAQ' => [],
-        ]);
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    public static function URL_GlobalVariable (): void
-    {
-        url()->reset();
-        self::addToGlobalVariable('URL', [
-            'FULL_URL'    => url()->getFullURL(),
-            'REQUEST_URL' => url()->getRequestURL(),
-            'PARAMS'      => url()->getParams(),
-            'REFERER'     => url()->getReferer(),
-        ]);
     }
 
     /**

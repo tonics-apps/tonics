@@ -31,6 +31,7 @@ use App\Modules\Core\EventHandlers\HandleDataTableDataInTemplate;
 use App\Modules\Core\EventHandlers\Hook_AddSvgSymbols;
 use App\Modules\Core\EventHandlers\HookIntoAdminMenuTree;
 use App\Modules\Core\EventHandlers\JobTransporter\DatabaseJobTransporter;
+use App\Modules\Core\EventHandlers\Roles\CoreRolesHandler;
 use App\Modules\Core\EventHandlers\SchedulerTransporter\DatabaseSchedulerTransporter;
 use App\Modules\Core\EventHandlers\TemplateEngines\DeactivateCombiningFilesInProduction;
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeTemplateEngine;
@@ -39,6 +40,7 @@ use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Core\Events\Licenses\OnLicenseCreate;
 use App\Modules\Core\Events\OnAddConsoleCommand;
 use App\Modules\Core\Events\OnAddJobTransporter;
+use App\Modules\Core\Events\OnAddRole;
 use App\Modules\Core\Events\OnAddSchedulerTransporter;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateEngines;
@@ -118,6 +120,10 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
                 HookIntoAdminMenuTree::class,
                 HandleDataTableDataInTemplate::class,
                 Hook_AddSvgSymbols::class,
+            ],
+
+            OnAddRole::class => [
+                CoreRolesHandler::class,
             ],
         ];
 

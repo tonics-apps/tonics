@@ -18,6 +18,7 @@
 
 namespace App\Modules\Core\Library\Authentication;
 
+use App\Modules\Core\Events\OnAddRole;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
@@ -72,11 +73,12 @@ final class Roles
     # THE BELOW IS FOR ROLE
     const ROLE_GUEST    = 'ROLE_GUEST';
     const ROLE_CUSTOMER = 'ROLE_CUSTOMER';
-    static array   $ROLES       = [
+    static array $ROLES = [
         self::ROLE_ADMIN,
         self::ROLE_GUEST,
         self::ROLE_CUSTOMER,
     ];
+
     private static $permissions = null;
 
     /**
@@ -216,13 +218,15 @@ final class Roles
     }
 
     /**
+     * Call this method if you want to add a new role
      * @return void
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public static function UPDATE_DEFAULT_ROLES (): void
     {
         $rolesToInsert = [];
-        foreach (self::DEFAULT_ROLES() as $ROLE) {
+        $ROLES = self::ON_ADD_ROLE()->getRoles();
+        foreach ($ROLES as $ROLE) {
             $rolesToInsert[] = [
                 'role_name' => $ROLE,
             ];
@@ -237,12 +241,12 @@ final class Roles
      * @param array $defaultPermissions
      *
      * @return void
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public static function UPDATE_DEFAULT_PERMISSIONS (array $defaultPermissions = []): void
     {
         if (empty($defaultPermissions)) {
-            $defaultPermissions = self::DEFAULT_PERMISSIONS();
+            $defaultPermissions = self::ON_ADD_ROLE()->getPermissions();
         }
 
         $rolesToInsert = [];
@@ -259,36 +263,46 @@ final class Roles
     }
 
     /**
+     * Call this method when you make changes to a role permission(s)
      * @return void
-     * @throws \Exception
+     * @throws \Throwable
      */
     public static function UPDATE_DEFAULT_ROLES_PERMISSIONS (): void
     {
         db(onGetDB: function (TonicsQuery $db) {
+            $db->beginTransaction();
+
+            $onAddRole = self::ON_ADD_ROLE();
+
             $rolesToInsert = [];
             $table = Tables::getTable(Tables::ROLE_PERMISSIONS);
-            foreach (self::DEFAULT_ROLES() as $ROLE) {
-                if (method_exists(Roles::class, $ROLE)) {
-                    $roleID = $db->Q()->Select('role_id')
-                        ->From(Tables::getTable(Tables::ROLES))
-                        ->WhereEquals('role_name', $ROLE)->FetchFirst()?->role_id;
 
-                    $permissions = $db->Q()->Select('permission_id')
-                        ->From(Tables::getTable(Tables::PERMISSIONS))
-                        ->WhereIn('permission_name', Roles::$ROLE())->FetchResult();
+            $permissionsCurl = function (array $permissionNames, $db) {
+                return $db->Q()->Select('permission_id')
+                    ->From(Tables::getTable(Tables::PERMISSIONS))
+                    ->WhereIn('permission_name', $permissionNames)
+                    ->FetchResult();
+            };
 
-                    if (!empty($roleID) && (is_array($permissions) && !empty($permissions))) {
-                        $db->Q()->FastDelete($table, db()->WhereIn('fk_role_id', $roleID));
-                        foreach ($permissions as $permission) {
-                            $rolesToInsert[] = [
-                                'fk_role_id'       => $roleID,
-                                'fk_permission_id' => $permission->permission_id,
-                            ];
-                        }
+            $ROLES_PERMISSIONS = $onAddRole->getRoleToPermissions();
+
+            foreach ($ROLES_PERMISSIONS as $ROLE => $PERMISSION) {
+                $roleID = self::GET_ROLE_ID($ROLE);
+                $permissions = $permissionsCurl($PERMISSION, $db);
+                if (!empty($roleID) && (is_array($permissions) && !empty($permissions))) {
+                    $db->Q()->FastDelete($table, db()->WhereIn('fk_role_id', $roleID));
+                    foreach ($permissions as $permission) {
+                        $rolesToInsert[] = [
+                            'fk_role_id'       => $roleID,
+                            'fk_permission_id' => $permission->permission_id,
+                        ];
                     }
                 }
             }
+
             $db->Q()->Insert($table, $rolesToInsert);
+
+            $db->commit();
         });
     }
 
@@ -304,6 +318,25 @@ final class Roles
             self::CAN_ACCESS_MENU, self::CAN_ACCESS_PAGE, self::CAN_ACCESS_PAYMENT, self::CAN_ACCESS_POST, self::CAN_ACCESS_TRACK, self::CAN_ACCESS_WIDGET,
             self::CAN_ACCESS_MODULE, self::CAN_ACCESS_APPS, self::CAN_ACCESS_FIELD, self::CAN_UPDATE_MODULES, self::CAN_UPDATE_APPS,
         ];
+    }
+
+
+    /**
+     * @param string $roleName
+     *
+     * @return ?int
+     * @throws \Exception
+     */
+    public static function GET_ROLE_ID (string $roleName): ?int
+    {
+        $roleID = null;
+        db(onGetDB: function (TonicsQuery $db) use (&$roleID, $roleName) {
+            $roleID = $db->Q()->Select('role_id')
+                ->From(Tables::getTable(Tables::ROLES))
+                ->WhereEquals('role_name', $roleName)
+                ->FetchFirst()?->role_id;
+        });
+        return $roleID;
     }
 
     /**
@@ -347,5 +380,16 @@ final class Roles
         }
 
         return self::$permissions;
+    }
+
+    /**
+     * @return OnAddRole
+     * @throws \Throwable
+     */
+    public static function ON_ADD_ROLE (): OnAddRole
+    {
+        $onAddRole = new OnAddRole();
+        event()->dispatch($onAddRole);
+        return $onAddRole;
     }
 }

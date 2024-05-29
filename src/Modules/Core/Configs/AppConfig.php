@@ -52,21 +52,21 @@ use Exception;
 
 class AppConfig
 {
-    private static InitLoader|null $init = null;
+    private static InitLoader|null        $init              = null;
     private static InitLoaderMinimal|null $initLoaderMinimal = null;
-    private static Tree|null $treeSystem = null;
+    private static Tree|null              $treeSystem        = null;
 
-    public static function getInitKey(): string
+    public static function getInitKey (): string
     {
         return AppConfig::getCachePrefix() . self::getAppCacheKey();
     }
 
-    public static function getInitTreeKey(): string
+    public static function getInitTreeKey (): string
     {
         return self::getInitKey() . '__treeSystem';
     }
 
-    public static function initLoaderTree()
+    public static function initLoaderTree ()
     {
         $initKey = self::getInitTreeKey();
         if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
@@ -91,12 +91,14 @@ class AppConfig
     /**
      * The second entry point into our app after initialization of minimal dependencies, this uses injection sort of to construct all the
      * necessary objects, and caches it, so, it constructs it just once, and the subsequent request might be a bit faster.
+     *
      * @param bool $failSilently
+     *
      * @return InitLoader
      * @throws Exception
      * @throws \Throwable
      */
-    public static function initLoaderOthers(bool $failSilently = false): InitLoader
+    public static function initLoaderOthers (bool $failSilently = false): InitLoader
     {
         try {
             $initKey = self::getInitKey();
@@ -108,8 +110,8 @@ class AppConfig
                     new RouteResolver(new Container()),
                     new Route(
                         new RouteTreeGenerator(
-                            new RouteTreeGeneratorState(), new RouteNode())
-                    )
+                            new RouteTreeGeneratorState(), new RouteNode()),
+                    ),
                 );
 
                 $router = new Router($onRequestProcess,
@@ -134,7 +136,7 @@ class AppConfig
 
                 ## Apps Would Only Appear if one, TonicsIsReady (meaning TonicsCMS has been installed) and each app
                 # have .installed (which would be added programmatically on app installation)
-                if (AppConfig::TonicsIsReady()){
+                if (AppConfig::TonicsIsReady()) {
                     foreach ($apps as $app) {
                         /** @var $app ExtensionConfig */
                         if ($app->enabled()) {
@@ -195,7 +197,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    private static function isLoggedIn(): bool
+    private static function isLoggedIn (): bool
     {
         return isset(getGlobalVariableData()['Auth']['Logged_In']) && getGlobalVariableData()['Auth']['Logged_In'];
     }
@@ -203,7 +205,7 @@ class AppConfig
     /**
      * @throws \Throwable
      */
-    public static function initAdminMenu(bool $dumpDB = true, EventDispatcher $eventDispatcher = null): void
+    public static function initAdminMenu (bool $dumpDB = true, EventDispatcher $eventDispatcher = null): void
     {
 
         \tree()->getTreeGenerator()->reset(new Node());
@@ -215,45 +217,46 @@ class AppConfig
         $menuData = new MenuData();
         $nodeTree = \tree()->getTreeGenerator()->getNodeTree();
         $menuID = $menuData->getCoreMenuID();
-        $menuItems = []; $permissions = [];
+        $menuItems = [];
+        $permissions = [];
         $mapper = [];
 
         foreach ($nodeTree->getChildrenRecursive() as $node) {
             $parentID = null;
-            if (!empty($node?->parentNode()->getSettings()['settings'])){
+            if (!empty($node?->parentNode()->getSettings()['settings'])) {
                 $parentID = $node->parentNode()->getNameID();
             }
 
-            if (isset($node->getSettings()['settings']['mt_url_slug'])){
+            if (isset($node->getSettings()['settings']['mt_url_slug'])) {
                 $mapper[$node->getSettings()['settings']['mt_url_slug']] = $node->getFullNodePath();
             }
 
-            if (empty($node->getSettings()['settings']) || isset($node->getSettings()['settings']['ignore'])){
+            if (empty($node->getSettings()['settings']) || isset($node->getSettings()['settings']['ignore'])) {
                 $node->setNameID(null);
                 continue;
             }
 
-            if ($dumpDB){
+            if ($dumpDB) {
                 /**@var Node $node */
                 $uuid = $node->uuid4();
                 $settings = $node->getSettings()['settings'] ?? null;
                 $menuItems[] = [
-                    'fk_menu_id' => $menuID,
-                    'mt_id' => $node->getNameID(),
+                    'fk_menu_id'   => $menuID,
+                    'mt_id'        => $node->getNameID(),
                     'mt_parent_id' => $parentID,
-                    'slug_id' => $uuid,
-                    'mt_name' => $settings['mt_name'] ?? '',
-                    'mt_icon' => $settings['mt_icon'] ?? '',
-                    'mt_classes' => $settings['mt_classes'] ?? '',
-                    'mt_target' => $settings['mt_target'] ?? '',
-                    'mt_url_slug' => $settings['mt_url_slug'] ?? '',
+                    'slug_id'      => $uuid,
+                    'mt_name'      => $settings['mt_name'] ?? '',
+                    'mt_icon'      => $settings['mt_icon'] ?? '',
+                    'mt_classes'   => $settings['mt_classes'] ?? '',
+                    'mt_target'    => $settings['mt_target'] ?? '',
+                    'mt_url_slug'  => $settings['mt_url_slug'] ?? '',
                 ];
 
-                if (isset($settings['permission'])){
-                    foreach ($settings['permission'] as $permission){
+                if (isset($settings['permission'])) {
+                    foreach ($settings['permission'] as $permission) {
                         $permissions[] = [
                             'fk_menu_item_slug_id' => $uuid,
-                            'fk_permission_id' => $permission,
+                            'fk_permission_id'     => $permission,
                         ];
                     }
                 }
@@ -261,7 +264,7 @@ class AppConfig
         }
 
         \tree()->getTreeGenerator()->setAnyData(['BreadCrumbMapper' => $mapper]);
-        if ($dumpDB){
+        if ($dumpDB) {
             db(onGetDB: function (TonicsQuery $db) use ($menuData, $menuID, $permissions, $menuItems) {
                 $db->beginTransaction();
                 # Delete All the Menu Items Related to $menuDetails->menuID
@@ -269,7 +272,7 @@ class AppConfig
                 # Reinsert it
                 $db->Insert($menuData->getMenuItemsTable(), $menuItems);
                 # Insert Permissions
-                if (!empty($permissions)){
+                if (!empty($permissions)) {
                     $db->Insert($menuData->getMenuItemPermissionsTable(), $permissions);
                 }
                 $db->commit();
@@ -280,11 +283,13 @@ class AppConfig
     /**
      * Sets the minimal essential dependencies to keep the app running,
      * this should be resolve first and should be light
+     *
      * @param bool $failSilently
+     *
      * @return InitLoaderMinimal
      * @throws Exception
      */
-    public static function initLoaderMinimal(bool $failSilently = false): InitLoaderMinimal
+    public static function initLoaderMinimal (bool $failSilently = false): InitLoaderMinimal
     {
         try {
             $initKey = AppConfig::getCachePrefix() . self::getAppCacheKey() . '_minimal';
@@ -327,7 +332,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function autoResolvePageRoutes(string $controller, Route $route): Route
+    public static function autoResolvePageRoutes (string $controller, Route $route): Route
     {
         if (helper()->isCLI()) {
             return $route;
@@ -336,7 +341,7 @@ class AppConfig
         $pageTable = Tables::getTable(Tables::PAGES);
         try {
             $pages = null;
-            db(onGetDB: function ($db) use ($pageTable, &$pages){
+            db(onGetDB: function ($db) use ($pageTable, &$pages) {
                 $pages = $db->Select('*')->From($pageTable)->FetchResult();
             });
             foreach ($pages as $page) {
@@ -355,7 +360,7 @@ class AppConfig
         return $route;
     }
 
-    public static function isMaintenanceMode(): bool
+    public static function isMaintenanceMode (): bool
     {
         return (bool)env('MAINTENANCE_MODE', false);
     }
@@ -363,12 +368,12 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getTimeZone(): string
+    public static function getTimeZone (): string
     {
-        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppTimeZone,  env('APP_TIME_ZONE', 'UTC'));
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppTimeZone, env('APP_TIME_ZONE', 'UTC'));
     }
 
-    public static function getLanguage(): string
+    public static function getLanguage (): string
     {
         return env('APP_LANGUAGE', '');
     }
@@ -376,7 +381,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getAppName(): string
+    public static function getAppName (): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppName, env('APP_NAME', 'Tonics'));
     }
@@ -385,7 +390,7 @@ class AppConfig
      * For throttling pagination on the frontend
      * @return string
      */
-    public static function getAppInstalled(): string
+    public static function getAppInstalled (): string
     {
         return env('APP_INSTALLED', 1);
     }
@@ -394,17 +399,17 @@ class AppConfig
      * For throttling pagination on the frontend
      * @return string
      */
-    public static function getAppPaginationMax(): string
+    public static function getAppPaginationMax (): string
     {
         return env('APP_PAGINATION_MAX_LIMIT', 100);
     }
 
-    public static function getJobTransporter(): string
+    public static function getJobTransporter (): string
     {
         return env('JOB_TRANSPORTER', 'DATABASE');
     }
 
-    public static function getSchedulerTransporter(): string
+    public static function getSchedulerTransporter (): string
     {
         return env('SCHEDULE_TRANSPORTER', 'DATABASE');
     }
@@ -413,12 +418,12 @@ class AppConfig
      * Without a cache prefix, multiple sites on the same server might reference each other's cache (which is a bad idea)
      * @return string
      */
-    public static function getCachePrefix(): string
+    public static function getCachePrefix (): string
     {
         return hash('sha256', env('APP_KEY', 'Tonics'));
     }
 
-    public static function getAppCacheKey(): string
+    public static function getAppCacheKey (): string
     {
         return 'initLoader_' . env('APP_KEY', 'Tonics');
     }
@@ -430,7 +435,7 @@ class AppConfig
      * You might need to use this, to be sure you can use the database
      * @return bool
      */
-    public static function TonicsIsReady(): bool
+    public static function TonicsIsReady (): bool
     {
         return AppConfig::getAppKey() !== 'xxx';
     }
@@ -440,13 +445,13 @@ class AppConfig
      * Use this to check is Tonics is ready or not
      * @return bool
      */
-    public static function TonicsIsNotReady(): bool
+    public static function TonicsIsNotReady (): bool
     {
         return AppConfig::getAppKey() === 'xxx';
     }
 
 
-    public static function getAppKey(): string
+    public static function getAppKey (): string
     {
         return env('APP_KEY', 'Tonics');
     }
@@ -454,7 +459,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getAppEnv(): string
+    public static function getAppEnv (): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppEnvironment, env('APP_ENV', 'production'));
     }
@@ -462,7 +467,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getAppLog404(): string
+    public static function getAppLog404 (): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppLog404, env('APP_LOG_404', '1'));
     }
@@ -470,7 +475,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function isProduction(): bool
+    public static function isProduction (): bool
     {
         return AppConfig::getAppEnv() === 'production';
     }
@@ -478,17 +483,17 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function canLog404(): bool
+    public static function canLog404 (): bool
     {
         return self::getAppLog404() === '1';
     }
 
-    public static function getAppInstallKey(): string
+    public static function getAppInstallKey (): string
     {
         return env('INSTALL_KEY');
     }
 
-    public static function getAppUpdateKey(): string
+    public static function getAppUpdateKey (): string
     {
         return env('UPDATE_KEY', 'NULL');
     }
@@ -502,7 +507,7 @@ class AppConfig
      * @return array|bool
      * @throws Exception
      */
-    public static function getAutoUpdateApps(): array|bool
+    public static function getAutoUpdateApps (): array|bool
     {
         $update = CoreSettingsController::getSettingsValue(CoreSettingsController::Updates_AutoUpdateApps, env('AUTO_UPDATE_APPS', 'NULL'));
         return self::handleAutoUpdateReturn($update);
@@ -517,18 +522,18 @@ class AppConfig
      * @return array|bool
      * @throws Exception
      */
-    public static function getAutoUpdateModules(): array|bool
+    public static function getAutoUpdateModules (): array|bool
     {
         $update = CoreSettingsController::getSettingsValue(CoreSettingsController::Updates_AutoUpdateModules, env('AUTO_UPDATE_MODULES', 'NULL'));
         return self::handleAutoUpdateReturn($update);
     }
 
-    public static function isActivateEventStreamMessage(): bool
+    public static function isActivateEventStreamMessage (): bool
     {
         return env('ACTIVATE_EVENT_STREAM_MESSAGE') === '1';
     }
 
-    private static function handleAutoUpdateReturn($update): array|bool
+    private static function handleAutoUpdateReturn ($update): array|bool
     {
         if ($update === '0') {
             return false;
@@ -548,7 +553,7 @@ class AppConfig
      * @return array|mixed
      * @throws Exception
      */
-    public static function getAppUpdatesObject(): mixed
+    public static function getAppUpdatesObject (): mixed
     {
         $globalTable = Tables::getTable(Tables::GLOBAL);
         $updates = db(true)->row("SELECT * FROM $globalTable WHERE `key` = 'updates'");
@@ -561,47 +566,47 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getAppUrl(): string
+    public static function getAppUrl (): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppURL, env('APP_URL'));
     }
 
-    public static function getAppUrlPort(): string
+    public static function getAppUrlPort (): string
     {
         return env('APP_URL_PORT');
     }
 
-    public static function getAssetUrl(): string
+    public static function getAssetUrl (): string
     {
         return env('ASSET_URL', '');
     }
 
-    public static function getKey(): string
+    public static function getKey (): string
     {
         return env('APP_KEY', '');
     }
 
-    public static function getModulesPath(): string
+    public static function getModulesPath (): string
     {
         return APP_ROOT . '/src/Modules';
     }
 
-    public static function getComposerPath(): string
+    public static function getComposerPath (): string
     {
         return APP_ROOT . '/src/Modules/Core/Library/Composer';
     }
 
-    public static function getAppsPath(): string
+    public static function getAppsPath (): string
     {
         return APP_ROOT . '/src/Apps';
     }
 
-    public static function getBinPath(): string
+    public static function getBinPath (): string
     {
         return APP_ROOT . '/bin';
     }
 
-    public static function getBinRestartServiceJSONFile(): string
+    public static function getBinRestartServiceJSONFile (): string
     {
         return APP_ROOT . '/bin/restart_service.json';
     }
@@ -614,16 +619,19 @@ class AppConfig
      * @return void
      * @throws Exception
      */
-    public static function updateRestartService(): void
+    public static function updateRestartService (): void
     {
-        if (helper()->isFile(AppConfig::getBinRestartServiceJSONFile())){
+        if (helper()->isFile(AppConfig::getBinRestartServiceJSONFile())) {
             $json = file_get_contents(AppConfig::getBinRestartServiceJSONFile());
-            if (helper()->isJSON($json)){
+            if (helper()->isJSON($json)) {
                 $json = json_decode($json);
-                if (isset($json->timestamp)){
+                if (isset($json->timestamp)) {
                     $json->timestamp = time();
                 }
-                @file_put_contents(AppConfig::getBinRestartServiceJSONFile(), json_encode($json));
+                $result = @file_put_contents(AppConfig::getBinRestartServiceJSONFile(), json_encode($json));
+                if ($result === false) {
+                    throw new Exception("An Error Occurred Updating Restart Service, This is Likely a Permission Error");
+                }
             }
         }
 
@@ -634,14 +642,14 @@ class AppConfig
      * @throws Exception
      * @throws \Throwable
      */
-    public static function addUpdateMigrationsJob(): void
+    public static function addUpdateMigrationsJob (): void
     {
         $updateMigration = new UpdateMigrations();
         $updateMigration->setJobName('UpdateMigrations');
         job()->enqueue($updateMigration);
     }
 
-    public static function getAppAsset(string $appName, string $path): string
+    public static function getAppAsset (string $appName, string $path): string
     {
         return DriveConfig::serveAppFilePath() . "$appName/?path=$path";
     }
@@ -649,19 +657,20 @@ class AppConfig
     /**
      * @param string $moduleName
      * @param string $path
+     *
      * @return string
      */
-    public static function getModuleAsset(string $moduleName, string $path): string
+    public static function getModuleAsset (string $moduleName, string $path): string
     {
         return DriveConfig::serveModuleFilePath() . "$moduleName/?path=$path";
     }
 
-    public static function getTranslationsPath(): string
+    public static function getTranslationsPath (): string
     {
         return APP_ROOT . '/src/Translations';
     }
 
-    public static function getAppRoot(): string
+    public static function getAppRoot (): string
     {
         return APP_ROOT;
     }
@@ -670,7 +679,7 @@ class AppConfig
      * Know when to use this
      * @return string
      */
-    public static function getPublicPath(): string
+    public static function getPublicPath (): string
     {
         return self::getAppRoot() . DIRECTORY_SEPARATOR . 'public';
     }
@@ -679,7 +688,7 @@ class AppConfig
      * Assets path for plugins or themes
      * @return string
      */
-    public static function getThemeAssetPath(): string
+    public static function getThemeAssetPath (): string
     {
         return self::getAppRoot() . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'themes';
     }
@@ -687,7 +696,7 @@ class AppConfig
     /**
      * Include entry-point helpers
      */
-    public static function includeHelpers(): void
+    public static function includeHelpers (): void
     {
         require AppConfig::getAppRoot() . '/src/Modules/Core/Boot/Helpers/all-helpers.php';
     }
@@ -695,18 +704,18 @@ class AppConfig
     /**
      * Include entry-point helpers
      */
-    public static function getEnvFilePath(): string
+    public static function getEnvFilePath (): string
     {
         return APP_ROOT . DIRECTORY_SEPARATOR . '.env';
     }
 
-    public static function isInternalModuleNameSpace(string $class): bool
+    public static function isInternalModuleNameSpace (string $class): bool
     {
         $moduleNameSpace = 'App\Modules';
         return str_starts_with($class, $moduleNameSpace);
     }
 
-    public static function isAppNameSpace(string|object $object_or_class): bool
+    public static function isAppNameSpace (string|object $object_or_class): bool
     {
         if (is_object($object_or_class)) {
             $object_or_class = $object_or_class::class;

@@ -40,6 +40,7 @@ use App\Apps\TonicsCloud\EventHandlers\Fields\PricingTable;
 use App\Apps\TonicsCloud\EventHandlers\Fields\Sanitization\RenderTonicsCloudDefaultContainerVariablesStringSanitization;
 use App\Apps\TonicsCloud\EventHandlers\HandleDataTableTemplate;
 use App\Apps\TonicsCloud\EventHandlers\JobQueueTransporter\DatabaseCloudJobQueueTransporter;
+use App\Apps\TonicsCloud\EventHandlers\TonicsCloudPermissionRole;
 use App\Apps\TonicsCloud\Events\OnAddCloudAutomationEvent;
 use App\Apps\TonicsCloud\Events\OnAddCloudDNSEvent;
 use App\Apps\TonicsCloud\Events\OnAddCloudJobClassEvent;
@@ -54,6 +55,7 @@ use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Commands\OnStartUpCLI;
 use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Events\OnAddConsoleCommand;
+use App\Modules\Core\Events\OnAddRole;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Field\Data\FieldData;
@@ -259,6 +261,9 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
                 TonicsContainerStandaloneStaticSiteAutomation::class,
                 TonicsContainerMultipleStaticSitesAutomation::class,
             ],
+            OnAddRole::class                         => [
+                TonicsCloudPermissionRole::class,
+            ],
         ];
     }
 
@@ -288,6 +293,54 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function onInstall (): void
+    {
+        $this->fieldData->importFieldItems($this->fieldItems());
+    }
+
+    public function onUninstall (): void
+    {
+        return;
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public function onUpdate (): void
+    {
+        $this->fieldData->importFieldItems($this->fieldItems());
+        self::UpdateCloudImages();
+    }
+
+    public function onDelete (): void {}
+
+    /**
+     * @throws \Throwable
+     */
+    public function info (): array
+    {
+        return [
+            "name"                 => "TonicsCloud",
+            "type"                 => "App", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version"              => '1-O-app.1716115700',
+            "description"          => "This is TonicsCloud",
+            "info_url"             => '',
+            "settings_page"        => route('tonicsCloud.settings'), // can be null or a route name
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_cloud/releases/latest",
+            "authors"              => [
+                "name"  => "Your Name",
+                "email" => "name@website.com",
+                "role"  => "Developer",
+            ],
+            "credits"              => [],
+        ];
+    }
+
     public static function getTable (string $tableName): string
     {
         if (!key_exists($tableName, self::$TABLES)) {
@@ -295,14 +348,6 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
         }
 
         return DatabaseConfig::getPrefix() . $tableName;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function onInstall (): void
-    {
-        $this->fieldData->importFieldItems($this->fieldItems());
     }
 
     public function fieldItems (): array
@@ -1399,21 +1444,6 @@ JSON;
         return json_decode($json);
     }
 
-    public function onUninstall (): void
-    {
-        return;
-    }
-
-    /**
-     * @return void
-     * @throws \Exception
-     */
-    public function onUpdate (): void
-    {
-        $this->fieldData->importFieldItems($this->fieldItems());
-        self::UpdateCloudImages();
-    }
-
     /**
      * @return void
      * @throws \Exception
@@ -1432,30 +1462,5 @@ JSON;
 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
 IMAGES;
         return unserialize(gzuncompress(base64_decode($images)));
-    }
-
-    public function onDelete (): void {}
-
-    /**
-     * @throws \Throwable
-     */
-    public function info (): array
-    {
-        return [
-            "name"                 => "TonicsCloud",
-            "type"                 => "App", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1716115700',
-            "description"          => "This is TonicsCloud",
-            "info_url"             => '',
-            "settings_page"        => route('tonicsCloud.settings'), // can be null or a route name
-            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_cloud/releases/latest",
-            "authors"              => [
-                "name"  => "Your Name",
-                "email" => "name@website.com",
-                "role"  => "Developer",
-            ],
-            "credits"              => [],
-        ];
     }
 }
