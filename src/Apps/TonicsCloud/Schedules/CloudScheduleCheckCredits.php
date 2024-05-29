@@ -33,11 +33,14 @@ class CloudScheduleCheckCredits extends AbstractSchedulerInterface implements Sc
 {
     use ConsoleColor;
 
-    public function __construct()
+    /**
+     * @throws \Exception
+     */
+    public function __construct ()
     {
         $this->setName('TonicsCloud_ScheduleCheckCredits');
         $this->setPriority(Scheduler::PRIORITY_LOW);
-        $this->setEvery(Scheduler::everyMinute(1));
+        $this->setEveryTimeToSchedule();
     }
 
     /**
@@ -45,49 +48,48 @@ class CloudScheduleCheckCredits extends AbstractSchedulerInterface implements Sc
      * @throws \Exception
      * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
         if (TonicsCloudSettingsController::billingEnabled() === false) {
-            $this->setEvery(Scheduler::everyDay(30)); # Delay it for extreme days
+            $this->setEveryTimeToSchedule();
             return;
         }
 
-        db(onGetDB: function (TonicsQuery $db){
+        db(onGetDB: function (TonicsQuery $db) {
             $db->beginTransaction();
 
             $helper = helper();
             $creditsTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CREDITS);
             $credits = $db->run("SELECT * FROM $creditsTable WHERE last_checked < NOW() - INTERVAL 1 HOUR LIMIT 100;");
 
-            foreach ($credits as $credit){
+            foreach ($credits as $credit) {
                 $updates = ['last_checked' => $helper->date()];
                 $remainingCredit = BillingController::RemainingCredit($credit->fk_customer_id);
 
-                if ($helper->moneyLessThan($remainingCredit, 0)){
+                if ($helper->moneyLessThan($remainingCredit, 0)) {
                     # Terminate Server(s) Immediately
                     InstanceController::TerminateInstances(InstanceController::GetServiceInstances(['user_id' => $credit->fk_customer_id, 'fetch_all' => true]));
                     $updates['last_checked'] = null;
-                }
-                # Warn User About Low Credit
-                elseif ($helper->moneyLessThan($remainingCredit, TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::NotifyIfCreditBalanceIsLessThan))){
+                } # Warn User About Low Credit
+                elseif ($helper->moneyLessThan($remainingCredit, TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::NotifyIfCreditBalanceIsLessThan))) {
                     $credit->others = json_decode($credit->others);
                     $updates['others'] = json_encode(['sent_time' => $helper->date()]);
                     $instance = InstanceController::GetServiceInstances(['user_id' => $credit->fk_customer_id]);
                     $jobData = [
                         'RemainingCredit' => $remainingCredit,
-                        'Email' => $instance->email,
+                        'Email'           => $instance->email,
                     ];
                     $jobs = [
                         [
                             'job' => new CloudJobBillingLowCreditNotification(),
-                        ]
+                        ],
                     ];
 
                     # If sent_time is not set then notification has never been sent before
-                    if (!isset($credit->others->sent_time)){
+                    if (!isset($credit->others->sent_time)) {
                         TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
                     } else {
-                        $currentDate = new \DateTime(); # Current date and time
+                        $currentDate = new \DateTime();                          # Current date and time
                         $targetDate = new \DateTime($credit->others->sent_time); # Given date and time
 
                         # Add 24 hours to the given date
@@ -105,6 +107,19 @@ class CloudScheduleCheckCredits extends AbstractSchedulerInterface implements Sc
 
             $db->commit();
         });
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    private function setEveryTimeToSchedule (): void
+    {
+        if (TonicsCloudSettingsController::billingEnabled() === false) {
+            $this->setEvery(Scheduler::everyDay(30)); # Delay it for extreme days
+        } else {
+            $this->setEvery(Scheduler::everyMinute(1));
+        }
     }
 
 }
