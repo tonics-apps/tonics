@@ -31,9 +31,9 @@ class TonicsCloudAccess implements TonicsRouterRequestInterceptorInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handle(OnRequestProcess $request): void
+    public function handle (OnRequestProcess $request): void
     {
-        if (UserData::canAccess(TonicsCloudActivator::CAN_ACCESS_TONICS_CLOUD) === false){
+        if (UserData::canAccess(TonicsCloudActivator::CAN_ACCESS_TONICS_CLOUD) === false) {
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }
