@@ -23,13 +23,15 @@ use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class CreateRolePermissions_2023_05_07_220421 extends Migration {
+class CreateRolePermissions_2023_05_07_220421 extends Migration
+{
 
     /**
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function up()
+    public function up ()
     {
         $roleTable = Tables::getTable(Tables::ROLES);
         $permissionTable = Tables::getTable(Tables::PERMISSIONS);
@@ -55,12 +57,12 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     /**
      * @throws \Exception
      */
-    public function down(): void
+    public function down (): void
     {
         $this->dropTable($this->tableName());
     }
 
-    private function tableName(): string
+    private function tableName (): string
     {
         return Tables::getTable(Tables::ROLE_PERMISSIONS);
     }

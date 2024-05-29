@@ -23,14 +23,16 @@ use App\Modules\Core\Library\Migration;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class CreatePermissions_2023_05_07_220417 extends Migration {
+class CreatePermissions_2023_05_07_220417 extends Migration
+{
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function up()
+    public function up ()
     {
-        db(onGetDB: function (TonicsQuery $db){
+        db(onGetDB: function (TonicsQuery $db) {
             $db->run("
 CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     permission_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -50,12 +52,12 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     /**
      * @throws \Exception
      */
-    public function down()
+    public function down ()
     {
         $this->dropTable($this->tableName());
     }
 
-    private function tableName(): string
+    private function tableName (): string
     {
         return Tables::getTable(Tables::PERMISSIONS);
     }
