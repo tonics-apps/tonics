@@ -101,7 +101,7 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler implem
                 $scheduleClass = $scheduleData->class ?? $scheduleData;
                 if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])) {
                     /** @var ScheduleHandlerInterface|AbstractSchedulerInterface $scheduleObject */
-                    $scheduleObject = new $scheduleClass;
+                    $scheduleObject = container()->get($scheduleClass);
                     $scheduleObject->setName($schedule->schedule_name);
                     $scheduleObject->setData($scheduleData->data ?? []);
                     if (isset($schedule->_children)) {
@@ -239,6 +239,7 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler implem
      * @param AbstractSchedulerInterface|null $parent
      *
      * @return void
+     * @throws \Exception
      */
     public function recursivelyCollateScheduleObject ($schedules, AbstractSchedulerInterface $parent = null): void
     {
@@ -246,7 +247,7 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler implem
             $scheduleData = json_decode($schedule->schedule_data);
             $scheduleClass = $scheduleData->class ?? $scheduleData;
             if ($this->helper->classImplements($scheduleClass, [ScheduleHandlerInterface::class])) {
-                $scheduleObject = new $scheduleClass;
+                $scheduleObject = container()->get($scheduleClass);
                 $scheduleObject->setName($schedule->schedule_name);
                 /** @var $scheduleObject AbstractSchedulerInterface */
                 $scheduleObject->setParentObject($parent);

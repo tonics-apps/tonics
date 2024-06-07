@@ -182,7 +182,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
         return [
             "name"                 => "Core",
             "type"                 => "Module",
-            "slug_id"              => "e0a88808-1966-11ef-8fd8-00155d5e0e4f",
+            // "slug_id"              => "e0a88808-1966-11ef-8fd8-00155d5e0e4f",
             // the first portion is the version number, the second is the code name and the last is the timestamp
             "version"              => '1-O-Ola.1715951400',
             "stable"               => 0,

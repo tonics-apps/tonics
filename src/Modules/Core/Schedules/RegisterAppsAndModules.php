@@ -46,35 +46,38 @@ class RegisterAppsAndModules extends AbstractSchedulerInterface implements Sched
             ...helper()->getAppsActivator([ExtensionConfig::class], helper()->getAllModulesDirectory(), false),
         ];
 
+        $appSlugs = [];
+        /** @var ExtensionConfig $activator */
+        foreach ($apps as $app) {
+            if (isset($app->info()['slug_id'])) {
+                $appSlugs[] = $app->info()['slug_id'];
+            }
+        }
+
         # We register apps little by little to reduce the load on the Tonics App Store ;)
         # For stubborn user that might want to do things manually, there is a restriction on the Tonics App Store end as well, it takes what it deems acceptable and discard the rest
-        $appChunks = array_chunk($apps, 15);
+        $appChunks = array_chunk($appSlugs, 15);
         $totalAppChunksCount = count($appChunks);
         // loop through each chunk and save it to a separate file
         for ($i = 0; $i < $totalAppChunksCount; $i++) {
-            $appActivators = $appChunks[$i];
-            $appSlugs = [];
-
-            /** @var ExtensionConfig $activator */
-            foreach ($appActivators as $activator) {
-
-                if (isset($activator->info()['slug_id'])) {
-                    $appSlugs[] = $activator->info()['slug_id'];
-                }
-
-                $this->appInstallationService->setAppSlug($appSlugs);
+            $appSlugsChunk = $appChunks[$i];
+            if (!empty($appSlugsChunk)) {
+                $this->appInstallationService->setAppSlug($appSlugsChunk);
                 $this->appInstallationService->registerApps();
+                $registeringBatchNumber = $i + 1;
                 if (!$this->appInstallationService->fails()) {
-                    $this->infoMessage("Registering [$i]/$totalAppChunksCount Batches of App - Sleeping Before Going Again");
+                    # This would register the site to an updated version of the app slugs if there is one, and it supports the PHP version
+                    $this->infoMessage("Registering [$registeringBatchNumber]/[$totalAppChunksCount] Batches of App - Sleeping 😴 Before Going Again");
                 } else {
                     $errorMessage = $this->appInstallationService->getErrorsAsString();
-                    $this->errorMessage("Failed To Register [$i]/$totalAppChunksCount Batches of App, Error: $errorMessage");
+                    $this->errorMessage("Failed To Register [$registeringBatchNumber]/[$totalAppChunksCount] Batches of App, Error: $errorMessage");
                 }
 
                 sleep(5);
             }
-
         }
+
+        $this->infoMessage("Ended App Registration, Hopefully It Went Well 😉");
 
 
     }
