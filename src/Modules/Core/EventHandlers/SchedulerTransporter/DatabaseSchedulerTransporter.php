@@ -27,45 +27,31 @@ use App\Modules\Core\Library\SchedulerSystem\SchedulerTransporterInterface;
 use App\Modules\Core\Library\Tables;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Throwable;
 
-class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  implements SchedulerTransporterInterface, HandlerInterface
+class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler implements SchedulerTransporterInterface, HandlerInterface
 {
     use ConsoleColor;
 
     private ?TonicsHelpers $helper = null;
 
-    public function name(): string
+    public function name (): string
     {
         return 'Database';
     }
 
-    public function handleEvent(object $event): void
-    {
-        /** @var $event OnAddSchedulerTransporter */
-        $event->addSchedulerTransporter($this);
-    }
-
-    public function getTable(): string
-    {
-        return Tables::getTable(Tables::SCHEDULER);
-    }
-
-    public function updateKeyOnUpdate(): array
-    {
-        return ['schedule_priority', 'schedule_parallel', 'schedule_data', 'schedule_every', 'schedule_ticks'];
-    }
-
     /**
      * @param AbstractSchedulerInterface $scheduleObject
+     *
      * @return void
      * @throws \Exception
      */
-    public function enqueue(AbstractSchedulerInterface $scheduleObject): void
+    public function enqueue (AbstractSchedulerInterface $scheduleObject): void
     {
 
         $inserts = $this->getToInsert($scheduleObject);
-        if ($scheduleObject->chainsEmpty() === false){
+        if ($scheduleObject->chainsEmpty() === false) {
             $inserts['schedule_parent_name'] = null;
             $inserts = [$inserts];
             /** @var AbstractSchedulerInterface $child */
@@ -76,42 +62,10 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
             }
         }
 
-        db(onGetDB: function ($db) use ($inserts) {
-            $db->insertOnDuplicate($this->getTable(), $inserts, $this->updateKeyOnUpdate());
+        db(onGetDB: function (TonicsQuery $db) use ($inserts) {
+            $db->insertOnDuplicate($this->getTable(), $inserts, $this->updateKeyOnUpdateForEnqueue());
         });
 
-    }
-
-    public function getToInsert(AbstractSchedulerInterface $scheduleObject): array
-    {
-        return [
-            'schedule_name' => $scheduleObject->getName(),
-            'schedule_priority' => $scheduleObject->getPriority(),
-            'schedule_parallel' => $scheduleObject->getParallel(),
-            // 'schedule_data' => json_encode(get_class($scheduleObject)),
-            'schedule_data' => json_encode([
-                'data' => $scheduleObject->getData(),
-                'class' => get_class($scheduleObject)]),
-            // when a scheduleObject has a parent,
-            // then schedule_every should be 0 since it is tied to a parent
-            // (it has no business in scheduling anything, it is directly called after parent)
-            'schedule_every' => (is_null($scheduleObject->getParentObject())) ? $scheduleObject->getEvery() : 0,
-        ];
-    }
-
-    /**
-     * @param AbstractSchedulerInterface $scheduleObject
-     * @return \Generator
-     */
-    public function recursivelyGetChildObject(AbstractSchedulerInterface $scheduleObject): \Generator
-    {
-        foreach ($scheduleObject->getChains() as $chain) {
-            /**@var AbstractSchedulerInterface $chain */
-            yield $chain;
-            if ($chain->chainsEmpty() === false) {
-                yield from $this->recursivelyGetChildObject($chain);
-            }
-        }
     }
 
     /**
@@ -131,11 +85,11 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
      *
      * @throws \Exception
      */
-    public function runSchedule(): void
+    public function runSchedule (): void
     {
         $this->helper = helper();
 
-        $this->run(function (){
+        $this->run(function () {
             $schedules = $this->getNextScheduledEvent();
             if (empty($schedules)) {
                 # While the schedule event is empty, we sleep for a 0.5, this reduces the CPU usage, thus giving the CPU the chance to do other things
@@ -173,17 +127,72 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
                             // handle the fork error here for the parent, this is because when a fork error occurs
                             // it propagates to the parent which abruptly stop the script execution
                             $this->errorMessage("Unable to Fork");
-                        }
+                        },
                     );
                 }
             }
         });
     }
 
+    public function handleEvent (object $event): void
+    {
+        /** @var $event OnAddSchedulerTransporter */
+        $event->addSchedulerTransporter($this);
+    }
+
+    public function getTable (): string
+    {
+        return Tables::getTable(Tables::SCHEDULER);
+    }
+
+    public function updateKeyOnUpdate (): array
+    {
+        return [...$this->updateKeyOnUpdateForEnqueue(), ...['schedule_ticks']];
+    }
+
+    public function updateKeyOnUpdateForEnqueue (): array
+    {
+        return ['schedule_priority', 'schedule_parallel', 'schedule_data', 'schedule_every'];
+    }
+
+    public function getToInsert (AbstractSchedulerInterface $scheduleObject): array
+    {
+        return [
+            'schedule_name'     => $scheduleObject->getName(),
+            'schedule_priority' => $scheduleObject->getPriority(),
+            'schedule_parallel' => $scheduleObject->getParallel(),
+            // 'schedule_data' => json_encode(get_class($scheduleObject)),
+            'schedule_data'     => json_encode([
+                'data'  => $scheduleObject->getData(),
+                'class' => get_class($scheduleObject),
+            ]),
+            // when a scheduleObject has a parent,
+            // then schedule_every should be 0 since it is tied to a parent
+            // (it has no business in scheduling anything, it is directly called after parent)
+            'schedule_every'    => (is_null($scheduleObject->getParentObject())) ? $scheduleObject->getEvery() : 0,
+        ];
+    }
+
+    /**
+     * @param AbstractSchedulerInterface $scheduleObject
+     *
+     * @return \Generator
+     */
+    public function recursivelyGetChildObject (AbstractSchedulerInterface $scheduleObject): \Generator
+    {
+        foreach ($scheduleObject->getChains() as $chain) {
+            /**@var AbstractSchedulerInterface $chain */
+            yield $chain;
+            if ($chain->chainsEmpty() === false) {
+                yield from $this->recursivelyGetChildObject($chain);
+            }
+        }
+    }
+
     /**
      * @throws \Exception
      */
-    public function getNextScheduledEvent(): array
+    public function getNextScheduledEvent (): array
     {
         $table = Tables::getTable(Tables::SCHEDULER);
 
@@ -212,10 +221,11 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
     /**
      * @param $schedule
      * @param $scheduleObject
+     *
      * @return void
      * @throws \Exception
      */
-    public function tick($schedule, $scheduleObject): void
+    public function tick ($schedule, $scheduleObject): void
     {
         $update = $this->getToInsert($scheduleObject);
         $update['schedule_ticks'] = $schedule->schedule_ticks + 1;
@@ -227,9 +237,10 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler  imple
     /**
      * @param $schedules
      * @param AbstractSchedulerInterface|null $parent
+     *
      * @return void
      */
-    public function recursivelyCollateScheduleObject($schedules, AbstractSchedulerInterface $parent = null): void
+    public function recursivelyCollateScheduleObject ($schedules, AbstractSchedulerInterface $parent = null): void
     {
         foreach ($schedules as $schedule) {
             $scheduleData = json_decode($schedule->schedule_data);
