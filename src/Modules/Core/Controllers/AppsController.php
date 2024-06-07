@@ -27,25 +27,25 @@ use App\Modules\Core\Data\AppsData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
+use App\Modules\Core\Services\AppInstallationService;
 use App\Modules\Core\States\AppsSystem;
 use App\Modules\Core\States\UpdateMechanismState;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
 use JetBrains\PhpStorm\NoReturn;
-use function GuzzleHttp\Psr7\str;
 
 class AppsController
 {
     use FileHelper;
 
-    private AppsData $appsData;
+    private AppsData   $appsData;
     private ?FieldData $fieldData;
 
     /**
      * @param AppsData $appsData
      * @param FieldData|null $fieldData
      */
-    public function __construct(AppsData $appsData, FieldData $fieldData = null)
+    public function __construct (AppsData $appsData, FieldData $fieldData = null)
     {
         $this->appsData = $appsData;
         $this->fieldData = $fieldData;
@@ -55,7 +55,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function index(): void
+    public function index (): void
     {
 
         $dataTableHeaders = [
@@ -69,13 +69,13 @@ class AppsController
 
         view('Modules::Core/Views/App/index', [
             'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => [
-                    'data' => $this->appsData->getAppList()
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => [
+                    'data' => $this->appsData->getAppList(),
                 ],
                 'dataTableType' => 'APPLICATION_VIEW',
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'   => AppConfig::getAppUrl(),
         ]);
 
     }
@@ -84,7 +84,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function dataTable(): void
+    public function dataTable (): void
     {
         helper()->updateActivateEventStreamMessage();
 
@@ -95,12 +95,12 @@ class AppsController
             })) {
             $deleteActivators = $this->getToDeletesActivators($entityBag);
             $error = "An Error Occurred Deleting App";
-            if (!empty($deleteActivators)){
+            if (!empty($deleteActivators)) {
                 $appSystem = new AppsSystem($deleteActivators);
                 $appSystem->setCurrentState(AppsSystem::OnAppDeleteState)->setMessageDebug(false);
                 $appSystem->runStates(false);
 
-                if ($appSystem->getStateResult() === SimpleState::DONE ){
+                if ($appSystem->getStateResult() === SimpleState::DONE) {
                     helper()->updateActivateEventStreamMessage(1);
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
                 } else {
@@ -117,12 +117,12 @@ class AppsController
             })) {
             $updateActivators = $this->getToUpdateActivators($entityBag);
             $error = "An Error Occurred Updating App";
-            if (!empty($updateActivators)){
+            if (!empty($updateActivators)) {
                 $appSystem = new AppsSystem($updateActivators);
                 $appSystem->setCurrentState(AppsSystem::OnAppUpdateState)->setMessageDebug(false);
                 $appSystem->runStates(false);
 
-                if ($appSystem->getStateResult() === SimpleState::DONE){
+                if ($appSystem->getStateResult() === SimpleState::DONE) {
                     helper()->updateActivateEventStreamMessage(1);
                     response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeAppUpdate);
                 } else {
@@ -136,20 +136,22 @@ class AppsController
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    private function getToDeletesActivators($entityBag): array
+    private function getToDeletesActivators ($entityBag): array
     {
         $activators = [];
         $deleteItems = $this->getAppsData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
         $apps = InitLoader::getAllApps();
-        foreach ($apps as  $app){
+        foreach ($apps as $app) {
             $classToString = $app::class;
             /** @var  $app ExtensionConfig */
             $name = (isset($app->info()['name'])) ? $app->info()['name'] : '';
-            foreach ($deleteItems as $item){
-                if (!isset($item->name)){ continue; }
-                if ($name === $item->name){
+            foreach ($deleteItems as $item) {
+                if (!isset($item->name)) {
+                    continue;
+                }
+                if ($name === $item->name) {
                     $activators[] = $classToString;
                 }
             }
@@ -160,42 +162,51 @@ class AppsController
 
     /**
      * @param $entityBag
+     *
      * @return array
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    private function getToUpdateActivators($entityBag): array
+    private function getToUpdateActivators ($entityBag): array
     {
         $activators = [];
         $updateItems = $this->getAppsData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveAppUpdateElements, $entityBag);
         $apps = InitLoader::getAllApps();
         $internal_modules = helper()->getModuleActivators([ExtensionConfig::class]);
-        foreach ($apps as  $app){
+        foreach ($apps as $app) {
             $classToString = $app::class;
             /** @var  $app ExtensionConfig */
             $name = (isset($app->info()['name'])) ? $app->info()['name'] : '';
-            foreach ($updateItems as $item){
-                if (!isset($item->name)){ continue; }
-                if (!isset($item->type)){ continue; }
-
-                if (strtoupper($item->type) === 'MODULE'){
+            foreach ($updateItems as $item) {
+                if (!isset($item->name)) {
+                    continue;
+                }
+                if (!isset($item->type)) {
                     continue;
                 }
 
-                if ($name === $item->name){
+                if (strtoupper($item->type) === 'MODULE') {
+                    continue;
+                }
+
+                if ($name === $item->name) {
                     $activators[] = $classToString;
                 }
             }
         }
 
-        foreach ($internal_modules as $module){
+        foreach ($internal_modules as $module) {
             $classToString = $module::class;
             /** @var  $module ExtensionConfig */
             $name = (isset($module->info()['name'])) ? $module->info()['name'] : '';
-            foreach ($updateItems as $item){
-                if (!isset($item->name)){ continue; }
-                if (!isset($item->type)){ continue; }
-                if (strtoupper($item->type) === 'MODULE'){
-                    if ($name === $item->name){
+            foreach ($updateItems as $item) {
+                if (!isset($item->name)) {
+                    continue;
+                }
+                if (!isset($item->type)) {
+                    continue;
+                }
+                if (strtoupper($item->type) === 'MODULE') {
+                    if ($name === $item->name) {
                         $activators[] = $classToString;
                     }
                 }
@@ -207,14 +218,14 @@ class AppsController
         # dependency, and besides, it should always be the latest version, this should be
         # replaced by a dependency graph which is not currently supported and might never will.
         #
-        if (!empty($activators)){
+        if (!empty($activators)) {
             $coreFound = false;
-            foreach ($activators as $activator){
-                if (CoreActivator::class === $activator){
+            foreach ($activators as $activator) {
+                if (CoreActivator::class === $activator) {
                     $coreFound = true;
                 }
             }
-            if (!$coreFound){
+            if (!$coreFound) {
                 $activators = [CoreActivator::class, ...$activators];
             }
         }
@@ -226,15 +237,15 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function install(): void
+    #[NoReturn] public function install (): void
     {
         $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
-        if (input()->fromPost()->has('activator')){
+        if (input()->fromPost()->has('activator')) {
             $appSystem->setCurrentState(AppsSystem::OnAppActivateState);
             $appSystem->runStates(false);
         }
 
-        if ($appSystem->getStateResult() !== SimpleState::DONE){
+        if ($appSystem->getStateResult() !== SimpleState::DONE) {
             session()->flash(['An Error Occurred Installing App'], []);
         }
 
@@ -245,15 +256,15 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function uninstall(): void
+    #[NoReturn] public function uninstall (): void
     {
         $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
-        if (input()->fromPost()->has('activator')){
+        if (input()->fromPost()->has('activator')) {
             $appSystem->setCurrentState(AppsSystem::OnAppDeActivateState);
             $appSystem->runStates(false);
         }
 
-        if ($appSystem->getStateResult() !== SimpleState::DONE){
+        if ($appSystem->getStateResult() !== SimpleState::DONE) {
             session()->flash(['An Error Occurred UnInstalling App: Go Back'], []);
         }
 
@@ -264,7 +275,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function discover_updates(): void
+    #[NoReturn] public function discover_updates (): void
     {
         InitLoader::setEventStreamAsHTML(true);
         $updateMechanismState = new UpdateMechanismState(types: ['module', 'app'], discoveredFrom: UpdateMechanismState::DiscoveredFromBrowser);
@@ -272,24 +283,24 @@ class AppsController
         $updateMechanismState->runStates(false);
         InitLoader::setEventStreamAsHTML(false);
         $url = route('apps.index');
-        if ($updateMechanismState->getStateResult() === SimpleState::DONE){
+        if ($updateMechanismState->getStateResult() === SimpleState::DONE) {
             $this->appsData->handleAppRedirection($url, 'Update Check Done: Go Back');
         }
         $this->appsData->handleAppRedirection($url, 'An Error Occurred While Checking For App Updates: Go Back');
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function uploadForm(): void
+    public function uploadForm (): void
     {
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
-            ['upload-app-page']
+            ['upload-app-page'],
         )->getHTMLFrag();
 
         view('Modules::Core/Views/App/app_upload', [
-                'FieldItems' => $fieldItems,
-            ]
+            'FieldItems' => $fieldItems,
+        ],
         );
     }
 
@@ -297,43 +308,50 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function upload(): void
+    #[NoReturn] public function upload (): void
     {
+        $success = false;
         $url = route('apps.index');
         $message = 'An Error Occurred While Uploading App';
-        if (input()->fromPost()->hasValue('plugin_url')){
+        if (input()->fromPost()->hasValue('plugin_url')) {
             $pluginURL = input()->fromPost()->retrieve('plugin_url');
-            if (parse_url($pluginURL, PHP_URL_HOST) === null){
-                $pluginURL = AppConfig::getAppUrl() . input()->fromPost()->retrieve('plugin_url');
-            }
+            $signatureHash = input()->fromPost()->retrieve('signature_hash');
             InitLoader::setEventStreamAsHTML(true);
             helper()->addEventStreamHeader(1000000, 'text/html');
 
             try {
                 $appSystem = new AppsSystem();
-                $appSystem->setPluginURL($pluginURL);
+                $appSystem->setPluginURL($pluginURL)->setPluginSignatureHash($signatureHash)->setAppInstallationService(container()->get(AppInstallationService::class));
                 $appSystem->setCurrentState(AppsSystem::OnAppUploadState);
                 $appSystem->runStates(false);
                 InitLoader::setEventStreamAsHTML(false);
-                if ($appSystem->getStateResult() === SimpleState::DONE){
+                if ($appSystem->getStateResult() === SimpleState::DONE) {
                     $message = $appSystem->getSucessMessage();
+                    $success = true;
                     session()->flash([$message], type: Session::SessionCategories_FlashMessageSuccess);
                 } else {
-                    $message = $message . ': Go Back';
+                    $message = $appSystem->getErrorMessage() . ': Go Back';
                 }
-            }catch (\Throwable $exception){
+            } catch (\Throwable $exception) {
+                $message = $exception->getMessage() . ': Go Back';
                 // Log..
             }
 
         }
-        session()->flash([$message]);
+
+        if ($success) {
+            session()->flash([$message], type: Session::SessionCategories_FlashMessageSuccess);
+        } else {
+            session()->flash([$message]);
+        }
+
         $this->appsData->handleAppRedirection($url, $message);
     }
 
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function serveAppAsset(string $appName): void
+    #[NoReturn] public function serveAppAsset (string $appName): void
     {
         $this->serve(DriveConfig::xAccelAppFilePath(), AppConfig::getAppsPath(), $appName);
     }
@@ -341,7 +359,7 @@ class AppsController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function serveModuleAsset(string $moduleName): void
+    #[NoReturn] public function serveModuleAsset (string $moduleName): void
     {
         $this->serve(DriveConfig::xAccelModuleFilePath(), AppConfig::getModulesPath(), $moduleName);
     }
@@ -350,13 +368,14 @@ class AppsController
      * @param string $xAccelPath
      * @param string $appModulesPath
      * @param string $moduleAppName
+     *
      * @return void
      * @throws \Exception
      */
-    #[NoReturn] protected function serve(string $xAccelPath, string $appModulesPath, string $moduleAppName): void
+    #[NoReturn] protected function serve (string $xAccelPath, string $appModulesPath, string $moduleAppName): void
     {
         $requestPath = @trim(request()->getParam('path'), '/');
-        if (empty($requestPath)){
+        if (empty($requestPath)) {
             die("Resource Doesn't Exist");
         }
 
@@ -366,7 +385,7 @@ class AppsController
         $requestPath = $this->normalizePathname($requestPath);
         $path = $appModulesPath . "/$moduleAppName/Assets/" . $requestPath;
         $ext = helper()->extension($path);
-        if (!helper()->fileExists($path)){
+        if (!helper()->fileExists($path)) {
             die("Resource Doesn't Exist");
         }
 
@@ -385,10 +404,11 @@ class AppsController
      * Normalizes the given pathname by removing control characters and other invalid characters.
      *
      * @param string $string The pathname to normalize.
+     *
      * @return string The normalized pathname.
      * @throws \Exception
      */
-    private function normalizePathname(string $string): string
+    private function normalizePathname (string $string): string
     {
         // the preg_replace change multiple slashes to one
         $string = preg_replace("#//+#", "\\1/", $string);
@@ -397,9 +417,10 @@ class AppsController
         $controlChar = range(chr(0), chr(31));
         $controlChar[] = chr(127);
         $invalidChars = [
-            '?', '[', ']', '\\',  '=', '<', '>', ':', ';', ',', "'",
+            '?', '[', ']', '\\', '=', '<', '>', ':', ';', ',', "'",
             '"', '&', '$', '#', '*', '(', ')', '|', '~', '`', '!',
-            '{', '}', '%', '+', '’', '«', '»', '”', '“', ...$controlChar];
+            '{', '}', '%', '+', '’', '«', '»', '”', '“', ...$controlChar,
+        ];
 
         // Remove control characters and other invalid characters
         return str_ireplace($invalidChars, '', $string);
@@ -409,7 +430,7 @@ class AppsController
     /**
      * @return AppsData
      */
-    public function getAppsData(): AppsData
+    public function getAppsData (): AppsData
     {
         return $this->appsData;
     }
@@ -417,7 +438,7 @@ class AppsController
     /**
      * @return FieldData|null
      */
-    public function getFieldData(): ?FieldData
+    public function getFieldData (): ?FieldData
     {
         return $this->fieldData;
     }

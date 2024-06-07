@@ -29,22 +29,23 @@ use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 class SetEnvironmentalKey extends EnvironmentalAbstract implements ConsoleCommand
 {
 
-    public function required(): array
+    public function required (): array
     {
         return [
             "--set:environmental",
-            "--key"
+            "--key",
         ];
     }
 
     /**
      * @param array $commandOptions
+     *
      * @throws \Exception
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
         # Update key would aid developer to identify premium users if developers are providing premium extensions
-        if ($this->setEnvironmentValue('APP_KEY', helper()->randString()) && $this->setEnvironmentValue('UPDATE_KEY', helper()->randString())){
+        if ($this->setEnvironmentValue('APP_KEY', helper()->randString()) && $this->setEnvironmentValue('SITE_KEY', helper()->randString())) {
             $this->successMessage("App Key Added");
         } else {
             $this->errorMessage("Failed To Add Environmental Key");
