@@ -218,6 +218,19 @@ final class Roles
     }
 
     /**
+     * This should be called when you want to apply changes to roles or permission for user, e.g
+     * on new installation or when plugin is updated, and it has some new permissions
+     * @return void
+     * @throws \Throwable
+     */
+    public static function REFRESH_ROLES_AND_PERMISSIONS (): void
+    {
+        self::UPDATE_DEFAULT_ROLES();
+        self::UPDATE_DEFAULT_PERMISSIONS();
+        self::UPDATE_DEFAULT_ROLES_PERMISSIONS();
+    }
+
+    /**
      * Call this method if you want to add a new role
      * @return void
      * @throws \Exception|\Throwable
@@ -238,6 +251,8 @@ final class Roles
     }
 
     /**
+     * Call this when you want to register a new permission
+     *
      * @param array $defaultPermissions
      *
      * @return void
@@ -283,7 +298,6 @@ final class Roles
                     ->WhereIn('permission_name', $permissionNames)
                     ->FetchResult();
             };
-
             $ROLES_PERMISSIONS = $onAddRole->getRoleToPermissions();
 
             foreach ($ROLES_PERMISSIONS as $ROLE => $PERMISSION) {

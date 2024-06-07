@@ -58,6 +58,7 @@ use App\Modules\Core\Events\OnAddConsoleCommand;
 use App\Modules\Core\Events\OnAddRole;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
+use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnAddFieldSanitization;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -295,9 +296,11 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function onInstall (): void
     {
+        Roles::REFRESH_ROLES_AND_PERMISSIONS();
         $this->fieldData->importFieldItems($this->fieldItems());
     }
 
@@ -1388,7 +1391,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_name": "input_text",
 		"field_id": 3,
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[\"TonicsCloudRenderDefaultContainerVariables\"],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4s86dq48s9s0000000000\",\"field_input_name\":\"env_content\",\"fieldName\":\"ENV Content\",\"inputName\":\"env_content\",\"textType\":\"textarea\",\"defaultValue\":\"APP_NAME=Tonics\\nAPP_ENV=production\\nAPP_URL_PORT=443\\nAPP_URL=https://[[ACME_DOMAIN]]\\nAPP_TIME_ZONE=Africa/Lagos\\nAPP_LANGUAGE=0\\nAPP_LOG_404=1\\nAPP_PAGINATION_MAX_LIMIT=20\\nAPP_STARTUP_CLI_FORK_LIMIT=1\\n\\nJOB_TRANSPORTER=DATABASE\\nSCHEDULE_TRANSPORTER=DATABASE\\n\\nINSTALL_KEY=[[RAND_STRING]]\\nAPP_KEY=[[RAND_STRING]]\\nUPDATE_KEY=[[RAND_STRING]]\\n\\nMAINTENANCE_MODE=0\\nAUTO_UPDATE_MODULES=1\\nAUTO_UPDATE_APPS=1\\n\\nACTIVATE_EVENT_STREAM_MESSAGE=1\\n\\nDB_CONNECTION=mysql\\nDB_HOST=[[DB_HOST]]\\nDB_PORT=3306\\nDB_DATABASE=[[DB_DATABASE]]\\nDB_USERNAME=[[DB_USER]]\\nDB_PASSWORD=[[DB_PASS]]\\nDB_CHARSET=utf8mb4\\nDB_ENGINE=InnoDB\\nDB_PREFIX=tonics_\\n\\nMAIL_MAILER=smtp\\nMAIL_HOST=mail.domain.com\\nMAIL_PORT=587\\nMAIL_USERNAME=user\\nMAIL_PASSWORD=password\\nMAIL_ENCRYPTION=tls\\nMAIL_FROM_ADDRESS=user@mail.domain.com\\nMAIL_REPLY_TO=user@mail.domain.com\\n\\nDROPBOX_KEY=xxx\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:500px;\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[\"TonicsCloudRenderDefaultContainerVariables\"],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4s86dq48s9s0000000000\",\"field_input_name\":\"env_content\",\"fieldName\":\"ENV Content\",\"inputName\":\"env_content\",\"textType\":\"textarea\",\"defaultValue\":\"APP_NAME=Tonics\\nAPP_ENV=production\\nAPP_URL_PORT=443\\nAPP_URL=https://[[ACME_DOMAIN]]\\nAPP_TIME_ZONE=Africa/Lagos\\nAPP_LANGUAGE=0\\nAPP_LOG_404=1\\nAPP_PAGINATION_MAX_LIMIT=20\\nAPP_STARTUP_CLI_FORK_LIMIT=1\\n\\nJOB_TRANSPORTER=DATABASE\\nSCHEDULE_TRANSPORTER=DATABASE\\n\\nINSTALL_KEY=[[RAND_STRING]]\\nAPP_KEY=[[RAND_STRING]]\\nSITE_KEY=[[RAND_STRING]]\\n\\nMAINTENANCE_MODE=0\\nAUTO_UPDATE_MODULES=1\\nAUTO_UPDATE_APPS=1\\n\\nACTIVATE_EVENT_STREAM_MESSAGE=1\\n\\nDB_CONNECTION=mysql\\nDB_HOST=[[DB_HOST]]\\nDB_PORT=3306\\nDB_DATABASE=[[DB_DATABASE]]\\nDB_USERNAME=[[DB_USER]]\\nDB_PASSWORD=[[DB_PASS]]\\nDB_CHARSET=utf8mb4\\nDB_ENGINE=InnoDB\\nDB_PREFIX=tonics_\\n\\nMAIL_MAILER=smtp\\nMAIL_HOST=mail.domain.com\\nMAIL_PORT=587\\nMAIL_USERNAME=user\\nMAIL_PASSWORD=password\\nMAIL_ENCRYPTION=tls\\nMAIL_FROM_ADDRESS=user@mail.domain.com\\nMAIL_REPLY_TO=user@mail.domain.com\\n\\nDROPBOX_KEY=xxx\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:500px;\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud Automation »» [Standalone Static Site]",
