@@ -30,7 +30,9 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
 /**
  * In future version, we can add support for forcing precedence using square bracket,
  *
- * e.g: `e[500/[10 + 2] * 3 * 3 * 3]`
+ * ```
+ * e.g: e[500/[10 + 2] * 3 * 3 * 3]
+ *```
  *
  * or
  *
@@ -43,20 +45,20 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
 class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
 
-    public function validate(OnTagToken $tagToken): bool
+    public function validate (OnTagToken $tagToken): bool
     {
         $view = $this->getTonicsView();
         return $view->validateMaxArg($tagToken->getArg(), 'if');
     }
 
-    public function stickToContent(OnTagToken $tagToken)
+    public function stickToContent (OnTagToken $tagToken)
     {
-        $view =  $this->getTonicsView();
+        $view = $this->getTonicsView();
         $result = $this->handleConditionalTokenization($tagToken->getTag());
         $view->getContent()->addToContent('if', $tagToken->getContent(), $result);
     }
 
-    public function error(): string
+    public function error (): string
     {
         return '';
     }
@@ -65,15 +67,16 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
      * @param string $content
      * @param array $args
      * @param array $nodes
+     *
      * @return string
      */
-    public function render(string $content, array $args, array $nodes = []): string
+    public function render (string $content, array $args, array $nodes = []): string
     {
 
-        /** @var $conditionalView TonicsView  */
-        /** @var $node Tag  */
-        /** @var $tag Tag  */
-        if (!isset($args['conditionalView'])){
+        /** @var $conditionalView TonicsView */
+        /** @var $node Tag */
+        /** @var $tag Tag */
+        if (!isset($args['conditionalView'])) {
             $result = $this->handleConditionalTokenization((new Tag())->setArgs($args)->setNodes($nodes));
             $conditionalView = $result['conditionalView'];
             $tag = $result['tag'];
@@ -91,7 +94,7 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
         $conditionalView->reset();
 
         $ifOutPut = '';
-        if ($conditionalView->getModeStorage('if')['result']){
+        if ($conditionalView->getModeStorage('if')['result']) {
             /*foreach ($tag->getChildrenRecursive($tag) as $node) {
                 $mode = $this->getTonicsView()->getModeRendererHandler($node->getTagName());
                 if ($mode instanceof TonicsModeRendererInterface) {
@@ -112,11 +115,11 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
         return $ifOutPut;
     }
 
-    public function setConditionalTokenizerState(): void
+    public function setConditionalTokenizerState (): void
     {
-        $view =  $this->getTonicsView();
+        $view = $this->getTonicsView();
         $storage = $view->getModeStorage('if');
-        if (!isset($storage['conditionalView'])){
+        if (!isset($storage['conditionalView'])) {
             $storage['conditionalView'] = $this->getNewConditionalView();
         }
 
@@ -125,9 +128,9 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
         $view->storeDataInModeStorage('if', $storage);
     }
 
-    public function getNewConditionalView(): TonicsView
+    public function getNewConditionalView (): TonicsView
     {
-        $view =  $this->getTonicsView();
+        $view = $this->getTonicsView();
         $newView = new TonicsView();
         $newView->setContent(new Content());
         $newView->setTemplateLoader($view->getTemplateLoader());
@@ -143,27 +146,29 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
      *
      * - tag: which is a Tag
      * - conditionalView: which is a TonicsView Instance of the conditionalStateImplementation
+     *
      * @param Tag $tagToken
+     *
      * @return array
      */
-    public function handleConditionalTokenization(Tag $tagToken): array
+    public function handleConditionalTokenization (Tag $tagToken): array
     {
         $this->setConditionalTokenizerState();
         $view = $this->getTonicsView();
-        /** @var $conditionalView TonicsView  */
+        /** @var $conditionalView TonicsView */
 
         $conditionalView = $view->getModeStorage('if')['conditionalView'];
         # For some weird reason we need to instantiate a new content everytime, otherwise we get a partial final output
         $conditionalView->setContent(new Content());
 
         # If conditionalView hasn't been tokenized
-        if (!isset($tagToken->getArgs()[0]['type'])){
+        if (!isset($tagToken->getArgs()[0]['type'])) {
             $conditionalView->reset()->splitStringCharByChar($tagToken->getArgs()[0]);
             $conditionalView->tokenize();
             $tagToken->setArgs($conditionalView->getLastOpenTag()->getArgs())->setContextFree(false);
-            foreach ($tagToken->getChildrenRecursive($tagToken, false) as $tag){
+            foreach ($tagToken->getChildrenRecursive($tagToken, false) as $tag) {
                 /** @var Tag $tag */
-                if ($tag->getTagName() === 'if'){
+                if ($tag->getTagName() === 'if') {
                     // $view->exception(TonicsTemplateRuntimeException::class, ["Nested If is not Supported"]);
                     // For Nested If or ElseIf, but it isn't supported for now and might never be
                     /*$newView = $this->getNewConditionalView();
@@ -181,8 +186,8 @@ class IfCondition extends TonicsTemplateViewAbstract implements TonicsModeInterf
         $storage['conditionalView'] = $conditionalView;
         $view->storeDataInModeStorage('if', $storage);
         return [
-            'tag' => $tagToken,
-            'conditionalView' => $conditionalView
+            'tag'             => $tagToken,
+            'conditionalView' => $conditionalView,
         ];
     }
 }

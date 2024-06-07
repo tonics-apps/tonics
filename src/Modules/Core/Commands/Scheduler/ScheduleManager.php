@@ -23,9 +23,9 @@ use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Schedules\AutoUpdates;
 use App\Modules\Core\Schedules\DiscoverUpdates;
 use App\Modules\Core\Schedules\PurgeOldSession;
+use App\Modules\Core\Schedules\RegisterAppsAndModules;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
-use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Throwable;
 
 /**
@@ -42,11 +42,11 @@ class ScheduleManager implements ConsoleCommand, HandlerInterface
 {
     use ConsoleColor;
 
-    public function required(): array
+    public function required (): array
     {
         return [
             "--run",
-            "--schedule"
+            "--schedule",
         ];
     }
 
@@ -54,7 +54,7 @@ class ScheduleManager implements ConsoleCommand, HandlerInterface
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
         $helper = helper();
         $this->coreSchedules();
@@ -66,19 +66,20 @@ class ScheduleManager implements ConsoleCommand, HandlerInterface
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function coreSchedules(): void
+    public function coreSchedules (): void
     {
         $coreScheduleEvents = container()->resolveMany([
+            RegisterAppsAndModules::class,
             PurgeOldSession::class,
             DiscoverUpdates::class,
             AutoUpdates::class,
         ]);
 
-        foreach ($coreScheduleEvents as $scheduleEvent){
+        foreach ($coreScheduleEvents as $scheduleEvent) {
             $this->infoMessage("Enqueuing {$scheduleEvent->getName()} in schedule");
             try {
                 schedule()->enqueue($scheduleEvent);
-            }catch (\Exception $exception){
+            } catch (\Exception $exception) {
                 $this->errorMessage("An error occurred while enqueuing schedule event");
                 $this->errorMessage($exception->getMessage());
             }
@@ -88,17 +89,17 @@ class ScheduleManager implements ConsoleCommand, HandlerInterface
     /**
      * @throws \Exception
      */
-    public function startWorkingSchedule()
+    public function startWorkingSchedule ()
     {
         try {
             schedule()->runSchedule();
-        }catch (Throwable $exception){ // catch most exception or error...
+        } catch (Throwable $exception) { // catch most exception or error...
             $this->errorMessage($exception->getMessage());
             $this->errorMessage($exception->getTraceAsString());
         }
     }
 
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnStartUpCLI */
         $event->addClass(get_class($this));

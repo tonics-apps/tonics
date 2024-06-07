@@ -27,16 +27,15 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class Tonics404HandlerController
 {
+    const TONICS404HANDLER_FIELD_SLUG = 'app-tonics404handler-settings';
     private AbstractDataLayer $dataLayer;
-    private ?FieldData $fieldData;
-
-    CONST TONICS404HANDLER_FIELD_SLUG = 'app-tonics404handler-settings';
+    private ?FieldData        $fieldData;
 
     /**
      * @param AbstractDataLayer $dataLayer
      * @param FieldData|null $fieldData
      */
-    public function __construct(AbstractDataLayer $dataLayer, FieldData $fieldData = null)
+    public function __construct (AbstractDataLayer $dataLayer, FieldData $fieldData = null)
     {
         $this->dataLayer = $dataLayer;
         $this->fieldData = $fieldData;
@@ -45,7 +44,7 @@ class Tonics404HandlerController
     /**
      * @throws \Exception
      */
-    public function index()
+    public function index ()
     {
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::BROKEN_LINKS . '::' . 'id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'id'],
@@ -57,7 +56,7 @@ class Tonics404HandlerController
         ];
 
         $data = null;
-        db(onGetDB: function (TonicsQuery $db) use (&$data){
+        db(onGetDB: function (TonicsQuery $db) use (&$data) {
             $table = Tables::getTable(Tables::BROKEN_LINKS);
             $data = $db->Select('*')
                 ->From($table)
@@ -76,20 +75,20 @@ class Tonics404HandlerController
         )->getHTMLFrag();
 
         view('Apps::Tonics404Handler/Views/index', [
-            'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' =>  $data ?? [],
+            'DataTable'  => [
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $data ?? [],
                 'dataTableType' => 'Tonics404Handler_VIEW',
             ],
             'FieldItems' => $fieldItems,
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'    => AppConfig::getAppUrl(),
         ]);
     }
 
     /**
      * @throws \Exception
      */
-    public function dataTable(): void
+    public function dataTable (): void
     {
         $entityBag = null;
         if ($this->getDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -113,24 +112,28 @@ class Tonics404HandlerController
         }
 
         # New Insert...
-        if (isset($_POST['_fieldDetails'])){
+        if (isset($_POST['_fieldDetails'])) {
             $fieldCategories = $this->getFieldData()
                 ->compareSortAndUpdateFieldItems(json_decode($_POST['_fieldDetails']));
-            if (isset($fieldCategories[self::TONICS404HANDLER_FIELD_SLUG])){
+            if (isset($fieldCategories[self::TONICS404HANDLER_FIELD_SLUG])) {
                 $fieldsItems = $fieldCategories[self::TONICS404HANDLER_FIELD_SLUG];
                 $toInsert = [];
                 $fromName = 'tonics404handler_404_url';
                 $redirectToName = 'tonics404handler_redirect_to';
-                foreach ($fieldsItems as $fieldsItem){
-                    if (isset($fieldsItem->_children)){
+                foreach ($fieldsItems as $fieldsItem) {
+                    if (isset($fieldsItem->_children)) {
                         $settings = [
                             'from' => '',
                             'to'   => '',
                         ];
-                        foreach ($fieldsItem->_children as $child){
-                            if (isset($child->field_data)){
-                                if ($child->field_input_name === $fromName){ $settings['from'] = $child->field_data[$fromName]; }
-                                if ($child->field_input_name === $redirectToName){ $settings['to'] = $child->field_data[$redirectToName]; }
+                        foreach ($fieldsItem->_children as $child) {
+                            if (isset($child->field_data)) {
+                                if ($child->field_input_name === $fromName) {
+                                    $settings['from'] = $child->field_data[$fromName];
+                                }
+                                if ($child->field_input_name === $redirectToName) {
+                                    $settings['to'] = $child->field_data[$redirectToName];
+                                }
                             }
                         }
                         $toInsert[] = $settings;
@@ -142,13 +145,13 @@ class Tonics404HandlerController
                         $db->InsertOnDuplicate(
                             Tables::getTable(Tables::BROKEN_LINKS),
                             $toInsert,
-                            ['to']
+                            ['to'],
                         );
                     });
 
                     session()->flash(['Redirect Added or Updated'], type: Session::SessionCategories_FlashMessageSuccess);
                     redirect(route('tonics404Handler.settings'));
-                } catch (\Exception $exception){
+                } catch (\Exception $exception) {
                     // log..
                 }
 
@@ -162,41 +165,43 @@ class Tonics404HandlerController
     /**
      * @return AbstractDataLayer
      */
-    public function getDataLayer(): AbstractDataLayer
+    public function getDataLayer (): AbstractDataLayer
     {
         return $this->dataLayer;
     }
 
     /**
      * @param $entityBag
+     *
      * @return bool
      * @throws \Exception
      */
-    protected function deleteMultiple($entityBag): bool
+    protected function deleteMultiple ($entityBag): bool
     {
         return $this->getFieldData()->dataTableDeleteMultiple([
-            'id' => 'id',
-            'table' => Tables::getTable(Tables::BROKEN_LINKS),
+            'id'        => 'id',
+            'table'     => Tables::getTable(Tables::BROKEN_LINKS),
             'entityBag' => $entityBag,
         ]);
     }
 
     /**
      * @param $entityBag
+     *
      * @return bool
      * @throws \Exception
      */
-    protected function updateMultiple($entityBag): bool
+    protected function updateMultiple ($entityBag): bool
     {
         $rulesUpdate = [
-            'id' => ['numeric'],
-            'updated_at' => ['required', 'string'],
+            'id'               => ['numeric'],
+            'updated_at'       => ['required', 'string'],
             'redirection_type' => ['required', 'numeric'],
         ];
         return $this->getFieldData()->dataTableUpdateMultiple([
-            'id' => 'genre_id',
-            'table' => Tables::getTable(Tables::BROKEN_LINKS),
-            'rules' => $rulesUpdate,
+            'id'        => 'genre_id',
+            'table'     => Tables::getTable(Tables::BROKEN_LINKS),
+            'rules'     => $rulesUpdate,
             'entityBag' => $entityBag,
         ]);
     }
@@ -204,7 +209,7 @@ class Tonics404HandlerController
     /**
      * @return FieldData|null
      */
-    public function getFieldData(): ?FieldData
+    public function getFieldData (): ?FieldData
     {
         return $this->fieldData;
     }

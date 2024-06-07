@@ -24,7 +24,7 @@ use App\Modules\Field\Data\FieldData;
 
 class FieldConfig
 {
-    public static function fieldPreSavedDataID(): string
+    public static function fieldPreSavedDataID (): string
     {
         return '987654321123456789_preSavedFieldID_should_never_be_used_as_a_field_slug';
     }
@@ -32,7 +32,7 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function hasPreSavedFieldData(): bool
+    public static function hasPreSavedFieldData (): bool
     {
         return isset(getPostData()[self::fieldPreSavedDataID()]);
     }
@@ -40,12 +40,12 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function getPreSavedFieldData()
+    public static function getPreSavedFieldData ()
     {
         return getPostData()[self::fieldPreSavedDataID()];
     }
 
-    public static function fieldSettingsID(): string
+    public static function fieldSettingsID (): string
     {
         return '987654321123456789_fieldSettingsID_should_never_be_used_as_a_field_slug';
     }
@@ -53,7 +53,7 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function hasFieldSettings(): bool
+    public static function hasFieldSettings (): bool
     {
         return InitLoaderMinimal::globalVariableKeyExist(self::fieldSettingsID());
     }
@@ -61,12 +61,12 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function getFieldSettings()
+    public static function getFieldSettings ()
     {
         return AppConfig::initLoaderMinimal()::getGlobalVariableData(self::fieldSettingsID()) ?? [];
     }
 
-    public static function fieldUnSortedItemsDataID(): string
+    public static function fieldUnSortedItemsDataID (): string
     {
         return '987654321123456789_fieldUnSortedItemsDataID_should_never_be_used_as_a_field_slug';
     }
@@ -74,7 +74,7 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function hasFieldUnSortedItemsDataID(): bool
+    public static function hasFieldUnSortedItemsDataID (): bool
     {
         return InitLoaderMinimal::globalVariableKeyExist(self::fieldUnSortedItemsDataID());
     }
@@ -82,12 +82,12 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function getFieldUnSortedItemsDataID()
+    public static function getFieldUnSortedItemsDataID ()
     {
         return AppConfig::initLoaderMinimal()::getGlobalVariableData(self::fieldUnSortedItemsDataID()) ?? [];
     }
 
-    public static function postEditorFieldsContentID(): string
+    public static function postEditorFieldsContentID (): string
     {
         return '987654321123456789_postEditorFieldsContentID_should_never_be_used_as_a_field_slug';
     }
@@ -95,7 +95,7 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function hasPostEditorFieldContent(): bool
+    public static function hasPostEditorFieldContent (): bool
     {
         return InitLoaderMinimal::globalVariableKeyExist(self::postEditorFieldsContentID());
     }
@@ -103,7 +103,7 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function getPostEditorFieldsContent()
+    public static function getPostEditorFieldsContent ()
     {
         return AppConfig::initLoaderMinimal()::getGlobalVariableData(self::postEditorFieldsContentID()) ?? [];
     }
@@ -112,10 +112,11 @@ class FieldConfig
      * @param FieldData $fieldData
      * @param $settingsData
      * @param array $slugs
+     *
      * @return string
      * @throws \Exception
      */
-    public static function getSettingsHTMLFrag(FieldData $fieldData, $settingsData, array $slugs = []): string
+    public static function getSettingsHTMLFrag (FieldData $fieldData, $settingsData, array $slugs = []): string
     {
         if (isset($settingsData['_fieldDetails'])) {
             $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(json_decode($settingsData['_fieldDetails']));
@@ -123,7 +124,7 @@ class FieldConfig
         } else {
             $htmlFrag = $fieldData->generateFieldWithFieldSlug(
                 $slugs,
-                $settingsData
+                $settingsData,
             )->getHTMLFrag();
         }
 
@@ -135,10 +136,11 @@ class FieldConfig
      * @param $key
      * Only File That Contains JSON data
      * @param array $data
+     *
      * @return array
      * @throws \Exception
      */
-    public static function savePluginFieldSettings($key, array $data): array
+    public static function savePluginFieldSettings ($key, array $data): array
     {
         db(onGetDB: function ($db) use ($key, $data) {
             $key = 'App_Settings_' . $key;
@@ -149,10 +151,10 @@ class FieldConfig
             $db->insertOnDuplicate(
                 $globalTable,
                 [
-                    'key' => $key,
-                    'value' => json_encode($data)
+                    'key'   => $key,
+                    'value' => json_encode($data),
                 ],
-                ['value']
+                ['value'],
             );
         });
         AppConfig::updateRestartService();
@@ -163,9 +165,9 @@ class FieldConfig
     /**
      * @throws \Exception
      */
-    public static function loadPluginSettings($key): array
+    public static function loadPluginSettings ($key): array
     {
-        if (AppConfig::TonicsIsReady() === false){
+        if (AppConfig::TonicsIsReady() === false) {
             return [];
         }
         if (!str_starts_with($key, 'App_Settings_')) {
@@ -188,7 +190,7 @@ class FieldConfig
         return [];
     }
 
-    public static function DefaultFieldItems(): array
+    public static function DefaultFieldItems (): array
     {
         $json = <<<'JSON'
 [
@@ -635,10 +637,24 @@ class FieldConfig
 	},
 	{
 		"fk_field_id": "Upload App Page",
-		"field_name": "media_media-manager",
+		"field_name": "modular_rowcolumn",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_slug\":\"media_media-manager\",\"field_slug_unique_hash\":\"6hekf1492880000000000\",\"fieldName\":\"Upload App\",\"inputName\":\"plugin_url\",\"featured_link\":\"\",\"file_url\":\"\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"oa8dnrnh6gw000000000\",\"field_input_name\":\"\",\"fieldName\":\"Upload App\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+	},
+	{
+		"fk_field_id": "Upload App Page",
+		"field_name": "input_text",
+		"field_id": 2,
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5ec774ucogw0000000000\",\"field_input_name\":\"plugin_url\",\"fieldName\":\"Plugin URL\",\"inputName\":\"plugin_url\",\"textType\":\"url\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter The Download URL\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Upload App Page",
+		"field_name": "input_text",
+		"field_id": 3,
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"q3vn3qij1a8000000000\",\"field_input_name\":\"signature_hash\",\"fieldName\":\"Signature Hash\",\"inputName\":\"signature_hash\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"This lets you verify the authenticity of the app regardless of the URL.\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter The Signature Hash\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Post Query Builder",
@@ -911,399 +927,406 @@ class FieldConfig
 		"field_name": "modular_rowcolumn",
 		"field_id": 2,
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"23m83nv9jow0000000000\",\"field_input_name\":\"\",\"fieldName\":\"PayPal\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"1740l7efx9ds000000000\",\"field_input_name\":\"\",\"fieldName\":\"FlutterWave\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_select",
 		"field_id": 3,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"5cmfunbcmcw0000000000\",\"field_input_name\":\"tonics_payment_settings_paypal_enabled\",\"fieldName\":\"Enabled\",\"inputName\":\"tonics_payment_settings_paypal_enabled\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"66aibfasrh80000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_enabled\",\"fieldName\":\"Enabled\",\"inputName\":\"tonics_payment_settings_flutterWave_enabled\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_select",
 		"field_id": 4,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"22o02hwk6r6o000000000\",\"field_input_name\":\"tonics_payment_settings_paypal_live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_paypal_live\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"0\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"6ub4yqiz4ec0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_flutterWave_live\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"0\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 5,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2nd15m50dge000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials\",\"fieldName\":\"API Credentials\",\"inputName\":\"tonics_payment_settings_apiCredentials\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7efb3bvmapc0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials\",\"fieldName\":\"API Credentials\",\"inputName\":\"tonics_payment_settings_apiCredentials\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 6,
 		"field_parent_id": 5,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2aqnpqv5d0g0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"1rqnb72bxgrk000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
 		"field_id": 7,
 		"field_parent_id": 6,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"16y4mevyvts0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live_ClientID\",\"fieldName\":\"Client ID\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live_ClientID\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Live Client ID\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3pe0c66gj6q0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
 		"field_id": 8,
 		"field_parent_id": 6,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6thpge1ykk4000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live_SecretKey\",\"textType\":\"password\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Live Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4tlx1i3520s0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 9,
 		"field_parent_id": 5,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5yo9mezk9wg0000000000\",\"field_input_name\":\"\",\"fieldName\":\"SandBox\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"6axeywea5480000000000\",\"field_input_name\":\"\",\"fieldName\":\"SandBox\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
 		"field_id": 10,
 		"field_parent_id": 9,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4pf2o4lbozy0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_SandBox_ClientID\",\"fieldName\":\"Client ID\",\"inputName\":\"tonics_payment_settings_apiCredentials_SandBox_ClientID\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter SandBox Client ID\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5na51jf626k0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
 		"field_id": 11,
 		"field_parent_id": 9,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"370wbu42k680000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_SandBox_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_apiCredentials_SandBox_SecretKey\",\"textType\":\"password\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter SandBox Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4sbd6gcq43a0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 12,
-		"field_parent_id": 5,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"26d80lb119mo000000000\",\"field_input_name\":\"\",\"fieldName\":\"WebHook\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
-	},
-	{
-		"fk_field_id": "Payment Settings",
-		"field_name": "input_text",
-		"field_id": 13,
-		"field_parent_id": 12,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2ncyfufaq2q0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_WebHook_ID\",\"fieldName\":\"WebHook ID\",\"inputName\":\"tonics_payment_settings_apiCredentials_WebHook_ID\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"WebHook ID as configured in your Developer Portal account.\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
-	},
-	{
-		"fk_field_id": "Payment Settings",
-		"field_name": "modular_rowcolumn",
-		"field_id": 14,
 		"field_parent_id": 1,
 		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"1740l7efx9ds000000000\",\"field_input_name\":\"\",\"fieldName\":\"PayStack\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_select",
-		"field_id": 15,
-		"field_parent_id": 14,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"66aibfasrh80000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_enabled\",\"fieldName\":\"Enabled\",\"inputName\":\"tonics_payment_settings_paystack_enabled\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+		"field_id": 13,
+		"field_parent_id": 12,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"66aibfasrh80000000000\",\"field_input_name\":\"tonics_payment_settings_paystack_enabled\",\"fieldName\":\"Enabled\",\"inputName\":\"tonics_payment_settings_paystack_enabled\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_select",
-		"field_id": 16,
-		"field_parent_id": 14,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"6ub4yqiz4ec0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_paystack_live\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"0\"}"
+		"field_id": 14,
+		"field_parent_id": 12,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"6ub4yqiz4ec0000000000\",\"field_input_name\":\"tonics_payment_settings_paystack_live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_paystack_live\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"0\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "modular_rowcolumn",
-		"field_id": 17,
-		"field_parent_id": 14,
+		"field_id": 15,
+		"field_parent_id": 12,
 		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7efb3bvmapc0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials\",\"fieldName\":\"API Credentials\",\"inputName\":\"tonics_payment_settings_apiCredentials\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "modular_rowcolumn",
-		"field_id": 18,
-		"field_parent_id": 17,
+		"field_id": 16,
+		"field_parent_id": 15,
 		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"1rqnb72bxgrk000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
+		"field_id": 17,
+		"field_parent_id": 16,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3pe0c66gj6q0000000000\",\"field_input_name\":\"tonics_payment_settings_paystack_apiCredentials_Live_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_Live_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Payment Settings",
+		"field_name": "input_text",
+		"field_id": 18,
+		"field_parent_id": 16,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4tlx1i3520s0000000000\",\"field_input_name\":\"tonics_payment_settings_paystack_apiCredentials_Live_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_Live_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Payment Settings",
+		"field_name": "modular_rowcolumn",
 		"field_id": 19,
-		"field_parent_id": 18,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3pe0c66gj6q0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_Live_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_parent_id": 15,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"6axeywea5480000000000\",\"field_input_name\":\"\",\"fieldName\":\"SandBox\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
 		"field_id": 20,
-		"field_parent_id": 18,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4tlx1i3520s0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_Live_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_parent_id": 19,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5na51jf626k0000000000\",\"field_input_name\":\"tonics_payment_settings_paystack_apiCredentials_SandBox_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_SandBox_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
-		"field_name": "modular_rowcolumn",
+		"field_name": "input_text",
 		"field_id": 21,
-		"field_parent_id": 17,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"6axeywea5480000000000\",\"field_input_name\":\"\",\"fieldName\":\"SandBox\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_parent_id": 19,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4sbd6gcq43a0000000000\",\"field_input_name\":\"tonics_payment_settings_paystack_apiCredentials_SandBox_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_SandBox_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
-		"field_name": "input_text",
+		"field_name": "modular_rowcolumn",
 		"field_id": 22,
-		"field_parent_id": 21,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5na51jf626k0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_SandBox_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
-	},
-	{
-		"fk_field_id": "Payment Settings",
-		"field_name": "input_text",
-		"field_id": 23,
-		"field_parent_id": 21,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4sbd6gcq43a0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_paystack_apiCredentials_SandBox_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
-	},
-	{
-		"fk_field_id": "Payment Settings",
-		"field_name": "modular_rowcolumn",
-		"field_id": 24,
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"1740l7efx9ds000000000\",\"field_input_name\":\"\",\"fieldName\":\"FlutterWave\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"23m83nv9jow0000000000\",\"field_input_name\":\"\",\"fieldName\":\"PayPal\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_select",
+		"field_id": 23,
+		"field_parent_id": 22,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"5cmfunbcmcw0000000000\",\"field_input_name\":\"tonics_payment_settings_paypal_enabled\",\"fieldName\":\"Enabled\",\"inputName\":\"tonics_payment_settings_paypal_enabled\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
+	},
+	{
+		"fk_field_id": "Payment Settings",
+		"field_name": "input_select",
+		"field_id": 24,
+		"field_parent_id": 22,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"22o02hwk6r6o000000000\",\"field_input_name\":\"tonics_payment_settings_paypal_live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_paypal_live\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"0\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
+	},
+	{
+		"fk_field_id": "Payment Settings",
+		"field_name": "modular_rowcolumn",
 		"field_id": 25,
-		"field_parent_id": 24,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"66aibfasrh80000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_enabled\",\"fieldName\":\"Enabled\",\"inputName\":\"tonics_payment_settings_flutterWave_enabled\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+		"field_parent_id": 22,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2nd15m50dge000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials\",\"fieldName\":\"API Credentials\",\"inputName\":\"tonics_payment_settings_apiCredentials\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
-		"field_name": "input_select",
+		"field_name": "modular_rowcolumn",
 		"field_id": 26,
-		"field_parent_id": 24,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"6ub4yqiz4ec0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_flutterWave_live\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"0\"}"
-	},
-	{
-		"fk_field_id": "Payment Settings",
-		"field_name": "modular_rowcolumn",
-		"field_id": 27,
-		"field_parent_id": 24,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7efb3bvmapc0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials\",\"fieldName\":\"API Credentials\",\"inputName\":\"tonics_payment_settings_apiCredentials\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
-	},
-	{
-		"fk_field_id": "Payment Settings",
-		"field_name": "modular_rowcolumn",
-		"field_id": 28,
-		"field_parent_id": 27,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"1rqnb72bxgrk000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_parent_id": 25,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2aqnpqv5d0g0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live\",\"fieldName\":\"Live\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
+		"field_id": 27,
+		"field_parent_id": 26,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"16y4mevyvts0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live_ClientID\",\"fieldName\":\"Client ID\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live_ClientID\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Live Client ID\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Payment Settings",
+		"field_name": "input_text",
+		"field_id": 28,
+		"field_parent_id": 26,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6thpge1ykk4000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_Live_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_apiCredentials_Live_SecretKey\",\"textType\":\"password\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Live Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Payment Settings",
+		"field_name": "modular_rowcolumn",
 		"field_id": 29,
-		"field_parent_id": 28,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3pe0c66gj6q0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_parent_id": 25,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5yo9mezk9wg0000000000\",\"field_input_name\":\"\",\"fieldName\":\"SandBox\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
 		"field_id": 30,
-		"field_parent_id": 28,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4tlx1i3520s0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_Live_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
-	},
-	{
-		"fk_field_id": "Payment Settings",
-		"field_name": "modular_rowcolumn",
-		"field_id": 31,
-		"field_parent_id": 27,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"6axeywea5480000000000\",\"field_input_name\":\"\",\"fieldName\":\"SandBox\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_parent_id": 29,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4pf2o4lbozy0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_SandBox_ClientID\",\"fieldName\":\"Client ID\",\"inputName\":\"tonics_payment_settings_apiCredentials_SandBox_ClientID\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter SandBox Client ID\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
+		"field_id": 31,
+		"field_parent_id": 29,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"370wbu42k680000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_SandBox_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_apiCredentials_SandBox_SecretKey\",\"textType\":\"password\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter SandBox Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Payment Settings",
+		"field_name": "modular_rowcolumn",
 		"field_id": 32,
-		"field_parent_id": 31,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5na51jf626k0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_PublicKey\",\"fieldName\":\"Public Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_PublicKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Public Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_parent_id": 25,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"26d80lb119mo000000000\",\"field_input_name\":\"\",\"fieldName\":\"WebHook\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Payment Settings",
 		"field_name": "input_text",
 		"field_id": 33,
-		"field_parent_id": 31,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4sbd6gcq43a0000000000\",\"field_input_name\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_SecretKey\",\"fieldName\":\"Secret Key\",\"inputName\":\"tonics_payment_settings_flutterWave_apiCredentials_SandBox_SecretKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Secret Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+		"field_parent_id": 32,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2ncyfufaq2q0000000000\",\"field_input_name\":\"tonics_payment_settings_apiCredentials_WebHook_ID\",\"fieldName\":\"WebHook ID\",\"inputName\":\"tonics_payment_settings_apiCredentials_WebHook_ID\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"WebHook ID as configured in your Developer Portal account.\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 1,
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"44knlwmejgw0000000000\",\"field_input_name\":\"tonics_core_settings\",\"fieldName\":\"Core Settings\",\"inputName\":\"tonics_core_settings\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"44knlwmejgw0000000000\",\"field_input_name\":\"tonics_core_settings\",\"fieldName\":\"Core Settings\",\"inputName\":\"tonics_core_settings\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 2,
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7gp0hhha16w0000000000\",\"field_input_name\":\"tonics_core_settings_AppSettingsContainer\",\"fieldName\":\"App Settiings\",\"inputName\":\"tonics_core_settings_AppSettingsContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"7gp0hhha16w0000000000\",\"field_input_name\":\"tonics_core_settings_AppSettingsContainer\",\"fieldName\":\"App Settiings\",\"inputName\":\"tonics_core_settings_AppSettingsContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
 		"field_id": 3,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"bt2f0hztu1k000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appName\",\"fieldName\":\"App Name\",\"inputName\":\"tonics_core_settings_appSettings_appName\",\"textType\":\"text\",\"defaultValue\":\"Tonics\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter App Name\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"50ic79vikzs0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_siteKey\",\"fieldName\":\"App Site Key\",\"inputName\":\"tonics_core_settings_appSettings_siteKey\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"The site key is crucial for timely updates, please do not change otherwise, you won't get update for premium apps. However, if you still want to change it, ensure you change it in the <b>tonics.app customer site page</b> also.\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Site Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
 		"field_id": 4,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6lp62m5u2gg0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appURL\",\"fieldName\":\"App URL\",\"inputName\":\"tonics_core_settings_appSettings_appURL\",\"textType\":\"url\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter App URL\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"bt2f0hztu1k000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appName\",\"fieldName\":\"App Name\",\"inputName\":\"tonics_core_settings_appSettings_appName\",\"textType\":\"text\",\"defaultValue\":\"Tonics\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter App Name\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_select",
 		"field_id": 5,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4on0p0yfxoo0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appTimeZone\",\"fieldName\":\"App TimeZone\",\"inputName\":\"tonics_core_settings_appSettings_appTimeZone\",\"selectData\":\"Africa/Abidjan:Africa/Abidjan,Africa/Accra:Africa/Accra,Africa/Addis_Ababa:Africa/Addis_Ababa,Africa/Algiers:Africa/Algiers,Africa/Asmara:Africa/Asmara,Africa/Bamako:Africa/Bamako,Africa/Bangui:Africa/Bangui,Africa/Banjul:Africa/Banjul,Africa/Bissau:Africa/Bissau,Africa/Blantyre:Africa/Blantyre,Africa/Brazzaville:Africa/Brazzaville,Africa/Bujumbura:Africa/Bujumbura,Africa/Cairo:Africa/Cairo,Africa/Casablanca:Africa/Casablanca,Africa/Ceuta:Africa/Ceuta,Africa/Conakry:Africa/Conakry,Africa/Dakar:Africa/Dakar,Africa/Dar_es_Salaam:Africa/Dar_es_Salaam,Africa/Djibouti:Africa/Djibouti,Africa/Douala:Africa/Douala,Africa/El_Aaiun:Africa/El_Aaiun,Africa/Freetown:Africa/Freetown,Africa/Gaborone:Africa/Gaborone,Africa/Harare:Africa/Harare,Africa/Johannesburg:Africa/Johannesburg,Africa/Juba:Africa/Juba,Africa/Kampala:Africa/Kampala,Africa/Khartoum:Africa/Khartoum,Africa/Kigali:Africa/Kigali,Africa/Kinshasa:Africa/Kinshasa,Africa/Lagos:Africa/Lagos,Africa/Libreville:Africa/Libreville,Africa/Lome:Africa/Lome,Africa/Luanda:Africa/Luanda,Africa/Lubumbashi:Africa/Lubumbashi,Africa/Lusaka:Africa/Lusaka,Africa/Malabo:Africa/Malabo,Africa/Maputo:Africa/Maputo,Africa/Maseru:Africa/Maseru,Africa/Mbabane:Africa/Mbabane,Africa/Mogadishu:Africa/Mogadishu,Africa/Monrovia:Africa/Monrovia,Africa/Nairobi:Africa/Nairobi,Africa/Ndjamena:Africa/Ndjamena,Africa/Niamey:Africa/Niamey,Africa/Nouakchott:Africa/Nouakchott,Africa/Ouagadougou:Africa/Ouagadougou,Africa/Porto-Novo:Africa/Porto-Novo,Africa/Sao_Tome:Africa/Sao_Tome,Africa/Tripoli:Africa/Tripoli,Africa/Tunis:Africa/Tunis,Africa/Windhoek:Africa/Windhoek,America/Adak:America/Adak,America/Anchorage:America/Anchorage,America/Anguilla:America/Anguilla,America/Antigua:America/Antigua,America/Araguaina:America/Araguaina,America/Argentina/Buenos_Aires:America/Argentina/Buenos_Aires,America/Argentina/Catamarca:America/Argentina/Catamarca,America/Argentina/Cordoba:America/Argentina/Cordoba,America/Argentina/Jujuy:America/Argentina/Jujuy,America/Argentina/La_Rioja:America/Argentina/La_Rioja,America/Argentina/Mendoza:America/Argentina/Mendoza,America/Argentina/Rio_Gallegos:America/Argentina/Rio_Gallegos,America/Argentina/Salta:America/Argentina/Salta,America/Argentina/San_Juan:America/Argentina/San_Juan,America/Argentina/San_Luis:America/Argentina/San_Luis,America/Argentina/Tucuman:America/Argentina/Tucuman,America/Argentina/Ushuaia:America/Argentina/Ushuaia,America/Aruba:America/Aruba,America/Asuncion:America/Asuncion,America/Atikokan:America/Atikokan,America/Bahia:America/Bahia,America/Bahia_Banderas:America/Bahia_Banderas,America/Barbados:America/Barbados,America/Belem:America/Belem,America/Belize:America/Belize,America/Blanc-Sablon:America/Blanc-Sablon,America/Boa_Vista:America/Boa_Vista,America/Bogota:America/Bogota,America/Boise:America/Boise,America/Cambridge_Bay:America/Cambridge_Bay,America/Campo_Grande:America/Campo_Grande,America/Cancun:America/Cancun,America/Caracas:America/Caracas,America/Cayenne:America/Cayenne,America/Cayman:America/Cayman,America/Chicago:America/Chicago,America/Chihuahua:America/Chihuahua,America/Costa_Rica:America/Costa_Rica,America/Creston:America/Creston,America/Cuiaba:America/Cuiaba,America/Curacao:America/Curacao,America/Danmarkshavn:America/Danmarkshavn,America/Dawson:America/Dawson,America/Dawson_Creek:America/Dawson_Creek,America/Denver:America/Denver,America/Detroit:America/Detroit,America/Dominica:America/Dominica,America/Edmonton:America/Edmonton,America/Eirunepe:America/Eirunepe,America/El_Salvador:America/El_Salvador,America/Fort_Nelson:America/Fort_Nelson,America/Fortaleza:America/Fortaleza,America/Glace_Bay:America/Glace_Bay,America/Goose_Bay:America/Goose_Bay,America/Grand_Turk:America/Grand_Turk,America/Grenada:America/Grenada,America/Guadeloupe:America/Guadeloupe,America/Guatemala:America/Guatemala,America/Guayaquil:America/Guayaquil,America/Guyana:America/Guyana,America/Halifax:America/Halifax,America/Havana:America/Havana,America/Hermosillo:America/Hermosillo,America/Indiana/Indianapolis:America/Indiana/Indianapolis,America/Indiana/Knox:America/Indiana/Knox,America/Indiana/Marengo:America/Indiana/Marengo,America/Indiana/Petersburg:America/Indiana/Petersburg,America/Indiana/Tell_City:America/Indiana/Tell_City,America/Indiana/Vevay:America/Indiana/Vevay,America/Indiana/Vincennes:America/Indiana/Vincennes,America/Indiana/Winamac:America/Indiana/Winamac,America/Inuvik:America/Inuvik,America/Iqaluit:America/Iqaluit,America/Jamaica:America/Jamaica,America/Juneau:America/Juneau,America/Kentucky/Louisville:America/Kentucky/Louisville,America/Kentucky/Monticello:America/Kentucky/Monticello,America/Kralendijk:America/Kralendijk,America/La_Paz:America/La_Paz,America/Lima:America/Lima,America/Los_Angeles:America/Los_Angeles,America/Lower_Princes:America/Lower_Princes,America/Maceio:America/Maceio,America/Managua:America/Managua,America/Manaus:America/Manaus,America/Marigot:America/Marigot,America/Martinique:America/Martinique,America/Matamoros:America/Matamoros,America/Mazatlan:America/Mazatlan,America/Menominee:America/Menominee,America/Merida:America/Merida,America/Metlakatla:America/Metlakatla,America/Mexico_City:America/Mexico_City,America/Miquelon:America/Miquelon,America/Moncton:America/Moncton,America/Monterrey:America/Monterrey,America/Montevideo:America/Montevideo,America/Montserrat:America/Montserrat,America/Nassau:America/Nassau,America/New_York:America/New_York,America/Nipigon:America/Nipigon,America/Nome:America/Nome,America/Noronha:America/Noronha,America/North_Dakota/Beulah:America/North_Dakota/Beulah,America/North_Dakota/Center:America/North_Dakota/Center,America/North_Dakota/New_Salem:America/North_Dakota/New_Salem,America/Nuuk:America/Nuuk,America/Ojinaga:America/Ojinaga,America/Panama:America/Panama,America/Pangnirtung:America/Pangnirtung,America/Paramaribo:America/Paramaribo,America/Phoenix:America/Phoenix,America/Port-au-Prince:America/Port-au-Prince,America/Port_of_Spain:America/Port_of_Spain,America/Porto_Velho:America/Porto_Velho,America/Puerto_Rico:America/Puerto_Rico,America/Punta_Arenas:America/Punta_Arenas,America/Rainy_River:America/Rainy_River,America/Rankin_Inlet:America/Rankin_Inlet,America/Recife:America/Recife,America/Regina:America/Regina,America/Resolute:America/Resolute,America/Rio_Branco:America/Rio_Branco,America/Santarem:America/Santarem,America/Santiago:America/Santiago,America/Santo_Domingo:America/Santo_Domingo,America/Sao_Paulo:America/Sao_Paulo,America/Scoresbysund:America/Scoresbysund,America/Sitka:America/Sitka,America/St_Barthelemy:America/St_Barthelemy,America/St_Johns:America/St_Johns,America/St_Kitts:America/St_Kitts,America/St_Lucia:America/St_Lucia,America/St_Thomas:America/St_Thomas,America/St_Vincent:America/St_Vincent,America/Swift_Current:America/Swift_Current,America/Tegucigalpa:America/Tegucigalpa,America/Thule:America/Thule,America/Thunder_Bay:America/Thunder_Bay,America/Tijuana:America/Tijuana,America/Toronto:America/Toronto,America/Tortola:America/Tortola,America/Vancouver:America/Vancouver,America/Whitehorse:America/Whitehorse,America/Winnipeg:America/Winnipeg,America/Yakutat:America/Yakutat,America/Yellowknife:America/Yellowknife,Antarctica/Casey:Antarctica/Casey,Antarctica/Davis:Antarctica/Davis,Antarctica/DumontDUrville:Antarctica/DumontDUrville,Antarctica/Macquarie:Antarctica/Macquarie,Antarctica/Mawson:Antarctica/Mawson,Antarctica/McMurdo:Antarctica/McMurdo,Antarctica/Palmer:Antarctica/Palmer,Antarctica/Rothera:Antarctica/Rothera,Antarctica/Syowa:Antarctica/Syowa,Antarctica/Troll:Antarctica/Troll,Antarctica/Vostok:Antarctica/Vostok,Arctic/Longyearbyen:Arctic/Longyearbyen,Asia/Aden:Asia/Aden,Asia/Almaty:Asia/Almaty,Asia/Amman:Asia/Amman,Asia/Anadyr:Asia/Anadyr,Asia/Aqtau:Asia/Aqtau,Asia/Aqtobe:Asia/Aqtobe,Asia/Ashgabat:Asia/Ashgabat,Asia/Atyrau:Asia/Atyrau,Asia/Baghdad:Asia/Baghdad,Asia/Bahrain:Asia/Bahrain,Asia/Baku:Asia/Baku,Asia/Bangkok:Asia/Bangkok,Asia/Barnaul:Asia/Barnaul,Asia/Beirut:Asia/Beirut,Asia/Bishkek:Asia/Bishkek,Asia/Brunei:Asia/Brunei,Asia/Chita:Asia/Chita,Asia/Choibalsan:Asia/Choibalsan,Asia/Colombo:Asia/Colombo,Asia/Damascus:Asia/Damascus,Asia/Dhaka:Asia/Dhaka,Asia/Dili:Asia/Dili,Asia/Dubai:Asia/Dubai,Asia/Dushanbe:Asia/Dushanbe,Asia/Famagusta:Asia/Famagusta,Asia/Gaza:Asia/Gaza,Asia/Hebron:Asia/Hebron,Asia/Ho_Chi_Minh:Asia/Ho_Chi_Minh,Asia/Hong_Kong:Asia/Hong_Kong,Asia/Hovd:Asia/Hovd,Asia/Irkutsk:Asia/Irkutsk,Asia/Jakarta:Asia/Jakarta,Asia/Jayapura:Asia/Jayapura,Asia/Jerusalem:Asia/Jerusalem,Asia/Kabul:Asia/Kabul,Asia/Kamchatka:Asia/Kamchatka,Asia/Karachi:Asia/Karachi,Asia/Kathmandu:Asia/Kathmandu,Asia/Khandyga:Asia/Khandyga,Asia/Kolkata:Asia/Kolkata,Asia/Krasnoyarsk:Asia/Krasnoyarsk,Asia/Kuala_Lumpur:Asia/Kuala_Lumpur,Asia/Kuching:Asia/Kuching,Asia/Kuwait:Asia/Kuwait,Asia/Macau:Asia/Macau,Asia/Magadan:Asia/Magadan,Asia/Makassar:Asia/Makassar,Asia/Manila:Asia/Manila,Asia/Muscat:Asia/Muscat,Asia/Nicosia:Asia/Nicosia,Asia/Novokuznetsk:Asia/Novokuznetsk,Asia/Novosibirsk:Asia/Novosibirsk,Asia/Omsk:Asia/Omsk,Asia/Oral:Asia/Oral,Asia/Phnom_Penh:Asia/Phnom_Penh,Asia/Pontianak:Asia/Pontianak,Asia/Pyongyang:Asia/Pyongyang,Asia/Qatar:Asia/Qatar,Asia/Qostanay:Asia/Qostanay,Asia/Qyzylorda:Asia/Qyzylorda,Asia/Riyadh:Asia/Riyadh,Asia/Sakhalin:Asia/Sakhalin,Asia/Samarkand:Asia/Samarkand,Asia/Seoul:Asia/Seoul,Asia/Shanghai:Asia/Shanghai,Asia/Singapore:Asia/Singapore,Asia/Srednekolymsk:Asia/Srednekolymsk,Asia/Taipei:Asia/Taipei,Asia/Tashkent:Asia/Tashkent,Asia/Tbilisi:Asia/Tbilisi,Asia/Tehran:Asia/Tehran,Asia/Thimphu:Asia/Thimphu,Asia/Tokyo:Asia/Tokyo,Asia/Tomsk:Asia/Tomsk,Asia/Ulaanbaatar:Asia/Ulaanbaatar,Asia/Urumqi:Asia/Urumqi,Asia/Ust-Nera:Asia/Ust-Nera,Asia/Vientiane:Asia/Vientiane,Asia/Vladivostok:Asia/Vladivostok,Asia/Yakutsk:Asia/Yakutsk,Asia/Yangon:Asia/Yangon,Asia/Yekaterinburg:Asia/Yekaterinburg,Asia/Yerevan:Asia/Yerevan,Atlantic/Azores:Atlantic/Azores,Atlantic/Bermuda:Atlantic/Bermuda,Atlantic/Canary:Atlantic/Canary,Atlantic/Cape_Verde:Atlantic/Cape_Verde,Atlantic/Faroe:Atlantic/Faroe,Atlantic/Madeira:Atlantic/Madeira,Atlantic/Reykjavik:Atlantic/Reykjavik,Atlantic/South_Georgia:Atlantic/South_Georgia,Atlantic/St_Helena:Atlantic/St_Helena,Atlantic/Stanley:Atlantic/Stanley,Australia/Adelaide:Australia/Adelaide,Australia/Brisbane:Australia/Brisbane,Australia/Broken_Hill:Australia/Broken_Hill,Australia/Darwin:Australia/Darwin,Australia/Eucla:Australia/Eucla,Australia/Hobart:Australia/Hobart,Australia/Lindeman:Australia/Lindeman,Australia/Lord_Howe:Australia/Lord_Howe,Australia/Melbourne:Australia/Melbourne,Australia/Perth:Australia/Perth,Australia/Sydney:Australia/Sydney,Europe/Amsterdam:Europe/Amsterdam,Europe/Andorra:Europe/Andorra,Europe/Astrakhan:Europe/Astrakhan,Europe/Athens:Europe/Athens,Europe/Belgrade:Europe/Belgrade,Europe/Berlin:Europe/Berlin,Europe/Bratislava:Europe/Bratislava,Europe/Brussels:Europe/Brussels,Europe/Bucharest:Europe/Bucharest,Europe/Budapest:Europe/Budapest,Europe/Busingen:Europe/Busingen,Europe/Chisinau:Europe/Chisinau,Europe/Copenhagen:Europe/Copenhagen,Europe/Dublin:Europe/Dublin,Europe/Gibraltar:Europe/Gibraltar,Europe/Guernsey:Europe/Guernsey,Europe/Helsinki:Europe/Helsinki,Europe/Isle_of_Man:Europe/Isle_of_Man,Europe/Istanbul:Europe/Istanbul,Europe/Jersey:Europe/Jersey,Europe/Kaliningrad:Europe/Kaliningrad,Europe/Kiev:Europe/Kiev,Europe/Kirov:Europe/Kirov,Europe/Lisbon:Europe/Lisbon,Europe/Ljubljana:Europe/Ljubljana,Europe/London:Europe/London,Europe/Luxembourg:Europe/Luxembourg,Europe/Madrid:Europe/Madrid,Europe/Malta:Europe/Malta,Europe/Mariehamn:Europe/Mariehamn,Europe/Minsk:Europe/Minsk,Europe/Monaco:Europe/Monaco,Europe/Moscow:Europe/Moscow,Europe/Oslo:Europe/Oslo,Europe/Paris:Europe/Paris,Europe/Podgorica:Europe/Podgorica,Europe/Prague:Europe/Prague,Europe/Riga:Europe/Riga,Europe/Rome:Europe/Rome,Europe/Samara:Europe/Samara,Europe/San_Marino:Europe/San_Marino,Europe/Sarajevo:Europe/Sarajevo,Europe/Saratov:Europe/Saratov,Europe/Simferopol:Europe/Simferopol,Europe/Skopje:Europe/Skopje,Europe/Sofia:Europe/Sofia,Europe/Stockholm:Europe/Stockholm,Europe/Tallinn:Europe/Tallinn,Europe/Tirane:Europe/Tirane,Europe/Ulyanovsk:Europe/Ulyanovsk,Europe/Uzhgorod:Europe/Uzhgorod,Europe/Vaduz:Europe/Vaduz,Europe/Vatican:Europe/Vatican,Europe/Vienna:Europe/Vienna,Europe/Vilnius:Europe/Vilnius,Europe/Volgograd:Europe/Volgograd,Europe/Warsaw:Europe/Warsaw,Europe/Zagreb:Europe/Zagreb,Europe/Zaporozhye:Europe/Zaporozhye,Europe/Zurich:Europe/Zurich,Indian/Antananarivo:Indian/Antananarivo,Indian/Chagos:Indian/Chagos,Indian/Christmas:Indian/Christmas,Indian/Cocos:Indian/Cocos,Indian/Comoro:Indian/Comoro,Indian/Kerguelen:Indian/Kerguelen,Indian/Mahe:Indian/Mahe,Indian/Maldives:Indian/Maldives,Indian/Mauritius:Indian/Mauritius,Indian/Mayotte:Indian/Mayotte,Indian/Reunion:Indian/Reunion,Pacific/Apia:Pacific/Apia,Pacific/Auckland:Pacific/Auckland,Pacific/Bougainville:Pacific/Bougainville,Pacific/Chatham:Pacific/Chatham,Pacific/Chuuk:Pacific/Chuuk,Pacific/Easter:Pacific/Easter,Pacific/Efate:Pacific/Efate,Pacific/Enderbury:Pacific/Enderbury,Pacific/Fakaofo:Pacific/Fakaofo,Pacific/Fiji:Pacific/Fiji,Pacific/Funafuti:Pacific/Funafuti,Pacific/Galapagos:Pacific/Galapagos,Pacific/Gambier:Pacific/Gambier,Pacific/Guadalcanal:Pacific/Guadalcanal,Pacific/Guam:Pacific/Guam,Pacific/Honolulu:Pacific/Honolulu,Pacific/Kiritimati:Pacific/Kiritimati,Pacific/Kosrae:Pacific/Kosrae,Pacific/Kwajalein:Pacific/Kwajalein,Pacific/Majuro:Pacific/Majuro,Pacific/Marquesas:Pacific/Marquesas,Pacific/Midway:Pacific/Midway,Pacific/Nauru:Pacific/Nauru,Pacific/Niue:Pacific/Niue,Pacific/Norfolk:Pacific/Norfolk,Pacific/Noumea:Pacific/Noumea,Pacific/Pago_Pago:Pacific/Pago_Pago,Pacific/Palau:Pacific/Palau,Pacific/Pitcairn:Pacific/Pitcairn,Pacific/Pohnpei:Pacific/Pohnpei,Pacific/Port_Moresby:Pacific/Port_Moresby,Pacific/Rarotonga:Pacific/Rarotonga,Pacific/Saipan:Pacific/Saipan,Pacific/Tahiti:Pacific/Tahiti,Pacific/Tarawa:Pacific/Tarawa,Pacific/Tongatapu:Pacific/Tongatapu,Pacific/Wake:Pacific/Wake,Pacific/Wallis:Pacific/Wallis,UTC:UTC\",\"defaultValue\":\"Africa/Lagos\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4on0p0yfxoo0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appTimeZone\",\"fieldName\":\"App TimeZone\",\"inputName\":\"tonics_core_settings_appSettings_appTimeZone\",\"selectData\":\"Africa/Abidjan:Africa/Abidjan,Africa/Accra:Africa/Accra,Africa/Addis_Ababa:Africa/Addis_Ababa,Africa/Algiers:Africa/Algiers,Africa/Asmara:Africa/Asmara,Africa/Bamako:Africa/Bamako,Africa/Bangui:Africa/Bangui,Africa/Banjul:Africa/Banjul,Africa/Bissau:Africa/Bissau,Africa/Blantyre:Africa/Blantyre,Africa/Brazzaville:Africa/Brazzaville,Africa/Bujumbura:Africa/Bujumbura,Africa/Cairo:Africa/Cairo,Africa/Casablanca:Africa/Casablanca,Africa/Ceuta:Africa/Ceuta,Africa/Conakry:Africa/Conakry,Africa/Dakar:Africa/Dakar,Africa/Dar_es_Salaam:Africa/Dar_es_Salaam,Africa/Djibouti:Africa/Djibouti,Africa/Douala:Africa/Douala,Africa/El_Aaiun:Africa/El_Aaiun,Africa/Freetown:Africa/Freetown,Africa/Gaborone:Africa/Gaborone,Africa/Harare:Africa/Harare,Africa/Johannesburg:Africa/Johannesburg,Africa/Juba:Africa/Juba,Africa/Kampala:Africa/Kampala,Africa/Khartoum:Africa/Khartoum,Africa/Kigali:Africa/Kigali,Africa/Kinshasa:Africa/Kinshasa,Africa/Lagos:Africa/Lagos,Africa/Libreville:Africa/Libreville,Africa/Lome:Africa/Lome,Africa/Luanda:Africa/Luanda,Africa/Lubumbashi:Africa/Lubumbashi,Africa/Lusaka:Africa/Lusaka,Africa/Malabo:Africa/Malabo,Africa/Maputo:Africa/Maputo,Africa/Maseru:Africa/Maseru,Africa/Mbabane:Africa/Mbabane,Africa/Mogadishu:Africa/Mogadishu,Africa/Monrovia:Africa/Monrovia,Africa/Nairobi:Africa/Nairobi,Africa/Ndjamena:Africa/Ndjamena,Africa/Niamey:Africa/Niamey,Africa/Nouakchott:Africa/Nouakchott,Africa/Ouagadougou:Africa/Ouagadougou,Africa/Porto-Novo:Africa/Porto-Novo,Africa/Sao_Tome:Africa/Sao_Tome,Africa/Tripoli:Africa/Tripoli,Africa/Tunis:Africa/Tunis,Africa/Windhoek:Africa/Windhoek,America/Adak:America/Adak,America/Anchorage:America/Anchorage,America/Anguilla:America/Anguilla,America/Antigua:America/Antigua,America/Araguaina:America/Araguaina,America/Argentina/Buenos_Aires:America/Argentina/Buenos_Aires,America/Argentina/Catamarca:America/Argentina/Catamarca,America/Argentina/Cordoba:America/Argentina/Cordoba,America/Argentina/Jujuy:America/Argentina/Jujuy,America/Argentina/La_Rioja:America/Argentina/La_Rioja,America/Argentina/Mendoza:America/Argentina/Mendoza,America/Argentina/Rio_Gallegos:America/Argentina/Rio_Gallegos,America/Argentina/Salta:America/Argentina/Salta,America/Argentina/San_Juan:America/Argentina/San_Juan,America/Argentina/San_Luis:America/Argentina/San_Luis,America/Argentina/Tucuman:America/Argentina/Tucuman,America/Argentina/Ushuaia:America/Argentina/Ushuaia,America/Aruba:America/Aruba,America/Asuncion:America/Asuncion,America/Atikokan:America/Atikokan,America/Bahia:America/Bahia,America/Bahia_Banderas:America/Bahia_Banderas,America/Barbados:America/Barbados,America/Belem:America/Belem,America/Belize:America/Belize,America/Blanc-Sablon:America/Blanc-Sablon,America/Boa_Vista:America/Boa_Vista,America/Bogota:America/Bogota,America/Boise:America/Boise,America/Cambridge_Bay:America/Cambridge_Bay,America/Campo_Grande:America/Campo_Grande,America/Cancun:America/Cancun,America/Caracas:America/Caracas,America/Cayenne:America/Cayenne,America/Cayman:America/Cayman,America/Chicago:America/Chicago,America/Chihuahua:America/Chihuahua,America/Costa_Rica:America/Costa_Rica,America/Creston:America/Creston,America/Cuiaba:America/Cuiaba,America/Curacao:America/Curacao,America/Danmarkshavn:America/Danmarkshavn,America/Dawson:America/Dawson,America/Dawson_Creek:America/Dawson_Creek,America/Denver:America/Denver,America/Detroit:America/Detroit,America/Dominica:America/Dominica,America/Edmonton:America/Edmonton,America/Eirunepe:America/Eirunepe,America/El_Salvador:America/El_Salvador,America/Fort_Nelson:America/Fort_Nelson,America/Fortaleza:America/Fortaleza,America/Glace_Bay:America/Glace_Bay,America/Goose_Bay:America/Goose_Bay,America/Grand_Turk:America/Grand_Turk,America/Grenada:America/Grenada,America/Guadeloupe:America/Guadeloupe,America/Guatemala:America/Guatemala,America/Guayaquil:America/Guayaquil,America/Guyana:America/Guyana,America/Halifax:America/Halifax,America/Havana:America/Havana,America/Hermosillo:America/Hermosillo,America/Indiana/Indianapolis:America/Indiana/Indianapolis,America/Indiana/Knox:America/Indiana/Knox,America/Indiana/Marengo:America/Indiana/Marengo,America/Indiana/Petersburg:America/Indiana/Petersburg,America/Indiana/Tell_City:America/Indiana/Tell_City,America/Indiana/Vevay:America/Indiana/Vevay,America/Indiana/Vincennes:America/Indiana/Vincennes,America/Indiana/Winamac:America/Indiana/Winamac,America/Inuvik:America/Inuvik,America/Iqaluit:America/Iqaluit,America/Jamaica:America/Jamaica,America/Juneau:America/Juneau,America/Kentucky/Louisville:America/Kentucky/Louisville,America/Kentucky/Monticello:America/Kentucky/Monticello,America/Kralendijk:America/Kralendijk,America/La_Paz:America/La_Paz,America/Lima:America/Lima,America/Los_Angeles:America/Los_Angeles,America/Lower_Princes:America/Lower_Princes,America/Maceio:America/Maceio,America/Managua:America/Managua,America/Manaus:America/Manaus,America/Marigot:America/Marigot,America/Martinique:America/Martinique,America/Matamoros:America/Matamoros,America/Mazatlan:America/Mazatlan,America/Menominee:America/Menominee,America/Merida:America/Merida,America/Metlakatla:America/Metlakatla,America/Mexico_City:America/Mexico_City,America/Miquelon:America/Miquelon,America/Moncton:America/Moncton,America/Monterrey:America/Monterrey,America/Montevideo:America/Montevideo,America/Montserrat:America/Montserrat,America/Nassau:America/Nassau,America/New_York:America/New_York,America/Nipigon:America/Nipigon,America/Nome:America/Nome,America/Noronha:America/Noronha,America/North_Dakota/Beulah:America/North_Dakota/Beulah,America/North_Dakota/Center:America/North_Dakota/Center,America/North_Dakota/New_Salem:America/North_Dakota/New_Salem,America/Nuuk:America/Nuuk,America/Ojinaga:America/Ojinaga,America/Panama:America/Panama,America/Pangnirtung:America/Pangnirtung,America/Paramaribo:America/Paramaribo,America/Phoenix:America/Phoenix,America/Port-au-Prince:America/Port-au-Prince,America/Port_of_Spain:America/Port_of_Spain,America/Porto_Velho:America/Porto_Velho,America/Puerto_Rico:America/Puerto_Rico,America/Punta_Arenas:America/Punta_Arenas,America/Rainy_River:America/Rainy_River,America/Rankin_Inlet:America/Rankin_Inlet,America/Recife:America/Recife,America/Regina:America/Regina,America/Resolute:America/Resolute,America/Rio_Branco:America/Rio_Branco,America/Santarem:America/Santarem,America/Santiago:America/Santiago,America/Santo_Domingo:America/Santo_Domingo,America/Sao_Paulo:America/Sao_Paulo,America/Scoresbysund:America/Scoresbysund,America/Sitka:America/Sitka,America/St_Barthelemy:America/St_Barthelemy,America/St_Johns:America/St_Johns,America/St_Kitts:America/St_Kitts,America/St_Lucia:America/St_Lucia,America/St_Thomas:America/St_Thomas,America/St_Vincent:America/St_Vincent,America/Swift_Current:America/Swift_Current,America/Tegucigalpa:America/Tegucigalpa,America/Thule:America/Thule,America/Thunder_Bay:America/Thunder_Bay,America/Tijuana:America/Tijuana,America/Toronto:America/Toronto,America/Tortola:America/Tortola,America/Vancouver:America/Vancouver,America/Whitehorse:America/Whitehorse,America/Winnipeg:America/Winnipeg,America/Yakutat:America/Yakutat,America/Yellowknife:America/Yellowknife,Antarctica/Casey:Antarctica/Casey,Antarctica/Davis:Antarctica/Davis,Antarctica/DumontDUrville:Antarctica/DumontDUrville,Antarctica/Macquarie:Antarctica/Macquarie,Antarctica/Mawson:Antarctica/Mawson,Antarctica/McMurdo:Antarctica/McMurdo,Antarctica/Palmer:Antarctica/Palmer,Antarctica/Rothera:Antarctica/Rothera,Antarctica/Syowa:Antarctica/Syowa,Antarctica/Troll:Antarctica/Troll,Antarctica/Vostok:Antarctica/Vostok,Arctic/Longyearbyen:Arctic/Longyearbyen,Asia/Aden:Asia/Aden,Asia/Almaty:Asia/Almaty,Asia/Amman:Asia/Amman,Asia/Anadyr:Asia/Anadyr,Asia/Aqtau:Asia/Aqtau,Asia/Aqtobe:Asia/Aqtobe,Asia/Ashgabat:Asia/Ashgabat,Asia/Atyrau:Asia/Atyrau,Asia/Baghdad:Asia/Baghdad,Asia/Bahrain:Asia/Bahrain,Asia/Baku:Asia/Baku,Asia/Bangkok:Asia/Bangkok,Asia/Barnaul:Asia/Barnaul,Asia/Beirut:Asia/Beirut,Asia/Bishkek:Asia/Bishkek,Asia/Brunei:Asia/Brunei,Asia/Chita:Asia/Chita,Asia/Choibalsan:Asia/Choibalsan,Asia/Colombo:Asia/Colombo,Asia/Damascus:Asia/Damascus,Asia/Dhaka:Asia/Dhaka,Asia/Dili:Asia/Dili,Asia/Dubai:Asia/Dubai,Asia/Dushanbe:Asia/Dushanbe,Asia/Famagusta:Asia/Famagusta,Asia/Gaza:Asia/Gaza,Asia/Hebron:Asia/Hebron,Asia/Ho_Chi_Minh:Asia/Ho_Chi_Minh,Asia/Hong_Kong:Asia/Hong_Kong,Asia/Hovd:Asia/Hovd,Asia/Irkutsk:Asia/Irkutsk,Asia/Jakarta:Asia/Jakarta,Asia/Jayapura:Asia/Jayapura,Asia/Jerusalem:Asia/Jerusalem,Asia/Kabul:Asia/Kabul,Asia/Kamchatka:Asia/Kamchatka,Asia/Karachi:Asia/Karachi,Asia/Kathmandu:Asia/Kathmandu,Asia/Khandyga:Asia/Khandyga,Asia/Kolkata:Asia/Kolkata,Asia/Krasnoyarsk:Asia/Krasnoyarsk,Asia/Kuala_Lumpur:Asia/Kuala_Lumpur,Asia/Kuching:Asia/Kuching,Asia/Kuwait:Asia/Kuwait,Asia/Macau:Asia/Macau,Asia/Magadan:Asia/Magadan,Asia/Makassar:Asia/Makassar,Asia/Manila:Asia/Manila,Asia/Muscat:Asia/Muscat,Asia/Nicosia:Asia/Nicosia,Asia/Novokuznetsk:Asia/Novokuznetsk,Asia/Novosibirsk:Asia/Novosibirsk,Asia/Omsk:Asia/Omsk,Asia/Oral:Asia/Oral,Asia/Phnom_Penh:Asia/Phnom_Penh,Asia/Pontianak:Asia/Pontianak,Asia/Pyongyang:Asia/Pyongyang,Asia/Qatar:Asia/Qatar,Asia/Qostanay:Asia/Qostanay,Asia/Qyzylorda:Asia/Qyzylorda,Asia/Riyadh:Asia/Riyadh,Asia/Sakhalin:Asia/Sakhalin,Asia/Samarkand:Asia/Samarkand,Asia/Seoul:Asia/Seoul,Asia/Shanghai:Asia/Shanghai,Asia/Singapore:Asia/Singapore,Asia/Srednekolymsk:Asia/Srednekolymsk,Asia/Taipei:Asia/Taipei,Asia/Tashkent:Asia/Tashkent,Asia/Tbilisi:Asia/Tbilisi,Asia/Tehran:Asia/Tehran,Asia/Thimphu:Asia/Thimphu,Asia/Tokyo:Asia/Tokyo,Asia/Tomsk:Asia/Tomsk,Asia/Ulaanbaatar:Asia/Ulaanbaatar,Asia/Urumqi:Asia/Urumqi,Asia/Ust-Nera:Asia/Ust-Nera,Asia/Vientiane:Asia/Vientiane,Asia/Vladivostok:Asia/Vladivostok,Asia/Yakutsk:Asia/Yakutsk,Asia/Yangon:Asia/Yangon,Asia/Yekaterinburg:Asia/Yekaterinburg,Asia/Yerevan:Asia/Yerevan,Atlantic/Azores:Atlantic/Azores,Atlantic/Bermuda:Atlantic/Bermuda,Atlantic/Canary:Atlantic/Canary,Atlantic/Cape_Verde:Atlantic/Cape_Verde,Atlantic/Faroe:Atlantic/Faroe,Atlantic/Madeira:Atlantic/Madeira,Atlantic/Reykjavik:Atlantic/Reykjavik,Atlantic/South_Georgia:Atlantic/South_Georgia,Atlantic/St_Helena:Atlantic/St_Helena,Atlantic/Stanley:Atlantic/Stanley,Australia/Adelaide:Australia/Adelaide,Australia/Brisbane:Australia/Brisbane,Australia/Broken_Hill:Australia/Broken_Hill,Australia/Darwin:Australia/Darwin,Australia/Eucla:Australia/Eucla,Australia/Hobart:Australia/Hobart,Australia/Lindeman:Australia/Lindeman,Australia/Lord_Howe:Australia/Lord_Howe,Australia/Melbourne:Australia/Melbourne,Australia/Perth:Australia/Perth,Australia/Sydney:Australia/Sydney,Europe/Amsterdam:Europe/Amsterdam,Europe/Andorra:Europe/Andorra,Europe/Astrakhan:Europe/Astrakhan,Europe/Athens:Europe/Athens,Europe/Belgrade:Europe/Belgrade,Europe/Berlin:Europe/Berlin,Europe/Bratislava:Europe/Bratislava,Europe/Brussels:Europe/Brussels,Europe/Bucharest:Europe/Bucharest,Europe/Budapest:Europe/Budapest,Europe/Busingen:Europe/Busingen,Europe/Chisinau:Europe/Chisinau,Europe/Copenhagen:Europe/Copenhagen,Europe/Dublin:Europe/Dublin,Europe/Gibraltar:Europe/Gibraltar,Europe/Guernsey:Europe/Guernsey,Europe/Helsinki:Europe/Helsinki,Europe/Isle_of_Man:Europe/Isle_of_Man,Europe/Istanbul:Europe/Istanbul,Europe/Jersey:Europe/Jersey,Europe/Kaliningrad:Europe/Kaliningrad,Europe/Kiev:Europe/Kiev,Europe/Kirov:Europe/Kirov,Europe/Lisbon:Europe/Lisbon,Europe/Ljubljana:Europe/Ljubljana,Europe/London:Europe/London,Europe/Luxembourg:Europe/Luxembourg,Europe/Madrid:Europe/Madrid,Europe/Malta:Europe/Malta,Europe/Mariehamn:Europe/Mariehamn,Europe/Minsk:Europe/Minsk,Europe/Monaco:Europe/Monaco,Europe/Moscow:Europe/Moscow,Europe/Oslo:Europe/Oslo,Europe/Paris:Europe/Paris,Europe/Podgorica:Europe/Podgorica,Europe/Prague:Europe/Prague,Europe/Riga:Europe/Riga,Europe/Rome:Europe/Rome,Europe/Samara:Europe/Samara,Europe/San_Marino:Europe/San_Marino,Europe/Sarajevo:Europe/Sarajevo,Europe/Saratov:Europe/Saratov,Europe/Simferopol:Europe/Simferopol,Europe/Skopje:Europe/Skopje,Europe/Sofia:Europe/Sofia,Europe/Stockholm:Europe/Stockholm,Europe/Tallinn:Europe/Tallinn,Europe/Tirane:Europe/Tirane,Europe/Ulyanovsk:Europe/Ulyanovsk,Europe/Uzhgorod:Europe/Uzhgorod,Europe/Vaduz:Europe/Vaduz,Europe/Vatican:Europe/Vatican,Europe/Vienna:Europe/Vienna,Europe/Vilnius:Europe/Vilnius,Europe/Volgograd:Europe/Volgograd,Europe/Warsaw:Europe/Warsaw,Europe/Zagreb:Europe/Zagreb,Europe/Zaporozhye:Europe/Zaporozhye,Europe/Zurich:Europe/Zurich,Indian/Antananarivo:Indian/Antananarivo,Indian/Chagos:Indian/Chagos,Indian/Christmas:Indian/Christmas,Indian/Cocos:Indian/Cocos,Indian/Comoro:Indian/Comoro,Indian/Kerguelen:Indian/Kerguelen,Indian/Mahe:Indian/Mahe,Indian/Maldives:Indian/Maldives,Indian/Mauritius:Indian/Mauritius,Indian/Mayotte:Indian/Mayotte,Indian/Reunion:Indian/Reunion,Pacific/Apia:Pacific/Apia,Pacific/Auckland:Pacific/Auckland,Pacific/Bougainville:Pacific/Bougainville,Pacific/Chatham:Pacific/Chatham,Pacific/Chuuk:Pacific/Chuuk,Pacific/Easter:Pacific/Easter,Pacific/Efate:Pacific/Efate,Pacific/Enderbury:Pacific/Enderbury,Pacific/Fakaofo:Pacific/Fakaofo,Pacific/Fiji:Pacific/Fiji,Pacific/Funafuti:Pacific/Funafuti,Pacific/Galapagos:Pacific/Galapagos,Pacific/Gambier:Pacific/Gambier,Pacific/Guadalcanal:Pacific/Guadalcanal,Pacific/Guam:Pacific/Guam,Pacific/Honolulu:Pacific/Honolulu,Pacific/Kiritimati:Pacific/Kiritimati,Pacific/Kosrae:Pacific/Kosrae,Pacific/Kwajalein:Pacific/Kwajalein,Pacific/Majuro:Pacific/Majuro,Pacific/Marquesas:Pacific/Marquesas,Pacific/Midway:Pacific/Midway,Pacific/Nauru:Pacific/Nauru,Pacific/Niue:Pacific/Niue,Pacific/Norfolk:Pacific/Norfolk,Pacific/Noumea:Pacific/Noumea,Pacific/Pago_Pago:Pacific/Pago_Pago,Pacific/Palau:Pacific/Palau,Pacific/Pitcairn:Pacific/Pitcairn,Pacific/Pohnpei:Pacific/Pohnpei,Pacific/Port_Moresby:Pacific/Port_Moresby,Pacific/Rarotonga:Pacific/Rarotonga,Pacific/Saipan:Pacific/Saipan,Pacific/Tahiti:Pacific/Tahiti,Pacific/Tarawa:Pacific/Tarawa,Pacific/Tongatapu:Pacific/Tongatapu,Pacific/Wake:Pacific/Wake,Pacific/Wallis:Pacific/Wallis,UTC:UTC\",\"defaultValue\":\"Africa/Lagos\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_select",
 		"field_id": 6,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"3qeoqmilg5g0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appLog404\",\"fieldName\":\"App Log 404\",\"inputName\":\"tonics_core_settings_appSettings_appLog404\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"3qeoqmilg5g0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appLog404\",\"fieldName\":\"App Log 404\",\"inputName\":\"tonics_core_settings_appSettings_appLog404\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_select",
 		"field_id": 7,
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"qicv7p617o0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appEnvironment\",\"fieldName\":\"App Environment\",\"inputName\":\"tonics_core_settings_appSettings_appEnvironment\",\"selectData\":\"dev:Development,production:Production\",\"defaultValue\":\"production\"}"
-	},
-	{
-		"fk_field_id": "Core Settings",
-		"field_name": "modular_rowcolumn",
-		"field_id": 8,
-		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2jhxm3bsgaa0000000000\",\"field_input_name\":\"tonics_core_settings_MailContainer\",\"fieldName\":\"Mail\",\"inputName\":\"tonics_core_settings_MailContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
-	},
-	{
-		"fk_field_id": "Core Settings",
-		"field_name": "input_select",
-		"field_id": 9,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"197tpaz4z7z4000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailer\",\"fieldName\":\"Mailer\",\"inputName\":\"tonics_core_settings_mail_mailer\",\"selectData\":\"smtp:SMTP,mail:Mail\",\"defaultValue\":\"smtp\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"qicv7p617o0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appEnvironment\",\"fieldName\":\"App Environment\",\"inputName\":\"tonics_core_settings_appSettings_appEnvironment\",\"selectData\":\"dev:Development,production:Production\",\"defaultValue\":\"production\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
+		"field_id": 8,
+		"field_parent_id": 2,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6lp62m5u2gg0000000000\",\"field_input_name\":\"tonics_core_settings_appSettings_appURL\",\"fieldName\":\"App URL\",\"inputName\":\"tonics_core_settings_appSettings_appURL\",\"textType\":\"url\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter App URL\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Core Settings",
+		"field_name": "modular_rowcolumn",
+		"field_id": 9,
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"2jhxm3bsgaa0000000000\",\"field_input_name\":\"tonics_core_settings_MailContainer\",\"fieldName\":\"Mail\",\"inputName\":\"tonics_core_settings_MailContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+	},
+	{
+		"fk_field_id": "Core Settings",
+		"field_name": "input_select",
 		"field_id": 10,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5bahfs7lacc0000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailHost\",\"fieldName\":\"Mail Host\",\"inputName\":\"tonics_core_settings_mail_mailHost\",\"textType\":\"text\",\"defaultValue\":\"localhost\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Mail Host\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"197tpaz4z7z4000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailer\",\"fieldName\":\"Mailer\",\"inputName\":\"tonics_core_settings_mail_mailer\",\"selectData\":\"smtp:SMTP,mail:Mail\",\"defaultValue\":\"smtp\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
 		"field_id": 11,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"vu4u92a7k9c000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailPort\",\"fieldName\":\"Mail Port\",\"inputName\":\"tonics_core_settings_mail_mailPort\",\"textType\":\"number\",\"defaultValue\":\"25\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Mail Port\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5bahfs7lacc0000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailHost\",\"fieldName\":\"Mail Host\",\"inputName\":\"tonics_core_settings_mail_mailHost\",\"textType\":\"text\",\"defaultValue\":\"localhost\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Mail Host\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
 		"field_id": 12,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"bomggq9rals000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailUsername\",\"fieldName\":\"Mail Username\",\"inputName\":\"tonics_core_settings_mail_mailUsername\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Mail Username\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"vu4u92a7k9c000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailPort\",\"fieldName\":\"Mail Port\",\"inputName\":\"tonics_core_settings_mail_mailPort\",\"textType\":\"number\",\"defaultValue\":\"25\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Mail Port\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
 		"field_id": 13,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3vuuf9kzvy80000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailPort\",\"fieldName\":\"Mail Password\",\"inputName\":\"tonics_core_settings_mail_mailPassword\",\"textType\":\"password\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter Mail Password\",\"readOnly\":\"0\",\"required\":\"0\"}"
-	},
-	{
-		"fk_field_id": "Core Settings",
-		"field_name": "input_select",
-		"field_id": 14,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"2kubph2w8ly0000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailEncryption\",\"fieldName\":\"Mail Encryption\",\"inputName\":\"tonics_core_settings_mail_mailEncryption\",\"selectData\":\"tls:TLS,ssl:SSL,no:No Encryption\",\"defaultValue\":\"tls\"}"
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"bomggq9rals000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailUsername\",\"fieldName\":\"Mail Username\",\"inputName\":\"tonics_core_settings_mail_mailUsername\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Mail Username\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
+		"field_id": 14,
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"3vuuf9kzvy80000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailPassword\",\"fieldName\":\"Mail Password\",\"inputName\":\"tonics_core_settings_mail_mailPassword\",\"textType\":\"password\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Mail Password\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Core Settings",
+		"field_name": "input_select",
 		"field_id": 15,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5tuq7nrp3280000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailFromAddress\",\"fieldName\":\"MAIL FROM ADDRESS\",\"inputName\":\"tonics_core_settings_mail_mailFromAddress\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter The Address You Want To Send From\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"2kubph2w8ly0000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailEncryption\",\"fieldName\":\"Mail Encryption\",\"inputName\":\"tonics_core_settings_mail_mailEncryption\",\"selectData\":\"tls:TLS,ssl:SSL,no:No Encryption\",\"defaultValue\":\"tls\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
 		"field_id": 16,
-		"field_parent_id": 8,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2i9hjb9eclk0000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailReplyTo\",\"fieldName\":\"MAIL REPLY TO\",\"inputName\":\"tonics_core_settings_mail_mailReplyTo\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter The Address You Want To Reply From\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5tuq7nrp3280000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailFromAddress\",\"fieldName\":\"MAIL FROM ADDRESS\",\"inputName\":\"tonics_core_settings_mail_mailFromAddress\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter The Address You Want To Send From\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Core Settings",
+		"field_name": "input_text",
+		"field_id": 17,
+		"field_parent_id": 9,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2i9hjb9eclk0000000000\",\"field_input_name\":\"tonics_core_settings_mail_mailReplyTo\",\"fieldName\":\"MAIL REPLY TO\",\"inputName\":\"tonics_core_settings_mail_mailReplyTo\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter The Address You Want To Reply From\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "modular_rowcolumn",
-		"field_id": 17,
-		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5gjx50opx980000000000\",\"field_input_name\":\"tonics_core_settings_UpdatesContainer\",\"fieldName\":\"Updates\",\"inputName\":\"tonics_core_settings_UpdatesContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
-	},
-	{
-		"fk_field_id": "Core Settings",
-		"field_name": "input_select",
 		"field_id": 18,
-		"field_parent_id": 17,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"2g2i3gapeuas000000000\",\"field_input_name\":\"tonics_core_settings_updates_autoUpdateModules\",\"fieldName\":\"Auto Update Modules\",\"inputName\":\"tonics_core_settings_updates_autoUpdateModules\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5gjx50opx980000000000\",\"field_input_name\":\"tonics_core_settings_UpdatesContainer\",\"fieldName\":\"Updates\",\"inputName\":\"tonics_core_settings_UpdatesContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_select",
 		"field_id": 19,
-		"field_parent_id": 17,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"1nmzqkf0pbcw000000000\",\"field_input_name\":\"tonics_core_settings_updates_autoUpdateApps\",\"fieldName\":\"Auto Update Apps\",\"inputName\":\"tonics_core_settings_updates_autoUpdateApps\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\"}"
+		"field_parent_id": 18,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"2g2i3gapeuas000000000\",\"field_input_name\":\"tonics_core_settings_updates_autoUpdateModules\",\"fieldName\":\"Auto Update Modules\",\"inputName\":\"tonics_core_settings_updates_autoUpdateModules\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
+	},
+	{
+		"fk_field_id": "Core Settings",
+		"field_name": "input_select",
+		"field_id": 20,
+		"field_parent_id": 18,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"1nmzqkf0pbcw000000000\",\"field_input_name\":\"tonics_core_settings_updates_autoUpdateApps\",\"fieldName\":\"Auto Update Apps\",\"inputName\":\"tonics_core_settings_updates_autoUpdateApps\",\"selectData\":\"1:True,0:False\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "modular_rowcolumn",
-		"field_id": 20,
+		"field_id": 21,
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5w3edftqzbk0000000000\",\"field_input_name\":\"tonics_core_settings_MediaDrivesContainer\",\"fieldName\":\"Media Drives\",\"inputName\":\"tonics_core_settings_MediaDrivesContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"5w3edftqzbk0000000000\",\"field_input_name\":\"tonics_core_settings_MediaDrivesContainer\",\"fieldName\":\"Media Drives\",\"inputName\":\"tonics_core_settings_MediaDrivesContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "modular_rowcolumnrepeater",
-		"field_id": 21,
-		"field_parent_id": 20,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"51ielx9gb2k0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater\",\"fieldName\":\"DropBox\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add New DropBox Key\",\"cell\":\"on\"}"
-	},
-	{
-		"fk_field_id": "Core Settings",
-		"field_name": "input_text",
 		"field_id": 22,
 		"field_parent_id": 21,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2iwfmemy1zy0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Name[]\",\"fieldName\":\"DropBox Name\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Name[]\",\"textType\":\"text\",\"defaultValue\":\"DropBox Instance 1\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter DropBox Name\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"51ielx9gb2k0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater\",\"fieldName\":\"DropBox\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add New DropBox Key\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
 		"field_id": 23,
-		"field_parent_id": 21,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"636viit00k40000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key[]\",\"fieldName\":\"DropBox Key\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key[]\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Enter DropBox Key\",\"readOnly\":\"0\",\"required\":\"0\"}"
-	},
-	{
-		"fk_field_id": "Core Settings",
-		"field_name": "modular_rowcolumnrepeater",
-		"field_id": 24,
-		"field_parent_id": 20,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"5a2eu7nrrrk0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_oneDriveRepeater\",\"fieldName\":\"OneDrive\",\"inputName\":\"tonics_core_settings_mediaDrives_oneDriveRepeater\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"1\",\"repeat_button_text\":\"Add New OneDrive\",\"cell\":\"on\"}"
+		"field_parent_id": 22,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2iwfmemy1zy0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Name[]\",\"fieldName\":\"DropBox Name\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Name[]\",\"textType\":\"text\",\"defaultValue\":\"DropBox Instance 1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter DropBox Name\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Core Settings",
 		"field_name": "input_text",
+		"field_id": 24,
+		"field_parent_id": 22,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"636viit00k40000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key[]\",\"fieldName\":\"DropBox Key\",\"inputName\":\"tonics_core_settings_mediaDrives_dropBoxRepeater_Key[]\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter DropBox Key\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Core Settings",
+		"field_name": "modular_rowcolumnrepeater",
 		"field_id": 25,
-		"field_parent_id": 24,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1w565xz9kqhs000000000\",\"field_input_name\":\"\",\"fieldName\":\"Comiing Soon\",\"inputName\":\"\",\"textType\":\"text\",\"defaultValue\":\"Coming Soon\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"1\",\"required\":\"1\"}"
+		"field_parent_id": 21,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"5a2eu7nrrrk0000000000\",\"field_input_name\":\"tonics_core_settings_mediaDrives_oneDriveRepeater\",\"fieldName\":\"OneDrive\",\"inputName\":\"tonics_core_settings_mediaDrives_oneDriveRepeater\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"1\",\"repeat_button_text\":\"Add New OneDrive\",\"cell\":\"on\"}"
+	},
+	{
+		"fk_field_id": "Core Settings",
+		"field_name": "input_text",
+		"field_id": 26,
+		"field_parent_id": 25,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1w565xz9kqhs000000000\",\"field_input_name\":\"\",\"fieldName\":\"Comiing Soon\",\"inputName\":\"\",\"textType\":\"text\",\"defaultValue\":\"Coming Soon\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"1\",\"required\":\"1\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "Track Page Import Settings",

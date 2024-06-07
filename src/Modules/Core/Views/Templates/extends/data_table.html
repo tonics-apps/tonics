@@ -1,14 +1,19 @@
 [[hook_into('Core::in_main')
-<section class="dataTable disable-select owl">
+<section class="dataTable disable-select owl" data-type="[[v('DataTable.dataTableType')]]">
     [[add_hook('Core::main_form_and_filter')]]
     <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
         [[add_hook('Core::before_data_table')]]
-        <table id="dt" style="grid-template-columns: [[each("dtHeader in DataTable.headers")minmax([[v('dtHeader.minmax')]]) ]];">
+        <table DataTable.headers dtHeader id="dt" in style="grid-template-columns:
+            [[each("")
+                [[if('v[dtHeader.hide] === bool[false]')
+                    minmax([[v('dtHeader.minmax')]])
+                ]]
+            ]];">
         <thead>
         <tr>
             [[add_hook('Core::before_data_table_header')]]
             [[each("dtHeader in DataTable.headers")
-                <th title="[[v('dtHeader.desc .. dtHeader.title')]]" [[each("dtHeaderKeyValue in dtHeader") data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"]]>
+                <th [[if("v[dtHeader.hide]") style="visibility:collapse; display:none;"]] title="[[v('dtHeader.desc .. dtHeader.title')]]" [[each("dtHeaderKeyValue in dtHeader") data-[[v('_loop.key')]]="[[v('dtHeaderKeyValue')]]"]]>
                     [[v('dtHeader.title')]]
                 </th>
             ]]
@@ -22,7 +27,7 @@
 
             [[each("dtHeader in DataTable.headers")
                 [[if("v[dtRow->dtHeader.td] || v[__current_var_key_exist]")
-                    <td tabindex="-1" data-td="[[v('dtHeader.td')]]">[[add_hook('Core::on_data_table_data')[[_v('dtRow->dtHeader.td')]]]]</td>
+                    <td [[if("v[dtHeader.hide]") style="visibility:collapse; display:none;"]] tabindex="-1" data-td="[[v('dtHeader.td')]]">[[add_hook('Core::on_data_table_data')[[_v('dtRow->dtHeader.td')]]]]</td>
                 ]]
             ]]
 
@@ -157,6 +162,17 @@
                             margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="DeleteEvent" aria-label="Delete">
         <span class="color:red">❌</span>
         <span>Delete</span>
+    </button>
+</li>
+]]
+
+[[b('Core::data_table_menu_buy')
+<li class="menu-item deactivate-menu" id="DataTableMenuBuyHandler">
+    <button aria-label="Buy"
+            class="d:flex flex-gap:small  text-align:center bg:transparent border:none color:white bg:black-one border:black padding:small
+                            margin-top:0 cursor:pointer button:box-shadow-variant-2" data-menu-action="TonicsAppStorePurchase">
+        <span>🛒</span>
+        <span>Purchase</span>
     </button>
 </li>
 ]]

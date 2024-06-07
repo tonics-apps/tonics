@@ -30,6 +30,7 @@ use App\Modules\Media\States\DownloadFromURLState;
 use App\Modules\Media\States\ExtractFileState;
 use Devsrealm\TonicsFileManager\StorageDriver\StorageDriverInterface;
 use Devsrealm\TonicsFileManager\Utilities\FileHelper;
+use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -37,29 +38,34 @@ class LocalDriver implements StorageDriverInterface
 {
     use FileHelper, Validator, MediaValidationRules;
 
-    private string $path;
+    private string        $path;
+    private TonicsHelpers $helpers;
 
-    public function __construct()
+    /**
+     * @throws \Exception
+     */
+    public function __construct (TonicsHelpers $helpers = null)
     {
         $this->path = DriveConfig::getPrivatePath();
+        $this->helpers = $helpers ?? helper();
     }
 
     /**
      * @inheritDoc
      * @throws \Exception
      */
-    public function preFlight($data)
+    public function preFlight ($data)
     {
         $tbl = $this->getBlobTable();
         $fileName = $this->normalizeFileName($data['Filename'], '_');
         $f = $data['Uploadto'] . DIRECTORY_SEPARATOR . $fileName;
-        $chunksTemp = helper()
+        $chunksTemp = $this->helpers
             ->generateBlobCollatorsChunksToSend($data['Byteperchunk'], $data['Totalblobsize'], $data['Chunkstosend'], $data['Uploadto'], $f);
 
         $preflightData = null;
         db(onGetDB: function ($db) use ($f, $chunksTemp, $tbl, &$preflightData) {
             $db->insertOnDuplicate(
-                table: $tbl, data: $chunksTemp, update: ['hash_id', 'moreBlobInfo'], chunkInsertRate: 2000
+                table: $tbl, data: $chunksTemp, update: ['hash_id', 'moreBlobInfo'], chunkInsertRate: 2000,
             );
 
             /**
@@ -79,67 +85,10 @@ SQL, $f);
     }
 
     /**
-     * Download From URL
-     * @param string $url
-     * @param string $uploadTo
-     * @param string $filename
-     * @param bool $importToDB
-     * @return bool
-     * @throws \Exception
-     */
-    public function createFromURL(string $url, string $uploadTo = '', string $filename = '', bool $importToDB = true): bool
-    {
-        $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename, $importToDB);
-
-        $initState = $downloadFromURLState::InitialState;
-        $downloadFromURLState->setCurrentState($initState)->runStates(false);
-        return $downloadFromURLState->getStateResult() === SimpleState::DONE;
-    }
-
-    /**
-     * @param string $pathToArchive
-     * @param string $extractTo
-     * @param string $archiveType
-     * @param bool $importToDB
-     * @return bool
-     * @throws \Exception
-     */
-    public function extractFile(
-        string $pathToArchive,
-        string $extractTo,
-        string $archiveType = 'zip',
-        bool   $importToDB = true,
-    ): bool
-    {
-        if (strtolower($archiveType) === 'zip') {
-            $extractFileState = new ExtractFileState($this);
-            $lastExtractedFilePath = '';
-            helper()->extractZipFile($pathToArchive, $extractTo, function ($extractedFilePath, $shortFilePath, $remaining) use ($importToDB, $extractFileState) {
-                helper()->sendMsg('ExtractFileState', "Extracted $shortFilePath");
-                helper()->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
-                if ($importToDB) {
-                    $extractFileState
-                        ->setExtractedFilePath($extractedFilePath)
-                        ->setCurrentState(ExtractFileState::ExtractFileStateInitial)
-                        ->runStates(false);
-                }
-            });
-
-            $isDone = $extractFileState->getStateResult() === SimpleState::DONE;
-            if ($importToDB === false) {
-                return true;
-            }
-
-            return $isDone;
-        }
-        return false;
-    }
-
-    /**
      * @inheritDoc
      * @throws \Exception
      */
-    public function create($data): mixed
+    public function create ($data): mixed
     {
         if (!$dataInfo = $this->validateCreateOrUpdateFile($data)) {
             return false;
@@ -159,10 +108,11 @@ SQL, $f);
 
     /**
      * @param $data
+     *
      * @return bool
      * @throws \Exception
      */
-    public function createFolder($data): bool
+    public function createFolder ($data): bool
     {
         $folderProperties = json_decode($data);
         try {
@@ -178,7 +128,7 @@ SQL, $f);
         # construct path to upload file to
         $uploadTo = $this->getPath() . $folderProperties->uploadTo;
         # if destination doesnt exist
-        if (!helper()->fileExists($uploadTo)) {
+        if (!$this->helpers->fileExists($uploadTo)) {
             return false;
         }
         # folderPath
@@ -192,11 +142,12 @@ SQL, $f);
 
     /**
      * @param $data
+     *
      * @return mixed
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function cancelFileCreate($data): mixed
+    public function cancelFileCreate ($data): mixed
     {
         $blobInfo = json_decode($data);
         $validator = $this->getValidator()->make($blobInfo, $this->mediaFileCancelUploadRule());
@@ -209,10 +160,10 @@ SQL, $f);
         $uploadTo = $this->getPath() . $blobInfo->uploadTo;
         # filepath
         $filePath = $uploadTo . DIRECTORY_SEPARATOR . $blobInfo->filename;
-        if (!helper()->fileExists($filePath)) {
+        if (!$this->helpers->fileExists($filePath)) {
             return false;
         }
-        $fileSize = helper()->fileSize($filePath);
+        $fileSize = $this->helpers->fileSize($filePath);
 
         $blob_name = str_replace("{$this->getPath()}", '', $filePath);
         $this->deleteBlobs($blobInfo->totalChunks, $blob_name);
@@ -226,418 +177,14 @@ SQL, $f);
         }
         # Else (fileSize is lesser than totalBlobSize), this signifies that the file is uploading but not completed
         #  we cancel and delete.
-        return helper()->forceDeleteFile($filePath, 50);
+        return $this->helpers->forceDeleteFile($filePath, 50);
     }
-
-    /**
-     * @param $data
-     * @return bool|object
-     * @throws \ReflectionException
-     * @throws \Exception
-     */
-    protected function validateCreateOrUpdateFile($data): bool|object
-    {
-        # if key doesn't exist
-        if (!helper()->getAPIHeaderKey('BlobDataInfo')) {
-            return false;
-        }
-
-        $blobInfo = json_decode(helper()->getAPIHeaderKey('BlobDataInfo'));
-        try {
-            $validator = $this->getValidator()->make($blobInfo, $this->mediaFileCreateRule());
-        } catch (\Exception) {
-            return false;
-        }
-
-        # if validation fails
-        if (!$validator->passes()) {
-            return false;
-        }
-
-        # construct path to upload file to
-        $uploadTo = $this->getPath() . $blobInfo->uploadTo;
-
-        # if path doesn't exist
-        if (!helper()->fileExists($uploadTo)) {
-            return false;
-        }
-
-        # filepath
-        $filePath = $uploadTo . DIRECTORY_SEPARATOR . $blobInfo->filename;
-
-        # we insert chunk
-        $this->insertBlobChunk($blobInfo, $data, $filePath);
-
-        return (object)[
-            // filepath is the file we are creating or updating path
-            'filePath' => $filePath,
-            // info contains information about the updating process
-            'info' => $this->isBlobChunkUploadCompleted($blobInfo, $filePath),
-            // blob info
-            'blobInfo' => $blobInfo
-        ];
-    }
-
-
-    /**
-     * Insert File or Directory To DB.
-     * @param $path
-     * file path
-     * @param $uploadToID
-     * id of that to upload file to
-     * @param string $fileType
-     * file, or directory
-     * @throws \ReflectionException
-     * @throws \Exception
-     */
-    public function insertFileToDB(
-        $path,
-        $uploadToID,
-        string $fileType = 'file'
-    ): void
-    {
-        $fileComposed = $this->composeFile($path, $uploadToID, $fileType);
-        $exist = $this->doesFileOrDirectoryExistInDB($path, $uploadToID);
-        if ($exist === false) {
-            db(onGetDB: function ($db) use ($fileComposed) {
-                $db->insertOnDuplicate(
-                    table: $this->getDriveTable(), data: $fileComposed, update: ['properties'], chunkInsertRate: 1
-                );
-            });
-        }
-
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function insertFileToDBReturning(
-        $path,
-        $uploadToID,
-        $fileType = 'file',
-        $return = []
-    ): \stdClass|bool
-    {
-        $file = $this->composeFile($path, $uploadToID, $fileType);
-        $result = null;
-        db(onGetDB: function (TonicsQuery $db) use ($return, $file, &$result) {
-            $result = $db->insertReturning(
-                $this->getDriveTable(), $file, $return, 'drive_id'
-            );
-        });
-        return $result;
-    }
-
-    /**
-     * Note: For This function to work, the file or directory must have been created in the directory, so, this is just adding it to the database.
-     *
-     * This function is same as the one in ExtractFileStateInitial, so, would have to replace the one in ExtractFileStateInitial with this one
-     *
-     * - This function takes in a file path and recursively creates all the directories and files present in the path.
-     * - It first extracts the path of files from the base path using DIRECTORY_SEPARATOR and then filters the empty values.
-     * - The function then uses an array_map to loop through each file in the path and create directories if it does not exist already.
-     * - It also checks if a file exists and if not, it inserts it into the database.
-     * - The function returns true if the operation is successful, else returns false.
-     * @param string $filesPath The path of the files to be created.
-     * @return bool Returns true if the operation is successful, else returns false.
-     */
-    public function recursivelyCreateFileOrDirectory(string $filesPath, callable $onInsert = null): bool
-    {
-        $files = explode(DIRECTORY_SEPARATOR, str_replace(DriveConfig::getPrivatePath(), '', $filesPath));
-        if (empty($files)) {
-            return false;
-        }
-
-        $handledPath = [];
-        $currentParent = null;
-        $currentFileRelPath = '';
-        $files = array_filter($files);
-        try {
-            array_map(function ($file) use ($onInsert, &$handledPath, &$currentParent, &$currentFileRelPath) {
-                $currentFileRelPath .= DIRECTORY_SEPARATOR . $file;
-
-                if (key_exists($currentFileRelPath, $handledPath)) {
-                    $currentParent = $handledPath[$currentFileRelPath];
-                }
-
-                if (helper()->isDirectory(DriveConfig::getPrivatePath() . $currentFileRelPath)) {
-                    if (!key_exists($currentFileRelPath, $handledPath)) {
-                        $pathID = $this->findChildRealID(array_filter(explode(DIRECTORY_SEPARATOR, $currentFileRelPath)));
-                        ## Meaning No Such Path Exist
-                        if ($pathID === false) {
-                            $data = $this
-                                ->insertFileToDBReturning(
-                                    DriveConfig::getPrivatePath() . $currentFileRelPath,
-                                    $currentParent->drive_id,
-                                    'directory', ['drive_id']);
-                            if ($onInsert) {
-                                $onInsert($data);
-                            }
-                        } else {
-                            $data = null;
-                            db(onGetDB: function ($db) use ($pathID, &$data) {
-                                $data = $db->row(<<<SQL
-SELECT * FROM {$this->getDriveTable()} WHERE `drive_id` = ?
-SQL, $pathID);
-                            });
-                        }
-                        $handledPath[$currentFileRelPath] = $data;
-                        $currentParent = $data;
-                    }
-                }
-
-                if (helper()->isFile(DriveConfig::getPrivatePath() . $currentFileRelPath)) {
-                    $fileInserted = null;
-                    $exist = $this->doesFileOrDirectoryExistInDB(
-                        DriveConfig::getPrivatePath() . $currentFileRelPath,
-                        $currentParent->drive_id,
-                        function ($data) use (&$fileInserted) {
-                            $fileInserted = $data;
-                        });
-
-                    if ($exist === false) {
-                        $fileInserted = $this
-                            ->insertFileToDBReturning(
-                                DriveConfig::getPrivatePath() . $currentFileRelPath,
-                                $currentParent->drive_id,
-                                'file', ['drive_id', 'properties', 'drive_unique_id']);
-                    }
-
-                    if ($onInsert) {
-                        $onInsert($fileInserted);
-                    }
-                }
-                return $file;
-            }, $files);
-        } catch (\Exception) {
-            return false;
-        }
-
-        return true;
-
-    }
-
-    /**
-     * @param string $path
-     * @param int $uploadToID
-     * @param callable|null $onExist
-     * @return bool
-     * @throws \ReflectionException
-     * @throws \Exception
-     */
-    public function doesFileOrDirectoryExistInDB(string $path, int $uploadToID, callable $onExist = null): bool
-    {
-        $currentFileRelPath = helper()->getDriveSystemParentSignature(DriveConfig::getPrivatePath(), $path);
-        $searchData = [
-            'id' => $uploadToID,
-            'path' => $currentFileRelPath,
-            'query' => helper()->getFileName($path)
-        ];
-        $filePath = $searchData['path'] . DIRECTORY_SEPARATOR . $searchData['query'];
-        $searchResult = $this->searchFiles($searchData);
-        $exist = false;
-        if (isset($searchResult['data']) && is_array($searchResult['data'])) {
-            foreach ($searchResult['data'] as $file) {
-                if ($file->filepath === $filePath && $file->filename === $searchData['query']) {
-                    $exist = true;
-                    if ($onExist) {
-                        $onExist($file);
-                    }
-                    break;
-                }
-            }
-        }
-        return $exist;
-    }
-
-    /**
-     * If result is not false, you get the following object items:
-     *
-     * - urlPreview:  Suitable for preview
-     *  - urlDownload: Suitable for download
-     * @throws \Exception
-     */
-    public function convertFilePathToFileObject(string $fullPath)
-    {
-
-        if (helper()->fileExists($fullPath) === false) {
-            return false;
-        }
-
-        $currentFileRelPath = str_replace(DriveConfig::getPrivatePath(), '', DriveConfig::getUploadsPath());
-
-        $rootID = null;
-        db(onGetDB: function ($db) use (&$rootID) {
-            $table = $this->getDriveTable();
-            $rootID = $db->row("Select `drive_id` FROM $table WHERE `drive_parent_id` IS NULL");
-        });
-
-        if (!isset($rootID->drive_id)) {
-            return false;
-        }
-        $filename = helper()->getFileName($fullPath);
-        $rootID = $rootID->drive_id;
-        $searchData = [
-            'id' => $rootID,
-            'path' => $currentFileRelPath,
-            'query' => $filename
-        ];
-        $searchResult = $this->searchFiles($searchData);
-        $filePath = str_replace(DriveConfig::getPrivatePath(), '', $fullPath);
-        if (isset($searchResult['data']) && is_array($searchResult['data'])) {
-            foreach ($searchResult['data'] as $file) {
-                if ($file->filepath === $filePath && $file->filename === $searchData['query']) {
-                    $file->urlPreview = DriveConfig::serveFilePath() . "$file->drive_unique_id?render";
-                    $file->urlDownload = DriveConfig::serveFilePath() . "$file->drive_unique_id";
-                    return $file;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @param string $filesPath
-     * @return bool
-     */
-
-    /**
-     * @throws \Exception
-     */
-    protected function composeFile($path, $uploadToID, $fileType)
-    {
-        $relPath = helper()->getDriveSystemRelativeSignature(DriveConfig::getPrivatePath(), $path);
-        $uniqueID = hash('sha256', $relPath . random_int(0000000, PHP_INT_MAX));
-
-        $filename = helper()->getFileName($path);
-
-        $ext = ($fileType !== 'file') ? null : helper()->extension($path);
-        $properties = [
-            'ext' => $ext,
-            'filename' => $filename,
-            'size' => helper()->fileSize($path),
-            "time_created" => helper()->getFileTimeCreated($path),
-            "time_modified" => helper()->getFileTimeModified($path)
-        ];
-        helper()->moreFileProperties($path, $ext, $properties);
-        return [
-            "drive_parent_id" => $uploadToID,
-            "drive_unique_id" => $uniqueID,
-            "type" => $fileType,
-            'filename' => $filename,
-            "properties" => json_encode($properties),
-            "security" => json_encode([
-                "lock" => false,
-                "password" => random_int(0000000, PHP_INT_MAX),
-            ])
-        ];
-    }
-
-
-    /**
-     * Checks if blob chunks has been successfully merged and uploaded.
-     *
-     * It Returns the following object data on the current upload:
-     *
-     * - totalUploadedChunks: The total number of the uploaded blob chunks, not to be confused with the total chunks
-     * - totalChunks: The total number blob chunks that would be uploaded
-     * - uploadPercentage: The upload percentage
-     * - isUploadCompleted: Return bool on whether the upload is completed or not
-     * @param $blobInfo
-     * @param $filePath
-     * @return object
-     * @throws \Exception
-     */
-    public function isBlobChunkUploadCompleted($blobInfo, $filePath): object
-    {
-        $blob_name = str_replace("{$this->getPath()}", '', $filePath);
-
-        // Returns the count of rows that are either corrupted or needs to be filled
-        // A data is corrupted if missing_blob_chunk_byte is greater than 0 (the missing byte is due to connection outage or some weird shit)
-        // A data hasn't been filled if missing_blob_chunk_byte is null
-        $totalUploadedChunks = null;
-        $sum = null;
-        db(onGetDB: function (TonicsQuery $db) use ($blob_name, $blobInfo, &$totalUploadedChunks, &$sum) {
-            $totalUploadedChunks = $db
-                ->run("SELECT count(*) as count FROM {$this->getBlobTable()} 
-                            WHERE `blob_name` = ? AND missing_blob_chunk_byte = 0", $blob_name)[0];
-
-            // The chunks that has been uploaded so far
-            $totalUploadedChunks = $totalUploadedChunks->count;
-
-            $sum = $db
-                ->run("SELECT SUM(blob_chunk_size) as sum FROM {$this->getBlobTable()} 
-                            WHERE `blob_name` = ? AND missing_blob_chunk_byte = 0", $blob_name)[0];
-        });
-
-        // The total no blob chunks that would be uploaded
-        $totalChunks = (int)$blobInfo->totalChunks;
-
-
-        return (object)[
-            'totalUploadedChunks' => $totalUploadedChunks,
-            'totalChunks' => $totalChunks,
-            'uploaded' => (isset($sum->sum)) ? helper()->formatBytes($sum->sum) : null,
-            'uploadPercentage' => ($totalUploadedChunks / $totalChunks) * 100,
-            'isUploadCompleted' => $totalUploadedChunks === $totalChunks,
-        ];
-    }
-
-    /**
-     * @param \stdClass $blobInfo
-     * @param $data
-     * @param $filePath
-     * @throws \Exception
-     */
-    public function insertBlobChunk(\stdClass $blobInfo, $data, $filePath)
-    {
-        $tbl = $this->getBlobTable();
-        $outFile = helper()->forceOpenFile($filePath);
-        if ($outFile !== false) {
-            // startSlice is the offset
-            $seek = fseek($outFile, $blobInfo->startSlice, SEEK_CUR);
-            if ($seek === -1) {
-                throw new FileException("Failed to Seek File Pointer of `$filePath`");
-            }
-            $write = fwrite($outFile, $data);
-            if ($write === false) {
-                throw new FileException("Failed To write To File. `$filePath`");
-            }
-            fclose($outFile);
-            $outFile = null;
-        }
-
-        /// this is from create method since we want it to be as fast as possible
-        if (isset($blobInfo->id)) {
-            db(onGetDB: function ($db) use ($blobInfo, $data, $tbl) {
-                $db->run("UPDATE $tbl SET `live_blob_chunk_size` = ?  WHERE `id` = ?;", strlen($data), $blobInfo->id);
-            });
-        }
-    }
-
-    /**
-     * @param $totalChunks
-     * @param $blob_name
-     * @param int $chunksToDeleteAtATime
-     * @throws \Exception
-     */
-    public function deleteBlobs($totalChunks, $blob_name, int $chunksToDeleteAtATime = 500): void
-    {
-        $noOfTimesToLoop = ceil($totalChunks / $chunksToDeleteAtATime);
-        for ($i = 1; $i <= $noOfTimesToLoop; $i++) {
-            $result = null;
-            db(onGetDB: function ($db) use ($blob_name, $chunksToDeleteAtATime, &$result) {
-                $db->run("DELETE FROM {$this->getBlobTable()} WHERE `blob_name` = ? ORDER BY `id` DESC LIMIT $chunksToDeleteAtATime", $blob_name);
-            });
-        }
-    }
-
 
     /**
      * @inheritDoc
      * @throws \Exception
      */
-    public function clear($data): mixed
+    public function clear ($data): mixed
     {
 
         $files = $data->files;
@@ -647,8 +194,8 @@ SQL, $pathID);
             if ($validator->fails()) {
                 return false;
             }
-            $fileAbsPath = helper()->dirname($this->getPath() . DIRECTORY_SEPARATOR . $file->file_path) . DIRECTORY_SEPARATOR . $file->filename;
-            if (helper()->deleteFileOrDirectory($fileAbsPath)) {
+            $fileAbsPath = $this->helpers->dirname($this->getPath() . DIRECTORY_SEPARATOR . $file->file_path) . DIRECTORY_SEPARATOR . $file->filename;
+            if ($this->helpers->deleteFileOrDirectory($fileAbsPath)) {
                 ++$deleteFiles;
             }
 
@@ -663,10 +210,11 @@ SQL, $file->drive_id);
 
     /**
      * @param $data
+     *
      * @return bool
      * @throws \Exception
      */
-    public function moveFiles($data): bool
+    public function moveFiles ($data): bool
     {
         $files = $data->files;
         $destinationFolder = $data->destination;
@@ -679,12 +227,12 @@ SQL, $file->drive_id);
         if ($validator->fails()) {
             return false;
         }
-        $dirAbsPath = helper()->dirname($this->getPath() . DIRECTORY_SEPARATOR . $destinationFolder->file_path) . DIRECTORY_SEPARATOR . $destinationFolder->filename;
+        $dirAbsPath = $this->helpers->dirname($this->getPath() . DIRECTORY_SEPARATOR . $destinationFolder->file_path) . DIRECTORY_SEPARATOR . $destinationFolder->filename;
 
         #
         # If the destination folder doesn't exist, return false, else, move on
         #
-        if (!helper()->fileExists($dirAbsPath) && helper()->isDirectory($dirAbsPath)) {
+        if (!$this->helpers->fileExists($dirAbsPath) && $this->helpers->isDirectory($dirAbsPath)) {
             return false;
         }
 
@@ -702,8 +250,8 @@ SQL, $file->drive_id);
                 return false;
             }
 
-            $fileAbsPath = helper()->dirname($this->getPath() . DIRECTORY_SEPARATOR . $file->file_path) . DIRECTORY_SEPARATOR . $file->filename;
-            if (!helper()->fileExists($fileAbsPath)) {
+            $fileAbsPath = $this->helpers->dirname($this->getPath() . DIRECTORY_SEPARATOR . $file->file_path) . DIRECTORY_SEPARATOR . $file->filename;
+            if (!$this->helpers->fileExists($fileAbsPath)) {
                 return false;
             }
 
@@ -716,12 +264,12 @@ SQL, $file->drive_id);
         # If we got here, we can start moving the files into the directory
         #
         foreach ($files as $file) {
-            $fileAbsPath = helper()->dirname($this->getPath() . DIRECTORY_SEPARATOR . $file->file_path) . DIRECTORY_SEPARATOR . $file->filename;
+            $fileAbsPath = $this->helpers->dirname($this->getPath() . DIRECTORY_SEPARATOR . $file->file_path) . DIRECTORY_SEPARATOR . $file->filename;
             if (!is_writable($fileAbsPath)) {
                 return false;
             }
 
-            if (helper()->move($fileAbsPath, $dirAbsPath . DIRECTORY_SEPARATOR . $file->filename)) {
+            if ($this->helpers->move($fileAbsPath, $dirAbsPath . DIRECTORY_SEPARATOR . $file->filename)) {
                 db(onGetDB: function ($db) use ($file, $destinationFolder) {
                     $db->run("UPDATE {$this->getDriveTable()} SET `drive_parent_id` = ?
                                                         WHERE drive_id = ?", $destinationFolder->drive_id, $file->drive_id);
@@ -736,7 +284,7 @@ SQL, $file->drive_id);
      * @inheritDoc
      * @throws \Exception
      */
-    public function rename($data)
+    public function rename ($data)
     {
         $validator = $this->getValidator()->make($data, $this->mediaRenameRules());
 
@@ -747,16 +295,16 @@ SQL, $file->drive_id);
         #
         # Get the former file name absolute path, and checks if it exist
         #
-        $fileDir = helper()->dirname($this->getPath() . DIRECTORY_SEPARATOR . $data->file_path);
+        $fileDir = $this->helpers->dirname($this->getPath() . DIRECTORY_SEPARATOR . $data->file_path);
         $renameFileFrom = $fileDir . DIRECTORY_SEPARATOR . $data->filename;
-        if (helper()->fileExists($renameFileFrom)) {
+        if ($this->helpers->fileExists($renameFileFrom)) {
 
             #
             # This extracts the filename from the new name, e.g
             # my-new-music.mp3 returns my-new-music, and if file
             # is a directory, e.g, my-directory, it returns the name as is
             #
-            $newFilename = $this->normalizeFileName(helper()->getFileName($data->filename_new), '_');
+            $newFilename = $this->normalizeFileName($this->helpers->getFileName($data->filename_new), '_');
 
             #
             # This composes what the new file name absolute path should be like, e.g
@@ -798,7 +346,7 @@ SQL, $file->drive_id);
                     return false;
                 }
                 # If the renamed file was successful
-                if (helper()->fileExists($toFileName)) {
+                if ($this->helpers->fileExists($toFileName)) {
                     db(onGetDB: function ($db) use ($data, $toFileName, $newFilename) {
                         $db->run(<<<SQL
 UPDATE {$this->getDriveTable()} SET `filename` = ?, properties = JSON_SET(properties, '$.time_modified', ?, '$.filename', ?)
@@ -824,7 +372,7 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
      * @inheritDoc
      * @throws \Exception
      */
-    public function list($id, $path = null): array|bool
+    public function list ($id, $path = null): array|bool
     {
         # remove forward and backward slash
         if ($path !== null) {
@@ -835,7 +383,7 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
         $filePath = $this->getPath() . DIRECTORY_SEPARATOR . $path;
         if ($path) {
             # Return if the path is not available
-            if (!helper()->fileExists($filePath)) {
+            if (!$this->helpers->fileExists($filePath)) {
                 return false;
             }
 
@@ -857,7 +405,7 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
             }
             # Path is empty .. Get Default Root Files
         } else {
-            $path = helper()->getFileName(DriveConfig::getUploadsPath());
+            $path = $this->helpers->getFileName(DriveConfig::getUploadsPath());
             $rootID = null;
             db(onGetDB: function ($db) use (&$rootID) {
                 $rootID = $db->row("SELECT drive_id FROM {$this->getDriveTable()} WHERE `drive_parent_id` IS NULL");
@@ -870,11 +418,11 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
 
         }
         return [
-            'data' => $filesFromPath->data ?? [],
-            'folderID' => $folderID,
-            'folderPath' => $path,
+            'data'          => $filesFromPath->data ?? [],
+            'folderID'      => $folderID,
+            'folderPath'    => $path,
             'next_page_url' => $filesFromPath->next_page_url ?? null,
-            'has_more' => $filesFromPath->has_more ?? false,
+            'has_more'      => $filesFromPath->has_more ?? false,
         ];
 
     }
@@ -882,7 +430,7 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
     /**
      * @throws \Exception
      */
-    public function reIndex(): mixed
+    public function reIndex (): mixed
     {
         $updateDriveFiles = new UpdateLocalDriveFilesInDb();
         try {
@@ -895,38 +443,13 @@ SQL, $newFilename, filemtime($toFileName), $newFilename, $data->drive_id);
     }
 
     /**
-     * @throws \Exception
-     */
-    protected function getDriveIDFilesFromPathAndID($path, $id): ?object
-    {
-        $result = null;
-        db(onGetDB: function ($db) use ($id, $path, &$result) {
-            $tableRows = $db->run("SELECT COUNT(*) AS 'r' FROM {$this->getDriveTable()} WHERE `drive_parent_id` = ?", $id)[0]->r;
-            $result = $db->paginate(
-                tableRows: $tableRows,
-                callback: function ($perPage, $offset) use ($db, $id, $path) {
-                    $columns = Tables::addColumnsToTable(
-                        Tables::removeColumnFromTable(Tables::$DRIVE_SYSTEM_COLUMN, ['security', 'status']),
-                        ["CONCAT(?, '/', filename) as filepath"], true);
-                    $cbData = null;
-                    db(onGetDB: function ($db) use ($offset, $perPage, $id, $path, $columns, &$cbData) {
-                        $cbData = $db
-                            ->run("SELECT $columns FROM {$this->getDriveTable()} WHERE drive_parent_id = ? ORDER BY 'drive_id' LIMIT ? OFFSET ?", $path, $id, $perPage, $offset);
-                    });
-                    return $cbData;
-                }, perPage: url()->getParam('per_page', 50));
-        });
-
-        return $result;
-    }
-
-    /**
      * @param $data
+     *
      * @return mixed
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function searchFiles($data): mixed
+    public function searchFiles ($data): mixed
     {
         $validator = $this->getValidator()->make($data, $this->mediaFileSearchRule());
         if ($validator->fails()) {
@@ -988,12 +511,543 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
         });
 
         return [
-            'data' => $searchFiles->data ?? [],
-            'folderID' => $id,
-            'folderPath' => $path,
+            'data'          => $searchFiles->data ?? [],
+            'folderID'      => $id,
+            'folderPath'    => $path,
             'next_page_url' => $searchFiles->next_page_url ?? null,
-            'has_more' => $searchFiles->has_more ?? false,
+            'has_more'      => $searchFiles->has_more ?? false,
         ];
+    }
+
+    /**
+     * @param $id
+     *
+     * @return void
+     * @throws \Exception
+     */
+    #[NoReturn] public function serveFile ($id): void
+    {
+        #
+        # RECURSIVELY GET THE PARENT OF THE FILE,
+        # I HAVE RESTRICTED THIS TO WORK ONLY FOR FILE, MEANING, YOU CAN ONLY DOWNLOAD A FILE AND NOT A FOLDER
+        #
+        $fileInfo = $this->getInfoOfUniqueID($id);
+
+        if ($fileInfo === null) {
+            SimpleState::displayUnauthorizedErrorMessage();
+        }
+
+        $fileSecurity = $fileInfo['fileSecurity'];
+        if ($fileSecurity->lock && url()->getParam('key') !== $fileSecurity->password) {
+            SimpleState::displayUnauthorizedErrorMessage();
+        }
+
+        $fullFilePath = $fileInfo['fullFilePath'];
+        $aliasPath = $fileInfo['aliasPath'];
+
+        if ($this->helpers->fileExists($fullFilePath)) {
+            $forceDownload = !url()->hasParam('render');
+            $this->serveDownloadableFile($aliasPath, $this->helpers->fileSize($fullFilePath), $forceDownload, mime_content_type($fullFilePath));
+        }
+        SimpleState::displayUnauthorizedErrorMessage();
+    }
+
+    /**
+     * Download From URL
+     *
+     * @param string $url
+     * @param string $uploadTo
+     * @param string $filename
+     * @param bool $importToDB
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function createFromURL (string $url, string $uploadTo = '', string $filename = '', bool $importToDB = true): bool
+    {
+        $downloadFromURLState = new DownloadFromURLState($this, $url, $uploadTo, $filename, $importToDB);
+
+        $initState = $downloadFromURLState::InitialState;
+        $downloadFromURLState->setCurrentState($initState)->runStates(false);
+        return $downloadFromURLState->getStateResult() === SimpleState::DONE;
+    }
+
+    /**
+     * @param string $filesPath
+     *
+     * @return bool
+     */
+
+    /**
+     * @param string $pathToArchive
+     * @param string $extractTo
+     * @param string $archiveType
+     * @param bool $importToDB
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function extractFile (
+        string $pathToArchive,
+        string $extractTo,
+        string $archiveType = 'zip',
+        bool   $importToDB = true,
+    ): bool
+    {
+        if (strtolower($archiveType) === 'zip') {
+            $extractFileState = new ExtractFileState($this);
+            $lastExtractedFilePath = '';
+            $this->helpers->extractZipFile($pathToArchive, $extractTo, function ($extractedFilePath, $shortFilePath, $remaining) use ($importToDB, $extractFileState) {
+                $this->helpers->sendMsg('ExtractFileState', "Extracted $shortFilePath");
+                $this->helpers->sendMsg('ExtractFileState', "Remaining $remaining File(s)");
+                if ($importToDB) {
+                    $extractFileState
+                        ->setExtractedFilePath($extractedFilePath)
+                        ->setCurrentState(ExtractFileState::ExtractFileStateInitial)
+                        ->runStates(false);
+                }
+            });
+
+            $isDone = $extractFileState->getStateResult() === SimpleState::DONE;
+            if ($importToDB === false) {
+                return true;
+            }
+
+            return $isDone;
+        }
+        return false;
+    }
+
+    /**
+     * @param $data
+     *
+     * @return bool|object
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    protected function validateCreateOrUpdateFile ($data): bool|object
+    {
+        # if key doesn't exist
+        if (!$this->helpers->getAPIHeaderKey('BlobDataInfo')) {
+            return false;
+        }
+
+        $blobInfo = json_decode($this->helpers->getAPIHeaderKey('BlobDataInfo'));
+        try {
+            $validator = $this->getValidator()->make($blobInfo, $this->mediaFileCreateRule());
+        } catch (\Exception) {
+            return false;
+        }
+
+        # if validation fails
+        if (!$validator->passes()) {
+            return false;
+        }
+
+        # construct path to upload file to
+        $uploadTo = $this->getPath() . $blobInfo->uploadTo;
+
+        # if path doesn't exist
+        if (!$this->helpers->fileExists($uploadTo)) {
+            return false;
+        }
+
+        # filepath
+        $filePath = $uploadTo . DIRECTORY_SEPARATOR . $blobInfo->filename;
+
+        # we insert chunk
+        $this->insertBlobChunk($blobInfo, $data, $filePath);
+
+        return (object)[
+            // filepath is the file we are creating or updating path
+            'filePath' => $filePath,
+            // info contains information about the updating process
+            'info'     => $this->isBlobChunkUploadCompleted($blobInfo, $filePath),
+            // blob info
+            'blobInfo' => $blobInfo,
+        ];
+    }
+
+    /**
+     * Insert File or Directory To DB.
+     *
+     * @param $path
+     * file path
+     * @param $uploadToID
+     * id of that to upload file to
+     * @param string $fileType
+     * file, or directory
+     *
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function insertFileToDB (
+        $path,
+        $uploadToID,
+        string $fileType = 'file'
+    ): void
+    {
+        $fileComposed = $this->composeFile($path, $uploadToID, $fileType);
+        $exist = $this->doesFileOrDirectoryExistInDB($path, $uploadToID);
+        if ($exist === false) {
+            db(onGetDB: function ($db) use ($fileComposed) {
+                $db->insertOnDuplicate(
+                    table: $this->getDriveTable(), data: $fileComposed, update: ['properties'], chunkInsertRate: 1,
+                );
+            });
+        }
+
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function insertFileToDBReturning (
+        $path,
+        $uploadToID,
+        $fileType = 'file',
+        $return = []
+    ): \stdClass|bool
+    {
+        $file = $this->composeFile($path, $uploadToID, $fileType);
+        $result = null;
+        db(onGetDB: function (TonicsQuery $db) use ($return, $file, &$result) {
+            $result = $db->insertReturning(
+                $this->getDriveTable(), $file, $return, 'drive_id',
+            );
+        });
+        return $result;
+    }
+
+    /**
+     * Note: For This function to work, the file or directory must have been created in the directory, so, this is just adding it to the database.
+     *
+     * This function is same as the one in ExtractFileStateInitial, so, would have to replace the one in ExtractFileStateInitial with this one
+     *
+     * - This function takes in a file path and recursively creates all the directories and files present in the path.
+     * - It first extracts the path of files from the base path using DIRECTORY_SEPARATOR and then filters the empty values.
+     * - The function then uses an array_map to loop through each file in the path and create directories if it does not exist already.
+     * - It also checks if a file exists and if not, it inserts it into the database.
+     * - The function returns true if the operation is successful, else returns false.
+     *
+     * @param string $filesPath The path of the files to be created.
+     *
+     * @return bool Returns true if the operation is successful, else returns false.
+     */
+    public function recursivelyCreateFileOrDirectory (string $filesPath, callable $onInsert = null): bool
+    {
+        $files = explode(DIRECTORY_SEPARATOR, str_replace(DriveConfig::getPrivatePath(), '', $filesPath));
+        if (empty($files)) {
+            return false;
+        }
+
+        $handledPath = [];
+        $currentParent = null;
+        $currentFileRelPath = '';
+        $files = array_filter($files);
+        try {
+            array_map(function ($file) use ($onInsert, &$handledPath, &$currentParent, &$currentFileRelPath) {
+                $currentFileRelPath .= DIRECTORY_SEPARATOR . $file;
+
+                if (key_exists($currentFileRelPath, $handledPath)) {
+                    $currentParent = $handledPath[$currentFileRelPath];
+                }
+
+                if ($this->helpers->isDirectory(DriveConfig::getPrivatePath() . $currentFileRelPath)) {
+                    if (!key_exists($currentFileRelPath, $handledPath)) {
+                        $pathID = $this->findChildRealID(array_filter(explode(DIRECTORY_SEPARATOR, $currentFileRelPath)));
+                        ## Meaning No Such Path Exist
+                        if ($pathID === false) {
+                            $data = $this
+                                ->insertFileToDBReturning(
+                                    DriveConfig::getPrivatePath() . $currentFileRelPath,
+                                    $currentParent->drive_id,
+                                    'directory', ['drive_id']);
+                            if ($onInsert) {
+                                $onInsert($data);
+                            }
+                        } else {
+                            $data = null;
+                            db(onGetDB: function ($db) use ($pathID, &$data) {
+                                $data = $db->row(<<<SQL
+SELECT * FROM {$this->getDriveTable()} WHERE `drive_id` = ?
+SQL, $pathID);
+                            });
+                        }
+                        $handledPath[$currentFileRelPath] = $data;
+                        $currentParent = $data;
+                    }
+                }
+
+                if ($this->helpers->isFile(DriveConfig::getPrivatePath() . $currentFileRelPath)) {
+                    $fileInserted = null;
+                    $exist = $this->doesFileOrDirectoryExistInDB(
+                        DriveConfig::getPrivatePath() . $currentFileRelPath,
+                        $currentParent->drive_id,
+                        function ($data) use (&$fileInserted) {
+                            $fileInserted = $data;
+                        });
+
+                    if ($exist === false) {
+                        $fileInserted = $this
+                            ->insertFileToDBReturning(
+                                DriveConfig::getPrivatePath() . $currentFileRelPath,
+                                $currentParent->drive_id,
+                                'file', ['drive_id', 'properties', 'drive_unique_id']);
+                    }
+
+                    if ($onInsert) {
+                        $onInsert($fileInserted);
+                    }
+                }
+                return $file;
+            }, $files);
+        } catch (\Exception) {
+            return false;
+        }
+
+        return true;
+
+    }
+
+    /**
+     * @param string $path
+     * @param int $uploadToID
+     * @param callable|null $onExist
+     *
+     * @return bool
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function doesFileOrDirectoryExistInDB (string $path, int $uploadToID, callable $onExist = null): bool
+    {
+        $currentFileRelPath = $this->helpers->getDriveSystemParentSignature(DriveConfig::getPrivatePath(), $path);
+        $searchData = [
+            'id'    => $uploadToID,
+            'path'  => $currentFileRelPath,
+            'query' => $this->helpers->getFileName($path),
+        ];
+        $filePath = $searchData['path'] . DIRECTORY_SEPARATOR . $searchData['query'];
+        $searchResult = $this->searchFiles($searchData);
+        $exist = false;
+        if (isset($searchResult['data']) && is_array($searchResult['data'])) {
+            foreach ($searchResult['data'] as $file) {
+                if ($file->filepath === $filePath && $file->filename === $searchData['query']) {
+                    $exist = true;
+                    if ($onExist) {
+                        $onExist($file);
+                    }
+                    break;
+                }
+            }
+        }
+        return $exist;
+    }
+
+    /**
+     * If result is not false, you get the following object items:
+     *
+     * - urlPreview:  Suitable for preview
+     *  - urlDownload: Suitable for download
+     * @throws \Exception
+     */
+    public function convertFilePathToFileObject (string $fullPath)
+    {
+
+        if ($this->helpers->fileExists($fullPath) === false) {
+            return false;
+        }
+
+        $currentFileRelPath = str_replace(DriveConfig::getPrivatePath(), '', DriveConfig::getUploadsPath());
+
+        $rootID = null;
+        db(onGetDB: function ($db) use (&$rootID) {
+            $table = $this->getDriveTable();
+            $rootID = $db->row("Select `drive_id` FROM $table WHERE `drive_parent_id` IS NULL");
+        });
+
+        if (!isset($rootID->drive_id)) {
+            return false;
+        }
+        $filename = $this->helpers->getFileName($fullPath);
+        $rootID = $rootID->drive_id;
+        $searchData = [
+            'id'    => $rootID,
+            'path'  => $currentFileRelPath,
+            'query' => $filename,
+        ];
+        $searchResult = $this->searchFiles($searchData);
+        $filePath = str_replace(DriveConfig::getPrivatePath(), '', $fullPath);
+        if (isset($searchResult['data']) && is_array($searchResult['data'])) {
+            foreach ($searchResult['data'] as $file) {
+                if ($file->filepath === $filePath && $file->filename === $searchData['query']) {
+                    $file->urlPreview = DriveConfig::serveFilePath() . "$file->drive_unique_id?render";
+                    $file->urlDownload = DriveConfig::serveFilePath() . "$file->drive_unique_id";
+                    return $file;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function composeFile ($path, $uploadToID, $fileType)
+    {
+        $relPath = $this->helpers->getDriveSystemRelativeSignature(DriveConfig::getPrivatePath(), $path);
+        $uniqueID = hash('sha256', $relPath . random_int(0000000, PHP_INT_MAX));
+
+        $filename = $this->helpers->getFileName($path);
+
+        $ext = ($fileType !== 'file') ? null : $this->helpers->extension($path);
+        $properties = [
+            'ext'           => $ext,
+            'filename'      => $filename,
+            'size'          => $this->helpers->fileSize($path),
+            "time_created"  => $this->helpers->getFileTimeCreated($path),
+            "time_modified" => $this->helpers->getFileTimeModified($path),
+        ];
+        $this->helpers->moreFileProperties($path, $ext, $properties);
+        return [
+            "drive_parent_id" => $uploadToID,
+            "drive_unique_id" => $uniqueID,
+            "type"            => $fileType,
+            'filename'        => $filename,
+            "properties"      => json_encode($properties),
+            "security"        => json_encode([
+                "lock"     => false,
+                "password" => random_int(0000000, PHP_INT_MAX),
+            ]),
+        ];
+    }
+
+    /**
+     * Checks if blob chunks has been successfully merged and uploaded.
+     *
+     * It Returns the following object data on the current upload:
+     *
+     * - totalUploadedChunks: The total number of the uploaded blob chunks, not to be confused with the total chunks
+     * - totalChunks: The total number blob chunks that would be uploaded
+     * - uploadPercentage: The upload percentage
+     * - isUploadCompleted: Return bool on whether the upload is completed or not
+     *
+     * @param $blobInfo
+     * @param $filePath
+     *
+     * @return object
+     * @throws \Exception
+     */
+    public function isBlobChunkUploadCompleted ($blobInfo, $filePath): object
+    {
+        $blob_name = str_replace("{$this->getPath()}", '', $filePath);
+
+        // Returns the count of rows that are either corrupted or needs to be filled
+        // A data is corrupted if missing_blob_chunk_byte is greater than 0 (the missing byte is due to connection outage or some weird shit)
+        // A data hasn't been filled if missing_blob_chunk_byte is null
+        $totalUploadedChunks = null;
+        $sum = null;
+        db(onGetDB: function (TonicsQuery $db) use ($blob_name, $blobInfo, &$totalUploadedChunks, &$sum) {
+            $totalUploadedChunks = $db
+                ->run("SELECT count(*) as count FROM {$this->getBlobTable()} 
+                            WHERE `blob_name` = ? AND missing_blob_chunk_byte = 0", $blob_name)[0];
+
+            // The chunks that has been uploaded so far
+            $totalUploadedChunks = $totalUploadedChunks->count;
+
+            $sum = $db
+                ->run("SELECT SUM(blob_chunk_size) as sum FROM {$this->getBlobTable()} 
+                            WHERE `blob_name` = ? AND missing_blob_chunk_byte = 0", $blob_name)[0];
+        });
+
+        // The total no blob chunks that would be uploaded
+        $totalChunks = (int)$blobInfo->totalChunks;
+
+
+        return (object)[
+            'totalUploadedChunks' => $totalUploadedChunks,
+            'totalChunks'         => $totalChunks,
+            'uploaded'            => (isset($sum->sum)) ? $this->helpers->formatBytes($sum->sum) : null,
+            'uploadPercentage'    => ($totalUploadedChunks / $totalChunks) * 100,
+            'isUploadCompleted'   => $totalUploadedChunks === $totalChunks,
+        ];
+    }
+
+    /**
+     * @param \stdClass $blobInfo
+     * @param $data
+     * @param $filePath
+     *
+     * @throws \Exception
+     */
+    public function insertBlobChunk (\stdClass $blobInfo, $data, $filePath)
+    {
+        $tbl = $this->getBlobTable();
+        $outFile = $this->helpers->forceOpenFile($filePath);
+        if ($outFile !== false) {
+            // startSlice is the offset
+            $seek = fseek($outFile, $blobInfo->startSlice, SEEK_CUR);
+            if ($seek === -1) {
+                throw new FileException("Failed to Seek File Pointer of `$filePath`");
+            }
+            $write = fwrite($outFile, $data);
+            if ($write === false) {
+                throw new FileException("Failed To write To File. `$filePath`");
+            }
+            fclose($outFile);
+            $outFile = null;
+        }
+
+        /// this is from create method since we want it to be as fast as possible
+        if (isset($blobInfo->id)) {
+            db(onGetDB: function ($db) use ($blobInfo, $data, $tbl) {
+                $db->run("UPDATE $tbl SET `live_blob_chunk_size` = ?  WHERE `id` = ?;", strlen($data), $blobInfo->id);
+            });
+        }
+    }
+
+    /**
+     * @param $totalChunks
+     * @param $blob_name
+     * @param int $chunksToDeleteAtATime
+     *
+     * @throws \Exception
+     */
+    public function deleteBlobs ($totalChunks, $blob_name, int $chunksToDeleteAtATime = 500): void
+    {
+        $noOfTimesToLoop = ceil($totalChunks / $chunksToDeleteAtATime);
+        for ($i = 1; $i <= $noOfTimesToLoop; $i++) {
+            $result = null;
+            db(onGetDB: function ($db) use ($blob_name, $chunksToDeleteAtATime, &$result) {
+                $db->run("DELETE FROM {$this->getBlobTable()} WHERE `blob_name` = ? ORDER BY `id` DESC LIMIT $chunksToDeleteAtATime", $blob_name);
+            });
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function getDriveIDFilesFromPathAndID ($path, $id): ?object
+    {
+        $result = null;
+        db(onGetDB: function ($db) use ($id, $path, &$result) {
+            $tableRows = $db->run("SELECT COUNT(*) AS 'r' FROM {$this->getDriveTable()} WHERE `drive_parent_id` = ?", $id)[0]->r;
+            $result = $db->paginate(
+                tableRows: $tableRows,
+                callback: function ($perPage, $offset) use ($db, $id, $path) {
+                    $columns = Tables::addColumnsToTable(
+                        Tables::removeColumnFromTable(Tables::$DRIVE_SYSTEM_COLUMN, ['security', 'status']),
+                        ["CONCAT(?, '/', filename) as filepath"], true);
+                    $cbData = null;
+                    db(onGetDB: function ($db) use ($offset, $perPage, $id, $path, $columns, &$cbData) {
+                        $cbData = $db
+                            ->run("SELECT $columns FROM {$this->getDriveTable()} WHERE drive_parent_id = ? ORDER BY 'drive_id' LIMIT ? OFFSET ?", $path, $id, $perPage, $offset);
+                    });
+                    return $cbData;
+                }, perPage: url()->getParam('per_page', 50));
+        });
+
+        return $result;
     }
 
     /**
@@ -1003,11 +1057,13 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
      * - fileSecurity: mainFile security settings in object format
      * - fullFilePath: The full file path location in string
      * - alias: alias path for nginx X-Accel
+     *
      * @param string $uniqueID
+     *
      * @return array|null
      * @throws \Exception
      */
-    public function getInfoOfUniqueID(string $uniqueID): ?array
+    public function getInfoOfUniqueID (string $uniqueID): ?array
     {
         #
         # RECURSIVELY GET THE PARENT OF THE FILE,
@@ -1034,59 +1090,29 @@ FROM search_files_recursively WHERE drive_parent_id = ? LIMIT ? OFFSET ?;",
         $aliasPath = DriveConfig::xAccelDownloadFilePath() . $path->filepath;
 
         return [
-            'mainFile' => $mainFile,
+            'mainFile'     => $mainFile,
             'fileSecurity' => $fileSecurity,
             'fullFilePath' => $fullFilePath,
-            'aliasPath' => $aliasPath,
+            'aliasPath'    => $aliasPath,
         ];
 
     }
 
     /**
-     * @param $id
-     * @return void
-     * @throws \Exception
-     */
-    #[NoReturn] public function serveFile($id): void
-    {
-        #
-        # RECURSIVELY GET THE PARENT OF THE FILE,
-        # I HAVE RESTRICTED THIS TO WORK ONLY FOR FILE, MEANING, YOU CAN ONLY DOWNLOAD A FILE AND NOT A FOLDER
-        #
-        $fileInfo = $this->getInfoOfUniqueID($id);
-
-        if ($fileInfo === null) {
-            SimpleState::displayUnauthorizedErrorMessage();
-        }
-
-        $fileSecurity = $fileInfo['fileSecurity'];
-        if ($fileSecurity->lock && url()->getParam('key') !== $fileSecurity->password) {
-            SimpleState::displayUnauthorizedErrorMessage();
-        }
-
-        $fullFilePath = $fileInfo['fullFilePath'];
-        $aliasPath = $fileInfo['aliasPath'];
-
-        if (helper()->fileExists($fullFilePath)) {
-            $forceDownload = !url()->hasParam('render');
-            $this->serveDownloadableFile($aliasPath, helper()->fileSize($fullFilePath), $forceDownload, mime_content_type($fullFilePath));
-        }
-        SimpleState::displayUnauthorizedErrorMessage();
-    }
-
-    /**
      * Get the ID of the last element in the $pathTrail,
      * Note this only works for Directory
+     *
      * @param array $pathTrail
      * Path Trail of the folder e.g. path trail of folder /var/www/downloads/music is ['uploads', 'www', 'downloads', 'music']
      * @param int|null $parentID
      * Where To Start The Recursion, This should usually be null meaning the root folder
      * @param int $maxDepth
      * Max Recursion Depth Limit Before Quiting
+     *
      * @return bool|int
      * @throws \Exception
      */
-    public function findChildRealID(array $pathTrail, int $parentID = null, int $maxDepth = 10000): bool|int
+    public function findChildRealID (array $pathTrail, int $parentID = null, int $maxDepth = 10000): bool|int
     {
 
         $numberOfQ = $this->getQuestionMarks(sizeof($pathTrail));
@@ -1127,7 +1153,7 @@ SQL, ...$pathTrail);
      * If you don't pass by reference we would only get the first item which is not what we want
      * @throws \Exception
      */
-    private function findChildInPathTrail(array $pathTrailRows, $noOfPath, int $parentID = null, $maxDepth = 10000, &$child = [], $depth = 0): array
+    private function findChildInPathTrail (array $pathTrailRows, $noOfPath, int $parentID = null, $maxDepth = 10000, &$child = [], $depth = 0): array
     {
         foreach ($pathTrailRows as $value) {
             if ($depth === $maxDepth) {
@@ -1147,27 +1173,29 @@ SQL, ...$pathTrail);
     }
 
 
-    public function reverseWords($str, $separator = '/'): string
+    public function reverseWords ($str, $separator = '/'): string
     {
         return implode($separator, array_reverse(explode($separator, $str)));
     }
 
     /**
      * Returns question marks, e.g, if you pass 3, it returns "?,?,?"
+     *
      * @param int $marks
+     *
      * @return string
      */
-    public function getQuestionMarks(int $marks): string
+    public function getQuestionMarks (int $marks): string
     {
         return implode(',', array_fill(0, $marks, '?'));
     }
 
-    public function getBlobTable(): string
+    public function getBlobTable (): string
     {
         return Tables::getTable(Tables::DRIVE_BLOB_COLLATOR);
     }
 
-    public function getDriveTable(): string
+    public function getDriveTable (): string
     {
         return Tables::getTable(Tables::DRIVE_SYSTEM);
     }
@@ -1175,7 +1203,7 @@ SQL, ...$pathTrail);
     /**
      * @return string
      */
-    public function getPath(): string
+    public function getPath (): string
     {
         return $this->path;
     }

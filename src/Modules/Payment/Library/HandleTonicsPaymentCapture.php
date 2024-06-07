@@ -25,14 +25,16 @@ class HandleTonicsPaymentCapture
 {
     /**
      * If purchase_record is null, we get it ourselves
+     *
      * @param array $settings
      * e.g ['invoice_id' => $invoiceID, 'total_amount' => $totalAmount, 'purchase_record' => null, 'currency' => null]
      * @param callable $onSuccess
      * You get the purchaseRecord and DB as the param
+     *
      * @return void
      * @throws \Throwable
      */
-    public static function validateTonicsTransactionAndPrepareOrderMail(array $settings, callable $onSuccess): void
+    public static function validateTonicsTransactionAndPrepareOrderMail (array $settings, callable $onSuccess): void
     {
         $purchaseTable = Tables::getTable(Tables::PURCHASES);
         $customerTable = Tables::getTable(Tables::CUSTOMERS);
@@ -94,6 +96,7 @@ SQL, $invoiceID, 'pending', 1);
             });
 
         } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
             // Log..
         }
     }

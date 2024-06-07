@@ -3,7 +3,7 @@
 [[reset_hook('Core::form_button')]]
 [[reset_hook('Core::meta_csp')]]
 
-<input type="hidden" class="d:none" name="customer_email" value="[[v('Email')]]">
+<input class="d:none" name="customer_email" type="hidden" value="[[v('Email')]]">
 
 [[hook_into('Core::in_head_title')Billing]]
 [[hook_into('Core::in_main_header_title')Billing]]
@@ -15,10 +15,9 @@
     'MODULE::/Core/Assets/js/modules/Http/XHRApi.js',
     'MODULE::/Core/Assets/js/tools/SimpleState.js',
     'MODULE::/Core/Assets/js/tools/Cart.js'
-
     'App::/TonicsCloud/Assets/js/script.js'
     )]]
-    <script type="module" src="[[v('App_Config.SERVE_APP_PATH')]]TonicsCloud?path=/js/script-combined.min.js"></script>
+    <script src="[[v('App_Config.SERVE_APP_PATH')]]TonicsCloud?path=/js/script-combined.min.js" type="module"></script>
 ]]
 
 [[hook_into('Core::before_footer')

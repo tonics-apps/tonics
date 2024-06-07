@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.owl>*+* {
+.owl > * + * {
     margin-top: 1rem;
 }
 
@@ -43,7 +43,7 @@ body#tinymce > * + * {
     outline: 1px solid rgba(86, 95, 104, 0) !important;
 }
 
-.mce-content-body .field-builder-items{
+.mce-content-body .field-builder-items {
     outline: 1px solid rgba(75, 82, 90, 0) !important;
 }
 
@@ -73,7 +73,7 @@ body#tinymce > .tabs > [type=radio] + label + *, .tonicsFieldTabsContainer > [ty
     order: 2;
 }
 
-body#tinymce > .tabs > [type=radio]:not(:checked) + label + *, .tonicsFieldTabsContainer > [type=radio]:not(:checked) + label + *{
+body#tinymce > .tabs > [type=radio]:not(:checked) + label + *, .tonicsFieldTabsContainer > [type=radio]:not(:checked) + label + * {
     display: none;
 }
 
@@ -95,8 +95,9 @@ body#tinymce > .tabs label + *, .tonicsFieldTabsContainer label + * {
 
 body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [type=radio]:checked + label {
     background: #fff;
-    transition: box-shadow .15s ease,transform .15s ease;
+    transition: box-shadow .15s ease, transform .15s ease;
 }
+
 /* END TABS SECTION */
 
 .overflow\:hidden {
@@ -278,7 +279,7 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 .tonics-responsive-grid-list {
     display: grid;
     gap: 1em;
-    grid-template-columns: repeat(auto-fit,minmax(min(100%,400px),1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
 }
 
 /*--------------------------------------------------------------
@@ -344,7 +345,7 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 }
 
 .bg\:amazon-orange {
-    background: linear-gradient(180deg,#f7dfa5,#f0c14b) repeat scroll 0 0 transparent;
+    background: linear-gradient(180deg, #f7dfa5, #f0c14b) repeat scroll 0 0 transparent;
 }
 
 .bg\:gray-two {
@@ -544,7 +545,7 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 }
 
 .button\:box-shadow-variant-1 {
-    box-shadow: 0 4px 2px rgba(45,35,66,.4), 0 0 3px 0 rgba(45,35,66,.3), inset 0 -5px 0 #54545433;
+    box-shadow: 0 4px 2px rgba(45, 35, 66, .4), 0 0 3px 0 rgba(45, 35, 66, .3), inset 0 -5px 0 #54545433;
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
@@ -857,16 +858,16 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 }
 
 .default-selector {
-    width: 100%;
-    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
-    line-height: 1.25;
-    font-family: inherit;
-    padding: 14px;
+    border-bottom-style: double;
+    border-bottom-width: 3px;
     border-radius: 4px;
     border-right-style: double;
     border-right-width: 5px;
-    border-bottom-style: double;
-    border-bottom-width: 5px;
+    font-family: inherit;
+    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
+    line-height: 1.25;
+    padding: 14px;
+    width: 100%;
 }
 
 .select-off {
@@ -883,15 +884,15 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 }
 
 .loading-animation {
-     align-self: center;
-     left: 50%;
-     width: 10px;
-     height: 10px;
-     border-radius: 5px;
-     background-color: #18234e;
-     color: #18234e;
-     animation: dotElastic 1s infinite linear;
- }
+    align-self: center;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #18234e;
+    color: #18234e;
+    animation: dotElastic 1s infinite linear;
+}
 
 .loading-animation:before, .loading-animation:after {
     content: '';

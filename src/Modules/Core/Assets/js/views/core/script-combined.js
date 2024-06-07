@@ -1,4 +1,3 @@
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -17,7 +16,7 @@
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Util/Element/Abstract/ElementAbstract.ts
 var ElementAbstract = class {
@@ -27,6 +26,7 @@ var ElementAbstract = class {
     }
     return this;
   }
+
   query($classOrID) {
     let $temp = document.querySelector(`${$classOrID}`);
     if ($temp) {
@@ -35,10 +35,12 @@ var ElementAbstract = class {
     }
     console.log(`Invalid class or id name - ${$classOrID}`);
   }
+
   setQueryResult($result) {
     this.$queryResult = $result;
     return this;
   }
+
   getQueryResult() {
     return this.$queryResult;
   }
@@ -58,18 +60,23 @@ var Draggables = class extends ElementAbstract {
     this._constrainedQuad = false;
     this.$draggableElementDetails = {};
   }
+
   get draggingOriginalRect() {
     return this._draggingOriginalRect;
   }
+
   set draggingOriginalRect(value) {
     this._draggingOriginalRect = value;
   }
+
   get constrainedQuad() {
     return this._constrainedQuad;
   }
+
   set constrainedQuad(value) {
     this._constrainedQuad = value;
   }
+
   settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
     this.constrainedQuad = $constrainedQuad;
     this.getDraggableElementDetails().draggable = {
@@ -87,49 +94,57 @@ var Draggables = class extends ElementAbstract {
     };
     return this;
   }
+
   getDraggableElementDetails() {
     return this.$draggableElementDetails;
   }
+
   checkIfSettingsIsSet() {
     return this.getDraggableElementDetails().draggable;
   }
+
   onDragDrop($onDragDrop) {
     if (this.checkIfSettingsIsSet()) {
       this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
       return this;
     }
   }
+
   onDragRight($onDragRight) {
     if (this.checkIfSettingsIsSet()) {
       this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
       return this;
     }
   }
+
   onDragLeft($onDragLeft) {
     if (this.checkIfSettingsIsSet()) {
       this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
       return this;
     }
   }
+
   onDragBottom($onDragBottom) {
     if (this.checkIfSettingsIsSet()) {
       this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
       return this;
     }
   }
+
   onDragTop($onDragTop) {
     if (this.checkIfSettingsIsSet()) {
       this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
       return this;
     }
   }
+
   run() {
     let $draggableContainer = this.getQueryResult();
     let self = this;
     let shiftX;
     let shiftY;
     if ($draggableContainer) {
-      $draggableContainer.addEventListener("pointerdown", function(e) {
+      $draggableContainer.addEventListener("pointerdown", function (e) {
         self.setMouseActive(true);
         let el = e.target;
         let startDrag = true;
@@ -151,7 +166,7 @@ var Draggables = class extends ElementAbstract {
         }
       });
     }
-    $draggableContainer.addEventListener("pointerup", function(e) {
+    $draggableContainer.addEventListener("pointerup", function (e) {
       let el = e.target;
       if (self.isMouseActive()) {
         self.setMouseActive(false);
@@ -178,7 +193,7 @@ var Draggables = class extends ElementAbstract {
         }
       }
     });
-    $draggableContainer.addEventListener("pointermove", function(e) {
+    $draggableContainer.addEventListener("pointermove", function (e) {
       if (self.isMouseActive()) {
         let el = e.target, startDrag = true;
         self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
@@ -238,45 +253,59 @@ var Draggables = class extends ElementAbstract {
       }
     });
   }
+
   getXPosition() {
     return this.xPosition;
   }
+
   setXPosition(xPosition) {
     this.xPosition = xPosition;
   }
+
   getYPosition() {
     return this.yPosition;
   }
+
   setYPosition(yPosition) {
     this.yPosition = yPosition;
   }
+
   incrementXPosition() {
     return ++this.xPosition;
   }
+
   decrementXPosition() {
     return this.xPosition = this.xPosition - 1;
   }
+
   incrementYPosition() {
     return ++this.yPosition;
   }
+
   decrementYPosition() {
     return this.yPosition = this.xPosition - 1;
   }
+
   getDragging() {
     return this.dragging;
   }
+
   setDragging(draggedData) {
     this.dragging = draggedData;
   }
+
   getDroppedTarget() {
     return this.droppedTarget;
   }
+
   setDroppedTarget(el) {
     this.droppedTarget = el;
   }
+
   isMouseActive() {
     return this.mouseActive;
   }
+
   setMouseActive(result) {
     this.mouseActive = result;
   }
@@ -308,48 +337,52 @@ export {
  */
 
 export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
-    let x1, y1, x2, y2;
+  let x1, y1, x2, y2;
 
-    x1 = el1InitialRect.left - el2.getBoundingClientRect().left;
-    y1 = el1InitialRect.top - el2.getBoundingClientRect().top;
+  x1 = el1InitialRect.left - el2.getBoundingClientRect().left;
+  y1 = el1InitialRect.top - el2.getBoundingClientRect().top;
 
-    x2 = el2.getBoundingClientRect().left - el1InitialRect.left;
-    y2 = el2.getBoundingClientRect().top - el1InitialRect.top;
+  x2 = el2.getBoundingClientRect().left - el1InitialRect.left;
+  y2 = el2.getBoundingClientRect().top - el1InitialRect.top;
 
-    el1.classList.add('draggable-transition');
-    el2.classList.add('draggable-transition');
+  el1.classList.add('draggable-transition');
+  el2.classList.add('draggable-transition');
 
-    el2.style.transform = "translate(" + x1 + "px," + y1 + "px)";
-    el1.style.transform = "translate(" + x2 + "px," + y2 + "px)";
+  el2.style.transform = "translate(" + x1 + "px," + y1 + "px)";
+  el1.style.transform = "translate(" + x2 + "px," + y2 + "px)";
 
-    function swap(){
-        el1.classList.remove('draggable-transition');
-        el2.classList.remove('draggable-transition');
+  function swap() {
+    el1.classList.remove('draggable-transition');
+    el2.classList.remove('draggable-transition');
 
-        el1.removeAttribute('style');
-        el2.removeAttribute('style');
+    el1.removeAttribute('style');
+    el2.removeAttribute('style');
 
-        let tempEl = document.createElement("div");
-        el1.parentNode.insertBefore(tempEl, el1); el2.parentNode.insertBefore(el1, el2);
-        tempEl.parentNode.insertBefore(el2, tempEl); tempEl.parentNode.removeChild(tempEl);
+    let tempEl = document.createElement("div");
+    el1.parentNode.insertBefore(tempEl, el1);
+    el2.parentNode.insertBefore(el1, el2);
+    tempEl.parentNode.insertBefore(el2, tempEl);
+    tempEl.parentNode.removeChild(tempEl);
 
-/*
-        // THIS ONE KEEP LOSING SELECT DATA BUT THE TEMP VERSION ABOVE WORKS SUPERB
-        let copyEl1 = el1.cloneNode(true);
-        let copyEl2 = el2.cloneNode(true);
-        el1.replaceWith(copyEl2);
-        el2.replaceWith(copyEl1);*/
+    /*
+            // THIS ONE KEEP LOSING SELECT DATA BUT THE TEMP VERSION ABOVE WORKS SUPERB
+            let copyEl1 = el1.cloneNode(true);
+            let copyEl2 = el2.cloneNode(true);
+            el1.replaceWith(copyEl2);
+            el2.replaceWith(copyEl1);*/
+  }
+
+  el2.addEventListener("transitionend", () => {
+    swap();
+    if (onSwapDone) {
+      onSwapDone();
     }
-
-    el2.addEventListener("transitionend", () => {
-        swap();
-        if (onSwapDone){
-            onSwapDone();
-        }
-    }, { once: true });
+  }, {once: true});
 }
 
-if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
+if (!window.hasOwnProperty('TonicsScript')) {
+  window.TonicsScript = {};
+}
 window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
@@ -369,13 +402,14 @@ window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) =>
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Event/EventQueue.ts
 var EventQueue = class {
   constructor() {
     this.$eventHandlers = new Map();
   }
+
   attachHandlerToEvent($eventType, $callback) {
     var _a;
     if (this.getHandlers().has($eventType)) {
@@ -385,15 +419,18 @@ var EventQueue = class {
     this.getHandlers().set($eventType, [$callback]);
     return this;
   }
+
   getHandlers() {
     return this.$eventHandlers;
   }
+
   detachHandlerFromEvent($eventType) {
     if (this.getHandlers().has($eventType)) {
       this.getHandlers().delete($eventType);
       return this;
     }
   }
+
   getEventHandlers($event) {
     var _a;
     if (!this.getHandlers().has($event)) {
@@ -423,6 +460,7 @@ function attachEventAndHandlersToHandlerProvider($eventConfig, $eventName) {
   }
   throw new DOMException(`Can't attach ${$eventName} to listeners because it doesn't exist`);
 }
+
 __name(attachEventAndHandlersToHandlerProvider, "attachEventAndHandlersToHandlerProvider");
 if (!window.hasOwnProperty("TonicsEvent")) {
   window.TonicsEvent = {};
@@ -437,6 +475,7 @@ var EventDispatcher = class {
       return this;
     }
   }
+
   dispatch($event) {
     let $eventName = $event.constructor;
     const eventHandlers = this.getHandler().getEventHandlers($eventName);
@@ -449,13 +488,16 @@ var EventDispatcher = class {
     }
     return $event;
   }
+
   setHandler($handler) {
     this.$handleProvider = $handler;
     return this;
   }
+
   getHandler() {
     return this.$handleProvider;
   }
+
   dispatchEventToHandlers($eventConfig, $eventObject, $eventClass) {
     let eventHandlers = attachEventAndHandlersToHandlerProvider($eventConfig, $eventClass);
     this.setHandler(eventHandlers).dispatch($eventObject);
@@ -488,13 +530,14 @@ export {
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Event/EventQueue.ts
 var EventQueue = class {
   constructor() {
     this.$eventHandlers = new Map();
   }
+
   attachHandlerToEvent($eventType, $callback) {
     var _a;
     if (this.getHandlers().has($eventType)) {
@@ -504,15 +547,18 @@ var EventQueue = class {
     this.getHandlers().set($eventType, [$callback]);
     return this;
   }
+
   getHandlers() {
     return this.$eventHandlers;
   }
+
   detachHandlerFromEvent($eventType) {
     if (this.getHandlers().has($eventType)) {
       this.getHandlers().delete($eventType);
       return this;
     }
   }
+
   getEventHandlers($event) {
     var _a;
     if (!this.getHandlers().has($event)) {
@@ -549,33 +595,32 @@ export {
 
 const EventsConfig = {
 
-    OnBeforeTonicsFieldPreviewEvent: [],
-    OnBeforeTonicsFieldSubmitEvent: [],
+  OnBeforeTonicsFieldPreviewEvent: [],
+  OnBeforeTonicsFieldSubmitEvent: [],
 
-    //  OtherEvent: [],
-    // DataTables Event
-    OnBeforeScrollBottomEvent: [],
-    OnScrollBottomEvent: [],
-    OnDoubleClickEvent: [],
-    OnClickEvent: [],
-    OnShiftClickEvent: [],
-    OnRowMarkForDeletionEvent: [],
+  //  OtherEvent: [],
+  // DataTables Event
+  OnBeforeScrollBottomEvent: [],
+  OnScrollBottomEvent: [],
+  OnDoubleClickEvent: [],
+  OnClickEvent: [],
+  OnShiftClickEvent: [],
+  OnRowMarkForDeletionEvent: [],
 
-    OnSubmitFieldEditorsFormEvent: [],
+  OnSubmitFieldEditorsFormEvent: [],
 
-    // Event For Audio Player
-    OnAudioPlayerPlayEvent: [],
-    OnAudioPlayerPauseEvent: [],
-    OnAudioPlayerPreviousEvent: [],
-    OnAudioPlayerNextEvent: [],
-    OnAudioPlayerClickEvent: [],
+  // Event For Audio Player
+  OnAudioPlayerPlayEvent: [],
+  OnAudioPlayerPauseEvent: [],
+  OnAudioPlayerPreviousEvent: [],
+  OnAudioPlayerNextEvent: [],
+  OnAudioPlayerClickEvent: [],
 
-    // Event For Payment Gateway
-    OnPaymentGatewayCollatorEvent: [],
+  // Event For Payment Gateway
+  OnPaymentGatewayCollatorEvent: [],
 };
 
 window.TonicsEvent.EventConfig = EventsConfig;
-
 
 
 /*
@@ -596,83 +641,84 @@ window.TonicsEvent.EventConfig = EventsConfig;
  */
 
 if (typeof tonicsFieldSaveChangesButton === 'undefined') {
-    var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+  var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
 }
 
 if (tonicsFieldSaveChangesButton) {
-    tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
-        e.preventDefault();
+  tonicsFieldSaveChangesButton.addEventListener('click', (e) => {
+    e.preventDefault();
 
-        // Disable the submit button to prevent multiple submissions
-        tonicsFieldSaveChangesButton.disabled = true;
+    // Disable the submit button to prevent multiple submissions
+    tonicsFieldSaveChangesButton.disabled = true;
 
-        let eventDispatcher = window.TonicsEvent.EventDispatcher;
-        let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
-        eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
-        let fieldsEditorsForm = document.getElementById('EditorsForm');
-        fieldsEditorsForm.submit();
+    let eventDispatcher = window.TonicsEvent.EventDispatcher;
+    let OnSubmitFieldEditorsForm = new OnSubmitFieldEditorsFormEvent(e);
+    eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnSubmitFieldEditorsForm, OnSubmitFieldEditorsFormEvent);
+    let fieldsEditorsForm = document.getElementById('EditorsForm');
+    fieldsEditorsForm.submit();
 
-        // Re-enable the submit button after a specified timeout (e.g., 5 seconds)
-        setTimeout(() => {
-            tonicsFieldSaveChangesButton.disabled = false;
-        }, 5000); // Timeout in milliseconds (e.g., 5000 ms = 5 seconds)
-    });
+    // Re-enable the submit button after a specified timeout (e.g., 5 seconds)
+    setTimeout(() => {
+      tonicsFieldSaveChangesButton.disabled = false;
+    }, 5000); // Timeout in milliseconds (e.g., 5000 ms = 5 seconds)
+  });
 }
 
 class OnSubmitFieldEditorsFormEvent {
 
-    editorsForm = null;
+  editorsForm = null;
 
-    constructor(e = null) {
-        if (e){
-            this.editorsForm = document.getElementById('EditorsForm');
+  constructor(e = null) {
+    if (e) {
+      this.editorsForm = document.getElementById('EditorsForm');
+    }
+  }
+
+  addHiddenInputToForm(form, key, value) {
+    let inputExist = form.querySelector(`input[name="${key}"]`);
+    if (inputExist) {
+      inputExist.value = value
+    } else {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    }
+  }
+
+  getInputData(inputs, settings = {}) {
+    // collect checkbox
+    if (inputs.type === 'checkbox') {
+      let checkboxName = inputs.name;
+      if (!settings.hasOwnProperty(checkboxName)) {
+        settings[checkboxName] = [];
+      }
+      if (inputs.checked) {
+        settings[checkboxName].push(inputs.value);
+      }
+    } else if (inputs.type === 'select-multiple') {
+      let selectOptions = inputs.options;
+      let selectBoxName = inputs.name;
+      for (let k = 0; k < selectOptions.length; k++) {
+        let option = selectOptions[k];
+        if (option.selected) {
+          if (!settings.hasOwnProperty(selectBoxName)) {
+            settings[selectBoxName] = [];
+          }
+
+          settings[selectBoxName].push(option.value || option.text);
         }
+      }
+    } else if (!settings.hasOwnProperty(inputs.name)) {
+      settings[inputs.name] = inputs.value;
     }
 
-    addHiddenInputToForm(form, key, value) {
-        let inputExist = form.querySelector(`input[name="${key}"]`);
-        if (inputExist){
-            inputExist.value = value
-        }else {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = key;
-            input.value = value;
-            form.appendChild(input);
-        }
-    }
-
-    getInputData(inputs, settings = {}) {
-        // collect checkbox
-        if (inputs.type === 'checkbox'){
-            let checkboxName = inputs.name;
-            if (!settings.hasOwnProperty(checkboxName)){
-                settings[checkboxName] = [];
-            }
-            if (inputs.checked){
-                settings[checkboxName].push(inputs.value);
-            }
-        }else if (inputs.type === 'select-multiple'){
-            let selectOptions = inputs.options;
-            let selectBoxName = inputs.name;
-            for (let k = 0; k < selectOptions.length; k++) {
-                let option = selectOptions[k];
-                if (option.selected){
-                    if (!settings.hasOwnProperty(selectBoxName)){
-                        settings[selectBoxName] = [];
-                    }
-
-                    settings[selectBoxName].push(option.value || option.text);
-                }
-            }
-        }else if (!settings.hasOwnProperty(inputs.name)) {
-            settings[inputs.name] = inputs.value;
-        }
-
-        return settings;
-    }
+    return settings;
+  }
 
 }
+
 /*
  *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -712,7 +758,7 @@ var tonicsFileManagerURL = document.querySelector('body')?.getAttribute('data-to
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Util/Element/Abstract/ElementAbstract.ts
 var ElementAbstract = class {
@@ -722,6 +768,7 @@ var ElementAbstract = class {
     }
     return this;
   }
+
   query($classOrID) {
     let $temp = document.querySelector(`${$classOrID}`);
     if ($temp) {
@@ -730,10 +777,12 @@ var ElementAbstract = class {
     }
     console.log(`Invalid class or id name - ${$classOrID}`);
   }
+
   setQueryResult($result) {
     this.$queryResult = $result;
     return this;
   }
+
   getQueryResult() {
     return this.$queryResult;
   }
@@ -747,9 +796,11 @@ var MenuToggle = class extends ElementAbstract {
     this.$menuDetails = {};
     this.queryAdapter = $queryAdapter;
   }
+
   getQueryAdapter() {
     return this.queryAdapter;
   }
+
   settings($menuItemElement, $buttonElement, $subMenuElement) {
     this.getMenuDetails().menu = {
       parent: {
@@ -762,28 +813,31 @@ var MenuToggle = class extends ElementAbstract {
       buttonClass: $buttonElement,
       subMenuClass: $subMenuElement,
       on: {
-        button: { icon: { add: "", remove: "" } },
-        subMenu: { class: { add: "", remove: "", animation: { start: "", end: "" } } }
+        button: {icon: {add: "", remove: ""}},
+        subMenu: {class: {add: "", remove: "", animation: {start: "", end: ""}}}
       },
       off: {
-        button: { icon: { add: "", remove: "" } },
-        subMenu: { class: { add: "", remove: "", animation: { start: "", end: "" } } }
+        button: {icon: {add: "", remove: ""}},
+        subMenu: {class: {add: "", remove: "", animation: {start: "", end: ""}}}
       }
     };
     return this;
   }
+
   stopPropagation($bool = true) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.propagate = $bool;
     }
     return this;
   }
+
   propagateElements($elementsToPropagate = []) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.propagateElements = $elementsToPropagate;
     }
     return this;
   }
+
   buttonIcon($add, $remove) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.on.button.icon.add = $add;
@@ -792,6 +846,7 @@ var MenuToggle = class extends ElementAbstract {
     }
     throw new DOMException("No Menu Element Added");
   }
+
   menuIsOn($addClass, $removeClass) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.on.subMenu.class.add = $addClass;
@@ -800,6 +855,7 @@ var MenuToggle = class extends ElementAbstract {
     }
     throw new DOMException("No Menu Element Added");
   }
+
   menuIsOff($addClass, $removeClass) {
     if (this.getMenuDetails().hasOwnProperty("menu")) {
       this.getMenuDetails().menu.off.subMenu.class.add = $addClass;
@@ -808,6 +864,7 @@ var MenuToggle = class extends ElementAbstract {
     }
     throw new DOMException("No Menu Element Added");
   }
+
   run() {
     let $parent = this.getMenuDetails().menu.parent.element;
     if ($parent) {
@@ -868,7 +925,7 @@ var MenuToggle = class extends ElementAbstract {
               $subMenu.addEventListener("animationend", () => {
                 $subMenu.classList.remove(flexString);
                 $subMenu.classList.add(noneString);
-              }, { once: true });
+              }, {once: true});
             } else {
               $subMenu.classList.remove(...this.getMenuDetails().menu.off.subMenu.class.remove);
               $subMenu.classList.add(...this.getMenuDetails().menu.off.subMenu.class.add);
@@ -894,9 +951,11 @@ var MenuToggle = class extends ElementAbstract {
       });
     }
   }
+
   getMenuDetails() {
     return this.$menuDetails;
   }
+
   closeMenuToggle($parent = null) {
     let self = this;
     if ($parent === null) {
@@ -908,6 +967,7 @@ var MenuToggle = class extends ElementAbstract {
       }
     });
   }
+
   closeOnClickOutSide($bool) {
     if ($bool) {
       let $parent = this.getMenuDetails().menu.parent.element;
@@ -916,16 +976,17 @@ var MenuToggle = class extends ElementAbstract {
       });
     }
     let self = this;
-    document.addEventListener("click", function(e) {
+    document.addEventListener("click", function (e) {
       self.closeMenuToggle();
     });
-    document.addEventListener("keyup", function(e) {
+    document.addEventListener("keyup", function (e) {
       if (e.key === "Escape") {
         self.closeMenuToggle();
       }
     });
     return this;
   }
+
   hasAnimation($el) {
     let styles = window.getComputedStyle($el, null);
     const animDuration = parseFloat(styles.getPropertyValue("animation-duration") || "0");
@@ -960,7 +1021,7 @@ export {
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Util/Element/Abstract/ElementAbstract.ts
 var ElementAbstract = class {
@@ -970,6 +1031,7 @@ var ElementAbstract = class {
     }
     return this;
   }
+
   query($classOrID) {
     let $temp = document.querySelector(`${$classOrID}`);
     if ($temp) {
@@ -978,10 +1040,12 @@ var ElementAbstract = class {
     }
     console.log(`Invalid class or id name - ${$classOrID}`);
   }
+
   setQueryResult($result) {
     this.$queryResult = $result;
     return this;
   }
+
   getQueryResult() {
     return this.$queryResult;
   }
@@ -994,6 +1058,7 @@ var Query = class extends ElementAbstract {
     this.setQueryResult($element);
     return this;
   }
+
   forward($classOrID) {
     let $nextElement = this.getQueryResult().nextElementSibling;
     while ($nextElement) {
@@ -1005,6 +1070,7 @@ var Query = class extends ElementAbstract {
     }
     return null;
   }
+
   backward($classOrID) {
     let $prevElement = this.getQueryResult().previousElementSibling;
     while ($prevElement) {
@@ -1016,6 +1082,7 @@ var Query = class extends ElementAbstract {
     }
     return null;
   }
+
   in() {
     let $in = this.getQueryResult().firstElementChild;
     if ($in) {
@@ -1024,6 +1091,7 @@ var Query = class extends ElementAbstract {
     }
     return null;
   }
+
   out() {
     let $out = this.getQueryResult().parentElement;
     if ($out) {
@@ -1032,6 +1100,7 @@ var Query = class extends ElementAbstract {
     }
     return null;
   }
+
   queryChildren($classOrID, setQueryResult = true) {
     let $childElement = this.getQueryResult().querySelector($classOrID);
     if ($childElement) {
@@ -1043,6 +1112,7 @@ var Query = class extends ElementAbstract {
     }
     return null;
   }
+
   setSVGUseAttribute($attributeName) {
     let $svgUseAttribute = this.getQueryResult();
     if ($svgUseAttribute.tagName == "use") {
@@ -1086,29 +1156,35 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 var __commonJS = (cb, mod) => function __require() {
-  return mod || (0, cb[Object.keys(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  return mod || (0, cb[Object.keys(cb)[0]])((mod = {exports: {}}).exports, mod), mod.exports;
 };
 var __reExport = (target, module, desc) => {
   if (module && typeof module === "object" || typeof module === "function") {
     for (let key of __getOwnPropNames(module))
       if (!__hasOwnProp.call(target, key) && key !== "default")
-        __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
+        __defProp(target, key, {
+          get: () => module[key],
+          enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable
+        });
   }
   return target;
 };
 var __toModule = (module) => {
-  return __reExport(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", module && module.__esModule && "default" in module ? { get: () => module.default, enumerable: true } : { value: module, enumerable: true })), module);
+  return __reExport(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", module && module.__esModule && "default" in module ? {
+    get: () => module.default,
+    enumerable: true
+  } : {value: module, enumerable: true})), module);
 };
 
 // node_modules/sweetalert2/dist/sweetalert2.all.js
 var require_sweetalert2_all = __commonJS({
   "node_modules/sweetalert2/dist/sweetalert2.all.js"(exports, module) {
-    (function(global, factory) {
+    (function (global, factory) {
       typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = global || self, global.Sweetalert2 = factory());
-    })(exports, function() {
+    })(exports, function () {
       "use strict";
       const DismissReason = Object.freeze({
         cancel: "cancel",
@@ -1336,7 +1412,7 @@ var require_sweetalert2_all = __commonJS({
           elem.style.removeProperty(property);
         }
       }, "applyNumericalStyle");
-      const show = /* @__PURE__ */ __name(function(elem) {
+      const show = /* @__PURE__ */ __name(function (elem) {
         let display = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : "flex";
         elem.style.display = display;
       }, "show");
@@ -1361,7 +1437,7 @@ var require_sweetalert2_all = __commonJS({
         const transDuration = parseFloat(style.getPropertyValue("transition-duration") || "0");
         return animDuration > 0 || transDuration > 0;
       }, "hasCssAnimation");
-      const animateTimerProgressBar = /* @__PURE__ */ __name(function(timer) {
+      const animateTimerProgressBar = /* @__PURE__ */ __name(function (timer) {
         let reset = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : false;
         const timerProgressBar = getTimerProgressBar();
         if (isVisible(timerProgressBar)) {
@@ -1520,6 +1596,7 @@ var require_sweetalert2_all = __commonJS({
         setInnerHtml(loader, params.loaderHtml);
         applyCustomClass(loader, params, "loader");
       }, "renderActions");
+
       function renderButtons(actions, loader, params) {
         const confirmButton = getConfirmButton();
         const denyButton = getDenyButton();
@@ -1539,7 +1616,9 @@ var require_sweetalert2_all = __commonJS({
           }
         }
       }
+
       __name(renderButtons, "renderButtons");
+
       function handleButtonsStyling(confirmButton, denyButton, cancelButton, params) {
         if (!params.buttonsStyling) {
           return removeClass([confirmButton, denyButton, cancelButton], swalClasses.styled);
@@ -1558,7 +1637,9 @@ var require_sweetalert2_all = __commonJS({
           addClass(cancelButton, swalClasses["default-outline"]);
         }
       }
+
       __name(handleButtonsStyling, "handleButtonsStyling");
+
       function renderButton(button, buttonType, params) {
         toggle(button, params["show".concat(capitalizeFirstLetter(buttonType), "Button")], "inline-block");
         setInnerHtml(button, params["".concat(buttonType, "ButtonText")]);
@@ -1567,7 +1648,9 @@ var require_sweetalert2_all = __commonJS({
         applyCustomClass(button, params, "".concat(buttonType, "Button"));
         addClass(button, params["".concat(buttonType, "ButtonClass")]);
       }
+
       __name(renderButton, "renderButton");
+
       function handleBackdropParam(container, backdrop) {
         if (typeof backdrop === "string") {
           container.style.background = backdrop;
@@ -1575,7 +1658,9 @@ var require_sweetalert2_all = __commonJS({
           addClass([document.documentElement, document.body], swalClasses["no-backdrop"]);
         }
       }
+
       __name(handleBackdropParam, "handleBackdropParam");
+
       function handlePositionParam(container, position) {
         if (position in swalClasses) {
           addClass(container, swalClasses[position]);
@@ -1584,7 +1669,9 @@ var require_sweetalert2_all = __commonJS({
           addClass(container, swalClasses.center);
         }
       }
+
       __name(handlePositionParam, "handlePositionParam");
+
       function handleGrowParam(container, grow) {
         if (grow && typeof grow === "string") {
           const growClass = "grow-".concat(grow);
@@ -1593,6 +1680,7 @@ var require_sweetalert2_all = __commonJS({
           }
         }
       }
+
       __name(handleGrowParam, "handleGrowParam");
       const renderContainer = /* @__PURE__ */ __name((instance, params) => {
         const container = getContainer();
@@ -1974,6 +2062,7 @@ var require_sweetalert2_all = __commonJS({
       const clickConfirm = /* @__PURE__ */ __name(() => getConfirmButton() && getConfirmButton().click(), "clickConfirm");
       const clickDeny = /* @__PURE__ */ __name(() => getDenyButton() && getDenyButton().click(), "clickDeny");
       const clickCancel = /* @__PURE__ */ __name(() => getCancelButton() && getCancelButton().click(), "clickCancel");
+
       function fire() {
         const Swal3 = this;
         for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -1981,16 +2070,20 @@ var require_sweetalert2_all = __commonJS({
         }
         return new Swal3(...args);
       }
+
       __name(fire, "fire");
+
       function mixin(mixinParams) {
         class MixinSwal extends this {
           _main(params, priorityMixinParams) {
             return super._main(params, Object.assign({}, mixinParams, priorityMixinParams));
           }
         }
+
         __name(MixinSwal, "MixinSwal");
         return MixinSwal;
       }
+
       __name(mixin, "mixin");
       const showLoading = /* @__PURE__ */ __name((buttonToReplace) => {
         let popup = getPopup();
@@ -2079,6 +2172,7 @@ var require_sweetalert2_all = __commonJS({
       }, "isTimerRunning");
       let bodyClickListenerAdded = false;
       const clickHandlers = {};
+
       function bindClickHandler() {
         let attr = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "data-swal-template";
         clickHandlers[attr] = this;
@@ -2087,6 +2181,7 @@ var require_sweetalert2_all = __commonJS({
           bodyClickListenerAdded = true;
         }
       }
+
       __name(bindClickHandler, "bindClickHandler");
       const bodyClickListener = /* @__PURE__ */ __name((event) => {
         for (let el = event.target; el && el !== document; el = el.parentNode) {
@@ -2267,6 +2362,7 @@ var require_sweetalert2_all = __commonJS({
         isTimerRunning,
         bindClickHandler
       });
+
       function hideLoading() {
         const innerParams = privateProps.innerParams.get(this);
         if (!innerParams) {
@@ -2288,6 +2384,7 @@ var require_sweetalert2_all = __commonJS({
         domCache.denyButton.disabled = false;
         domCache.cancelButton.disabled = false;
       }
+
       __name(hideLoading, "hideLoading");
       const showRelatedButton = /* @__PURE__ */ __name((domCache) => {
         const buttonToReplace = domCache.popup.getElementsByClassName(domCache.loader.getAttribute("data-button-to-replace"));
@@ -2297,6 +2394,7 @@ var require_sweetalert2_all = __commonJS({
           hide(domCache.actions);
         }
       }, "showRelatedButton");
+
       function getInput$1(instance) {
         const innerParams = privateProps.innerParams.get(instance || this);
         const domCache = privateProps.domCache.get(instance || this);
@@ -2305,6 +2403,7 @@ var require_sweetalert2_all = __commonJS({
         }
         return getInput(domCache.popup, innerParams.input);
       }
+
       __name(getInput$1, "getInput$1");
       const fixScrollbar = /* @__PURE__ */ __name(() => {
         if (states.previousBodyPadding !== null) {
@@ -2408,6 +2507,7 @@ var require_sweetalert2_all = __commonJS({
         swalPromiseResolve: new WeakMap(),
         swalPromiseReject: new WeakMap()
       };
+
       function removePopupAndResetState(instance, container, returnFocus, didClose) {
         if (isToast()) {
           triggerDidCloseAndDispose(instance, didClose);
@@ -2433,11 +2533,15 @@ var require_sweetalert2_all = __commonJS({
         }
         removeBodyClasses();
       }
+
       __name(removePopupAndResetState, "removePopupAndResetState");
+
       function removeBodyClasses() {
         removeClass([document.documentElement, document.body], [swalClasses.shown, swalClasses["height-auto"], swalClasses["no-backdrop"], swalClasses["toast-shown"]]);
       }
+
       __name(removeBodyClasses, "removeBodyClasses");
+
       function close(resolveValue) {
         resolveValue = prepareResolveValue(resolveValue);
         const swalPromiseResolve = privateMethods.swalPromiseResolve.get(this);
@@ -2451,10 +2555,13 @@ var require_sweetalert2_all = __commonJS({
           swalPromiseResolve(resolveValue);
         }
       }
+
       __name(close, "close");
+
       function isAwaitingPromise() {
         return !!privateProps.awaitingPromise.get(this);
       }
+
       __name(isAwaitingPromise, "isAwaitingPromise");
       const triggerClosePopup = /* @__PURE__ */ __name((instance) => {
         const popup = getPopup();
@@ -2473,6 +2580,7 @@ var require_sweetalert2_all = __commonJS({
         handlePopupAnimation(instance, popup, innerParams);
         return true;
       }, "triggerClosePopup");
+
       function rejectPromise(error2) {
         const rejectPromise2 = privateMethods.swalPromiseReject.get(this);
         handleAwaitingPromise(this);
@@ -2480,6 +2588,7 @@ var require_sweetalert2_all = __commonJS({
           rejectPromise2(error2);
         }
       }
+
       __name(rejectPromise, "rejectPromise");
       const handleAwaitingPromise = /* @__PURE__ */ __name((instance) => {
         if (instance.isAwaitingPromise()) {
@@ -2517,7 +2626,7 @@ var require_sweetalert2_all = __commonJS({
       }, "handlePopupAnimation");
       const animatePopup = /* @__PURE__ */ __name((instance, popup, container, returnFocus, didClose) => {
         globalState.swalCloseEventFinishedCallback = removePopupAndResetState.bind(null, instance, container, returnFocus, didClose);
-        popup.addEventListener(animationEndEvent, function(e) {
+        popup.addEventListener(animationEndEvent, function (e) {
           if (e.target === popup) {
             globalState.swalCloseEventFinishedCallback();
             delete globalState.swalCloseEventFinishedCallback;
@@ -2532,13 +2641,16 @@ var require_sweetalert2_all = __commonJS({
           instance._destroy();
         });
       }, "triggerDidCloseAndDispose");
+
       function setButtonsDisabled(instance, buttons, disabled) {
         const domCache = privateProps.domCache.get(instance);
         buttons.forEach((button) => {
           domCache[button].disabled = disabled;
         });
       }
+
       __name(setButtonsDisabled, "setButtonsDisabled");
+
       function setInputDisabled(input, disabled) {
         if (!input) {
           return false;
@@ -2553,23 +2665,33 @@ var require_sweetalert2_all = __commonJS({
           input.disabled = disabled;
         }
       }
+
       __name(setInputDisabled, "setInputDisabled");
+
       function enableButtons() {
         setButtonsDisabled(this, ["confirmButton", "denyButton", "cancelButton"], false);
       }
+
       __name(enableButtons, "enableButtons");
+
       function disableButtons() {
         setButtonsDisabled(this, ["confirmButton", "denyButton", "cancelButton"], true);
       }
+
       __name(disableButtons, "disableButtons");
+
       function enableInput() {
         return setInputDisabled(this.getInput(), false);
       }
+
       __name(enableInput, "enableInput");
+
       function disableInput() {
         return setInputDisabled(this.getInput(), true);
       }
+
       __name(disableInput, "disableInput");
+
       function showValidationMessage(error2) {
         const domCache = privateProps.domCache.get(this);
         const params = privateProps.innerParams.get(this);
@@ -2587,7 +2709,9 @@ var require_sweetalert2_all = __commonJS({
           addClass(input, swalClasses.inputerror);
         }
       }
+
       __name(showValidationMessage, "showValidationMessage");
+
       function resetValidationMessage$1() {
         const domCache = privateProps.domCache.get(this);
         if (domCache.validationMessage) {
@@ -2600,12 +2724,16 @@ var require_sweetalert2_all = __commonJS({
           removeClass(input, swalClasses.inputerror);
         }
       }
+
       __name(resetValidationMessage$1, "resetValidationMessage$1");
+
       function getProgressSteps$1() {
         const domCache = privateProps.domCache.get(this);
         return domCache.progressSteps;
       }
+
       __name(getProgressSteps$1, "getProgressSteps$1");
+
       class Timer {
         constructor(callback, delay) {
           this.callback = callback;
@@ -2613,6 +2741,7 @@ var require_sweetalert2_all = __commonJS({
           this.running = false;
           this.start();
         }
+
         start() {
           if (!this.running) {
             this.running = true;
@@ -2621,6 +2750,7 @@ var require_sweetalert2_all = __commonJS({
           }
           return this.remaining;
         }
+
         stop() {
           if (this.running) {
             this.running = false;
@@ -2629,6 +2759,7 @@ var require_sweetalert2_all = __commonJS({
           }
           return this.remaining;
         }
+
         increase(n) {
           const running = this.running;
           if (running) {
@@ -2640,6 +2771,7 @@ var require_sweetalert2_all = __commonJS({
           }
           return this.remaining;
         }
+
         getTimerLeft() {
           if (this.running) {
             this.stop();
@@ -2647,10 +2779,12 @@ var require_sweetalert2_all = __commonJS({
           }
           return this.remaining;
         }
+
         isRunning() {
           return this.running;
         }
       }
+
       __name(Timer, "Timer");
       var defaultInputValidators = {
         email: (string, validationMessage) => {
@@ -2660,6 +2794,7 @@ var require_sweetalert2_all = __commonJS({
           return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-z]{2,63}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)$/.test(string) ? Promise.resolve() : Promise.resolve(validationMessage || "Invalid URL");
         }
       };
+
       function setDefaultInputValidators(params) {
         if (!params.inputValidator) {
           Object.keys(defaultInputValidators).forEach((key) => {
@@ -2669,14 +2804,18 @@ var require_sweetalert2_all = __commonJS({
           });
         }
       }
+
       __name(setDefaultInputValidators, "setDefaultInputValidators");
+
       function validateCustomTargetElement(params) {
         if (!params.target || typeof params.target === "string" && !document.querySelector(params.target) || typeof params.target !== "string" && !params.target.appendChild) {
           warn('Target parameter is not valid, defaulting to "body"');
           params.target = "body";
         }
       }
+
       __name(validateCustomTargetElement, "validateCustomTargetElement");
+
       function setParameters(params) {
         setDefaultInputValidators(params);
         if (params.showLoaderOnConfirm && !params.preConfirm) {
@@ -2688,6 +2827,7 @@ var require_sweetalert2_all = __commonJS({
         }
         init(params);
       }
+
       __name(setParameters, "setParameters");
       const swalStringParams = ["swal-title", "swal-html", "swal-footer"];
       const getTemplateParams = /* @__PURE__ */ __name((params) => {
@@ -3247,7 +3387,7 @@ var require_sweetalert2_all = __commonJS({
       let ignoreOutsideClick = false;
       const handleModalMousedown = /* @__PURE__ */ __name((domCache) => {
         domCache.popup.onmousedown = () => {
-          domCache.container.onmouseup = function(e) {
+          domCache.container.onmouseup = function (e) {
             domCache.container.onmouseup = void 0;
             if (e.target === domCache.container) {
               ignoreOutsideClick = true;
@@ -3257,7 +3397,7 @@ var require_sweetalert2_all = __commonJS({
       }, "handleModalMousedown");
       const handleContainerMousedown = /* @__PURE__ */ __name((domCache) => {
         domCache.container.onmousedown = () => {
-          domCache.popup.onmouseup = function(e) {
+          domCache.popup.onmouseup = function (e) {
             domCache.popup.onmouseup = void 0;
             if (e.target === domCache.popup || domCache.popup.contains(e.target)) {
               ignoreOutsideClick = true;
@@ -3277,6 +3417,7 @@ var require_sweetalert2_all = __commonJS({
           }
         };
       }, "handleModalClick");
+
       function _main(userParams) {
         let mixinParams = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
         showWarningsForParams(Object.assign({}, mixinParams, userParams));
@@ -3300,6 +3441,7 @@ var require_sweetalert2_all = __commonJS({
         privateProps.innerParams.set(this, innerParams);
         return swalPromise(this, domCache, innerParams);
       }
+
       __name(_main, "_main");
       const prepareParams = /* @__PURE__ */ __name((userParams, mixinParams) => {
         const templateParams = getTemplateParams(userParams);
@@ -3398,6 +3540,7 @@ var require_sweetalert2_all = __commonJS({
           document.activeElement.blur();
         }
       }, "blurActiveElement");
+
       function update(params) {
         const popup = getPopup();
         const innerParams = privateProps.innerParams.get(this);
@@ -3423,7 +3566,9 @@ var require_sweetalert2_all = __commonJS({
           }
         });
       }
+
       __name(update, "update");
+
       function _destroy() {
         const domCache = privateProps.domCache.get(this);
         const innerParams = privateProps.innerParams.get(this);
@@ -3444,6 +3589,7 @@ var require_sweetalert2_all = __commonJS({
         }
         disposeSwal(this);
       }
+
       __name(_destroy, "_destroy");
       const disposeSwal = /* @__PURE__ */ __name((instance) => {
         disposeWeakMaps(instance);
@@ -3488,6 +3634,7 @@ var require_sweetalert2_all = __commonJS({
         _destroy
       });
       let currentInstance;
+
       class SweetAlert {
         constructor() {
           if (typeof window === "undefined") {
@@ -3509,20 +3656,23 @@ var require_sweetalert2_all = __commonJS({
           const promise = this._main(this.params);
           privateProps.promise.set(this, promise);
         }
+
         then(onFulfilled) {
           const promise = privateProps.promise.get(this);
           return promise.then(onFulfilled);
         }
+
         finally(onFinally) {
           const promise = privateProps.promise.get(this);
           return promise.finally(onFinally);
         }
       }
+
       __name(SweetAlert, "SweetAlert");
       Object.assign(SweetAlert.prototype, instanceMethods);
       Object.assign(SweetAlert, staticMethods);
       Object.keys(instanceMethods).forEach((key) => {
-        SweetAlert[key] = function() {
+        SweetAlert[key] = function () {
           if (currentInstance) {
             return currentInstance[key](...arguments);
           }
@@ -3537,7 +3687,7 @@ var require_sweetalert2_all = __commonJS({
     if (typeof exports !== "undefined" && exports.Sweetalert2) {
       exports.swal = exports.sweetAlert = exports.Swal = exports.SweetAlert = exports.Sweetalert2;
     }
-    typeof document != "undefined" && function(e, t) {
+    typeof document != "undefined" && function (e, t) {
       var n = e.createElement("style");
       if (e.getElementsByTagName("head")[0].appendChild(n), n.styleSheet)
         n.styleSheet.disabled || (n.styleSheet.cssText = t);
@@ -3602,32 +3752,37 @@ var XHRApi = class {
     this.headers = headers;
     this.settings();
   }
+
   getCallbacks() {
     return this.$callbacks;
   }
+
   settings() {
     this.getCallbacks().callbacks = {
       onProgress: null
     };
   }
+
   checkIfCallbackIsSet() {
     if (!this.getCallbacks().callbacks) {
       throw new DOMException("No Callbacks exist");
     }
     return true;
   }
+
   onProgress($onProgress) {
     if (this.checkIfCallbackIsSet()) {
       this.getCallbacks().callbacks.onProgress = $onProgress;
       return this;
     }
   }
+
   Get(url, callBack) {
     this.getHttp().open("GET", url, true);
     this.setHeaders();
     this.getHttp().send();
     let self2 = this;
-    this.getHttp().onreadystatechange = function() {
+    this.getHttp().onreadystatechange = function () {
       try {
         if (self2.http.readyState === XMLHttpRequest.DONE) {
           if (self2.http.status === 200) {
@@ -3641,6 +3796,7 @@ var XHRApi = class {
       }
     };
   }
+
   Post(url, data, callBack) {
     this.getHttp().open("POST", url, true);
     this.setHeaders();
@@ -3648,13 +3804,13 @@ var XHRApi = class {
     let self2 = this;
     let onProgress = self2.getCallbacks().callbacks.onProgress;
     if (onProgress !== null && typeof onProgress == "function") {
-      this.getHttp().upload.addEventListener("progress", function(e) {
+      this.getHttp().upload.addEventListener("progress", function (e) {
         onProgress(e);
       });
     }
-    this.getHttp().onreadystatechange = function() {
+    this.getHttp().onreadystatechange = function () {
       try {
-        self2.http.onload = function() {
+        self2.http.onload = function () {
           callBack(null, self2.http.responseText);
         };
       } catch (e) {
@@ -3662,6 +3818,7 @@ var XHRApi = class {
       }
     };
   }
+
   Put(url, data, callBack) {
     this.getHttp().open("PUT", url, true);
     this.setHeaders();
@@ -3669,12 +3826,12 @@ var XHRApi = class {
     let self2 = this;
     let onProgress = self2.getCallbacks().callbacks.onProgress;
     if (onProgress !== null && typeof onProgress == "function") {
-      this.getHttp().upload.addEventListener("progress", function(e) {
+      this.getHttp().upload.addEventListener("progress", function (e) {
         onProgress(e);
       });
     }
     try {
-      this.http.onload = function() {
+      this.http.onload = function () {
         if (self2.http.status === 200) {
           callBack(null, self2.http.response);
         } else {
@@ -3685,6 +3842,7 @@ var XHRApi = class {
       callBack("Something Went Wrong: " + e.description);
     }
   }
+
   Delete(url, data = null, callBack) {
     this.http.open("DELETE", url, true);
     this.setHeaders();
@@ -3695,7 +3853,7 @@ var XHRApi = class {
     }
     let self2 = this;
     try {
-      this.http.onload = function() {
+      this.http.onload = function () {
         if (self2.http.status === 200) {
           callBack(null, self2.http.response);
         } else {
@@ -3706,9 +3864,11 @@ var XHRApi = class {
       callBack("Something Went Wrong: " + e.description);
     }
   }
+
   getHeaders() {
     return this.headers;
   }
+
   setHeaders() {
     if (this.getHeaders()) {
       for (let key in this.getHeaders()) {
@@ -3716,6 +3876,7 @@ var XHRApi = class {
       }
     }
   }
+
   getHttp() {
     return this.http;
   }
@@ -3733,13 +3894,17 @@ function getFileDirectory(filePath, stringToReturnIfEmpty = "") {
   }
   return path ? path : stringToReturnIfEmpty;
 }
+
 __name(getFileDirectory, "getFileDirectory");
+
 function titleCase(str) {
-  return str.toLowerCase().replace(/\b(\w)/g, function(s) {
+  return str.toLowerCase().replace(/\b(\w)/g, function (s) {
     return s.toLocaleUpperCase();
   });
 }
+
 __name(titleCase, "titleCase");
+
 function copyToClipBoard(clip) {
   return new Promise((resolve, reject) => {
     navigator.clipboard.writeText(clip).then(() => {
@@ -3749,7 +3914,9 @@ function copyToClipBoard(clip) {
     });
   });
 }
+
 __name(copyToClipBoard, "copyToClipBoard");
+
 function getFileExtension(fileNameOrURL, showUnixDotFiles = false) {
   let fileName;
   let fileExt;
@@ -3774,10 +3941,12 @@ function getFileExtension(fileNameOrURL, showUnixDotFiles = false) {
   fileExt = fileName.substr(1 + fileName.lastIndexOf("."));
   return fileExt;
 }
+
 __name(getFileExtension, "getFileExtension");
+
 function contextMenuListCreator(name, svg, menuAction) {
   return `
-<li class="context-menu-item" data-menu-action=${menuAction}>
+<li class="context-menu-item" data-menu-action="${menuAction}">
       ${svg}
       <a class="" href="javascript:void(0);">
         ${name}
@@ -3785,7 +3954,9 @@ function contextMenuListCreator(name, svg, menuAction) {
     </li>
 `;
 }
+
 __name(contextMenuListCreator, "contextMenuListCreator");
+
 function inputToast(inputTitle, defaultValue = "", type = "text") {
   return import_sweetalert2.default.fire({
     title: inputTitle,
@@ -3804,7 +3975,9 @@ function inputToast(inputTitle, defaultValue = "", type = "text") {
     iconColor: "#264762d1"
   });
 }
+
 __name(inputToast, "inputToast");
+
 function successToast(message, timer = 4e3) {
   const Toast = import_sweetalert2.default.mixin({
     toast: true,
@@ -3827,7 +4000,9 @@ function successToast(message, timer = 4e3) {
     title: message
   });
 }
+
 __name(successToast, "successToast");
+
 function infoToast(message, timer = 4e3) {
   const Toast = import_sweetalert2.default.mixin({
     toast: true,
@@ -3850,7 +4025,9 @@ function infoToast(message, timer = 4e3) {
     title: message
   });
 }
+
 __name(infoToast, "infoToast");
+
 function errorToast(message, timer = 5e3) {
   const Toast = import_sweetalert2.default.mixin({
     toast: true,
@@ -3873,11 +4050,15 @@ function errorToast(message, timer = 5e3) {
     title: message
   });
 }
+
 __name(errorToast, "errorToast");
+
 function getAllSelectedFiles() {
   return document.querySelectorAll('[data-selected="true"]');
 }
+
 __name(getAllSelectedFiles, "getAllSelectedFiles");
+
 function addHiddenInputToForm(form, key, value) {
   const input = document.createElement("input");
   input.type = "hidden";
@@ -3885,7 +4066,9 @@ function addHiddenInputToForm(form, key, value) {
   input.value = value;
   form.appendChild(input);
 }
+
 __name(addHiddenInputToForm, "addHiddenInputToForm");
+
 function promptToast(title, confirmText = "Proceed", onConfirmed, onDenied = null, onDismiss = null) {
   const Toast = import_sweetalert2.default.mixin({
     toast: true,
@@ -3922,7 +4105,9 @@ function promptToast(title, confirmText = "Proceed", onConfirmed, onDenied = nul
     }
   });
 }
+
 __name(promptToast, "promptToast");
+
 function str_replace($search, $replace, $subject) {
   let i, regex = [], map = {};
   for (i = 0; i < $search.length; i++) {
@@ -3930,12 +4115,14 @@ function str_replace($search, $replace, $subject) {
     map[$search[i]] = $replace[i];
   }
   regex = regex.join("|");
-  $subject = $subject.replace(new RegExp(regex, "g"), function(matched) {
+  $subject = $subject.replace(new RegExp(regex, "g"), function (matched) {
     return map[matched];
   });
   return $subject;
 }
+
 __name(str_replace, "str_replace");
+
 function slug($string, $separator = "-") {
   $string = $string.trim();
   $string = str_replace(["&", "@", "%", "$", "*", "<", ">", "+", "!"], [
@@ -3951,10 +4138,12 @@ function slug($string, $separator = "-") {
   ], $string);
   return $string.toLocaleString().toLowerCase().normalize("NFD").replace(/[^\S]+/g, $separator);
 }
+
 __name(slug, "slug");
+
 function activateMenus($listOfMenuToActivate) {
   let headerMenu = document.querySelector(FileManagerElements.HEAD.MENU_SECTION);
-  $listOfMenuToActivate.forEach(function(value, index) {
+  $listOfMenuToActivate.forEach(function (value, index) {
     let eventMenu = headerMenu.querySelector(`[data-menu-action="${value}"]`);
     if (eventMenu) {
       eventMenu.closest(".menu-item").classList.remove("deactivate-menu-pointer");
@@ -3962,10 +4151,12 @@ function activateMenus($listOfMenuToActivate) {
     }
   });
 }
+
 __name(activateMenus, "activateMenus");
+
 function deActivateMenus($listOfMenuToActivate) {
   let headerMenu = document.querySelector(FileManagerElements.HEAD.MENU_SECTION);
-  $listOfMenuToActivate.forEach(function(value, index) {
+  $listOfMenuToActivate.forEach(function (value, index) {
     let eventMenu = headerMenu.querySelector(`[data-menu-action="${value}"]`);
     if (eventMenu) {
       eventMenu.closest(".menu-item").classList.add("deactivate-menu-pointer");
@@ -3973,12 +4164,14 @@ function deActivateMenus($listOfMenuToActivate) {
     }
   });
 }
+
 __name(deActivateMenus, "deActivateMenus");
+
 function getAppURL() {
   let APP_URL = "/api/media/app_url";
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let XHRAPI = new XHRApi();
-    XHRAPI.Get(APP_URL, function(err, data) {
+    XHRAPI.Get(APP_URL, function (err, data) {
       if (err) {
         reject();
       }
@@ -3993,7 +4186,9 @@ function getAppURL() {
     });
   });
 }
+
 __name(getAppURL, "getAppURL");
+
 function loadScriptDynamically($scriptPath, $uniqueIdentifier) {
   return new Promise((resolve, reject) => {
     let scriptCheck = document.querySelector(`[data-script_id="${$uniqueIdentifier}"]`);
@@ -4010,7 +4205,9 @@ function loadScriptDynamically($scriptPath, $uniqueIdentifier) {
     }
   });
 }
+
 __name(loadScriptDynamically, "loadScriptDynamically");
+
 function getCSRFFromInput(csrfNames) {
   let csrf = null;
   csrfNames.forEach((value, index) => {
@@ -4025,7 +4222,9 @@ function getCSRFFromInput(csrfNames) {
   });
   return csrf;
 }
+
 __name(getCSRFFromInput, "getCSRFFromInput");
+
 function fileLoadMoreButton(showLoadMoreText = true, animation = false) {
   let loadMore = document.querySelector(FileManagerElements.Button.FILE_LOAD_MORE);
   let loadingAnimation = document.querySelector(".dot-elastic.loading");
@@ -4038,9 +4237,12 @@ function fileLoadMoreButton(showLoadMoreText = true, animation = false) {
   }
   animation ? loadingAnimation.classList.remove("display-none") : loadingAnimation.classList.add("display-none");
 }
+
 __name(fileLoadMoreButton, "fileLoadMoreButton");
+
 function filesLoadingAnimation(trigger = true) {
-  let fileContainerParent = document.querySelector(FileManagerElements.FILES.FILE_PARENT), loadingAnimation = document.querySelector(".dot-elastic.loading");
+  let fileContainerParent = document.querySelector(FileManagerElements.FILES.FILE_PARENT),
+      loadingAnimation = document.querySelector(".dot-elastic.loading");
   if (trigger) {
     let firstFile = document.querySelector("[data-list_id]:nth-of-type(1)");
     if (!firstFile) {
@@ -4052,7 +4254,9 @@ function filesLoadingAnimation(trigger = true) {
     loadingAnimation.classList.add("display-none");
   }
 }
+
 __name(filesLoadingAnimation, "filesLoadingAnimation");
+
 function storageAvailable(type = "localStorage") {
   let storage;
   try {
@@ -4065,10 +4269,13 @@ function storageAvailable(type = "localStorage") {
     return e instanceof DOMException && (e.code === 22 || e.code === 1014 || e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") && (storage && storage.length !== 0);
   }
 }
+
 __name(storageAvailable, "storageAvailable");
+
 function isValidTagName(tagName) {
   return document.createElement(tagName).toString() !== "[object HTMLUnknownElement]";
 }
+
 __name(isValidTagName, "isValidTagName");
 if (!window.hasOwnProperty("TonicsScript")) {
   window.TonicsScript = {};
@@ -4126,480 +4333,510 @@ export {
 
 class DataTable {
 
-    parentElement = '';
-    apiEntry = '';
-    scrollToBottomLockPing = 0;
-    shiftClick = new Map();
-    currentEditor = null;
-    hasThElement = false;
-    hasTdElement = false;
-    hasTrElement = false;
+  parentElement = '';
+  apiEntry = '';
+  scrollToBottomLockPing = 0;
+  shiftClick = new Map();
+  currentEditor = null;
+  hasThElement = false;
+  hasTdElement = false;
+  hasTrElement = false;
 
-    lockedSelection = false;
+  lockedSelection = false;
 
-    tdElementChildBeforeOpen = null;
+  tdElementChildBeforeOpen = null;
 
-    editingElementsCloneBeforeChanges = new Map();
-    editingElements = new Map();
-    deletingElements = new Map();
+  editingElementsCloneBeforeChanges = new Map();
+  editingElements = new Map();
+  deletingElements = new Map();
 
-    constructor($parentElement, apiEntry = '') {
-        this.parentElement = document.querySelector($parentElement)
-        this.apiEntry = apiEntry;
-        if (this.parentElement){
-            this.resetListID();
-        }
+  constructor($parentElement, apiEntry = '') {
+    this.parentElement = document.querySelector($parentElement)
+    this.apiEntry = apiEntry;
+    if (this.parentElement) {
+      this.resetListID();
     }
+  }
 
-    getParentElement() {
-        return this.parentElement;
-    }
+  get thElement() {
+    return this._thElement;
+  }
 
-    getApiEntry() {
-        return this.apiEntry;
-    }
+  set thElement(value) {
+    this.hasThElement = !!value; // True if value is not empty, otherwise, false
+    this._thElement = value;
+  }
 
-    get thElement() {
-        return this._thElement;
-    }
+  get tdElement() {
+    return this._tdElement;
+  }
 
-    set thElement(value) {
-        this.hasThElement = !!value; // True if value is not empty, otherwise, false
-        this._thElement = value;
-    }
+  set tdElement(value) {
+    this.hasTdElement = !!value; // True if value is not empty, otherwise, false
+    this._tdElement = value;
+  }
 
-    get tdElement() {
-        return this._tdElement;
-    }
+  get trElement() {
+    return this._trElement;
+  }
 
-    set tdElement(value) {
-        this.hasTdElement = !!value; // True if value is not empty, otherwise, false
-        this._tdElement = value;
-    }
+  set trElement(value) {
+    this.hasTrElement = !!value; // True if value is not empty, otherwise, false
+    this._trElement = value;
+  }
 
-    get trElement() {
-        return this._trElement;
-    }
+  getParentElement() {
+    return this.parentElement;
+  }
 
-    set trElement(value) {
-        this.hasTrElement = !!value; // True if value is not empty, otherwise, false
-        this._trElement = value;
-    }
+  getApiEntry() {
+    return this.apiEntry;
+  }
 
-    boot() {
-        if (this.getParentElement()) {
-            // For Click Event
-            if (!this.getParentElement().hasAttribute("data-event-click")) {
-                this.getParentElement().setAttribute('data-event-click', 'true');
-                this.getParentElement().addEventListener('click', (e) => {
-                    let el = e.target;
-                    let trEl = el.closest('tr');
-                    this.trElement = trEl;
-                    this.tdElement = el.closest('td');
+  boot() {
+    if (this.getParentElement()) {
 
-                    // Form Filter Button
-                    if (el.dataset.menuAction === 'FilterEvent'){
-                        e.preventDefault();
-                    }
+      function sendDoubleClickEvent(e, self) {
+        let el = e.target;
+        let OnDoubleClick = new OnDoubleClickEvent(el, self);
+        self.trElement = el.closest('tr');
+        self.tdElement = el.closest('td');
+        self.thElement = self.findCorrespondingTableHeader(el);
+        self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
+      }
 
-                    let isOpen = el.closest('.data_table_is_open')
-                    if (isOpen) {
-                        return false;
-                    }
+      // Double Click For Mobile
+      if (!this.getParentElement().hasAttribute("data-event-dblclick-mobile")) {
+        this.getParentElement().setAttribute('data-event-dblclick-mobile', 'true');
+        // Double Tap For mobile screen:
+        // Time in milliseconds to detect a double tap
+        const DOUBLE_TAP_TIME = 500;
+        let lastTap = 0;
+        this.getParentElement().addEventListener('touchstart', (e) => {
+          // e.preventDefault();
+          const currentTime = Date.now();
+          const tapLength = currentTime - lastTap;
 
-                    if (e.shiftKey) {
-                        this.resetPreviousTrState()
-                        this.setShiftClick(trEl);
-                        let Click = new OnShiftClickEvent(el, this);
-                        this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnShiftClickEvent);
-                        return false;
-                    } else if (e.ctrlKey) {
-                        (trEl.classList.contains('highlight')) ? this.unHighlightTr(trEl) : this.highlightTr(trEl);
-                        return false;
-                    } else {
-                        if (!el.closest('.dataTable-menus')) {
-                            // this is a norm mouse click
-                            this.resetPreviousTrState();
-                            this.highlightTr(trEl);
-
-                            // for shift key
-                            this.resetShiftClick();
-                            this.setShiftClick(trEl);
-                        }
-
-                        let Click = new OnClickEvent(el, this);
-                        this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
-
-                    }
-                });
-            }
-
-            // For Double-Click Event
-            if (!this.getParentElement().hasAttribute("data-event-dblclick")) {
-                this.getParentElement().setAttribute('data-event-dblclick', 'true');
-                this.getParentElement().addEventListener('dblclick', (e) => {
-                    let el = e.target;
-                    let OnDoubleClick = new OnDoubleClickEvent(el, this);
-                    this.trElement = el.closest('tr');
-                    this.tdElement = el.closest('td');
-                    this.thElement = this.findCorrespondingTableHeader(el);
-                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
-                });
-            }
-
-            // For Scroll Bottom
-            if (!this.getParentElement().hasAttribute("data-event-scroll-bottom")) {
-                this.getParentElement().setAttribute('data-event-scroll-bottom', 'true');
-                this.getParentElement().addEventListener('scroll', (e) => {
-                    let el = e.target;
-                    let scrollDownwards = el.scrollHeight - el.scrollTop;
-                    // the 400 gives us time to react quickly that the scroll is almost/at the bottom
-                    let clientHeight = el.clientHeight + 500;
-
-                    // almost at the bottom
-                    if (scrollDownwards < clientHeight) {
-                        ++this.scrollToBottomLockPing;
-                        if (this.scrollToBottomLockPing === 1) {
-                            let OnBeforeScrollBottom = new OnBeforeScrollBottomEvent(el, this);
-                            OnBeforeScrollBottom.trElement = el.closest('tr');
-                            this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeScrollBottom, OnBeforeScrollBottomEvent);
-                        }
-                    }
-
-                    // at the bottom
-                    if (scrollDownwards === el.clientHeight) {
-                        this.scrollToBottomLockPing = 0; // reset ping
-                        let OnBeforeTonicsFieldSubmit = new OnScrollBottomEvent(el, this);
-                        this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnScrollBottomEvent);
-                    }
-                });
-            }
-        }
-    }
-
-    /**
-     * This gets all the column of the current table header,
-     * optionally you can pass the thElement, the trElement and thsElement
-     * @param thElement
-     * (optional) The main table header element we are looking for its columns
-     * @param trsElements
-     * (optional) The table rows Elements
-     * @param thsElements
-     * (optional) The table headers element
-     * @returns {*[]}
-     */
-    getThElementColumns(thElement = null, trsElements = null, thsElements = null) {
-
-        let ths = thsElements;
-        if (!ths) {
-            ths = this.parentElement.getElementsByTagName('th');
-        }
-
-        let trs = trsElements;
-        if (!trs) {
-            trs = this.parentElement.getElementsByTagName('tr');
-        }
-
-        let thEl = thElement;
-        if (!thEl) {
-            thEl = this.thElement;
-        }
-
-        let thID = null;
-        let columns = [];
-        if (thEl) {
-            for (let i = 0; i < ths.length; i++) {
-                if (ths[i] === thEl) {
-                    thID = i;
-                    break;
-                }
-            }
-
-            for (let i = 0; i < trs.length; i++) {
-                columns.push(trs[i].children[thID]);
-            }
-        }
-
-        return columns;
-    }
-
-    getAllThElements() {
-        return this.parentElement.querySelector('table > thead > tr').querySelectorAll('th');
-    }
-
-    /**
-     * Returns an array of the Table headers name
-     * @returns {*[]}
-     */
-    getThHeaders() {
-        let headers = [];
-        this.getAllThElements().forEach(header => {
-            headers.push(header.dataset?.slug)
-            });
-        return headers;
-    }
-
-    getAllSelectTableRow() {
-        return this.parentElement.querySelectorAll('.highlight');
-    }
-
-    resetEditingState() {
-        this.editingElementsCloneBeforeChanges.clear();
-        this.editingElements.clear();
-        this.deletingElements.clear();
-        this.tdElementChildBeforeOpen = null;
-    }
-
-    resetEditingElements() {
-        this.editingElementsCloneBeforeChanges.clear();
-        this.editingElements.clear();
-        this.tdElementChildBeforeOpen = null;
-        let editing = this.parentElement.querySelectorAll('.editing');
-        if (editing){
-            editing.forEach(edit => {
-                edit.classList.remove('editing');
-            });
-        }
-    }
-
-    removeDeletingElements() {
-        this.deletingElements.clear();
-        let deleting = this.parentElement.querySelectorAll('.deleting');
-        if (deleting){
-            deleting.forEach(deleteEl => {
-                deleteEl.remove();
-            });
-            this.resetListID();
-        }
-    }
-
-    getDeletingElements() {
-        return this.parentElement.querySelectorAll('.deleting');
-    }
-
-    menuActions() {
-        return {
-            SAVE_EVENT: "SaveEvent",
-            CANCEL_EVENT: "CancelEvent",
-            DELETE_EVENT: "DeleteEvent",
-            UPDATE_EVENT: "UpdateEvent",
-            APP_UPDATE_EVENT: "AppUpdateEvent",
-            COPY_FIELD_ITEMS_EVENT: "CopyFieldItemsEvent",
-        }
-    }
-
-    apiEvents() {
-        return {
-            LOAD_MORE_EVENT: "LoadMoreEvent",
-            SAVE_EVENT: "SaveEvent",
-            DELETE_EVENT: "DeleteEvent",
-            UPDATE_EVENT: "UpdateEvent",
-            APP_UPDATE_EVENT: "AppUpdateEvent",
-            UPSERT_EVENT: "UpsertEvent",
-            FILTER_EVENT: "FilterEvent",
-            COPY_FIELD_ITEMS_EVENT: "CopyFieldItemsEvent",
-        }
-    }
-
-    activateMenus($listOfMenuToActivate) {
-        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
-        $listOfMenuToActivate.forEach(function (value) {
-            let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
-            if (eventMenu) {
-                eventMenu.closest('.menu-item').classList.remove('deactivate-menu');
-            }
+          if (tapLength < DOUBLE_TAP_TIME && tapLength > 0) {
+            sendDoubleClickEvent(e, this);
+          }
+          lastTap = currentTime;
         });
-    }
+      }
 
-    deActivateMenus($listOfMenuToActivate) {
-        let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
-        $listOfMenuToActivate.forEach(function (value) {
-            let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
-            if (eventMenu) {
-                eventMenu.closest('.menu-item').classList.add('deactivate-menu');
+      // For Click Event
+      if (!this.getParentElement().hasAttribute("data-event-click")) {
+        this.getParentElement().setAttribute('data-event-click', 'true');
+
+        const DOUBLE_TAP_TIME = 200;
+        let lastClick = 0;
+
+        this.getParentElement().addEventListener('click', (e) => {
+          let el = e.target;
+          let trEl = el.closest('tr');
+          this.trElement = trEl;
+          this.tdElement = el.closest('td');
+
+          // Form Filter Button
+          if (el.dataset.menuAction === 'FilterEvent') {
+            e.preventDefault();
+          }
+
+          let isOpen = el.closest('.data_table_is_open')
+          if (isOpen) {
+            return false;
+          }
+
+          if (e.shiftKey) {
+            this.resetPreviousTrState()
+            this.setShiftClick(trEl);
+            let Click = new OnShiftClickEvent(el, this);
+            this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnShiftClickEvent);
+            return false;
+          } else if (e.ctrlKey) {
+            (trEl.classList.contains('highlight')) ? this.unHighlightTr(trEl) : this.highlightTr(trEl);
+            return false;
+          } else {
+            if (!el.closest('.dataTable-menus')) {
+              // this is a norm mouse click
+              this.resetPreviousTrState();
+              this.highlightTr(trEl);
+
+              // for shift key
+              this.resetShiftClick();
+              this.setShiftClick(trEl);
             }
+
+            let Click = new OnClickEvent(el, this);
+            this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, Click, OnClickEvent);
+
+          }
         });
-    }
+      }
 
-    getSelectedTrElement() {
-        return this.getParentElement().querySelector('.highlight');
-    }
+      // For Double-Click Event
+      if (!this.getParentElement().hasAttribute("data-event-dblclick")) {
+        this.getParentElement().setAttribute('data-event-dblclick', 'true');
 
-    getAllSelectedTrElement() {
-        return this.getParentElement().querySelectorAll('.highlight');
-    }
-
-    getEventDispatcher() {
-        return window.TonicsEvent.EventDispatcher;
-    }
-
-    getCurrentEditor() {
-        return this.currentEditor;
-    }
-
-    /**
-     * Credit: https://stackoverflow.com/a/46139306 @ https://stackoverflow.com/users/104380/vsync
-     * Modified: DevsrealmGuy
-     * @param tdNode
-     * @returns {HTMLTableCellElement}
-     */
-    findCorrespondingTableHeader(tdNode) {
-        let i;
-        let idx = [...tdNode.parentNode.children].indexOf(tdNode); // get td index
-
-        if (tdNode.closest('table')?.tHead) {
-            let thCells = tdNode.closest('table').tHead.rows[0].cells, // get all th cells
-                th_colSpan_acc = 0; // accumulator
-
-            // iterate all th cells and add-up their colSpan value
-            for (i = 0; i < thCells.length; i++) {
-                th_colSpan_acc += thCells[i].colSpan
-                if (th_colSpan_acc >= (idx + tdNode.colSpan)) break
-            }
-
-            return thCells[i]
-        }
-
-        return null;
-    }
-
-    collateTdFromTrAndPushToSaveTo(trElements, saveTo, headers) {
-        let length = trElements.size ?? trElements.length;
-        if (length > 0) {
-            trElements.forEach(edit => {
-                let tdData = {};
-                for (let i = 0; i < edit.cells.length; i++) {
-                    if (headers[i]){
-                        tdData[headers[i]] = edit.cells[i].innerText;
-                    }
-                }
-                saveTo.push(tdData);
-            });
-        }
-    }
-
-    resetListID() {
-        let tableRows = this.getParentElement().querySelectorAll('tbody > tr');
-        if (tableRows && tableRows.length > 0) {
-            let list_id = 0;
-            tableRows.forEach(tr => {
-                tr.dataset.list_id = `${list_id}`;
-                ++list_id;
-            });
-        }
-
-    }
-
-    resetPreviousTrState() {
-        this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
-            this.unHighlightTr(trEl);
+        this.getParentElement().addEventListener('dblclick', (e) => {
+          sendDoubleClickEvent(e, this);
         });
-    }
+      }
 
-    unHighlightTr(trEl) {
-        if (!this.lockedSelection) {
-            trEl.classList.remove('highlight');
-        }
-    }
+      // For Scroll Bottom
+      if (!this.getParentElement().hasAttribute("data-event-scroll-bottom")) {
+        this.getParentElement().setAttribute('data-event-scroll-bottom', 'true');
+        this.getParentElement().addEventListener('scroll', (e) => {
+          let el = e.target;
+          let scrollDownwards = el.scrollHeight - el.scrollTop;
+          // the 400 gives us time to react quickly that the scroll is almost/at the bottom
+          let clientHeight = el.clientHeight + 500;
 
-    highlightTr(trEl) {
-        if (this.hasTrElement) {
-            let checkBox = trEl.querySelector('[data-checkbox_select]');
-            if (checkBox) {
-                checkBox.setAttribute('checked', 'true');
+          // almost at the bottom
+          if (scrollDownwards < clientHeight) {
+            ++this.scrollToBottomLockPing;
+            if (this.scrollToBottomLockPing === 1) {
+              let OnBeforeScrollBottom = new OnBeforeScrollBottomEvent(el, this);
+              OnBeforeScrollBottom.trElement = el.closest('tr');
+              this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeScrollBottom, OnBeforeScrollBottomEvent);
             }
-            trEl.classList.add('highlight');
+          }
+
+          // at the bottom
+          if (scrollDownwards === el.clientHeight) {
+            this.scrollToBottomLockPing = 0; // reset ping
+            let OnBeforeTonicsFieldSubmit = new OnScrollBottomEvent(el, this);
+            this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldSubmit, OnScrollBottomEvent);
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * This gets all the column of the current table header,
+   * optionally you can pass the thElement, the trElement and thsElement
+   * @param thElement
+   * (optional) The main table header element we are looking for its columns
+   * @param trsElements
+   * (optional) The table rows Elements
+   * @param thsElements
+   * (optional) The table headers element
+   * @returns {*[]}
+   */
+  getThElementColumns(thElement = null, trsElements = null, thsElements = null) {
+
+    let ths = thsElements;
+    if (!ths) {
+      ths = this.parentElement.getElementsByTagName('th');
+    }
+
+    let trs = trsElements;
+    if (!trs) {
+      trs = this.parentElement.getElementsByTagName('tr');
+    }
+
+    let thEl = thElement;
+    if (!thEl) {
+      thEl = this.thElement;
+    }
+
+    let thID = null;
+    let columns = [];
+    if (thEl) {
+      for (let i = 0; i < ths.length; i++) {
+        if (ths[i] === thEl) {
+          thID = i;
+          break;
         }
+      }
+
+      for (let i = 0; i < trs.length; i++) {
+        columns.push(trs[i].children[thID]);
+      }
     }
 
-    resetShiftClick() {
-        this.shiftClick = new Map();
+    return columns;
+  }
+
+  getAllThElements() {
+    return this.parentElement.querySelector('table > thead > tr').querySelectorAll('th');
+  }
+
+  /**
+   * Returns an array of the Table headers name
+   * @returns {*[]}
+   */
+  getThHeaders() {
+    let headers = [];
+    this.getAllThElements().forEach(header => {
+      headers.push(header.dataset?.slug)
+    });
+    return headers;
+  }
+
+  getAllSelectTableRow() {
+    return this.parentElement.querySelectorAll('.highlight');
+  }
+
+  resetEditingState() {
+    this.editingElementsCloneBeforeChanges.clear();
+    this.editingElements.clear();
+    this.deletingElements.clear();
+    this.tdElementChildBeforeOpen = null;
+  }
+
+  resetEditingElements() {
+    this.editingElementsCloneBeforeChanges.clear();
+    this.editingElements.clear();
+    this.tdElementChildBeforeOpen = null;
+    let editing = this.parentElement.querySelectorAll('.editing');
+    if (editing) {
+      editing.forEach(edit => {
+        edit.classList.remove('editing');
+      });
+    }
+  }
+
+  removeDeletingElements() {
+    this.deletingElements.clear();
+    let deleting = this.parentElement.querySelectorAll('.deleting');
+    if (deleting) {
+      deleting.forEach(deleteEl => {
+        deleteEl.remove();
+      });
+      this.resetListID();
+    }
+  }
+
+  getDeletingElements() {
+    return this.parentElement.querySelectorAll('.deleting');
+  }
+
+  menuActions() {
+    return {
+      SAVE_EVENT: "SaveEvent",
+      CANCEL_EVENT: "CancelEvent",
+      DELETE_EVENT: "DeleteEvent",
+      UPDATE_EVENT: "UpdateEvent",
+      APP_UPDATE_EVENT: "AppUpdateEvent",
+      COPY_FIELD_ITEMS_EVENT: "CopyFieldItemsEvent",
+      TONICS_APP_STORE_PURCHASE: "TonicsAppStorePurchase",
+    }
+  }
+
+  apiEvents() {
+    return {
+      LOAD_MORE_EVENT: "LoadMoreEvent",
+      SAVE_EVENT: "SaveEvent",
+      DELETE_EVENT: "DeleteEvent",
+      UPDATE_EVENT: "UpdateEvent",
+      APP_UPDATE_EVENT: "AppUpdateEvent",
+      UPSERT_EVENT: "UpsertEvent",
+      FILTER_EVENT: "FilterEvent",
+      COPY_FIELD_ITEMS_EVENT: "CopyFieldItemsEvent",
+    }
+  }
+
+  activateMenus($listOfMenuToActivate) {
+    let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
+    $listOfMenuToActivate.forEach(function (value) {
+      let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
+      if (eventMenu) {
+        eventMenu.closest('.menu-item').classList.remove('deactivate-menu');
+      }
+    });
+  }
+
+  deActivateMenus($listOfMenuToActivate) {
+    let dataTableMenu = this.parentElement.querySelector('.dataTable-menus');
+    $listOfMenuToActivate.forEach(function (value) {
+      let eventMenu = dataTableMenu.querySelector(`[data-menu-action="${value}"]`);
+      if (eventMenu) {
+        eventMenu.closest('.menu-item').classList.add('deactivate-menu');
+      }
+    });
+  }
+
+  getSelectedTrElement() {
+    return this.getParentElement().querySelector('.highlight');
+  }
+
+  getAllSelectedTrElement() {
+    return this.getParentElement().querySelectorAll('.highlight');
+  }
+
+  getEventDispatcher() {
+    return window.TonicsEvent.EventDispatcher;
+  }
+
+  getCurrentEditor() {
+    return this.currentEditor;
+  }
+
+  /**
+   * Credit: https://stackoverflow.com/a/46139306 @ https://stackoverflow.com/users/104380/vsync
+   * Modified: DevsrealmGuy
+   * @param tdNode
+   * @returns {HTMLTableCellElement}
+   */
+  findCorrespondingTableHeader(tdNode) {
+    let i;
+    let idx = [...tdNode.parentNode.children].indexOf(tdNode); // get td index
+
+    if (tdNode.closest('table')?.tHead) {
+      let thCells = tdNode.closest('table').tHead.rows[0].cells, // get all th cells
+          th_colSpan_acc = 0; // accumulator
+
+      // iterate all th cells and add-up their colSpan value
+      for (i = 0; i < thCells.length; i++) {
+        th_colSpan_acc += thCells[i].colSpan
+        if (th_colSpan_acc >= (idx + tdNode.colSpan)) break
+      }
+
+      return thCells[i]
     }
 
-    setShiftClick(trEl) {
-        if (this.hasTrElement) {
+    return null;
+  }
+
+  collateTdFromTrAndPushToSaveTo(trElements, saveTo, headers) {
+    let length = trElements.size ?? trElements.length;
+    if (length > 0) {
+      trElements.forEach(edit => {
+        let tdData = {};
+        for (let i = 0; i < edit.cells.length; i++) {
+          if (headers[i]) {
+            tdData[headers[i]] = edit.cells[i].innerText;
+          }
+        }
+        saveTo.push(tdData);
+      });
+    }
+  }
+
+  resetListID() {
+    let tableRows = this.getParentElement().querySelectorAll('tbody > tr');
+    if (tableRows && tableRows.length > 0) {
+      let list_id = 0;
+      tableRows.forEach(tr => {
+        tr.dataset.list_id = `${list_id}`;
+        ++list_id;
+      });
+    }
+
+  }
+
+  resetPreviousTrState() {
+    this.parentElement.querySelectorAll('[data-list_id]').forEach(trEl => {
+      this.unHighlightTr(trEl);
+    });
+  }
+
+  unHighlightTr(trEl) {
+    if (!this.lockedSelection) {
+      trEl.classList.remove('highlight');
+    }
+  }
+
+  highlightTr(trEl) {
+    if (this.hasTrElement) {
+      let checkBox = trEl.querySelector('[data-checkbox_select]');
+      if (checkBox) {
+        checkBox.setAttribute('checked', 'true');
+      }
+      trEl.classList.add('highlight');
+    }
+  }
+
+  resetShiftClick() {
+    this.shiftClick = new Map();
+  }
+
+  setShiftClick(trEl) {
+    if (this.hasTrElement) {
+      this.highlightTr(trEl);
+      let id = trEl.dataset.list_id;
+
+      // remove file that have previously been set, so, they can be pushed below
+      if (this.shiftClick.get(id)) {
+        this.shiftClick.delete(id);
+      }
+      this.shiftClick.set(id, trEl);
+      if (this.shiftClick.size >= 2) {
+        // this is getting the first and last shift clicked item, and we're sorting the integer
+        let firstItem = [...this.shiftClick][0][0],
+            lastItem = [...this.shiftClick][this.shiftClick.size - 1][0],
+            listIDToLoop = [firstItem, lastItem];
+        let sortedData = listIDToLoop.sort((a, b) => {
+          return a.localeCompare(b, undefined, {numeric: true})
+        });
+
+        // loop over the sorted ranges. and highlight 'em
+        let tBody = this.parentElement.querySelector('tbody');
+        for (let i = parseInt(sortedData[0]); i <= parseInt(sortedData[1]); i++) {
+          // highlight file
+          let trEl = tBody.querySelector(`[data-list_id="${i}"]`);
+          if (trEl) {
             this.highlightTr(trEl);
-            let id = trEl.dataset.list_id;
-
-            // remove file that have previously been set, so, they can be pushed below
-            if (this.shiftClick.get(id)) {
-                this.shiftClick.delete(id);
-            }
-            this.shiftClick.set(id, trEl);
-            if (this.shiftClick.size >= 2) {
-                // this is getting the first and last shift clicked item, and we're sorting the integer
-                let firstItem = [...this.shiftClick][0][0],
-                    lastItem = [...this.shiftClick][this.shiftClick.size - 1][0],
-                    listIDToLoop = [firstItem, lastItem];
-                let sortedData = listIDToLoop.sort((a, b) => {
-                    return a.localeCompare(b, undefined, {numeric: true})
-                });
-
-                // loop over the sorted ranges. and highlight 'em
-                let tBody = this.parentElement.querySelector('tbody');
-                for (let i = parseInt(sortedData[0]); i <= parseInt(sortedData[1]); i++) {
-                    // highlight file
-                    let trEl = tBody.querySelector(`[data-list_id="${i}"]`);
-                    if (trEl) {
-                        this.highlightTr(trEl);
-                    }
-                }
-            }
+          }
         }
+      }
     }
+  }
 
-    /**
-     * @param dataToSend
-     * @param onSuccess
-     * @param onError
-     */
-    sendPostRequest(dataToSend = null, onSuccess = null, onError = null) {
-        let defaultHeader = {
-            'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
-        };
+  /**
+   * @param dataToSend
+   * @param onSuccess
+   * @param onError
+   */
+  sendPostRequest(dataToSend = null, onSuccess = null, onError = null) {
+    let defaultHeader = {
+      'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
+    };
 
-       new XHRApi({...defaultHeader}).Post(this.getApiEntry(), JSON.stringify(dataToSend), function (err, data) {
-           if (data) {
-               data = JSON.parse(data);
-               if (data.status === 200) {
-                   onSuccess(data);
-               } else {
-                   onError(data);
-               }
-           }
+    new XHRApi({...defaultHeader}).Post(this.getApiEntry(), JSON.stringify(dataToSend), function (err, data) {
+      if (data) {
+        data = JSON.parse(data);
+        if (data.status === 200) {
+          onSuccess(data);
+        } else {
+          onError(data);
+        }
+      }
 
-           if (err){
-               onError(err);
-           }
-       });
-    }
+      if (err) {
+        onError(err);
+      }
+    });
+  }
 
-    getDataTableFormFilterEl() {
-        return this.parentElement.querySelector('.dataTable-Form');
-    }
+  getDataTableFormFilterEl() {
+    return this.parentElement.querySelector('.dataTable-Form');
+  }
 
-    getPostData(el) {
-        let elSettings = {};
-        let elements = el.querySelectorAll('input, textarea, select');
-        elements.forEach((inputs) => {
+  getPostData(el) {
+    let elSettings = {};
+    let elements = el.querySelectorAll('input, textarea, select');
+    elements.forEach((inputs) => {
 
-            // collect checkbox
-            if (inputs.type === 'checkbox'){
-                let checkboxName = inputs.name;
-                if (!elSettings.hasOwnProperty(checkboxName)){
-                    elSettings[checkboxName] = [];
-                }
-                if (inputs.checked){
-                    elSettings[checkboxName].push(inputs.value);
-                }
-            }
+      // collect checkbox
+      if (inputs.type === 'checkbox') {
+        let checkboxName = inputs.name;
+        if (!elSettings.hasOwnProperty(checkboxName)) {
+          elSettings[checkboxName] = [];
+        }
+        if (inputs.checked) {
+          elSettings[checkboxName].push(inputs.value);
+        }
+      }
 
-            if (!elSettings.hasOwnProperty(inputs.name)) {
-                elSettings[inputs.name] = inputs.value;
-            }
-        });
-        return elSettings;
-    }
+      if (!elSettings.hasOwnProperty(inputs.name)) {
+        elSettings[inputs.name] = inputs.value;
+      }
+    });
+    return elSettings;
+  }
 }
 
 //----------------
@@ -4607,94 +4844,96 @@ class DataTable {
 //----------------
 class DataTableAbstractAndTarget {
 
-    hasTrElement = false;
-    hasTdElement = false;
+  hasTrElement = false;
+  hasTdElement = false;
 
-    get elementTarget() {
-        return this._elementTarget;
-    }
+  constructor(target, dataTableClass) {
+    this._elementTarget = target;
+    this._dataTable = dataTableClass;
+  }
 
-    set elementTarget(value) {
-        this._elementTarget = value;
-    }
+  get elementTarget() {
+    return this._elementTarget;
+  }
 
-    get dataTable() {
-        return this._dataTable;
-    }
+  set elementTarget(value) {
+    this._elementTarget = value;
+  }
 
-    set dataTable(value) {
-        this._dataTable = value;
-    }
+  get dataTable() {
+    return this._dataTable;
+  }
 
-    constructor(target, dataTableClass) {
-        this._elementTarget = target;
-        this._dataTable = dataTableClass;
-    }
+  set dataTable(value) {
+    this._dataTable = value;
+  }
 
-    getElementTarget() {
-        return this._elementTarget;
-    }
+  getElementTarget() {
+    return this._elementTarget;
+  }
 }
 
 class DataTableEditorAbstract {
 
-    hasTdElement = false;
-    editorElement = null;
+  hasTdElement = false;
+  editorElement = null;
 
-    /**
-     * Create an input element
-     * @param type
-     * @param value
-     * @returns {HTMLInputElement}
-     */
-    createInput(type = 'text', value = '') {
-        let input = document.createElement('input');
-        input.classList.add('data_table_is_open'); input.type = type;
-        input.defaultValue = value; input.value = value;
-        return input;
+  get tdElement() {
+    return this._tdElement;
+  }
+
+  set tdElement(value) {
+    this.hasTdElement = !!value; // True if value is not empty, otherwise, false
+    this._tdElement = value;
+  }
+
+  get dataTable() {
+    return this._dataTable;
+  }
+
+  set dataTable(value) {
+    this._dataTable = value;
+  }
+
+  /**
+   * Create an input element
+   * @param type
+   * @param value
+   * @returns {HTMLInputElement}
+   */
+  createInput(type = 'text', value = '') {
+    let input = document.createElement('input');
+    input.classList.add('data_table_is_open');
+    input.type = type;
+    input.defaultValue = value;
+    input.value = value;
+    return input;
+  }
+
+  editorName() {
+    return 'text';
+  }
+
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      this.editorElement = this.createInput('text', tdValue);
+      this.tdElement.innerHTML = this.editorElement.outerHTML;
     }
+  }
 
-    get tdElement() {
-        return this._tdElement;
+  closeEditor() {
+    if (this.hasTdElement && this.tdElement.querySelector('input')) {
+      let inputValue = this.tdElement.querySelector('input').value;
+      this.tdElement.querySelector('input').remove();
+      this.tdElement.innerHTML = inputValue;
+      this.editorElement = null;
     }
+  }
 
-    set tdElement(value) {
-        this.hasTdElement = !!value; // True if value is not empty, otherwise, false
-        this._tdElement = value;
-    }
+  editorValidation() {
 
-    get dataTable() {
-        return this._dataTable;
-    }
-
-    set dataTable(value) {
-        this._dataTable = value;
-    }
-
-    editorName() {
-        return 'text';
-    }
-
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            this.editorElement = this.createInput('text', tdValue);
-            this.tdElement.innerHTML = this.editorElement.outerHTML;
-        }
-    }
-
-    closeEditor() {
-        if (this.hasTdElement && this.tdElement.querySelector('input')) {
-            let inputValue = this.tdElement.querySelector('input').value;
-            this.tdElement.querySelector('input').remove();
-            this.tdElement.innerHTML = inputValue;
-            this.editorElement = null;
-        }
-    }
-
-    editorValidation() {
-
-    }
+  }
 }
 
 //----------------------
@@ -4702,264 +4941,271 @@ class DataTableEditorAbstract {
 //----------------------
 
 class DataTabledEditorNumber extends DataTableEditorAbstract {
-    editorName() {
-        return 'number';
-    }
+  editorName() {
+    return 'number';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            let input = this.createInput('number', tdValue); input.classList.add('data_table_is_open')
-            this.tdElement.innerHTML = input.outerHTML;
-        }
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      let input = this.createInput('number', tdValue);
+      input.classList.add('data_table_is_open')
+      this.tdElement.innerHTML = input.outerHTML;
     }
+  }
 
-    closeEditor() {
-        return super.closeEditor();
-    }
+  closeEditor() {
+    return super.closeEditor();
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 }
 
 class DataTabledEditorDate extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'number';
-    }
+  editorName() {
+    return 'number';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            let input = this.createInput('date', tdValue); input.classList.add('data_table_is_open');
-            this.tdElement.innerHTML = input.outerHTML;
-        }
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      let input = this.createInput('date', tdValue);
+      input.classList.add('data_table_is_open');
+      this.tdElement.innerHTML = input.outerHTML;
     }
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 }
 
 class DataTabledEditorDateLocal extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'number';
-    }
+  editorName() {
+    return 'number';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            tdValue.replace(' ', 'T');
-            let input = this.createInput('datetime-local', tdValue); input.classList.add('data_table_is_open');
-            this.tdElement.innerHTML = input.outerHTML;
-        }
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      tdValue.replace(' ', 'T');
+      let input = this.createInput('datetime-local', tdValue);
+      input.classList.add('data_table_is_open');
+      this.tdElement.innerHTML = input.outerHTML;
     }
+  }
 
-    closeEditor() {
-        if (this.hasTdElement && this.tdElement.querySelector('input')) {
-            let inputValue = this.tdElement.querySelector('input').value;
-            this.tdElement.querySelector('input').remove();
-            this.tdElement.innerHTML = inputValue.replace('T', ' ', inputValue);
-            this.editorElement = null;
-        }
+  closeEditor() {
+    if (this.hasTdElement && this.tdElement.querySelector('input')) {
+      let inputValue = this.tdElement.querySelector('input').value;
+      this.tdElement.querySelector('input').remove();
+      this.tdElement.innerHTML = inputValue.replace('T', ' ', inputValue);
+      this.editorElement = null;
     }
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 }
 
 class DataTabledEditorDateMonth extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'number';
-    }
+  editorName() {
+    return 'number';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            let input = this.createInput('month', tdValue); input.classList.add('data_table_is_open');
-            this.tdElement.innerHTML = input.outerHTML;
-        }
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      let input = this.createInput('month', tdValue);
+      input.classList.add('data_table_is_open');
+      this.tdElement.innerHTML = input.outerHTML;
     }
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 }
 
 class DataTabledEditorDateWeek extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'number';
-    }
+  editorName() {
+    return 'number';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            let input = this.createInput('week', tdValue); input.classList.add('data_table_is_open');
-            this.tdElement.innerHTML = input.outerHTML;
-        }
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      let input = this.createInput('week', tdValue);
+      input.classList.add('data_table_is_open');
+      this.tdElement.innerHTML = input.outerHTML;
     }
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 }
 
 class DataTabledEditorDateTime extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'number';
-    }
+  editorName() {
+    return 'number';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            let input = this.createInput('time', tdValue); input.classList.add('data_table_is_open');
-            this.tdElement.innerHTML = input.outerHTML;
-        }
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      let input = this.createInput('time', tdValue);
+      input.classList.add('data_table_is_open');
+      this.tdElement.innerHTML = input.outerHTML;
     }
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 }
 
 class DataTabledEditorSelect extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'select';
-    }
+  editorName() {
+    return 'select';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            let selectData = this.dataTable.thElement.dataset.select_data.split(',');
-            let selectOption = '';
-            selectData.forEach(option => {
-                if (tdValue === option) {
-                    selectOption += `<option selected title="${option}" value="${option}">${option}</option>`
-                } else {
-                    selectOption += `<option title="${option}" value="${option}">${option}</option>`
-                }
-            });
-            selectOption = "<select class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
-            this.tdElement.innerHTML = selectOption;
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      let selectData = this.dataTable.thElement.dataset.select_data.split(',');
+      let selectOption = '';
+      selectData.forEach(option => {
+        if (tdValue === option) {
+          selectOption += `<option selected title="${option}" value="${option}">${option}</option>`
+        } else {
+          selectOption += `<option title="${option}" value="${option}">${option}</option>`
         }
+      });
+      selectOption = "<select class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
+      this.tdElement.innerHTML = selectOption;
     }
+  }
 
-    closeEditor() {
-        let inputValue = this.tdElement.querySelector('select')?.value;
-        if (this.tdElement.querySelector('select')) {
-            this.tdElement.querySelector('select')?.remove();
-            this.tdElement.innerHTML = inputValue;
-            this.editorElement = null;
-        }
+  closeEditor() {
+    let inputValue = this.tdElement.querySelector('select')?.value;
+    if (this.tdElement.querySelector('select')) {
+      this.tdElement.querySelector('select')?.remove();
+      this.tdElement.innerHTML = inputValue;
+      this.editorElement = null;
     }
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 }
 
 class DataTabledEditorSelectMultiple extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'select';
-    }
+  editorName() {
+    return 'select';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText?.split(',');
-            let selectData = this.dataTable.thElement.dataset.select_data.split(',');
-            let selectOption = '';
-            selectData.forEach(option => {
-                let selected = '';
-                for (let i in tdValue) {
-                    let item = tdValue[i];
-                    if (item === option) {
-                        selected = 'selected';
-                        break;
-                    }
-                }
-                selectOption += `<option ${selected} title="${option}" value="${option}">${option}</option>`
-            });
-            selectOption = "<select multiple class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
-            this.tdElement.innerHTML = selectOption;
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText?.split(',');
+      let selectData = this.dataTable.thElement.dataset.select_data.split(',');
+      let selectOption = '';
+      selectData.forEach(option => {
+        let selected = '';
+        for (let i in tdValue) {
+          let item = tdValue[i];
+          if (item === option) {
+            selected = 'selected';
+            break;
+          }
         }
+        selectOption += `<option ${selected} title="${option}" value="${option}">${option}</option>`
+      });
+      selectOption = "<select multiple class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
+      this.tdElement.innerHTML = selectOption;
     }
+  }
 
-    closeEditor() {
-        let inputValue = this.tdElement.querySelector('select')?.value;
-        let selectOptions = this.tdElement.querySelector('select')?.options;
-        let allSelectedValue = [];
-        if (selectOptions){
-            for (let k = 0; k < selectOptions.length; k++) {
-                let option = selectOptions[k];
-                if (option.selected){
-                    allSelectedValue.push(option.value || option.text);
-                }
-            }
-            inputValue = allSelectedValue.join(',');
+  closeEditor() {
+    let inputValue = this.tdElement.querySelector('select')?.value;
+    let selectOptions = this.tdElement.querySelector('select')?.options;
+    let allSelectedValue = [];
+    if (selectOptions) {
+      for (let k = 0; k < selectOptions.length; k++) {
+        let option = selectOptions[k];
+        if (option.selected) {
+          allSelectedValue.push(option.value || option.text);
         }
-
-        if (this.tdElement.querySelector('select')) {
-            this.tdElement.querySelector('select')?.remove();
-            this.tdElement.innerHTML = inputValue;
-            this.editorElement = null;
-        }
+      }
+      inputValue = allSelectedValue.join(',');
     }
 
-    editorValidation() {
-
+    if (this.tdElement.querySelector('select')) {
+      this.tdElement.querySelector('select')?.remove();
+      this.tdElement.innerHTML = inputValue;
+      this.editorElement = null;
     }
+  }
+
+  editorValidation() {
+
+  }
 }
 
 class DataTableEditorTextArea extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'textarea';
-    }
+  editorName() {
+    return 'textarea';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            let textArea = document.createElement('textarea'); textArea.classList.add('data_table_is_open');
-            textArea.defaultValue = tdValue;
-            textArea.value = tdValue;
-            this.tdElement.innerHTML = textArea.outerHTML;
-        }
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      let textArea = document.createElement('textarea');
+      textArea.classList.add('data_table_is_open');
+      textArea.defaultValue = tdValue;
+      textArea.value = tdValue;
+      this.tdElement.innerHTML = textArea.outerHTML;
     }
+  }
 
-    closeEditor() {
-        let textArea = this.tdElement.querySelector('textarea');
-        let inputValue = textArea?.value;
-        if (textArea) {
-            textArea?.remove();
-            this.tdElement.innerHTML = inputValue;
-            this.editorElement = null;
-        }
+  closeEditor() {
+    let textArea = this.tdElement.querySelector('textarea');
+    let inputValue = textArea?.value;
+    if (textArea) {
+      textArea?.remove();
+      this.tdElement.innerHTML = inputValue;
+      this.editorElement = null;
     }
+  }
 
-    editorValidation() {
+  editorValidation() {
 
-    }
+  }
 
 }
 
 class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
 
-    editorName() {
-        return 'tonics_media_featured_link';
-    }
+  editorName() {
+    return 'tonics_media_featured_link';
+  }
 
-    openEditor() {
-        if (this.hasTdElement) {
-            let tdValue = this.tdElement.innerText;
-            this.tdElement.innerHTML = `<div data-widget-form="true" class="position:relative data_table_is_open width:100% ${this.editorName()}">
+  openEditor() {
+    if (this.hasTdElement) {
+      let tdValue = this.tdElement.innerText;
+      this.tdElement.innerHTML = `<div data-widget-form="true" class="position:relative data_table_is_open width:100% ${this.editorName()}">
                     <input data-widget-file-url="true" type="url" 
                     class="${this.editorName()}_input form-control input-checkout bg:white-one color:black border-width:default border:black" 
                     name="plugin_url" placeholder="URL Link" value="${tdValue}">
@@ -4969,20 +5215,125 @@ class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
                         
                     </div>
                 </div>`;
+    }
+  }
+
+  closeEditor() {
+    let linkInput = this.tdElement.querySelector('[data-widget-file-url="true"]');
+    let inputValue = linkInput?.value;
+    if (linkInput) {
+      linkInput?.remove();
+      this.tdElement.innerHTML = inputValue;
+      this.editorElement = null;
+    }
+  }
+
+  editorValidation() {
+  }
+}
+
+let LICENSE_PRICES_MAP = new Map();
+
+class DataTableEditorLicensePrices extends DataTableEditorAbstract {
+
+  PRICE_SYMBOL = '$';
+
+  constructor() {
+    super();
+  }
+
+  getPriceMap() {
+    return LICENSE_PRICES_MAP;
+  }
+
+  editorName() {
+    return 'tonics_license';
+  }
+
+  openEditor() {
+    if (this.hasTdElement && this.tdElement.querySelector('template')) {
+      let tdValue = this.tdElement;
+      let template = tdValue.querySelector('template');
+      if (template) {
+        let licenses = template.innerHTML.trim();
+        if (licenses) {
+          licenses = JSON.parse(licenses);
+          let dClickTap = this.tdElement.querySelector('.d-click-tap');
+          let selectOption = '';
+          licenses.forEach(option => {
+            let name = option.name;
+            let price = this.PRICE_SYMBOL + option.price;
+            let uniqueID = option.unique_id;
+            let select = '';
+            if (dClickTap.dataset.license === uniqueID) {
+              select = 'selected';
+            }
+            selectOption += `<option data-license="${uniqueID}" data-price="${option.price}" ${select} title="${name}" value="${uniqueID}">${name} (${price})</option>`
+          });
+          selectOption = "<select class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
+          if (dClickTap) {
+            dClickTap.innerHTML = selectOption;
+          }
         }
+      }
+    }
+  }
+
+  closeEditor() {
+    let inputValue = this.tdElement.querySelector('select')?.value;
+    let licenseUniqueID = inputValue;
+    let selectOptions = this.tdElement.querySelector('select')?.options;
+
+    let allSelectedValue = [];
+    let selectedOption = null;
+    if (selectOptions) {
+      for (let k = 0; k < selectOptions.length; k++) {
+        let option = selectOptions[k];
+        if (option.selected) {
+          selectedOption = option;
+          allSelectedValue.push(option.text);
+          break;
+        }
+      }
+      inputValue = allSelectedValue.join(',');
     }
 
-    closeEditor() {
-        let linkInput = this.tdElement.querySelector('[data-widget-file-url="true"]');
-        let inputValue = linkInput?.value;
-        if (linkInput) {
-            linkInput?.remove();
-            this.tdElement.innerHTML = inputValue;
-            this.editorElement = null;
+    let dClickTap = this.tdElement.querySelector('.d-click-tap');
+    if (dClickTap) {
+      if (inputValue) {
+        dClickTap.innerHTML = inputValue;
+        dClickTap.dataset.license = licenseUniqueID;
+        dClickTap.dataset.price = selectedOption?.dataset.price;
+        dClickTap.dataset.buy = '1';
+        this.getPriceMap().set(dClickTap.dataset.app, {
+          price: selectedOption?.dataset.price,
+          licenseUniqueID: licenseUniqueID
+        });
+        this.editorElement = null;
+        if (this.tdElement.querySelector('select')) {
+          this.tdElement.querySelector('select')?.remove();
         }
+      } else {
+        dClickTap.dataset.buy = '0';
+      }
     }
+  }
 
-    editorValidation() {}
+  editorValidation() {
+  }
+
+  getPriceInfoForPaymentHandler() {
+    const myObject = {};
+    this.getPriceMap().forEach((value, key) => {
+      myObject[key] = value;
+    });
+    return myObject
+  }
+
+  getTotalItemPrice() {
+    // Calculate the total price using Array.from() and map
+    return Array.from(this.getPriceMap().values()).reduce((acc, info) => acc + parseFloat(info.price), 0);
+  }
 }
 
 //----------------
@@ -5018,279 +5369,293 @@ class OnRowMarkForDeletionEvent extends DataTableAbstractAndTarget {
 
 class OpenEditorHandler {
 
-    constructor(event) {
-        let dataTable = event.dataTable,
-            editingElementsCloneBeforeChanges = dataTable.editingElementsCloneBeforeChanges;
+  constructor(event) {
+    let dataTable = event.dataTable,
+        editingElementsCloneBeforeChanges = dataTable.editingElementsCloneBeforeChanges;
 
-        if (dataTable.hasTrElement && editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id) === false) {
-            editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(true));
-        }
-
-        if (event.getElementTarget().tagName.toLowerCase() === 'td' && dataTable.hasThElement) {
-            event.getElementTarget().focus();
-            let EditorsConfig = window?.TonicsDataTable?.Editors;
-            let editorType = dataTable.thElement.dataset?.type.toUpperCase();
-            if (EditorsConfig.has(editorType)) {
-                let editorsClass = EditorsConfig.get(editorType);
-                let editorsObject = new editorsClass;
-                dataTable.tdElementChildBeforeOpen = event.getElementTarget().innerHTML
-                editorsObject.tdElement = event.getElementTarget();
-                editorsObject.dataTable = dataTable;
-                editorsObject.openEditor();
-                dataTable.currentEditor = editorsObject;
-            }
-        }
+    if (dataTable.hasTrElement && editingElementsCloneBeforeChanges.has(dataTable.trElement.dataset.list_id) === false) {
+      editingElementsCloneBeforeChanges.set(dataTable.trElement.dataset.list_id, dataTable.trElement.cloneNode(true));
     }
+
+    if (event.getElementTarget().tagName.toLowerCase() === 'td' && dataTable.hasThElement) {
+      event.getElementTarget().focus();
+      let EditorsConfig = window?.TonicsDataTable?.Editors;
+      let editorType = dataTable.thElement.dataset?.type.toUpperCase();
+      if (EditorsConfig.has(editorType)) {
+        let editorsClass = EditorsConfig.get(editorType);
+        let editorsObject = new editorsClass;
+        dataTable.tdElementChildBeforeOpen = event.getElementTarget().innerHTML
+        editorsObject.tdElement = event.getElementTarget();
+        editorsObject.dataTable = dataTable;
+        editorsObject.openEditor();
+        dataTable.currentEditor = editorsObject;
+      }
+    }
+  }
 }
 
 class CloseEditorHandler {
 
-    constructor(event) {
-        let dataTable = event.dataTable;
-        let currentEditor = dataTable.currentEditor;
-        if (currentEditor instanceof DataTableEditorAbstract) {
-            currentEditor.closeEditor();
-            let tdElementChildBeforeOpen = null;
-            if (dataTable.hasTdElement){
-                tdElementChildBeforeOpen = dataTable.tdElementChildBeforeOpen;
-            }
+  constructor(event) {
+    let dataTable = event.dataTable;
+    let currentEditor = dataTable.currentEditor;
+    if (currentEditor instanceof DataTableEditorAbstract) {
+      currentEditor.closeEditor();
+      let tdElementChildBeforeOpen = null;
+      if (dataTable.hasTdElement) {
+        tdElementChildBeforeOpen = dataTable.tdElementChildBeforeOpen;
+      }
 
-            if (tdElementChildBeforeOpen !== null && tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
-                // For Single Edit
-                currentEditor.tdElement.classList.add('editing');
-                let trEl = currentEditor.tdElement.closest('tr');
-                if (trEl?.dataset?.list_id) {
-                    event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
-                }
-
-                // For Batch Editing
-                if (dataTable.lockedSelection) {
-                    let thEl = dataTable.findCorrespondingTableHeader(currentEditor.tdElement);
-                    let allTdsElement = dataTable.getThElementColumns(thEl, dataTable.getAllSelectTableRow());
-                    if (allTdsElement.length > 1) {
-                        allTdsElement.forEach(td => {
-                            let trEl = td.closest('tr');
-                            if (dataTable.editingElementsCloneBeforeChanges.has(trEl.dataset.list_id) === false) {
-                                dataTable.editingElementsCloneBeforeChanges.set(trEl.dataset.list_id, trEl.cloneNode(true));
-                            }
-
-                            td.innerHTML = currentEditor.tdElement.innerHTML;
-                            td.classList.add('editing');
-                            if (trEl?.dataset?.list_id) {
-                                event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
-                            }
-                        });
-                    }
-                }
-            }
+      if (tdElementChildBeforeOpen !== null && tdElementChildBeforeOpen !== currentEditor.tdElement.innerHTML) {
+        // For Single Edit
+        currentEditor.tdElement.classList.add('editing');
+        let trEl = currentEditor.tdElement.closest('tr');
+        if (trEl?.dataset?.list_id) {
+          event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
         }
+
+        // For Batch Editing
+        if (dataTable.lockedSelection) {
+          let thEl = dataTable.findCorrespondingTableHeader(currentEditor.tdElement);
+          let allTdsElement = dataTable.getThElementColumns(thEl, dataTable.getAllSelectTableRow());
+          if (allTdsElement.length > 1) {
+            allTdsElement.forEach(td => {
+              let trEl = td.closest('tr');
+              if (dataTable.editingElementsCloneBeforeChanges.has(trEl.dataset.list_id) === false) {
+                dataTable.editingElementsCloneBeforeChanges.set(trEl.dataset.list_id, trEl.cloneNode(true));
+              }
+
+              td.innerHTML = currentEditor.tdElement.innerHTML;
+              td.classList.add('editing');
+              if (trEl?.dataset?.list_id) {
+                event.dataTable.editingElements.set(trEl.dataset.list_id, trEl);
+              }
+            });
+          }
+        }
+      }
     }
+  }
 
 }
 
 class CanActivateCancelEventHandler {
-    constructor(event) {
-        let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0) {
-            dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
-        } else {
-            dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
-        }
+  constructor(event) {
+    let dataTable = event.dataTable;
+    if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0) {
+      dataTable.activateMenus([dataTable.menuActions().CANCEL_EVENT]);
+    } else {
+      dataTable.deActivateMenus([dataTable.menuActions().CANCEL_EVENT]);
     }
+  }
 }
 
 class CanActivateCopyFieldItemsEventHandler {
-    constructor(event) {
-        let dataTable = event.dataTable;
-        if(dataTable.hasTrElement){
-            dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
-        } else {
-            dataTable.deActivateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
-        }
+  constructor(event) {
+    let dataTable = event.dataTable;
+    if (dataTable.hasTrElement) {
+      dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
+    } else {
+      dataTable.deActivateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
     }
+  }
+}
+
+class CanActivatePurchaseFieldItemsEventHandler {
+  constructor(event) {
+    let dataTable = event.dataTable;
+    if (dataTable.parentElement.dataset?.type === "TONICS_APP_STORE") {
+      let buy = dataTable.parentElement.querySelectorAll('[data-buy]');
+      if (buy && buy.length > 0) {
+        dataTable.activateMenus([dataTable.menuActions().TONICS_APP_STORE_PURCHASE]);
+        return;
+      }
+    }
+    LICENSE_PRICES_MAP = new Map();
+    dataTable.deActivateMenus([dataTable.menuActions().TONICS_APP_STORE_PURCHASE]);
+  }
 }
 
 class CopyFieldItemsEventHandler {
-    constructor(event) {
-        let saveData = {
-            type: [],
-            headers: [],
-            copyFieldItemsElements: [],
-        };
-        let dataTable = event.dataTable;
-        let isCopyFieldItemsEventEvent = event.getElementTarget().closest(`[data-menu-action="CopyFieldItemsEvent"]`);
-        if (isCopyFieldItemsEventEvent){
-            dataTable.collateTdFromTrAndPushToSaveTo(dataTable.getAllSelectTableRow(), saveData.copyFieldItemsElements, dataTable.getThHeaders());
-            dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
-            saveData.type.push(dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT);
-            dataTable.sendPostRequest(saveData, (data) => {
-                if (data.status === 200){
-                    if (data?.more === dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT){
-                        return copyToClipBoard(JSON.stringify(data?.data, null, "\t")).then(() => {
-                            successToast(data.message);
-                        }).catch(() => {
-                            errorToast('Failed To Copy');
-                        });
-                    }
-                }
-            }, (err) => {
-                let errMsg = err?.message ?? 'An error occurred copying field items';
-                errorToast(errMsg);
+  constructor(event) {
+    let saveData = {
+      type: [],
+      headers: [],
+      copyFieldItemsElements: [],
+    };
+    let dataTable = event.dataTable;
+    let isCopyFieldItemsEventEvent = event.getElementTarget().closest(`[data-menu-action="CopyFieldItemsEvent"]`);
+    if (isCopyFieldItemsEventEvent) {
+      dataTable.collateTdFromTrAndPushToSaveTo(dataTable.getAllSelectTableRow(), saveData.copyFieldItemsElements, dataTable.getThHeaders());
+      dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
+      saveData.type.push(dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT);
+      dataTable.sendPostRequest(saveData, (data) => {
+        if (data.status === 200) {
+          if (data?.more === dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT) {
+            return copyToClipBoard(JSON.stringify(data?.data, null, "\t")).then(() => {
+              successToast(data.message);
+            }).catch(() => {
+              errorToast('Failed To Copy');
             });
+          }
         }
+      }, (err) => {
+        let errMsg = err?.message ?? 'An error occurred copying field items';
+        errorToast(errMsg);
+      });
     }
+  }
 }
 
-
-
 class CancelEventHandler {
-    constructor(event) {
-        let dataTable = event.dataTable;
-        let isCancelEvent = event.getElementTarget().closest(`[data-menu-action="CancelEvent"]`);
-        if (isCancelEvent) {
-            let allHighlight = dataTable.parentElement.querySelectorAll('.deleting');
-            dataTable.deletingElements.clear();
-            allHighlight.forEach(toDelete => {
-                toDelete.classList.remove('deleting');
-            });
+  constructor(event) {
+    let dataTable = event.dataTable;
+    let isCancelEvent = event.getElementTarget().closest(`[data-menu-action="CancelEvent"]`);
+    if (isCancelEvent) {
+      let allHighlight = dataTable.parentElement.querySelectorAll('.deleting');
+      dataTable.deletingElements.clear();
+      allHighlight.forEach(toDelete => {
+        toDelete.classList.remove('deleting');
+      });
 
-            if (dataTable.editingElementsCloneBeforeChanges.size > 0) {
-                dataTable.editingElementsCloneBeforeChanges.forEach(editing => {
-                    let listID = editing.dataset.list_id;
-                    let currentEdit = dataTable.parentElement.querySelector(`[data-list_id="${listID}"]`);
-                    currentEdit.replaceWith(dataTable.editingElementsCloneBeforeChanges.get(listID));
-                });
-            }
+      if (dataTable.editingElementsCloneBeforeChanges.size > 0) {
+        dataTable.editingElementsCloneBeforeChanges.forEach(editing => {
+          let listID = editing.dataset.list_id;
+          let currentEdit = dataTable.parentElement.querySelector(`[data-list_id="${listID}"]`);
+          currentEdit.replaceWith(dataTable.editingElementsCloneBeforeChanges.get(listID));
+        });
+      }
 
-            dataTable.resetEditingState();
-        }
+      dataTable.resetEditingState();
     }
+  }
 }
 
 class CanActivateSaveEventHandler {
-    constructor(event) {
-        let dataTable = event.dataTable;
-        if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0) {
-            dataTable.activateMenus([dataTable.menuActions().SAVE_EVENT]);
-        } else {
-            dataTable.deActivateMenus([dataTable.menuActions().SAVE_EVENT]);
-        }
+  constructor(event) {
+    let dataTable = event.dataTable;
+    if (dataTable.editingElements.size > 0 || dataTable.deletingElements.size > 0) {
+      dataTable.activateMenus([dataTable.menuActions().SAVE_EVENT]);
+    } else {
+      dataTable.deActivateMenus([dataTable.menuActions().SAVE_EVENT]);
     }
+  }
 }
 
 class SaveEventHandler {
-    constructor(event) {
-        let saveData = {
-            type: [],
-            headers: [],
-            deleteElements: [],
-            updateElements: [],
-        };
+  constructor(event) {
+    let saveData = {
+      type: [],
+      headers: [],
+      deleteElements: [],
+      updateElements: [],
+    };
 
-        let dataTable = event.dataTable;
-        let saveEvent = event.getElementTarget().closest(`[data-menu-action="SaveEvent"]`);
-        if (saveEvent) {
-            saveData.headers = dataTable.getThHeaders();
+    let dataTable = event.dataTable;
+    let saveEvent = event.getElementTarget().closest(`[data-menu-action="SaveEvent"]`);
+    if (saveEvent) {
+      saveData.headers = dataTable.getThHeaders();
 
-            if (dataTable.deletingElements.size > 0){
-                dataTable.collateTdFromTrAndPushToSaveTo(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
-                saveData.type.push(dataTable.apiEvents().DELETE_EVENT);
-            }else if (dataTable.editingElements.size > 0){
-                dataTable.collateTdFromTrAndPushToSaveTo(dataTable.editingElements, saveData.updateElements, saveData.headers);
-                saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
+      if (dataTable.deletingElements.size > 0) {
+        dataTable.collateTdFromTrAndPushToSaveTo(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
+        saveData.type.push(dataTable.apiEvents().DELETE_EVENT);
+      } else if (dataTable.editingElements.size > 0) {
+        dataTable.collateTdFromTrAndPushToSaveTo(dataTable.editingElements, saveData.updateElements, saveData.headers);
+        saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
+      }
+
+      promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
+        dataTable.sendPostRequest(saveData, (data) => {
+          if (data.status === 200) {
+            if (data.more === dataTable.apiEvents().UPDATE_EVENT) {
+              dataTable.resetEditingElements();
             }
 
-            promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
-                dataTable.sendPostRequest(saveData, (data) => {
-                    if (data.status === 200){
-                        if (data.more === dataTable.apiEvents().UPDATE_EVENT){
-                            dataTable.resetEditingElements();
-                        }
+            if (data.more === dataTable.apiEvents().DELETE_EVENT) {
+              dataTable.removeDeletingElements();
+            }
+            successToast(data.message);
+          }
+        }, (err) => {
+          let errMsg = err?.message ?? 'An error occurred saving changes';
+          errorToast(errMsg);
+        });
+      });
 
-                        if (data.more === dataTable.apiEvents().DELETE_EVENT){
-                            dataTable.removeDeletingElements();
-                        }
-                        successToast(data.message);
-                    }
-                }, (err) => {
-                    let errMsg = err?.message ?? 'An error occurred saving changes';
-                    errorToast(errMsg);
-                });
-            });
-
-        }
     }
+  }
 }
 
 class ReloadEventHandler {
-    constructor(event) {
-        let reloadEvent = event.getElementTarget().closest(`[data-menu-action="ReloadEvent"]`);
-        if (reloadEvent) {
-            window.location.reload();
-        }
+  constructor(event) {
+    let reloadEvent = event.getElementTarget().closest(`[data-menu-action="ReloadEvent"]`);
+    if (reloadEvent) {
+      window.location.reload();
     }
+  }
 }
 
 class MultiEditEventHandler {
-    constructor(event) {
-        let dataTable = event.dataTable;
-        let multiEditEvent = event.getElementTarget().closest(`[data-menu-action="MultiEditEvent"]`);
-        if (multiEditEvent) {
-            let lockedSpan = multiEditEvent.querySelector('.multi-edit-locked-mode');
-            if (multiEditEvent.dataset.locked === 'false') {
-                lockedSpan.innerText = '(Locked)';
-                multiEditEvent.dataset.locked = 'true';
-                dataTable.lockedSelection = true;
-            } else {
-                lockedSpan.innerText = '(UnLocked)';
-                multiEditEvent.dataset.locked = 'false';
-                dataTable.lockedSelection = false;
-            }
-        }
+  constructor(event) {
+    let dataTable = event.dataTable;
+    let multiEditEvent = event.getElementTarget().closest(`[data-menu-action="MultiEditEvent"]`);
+    if (multiEditEvent) {
+      let lockedSpan = multiEditEvent.querySelector('.multi-edit-locked-mode');
+      if (multiEditEvent.dataset.locked === 'false') {
+        lockedSpan.innerText = '(Locked)';
+        multiEditEvent.dataset.locked = 'true';
+        dataTable.lockedSelection = true;
+      } else {
+        lockedSpan.innerText = '(UnLocked)';
+        multiEditEvent.dataset.locked = 'false';
+        dataTable.lockedSelection = false;
+      }
     }
+  }
 }
 
 class DeleteEventHandler {
-    constructor(event) {
-        let dataTable = event.dataTable;
-        let isDeleteEvent = event.getElementTarget().closest(`[data-menu-action="DeleteEvent"]`);
-        if (isDeleteEvent) {
-            let allHighlight = dataTable.parentElement.querySelectorAll('.highlight');
-            allHighlight.forEach(toDelete => {
-                dataTable.deletingElements.set(toDelete.dataset.list_id, toDelete);
-                toDelete.classList.add('deleting');
-            });
+  constructor(event) {
+    let dataTable = event.dataTable;
+    let isDeleteEvent = event.getElementTarget().closest(`[data-menu-action="DeleteEvent"]`);
+    if (isDeleteEvent) {
+      let allHighlight = dataTable.parentElement.querySelectorAll('.highlight');
+      allHighlight.forEach(toDelete => {
+        dataTable.deletingElements.set(toDelete.dataset.list_id, toDelete);
+        toDelete.classList.add('deleting');
+      });
 
-            let OnRowMarkForDeletion = new OnRowMarkForDeletionEvent(event.getElementTarget(), dataTable);
-            dataTable.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnRowMarkForDeletion, OnRowMarkForDeletionEvent);
-        }
+      let OnRowMarkForDeletion = new OnRowMarkForDeletionEvent(event.getElementTarget(), dataTable);
+      dataTable.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnRowMarkForDeletion, OnRowMarkForDeletionEvent);
     }
+  }
 }
 
 //---------------------------
 //--- HANDLER AND EVENT SETUP
 //---------------------------
 if (window?.TonicsEvent?.EventConfig) {
-    window.TonicsEvent.EventConfig.OnClickEvent.push(
-        ...[
-            CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, ReloadEventHandler, MultiEditEventHandler, SaveEventHandler,
-            CanActivateCopyFieldItemsEventHandler, CopyFieldItemsEventHandler
-        ]
-    );
-    window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
-        ...[
-            CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler
-        ]
-    );
-    window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
+  window.TonicsEvent.EventConfig.OnClickEvent.push(
+      ...[
+        CloseEditorHandler, CancelEventHandler, ReloadEventHandler, MultiEditEventHandler, SaveEventHandler,
+        DeleteEventHandler, CanActivateSaveEventHandler, CanActivateCopyFieldItemsEventHandler, CanActivateCancelEventHandler,
+        CanActivatePurchaseFieldItemsEventHandler, CopyFieldItemsEventHandler
+      ]
+  );
+  window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
+      ...[
+        CanActivateCancelEventHandler,
+        CanActivateSaveEventHandler
+      ]
+  );
+  window.TonicsEvent.EventConfig.OnDoubleClickEvent.push(OpenEditorHandler);
 }
 
 //---------------------------
 //--- Built-In Editor Setup
 //---------------------------
 window.TonicsDataTable = {};
+window.TonicsDataTableClass = null;
 window.TonicsDataTable.Editors = new Map();
 
 window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
@@ -5304,10 +5669,12 @@ window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
 window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
 window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 window.TonicsDataTable.Editors.set('TONICS_MEDIA_FEATURE_LINK', DataTableEditorFeaturedLink);
+window.TonicsDataTable.Editors.set('TONICS_LICENSE', DataTableEditorLicensePrices);
 
 // boot dataTable
 const dataTable = new DataTable('.dataTable');
-dataTable.boot();/*
+dataTable.boot();
+window.TonicsDataTableClass = dataTable;/*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -5342,7 +5709,7 @@ dataTable.boot();/*
 
 let scripts = document.querySelectorAll("[data-script_path]");
 scripts.forEach((script) => {
-    loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
+  loadScriptDynamically(script.dataset.script_path, script.dataset.script_path).then()
 });
 
 let draggable = document.getElementsByClassName('draggable'),
@@ -5357,182 +5724,183 @@ let fieldSlug = document.querySelector('input[name="field_slug"]'),
     fieldID = document.querySelector('input[name="field_id"]'),
     fieldSelectionContainer = document.querySelector('.field-selection-container');
 if (fieldSlug) {
-    fieldSlug = fieldSlug.value
+  fieldSlug = fieldSlug.value
 }
 if (fieldID) {
-    fieldID = fieldID.value
+  fieldID = fieldID.value
 }
 
 let menuArrangerLi = document.querySelector('.menu-arranger-li');
 if (menuArrangerLi) {
-    try {
-        const menuToggleUserFieldItems = new MenuToggle('.EditorsForm', new Query());
-        menuToggleUserFieldItems
-            .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
-            .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
-            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-            .closeOnClickOutSide(false)
-            .stopPropagation(false)
-            .run();
-    } catch (e) {
-        console.log("Can't set MenuToggle: menu-widget or menu-arranger");
-    }
+  try {
+    const menuToggleUserFieldItems = new MenuToggle('.EditorsForm', new Query());
+    menuToggleUserFieldItems
+        .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
+        .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
+        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+        .closeOnClickOutSide(false)
+        .stopPropagation(false)
+        .run();
+  } catch (e) {
+    console.log("Can't set MenuToggle: menu-widget or menu-arranger");
+  }
 }
 
 
 if (document.querySelector(parent)) {
-    // handle dropdown click
-    let parentMenuArranger = document.querySelector(parent);
-    parentMenuArranger.addEventListener('click', (e) => {
-        let el = e.target;
-        if (el.closest('.dropdown-toggle') && el.closest(fieldChild)) {
-            let dropDown = el.closest('.dropdown-toggle'),
-                dropDownBool = dropDown.ariaExpanded === 'false';
-            if (dropDownBool) {
-                // ${slug}
-                let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
-                let hiddenFieldSlug = el.closest(fieldChild).querySelector(`input[name="hide_field[${inputFieldSlugUniqueHash.value}]"]`);
-                if (hiddenFieldSlug) {
-                    hiddenFieldSlug.remove();
-                }
-            } else {
-                let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
-                if (inputFieldSlugUniqueHash) {
-                    inputFieldSlugUniqueHash.insertAdjacentHTML('beforebegin', `<input type='hidden' name='hide_field[${inputFieldSlugUniqueHash.value}]' value='${inputFieldSlugUniqueHash.value}'>`)
-                }
-            }
+  // handle dropdown click
+  let parentMenuArranger = document.querySelector(parent);
+  parentMenuArranger.addEventListener('click', (e) => {
+    let el = e.target;
+    if (el.closest('.dropdown-toggle') && el.closest(fieldChild)) {
+      let dropDown = el.closest('.dropdown-toggle'),
+          dropDownBool = dropDown.ariaExpanded === 'false';
+      if (dropDownBool) {
+        // ${slug}
+        let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
+        let hiddenFieldSlug = el.closest(fieldChild).querySelector(`input[name="hide_field[${inputFieldSlugUniqueHash.value}]"]`);
+        if (hiddenFieldSlug) {
+          hiddenFieldSlug.remove();
         }
-    });
+      } else {
+        let inputFieldSlugUniqueHash = el.closest(fieldChild).querySelector('input[name="field_slug_unique_hash"]');
+        if (inputFieldSlugUniqueHash) {
+          inputFieldSlugUniqueHash.insertAdjacentHTML('beforebegin', `<input type="hidden" name="hide_field[${inputFieldSlugUniqueHash.value}]" value="${inputFieldSlugUniqueHash.value}">`)
+        }
+      }
+    }
+  });
 }
 
 if (fieldSelectionContainer) {
-    let fieldContainerButton = fieldSelectionContainer.querySelector('.field-add-button');
-    fieldContainerButton.addEventListener('click', (e) => {
-        handleFieldSelection();
-    });
+  let fieldContainerButton = fieldSelectionContainer.querySelector('.field-add-button');
+  fieldContainerButton.addEventListener('click', (e) => {
+    handleFieldSelection();
+  });
 
 }
 
 function handleFieldSelection() {
-    if (fieldSelectionContainer) {
-        let checkedSlug = [];
-        let checkedItems = fieldSelectionContainer.querySelectorAll("input[name='field_ids[]']:checked");
-        checkedItems.forEach((field) => {
-            if (field.dataset.hasOwnProperty('cant_retrieve_field_items') === false) {
-                checkedSlug.push(field.value);
-            }
-        });
+  if (fieldSelectionContainer) {
+    let checkedSlug = [];
+    let checkedItems = fieldSelectionContainer.querySelectorAll("input[name='field_ids[]']:checked");
+    checkedItems.forEach((field) => {
+      if (field.dataset.hasOwnProperty('cant_retrieve_field_items') === false) {
+        checkedSlug.push(field.value);
+      }
+    });
 
-        if (checkedSlug.length > 0) {
-            let slug = {
-                action: 'getFieldItems',
-                fieldSlug: JSON.stringify(checkedSlug)
-            }
-            let url = "/admin/tools/field/get-field-items" + "?action=getFieldItems";
-            new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
-                if (data) {
-                    data = JSON.parse(data);
-                    insertFieldItems(data, checkedSlug);
-                }
-            });
+    if (checkedSlug.length > 0) {
+      let slug = {
+        action: 'getFieldItems',
+        fieldSlug: JSON.stringify(checkedSlug)
+      }
+      let url = "/admin/tools/field/get-field-items" + "?action=getFieldItems";
+      new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
+        if (data) {
+          data = JSON.parse(data);
+          insertFieldItems(data, checkedSlug);
         }
+      });
     }
+  }
 }
 
 // delete menu or widget
 if (fieldMenuUL) {
-   let fieldMenuULFieldSelectionDropperMap = new Map();
-    fieldMenuUL.addEventListener('click', (e) => {
-        let el = e.target;
-        if (el.classList.contains('delete-menu-arrange-item')) {
-            let arranger = el.closest('.draggable');
-            if (arranger) {
-                arranger.remove();
-            }
-        }
+  let fieldMenuULFieldSelectionDropperMap = new Map();
+  fieldMenuUL.addEventListener('click', (e) => {
+    let el = e.target;
+    if (el.classList.contains('delete-menu-arrange-item')) {
+      let arranger = el.closest('.draggable');
+      if (arranger) {
+        arranger.remove();
+      }
+    }
 
-        if (el.classList.contains('tonics-field-selection-dropper-select')) {
-            let selectedFieldSlugValue = el.value;
-            if (selectedFieldSlugValue){
-                let tonicsFieldSelectionDropperUL = el?.closest('.tonics-field-selection-dropper-form-group').querySelector('.tonics-field-selection-dropper-ul');
-                let mainFieldSlug = el?.closest('.tonics-field-selection-dropper-form-group').querySelector(`input[name="main_field_slug"]`);
-                if (mainFieldSlug.value === selectedFieldSlugValue){
-                    fieldMenuULFieldSelectionDropperMap.set(selectedFieldSlugValue, tonicsFieldSelectionDropperUL.cloneNode(true));
-                }
-            }
+    if (el.classList.contains('tonics-field-selection-dropper-select')) {
+      let selectedFieldSlugValue = el.value;
+      if (selectedFieldSlugValue) {
+        let tonicsFieldSelectionDropperUL = el?.closest('.tonics-field-selection-dropper-form-group').querySelector('.tonics-field-selection-dropper-ul');
+        let mainFieldSlug = el?.closest('.tonics-field-selection-dropper-form-group').querySelector(`input[name="main_field_slug"]`);
+        if (mainFieldSlug.value === selectedFieldSlugValue) {
+          fieldMenuULFieldSelectionDropperMap.set(selectedFieldSlugValue, tonicsFieldSelectionDropperUL.cloneNode(true));
         }
-    });
+      }
+    }
+  });
 
-    fieldMenuUL.addEventListener('change', (e) => {
-        let el = e.target;
-        // PERSIST INPUT CHANGES, SHOULD BE REPLACE WITH AN HELPER FUNCTION
-        let input = e.target, tagName = input.tagName;
-        if (tagName.toLowerCase() === 'input'){
-            input.setAttribute('value', input.value);
-            if (input.type === 'checkbox'){
-                (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-            }
+  fieldMenuUL.addEventListener('change', (e) => {
+    let el = e.target;
+    // PERSIST INPUT CHANGES, SHOULD BE REPLACE WITH AN HELPER FUNCTION
+    let input = e.target, tagName = input.tagName;
+    if (tagName.toLowerCase() === 'input') {
+      input.setAttribute('value', input.value);
+      if (input.type === 'checkbox') {
+        (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+      }
 
-            if(input.type === 'radio'){
-                let parentRadio = input.parentElement;
-                if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0){
-                    parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
-                        radio.removeAttribute('checked');
-                    });
-                }
-                (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+      if (input.type === 'radio') {
+        let parentRadio = input.parentElement;
+        if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0) {
+          parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
+            radio.removeAttribute('checked');
+          });
+        }
+        (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+      }
+    }
+    if (tagName.toLowerCase() === 'textarea') {
+      let text = input.value;
+      input.innerHTML = text;
+      input.value = text;
+    }
+    if (tagName.toLowerCase() === 'select') {
+      input.options[input.selectedIndex].selected = 'selected';
+      input.options[input.selectedIndex].setAttribute('selected', 'selected');
+    }
+    if (el.classList.contains('tonics-field-selection-dropper-select')) {
+      let selectedFieldSlug = el.options[el.selectedIndex];
+      el.options[el.selectedIndex].selected = 'selected';
+      el.options[el.selectedIndex].setAttribute('selected', 'selected');
+      if (selectedFieldSlug.value) {
+        let selectedFieldSlugValue = selectedFieldSlug.value;
+        let tonicsFieldSelectionDropperUL = el?.closest('.tonics-field-selection-dropper-form-group').querySelector('.tonics-field-selection-dropper-ul');
+        let slug = {
+          action: 'getFieldItems',
+          fieldSlug: JSON.stringify([selectedFieldSlugValue])
+        }
+        if (fieldMenuULFieldSelectionDropperMap.has(selectedFieldSlugValue)) {
+          tonicsFieldSelectionDropperUL.replaceWith(fieldMenuULFieldSelectionDropperMap.get(selectedFieldSlugValue));
+        } else {
+          let url = "/admin/tools/field/get-field-items" + "?action=getFieldItems";
+          new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
+            if (data) {
+              data = JSON.parse(data);
+              if (tonicsFieldSelectionDropperUL) {
+                tonicsFieldSelectionDropperUL.innerHTML = data.data;
+              }
             }
+          });
         }
-        if (tagName.toLowerCase() === 'textarea'){
-            let text = input.value;
-            input.innerHTML = text;
-            input.value = text;
-        }
-        if (tagName.toLowerCase() === 'select'){
-            input.options[input.selectedIndex].selected = 'selected';
-            input.options[input.selectedIndex].setAttribute('selected', 'selected');
-        }
-        if (el.classList.contains('tonics-field-selection-dropper-select')) {
-            let selectedFieldSlug = el.options[el.selectedIndex];
-            el.options[el.selectedIndex].selected = 'selected';
-            el.options[el.selectedIndex].setAttribute('selected', 'selected');
-            if (selectedFieldSlug.value){
-                let selectedFieldSlugValue = selectedFieldSlug.value;
-                let tonicsFieldSelectionDropperUL = el?.closest('.tonics-field-selection-dropper-form-group').querySelector('.tonics-field-selection-dropper-ul');
-                let slug = {
-                    action: 'getFieldItems',
-                    fieldSlug: JSON.stringify([selectedFieldSlugValue])
-                }
-                if (fieldMenuULFieldSelectionDropperMap.has(selectedFieldSlugValue)) {
-                    tonicsFieldSelectionDropperUL.replaceWith(fieldMenuULFieldSelectionDropperMap.get(selectedFieldSlugValue));
-                } else {
-                    let url = "/admin/tools/field/get-field-items" + "?action=getFieldItems";
-                    new XHRApi({...{}, ...slug}).Get(url, function (err, data) {
-                        if (data) {
-                            data = JSON.parse(data);
-                            if (tonicsFieldSelectionDropperUL){
-                                tonicsFieldSelectionDropperUL.innerHTML = data.data;
-                            }
-                        }
-                    });
-                }
-            }
-        }
-    });
+      }
+    }
+  });
 }
 
 function insertFieldItems(data, checkedSlug) {
-    if (fieldMenuUL) {
-        fieldMenuUL.insertAdjacentHTML('beforeend', data.data);
-        let draggableElements = fieldMenuUL.querySelectorAll('.draggable');
-        checkedSlug.forEach((slug) => {
-            draggableElements.forEach((dragEL) => {
-                dragEL.insertAdjacentHTML('beforeend', `<input type="hidden" name="field_ids[]" value="${slug}">`);
-            })
-        });
-    }
+  if (fieldMenuUL) {
+    fieldMenuUL.insertAdjacentHTML('beforeend', data.data);
+    let draggableElements = fieldMenuUL.querySelectorAll('.draggable');
+    checkedSlug.forEach((slug) => {
+      draggableElements.forEach((dragEL) => {
+        dragEL.insertAdjacentHTML('beforeend', `<input type="hidden" name="field_ids[]" value="${slug}">`);
+      })
+    });
+  }
 }
+
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -5551,45 +5919,48 @@ function insertFieldItems(data, checkedSlug) {
  */
 
 try {
-    let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
-    function flattenTonicsFlashMessagesArray(messages) {
-        const flattened = [];
-        function flatten(value) {
-            if (Array.isArray(value)) {
-                value.forEach(flatten);
-            } else if (typeof value === 'object' && value !== null) {
-                Object.values(value).forEach(flatten);
-            } else {
-                flattened.push(value);
-            }
-        }
-        flatten(messages);
-        return flattened;
+  let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
+
+  function flattenTonicsFlashMessagesArray(messages) {
+    const flattened = [];
+
+    function flatten(value) {
+      if (Array.isArray(value)) {
+        value.forEach(flatten);
+      } else if (typeof value === 'object' && value !== null) {
+        Object.values(value).forEach(flatten);
+      } else {
+        flattened.push(value);
+      }
     }
 
-    if (tonicsFlashMessages) {
-        tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
-        if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
-            flattenTonicsFlashMessagesArray(tonicsFlashMessages.successMessage).forEach((value) => {
-                successToast(value, 10000);
-            });
-        }
+    flatten(messages);
+    return flattened;
+  }
 
-        if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
-            flattenTonicsFlashMessagesArray(tonicsFlashMessages.errorMessage).forEach((value) => {
-                errorToast(value, 10000);
-            });
-        }
-
-        if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
-            flattenTonicsFlashMessagesArray(tonicsFlashMessages.infoMessage).forEach((value) => {
-                infoToast(value, 10000);
-            });
-        }
+  if (tonicsFlashMessages) {
+    tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
+    if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
+      flattenTonicsFlashMessagesArray(tonicsFlashMessages.successMessage).forEach((value) => {
+        successToast(value, 10000);
+      });
     }
+
+    if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
+      flattenTonicsFlashMessagesArray(tonicsFlashMessages.errorMessage).forEach((value) => {
+        errorToast(value, 10000);
+      });
+    }
+
+    if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
+      flattenTonicsFlashMessagesArray(tonicsFlashMessages.infoMessage).forEach((value) => {
+        infoToast(value, 10000);
+      });
+    }
+  }
 
 } catch (e) {
-    console.log(e.toLocaleString());
+  console.log(e.toLocaleString());
 }
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
@@ -5609,15 +5980,15 @@ try {
  */
 
 try {
-    new MenuToggle('.site-nav', new Query())
-        .settings('.menu-block', '.dropdown-toggle', '.child-menu')
-        .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
-        .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-        .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
-        .closeOnClickOutSide(true)
-        .run();
-}catch (e) {
-    console.error("An Error Occur Setting MenuToggle: Site-Nav")
+  new MenuToggle('.site-nav', new Query())
+      .settings('.menu-block', '.dropdown-toggle', '.child-menu')
+      .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
+      .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
+      .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+      .closeOnClickOutSide(true)
+      .run();
+} catch (e) {
+  console.error("An Error Occur Setting MenuToggle: Site-Nav")
 }
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
@@ -5637,45 +6008,48 @@ try {
  */
 
 try {
-    let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
-    function flattenTonicsFlashMessagesArray(messages) {
-        const flattened = [];
-        function flatten(value) {
-            if (Array.isArray(value)) {
-                value.forEach(flatten);
-            } else if (typeof value === 'object' && value !== null) {
-                Object.values(value).forEach(flatten);
-            } else {
-                flattened.push(value);
-            }
-        }
-        flatten(messages);
-        return flattened;
+  let tonicsFlashMessages = document.querySelector('body')?.getAttribute('data-tonics_flashMessages');
+
+  function flattenTonicsFlashMessagesArray(messages) {
+    const flattened = [];
+
+    function flatten(value) {
+      if (Array.isArray(value)) {
+        value.forEach(flatten);
+      } else if (typeof value === 'object' && value !== null) {
+        Object.values(value).forEach(flatten);
+      } else {
+        flattened.push(value);
+      }
     }
 
-    if (tonicsFlashMessages) {
-        tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
-        if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
-            flattenTonicsFlashMessagesArray(tonicsFlashMessages.successMessage).forEach((value) => {
-                successToast(value, 10000);
-            });
-        }
+    flatten(messages);
+    return flattened;
+  }
 
-        if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
-            flattenTonicsFlashMessagesArray(tonicsFlashMessages.errorMessage).forEach((value) => {
-                errorToast(value, 10000);
-            });
-        }
-
-        if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
-            flattenTonicsFlashMessagesArray(tonicsFlashMessages.infoMessage).forEach((value) => {
-                infoToast(value, 10000);
-            });
-        }
+  if (tonicsFlashMessages) {
+    tonicsFlashMessages = JSON.parse(tonicsFlashMessages);
+    if (tonicsFlashMessages.hasOwnProperty('successMessage')) {
+      flattenTonicsFlashMessagesArray(tonicsFlashMessages.successMessage).forEach((value) => {
+        successToast(value, 10000);
+      });
     }
+
+    if (tonicsFlashMessages.hasOwnProperty('errorMessage')) {
+      flattenTonicsFlashMessagesArray(tonicsFlashMessages.errorMessage).forEach((value) => {
+        errorToast(value, 10000);
+      });
+    }
+
+    if (tonicsFlashMessages.hasOwnProperty('infoMessage')) {
+      flattenTonicsFlashMessagesArray(tonicsFlashMessages.infoMessage).forEach((value) => {
+        infoToast(value, 10000);
+      });
+    }
+  }
 
 } catch (e) {
-    console.log(e.toLocaleString());
+  console.log(e.toLocaleString());
 }
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
@@ -5696,89 +6070,89 @@ try {
 
 // FOR FEATURED IMAGE
 let featuredMain = document.querySelector('main');
-if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
-    let tinySelect = tinymce.activeEditor.dom.select(".entry-content");
-    if (tinySelect.length > 0){
-        tinySelect[0].addEventListener('click', featuredImageHandler);
-    }
+if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom) {
+  let tinySelect = tinymce.activeEditor.dom.select(".entry-content");
+  if (tinySelect.length > 0) {
+    tinySelect[0].addEventListener('click', featuredImageHandler);
+  }
 }
-if (featuredMain){
-    featuredMain.addEventListener('click', featuredImageHandler);
+if (featuredMain) {
+  featuredMain.addEventListener('click', featuredImageHandler);
 }
 let featuredImageWithSRC, featuredImageInput, featuredImageInputName, removeFeaturedImage, windowInstance = null;
 
 function featuredImageHandler(e) {
-    let el = e.target,
-        parent = el.closest('[data-widget-form="true"]');
-    if (!parent) {
-        parent =  el.closest('form');
-    }
-    if (parent) {
-        featuredImageWithSRC = parent.querySelector('[class^="image:featured-image"]');
-        featuredImageInput = parent.querySelector('.tonics-featured-image');
-        featuredImageInputName = parent.querySelector('[data-widget-image-name="true"]');
-        removeFeaturedImage = parent.querySelector('.remove-featured-image');
-    }
+  let el = e.target,
+      parent = el.closest('[data-widget-form="true"]');
+  if (!parent) {
+    parent = el.closest('form');
+  }
+  if (parent) {
+    featuredImageWithSRC = parent.querySelector('[class^="image:featured-image"]');
+    featuredImageInput = parent.querySelector('.tonics-featured-image');
+    featuredImageInputName = parent.querySelector('[data-widget-image-name="true"]');
+    removeFeaturedImage = parent.querySelector('.remove-featured-image');
+  }
 
-    if (el.classList.contains('tonics-featured-image')) {
-        if (tonicsFileManagerURL) {
-            let windowFeatures = "left=95,top=100";
-            windowInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
-        }
-    } else if (el.classList.contains('remove-featured-image')) {
-        if (featuredImageInputName) {
-            featuredImageInputName.value = '';
-        }
-        featuredImageWithSRC.src = '';
-        featuredImageInput.classList.remove('d:none');
-        removeFeaturedImage.classList.add('d:none');
+  if (el.classList.contains('tonics-featured-image')) {
+    if (tonicsFileManagerURL) {
+      let windowFeatures = "left=95,top=100";
+      windowInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
     }
+  } else if (el.classList.contains('remove-featured-image')) {
+    if (featuredImageInputName) {
+      featuredImageInputName.value = '';
+    }
+    featuredImageWithSRC.src = '';
+    featuredImageInput.classList.remove('d:none');
+    removeFeaturedImage.classList.add('d:none');
+  }
 }
 
 window.addEventListener('message', (e) => {
-    if (e.origin !== siteURL) {
-        return;
+  if (e.origin !== siteURL) {
+    return;
+  }
+  let data = e.data;
+  if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:ImageLink') {
+    if (featuredImageWithSRC && featuredImageInput) {
+      let imageLink = data.value.replace(siteURL, '');
+      if (featuredImageInputName) {
+        featuredImageInputName.value = imageLink;
+      }
+      featuredImageWithSRC.src = imageLink;
+      featuredImageInput.classList.add('d:none');
+      removeFeaturedImage.classList.remove('d:none');
+      windowInstance.close();
     }
-    let data = e.data;
-    if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:ImageLink') {
-        if (featuredImageWithSRC && featuredImageInput) {
-            let imageLink = data.value.replace(siteURL, '');
-            if (featuredImageInputName) {
-                featuredImageInputName.value = imageLink;
-            }
-            featuredImageWithSRC.src = imageLink;
-            featuredImageInput.classList.add('d:none');
-            removeFeaturedImage.classList.remove('d:none');
-            windowInstance.close();
-        }
-    }
+  }
 });
 
 let ImageFeaturedImage = document.querySelectorAll('[class^="image:featured-image"]');
 if (ImageFeaturedImage.length > 0) {
-    ImageFeaturedImage.forEach((value, key) => {
-        let parent = value.closest('[data-widget-form="true"]');
-        if (!parent) {
-            parent =  value.closest('form');
-        }
-        let featuredImageInput = parent.querySelector('.tonics-featured-image'),
-            removeFeaturedImage = parent.querySelector('.remove-featured-image');
+  ImageFeaturedImage.forEach((value, key) => {
+    let parent = value.closest('[data-widget-form="true"]');
+    if (!parent) {
+      parent = value.closest('form');
+    }
+    let featuredImageInput = parent.querySelector('.tonics-featured-image'),
+        removeFeaturedImage = parent.querySelector('.remove-featured-image');
 
-        let image = new Image();
-        image.src = value.src;
-        image.onload = function () {
-            // image can be loaded
-            if (featuredImageInput){
-                featuredImageInput.classList.add('d:none');
-            }
-            if (removeFeaturedImage){
-                removeFeaturedImage.classList.remove('d:none');
-            }
-        }
-        image.onerror = () => {
-            // image can't be loaded
-        }
-    })
+    let image = new Image();
+    image.src = value.src;
+    image.onload = function () {
+      // image can be loaded
+      if (featuredImageInput) {
+        featuredImageInput.classList.add('d:none');
+      }
+      if (removeFeaturedImage) {
+        removeFeaturedImage.classList.remove('d:none');
+      }
+    }
+    image.onerror = () => {
+      // image can't be loaded
+    }
+  })
 }
 
 /*
@@ -5799,46 +6173,47 @@ if (ImageFeaturedImage.length > 0) {
  */
 
 // FOR FEATURED IMAGE
-if (document.querySelector('main')){
-    document.querySelector('main').addEventListener('click', featuredLinkHandler);
+if (document.querySelector('main')) {
+  document.querySelector('main').addEventListener('click', featuredLinkHandler);
 }
 
-if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom){
-    let tinySelectLinkHandler = tinymce.activeEditor.dom.select(".entry-content");
-    if (tinySelectLinkHandler.length > 0){
-        tinySelectLinkHandler[0].addEventListener('click', featuredLinkHandler);
-    }
+if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.dom) {
+  let tinySelectLinkHandler = tinymce.activeEditor.dom.select(".entry-content");
+  if (tinySelectLinkHandler.length > 0) {
+    tinySelectLinkHandler[0].addEventListener('click', featuredLinkHandler);
+  }
 }
 
-let  featuredLinkInput, featuredLinkWindowInstance = null;
-function featuredLinkHandler(e){
-    let el = e.target,
-        parent = el.closest('[data-widget-form="true"]');
-    if (parent) {
-        featuredLinkInput = parent.querySelector('[data-widget-file-url="true"]');
-    }
+let featuredLinkInput, featuredLinkWindowInstance = null;
 
-    if (el.classList.contains('tonics-featured-link')) {
-        if (tonicsFileManagerURL) {
-            let windowFeatures = "left=95,top=100";
-            featuredLinkWindowInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
-        }
+function featuredLinkHandler(e) {
+  let el = e.target,
+      parent = el.closest('[data-widget-form="true"]');
+  if (parent) {
+    featuredLinkInput = parent.querySelector('[data-widget-file-url="true"]');
+  }
+
+  if (el.classList.contains('tonics-featured-link')) {
+    if (tonicsFileManagerURL) {
+      let windowFeatures = "left=95,top=100";
+      featuredLinkWindowInstance = window.open(tonicsFileManagerURL, 'Tonics File Manager', windowFeatures);
     }
+  }
 }
 
 window.addEventListener('message', (e) => {
-    if (e.origin !== siteURL) {
-        return;
+  if (e.origin !== siteURL) {
+    return;
+  }
+  let data = e.data;
+  if (data.hasOwnProperty('cmd')) {
+    if (featuredLinkInput) {
+      if (featuredLinkInput) {
+        featuredLinkInput.value = data.value.replace(siteURL, '');
+      }
+      featuredLinkWindowInstance.close();
     }
-    let data = e.data;
-    if (data.hasOwnProperty('cmd')) {
-        if (featuredLinkInput) {
-            if (featuredLinkInput) {
-                featuredLinkInput.value = data.value.replace(siteURL, '');
-            }
-            featuredLinkWindowInstance.close();
-        }
-    }
+  }
 });
 /*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
@@ -5858,28 +6233,28 @@ window.addEventListener('message', (e) => {
  */
 
 let getAllTonicsFieldTabContainer = document.querySelectorAll('.tonicsFieldTabsContainer');
-if (getAllTonicsFieldTabContainer){
-    getAllTonicsFieldTabContainer.forEach(eachTabContainer => {
-        if (eachTabContainer.id){
-            let parentID = eachTabContainer.id;
-            // get all items from session and check it...
-            let tonicsTabFieldIDLocalStorage = localStorage.getItem(`tonicsTabFieldID_${parentID}`);
-            if (tonicsTabFieldIDLocalStorage){
-                let tabID = eachTabContainer.querySelector(`#${tonicsTabFieldIDLocalStorage}`);
-                if (tabID?.tagName.toString() === 'INPUT' && tabID?.parentElement === eachTabContainer){
-                    tabID.checked = true;
-                }
-            }
-
-            eachTabContainer.addEventListener('click', (e) => {
-                let el = e.target;
-                if (el?.tagName.toString() === 'INPUT' && el?.parentElement === eachTabContainer){
-                    let inputID = el.id;
-                    // set local storage item
-                    localStorage.setItem(`tonicsTabFieldID_${parentID}`, inputID);
-                }
-            });
+if (getAllTonicsFieldTabContainer) {
+  getAllTonicsFieldTabContainer.forEach(eachTabContainer => {
+    if (eachTabContainer.id) {
+      let parentID = eachTabContainer.id;
+      // get all items from session and check it...
+      let tonicsTabFieldIDLocalStorage = localStorage.getItem(`tonicsTabFieldID_${parentID}`);
+      if (tonicsTabFieldIDLocalStorage) {
+        let tabID = eachTabContainer.querySelector(`#${tonicsTabFieldIDLocalStorage}`);
+        if (tabID?.tagName.toString() === 'INPUT' && tabID?.parentElement === eachTabContainer) {
+          tabID.checked = true;
         }
-    });
+      }
+
+      eachTabContainer.addEventListener('click', (e) => {
+        let el = e.target;
+        if (el?.tagName.toString() === 'INPUT' && el?.parentElement === eachTabContainer) {
+          let inputID = el.id;
+          // set local storage item
+          localStorage.setItem(`tonicsTabFieldID_${parentID}`, inputID);
+        }
+      });
+    }
+  });
 }
 

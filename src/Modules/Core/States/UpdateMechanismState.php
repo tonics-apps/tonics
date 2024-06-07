@@ -20,12 +20,11 @@ namespace App\Modules\Core\States;
 
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\DriveConfig;
 use App\Modules\Core\Jobs\HandleOnUpdate;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Media\FileManager\LocalDriver;
+use App\Modules\Core\Services\AppInstallationService;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class UpdateMechanismState extends SimpleState
@@ -36,34 +35,29 @@ class UpdateMechanismState extends SimpleState
     const InitialState = 'InitialState';
 
     const ModuleUpdateState = 'ModuleUpdateState';
-    const AppUpdateState = 'AppUpdateState';
+    const AppUpdateState    = 'AppUpdateState';
 
     const DownloadModulesState = 'DownloadModulesState';
-    const DownloadAppsState = 'DownloadAppsState';
+    const DownloadAppsState    = 'DownloadAppsState';
 
-    const ExamineCollation = 'ExamineCollation';
-
-    private array $updates;
-    private array $types;
-    private string $action;
-
-    public static array $TYPES = [
-        'module' => self::ModuleUpdateState,
-        'app' => self::AppUpdateState,
-    ];
-
-    public static array $DOWNLOADER = [
-        'module' => self::DownloadModulesState,
-        'app' => self::DownloadAppsState,
-    ];
-
+    const ExamineCollation      = 'ExamineCollation';
     const DiscoveredFromConsole = 'console';
     const DiscoveredFromBrowser = 'browser';
+    public static array $TYPES      = [
+        'module' => self::ModuleUpdateState,
+        'app'    => self::AppUpdateState,
+    ];
+    public static array $DOWNLOADER = [
+        'module' => self::DownloadModulesState,
+        'app'    => self::DownloadAppsState,
+    ];
+    private array       $updates;
+    private array       $types;
+    private string      $action;
+    private string      $discoveredFrom;
+    private array       $collate;
 
-    private string $discoveredFrom;
-    private array $collate;
-
-    public function __construct(array $updates = [], array $types = [], string $action = 'discover', string $discoveredFrom = self::DiscoveredFromConsole)
+    public function __construct (array $updates = [], array $types = [], string $action = 'discover', string $discoveredFrom = self::DiscoveredFromConsole)
     {
         $this->updates = $updates;
         $this->types = $types;
@@ -76,12 +70,12 @@ class UpdateMechanismState extends SimpleState
         $this->setCurrentState(self::InitialState);
     }
 
-    public function isDiscover(): bool
+    public function isDiscover (): bool
     {
         return $this->action === 'discover';
     }
 
-    public function isDiscoveredFromBrowser(): bool
+    public function isDiscoveredFromBrowser (): bool
     {
         return $this->discoveredFrom === self::DiscoveredFromBrowser;
     }
@@ -90,7 +84,7 @@ class UpdateMechanismState extends SimpleState
      * Reset data and set state to InitialState
      * @return UpdateMechanismState
      */
-    public function reset(): static
+    public function reset (): static
     {
         $this->collate = [];
         $this->updates = [];
@@ -103,7 +97,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function InitialState(): string
+    public function InitialState (): string
     {
         ## Require at-least a GB
         ini_set('memory_limit', '1024M');
@@ -138,10 +132,10 @@ class UpdateMechanismState extends SimpleState
                 $db->insertOnDuplicate(
                     $globalTable,
                     [
-                        'key' => 'updates',
-                        'value' => json_encode($this->collate)
+                        'key'   => 'updates',
+                        'value' => json_encode($this->collate),
                     ],
-                    ['value']
+                    ['value'],
                 );
             });
 
@@ -156,7 +150,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function ModuleUpdateState(): void
+    public function ModuleUpdateState (): void
     {
         $tonicsHelper = helper();
         # Discover Module Releases...
@@ -168,7 +162,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function AppUpdateState(): void
+    public function AppUpdateState (): void
     {
         $tonicsHelper = helper();
         # Discover Applications Releases...
@@ -180,7 +174,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function ExamineCollation(): string
+    public function ExamineCollation (): string
     {
         helper()->updateMaintainanceMode(1);
         foreach ($this->types as $type) {
@@ -208,10 +202,10 @@ class UpdateMechanismState extends SimpleState
                 $db->insertOnDuplicate(
                     $globalTable,
                     [
-                        'key' => 'updates',
-                        'value' => json_encode($this->collate)
+                        'key'   => 'updates',
+                        'value' => json_encode($this->collate),
                     ],
-                    ['value']
+                    ['value'],
                 );
             });
         }
@@ -222,10 +216,10 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadAppsState(): void
+    public function DownloadAppsState (): void
     {
         try {
-            $this->downloadExtractCopy('app', DriveConfig::getTempPathForApps(), AppConfig::getAppsPath());
+            $this->downloadExtractCopy('app', AppConfig::getAppsPath());
         } catch (\Throwable $throwable) {
             $this->setErrorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
@@ -236,10 +230,10 @@ class UpdateMechanismState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadModulesState(): void
+    public function DownloadModulesState (): void
     {
         try {
-            $this->downloadExtractCopy('module', DriveConfig::getTempPathForModules(), AppConfig::getModulesPath());
+            $this->downloadExtractCopy('module', AppConfig::getModulesPath());
         } catch (\Throwable $throwable) {
             $this->setErrorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
@@ -250,45 +244,30 @@ class UpdateMechanismState extends SimpleState
     /**
      * @param $type
      * @param array $modulesOrApps
+     *
      * @return void
      * @throws \Exception
      */
-    private function discover($type, array $modulesOrApps): void
+    private function discover ($type, array $modulesOrApps): void
     {
         $tonicsHelper = helper();
         $updates = [];
         foreach ($this->updates as $update) {
             $updates[strtolower($update)] = $update;
         }
+        $appInstallationService = $this->getAppInstallationService();
         $this->updates = $updates;
         foreach ($modulesOrApps as $module) {
-            /** @var $module ExtensionConfig */
-            $dir = $tonicsHelper->getClassDirectory($module);
-            $dirName = $tonicsHelper->getFileName($dir);
-            if (count($this->types) === 1) {
-                if (!empty($this->updates) && !key_exists(strtolower($dirName), $this->updates)) {
-                    continue;
-                }
+            if (!$this->isValidModuleApp($module)) {
+                continue;
             }
 
-            if (isset($module->info()['update_discovery_url'])) {
-                $data = $this->getJSONFromURL($module->info()['update_discovery_url']);
-                if (isset($data->tag_name) && isset($data->assets[0])) {
-                    $releaseTimestamp = $tonicsHelper->getTimeStampFromVersion($data->tag_name);
-                    $moduleTimestamp = $tonicsHelper->getTimeStampFromVersion($module->info()['version'] ?? '');
-                    $discovered = (isset($data->name)) ? $data->name : $dirName;
-                    $this->collate[$type][$module::class] = [
-                        'name' => $discovered,
-                        'folder_name' => $dirName,
-                        'version' => $data->tag_name,
-                        'discovered_from' => $this->discoveredFrom,
-                        'download_url' => (isset($data->assets[0]->browser_download_url)) ? $data->assets[0]->browser_download_url : '',
-                        'can_update' => $releaseTimestamp > $moduleTimestamp,
-                        'module_timestamp' => $moduleTimestamp,
-                        'release_timestamp' => $releaseTimestamp,
-                        'last_checked' => helper()->date()
-                    ];
-                    $tonicsHelper->sendMsg(self::getCurrentState(), "Discovered $discovered");
+            if (isset($module->info()['slug_id'])) {
+                $appInstallationService->setAppSlug($module->info()['slug_id']);
+                $data = $appInstallationService->getUpdateDiscoveryData($tonicsHelper->getTimeStampFromVersion($module->info()['version'] ?? ''));
+                if (!empty($data)) {
+                    $this->collate[$type][$module::class] = $data;
+                    $tonicsHelper->sendMsg(self::getCurrentState(), "Discovered {$data['name']} - {$data['version']}");
                 }
             }
         }
@@ -297,27 +276,20 @@ class UpdateMechanismState extends SimpleState
 
     /**
      * @param $type
-     * @param string $tempPath
      * @param string $dirPath
+     *
      * @return void
-     * @throws \Exception
+     * @throws \ReflectionException
      * @throws \Throwable
      */
-    private function downloadExtractCopy($type, string $tempPath, string $dirPath): void
+    private function downloadExtractCopy ($type, string $dirPath): void
     {
         $tonicsHelper = helper();
         $modules = $this->collate[$type] ?? [];
         foreach ($modules as $classString => $module) {
-            if ($tonicsHelper->classImplements($classString, [ExtensionConfig::class]) === false){
+
+            if (!$this->isValidModuleApp($classString)) {
                 continue;
-            }
-            $ref = new \ReflectionClass($classString);
-            $dir = dirname($ref->getFileName());
-            $dirName = helper()->getFileName($dir);
-            if (count($this->types) === 1) {
-                if (!empty($this->updates) && !key_exists(strtolower($dirName), $this->updates)) {
-                    continue;
-                }
             }
 
             /** @var ExtensionConfig $object */
@@ -327,80 +299,61 @@ class UpdateMechanismState extends SimpleState
             $canUpdate = $updateTimeStamp > $moduleOrAppTimeStamp;
 
             if ($canUpdate && !empty($module['download_url'])) {
-                $localDriver = new LocalDriver();
+                $appInstallationService = $this->getAppInstallationService();
+                $appInstallationService->uploadApp($module['download_url'], [
+                    'AppType'   => ($type === 'module') ? 1 : 2,
+                    'Signature' => $module['hash'] ?? '',
+                ]);
 
-                $name = strtolower($module['version']) . '.zip';
-                $folderName = $module['folder_name'];
-                $sep = DIRECTORY_SEPARATOR;
+                $appModulePathFolder = $dirPath . DIRECTORY_SEPARATOR . $module['folder_name'];
 
-                $tempPathZipName = $tempPath . $sep . $name;
-                $tempPathFolder = $tempPath . $sep . "$folderName";
-                $appModulePathFolder = $dirPath . $sep . "$folderName";
-
-                if ($tonicsHelper->fileExists($tempPathZipName)){
-                    $tonicsHelper->forceDeleteFile($tempPathZipName);
-                }
-
-                $createFromURLResult = $localDriver->createFromURL($module['download_url'], $tempPath, $name, importToDB: false);
-                if ($createFromURLResult === false) {
-                    $error = "An Error Occurred Downloading {$module['download_url']}";
-                    $this->setErrorMessage($error);
+                if ($appInstallationService->fails()) {
+                    $this->setErrorMessage($appInstallationService->getErrorsAsString());
                     $this->setStateResult(SimpleState::ERROR);
-                    $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
+                    $tonicsHelper->sendMsg($this->getCurrentState(), $appInstallationService->getErrorsAsString(), 'issue');
                     break;
-                }
-
-                $result = $localDriver->extractFile($tempPathZipName, $tempPath, importToDB: false);
-                if ($result && $tonicsHelper->fileExists($tempPathFolder) && $tonicsHelper->fileExists($appModulePathFolder)) {
-
-                    # If there is .installed in the app path, drop it in the tempPath, if it fails, then user might
-                    # want to re-install the app
-                    if ($tonicsHelper->fileExists($appModulePathFolder . DIRECTORY_SEPARATOR . '.installed')) {
-                        @file_put_contents($tempPathFolder . DIRECTORY_SEPARATOR . '.installed', '');
-                    }
-
-                    $deleted = $tonicsHelper->deleteDirectory($appModulePathFolder);
-
-                    if ($deleted === false) {
-                        $error = "An Error Occurred Updating $folderName";
-                        $this->setErrorMessage($error);
-                        $this->setStateResult(SimpleState::ERROR);
-                        $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
-                        break;
-                    }
-
-                    $renamedResult = @rename($tempPathFolder, $appModulePathFolder);
-                    $tonicsHelper->deleteDirectory($tempPathFolder);
-                    if (!$renamedResult) {
-                        $error = "An Error Occurred, Moving $tempPathFolder to $appModulePathFolder";
-                        $this->setErrorMessage($error);
-                        $this->setStateResult(SimpleState::ERROR);
-                        $tonicsHelper->sendMsg($this->getCurrentState(), $error, 'issue');
-                        break;
-                    } else {
-                        # Fire OnUpdate App/Module
-                        $onUpdateMigration = new HandleOnUpdate($classString, self::getBinRestartServiceTimestamp());
-                        job()->enqueue($onUpdateMigration);
-
-                        $this->collate[$type][$classString]['can_update'] = false;
-                        $tonicsHelper->tonicsChmodRecursive($appModulePathFolder);
-
-                    }
                 } else {
-                    $error = "Failed To Extract: '$name'";
-                    $this->setErrorMessage($error);
-                    $this->setStateResult(SimpleState::ERROR);
-                    helper()->sendMsg($this->getCurrentState(), $error, 'issue');
-                    break;
+                    # Fire OnUpdate App/Module
+                    $onUpdateMigration = new HandleOnUpdate($classString, self::getBinRestartServiceTimestamp());
+                    job()->enqueue($onUpdateMigration);
+
+                    $this->collate[$type][$classString]['can_update'] = false;
+                    $tonicsHelper->tonicsChmodRecursive($appModulePathFolder);
                 }
             }
         }
     }
 
     /**
+     * Return true if...
+     *
+     * - If classString implements teh ExtensionConfig interface
+     * - We Have at least 2 types (app and module)
+     * - The updates property is not empty
+     * - there is an update
+     *
+     * @param string|object $objectOrClass
+     *
+     * @return bool
+     * @throws \ReflectionException
      * @throws \Exception
      */
-    public static function getBinRestartServiceTimestamp()
+    private function isValidModuleApp (string|object $objectOrClass): bool
+    {
+        $string = $objectOrClass::class;
+        $ref = new \ReflectionClass($objectOrClass);
+        $dir = dirname($ref->getFileName());
+        $dirName = helper()->getFileName($dir);
+
+        return helper()->classImplements($string, [ExtensionConfig::class]) &&
+            count($this->types) === 1 &&
+            key_exists(strtolower($dirName), $this->updates);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getBinRestartServiceTimestamp ()
     {
         $json = file_get_contents(AppConfig::getBinRestartServiceJSONFile());
         if (helper()->isJSON($json)) {
@@ -415,24 +368,26 @@ class UpdateMechanismState extends SimpleState
 
     /**
      * @param string $url
+     *
      * @return mixed
+     * @throws \Exception
      */
-    private function getJSONFromURL(string $url): mixed
+    private function getJSONFromURL (string $url): mixed
     {
-        $update_key = AppConfig::getAppUpdateKey();
+        $siteKey = AppConfig::getAppSiteKey();
         // update_key could be used to identify a site in case of premium plugins and or themes
-        $curl = curl_init($url . "?update_key=$update_key");
+        $curl = curl_init($url . "?site_key=$siteKey");
         curl_setopt_array($curl, [
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYHOST       => false,
             CURLOPT_PROXY_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYSTATUS => false,
-            CURLOPT_DNS_CACHE_TIMEOUT => false,
+            CURLOPT_SSL_VERIFYSTATUS     => false,
+            CURLOPT_DNS_CACHE_TIMEOUT    => false,
             CURLOPT_DNS_USE_GLOBAL_CACHE => false,
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ['Accept: application/json'],
-            CURLOPT_MAXREDIRS => 1,
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+            CURLOPT_FOLLOWLOCATION       => false,
+            CURLOPT_RETURNTRANSFER       => true,
+            CURLOPT_HTTPHEADER           => ['Accept: application/json'],
+            CURLOPT_MAXREDIRS            => 1,
+            CURLOPT_USERAGENT            => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
         ]);
         $response = curl_exec($curl);
         curl_close($curl);
@@ -440,18 +395,29 @@ class UpdateMechanismState extends SimpleState
     }
 
     /**
+     * @return AppInstallationService
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function getAppInstallationService (): AppInstallationService
+    {
+        return container()->get(AppInstallationService::class);
+    }
+
+    /**
      * @return array
      */
-    public function getUpdates(): array
+    public function getUpdates (): array
     {
         return $this->updates;
     }
 
     /**
      * @param array $updates
+     *
      * @return UpdateMechanismState
      */
-    public function setUpdates(array $updates): UpdateMechanismState
+    public function setUpdates (array $updates): UpdateMechanismState
     {
         $this->updates = $updates;
         return $this;
@@ -460,16 +426,17 @@ class UpdateMechanismState extends SimpleState
     /**
      * @return array
      */
-    public function getTypes(): array
+    public function getTypes (): array
     {
         return $this->types;
     }
 
     /**
      * @param array $types
+     *
      * @return UpdateMechanismState
      */
-    public function setTypes(array $types): UpdateMechanismState
+    public function setTypes (array $types): UpdateMechanismState
     {
         $this->types = $types;
         return $this;
@@ -478,16 +445,17 @@ class UpdateMechanismState extends SimpleState
     /**
      * @return string
      */
-    public function getAction(): string
+    public function getAction (): string
     {
         return $this->action;
     }
 
     /**
      * @param string $action
+     *
      * @return UpdateMechanismState
      */
-    public function setAction(string $action): UpdateMechanismState
+    public function setAction (string $action): UpdateMechanismState
     {
         $this->action = $action;
         return $this;
@@ -496,7 +464,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @return array
      */
-    public function getCollate(): array
+    public function getCollate (): array
     {
         return $this->collate;
     }
@@ -504,7 +472,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * @param array $collate
      */
-    public function setCollate(array $collate): void
+    public function setCollate (array $collate): void
     {
         $this->collate = $collate;
     }

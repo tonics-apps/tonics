@@ -1,4 +1,3 @@
-
 /*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -38,17 +37,9 @@ class DataTable {
     constructor($parentElement, apiEntry = '') {
         this.parentElement = document.querySelector($parentElement)
         this.apiEntry = apiEntry;
-        if (this.parentElement){
+        if (this.parentElement) {
             this.resetListID();
         }
-    }
-
-    getParentElement() {
-        return this.parentElement;
-    }
-
-    getApiEntry() {
-        return this.apiEntry;
     }
 
     get thElement() {
@@ -78,11 +69,52 @@ class DataTable {
         this._trElement = value;
     }
 
+    getParentElement() {
+        return this.parentElement;
+    }
+
+    getApiEntry() {
+        return this.apiEntry;
+    }
+
     boot() {
         if (this.getParentElement()) {
+
+            function sendDoubleClickEvent(e, self) {
+                let el = e.target;
+                let OnDoubleClick = new OnDoubleClickEvent(el, self);
+                self.trElement = el.closest('tr');
+                self.tdElement = el.closest('td');
+                self.thElement = self.findCorrespondingTableHeader(el);
+                self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
+            }
+
+            // Double Click For Mobile
+            if (!this.getParentElement().hasAttribute("data-event-dblclick-mobile")) {
+                this.getParentElement().setAttribute('data-event-dblclick-mobile', 'true');
+                // Double Tap For mobile screen:
+                // Time in milliseconds to detect a double tap
+                const DOUBLE_TAP_TIME = 500;
+                let lastTap = 0;
+                this.getParentElement().addEventListener('touchstart', (e) => {
+                    // e.preventDefault();
+                    const currentTime = Date.now();
+                    const tapLength = currentTime - lastTap;
+
+                    if (tapLength < DOUBLE_TAP_TIME && tapLength > 0) {
+                        sendDoubleClickEvent(e, this);
+                    }
+                    lastTap = currentTime;
+                });
+            }
+
             // For Click Event
             if (!this.getParentElement().hasAttribute("data-event-click")) {
                 this.getParentElement().setAttribute('data-event-click', 'true');
+
+                const DOUBLE_TAP_TIME = 200;
+                let lastClick = 0;
+
                 this.getParentElement().addEventListener('click', (e) => {
                     let el = e.target;
                     let trEl = el.closest('tr');
@@ -90,7 +122,7 @@ class DataTable {
                     this.tdElement = el.closest('td');
 
                     // Form Filter Button
-                    if (el.dataset.menuAction === 'FilterEvent'){
+                    if (el.dataset.menuAction === 'FilterEvent') {
                         e.preventDefault();
                     }
 
@@ -129,13 +161,9 @@ class DataTable {
             // For Double-Click Event
             if (!this.getParentElement().hasAttribute("data-event-dblclick")) {
                 this.getParentElement().setAttribute('data-event-dblclick', 'true');
+
                 this.getParentElement().addEventListener('dblclick', (e) => {
-                    let el = e.target;
-                    let OnDoubleClick = new OnDoubleClickEvent(el, this);
-                    this.trElement = el.closest('tr');
-                    this.tdElement = el.closest('td');
-                    this.thElement = this.findCorrespondingTableHeader(el);
-                    this.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
+                    sendDoubleClickEvent(e, this);
                 });
             }
 
@@ -227,7 +255,7 @@ class DataTable {
         let headers = [];
         this.getAllThElements().forEach(header => {
             headers.push(header.dataset?.slug)
-            });
+        });
         return headers;
     }
 
@@ -247,7 +275,7 @@ class DataTable {
         this.editingElements.clear();
         this.tdElementChildBeforeOpen = null;
         let editing = this.parentElement.querySelectorAll('.editing');
-        if (editing){
+        if (editing) {
             editing.forEach(edit => {
                 edit.classList.remove('editing');
             });
@@ -257,7 +285,7 @@ class DataTable {
     removeDeletingElements() {
         this.deletingElements.clear();
         let deleting = this.parentElement.querySelectorAll('.deleting');
-        if (deleting){
+        if (deleting) {
             deleting.forEach(deleteEl => {
                 deleteEl.remove();
             });
@@ -277,6 +305,7 @@ class DataTable {
             UPDATE_EVENT: "UpdateEvent",
             APP_UPDATE_EVENT: "AppUpdateEvent",
             COPY_FIELD_ITEMS_EVENT: "CopyFieldItemsEvent",
+            TONICS_APP_STORE_PURCHASE: "TonicsAppStorePurchase",
         }
     }
 
@@ -361,7 +390,7 @@ class DataTable {
             trElements.forEach(edit => {
                 let tdData = {};
                 for (let i = 0; i < edit.cells.length; i++) {
-                    if (headers[i]){
+                    if (headers[i]) {
                         tdData[headers[i]] = edit.cells[i].innerText;
                     }
                 }
@@ -450,20 +479,20 @@ class DataTable {
             'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
         };
 
-       new XHRApi({...defaultHeader}).Post(this.getApiEntry(), JSON.stringify(dataToSend), function (err, data) {
-           if (data) {
-               data = JSON.parse(data);
-               if (data.status === 200) {
-                   onSuccess(data);
-               } else {
-                   onError(data);
-               }
-           }
+        new XHRApi({...defaultHeader}).Post(this.getApiEntry(), JSON.stringify(dataToSend), function (err, data) {
+            if (data) {
+                data = JSON.parse(data);
+                if (data.status === 200) {
+                    onSuccess(data);
+                } else {
+                    onError(data);
+                }
+            }
 
-           if (err){
-               onError(err);
-           }
-       });
+            if (err) {
+                onError(err);
+            }
+        });
     }
 
     getDataTableFormFilterEl() {
@@ -476,12 +505,12 @@ class DataTable {
         elements.forEach((inputs) => {
 
             // collect checkbox
-            if (inputs.type === 'checkbox'){
+            if (inputs.type === 'checkbox') {
                 let checkboxName = inputs.name;
-                if (!elSettings.hasOwnProperty(checkboxName)){
+                if (!elSettings.hasOwnProperty(checkboxName)) {
                     elSettings[checkboxName] = [];
                 }
-                if (inputs.checked){
+                if (inputs.checked) {
                     elSettings[checkboxName].push(inputs.value);
                 }
             }
@@ -502,6 +531,11 @@ class DataTableAbstractAndTarget {
     hasTrElement = false;
     hasTdElement = false;
 
+    constructor(target, dataTableClass) {
+        this._elementTarget = target;
+        this._dataTable = dataTableClass;
+    }
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -518,11 +552,6 @@ class DataTableAbstractAndTarget {
         this._dataTable = value;
     }
 
-    constructor(target, dataTableClass) {
-        this._elementTarget = target;
-        this._dataTable = dataTableClass;
-    }
-
     getElementTarget() {
         return this._elementTarget;
     }
@@ -532,19 +561,6 @@ class DataTableEditorAbstract {
 
     hasTdElement = false;
     editorElement = null;
-
-    /**
-     * Create an input element
-     * @param type
-     * @param value
-     * @returns {HTMLInputElement}
-     */
-    createInput(type = 'text', value = '') {
-        let input = document.createElement('input');
-        input.classList.add('data_table_is_open'); input.type = type;
-        input.defaultValue = value; input.value = value;
-        return input;
-    }
 
     get tdElement() {
         return this._tdElement;
@@ -561,6 +577,21 @@ class DataTableEditorAbstract {
 
     set dataTable(value) {
         this._dataTable = value;
+    }
+
+    /**
+     * Create an input element
+     * @param type
+     * @param value
+     * @returns {HTMLInputElement}
+     */
+    createInput(type = 'text', value = '') {
+        let input = document.createElement('input');
+        input.classList.add('data_table_is_open');
+        input.type = type;
+        input.defaultValue = value;
+        input.value = value;
+        return input;
     }
 
     editorName() {
@@ -601,7 +632,8 @@ class DataTabledEditorNumber extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            let input = this.createInput('number', tdValue); input.classList.add('data_table_is_open')
+            let input = this.createInput('number', tdValue);
+            input.classList.add('data_table_is_open')
             this.tdElement.innerHTML = input.outerHTML;
         }
     }
@@ -624,7 +656,8 @@ class DataTabledEditorDate extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            let input = this.createInput('date', tdValue); input.classList.add('data_table_is_open');
+            let input = this.createInput('date', tdValue);
+            input.classList.add('data_table_is_open');
             this.tdElement.innerHTML = input.outerHTML;
         }
     }
@@ -644,7 +677,8 @@ class DataTabledEditorDateLocal extends DataTableEditorAbstract {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
             tdValue.replace(' ', 'T');
-            let input = this.createInput('datetime-local', tdValue); input.classList.add('data_table_is_open');
+            let input = this.createInput('datetime-local', tdValue);
+            input.classList.add('data_table_is_open');
             this.tdElement.innerHTML = input.outerHTML;
         }
     }
@@ -672,7 +706,8 @@ class DataTabledEditorDateMonth extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            let input = this.createInput('month', tdValue); input.classList.add('data_table_is_open');
+            let input = this.createInput('month', tdValue);
+            input.classList.add('data_table_is_open');
             this.tdElement.innerHTML = input.outerHTML;
         }
     }
@@ -691,7 +726,8 @@ class DataTabledEditorDateWeek extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            let input = this.createInput('week', tdValue); input.classList.add('data_table_is_open');
+            let input = this.createInput('week', tdValue);
+            input.classList.add('data_table_is_open');
             this.tdElement.innerHTML = input.outerHTML;
         }
     }
@@ -710,7 +746,8 @@ class DataTabledEditorDateTime extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            let input = this.createInput('time', tdValue); input.classList.add('data_table_is_open');
+            let input = this.createInput('time', tdValue);
+            input.classList.add('data_table_is_open');
             this.tdElement.innerHTML = input.outerHTML;
         }
     }
@@ -788,10 +825,10 @@ class DataTabledEditorSelectMultiple extends DataTableEditorAbstract {
         let inputValue = this.tdElement.querySelector('select')?.value;
         let selectOptions = this.tdElement.querySelector('select')?.options;
         let allSelectedValue = [];
-        if (selectOptions){
+        if (selectOptions) {
             for (let k = 0; k < selectOptions.length; k++) {
                 let option = selectOptions[k];
-                if (option.selected){
+                if (option.selected) {
                     allSelectedValue.push(option.value || option.text);
                 }
             }
@@ -819,7 +856,8 @@ class DataTableEditorTextArea extends DataTableEditorAbstract {
     openEditor() {
         if (this.hasTdElement) {
             let tdValue = this.tdElement.innerText;
-            let textArea = document.createElement('textarea'); textArea.classList.add('data_table_is_open');
+            let textArea = document.createElement('textarea');
+            textArea.classList.add('data_table_is_open');
             textArea.defaultValue = tdValue;
             textArea.value = tdValue;
             this.tdElement.innerHTML = textArea.outerHTML;
@@ -874,7 +912,112 @@ class DataTableEditorFeaturedLink extends DataTableEditorAbstract {
         }
     }
 
-    editorValidation() {}
+    editorValidation() {
+    }
+}
+
+let LICENSE_PRICES_MAP = new Map();
+
+class DataTableEditorLicensePrices extends DataTableEditorAbstract {
+
+    PRICE_SYMBOL = '$';
+
+    constructor() {
+        super();
+    }
+
+    getPriceMap() {
+        return LICENSE_PRICES_MAP;
+    }
+
+    editorName() {
+        return 'tonics_license';
+    }
+
+    openEditor() {
+        if (this.hasTdElement && this.tdElement.querySelector('template')) {
+            let tdValue = this.tdElement;
+            let template = tdValue.querySelector('template');
+            if (template) {
+                let licenses = template.innerHTML.trim();
+                if (licenses) {
+                    licenses = JSON.parse(licenses);
+                    let dClickTap = this.tdElement.querySelector('.d-click-tap');
+                    let selectOption = '';
+                    licenses.forEach(option => {
+                        let name = option.name;
+                        let price = this.PRICE_SYMBOL + option.price;
+                        let uniqueID = option.unique_id;
+                        let select = '';
+                        if (dClickTap.dataset.license === uniqueID) {
+                            select = 'selected';
+                        }
+                        selectOption += `<option data-license="${uniqueID}" data-price="${option.price}" ${select} title="${name}" value="${uniqueID}">${name} (${price})</option>`
+                    });
+                    selectOption = "<select class=\"default-selector mg-b-plus-1 data_table_is_open\">" + selectOption + "</select>";
+                    if (dClickTap) {
+                        dClickTap.innerHTML = selectOption;
+                    }
+                }
+            }
+        }
+    }
+
+    closeEditor() {
+        let inputValue = this.tdElement.querySelector('select')?.value;
+        let licenseUniqueID = inputValue;
+        let selectOptions = this.tdElement.querySelector('select')?.options;
+
+        let allSelectedValue = [];
+        let selectedOption = null;
+        if (selectOptions) {
+            for (let k = 0; k < selectOptions.length; k++) {
+                let option = selectOptions[k];
+                if (option.selected) {
+                    selectedOption = option;
+                    allSelectedValue.push(option.text);
+                    break;
+                }
+            }
+            inputValue = allSelectedValue.join(',');
+        }
+
+        let dClickTap = this.tdElement.querySelector('.d-click-tap');
+        if (dClickTap) {
+            if (inputValue) {
+                dClickTap.innerHTML = inputValue;
+                dClickTap.dataset.license = licenseUniqueID;
+                dClickTap.dataset.price = selectedOption?.dataset.price;
+                dClickTap.dataset.buy = '1';
+                this.getPriceMap().set(dClickTap.dataset.app, {
+                    price: selectedOption?.dataset.price,
+                    licenseUniqueID: licenseUniqueID
+                });
+                this.editorElement = null;
+                if (this.tdElement.querySelector('select')) {
+                    this.tdElement.querySelector('select')?.remove();
+                }
+            } else {
+                dClickTap.dataset.buy = '0';
+            }
+        }
+    }
+
+    editorValidation() {
+    }
+
+    getPriceInfoForPaymentHandler() {
+        const myObject = {};
+        this.getPriceMap().forEach((value, key) => {
+            myObject[key] = value;
+        });
+        return myObject
+    }
+
+    getTotalItemPrice() {
+        // Calculate the total price using Array.from() and map
+        return Array.from(this.getPriceMap().values()).reduce((acc, info) => acc + parseFloat(info.price), 0);
+    }
 }
 
 //----------------
@@ -943,7 +1086,7 @@ class CloseEditorHandler {
         if (currentEditor instanceof DataTableEditorAbstract) {
             currentEditor.closeEditor();
             let tdElementChildBeforeOpen = null;
-            if (dataTable.hasTdElement){
+            if (dataTable.hasTdElement) {
                 tdElementChildBeforeOpen = dataTable.tdElementChildBeforeOpen;
             }
 
@@ -994,11 +1137,26 @@ class CanActivateCancelEventHandler {
 class CanActivateCopyFieldItemsEventHandler {
     constructor(event) {
         let dataTable = event.dataTable;
-        if(dataTable.hasTrElement){
+        if (dataTable.hasTrElement) {
             dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
         } else {
             dataTable.deActivateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
         }
+    }
+}
+
+class CanActivatePurchaseFieldItemsEventHandler {
+    constructor(event) {
+        let dataTable = event.dataTable;
+        if (dataTable.parentElement.dataset?.type === "TONICS_APP_STORE") {
+            let buy = dataTable.parentElement.querySelectorAll('[data-buy]');
+            if (buy && buy.length > 0) {
+                dataTable.activateMenus([dataTable.menuActions().TONICS_APP_STORE_PURCHASE]);
+                return;
+            }
+        }
+        LICENSE_PRICES_MAP = new Map();
+        dataTable.deActivateMenus([dataTable.menuActions().TONICS_APP_STORE_PURCHASE]);
     }
 }
 
@@ -1011,13 +1169,13 @@ class CopyFieldItemsEventHandler {
         };
         let dataTable = event.dataTable;
         let isCopyFieldItemsEventEvent = event.getElementTarget().closest(`[data-menu-action="CopyFieldItemsEvent"]`);
-        if (isCopyFieldItemsEventEvent){
+        if (isCopyFieldItemsEventEvent) {
             dataTable.collateTdFromTrAndPushToSaveTo(dataTable.getAllSelectTableRow(), saveData.copyFieldItemsElements, dataTable.getThHeaders());
             dataTable.activateMenus([dataTable.menuActions().COPY_FIELD_ITEMS_EVENT]);
             saveData.type.push(dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT);
             dataTable.sendPostRequest(saveData, (data) => {
-                if (data.status === 200){
-                    if (data?.more === dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT){
+                if (data.status === 200) {
+                    if (data?.more === dataTable.apiEvents().COPY_FIELD_ITEMS_EVENT) {
                         return copyToClipBoard(JSON.stringify(data?.data, null, "\t")).then(() => {
                             successToast(data.message);
                         }).catch(() => {
@@ -1032,8 +1190,6 @@ class CopyFieldItemsEventHandler {
         }
     }
 }
-
-
 
 class CancelEventHandler {
     constructor(event) {
@@ -1084,22 +1240,22 @@ class SaveEventHandler {
         if (saveEvent) {
             saveData.headers = dataTable.getThHeaders();
 
-            if (dataTable.deletingElements.size > 0){
+            if (dataTable.deletingElements.size > 0) {
                 dataTable.collateTdFromTrAndPushToSaveTo(dataTable.deletingElements, saveData.deleteElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().DELETE_EVENT);
-            }else if (dataTable.editingElements.size > 0){
+            } else if (dataTable.editingElements.size > 0) {
                 dataTable.collateTdFromTrAndPushToSaveTo(dataTable.editingElements, saveData.updateElements, saveData.headers);
                 saveData.type.push(dataTable.apiEvents().UPDATE_EVENT);
             }
 
             promptToast("Confirm Once Again, Before I Proceed", "Proceed", () => {
                 dataTable.sendPostRequest(saveData, (data) => {
-                    if (data.status === 200){
-                        if (data.more === dataTable.apiEvents().UPDATE_EVENT){
+                    if (data.status === 200) {
+                        if (data.more === dataTable.apiEvents().UPDATE_EVENT) {
                             dataTable.resetEditingElements();
                         }
 
-                        if (data.more === dataTable.apiEvents().DELETE_EVENT){
+                        if (data.more === dataTable.apiEvents().DELETE_EVENT) {
                             dataTable.removeDeletingElements();
                         }
                         successToast(data.message);
@@ -1165,9 +1321,9 @@ class DeleteEventHandler {
 if (window?.TonicsEvent?.EventConfig) {
     window.TonicsEvent.EventConfig.OnClickEvent.push(
         ...[
-            CloseEditorHandler, CanActivateCancelEventHandler,
-            CanActivateSaveEventHandler, DeleteEventHandler, CancelEventHandler, ReloadEventHandler, MultiEditEventHandler, SaveEventHandler,
-            CanActivateCopyFieldItemsEventHandler, CopyFieldItemsEventHandler
+            CloseEditorHandler, CancelEventHandler, ReloadEventHandler, MultiEditEventHandler, SaveEventHandler,
+            DeleteEventHandler, CanActivateSaveEventHandler, CanActivateCopyFieldItemsEventHandler, CanActivateCancelEventHandler,
+            CanActivatePurchaseFieldItemsEventHandler, CopyFieldItemsEventHandler
         ]
     );
     window.TonicsEvent.EventConfig.OnRowMarkForDeletionEvent.push(
@@ -1183,6 +1339,7 @@ if (window?.TonicsEvent?.EventConfig) {
 //--- Built-In Editor Setup
 //---------------------------
 window.TonicsDataTable = {};
+window.TonicsDataTableClass = null;
 window.TonicsDataTable.Editors = new Map();
 
 window.TonicsDataTable.Editors.set('TEXT', DataTableEditorAbstract);
@@ -1196,7 +1353,9 @@ window.TonicsDataTable.Editors.set('DATE_MONTH', DataTabledEditorDateMonth);
 window.TonicsDataTable.Editors.set('DATE_WEEK', DataTabledEditorDateWeek);
 window.TonicsDataTable.Editors.set('DATE_TIME', DataTabledEditorDateTime);
 window.TonicsDataTable.Editors.set('TONICS_MEDIA_FEATURE_LINK', DataTableEditorFeaturedLink);
+window.TonicsDataTable.Editors.set('TONICS_LICENSE', DataTableEditorLicensePrices);
 
 // boot dataTable
 const dataTable = new DataTable('.dataTable');
 dataTable.boot();
+window.TonicsDataTableClass = dataTable;

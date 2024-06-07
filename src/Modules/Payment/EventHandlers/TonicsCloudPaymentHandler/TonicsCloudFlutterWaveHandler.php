@@ -19,7 +19,7 @@
 namespace App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler;
 
 use App\Modules\Payment\Controllers\PaymentSettingsController;
-use App\Modules\Payment\Events\AudioTonics\OnAddTrackPaymentEvent;
+use App\Modules\Payment\Events\TonicsCloud\OnAddTonicsCloudPaymentEvent;
 use App\Modules\Payment\Events\TonicsPaymentInterface;
 use App\Modules\Payment\Jobs\TonicsCloud\TonicsCloudConfirmFlutterWavePayment;
 use App\Modules\Payment\Library\Helper;
@@ -28,17 +28,17 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class TonicsCloudFlutterWaveHandler implements HandlerInterface, TonicsPaymentInterface
 {
-    const Query_ClientCredentials = 'ClientPaymentCredentials';
-    const Query_GenerateInvoiceID = 'GenerateInvoiceID';
+    const Query_ClientCredentials      = 'ClientPaymentCredentials';
+    const Query_GenerateInvoiceID      = 'GenerateInvoiceID';
     const Query_CapturedPaymentDetails = 'CapturedPaymentDetails';
 
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        /** @var $event OnAddTrackPaymentEvent */
+        /** @var $event OnAddTonicsCloudPaymentEvent */
         $event->addPaymentHandler($this);
     }
 
-    public function name(): string
+    public function name (): string
     {
         return 'TonicsCloudFlutterWaveHandler';
     }
@@ -46,7 +46,7 @@ class TonicsCloudFlutterWaveHandler implements HandlerInterface, TonicsPaymentIn
     /**
      * @throws \Exception
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return PaymentSettingsController::isEnabled(PaymentSettingsController::FlutterWave_Enabled);
     }
@@ -55,7 +55,7 @@ class TonicsCloudFlutterWaveHandler implements HandlerInterface, TonicsPaymentIn
      * @throws \Exception
      * @throws \Throwable
      */
-    public function handlePayment(): void
+    public function handlePayment (): void
     {
         $queryType = url()->getHeaderByKey('PaymentQueryType');
         if ($queryType === self::Query_GenerateInvoiceID) {
@@ -73,19 +73,19 @@ class TonicsCloudFlutterWaveHandler implements HandlerInterface, TonicsPaymentIn
                 $body = json_decode($body);
                 $data = TonicsCloudHelper::CapturePaymentDetails([
                     'fk_customer_id' => session()::getUserID(),
-                    'total_price' => $body->orderData->amount ?? 0,
-                    'others' => json_encode([
+                    'total_price'    => $body->orderData->amount ?? 0,
+                    'others'         => json_encode([
                         'payment_email_address' => (isset($body->orderData->customer->email)) ? $body->orderData->customer->email : '',
-                        'invoice_id' => $body->invoice_id,
-                        'transaction_id' => $body->orderData->transaction_id,
-                        'tx_ref' => $body->orderData->tx_ref,
-                        'flw_ref' => $body->orderData->flw_ref,
-                        'payment_method' => 'TonicsFlutterWave',
-                        'tonics_solution' => PaymentSettingsController::TonicsSolution_TonicsCloud
+                        'invoice_id'            => $body->invoice_id,
+                        'transaction_id'        => $body->orderData->transaction_id,
+                        'tx_ref'                => $body->orderData->tx_ref,
+                        'flw_ref'               => $body->orderData->flw_ref,
+                        'payment_method'        => 'TonicsFlutterWave',
+                        'tonics_solution'       => PaymentSettingsController::TonicsSolution_TonicsCloud,
                     ]),
                 ]);
 
-                if (isset($data['PURCHASE_RECORD'])){
+                if (isset($data['PURCHASE_RECORD'])) {
                     $confirmFlutterWavePayment = new TonicsCloudConfirmFlutterWavePayment();
                     $confirmFlutterWavePayment->setData($data['PURCHASE_RECORD']);
                     job()->enqueue($confirmFlutterWavePayment);
@@ -105,7 +105,7 @@ class TonicsCloudFlutterWaveHandler implements HandlerInterface, TonicsPaymentIn
     /**
      * @throws \Exception|\Throwable
      */
-    public function generateInvoiceID(): void
+    public function generateInvoiceID (): void
     {
         response()->onSuccess(uniqid('TonicsCloud_', true));
     }

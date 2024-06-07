@@ -30,19 +30,20 @@ class Tonics404HandlerActivator implements ExtensionConfig, FieldItemsExtensionC
 
     private FieldData $fieldData;
 
-    public function __construct(){
+    public function __construct ()
+    {
         $this->fieldData = new FieldData();
     }
 
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
-    
-    public function route(Route $routes): Route
+
+    public function route (Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -51,7 +52,7 @@ class Tonics404HandlerActivator implements ExtensionConfig, FieldItemsExtensionC
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [];
     }
@@ -59,7 +60,7 @@ class Tonics404HandlerActivator implements ExtensionConfig, FieldItemsExtensionC
     /**
      * @inheritDoc
      */
-    public function tables(): array
+    public function tables (): array
     {
         return [];
     }
@@ -67,22 +68,22 @@ class Tonics404HandlerActivator implements ExtensionConfig, FieldItemsExtensionC
     /**
      * @throws \Exception
      */
-    public function onInstall(): void
+    public function onInstall (): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         return;
     }
 
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         return;
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }
@@ -90,29 +91,29 @@ class Tonics404HandlerActivator implements ExtensionConfig, FieldItemsExtensionC
     /**
      * @throws \Exception
      */
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Tonics404Handler",
-            "type" => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "name"                 => "Tonics404Handler",
+            "type"                 => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1714604528',
-            "description" => "This is Tonics404Handler",
-            "info_url" => '',
-            "settings_page" => route('tonics404Handler.settings'), // can be null or a route name
+            "version"              => '1-O-app.1714604528',
+            "description"          => "This is Tonics404Handler",
+            "info_url"             => '',
+            "settings_page"        => route('tonics404Handler.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics404_handler/releases/latest",
-            "authors" => [
-                "name" => "Your Name",
+            "authors"              => [
+                "name"  => "Your Name",
                 "email" => "name@website.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
-    public function fieldItems(): array
+    public function fieldItems (): array
     {
-        $json =<<<'JSON'
+        $json = <<<'JSON'
 [
   {
     "fk_field_id": "App Tonics404Handler Settings",
@@ -150,7 +151,7 @@ JSON;
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
