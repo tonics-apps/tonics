@@ -3,8 +3,8 @@
     [[add_hook('Core::main_form_and_filter')]]
     <div style="max-height: 900px; margin-left: clamp(2rem, 2.5vw, 4rem); margin-right: clamp(2rem, 2.5vw, 4rem);" class="overflow-x:auto">
         [[add_hook('Core::before_data_table')]]
-        <table DataTable.headers dtHeader id="dt" in style="grid-template-columns:
-            [[each("")
+        <table id="dt" style="grid-template-columns:
+            [[each("dtHeader in DataTable.headers")
                 [[if('v[dtHeader.hide] === bool[false]')
                     minmax([[v('dtHeader.minmax')]])
                 ]]
