@@ -18,15 +18,11 @@
 
 namespace App\Modules\Core\Commands;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\ForkProcessTrait;
-use App\Modules\Core\Library\SharedMemory;
-use App\Modules\Core\Library\SharedMemoryInterface;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 /**
  * Start up with: `php bin/console --run --onStartUp=parallel` which would spin up the core command to run on startupClI,
@@ -41,18 +37,12 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
 
     private array $classes = [];
 
-    public function required(): array
+    public function required (): array
     {
         return [
             "--run",
-            "--onStartUp"
+            "--onStartUp",
         ];
-    }
-
-    public function addClass(string $class): static
-    {
-        $this->classes[] = $class;
-        return $this;
     }
 
     /**
@@ -104,7 +94,7 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
      *
      * @throws \Exception
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
         $this->cleanHandleZombieProcess();
 
@@ -120,7 +110,7 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
         foreach ($event->getClasses() as $class) {
             if ($helper->classImplements($class, [HandlerInterface::class, ConsoleCommand::class])) {
                 /** @var ConsoleCommand $command */
-                $command = new $class;
+                $command = container()->get($class);
 
                 $this->infoMessage("Running $class");
                 if ($parallel) {
@@ -162,7 +152,13 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
         pcntl_alarm(0);
     }
 
-    public function event(): static
+    public function addClass (string $class): static
+    {
+        $this->classes[] = $class;
+        return $this;
+    }
+
+    public function event (): static
     {
         return $this;
     }
@@ -170,7 +166,7 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
     /**
      * @return array
      */
-    public function getClasses(): array
+    public function getClasses (): array
     {
         return $this->classes;
     }
@@ -178,7 +174,7 @@ class OnStartUpCLI implements ConsoleCommand, EventInterface
     /**
      * @param array $classes
      */
-    public function setClasses(array $classes): void
+    public function setClasses (array $classes): void
     {
         $this->classes = $classes;
     }

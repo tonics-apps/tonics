@@ -107,7 +107,7 @@ class OnAddCloudJobClassEvent implements EventInterface
     public function getJobClass (string $name): JobHandlerInterface
     {
         if (isset($this->jobClassName[$name])) {
-            return new $this->jobClassName[$name]();
+            return container()->get($this->jobClassName[$name]);
         }
 
         throw new \Exception("$name is an unknown job handler name");

@@ -30,7 +30,7 @@ class FieldFileHandler implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('FieldFileHandler', 'Handle the Logic In a PHP File',
@@ -38,45 +38,45 @@ class FieldFileHandler implements HandlerInterface
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
             handleViewProcessing: function ($data) use ($event) {
                 return $this->viewFrag($event, $data);
-            }
+            },
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'FieldFileHandler';
-        $templateFile =  (isset($data->templateFile)) ? $data->templateFile : '';
+        $templateFile = (isset($data->templateFile)) ? $data->templateFile : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
-        $isPostEditor =  (isset($data->postEditor)) ? $data->postEditor : '1';
+        $isPostEditor = (isset($data->postEditor)) ? $data->postEditor : '1';
 
         $handlers = [];
-        if (isset(event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class])){
+        if (isset(event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class])) {
             $handlers = event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class];
         }
-        $handlers = (!is_array($handlers)) ? []: $handlers;
+        $handlers = (!is_array($handlers)) ? [] : $handlers;
 
         $handlersFrag = '';
-        foreach ($handlers as $handler){
-            if (helper()->classImplements($handler, [FieldTemplateFileInterface::class])){
+        foreach ($handlers as $handler) {
+            if (helper()->classImplements($handler, [FieldTemplateFileInterface::class])) {
                 $class = $handler;
-                $handlerSelected = ($templateFile === $class) ? 'selected': '';
-                $handler = new $handler;
-                $handlersFrag .=<<<HTML
+                $handlerSelected = ($templateFile === $class) ? 'selected' : '';
+                $handler = container()->get($handler);
+                $handlersFrag .= <<<HTML
 <option value="$class" $handlerSelected>{$handler->name()}</option>
 HTML;
             }
         }
 
-        if ($isPostEditor === '1'){
+        if ($isPostEditor === '1') {
             $postEditor = <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
@@ -96,7 +96,8 @@ HTML;
       </select>
     </label>
 </div>
-HTML);
+HTML,
+        );
 
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
@@ -123,12 +124,12 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
-        $templateFile =  (isset($data->templateFile)) ? $data->templateFile : '';
-        $isPostEditor =  (isset($data->postEditor)) ? $data->postEditor : '1';
+        $templateFile = (isset($data->templateFile)) ? $data->templateFile : '';
+        $isPostEditor = (isset($data->postEditor)) ? $data->postEditor : '1';
 
-        if ($isPostEditor === '1'){
+        if ($isPostEditor === '1') {
             return "<li style='display: none;'><input type='hidden' name='FieldHandler' value='$templateFile'></li>";
         }
 
@@ -141,26 +142,26 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewFrag(OnFieldMetaBox $event, $data): string
+    public function viewFrag (OnFieldMetaBox $event, $data): string
     {
-        $templateFile =  (isset($data->templateFile)) ? $data->templateFile : '';
+        $templateFile = (isset($data->templateFile)) ? $data->templateFile : '';
 
         $handlers = [];
-        if (isset(event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class])){
+        if (isset(event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class])) {
             $handlers = event()->getHandler()->getEventQueueHandlers()[FieldTemplateFile::class];
         }
 
-        $handlers = (!is_array($handlers)) ? []: $handlers;
+        $handlers = (!is_array($handlers)) ? [] : $handlers;
         $valid = false;
-        foreach ($handlers as $handler){
-            if (is_string($templateFile) && $templateFile === $handler){
-                $templateFile = new $handler;
+        foreach ($handlers as $handler) {
+            if (is_string($templateFile) && $templateFile === $handler) {
+                $templateFile = container()->get($handler);
                 $valid = true;
                 break;
             }
         }
 
-        if ($valid && $templateFile instanceof FieldTemplateFileInterface){
+        if ($valid && $templateFile instanceof FieldTemplateFileInterface) {
             return $templateFile->handleFieldLogic($event, $data);
         }
 
