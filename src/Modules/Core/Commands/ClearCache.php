@@ -33,22 +33,23 @@ class ClearCache implements ConsoleCommand
 {
     use ConsoleColor;
 
-    public function required(): array
+    public function required (): array
     {
         return [
             "--cache",
             "--clear",
-            "--warm"
+            "--warm",
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
-        $appURL = AppConfig::getAppUrl(); $helper = helper();
-        if (!key_exists('host', parse_url($appURL))){
+        $appURL = AppConfig::getAppUrl();
+        $helper = helper();
+        if (!key_exists('host', parse_url($appURL))) {
             $this->errorMessage("Host URL Is Invalid");
             return;
         }
@@ -60,15 +61,15 @@ class ClearCache implements ConsoleCommand
             $this->errorMessage("`$domainIP` is Not a Valid Domain IP");
             return;
         }
-        $cacheUrl = $appURL . "/admin/cache/clear". "?token=".AppConfig::getKey();
-        if (!empty($commandOptions['--cache'])){
+        $cacheUrl = $appURL . "/admin/cache/clear" . "?token=" . AppConfig::getKey();
+        if (!empty($commandOptions['--cache'])) {
             $cacheKey = $commandOptions['--cache'];
-            $cacheUrl = $appURL . "/admin/cache/clear". "?token=".AppConfig::getKey() . "&cache-key=$cacheKey";
+            $cacheUrl = $appURL . "/admin/cache/clear" . "?token=" . AppConfig::getKey() . "&cache-key=$cacheKey";
         }
 
         $warmCache = (int)$commandOptions['--warm'];
-        if ($warmCache === 1){
-            $cacheUrl = $appURL . "/admin/cache/warm-template". "?token=".AppConfig::getKey();
+        if ($warmCache === 1) {
+            $cacheUrl = $appURL . "/admin/cache/warm-template" . "?token=" . AppConfig::getKey();
         }
 
 
@@ -85,16 +86,15 @@ class ClearCache implements ConsoleCommand
             // you start the next slice from 4097-whatever
             // CURLOPT_RANGE => "0-4096"
 
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_CUSTOMREQUEST        => 'GET',
+            CURLOPT_SSL_VERIFYHOST       => false,
             CURLOPT_PROXY_SSL_VERIFYPEER => false,
-            CURLOPT_DNS_CACHE_TIMEOUT => false,
+            CURLOPT_DNS_CACHE_TIMEOUT    => false,
             CURLOPT_DNS_USE_GLOBAL_CACHE => false,
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_RESOLVE => $resolveUrl,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADERFUNCTION =>  function($curl, $header) use ($helper, &$headers)
-            {
+            CURLOPT_FOLLOWLOCATION       => false,
+            CURLOPT_RESOLVE              => $resolveUrl,
+            CURLOPT_RETURNTRANSFER       => true,
+            CURLOPT_HEADERFUNCTION       => function ($curl, $header) use ($helper, &$headers) {
                 return $helper->getCurlHeaders($curl, $header, $headers, ['cache-result']);
             },
             // CURLOPT_VERBOSE => true,
@@ -102,29 +102,29 @@ class ClearCache implements ConsoleCommand
         $response = curl_exec($curl);
         ## $http_status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         curl_close($curl);
-        if (!key_exists('cache-result', $headers)){
+        if (!key_exists('cache-result', $headers)) {
             $this->errorMessage("Failed To Clear Cache: No `cache-result` Key");
             return;
         }
 
         $cacheResult = (int)$headers['cache-result'][0];
 
-        if ($response === false){
+        if ($response === false) {
             $this->errorMessage("Curl Can't Connect To $cacheUrl");
             return;
         }
 
-        if (!empty($commandOptions['--warm']) && $cacheResult === 1){
+        if (!empty($commandOptions['--warm']) && $cacheResult === 1) {
             $this->successMessage("Cache Warmed");
             return;
         }
 
-        if ($commandOptions['--cache'] && $cacheResult === 1){
+        if ($commandOptions['--cache'] && $cacheResult === 1) {
             $this->successMessage("Cache {$commandOptions['--cache']} Successfully Cleared");
             return;
         }
 
-        if (empty($commandOptions['--cache']) && $cacheResult === 1){
+        if (empty($commandOptions['--cache']) && $cacheResult === 1) {
             $this->successMessage("All Cache Cleared");
             return;
         }

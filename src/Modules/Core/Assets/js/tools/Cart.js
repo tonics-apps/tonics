@@ -1,4 +1,3 @@
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -28,8 +27,7 @@ export class TrackCart extends SimpleState {
         super();
     }
 
-    getCartStorageKey()
-    {
+    getCartStorageKey() {
         return TrackCart.cartStorageKey;
     }
 
@@ -47,11 +45,11 @@ export class TrackCart extends SimpleState {
 
     UpdateCartLicenseInfo() {
         let cartHeader = document.querySelector('.tonics-cart-items-container');
-        if (cartHeader){
+        if (cartHeader) {
             const cart = this.getCart();
             // Remove All Cart Items
             let cartItems = document.querySelectorAll(`.cart-item[data-slug_id]`);
-            if (cartItems){
+            if (cartItems) {
                 cartItems.forEach((cartItem) => {
                     cartItem.remove();
                 });
@@ -66,9 +64,9 @@ export class TrackCart extends SimpleState {
 
     UpdateCartBasketNumberState() {
         let cartCounter = document.querySelector('.cb-counter-label');
-        if (cartCounter){
+        if (cartCounter) {
             cartCounter.innerHTML = `${this.getCart().size}`;
-            if (this.shakeCartButtonAnimation){
+            if (this.shakeCartButtonAnimation) {
                 this.shakeCartButton();
             }
         }
@@ -76,10 +74,10 @@ export class TrackCart extends SimpleState {
     }
 
     RemoveItemFromCartState() {
-        if (this.cartItemToRemove){
+        if (this.cartItemToRemove) {
             let slug_id = this.cartItemToRemove?.dataset?.slug_id;
             let cart = this.getCart();
-            if (cart.has(slug_id)){
+            if (cart.has(slug_id)) {
                 this.cartItemToRemove.remove();
                 cart.delete(slug_id);
                 localStorage.setItem(TrackCart.cartStorageKey, JSON.stringify(Array.from(cart)));
@@ -92,7 +90,7 @@ export class TrackCart extends SimpleState {
     TotalItemsPriceInCartState() {
         let tonicsCheckoutPrice = document.querySelector('.tonics-checkout-price');
 
-        if (tonicsCheckoutPrice){
+        if (tonicsCheckoutPrice) {
             let currency = 'USD', locale = 'en-US';
             let totalPrice = this.getTotalItemPrice();
 
@@ -117,30 +115,30 @@ export class TrackCart extends SimpleState {
     // That is if a cart is added to the cart menu, we change the cart icon to remove icon
     // this way, a user can remove the cart icon
     UpdateCartIconAdditionToTheCartMenuState(args) {
-        if(args.length > 0){
+        if (args.length > 0) {
             let trackDownloadContainer = args[0];
             let trackSlugID = trackDownloadContainer.closest('[data-slug_id]')?.dataset.slug_id;
             let licenses = trackDownloadContainer.querySelectorAll('[data-unique_id]');
             let cart = this.getCart();
-            if(licenses.length > 0){
+            if (licenses.length > 0) {
                 licenses.forEach((license) => {
                     // By Default, we remove the remove icon even if we would later add it when the unique_id matches
                     this.removeIconDeleteButton(license);
 
                     for (let [key, value] of cart.entries()) {
 
-                        if (trackSlugID !== key){
+                        if (trackSlugID !== key) {
                             continue;
                         }
 
                         let licenseUniqueID = license.dataset?.unique_id;
                         let cartStorageUniqueID = value?.unique_id;
-                        if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)){
+                        if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)) {
                             let buttonTitle = license.title;
                             let svgElement = license.querySelector('svg');
                             let useElement = license.querySelector('use');
 
-                            if (svgElement && useElement){
+                            if (svgElement && useElement) {
                                 license.dataset.remove_from_cart = 'true';
                                 license.title = 'Remove From Cart'
                                 svgElement.dataset.prev_button_title = buttonTitle;
@@ -158,7 +156,7 @@ export class TrackCart extends SimpleState {
     }
 
     RemoveItemFromCartWithUniqueID(args) {
-        if(args.length > 0){
+        if (args.length > 0) {
             let licenseButton = args[0];
             let licenseUniqueID = licenseButton.dataset?.unique_id;
             let trackSlugID = licenseButton.closest('[data-slug_id]')?.dataset.slug_id;
@@ -166,12 +164,12 @@ export class TrackCart extends SimpleState {
 
             for (let [key, value] of cart.entries()) {
 
-                if (trackSlugID !== key){
+                if (trackSlugID !== key) {
                     continue;
                 }
 
                 let cartStorageUniqueID = value?.unique_id;
-                if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)){
+                if ((licenseUniqueID && cartStorageUniqueID) && (licenseUniqueID === cartStorageUniqueID)) {
                     this.removeIconDeleteButton(licenseButton);
                     cart.delete(key);
                     localStorage.setItem(TrackCart.cartStorageKey, JSON.stringify(Array.from(cart)));
@@ -183,11 +181,11 @@ export class TrackCart extends SimpleState {
         return this.switchState(this.UpdateCartLicenseInfo, SimpleState.NEXT);
     }
 
-    removeIconDeleteButton(licenseButton){
+    removeIconDeleteButton(licenseButton) {
         let svgElement = licenseButton.querySelector('svg');
         let useElement = licenseButton.querySelector('use')
 
-        if (!licenseButton.dataset.hasOwnProperty('indie_license_type_is_free') && (svgElement && useElement)){
+        if (!licenseButton.dataset.hasOwnProperty('indie_license_type_is_free') && (svgElement && useElement)) {
             licenseButton.removeAttribute("data-remove_from_cart");
             licenseButton.title = svgElement?.dataset?.prev_button_title ?? licenseButton.title;
             svgElement.removeAttribute("data-prev_button_title");
@@ -213,16 +211,16 @@ export class TrackCart extends SimpleState {
         let checkoutEmailContainer = document.querySelector('.checkout-email-error-container');
         let checkoutEmailErrorMessageSpanEl = document.querySelector('.checkout-email-error');
 
-        if (checkoutEmailContainer){
+        if (checkoutEmailContainer) {
             checkoutEmailContainer.classList.remove('d:none');
         }
 
-        if (emailInput){
+        if (emailInput) {
             emailInput.setAttribute('aria-invalid', 'true');
             emailInput.setAttribute('aria-describedby', checkoutEmailErrorMessageSpanEl.id);
         }
 
-        if (checkoutEmailErrorMessageSpanEl){
+        if (checkoutEmailErrorMessageSpanEl) {
             checkoutEmailErrorMessageSpanEl.setAttribute('aria-live', 'assertive');
         }
     }
@@ -232,16 +230,16 @@ export class TrackCart extends SimpleState {
         let checkoutEmailContainer = document.querySelector('.checkout-email-error-container');
         let checkoutEmailErrorMessageSpanEl = document.querySelector('.checkout-email-error');
 
-        if (checkoutEmailContainer){
+        if (checkoutEmailContainer) {
             checkoutEmailContainer.classList.add('d:none');
         }
 
-        if (emailInput){
+        if (emailInput) {
             emailInput.setAttribute('aria-invalid', 'false');
             emailInput.removeAttribute('aria-describedby');
         }
 
-        if (checkoutEmailErrorMessageSpanEl){
+        if (checkoutEmailErrorMessageSpanEl) {
             checkoutEmailErrorMessageSpanEl.removeAttribute('aria-live');
         }
     }
@@ -254,13 +252,13 @@ export class TrackCart extends SimpleState {
         // Convert the Map returned by `this.getCart()` into an array using `Array.from()`, and then use the `Array.reduce()` method to calculate the total price.
         return Array.from(this.getCart().values())
             // if quantity is not available, we default to 1
-            .reduce((total, { price, quantity = 1 }) => {
+            .reduce((total, {price, quantity = 1}) => {
                 // For each item in the cart, check if it has a valid `price` property, and if so, calculate the item price by multiplying the price by the quantity.
                 if (price) {
                     total += parseFloat(price) * parseInt(quantity);
                 } else {
                     // If the item is missing a `price` property, log an error message to the console with details of the invalid item.
-                    console.error(`Invalid item in cart: ${JSON.stringify({ price, quantity })}`);
+                    console.error(`Invalid item in cart: ${JSON.stringify({price, quantity})}`);
                 }
 
                 return total; // Return the running total of item prices.
@@ -285,9 +283,9 @@ export class TrackCart extends SimpleState {
             </div>`;
     }
 
-    shakeCartButton(){
+    shakeCartButton() {
         let cartButton = document.querySelector('.cart-button');
-        if (cartButton){
+        if (cartButton) {
             cartButton.classList.add("jello-diagonal-1"); // Add Animation to cart button
             setTimeout(function () { // Remove Animation After 1 sec
                 cartButton.classList.remove("jello-diagonal-1");
@@ -307,7 +305,7 @@ class TonicsPaymentEventAbstract {
 
     constructor(event) {
         this.updateSettings();
-        if (this.isEnabled()){
+        if (this.isEnabled()) {
             this.bootPayment(event);
         }
     }
@@ -337,9 +335,10 @@ class TonicsPaymentEventAbstract {
 class OnPaymentGatewayCollatorEvent {
 
     checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
+    place_button = true;
 
     addPaymentButton(string) {
-        if (this.checkout_button_div_el) {
+        if (this.place_button && this.checkout_button_div_el) {
             let loadingAnimation = this.checkout_button_div_el.querySelector('.loading-button-payment-gateway');
             if (loadingAnimation && !loadingAnimation.classList.contains('d:none')) {
                 loadingAnimation.classList.add('d:none');
@@ -389,10 +388,10 @@ class OnPaymentGatewayCollatorEvent {
         let csrf = null;
         csrfNames.forEach(((value, index) => {
             let inputCSRF = document.querySelector(`input[name=${value}]`)?.value;
-            if (!inputCSRF){
+            if (!inputCSRF) {
                 inputCSRF = document.querySelector(`meta[name=${value}]`)?.content;
             }
-            if (!csrf && inputCSRF){
+            if (!csrf && inputCSRF) {
                 csrf = inputCSRF;
             }
         }))
@@ -452,7 +451,7 @@ class OnPaymentGatewayCollatorEvent {
 //--- PAYMENT HANDLERS
 //---------------------
 
-class DefaultTonicsPayStackWaveGateway extends TonicsPaymentEventAbstract{
+class DefaultTonicsPayStackWaveGateway extends TonicsPaymentEventAbstract {
     invoice_id = null;
     client_id = null;
     script_path = 'https://js.paystack.co/v2/inline.js';
@@ -515,7 +514,7 @@ class DefaultTonicsPayStackWaveGateway extends TonicsPaymentEventAbstract{
                                     amount: totalPrice,
                                     currency: currency,
                                     payment_options: "card",
-                                    callback: function(orderData) {
+                                    callback: function (orderData) {
                                         // Send AJAX verification request to backend
                                         if (orderData.status === 'successful') {
                                             const cart = new TrackCart();
@@ -546,7 +545,7 @@ class DefaultTonicsPayStackWaveGateway extends TonicsPaymentEventAbstract{
                                                 });
                                         }
                                     },
-                                    onclose: function(incomplete) {
+                                    onclose: function (incomplete) {
                                         console.log("Closed", incomplete)
                                     },
                                     meta: self.getItems(cart.getCart(), currency),
@@ -585,7 +584,7 @@ class DefaultTonicsPayStackWaveGateway extends TonicsPaymentEventAbstract{
 
 }
 
-class DefaultTonicsFlutterWaveGateway extends TonicsPaymentEventAbstract{
+class DefaultTonicsFlutterWaveGateway extends TonicsPaymentEventAbstract {
     invoice_id = null;
     client_id = null;
     script_path = 'https://checkout.flutterwave.com/v3.js';
@@ -647,7 +646,7 @@ class DefaultTonicsFlutterWaveGateway extends TonicsPaymentEventAbstract{
                                     amount: totalPrice,
                                     currency: currency,
                                     payment_options: "card",
-                                    callback: function(orderData) {
+                                    callback: function (orderData) {
                                         // Send AJAX verification request to backend
                                         if (orderData.status === 'successful') {
                                             const cart = new TrackCart();
@@ -678,7 +677,7 @@ class DefaultTonicsFlutterWaveGateway extends TonicsPaymentEventAbstract{
                                                 });
                                         }
                                     },
-                                    onclose: function(incomplete) {
+                                    onclose: function (incomplete) {
                                         console.log("Closed", incomplete)
                                     },
                                     meta: self.getFlutterWaveItems(cart.getCart(), currency),
@@ -820,7 +819,7 @@ class DefaultTonicsPayPalGateway extends TonicsPaymentEventAbstract {
                             invoice_id: self.invoice_id,
                             checkout_email: checkOutEmail.value,
                             orderData: orderData,
-                            cartItems:  Array.from(cart.getCart())
+                            cartItems: Array.from(cart.getCart())
                         };
 
                         event.sendBody(self.getPaymentName(), self.post_request_flow_address,

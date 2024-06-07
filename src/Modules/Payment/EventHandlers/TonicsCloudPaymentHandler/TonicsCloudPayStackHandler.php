@@ -18,11 +18,9 @@
 
 namespace App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler;
 
-use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Payment\Controllers\PaymentSettingsController;
-use App\Modules\Payment\Events\AudioTonics\OnAddTrackPaymentEvent;
+use App\Modules\Payment\Events\TonicsCloud\OnAddTonicsCloudPaymentEvent;
 use App\Modules\Payment\Events\TonicsPaymentInterface;
-use App\Modules\Payment\Jobs\TonicsCloud\TonicsCloudConfirmFlutterWavePayment;
 use App\Modules\Payment\Jobs\TonicsCloud\TonicsCloudConfirmPayStackPayment;
 use App\Modules\Payment\Library\Helper;
 use App\Modules\Payment\Library\TonicsCloudHelper;
@@ -30,17 +28,17 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class TonicsCloudPayStackHandler implements HandlerInterface, TonicsPaymentInterface
 {
-    const Query_ClientCredentials = 'ClientPaymentCredentials';
-    const Query_GenerateInvoiceID = 'GenerateInvoiceID';
+    const Query_ClientCredentials      = 'ClientPaymentCredentials';
+    const Query_GenerateInvoiceID      = 'GenerateInvoiceID';
     const Query_CapturedPaymentDetails = 'CapturedPaymentDetails';
 
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        /** @var $event OnAddTrackPaymentEvent */
+        /** @var $event OnAddTonicsCloudPaymentEvent */
         $event->addPaymentHandler($this);
     }
 
-    public function name(): string
+    public function name (): string
     {
         return 'TonicsCloudPayStackHandler';
     }
@@ -48,7 +46,7 @@ class TonicsCloudPayStackHandler implements HandlerInterface, TonicsPaymentInter
     /**
      * @throws \Exception
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return PaymentSettingsController::isEnabled(PaymentSettingsController::PayStack_Enabled);
     }
@@ -58,7 +56,7 @@ class TonicsCloudPayStackHandler implements HandlerInterface, TonicsPaymentInter
      * @throws \Exception
      * @throws \Throwable
      */
-    public function handlePayment(): void
+    public function handlePayment (): void
     {
         $queryType = url()->getHeaderByKey('PaymentQueryType');
         if ($queryType === self::Query_GenerateInvoiceID) {
@@ -77,20 +75,20 @@ class TonicsCloudPayStackHandler implements HandlerInterface, TonicsPaymentInter
                 $amount = $body->amount ?? 0;
                 $data = TonicsCloudHelper::CapturePaymentDetails([
                     'fk_customer_id' => session()::getUserID(),
-                    'total_price' => $amount,
-                    'others' => json_encode([
+                    'total_price'    => $amount,
+                    'others'         => json_encode([
                         'payment_email_address' => (isset($body->checkout_email)) ? $body->checkout_email : '',
-                        'invoice_id' => $body->invoice_id,
-                        'tx_ref' => $body->orderData->trxref,
-                        'paystack_trans' => $body->orderData->trans,
-                        'payment_method' => 'TonicsPayStack',
-                        'payment_amount' => $amount,
-                        'payment_multiplier' => 100,
-                        'tonics_solution' => PaymentSettingsController::TonicsSolution_TonicsCloud
+                        'invoice_id'            => $body->invoice_id,
+                        'tx_ref'                => $body->orderData->trxref,
+                        'paystack_trans'        => $body->orderData->trans,
+                        'payment_method'        => 'TonicsPayStack',
+                        'payment_amount'        => $amount,
+                        'payment_multiplier'    => 100,
+                        'tonics_solution'       => PaymentSettingsController::TonicsSolution_TonicsCloud,
                     ]),
                 ]);
 
-                if (isset($data['PURCHASE_RECORD'])){
+                if (isset($data['PURCHASE_RECORD'])) {
                     $confirmPayStackPayment = new TonicsCloudConfirmPayStackPayment();
                     $confirmPayStackPayment->setData($data['PURCHASE_RECORD']);
                     job()->enqueue($confirmPayStackPayment);
@@ -110,9 +108,10 @@ class TonicsCloudPayStackHandler implements HandlerInterface, TonicsPaymentInter
     /**
      * @param $secretKey
      * @param $id
+     *
      * @return mixed
      */
-    public static function getPayStackOrderDetails($secretKey, $id): mixed
+    public static function getPayStackOrderDetails ($secretKey, $id): mixed
     {
         $endPoint = "https://api.flutterwave.com/v3/transactions/$id/verify";
         $headers = [
@@ -131,7 +130,7 @@ class TonicsCloudPayStackHandler implements HandlerInterface, TonicsPaymentInter
     /**
      * @throws \Exception|\Throwable
      */
-    public function generateInvoiceID(): void
+    public function generateInvoiceID (): void
     {
         response()->onSuccess(uniqid('TonicsCloud_', true));
     }

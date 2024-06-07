@@ -22,7 +22,6 @@ use App\Apps\TonicsCloud\Schedules\CloudScheduleCheckCredits;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
-use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\RequestInterceptor\RefreshTreeSystem;
 use App\Modules\Field\Data\FieldData;
@@ -237,8 +236,6 @@ class TonicsCloudSettingsController
      */
     private function runUpdateSettings (): void
     {
-        Roles::UPDATE_DEFAULT_ROLES_PERMISSIONS();
-
         self::insertServerDefaultServices();
 
         $cloudScheduleCheckCredits = new CloudScheduleCheckCredits();

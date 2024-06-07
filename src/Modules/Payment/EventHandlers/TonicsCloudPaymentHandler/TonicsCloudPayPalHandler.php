@@ -19,7 +19,7 @@
 namespace App\Modules\Payment\EventHandlers\TonicsCloudPaymentHandler;
 
 use App\Modules\Payment\Controllers\PaymentSettingsController;
-use App\Modules\Payment\Events\AudioTonics\OnAddTrackPaymentEvent;
+use App\Modules\Payment\Events\TonicsCloud\OnAddTonicsCloudPaymentEvent;
 use App\Modules\Payment\Events\TonicsPaymentInterface;
 use App\Modules\Payment\Jobs\TonicsCloud\TonicsCloudConfirmPayPalPayment;
 use App\Modules\Payment\Library\Helper;
@@ -28,17 +28,17 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class TonicsCloudPayPalHandler implements HandlerInterface, TonicsPaymentInterface
 {
-    const Query_ClientCredentials = 'ClientPaymentCredentials';
-    const Query_GenerateInvoiceID = 'GenerateInvoiceID';
+    const Query_ClientCredentials      = 'ClientPaymentCredentials';
+    const Query_GenerateInvoiceID      = 'GenerateInvoiceID';
     const Query_CapturedPaymentDetails = 'CapturedPaymentDetails';
 
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        /** @var $event OnAddTrackPaymentEvent */
+        /** @var $event OnAddTonicsCloudPaymentEvent */
         $event->addPaymentHandler($this);
     }
 
-    public function name(): string
+    public function name (): string
     {
         return 'TonicsCloudPayPalHandler';
     }
@@ -46,7 +46,7 @@ class TonicsCloudPayPalHandler implements HandlerInterface, TonicsPaymentInterfa
     /**
      * @throws \Exception
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return PaymentSettingsController::isEnabled(PaymentSettingsController::PayPal_Enabled);
     }
@@ -55,7 +55,7 @@ class TonicsCloudPayPalHandler implements HandlerInterface, TonicsPaymentInterfa
      * @throws \Exception
      * @throws \Throwable
      */
-    public function handlePayment(): void
+    public function handlePayment (): void
     {
         $queryType = url()->getHeaderByKey('PaymentQueryType');
         if ($queryType === self::Query_GenerateInvoiceID) {
@@ -73,17 +73,17 @@ class TonicsCloudPayPalHandler implements HandlerInterface, TonicsPaymentInterfa
                 $body = json_decode($body);
                 $data = TonicsCloudHelper::CapturePaymentDetails([
                     'fk_customer_id' => session()::getUserID(),
-                    'total_price' => $body->totalPrice ?? 0,
-                    'others' => json_encode([
+                    'total_price'    => $body->totalPrice ?? 0,
+                    'others'         => json_encode([
                         'payment_email_address' => (isset($body->orderData->payer->email_address)) ? $body->orderData->payer->email_address : '',
-                        'invoice_id' => $body->invoice_id,
-                        'order_id' => $body->orderData->id, // this is for PayPal
-                        'payment_method' => 'TonicsPayPal',
-                        'tonics_solution' => PaymentSettingsController::TonicsSolution_TonicsCloud
+                        'invoice_id'            => $body->invoice_id,
+                        'order_id'              => $body->orderData->id, // this is for PayPal
+                        'payment_method'        => 'TonicsPayPal',
+                        'tonics_solution'       => PaymentSettingsController::TonicsSolution_TonicsCloud,
                     ]),
                 ]);
 
-                if (isset($data['PURCHASE_RECORD'])){
+                if (isset($data['PURCHASE_RECORD'])) {
                     $confirmPayPalPayment = new TonicsCloudConfirmPayPalPayment();
                     $confirmPayPalPayment->setData($data['PURCHASE_RECORD']);
                     job()->enqueue($confirmPayPalPayment);
@@ -103,7 +103,7 @@ class TonicsCloudPayPalHandler implements HandlerInterface, TonicsPaymentInterfa
     /**
      * @throws \Exception|\Throwable
      */
-    public function generateInvoiceID(): void
+    public function generateInvoiceID (): void
     {
         response()->onSuccess(uniqid('TonicsCloud_', true));
     }

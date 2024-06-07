@@ -530,11 +530,11 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
         tempEl.parentNode.removeChild(tempEl);
 
         /*
-        // THIS ONE KEEP LOSING SELECT DATA BUT THE TEMP VERSION ABOVE WORKS SUPERB
-        let copyEl1 = el1.cloneNode(true);
-        let copyEl2 = el2.cloneNode(true);
-        el1.replaceWith(copyEl2);
-        el2.replaceWith(copyEl1);*/
+            // THIS ONE KEEP LOSING SELECT DATA BUT THE TEMP VERSION ABOVE WORKS SUPERB
+            let copyEl1 = el1.cloneNode(true);
+            let copyEl2 = el2.cloneNode(true);
+            el1.replaceWith(copyEl2);
+            el2.replaceWith(copyEl1);*/
     }
 
     el2.addEventListener("transitionend", () => {
@@ -2710,9 +2710,10 @@ class TonicsPaymentEventAbstract {
 class OnPaymentGatewayCollatorEvent {
 
     checkout_button_div_el = document.querySelector('.checkout-payment-gateways-buttons');
+    place_button = true;
 
     addPaymentButton(string) {
-        if (this.checkout_button_div_el) {
+        if (this.place_button && this.checkout_button_div_el) {
             let loadingAnimation = this.checkout_button_div_el.querySelector('.loading-button-payment-gateway');
             if (loadingAnimation && !loadingAnimation.classList.contains('d:none')) {
                 loadingAnimation.classList.add('d:none');

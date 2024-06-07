@@ -1,5 +1,3 @@
-
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -29,9 +27,8 @@ function getTonicsCloudCustomerEmail() {
     return document.querySelector(`input[name="customer_email"]`)?.value;
 }
 
-function paymentTonicsCloudValidation()
-{
-    if (getTonicsCloudCreditAmount() < 1){
+function paymentTonicsCloudValidation() {
+    if (getTonicsCloudCreditAmount() < 1) {
         window.TonicsScript.infoToast('Payment Amount Must Be At Least $1.00 or Higher', 10000);
         throw new DOMException("Payment Amount Must Be At Least $1.00");
     }
@@ -150,7 +147,7 @@ class TonicsCloudTonicsFlutterWaveGateway extends DefaultTonicsFlutterWaveGatewa
                                 amount: totalPrice,
                                 currency: currency,
                                 payment_options: "card, account, banktransfer",
-                                callback: function(orderData) {
+                                callback: function (orderData) {
                                     // Send AJAX verification request to backend
                                     if (orderData.status === 'successful') {
                                         const body = {
@@ -172,7 +169,7 @@ class TonicsCloudTonicsFlutterWaveGateway extends DefaultTonicsFlutterWaveGatewa
                                             });
                                     }
                                 },
-                                onclose: function(incomplete) {
+                                onclose: function (incomplete) {
                                     console.log("Closed", incomplete)
                                 },
                                 customer: {

@@ -20,13 +20,20 @@ namespace App\Modules\Core\Boot\ModuleRegistrar\Interfaces;
 
 use App\Apps\TonicsAppStore\Route\Routes;
 use App\Modules\Core\Configs\DatabaseConfig;
+use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsRouterSystem\Route;
 
 abstract class AbstractExtension implements ExtensionConfig, FieldItemsExtensionConfig
 {
     use Routes;
 
-    static array $TABLES = [];
+    static array        $TABLES = [];
+    protected FieldData $fieldData;
+
+    public function __construct (FieldData $fieldData)
+    {
+        $this->fieldData = $fieldData;
+    }
 
     public function enabled (): bool
     {

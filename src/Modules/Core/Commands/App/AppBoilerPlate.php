@@ -31,26 +31,27 @@ class AppBoilerPlate implements ConsoleCommand
 {
     use ConsoleColor;
 
-    public function required(): array
+    public function required (): array
     {
-        return  [
+        return [
             "--app",
-            "--type"
+            "--type",
         ];
     }
 
     /**
      * @param array $commandOptions
+     *
      * @return void
      * @throws \Exception
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
         $result = true;
         $helper = helper();
         $s = DIRECTORY_SEPARATOR;
         $appBoilerPlateExample = APP_ROOT . "{$s}src{$s}Modules{$s}Core{$s}Commands{$s}Module{$s}Template{$s}AppExample";
-        if (empty($commandOptions['--app'])){
+        if (empty($commandOptions['--app'])) {
             $this->errorMessage('--app name is empty');
         } else {
             $appName = helper()->normalizeFileName($commandOptions['--app'], '');
@@ -58,25 +59,26 @@ class AppBoilerPlate implements ConsoleCommand
             $appName = str_replace(' ', '', ucwords(strtolower($appName)));
             $dest = AppConfig::getAppsPath() . $s . $appName;
 
-            if ($helper->fileExists($dest)){
+            if ($helper->fileExists($dest)) {
                 $this->errorMessage($appName . ' already exist');
-            }elseif ($helper->isReadable(AppConfig::getAppsPath()) && $helper->isWritable(AppConfig::getAppsPath())){
+            } elseif ($helper->isReadable(AppConfig::getAppsPath()) && $helper->isWritable(AppConfig::getAppsPath())) {
                 $result = $helper->copyFolder($appBoilerPlateExample, $dest);
                 $activatorCopy = $helper->replacePlaceHolders($this->getAppActivatorString(), [
-                    '{{AppType}}' => $commandOptions['--type'] ?: 'App',
+                    '{{AppType}}'    => $commandOptions['--type'] ?: 'App',
                     '{{AppExample}}' => $appName,
-                    '{{timestamp}}' => time()
+                    '{{timestamp}}'  => time(),
                 ]);
-                $activatorPath = $dest . $s . $appName .'Activator.php';
-                if ($result && @file_put_contents($activatorPath, $activatorCopy) !== false){
-                    foreach ($helper->recursivelyScanDirectory($dest) as $file){
-                        if (!$file->isReadable() || !$file->isWritable()){
-                            $result = false; break;
+                $activatorPath = $dest . $s . $appName . 'Activator.php';
+                if ($result && @file_put_contents($activatorPath, $activatorCopy) !== false) {
+                    foreach ($helper->recursivelyScanDirectory($dest) as $file) {
+                        if (!$file->isReadable() || !$file->isWritable()) {
+                            $result = false;
+                            break;
                         }
-                        if ($file->isFile()){
+                        if ($file->isFile()) {
                             $templateToCopy = $helper->replacePlaceHolderInAFile($file->getRealPath(), [
                                 '{{AppExample}}' => $appName,
-                                '{{timestamp}}' => time()
+                                '{{timestamp}}'  => time(),
                             ]);
                             $res = file_put_contents($file->getRealPath(), $templateToCopy);
                             if ($res === false) {
@@ -89,12 +91,12 @@ class AppBoilerPlate implements ConsoleCommand
 
         }
 
-        if (!$result){
+        if (!$result) {
             $this->errorMessage('An Error Occurred Creating App Boiler Plate');
         }
     }
 
-    private function getAppActivatorString(): string
+    private function getAppActivatorString (): string
     {
         return <<<'PHP'
 <?php
@@ -166,6 +168,7 @@ class {{AppExample}}Activator implements ExtensionConfig
         return [
             "name" => "{{AppExample}}",
             "type" => "{{AppType}}", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id" => "", // Slug ID in Tonics App Store, leave empty if not hosted on Tonics App Store
             // the first portion is the version number, the second is the code name and the last is the timestamp
             "version" => '1-O-app.{{timestamp}}',
             "description" => "This is {{AppExample}}",

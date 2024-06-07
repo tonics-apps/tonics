@@ -81,4 +81,18 @@ abstract class AbstractService
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getErrorsAsString (): string
+    {
+        $error = '';
+        $messages = iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->getErrors())), 0);
+        foreach ($messages as $message) {
+            $error .= $message . ', ';
+        }
+
+        return rtrim($error, ', ');
+    }
+
 }

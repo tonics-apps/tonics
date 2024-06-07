@@ -46,27 +46,27 @@ class SetModeHandler extends TonicsTemplateViewAbstract implements TonicsModeInt
 
     private string $error = '';
 
-    public function validate(OnTagToken $tagToken): bool
+    public function validate (OnTagToken $tagToken): bool
     {
         $view = $this->getTonicsView();
-        return $view->validateMaxArg($tagToken->getArg(), 'Set', 2,2);
+        return $view->validateMaxArg($tagToken->getArg(), 'Set', 2, 2);
     }
 
-    public function stickToContent(OnTagToken $tagToken)
+    public function stickToContent (OnTagToken $tagToken): void
     {
         $view = $this->getTonicsView();
         $view->getContent()->addToContent('set', '', $tagToken->getArg());
     }
 
-    public function error(): string
+    public function error (): string
     {
         return $this->error;
     }
 
-    public function render(string $content, array $args, array $nodes = []): string
+    public function render (string $content, array $args, array $nodes = []): string
     {
         $view = $this->getTonicsView();
-        if ($view->checkArrayKeyExistence($args[1])){
+        if ($view->checkArrayKeyExistence($args[1])) {
             $view->addToVariableData($args[0], $view->accessArrayWithSeparator($args[1]));
         } else {
             $view->addToVariableData($args[0], $args[1]);

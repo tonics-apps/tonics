@@ -493,9 +493,21 @@ class AppConfig
         return env('INSTALL_KEY');
     }
 
-    public static function getAppUpdateKey (): string
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public static function getAppSiteKey (): string
     {
-        return env('UPDATE_KEY', 'NULL');
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppSiteKey, env('SITE_KEY', 'NULL'));
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function getAppPostEndpoint (): ?string
+    {
+        return env('APP_POST_ENDPOINT', null);
     }
 
     /**
