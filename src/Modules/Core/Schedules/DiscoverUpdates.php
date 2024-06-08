@@ -18,7 +18,6 @@
 
 namespace App\Modules\Core\Schedules;
 
-use App\Modules\Core\Commands\UpdateMechanism\Updates;
 use App\Modules\Core\Library\ConsoleColor;
 use App\Modules\Core\Library\SchedulerSystem\AbstractSchedulerInterface;
 use App\Modules\Core\Library\SchedulerSystem\ScheduleHandlerInterface;
@@ -30,7 +29,7 @@ class DiscoverUpdates extends AbstractSchedulerInterface implements ScheduleHand
 {
     use ConsoleColor;
 
-    public function __construct()
+    public function __construct ()
     {
         $this->setName('Core_DiscoverUpdates');
         $this->setPriority(Scheduler::PRIORITY_MEDIUM);
@@ -44,11 +43,13 @@ class DiscoverUpdates extends AbstractSchedulerInterface implements ScheduleHand
     /**
      * @throws \Exception
      */
-    public function handle(): void
+    public function handle (): void
     {
-        $updateMechanismState = new UpdateMechanismState(types: ['module', 'app'], discoveredFrom: UpdateMechanismState::DiscoveredFromConsole);
+        $updateMechanismState = new UpdateMechanismState([
+            UpdateMechanismState::SettingsKeyTypes => [UpdateMechanismState::SettingsTypeApp, UpdateMechanismState::SettingsTypeModule],
+        ]);
         $updateMechanismState->runStates(false);
-        if ($updateMechanismState->getStateResult() === SimpleState::DONE){
+        if ($updateMechanismState->getStateResult() === SimpleState::DONE) {
             $this->successMessage('Apps and Modules Discovery Update Check Done');
         }
     }

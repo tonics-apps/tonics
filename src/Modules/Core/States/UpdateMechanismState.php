@@ -40,9 +40,108 @@ class UpdateMechanismState extends SimpleState
     const DownloadModulesState = 'DownloadModulesState';
     const DownloadAppsState    = 'DownloadAppsState';
 
-    const ExamineCollation      = 'ExamineCollation';
+    const ExamineCollation = 'ExamineCollation';
+
+    # Discovered From Wia
     const DiscoveredFromConsole = 'console';
     const DiscoveredFromBrowser = 'browser';
+
+    # Settings Const
+    const SettingsTypeApp        = 'app';
+    const SettingsTypeModule     = 'module';
+    const SettingsActionDiscover = 'discover';
+    const SettingsActionUpdate   = 'update';
+
+    # Settings Key For Constructor
+    /**
+     * `Accept: []`
+     *
+     * Array names of what you are updating or discovering, e.g `['Core', 'Post', ...]`
+     */
+    const SettingsKeyUpdates = 'Updates';
+    /**
+     * `Accept: []`
+     *
+     * The Update Type, can either be `['App' or 'Module' or both 'App' and 'Modules']`, if you are doing an update, you can only have one type,
+     * however, you can have multiple types if you want to discover new releases
+     */
+    const SettingsKeyTypes = 'Types';
+    /**
+     * `Accept: STRING`
+     *
+     * 'Discover' or 'Update', Discover pulls the latest version while Update, discovers and update
+     */
+    const SettingsKeyAction = 'Action';
+    /**
+     * `Accept: []`
+     *
+     * The collation of the apps/modules.
+     * Good, for testing, if there is collate, it would use that instead of accessing the collation in the database
+     */
+    const SettingsKeyCollate = 'Collate';
+    /**
+     * `Accept: STRING`
+     *
+     * State you want to start from, this defaults to initialState
+     */
+    const SettingsKeyCurrentState = 'CurrentState';
+    /**
+     * `Accept: STRING`
+     *
+     * Where the app should be uploaded to, default to: AppConfig::getAppsPath()
+     */
+    const SettingsKeyAppPath = 'AppPath';
+    /**
+     * `Accept: STRING`
+     *
+     * Where module should be uploaded to, default to: AppConfig::getModulesPath()
+     */
+    const SettingsKeyModulePath = 'ModulePath';
+    /**
+     * `Accept: STRING`
+     *
+     * Temp path to use when downloading apps, it uses a nice default if none is set
+     */
+    const SettingsKeyTempPath = 'TempPath';
+    /**
+     * `Accept: []`
+     *
+     * All App directories, it uses the default app locations
+     */
+    const SettingsKeyAppDirectories = 'AppDirectories';
+    /**
+     * `Accept: []`
+     *
+     * All Module directories, it uses the default app locations
+     */
+    const SettingsKeyModuleDirectories = 'ModuleDirectories';
+    /**
+     * `Accept: callable($classString)`
+     *
+     * Handle when app or module has successfully updated, it gives you the `$classString` of whatever got updated.
+     *
+     * If this is null, it would default to enqueuing HandleOnUpdate, use a voided function as callable to override that if you do not
+     *  want to do anything.
+     */
+    const SettingsKeyHandleOnUpdateSuccess = 'HandleOnUpdateSuccess';
+
+    /**
+     * `Accept: Bool`
+     *
+     * Whether you want verbosity or not
+     */
+    const SettingsKeyVerbosity = 'Verbosity';
+
+    # ALL AVAILABLE STATES
+    public static array $STATES = [
+        self::InitialState         => self::InitialState,
+        self::ModuleUpdateState    => self::ModuleUpdateState,
+        self::AppUpdateState       => self::AppUpdateState,
+        self::DownloadModulesState => self::DownloadModulesState,
+        self::DownloadAppsState    => self::DownloadAppsState,
+        self::ExamineCollation     => self::ExamineCollation,
+    ];
+
     public static array $TYPES      = [
         'module' => self::ModuleUpdateState,
         'app'    => self::AppUpdateState,
@@ -51,23 +150,76 @@ class UpdateMechanismState extends SimpleState
         'module' => self::DownloadModulesState,
         'app'    => self::DownloadAppsState,
     ];
+    private array       $settings;
     private array       $updates;
     private array       $types;
     private string      $action;
     private string      $discoveredFrom;
     private array       $collate;
+    private array       $appDirectories;
+    private array       $moduleDirectories;
+    private string      $appPath;
+    private string      $modulePath;
+    private ?string     $tempPath;
+    private bool        $verbosity  = true;
+    private ?\Closure   $handleOnUpdateSuccess;
 
-    public function __construct (array $updates = [], array $types = [], string $action = 'discover', string $discoveredFrom = self::DiscoveredFromConsole)
+    /**
+     * Settings can contain the following, all the below as a default, except Updates, Types and Action:
+     *
+     * ```
+     * [
+     *      UpdateMechanismState::SettingsKeyUpdates => ['...'],
+     *      UpdateMechanismState::SettingsKeyTypes => => ['...'],
+     *      UpdateMechanismState::SettingsKeyAction => 'Discover' or 'Update',
+     *      UpdateMechanismState::SettingsKeyCollate => [], // If there is collate, it would use that instead of accessing the collation in the database
+     *      UpdateMechanismState::SettingsKeyCurrentState => '...',
+     *      UpdateMechanismState::SettingsKeyAppPath => '...',
+     *      UpdateMechanismState::SettingsKeyModulePath => '...',
+     *      UpdateMechanismState::SettingsKeyAppDirectories => '[...]',
+     *      UpdateMechanismState::SettingsKeyModuleDirectories => '[...]',
+     *      UpdateMechanismState::SettingsKeyTempPath => '...',
+     *      UpdateMechanismState::SettingsKeyVerbosity => true or false,
+     * ]
+     * ```
+     *
+     * @param array $settings
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function __construct (array $settings = [])
     {
-        $this->updates = $updates;
-        $this->types = $types;
-        $this->action = match ($action) {
+        $this->settings = $settings;
+        $this->setUpdates($settings[self::SettingsKeyUpdates] ?? []);
+        $this->setTypes($settings[self::SettingsKeyTypes] ?? []);
+        $this->action = match (strtolower($settings[self::SettingsKeyAction] ?? '')) {
             'update' => 'update',
             default => 'discover',
         };
-        $this->collate = [];
-        $this->discoveredFrom = $discoveredFrom;
-        $this->setCurrentState(self::InitialState);
+
+        $this->appPath = $settings[self::SettingsKeyAppPath] ?? AppConfig::getAppsPath();
+        $this->modulePath = $settings[self::SettingsKeyModulePath] ?? AppConfig::getModulesPath();
+
+        $this->appDirectories = $settings[self::SettingsKeyAppDirectories] ?? helper()->getAllAppsDirectory();
+        $this->moduleDirectories = $settings[self::SettingsKeyModuleDirectories] ?? helper()->getAllModulesDirectory();
+
+        $this->tempPath = $settings[self::SettingsKeyTempPath] ?? null;
+
+        $this->setCollate($settings[self::SettingsKeyCollate] ?? []);
+
+        $this->discoveredFrom = (helper()->isCLI()) ? self::DiscoveredFromConsole : self::DiscoveredFromBrowser;
+
+        $currentState = $settings[self::SettingsKeyCurrentState] ?? self::InitialState;
+
+        if (!isset(self::$STATES[$currentState])) {
+            throw new \Exception("There is No State Such as $currentState");
+        }
+
+        $this->setCurrentState($currentState);
+        $this->setHandleOnUpdateSuccess($settings[self::SettingsKeyHandleOnUpdateSuccess] ?? null);
+        $this->setVerbosity($settings[self::SettingsKeyVerbosity] ?? true);
+        helper()->updateActivateEventStreamMessage($this->isVerbosity());
     }
 
     public function isDiscover (): bool
@@ -113,32 +265,39 @@ class UpdateMechanismState extends SimpleState
             }
         }
 
-        $oldCollate = AppConfig::getAppUpdatesObject();
-        if (is_array($oldCollate)) {
-            foreach ($oldCollate as $type => $collate) {
-                $type = strtolower($type);
-                if (key_exists($type, self::$TYPES) && is_array($oldCollate[$type])) {
-                    if (isset($this->collate[$type]) && is_array($this->collate[$type])) {
-                        $this->collate[$type] = [...$oldCollate[$type], ...$this->collate[$type]];
-                    } else {
-                        $this->collate[$type] = $oldCollate[$type];
+        # If this is not set, then, we can do the DB operation, otherwise, it could only mean user want to bypass the DB
+        if (!isset($this->settings['Collate'])) {
+            $oldCollate = AppConfig::getAppUpdatesObject();
+            if (is_array($oldCollate)) {
+                foreach ($oldCollate as $type => $collate) {
+                    $type = strtolower($type);
+                    if (key_exists($type, self::$TYPES) && is_array($oldCollate[$type])) {
+                        if (isset($this->collate[$type]) && is_array($this->collate[$type])) {
+                            $this->collate[$type] = [...$oldCollate[$type], ...$this->collate[$type]];
+                        } else {
+                            $this->collate[$type] = $oldCollate[$type];
+                        }
                     }
                 }
             }
-        }
 
-        if (!empty($this->collate)) {
-            db(onGetDB: function (TonicsQuery $db) use ($globalTable) {
-                $db->insertOnDuplicate(
-                    $globalTable,
-                    [
-                        'key'   => 'updates',
-                        'value' => json_encode($this->collate),
-                    ],
-                    ['value'],
-                );
-            });
+            if (!empty($this->collate)) {
+                db(onGetDB: function (TonicsQuery $db) use ($globalTable) {
+                    $db->insertOnDuplicate(
+                        $globalTable,
+                        [
+                            'key'   => 'updates',
+                            'value' => json_encode($this->collate),
+                        ],
+                        ['value'],
+                    );
+                });
 
+                if ($this->action === 'update') {
+                    return $this->switchState(self::ExamineCollation, self::NEXT);
+                }
+            }
+        } else {
             if ($this->action === 'update') {
                 return $this->switchState(self::ExamineCollation, self::NEXT);
             }
@@ -154,7 +313,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         # Discover Module Releases...
-        $modules = $tonicsHelper->getModuleActivators([ExtensionConfig::class]);
+        $modules = $tonicsHelper->getModuleActivators([ExtensionConfig::class], $this->moduleDirectories);
         helper()->sendMsg(self::getCurrentState(), "Discovering Module Update URLS");
         $this->discover('module', $modules);
     }
@@ -166,7 +325,7 @@ class UpdateMechanismState extends SimpleState
     {
         $tonicsHelper = helper();
         # Discover Applications Releases...
-        $appsActivators = $tonicsHelper->getAppsActivator([ExtensionConfig::class], installed: false);
+        $appsActivators = $tonicsHelper->getAppsActivator([ExtensionConfig::class], $this->appDirectories, installed: false);
         helper()->sendMsg(self::getCurrentState(), "Discovering Apps Update URLS");
         $this->discover('app', $appsActivators);
     }
@@ -196,18 +355,21 @@ class UpdateMechanismState extends SimpleState
             return self::ERROR;
         }
 
-        $globalTable = Tables::getTable(Tables::GLOBAL);
-        if (!empty($this->collate)) {
-            db(onGetDB: function (TonicsQuery $db) use ($globalTable) {
-                $db->insertOnDuplicate(
-                    $globalTable,
-                    [
-                        'key'   => 'updates',
-                        'value' => json_encode($this->collate),
-                    ],
-                    ['value'],
-                );
-            });
+        # If this is not set, then, we can do the DB operation, otherwise, it could only mean user want to bypass the DB
+        if (!isset($this->settings['Collate'])) {
+            $globalTable = Tables::getTable(Tables::GLOBAL);
+            if (!empty($this->collate)) {
+                db(onGetDB: function (TonicsQuery $db) use ($globalTable) {
+                    $db->insertOnDuplicate(
+                        $globalTable,
+                        [
+                            'key'   => 'updates',
+                            'value' => json_encode($this->collate),
+                        ],
+                        ['value'],
+                    );
+                });
+            }
         }
 
         return self::DONE;
@@ -219,7 +381,7 @@ class UpdateMechanismState extends SimpleState
     public function DownloadAppsState (): void
     {
         try {
-            $this->downloadExtractCopy('app', AppConfig::getAppsPath());
+            $this->downloadExtractCopy('app', $this->appPath);
         } catch (\Throwable $throwable) {
             $this->setErrorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
@@ -233,7 +395,7 @@ class UpdateMechanismState extends SimpleState
     public function DownloadModulesState (): void
     {
         try {
-            $this->downloadExtractCopy('module', AppConfig::getModulesPath());
+            $this->downloadExtractCopy('module', $this->modulePath);
         } catch (\Throwable $throwable) {
             $this->setErrorMessage($throwable->getMessage());
             $this->setStateResult(SimpleState::ERROR);
@@ -287,24 +449,37 @@ class UpdateMechanismState extends SimpleState
         $tonicsHelper = helper();
         $modules = $this->collate[$type] ?? [];
         foreach ($modules as $classString => $module) {
-
             if (!$this->isValidModuleApp($classString)) {
                 continue;
             }
 
-            /** @var ExtensionConfig $object */
-            $object = container()->get($classString);
-            $moduleOrAppTimeStamp = helper()->getTimeStampFromVersion($object->info()['version'] ?? '');
+            if (isset($module['module_timestamp'])) {
+                $moduleOrAppTimeStamp = $module['module_timestamp'];
+            } else {
+                /** @var ExtensionConfig $object */
+                $object = container()->get($classString);
+                $moduleOrAppTimeStamp = helper()->getTimeStampFromVersion($object->info()['version'] ?? '');
+            }
+
             $updateTimeStamp = $module['release_timestamp'] ?? '';
             $canUpdate = $updateTimeStamp > $moduleOrAppTimeStamp;
 
             if ($canUpdate && !empty($module['download_url'])) {
                 $appInstallationService = $this->getAppInstallationService();
-                $appInstallationService->uploadApp($module['download_url'], [
-                    'AppType'   => ($type === 'module') ? 1 : 2,
-                    'Signature' => $module['hash'] ?? '',
-                ]);
+                $settings = [
+                    'AppType'    => ($type === 'module') ? 1 : 2,
+                    'Signature'  => $module['hash'] ?? '',
+                    'AppPath'    => $this->appPath,
+                    'ModulePath' => $this->modulePath,
+                    'TempPath'   => $this->tempPath,
+                ];
 
+                # Override remote download and download from the local storage instead
+                if (isset($module['download_url_override'])) {
+                    $settings['DownloadURLOverride'] = $module['download_url_override'];
+                }
+
+                $appInstallationService->uploadApp($module['download_url'], $settings);
                 $appModulePathFolder = $dirPath . DIRECTORY_SEPARATOR . $module['folder_name'];
 
                 if ($appInstallationService->fails()) {
@@ -314,9 +489,9 @@ class UpdateMechanismState extends SimpleState
                     break;
                 } else {
                     # Fire OnUpdate App/Module
-                    $onUpdateMigration = new HandleOnUpdate($classString, self::getBinRestartServiceTimestamp());
-                    job()->enqueue($onUpdateMigration);
-
+                    $handleCall = $this->getHandleOnUpdateSuccess();
+                    $handleCall($classString);
+                    $this->setSuccessMessage($appInstallationService->getMessage());
                     $this->collate[$type][$classString]['can_update'] = false;
                     $tonicsHelper->tonicsChmodRecursive($appModulePathFolder);
                 }
@@ -332,6 +507,7 @@ class UpdateMechanismState extends SimpleState
      * - there is an update
      *
      * @param string|object $objectOrClass
+     * @param bool $checkNameInUpdates
      *
      * @return bool
      * @throws \ReflectionException
@@ -339,12 +515,14 @@ class UpdateMechanismState extends SimpleState
      */
     private function isValidModuleApp (string|object $objectOrClass, bool $checkNameInUpdates = true): bool
     {
-        $string = $objectOrClass::class;
+        if (is_object($objectOrClass)) {
+            $objectOrClass = $objectOrClass::class;
+        }
         $ref = new \ReflectionClass($objectOrClass);
         $dir = dirname($ref->getFileName());
         $dirName = helper()->getFileName($dir);
 
-        $result = helper()->classImplements($string, [ExtensionConfig::class]);
+        $result = helper()->classImplements($objectOrClass, [ExtensionConfig::class]);
         if ($checkNameInUpdates) {
             return $result && key_exists(strtolower($dirName), $this->updates);
         }
@@ -366,34 +544,6 @@ class UpdateMechanismState extends SimpleState
         }
 
         return null;
-    }
-
-    /**
-     * @param string $url
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    private function getJSONFromURL (string $url): mixed
-    {
-        $siteKey = AppConfig::getAppSiteKey();
-        // update_key could be used to identify a site in case of premium plugins and or themes
-        $curl = curl_init($url . "?site_key=$siteKey");
-        curl_setopt_array($curl, [
-            CURLOPT_SSL_VERIFYHOST       => false,
-            CURLOPT_PROXY_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYSTATUS     => false,
-            CURLOPT_DNS_CACHE_TIMEOUT    => false,
-            CURLOPT_DNS_USE_GLOBAL_CACHE => false,
-            CURLOPT_FOLLOWLOCATION       => false,
-            CURLOPT_RETURNTRANSFER       => true,
-            CURLOPT_HTTPHEADER           => ['Accept: application/json'],
-            CURLOPT_MAXREDIRS            => 1,
-            CURLOPT_USERAGENT            => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-        ]);
-        $response = curl_exec($curl);
-        curl_close($curl);
-        return json_decode($response, flags: JSON_PRETTY_PRINT);
     }
 
     /**
@@ -422,6 +572,7 @@ class UpdateMechanismState extends SimpleState
     public function setUpdates (array $updates): UpdateMechanismState
     {
         $this->updates = $updates;
+        $this->settings[self::SettingsKeyUpdates] = $updates;
         return $this;
     }
 
@@ -441,6 +592,7 @@ class UpdateMechanismState extends SimpleState
     public function setTypes (array $types): UpdateMechanismState
     {
         $this->types = $types;
+        $this->settings[self::SettingsKeyTypes] = $types;
         return $this;
     }
 
@@ -460,6 +612,7 @@ class UpdateMechanismState extends SimpleState
     public function setAction (string $action): UpdateMechanismState
     {
         $this->action = $action;
+        $this->settings[self::SettingsKeyAction] = $action;
         return $this;
     }
 
@@ -473,9 +626,56 @@ class UpdateMechanismState extends SimpleState
 
     /**
      * @param array $collate
+     *
+     * @return UpdateMechanismState
      */
-    public function setCollate (array $collate): void
+    public function setCollate (array $collate): UpdateMechanismState
     {
         $this->collate = $collate;
+        $this->settings[self::SettingsKeyCollate] = $collate;
+        return $this;
+    }
+
+    public function getHandleOnUpdateSuccess (): ?\Closure
+    {
+        return $this->handleOnUpdateSuccess;
+    }
+
+    /**
+     * If this is null, it would default to enqueuing HandleOnUpdate, use a voided function as callable to override that if you do not
+     * want to do anything.
+     *
+     * @param \Closure|null $handleOnUpdateSuccess
+     *
+     * @return $this
+     */
+    public function setHandleOnUpdateSuccess (?\Closure $handleOnUpdateSuccess): UpdateMechanismState
+    {
+        if ($handleOnUpdateSuccess === null) {
+            $handleOnUpdateSuccess = function ($classString) {
+                job()->enqueue(new HandleOnUpdate($classString, self::getBinRestartServiceTimestamp()));
+            };
+        }
+
+        $this->handleOnUpdateSuccess = $handleOnUpdateSuccess;
+        $this->settings[self::SettingsKeyHandleOnUpdateSuccess] = $handleOnUpdateSuccess;
+        return $this;
+    }
+
+    public function isVerbosity (): bool
+    {
+        return $this->verbosity;
+    }
+
+    /**
+     * @param bool $verbosity
+     *
+     * @return $this
+     */
+    public function setVerbosity (bool $verbosity): UpdateMechanismState
+    {
+        $this->verbosity = $verbosity;
+        $this->settings[self::SettingsKeyVerbosity] = $verbosity;
+        return $this;
     }
 }

@@ -50,12 +50,12 @@ use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 class Updates implements ConsoleCommand
 {
 
-    public function required(): array
+    public function required (): array
     {
         return [
             "--update",
             "--type",
-            "--action"
+            "--action",
         ];
     }
 
@@ -63,15 +63,16 @@ class Updates implements ConsoleCommand
      * @throws \Exception
      * @throws \Throwable
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
-        $updates = explode(',', $commandOptions['--update']);
-        $types = explode(',', $commandOptions['--type']);
         $actions = explode(',', $commandOptions['--action'])[0];
-        $updateMechanismState = new UpdateMechanismState($updates, $types, $actions);
-        $updateMechanismState->setCurrentState(UpdateMechanismState::InitialState);
+        $updateMechanismState = new UpdateMechanismState([
+            UpdateMechanismState::SettingsKeyUpdates => explode(',', $commandOptions['--update']),
+            UpdateMechanismState::SettingsKeyTypes   => explode(',', $commandOptions['--type']),
+            UpdateMechanismState::SettingsKeyAction  => $actions,
+        ]);
         $updateMechanismState->runStates(false);
-        if ($updateMechanismState->getStateResult() === SimpleState::DONE){
+        if ($updateMechanismState->getStateResult() === SimpleState::DONE) {
             if ($actions === 'update') {
                 AppConfig::addUpdateMigrationsJob();
                 AppConfig::updateRestartService();
