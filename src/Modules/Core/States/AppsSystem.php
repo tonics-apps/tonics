@@ -241,7 +241,7 @@ class AppsSystem extends SimpleState
         } elseif (!empty($deletedApp)) {
             apcu_clear_cache();
             $deletedApp = implode(', ', $deletedApp);
-            $this->setSucessMessage("[$deletedApp] App Deleted");
+            $this->setSuccessMessage("[$deletedApp] App Deleted");
             AppConfig::updateRestartService();
             RefreshTreeSystem::RefreshTreeSystem();
             return self::DONE;
@@ -276,20 +276,28 @@ class AppsSystem extends SimpleState
 
                     # is module
                     if (str_starts_with($appDirPath, AppConfig::getModulesPath())) {
-                        $moduleUpdate = new UpdateMechanismState();
-                        $moduleUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['module'])->setAction('update')
-                            ->runStates(false);
+                        $moduleUpdate = new UpdateMechanismState([
+                            UpdateMechanismState::SettingsKeyUpdates => [helper()->getFileName($appDirPath)],
+                            UpdateMechanismState::SettingsKeyAction  => UpdateMechanismState::SettingsActionUpdate,
+                            UpdateMechanismState::SettingsKeyTypes   => [UpdateMechanismState::SettingsTypeModule],
+                        ]);
+                        $moduleUpdate->runStates(false);
                         if ($moduleUpdate->getStateResult() === SimpleState::ERROR) {
+                            $this->setErrorMessage($moduleUpdate->getErrorMessage());
                             return self::ERROR;
                         }
                     }
 
                     # is app
                     if (str_starts_with($appDirPath, AppConfig::getAppsPath())) {
-                        $appUpdate = new UpdateMechanismState();
-                        $appUpdate->reset()->setUpdates([helper()->getFileName($appDirPath)])->setTypes(['app'])->setAction('update')
-                            ->runStates(false);
+                        $appUpdate = new UpdateMechanismState([
+                            UpdateMechanismState::SettingsKeyUpdates => [helper()->getFileName($appDirPath)],
+                            UpdateMechanismState::SettingsKeyAction  => UpdateMechanismState::SettingsActionUpdate,
+                            UpdateMechanismState::SettingsKeyTypes   => [UpdateMechanismState::SettingsTypeApp],
+                        ]);
+                        $appUpdate->runStates(false);
                         if ($appUpdate->getStateResult() === SimpleState::ERROR) {
+                            $this->setErrorMessage($appUpdate->getErrorMessage());
                             return self::ERROR;
                         }
                     }
@@ -302,7 +310,7 @@ class AppsSystem extends SimpleState
         AppConfig::addUpdateMigrationsJob();
         AppConfig::updateRestartService();
         $appOrModuleToUpdate = implode(', ', $appOrModuleToUpdate);
-        $this->setSucessMessage("[$appOrModuleToUpdate] Updated: Reload Page (If Any, Migrations Scheduled)");
+        $this->setSuccessMessage("[$appOrModuleToUpdate] Updated: Reload Page (If Any, Migrations Scheduled)");
         RefreshTreeSystem::RefreshTreeSystem();
         return self::DONE;
     }
@@ -337,7 +345,7 @@ class AppsSystem extends SimpleState
             AppConfig::addUpdateMigrationsJob();
             AppConfig::updateRestartService();
             $message = $this->appInstallationService->getMessage();
-            $this->setSucessMessage("$message: Go To App List Page, Ignore if on App Page");
+            $this->setSuccessMessage("$message: Go To App List Page, Ignore if on App Page");
             return self::DONE;
         }
     }

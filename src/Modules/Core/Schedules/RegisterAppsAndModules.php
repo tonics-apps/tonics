@@ -31,7 +31,7 @@ class RegisterAppsAndModules extends AbstractSchedulerInterface implements Sched
 
     public function __construct (private AppInstallationService $appInstallationService)
     {
-        $this->setName('Core_RegisterAppAnsModules');
+        $this->setName('Core_RegisterAppAndModules');
         $this->setPriority(Scheduler::PRIORITY_LOW);
         $this->setEvery(Scheduler::everyHour(6));
     }

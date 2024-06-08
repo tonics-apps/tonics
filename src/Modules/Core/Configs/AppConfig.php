@@ -569,7 +569,7 @@ class AppConfig
     {
         $globalTable = Tables::getTable(Tables::GLOBAL);
         $updates = db(true)->row("SELECT * FROM $globalTable WHERE `key` = 'updates'");
-        if (isset($updates->value) && !empty($updates->value)) {
+        if (!empty($updates->value)) {
             return json_decode($updates->value, true);
         }
         return [];

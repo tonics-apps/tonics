@@ -102,7 +102,7 @@ class AppsController
 
                 if ($appSystem->getStateResult() === SimpleState::DONE) {
                     helper()->updateActivateEventStreamMessage(1);
-                    response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
+                    response()->onSuccess([], $appSystem->getSuccessMessage(), more: AbstractDataLayer::DataTableEventTypeDelete);
                 } else {
                     $error = $appSystem->getErrorMessage();
                 }
@@ -124,7 +124,7 @@ class AppsController
 
                 if ($appSystem->getStateResult() === SimpleState::DONE) {
                     helper()->updateActivateEventStreamMessage(1);
-                    response()->onSuccess([], $appSystem->getSucessMessage(), more: AbstractDataLayer::DataTableEventTypeAppUpdate);
+                    response()->onSuccess([], $appSystem->getSuccessMessage(), more: AbstractDataLayer::DataTableEventTypeAppUpdate);
                 } else {
                     $error = $appSystem->getErrorMessage();
                 }
@@ -278,7 +278,9 @@ class AppsController
     #[NoReturn] public function discover_updates (): void
     {
         InitLoader::setEventStreamAsHTML(true);
-        $updateMechanismState = new UpdateMechanismState(types: ['module', 'app'], discoveredFrom: UpdateMechanismState::DiscoveredFromBrowser);
+        $updateMechanismState = new UpdateMechanismState([
+            UpdateMechanismState::SettingsKeyTypes => [UpdateMechanismState::SettingsTypeModule, UpdateMechanismState::SettingsTypeApp],
+        ]);
         helper()->addEventStreamHeader(1000000, 'text/html');
         $updateMechanismState->runStates(false);
         InitLoader::setEventStreamAsHTML(false);
@@ -326,7 +328,7 @@ class AppsController
                 $appSystem->runStates(false);
                 InitLoader::setEventStreamAsHTML(false);
                 if ($appSystem->getStateResult() === SimpleState::DONE) {
-                    $message = $appSystem->getSucessMessage();
+                    $message = $appSystem->getSuccessMessage();
                     $success = true;
                     session()->flash([$message], type: Session::SessionCategories_FlashMessageSuccess);
                 } else {

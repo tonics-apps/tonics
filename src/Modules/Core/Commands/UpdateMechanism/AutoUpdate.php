@@ -20,7 +20,6 @@ namespace App\Modules\Core\Commands\UpdateMechanism;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\ConsoleColor;
-use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\States\UpdateMechanismState;
 use Devsrealm\TonicsConsole\Interfaces\ConsoleCommand;
 
@@ -36,7 +35,7 @@ class AutoUpdate implements ConsoleCommand
 {
     use ConsoleColor;
 
-    public function required(): array
+    public function required (): array
     {
         return [
             "--auto-update",
@@ -47,31 +46,37 @@ class AutoUpdate implements ConsoleCommand
      * @throws \Exception
      * @throws \Throwable
      */
-    public function run(array $commandOptions): void
+    public function run (array $commandOptions): void
     {
         $autoUpdateModules = AppConfig::getAutoUpdateModules();
         $autoUpdateApps = AppConfig::getAutoUpdateApps();
-
-        $updateMechanismState = new UpdateMechanismState();
 
         helper()->updateActivateEventStreamMessage(1);
 
         if ($autoUpdateModules === true || is_array($autoUpdateModules)) {
             $this->infoMessage("Modules Update Initializing...");
             $autoUpdateModules = ($autoUpdateModules === true) ? [] : $autoUpdateModules;
-            $updateMechanismState->reset()->setUpdates($autoUpdateModules)->setTypes(['module'])->setAction('update')
-                ->runStates(false);
+            $updateMechanismState = new UpdateMechanismState([
+                UpdateMechanismState::SettingsKeyUpdates => $autoUpdateModules,
+                UpdateMechanismState::SettingsKeyAction  => UpdateMechanismState::SettingsActionUpdate,
+                UpdateMechanismState::SettingsKeyTypes   => [UpdateMechanismState::SettingsTypeModule],
+            ]);
+            $updateMechanismState->runStates(false);
         }
 
 
         if ($autoUpdateApps === true || is_array($autoUpdateApps)) {
             $this->infoMessage("Apps Update Initializing...");
             $autoUpdateApps = ($autoUpdateApps === true) ? [] : $autoUpdateApps;
-            $updateMechanismState->reset()->setUpdates($autoUpdateApps)->setTypes(['app'])->setAction('update')
-                ->runStates(false);
+            $updateMechanismState = new UpdateMechanismState([
+                UpdateMechanismState::SettingsKeyUpdates => $autoUpdateApps,
+                UpdateMechanismState::SettingsKeyAction  => UpdateMechanismState::SettingsActionUpdate,
+                UpdateMechanismState::SettingsKeyTypes   => [UpdateMechanismState::SettingsTypeApp],
+            ]);
+            $updateMechanismState->runStates(false);
         }
 
-        if ($autoUpdateApps || $autoUpdateModules){
+        if ($autoUpdateApps || $autoUpdateModules) {
             AppConfig::addUpdateMigrationsJob();
             AppConfig::updateRestartService();
         }
