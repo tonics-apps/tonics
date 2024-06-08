@@ -24,41 +24,39 @@ use App\Modules\Media\FileManager\LocalDriver;
 
 class DownloadFromURLState extends SimpleState
 {
-    private string $url;
-    private string $uploadTo;
-    private string $filename;
-    private array $headers;
-    private bool $urlIsValid;
-    private bool $importToDB = true;
-    private array $preflightData = [];
-    // 4194304
-    private int $bytePerChunk = 4194304; // 4mb
-    private ?int $parentDriveID = null;
-
-    # States For ExtractFileState
-    const InitialState = 'InitialState';
-    const ResolveFilenameState = 'ResolveFilenameState';
+    const InitialState                        = 'InitialState';
+    const ResolveFilenameState                = 'ResolveFilenameState';
     const FilenameFromContentDispositionState = 'FilenameFromContentDispositionState';
-    const FilenameFromURLState = 'FilenameFromURLState';
-    const PrepareFileDownloadState = 'PrepareFileDownloadState';
-    const FilePreflightState = 'FilePreflightState';
-    const DownloadNonResuming = 'DownloadNonResuming';
-    const DownloadResuming = 'DownloadResuming';
+    const FilenameFromURLState                = 'FilenameFromURLState';
+    const PrepareFileDownloadState            = 'PrepareFileDownloadState';
+    const FilePreflightState                  = 'FilePreflightState';
+    const DownloadNonResuming                 = 'DownloadNonResuming';
+    // 4194304
+    const DownloadResuming  = 'DownloadResuming'; // 4mb
     const DownloadCompleted = 'DownloadCompleted';
 
-    static array $STATES = [
+    # States For ExtractFileState
+    static array        $STATES        = [
         self::InitialState => self::InitialState,
     ];
-
+    private string      $url;
+    private string      $uploadTo;
+    private string      $filename;
+    private array       $headers;
+    private bool        $urlIsValid;
+    private bool        $importToDB    = true;
+    private array       $preflightData = [];
+    private int         $bytePerChunk  = 4194304;
+    private ?int        $parentDriveID = null;
     private LocalDriver $localDriver;
-    private float $totalChunks;
+    private float       $totalChunks;
 
     private bool $messageDebug = true;
 
     /**
      * @throws \Exception
      */
-    public function __construct(LocalDriver $localDriver, string $url, string $uploadTo, string $filename, bool $importToDB = true)
+    public function __construct (LocalDriver $localDriver, string $url, string $uploadTo, string $filename, bool $importToDB = true)
     {
         $this->localDriver = $localDriver;
         $this->url = $url;
@@ -70,10 +68,10 @@ class DownloadFromURLState extends SimpleState
             $this->uploadTo = DriveConfig::getUploadsPath();
         }
 
-        if ($this->importToDB){
+        if ($this->importToDB) {
             $dirPath = str_replace(DriveConfig::getPrivatePath(), '', $this->uploadTo);
             $pathID = $this->getLocalDriver()->findChildRealID(array_filter(explode(DIRECTORY_SEPARATOR, $dirPath)));
-            if ($pathID === false){
+            if ($pathID === false) {
                 throw new \Exception("Couldn't Find The UploadTo Drive ID in Db");
             }
             $this->parentDriveID = $pathID;
@@ -91,7 +89,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function InitialState(): string
+    public function InitialState (): string
     {
         if ($this->urlIsValid === false) {
             return self::ERROR;
@@ -101,7 +99,7 @@ class DownloadFromURLState extends SimpleState
         return self::NEXT;
     }
 
-    public function ResolveFilenameState(): string
+    public function ResolveFilenameState (): string
     {
         if (empty($this->filename)) {
             $this->switchState(self::FilenameFromContentDispositionState);
@@ -114,7 +112,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function FilenameFromContentDispositionState(): string
+    public function FilenameFromContentDispositionState (): string
     {
         $this->filename = trim(helper()->getFilenameFromContentDisposition($this->headers));
         if (empty($this->filename)) {
@@ -128,7 +126,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function FilenameFromURLState(): string
+    public function FilenameFromURLState (): string
     {
         $path = parse_url($this->url, PHP_URL_PATH);
         $path = trim($path, '/');
@@ -142,7 +140,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function PrepareFileDownloadState(): string
+    public function PrepareFileDownloadState (): string
     {
         if (isset($this->headers['Content-Length']) && !is_array($this->headers['Content-Length']) && isset($this->headers['Accept-Ranges']) && $this->headers['Accept-Ranges'] === 'bytes') {
             $this->switchState(self::FilePreflightState);
@@ -156,17 +154,17 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function FilePreflightState(): string
+    public function FilePreflightState (): string
     {
         $bytePerChunk = $this->bytePerChunk;
         $totalByteSize = (int)$this->headers['Content-Length'];
         $blob_path = str_replace(DriveConfig::getPrivatePath(), '', $this->uploadTo);
         $data = [
-            'Uploadto' => $blob_path,
-            'Filename' => $this->filename,
-            'Byteperchunk' => $bytePerChunk,
+            'Uploadto'      => $blob_path,
+            'Filename'      => $this->filename,
+            'Byteperchunk'  => $bytePerChunk,
             'Totalblobsize' => $totalByteSize,
-            'Chunkstosend' => ceil($totalByteSize / ($bytePerChunk))
+            'Chunkstosend'  => ceil($totalByteSize / ($bytePerChunk)),
         ];
         $preflightData = $this->getLocalDriver()->preFlight($data);
         $ranges = $this->getByteRanges($preflightData['preflightData']);
@@ -181,7 +179,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadResuming(): string
+    public function DownloadResuming (): string
     {
         $filePath = $this->uploadTo . DIRECTORY_SEPARATOR . $this->filename;
         $curl = curl_init($this->url);
@@ -190,33 +188,35 @@ class DownloadFromURLState extends SimpleState
         $blobData = null;
 
         curl_setopt_array($curl, [
-            CURLOPT_CONNECTTIMEOUT => 0, // 0 means forever
-            CURLOPT_RANGE => $this->preflightData['ranges'],
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_CONNECTTIMEOUT       => 0, // 0 means forever
+            CURLOPT_RANGE                => $this->preflightData['ranges'],
+            CURLOPT_CUSTOMREQUEST        => 'GET',
+            CURLOPT_SSL_VERIFYHOST       => false,
             CURLOPT_DNS_USE_GLOBAL_CACHE => false,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_WRITEFUNCTION => function ($curl, $chunkData) use ($filePath, &$blobData, &$currentBlobID, &$uploaded) {
+            CURLOPT_FOLLOWLOCATION       => true,
+            CURLOPT_COOKIEFILE           => '',
+            CURLOPT_RETURNTRANSFER       => true,
+            CURLOPT_USERAGENT            => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+            CURLOPT_WRITEFUNCTION        => function ($curl, $chunkData) use ($filePath, &$blobData, &$currentBlobID, &$uploaded) {
                 $len = strlen($chunkData);
                 $blobData .= $chunkData;
                 if ($uploaded >= $this->bytePerChunk) {
                     $uploaded = 0;
                     $blobInfo = json_decode($this->preflightData['preflightData'][$currentBlobID]->moreBlobInfo);
                     $blobInfo->id = $this->preflightData['preflightData'][$currentBlobID]->id;
-                    $subBlob = substr($blobData, 0,  $this->bytePerChunk);
+                    $subBlob = substr($blobData, 0, $this->bytePerChunk);
                     $blobData = substr($blobData, $this->bytePerChunk, strlen($blobData));
                     $this->getLocalDriver()->insertBlobChunk($blobInfo, $subBlob, $filePath);
                     $percentage = $this->chunkProgress($filePath, true)->uploadPercentage;
-                    if ($this->isMessageDebug()){
-                        helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
+                    if ($this->isMessageDebug()) {
+                        helper()->sendMsg(self::getCurrentState(), 'Percentage: ' . $percentage);
                     }
 
                     ++$currentBlobID;
                 }
                 $uploaded = $uploaded + $len;
                 return $len;
-            }
+            },
         ]);
         $response = curl_exec($curl);
         curl_close($curl);
@@ -227,16 +227,16 @@ class DownloadFromURLState extends SimpleState
             $this->getLocalDriver()->insertBlobChunk($blobInfo, $blobData, $filePath);
             $percentage = $this->chunkProgress($filePath, true)->uploadPercentage;
 
-            if ($this->isMessageDebug()){
-                helper()->sendMsg(self::getCurrentState(), 'Percentage: '. $percentage);
+            if ($this->isMessageDebug()) {
+                helper()->sendMsg(self::getCurrentState(), 'Percentage: ' . $percentage);
             }
 
             $this->getLocalDriver()->deleteBlobs($this->totalChunks, $this->preflightData['preflightData'][$currentBlobID]->blob_name);
             $this->switchState(self::DownloadCompleted);
-            if ($this->importToDB){
+            if ($this->importToDB) {
                 $this->insertFileToDB($filePath);
             }
-           return self::NEXT;
+            return self::NEXT;
         }
         return self::ERROR;
     }
@@ -244,7 +244,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadNonResuming(): string
+    public function DownloadNonResuming (): string
     {
         $filePath = $this->uploadTo . DIRECTORY_SEPARATOR . $this->filename;
         $curl = curl_init($this->url);
@@ -254,35 +254,37 @@ class DownloadFromURLState extends SimpleState
 
         $outFile = helper()->forceOpenFile($filePath);
 
-        if ($outFile === false){
+        if ($outFile === false) {
             return self::ERROR;
         }
-
+        
         curl_setopt_array($curl, [
-            CURLOPT_CONNECTTIMEOUT => 0, // 0 means forever
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_CONNECTTIMEOUT       => 0, // 0 means forever
+            CURLOPT_CUSTOMREQUEST        => 'GET',
+            CURLOPT_SSL_VERIFYHOST       => false,
             CURLOPT_DNS_USE_GLOBAL_CACHE => false,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_WRITEFUNCTION => function ($curl, $chunkData) use (&$uploadedProgress, $outFile, $filePath, &$blobData, &$uploaded) {
+            CURLOPT_FOLLOWLOCATION       => true,
+            CURLOPT_RETURNTRANSFER       => true,
+            CURLOPT_COOKIEFILE           => '',
+            CURLOPT_USERAGENT            => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+            CURLOPT_WRITEFUNCTION        => function ($curl, $chunkData) use (&$uploadedProgress, $outFile, $filePath, &$blobData, &$uploaded) {
                 $len = strlen($chunkData);
                 $blobData .= $chunkData;
                 if ($uploaded >= $this->bytePerChunk) {
                     $uploaded = 0;
-                    $subBlob = substr($blobData, 0,  $this->bytePerChunk);
+                    $subBlob = substr($blobData, 0, $this->bytePerChunk);
                     $blobData = substr($blobData, $this->bytePerChunk, strlen($blobData));
                     fwrite($outFile, $subBlob);
                     $fileUploaded = $this->chunkProgress($filePath, false, $uploadedProgress)->uploaded;
 
-                    if ($this->isMessageDebug()){
+                    if ($this->isMessageDebug()) {
                         helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
                     }
                 }
                 $uploaded = $uploaded + $len;
                 $uploadedProgress = $uploadedProgress + $len;
                 return $len;
-            }
+            },
         ]);
         $response = curl_exec($curl);
         curl_close($curl);
@@ -291,14 +293,14 @@ class DownloadFromURLState extends SimpleState
             fwrite($outFile, $blobData);
             $fileUploaded = $this->chunkProgress($filePath, false, $uploadedProgress, true)->uploaded;
 
-            if ($this->isMessageDebug()){
+            if ($this->isMessageDebug()) {
                 helper()->sendMsg(self::getCurrentState(), "Uploaded: $fileUploaded");
             }
 
             $this->switchState(self::DownloadCompleted);
             fclose($outFile);
             $outFile = null;
-            if ($this->importToDB){
+            if ($this->importToDB) {
                 $this->insertFileToDB($filePath);
             }
             return self::NEXT;
@@ -311,7 +313,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    public function DownloadCompleted(): string
+    public function DownloadCompleted (): string
     {
         return self::DONE;
     }
@@ -319,16 +321,16 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    private function insertFileToDB(string $filePath)
+    private function insertFileToDB (string $filePath)
     {
         $currentFileRelPath = helper()->getDriveSystemParentSignature(DriveConfig::getPrivatePath(), $filePath);
         $searchData = [
-            'id' =>  $this->parentDriveID,
-            'path' => $currentFileRelPath,
-            'query' => $this->filename
+            'id'    => $this->parentDriveID,
+            'path'  => $currentFileRelPath,
+            'query' => $this->filename,
         ];
         $searchResult = $this->getLocalDriver()->searchFiles($searchData);
-        if ($searchResult === false || empty($searchResult['data'])){
+        if ($searchResult === false || empty($searchResult['data'])) {
             $this->getLocalDriver()->insertFileToDB($filePath, $this->parentDriveID);
         }
 
@@ -342,19 +344,20 @@ class DownloadFromURLState extends SimpleState
      * Fill this when upload can't resume, meaning when $canResume is false
      * @param bool $completed
      * Only applies when $canResume is false
+     *
      * @return object
      * @throws \Exception
      */
-    private function chunkProgress(string $filePath, bool $canResume = false, int $byteUploaded = null, bool $completed = false): object
+    private function chunkProgress (string $filePath, bool $canResume = false, int $byteUploaded = null, bool $completed = false): object
     {
-        if ($canResume){
+        if ($canResume) {
             $blobProgressInfo = $this->getLocalDriver()->isBlobChunkUploadCompleted((object)['totalChunks' => $this->totalChunks], $filePath);
             $blobProgressInfo->canResume = $canResume;
             $blobProgressInfo->totalSize = helper()->formatBytes((int)$this->headers['Content-Length']);
         } else {
             $blobProgressInfo = (object)[
-                'canResume' => $canResume,
-                'uploaded' => helper()->formatBytes($byteUploaded),
+                'canResume'         => $canResume,
+                'uploaded'          => helper()->formatBytes($byteUploaded),
                 'isUploadCompleted' => $completed,
             ];
         }
@@ -365,7 +368,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @return LocalDriver
      */
-    public function getLocalDriver(): LocalDriver
+    public function getLocalDriver (): LocalDriver
     {
         return $this->localDriver;
     }
@@ -373,7 +376,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @return array
      */
-    public function getHeaders(): array
+    public function getHeaders (): array
     {
         return $this->headers;
     }
@@ -381,7 +384,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @return bool
      */
-    public function isMessageDebug(): bool
+    public function isMessageDebug (): bool
     {
         return $this->messageDebug;
     }
@@ -389,7 +392,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @param bool $messageDebug
      */
-    public function setMessageDebug(bool $messageDebug): void
+    public function setMessageDebug (bool $messageDebug): void
     {
         $this->messageDebug = $messageDebug;
     }
@@ -397,7 +400,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @throws \Exception
      */
-    private function issue($id, $msg, $event = 'issue', bool $closeStream = true)
+    private function issue ($id, $msg, $event = 'issue', bool $closeStream = true)
     {
         helper()->sendMsg($id, "> $msg", $event, 900000000000000000);
         if ($closeStream) {
@@ -408,9 +411,10 @@ class DownloadFromURLState extends SimpleState
     /**
      * @param array $preflightData
      * @param bool $multiRange
+     *
      * @return string
      */
-    private function getByteRanges(array $preflightData, bool $multiRange = false): string
+    private function getByteRanges (array $preflightData, bool $multiRange = false): string
     {
         $ranges = '';
         $count = count($preflightData) - 1;
@@ -418,7 +422,7 @@ class DownloadFromURLState extends SimpleState
             $blobInfo = json_decode($data->moreBlobInfo);
             $start = $blobInfo->startSlice;
             $end = $blobInfo->endSlice;
-            if ($multiRange === false){
+            if ($multiRange === false) {
                 return "$start-";
             }
             if ($count === $k) {
@@ -434,7 +438,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @return string
      */
-    public function getUrl(): string
+    public function getUrl (): string
     {
         return $this->url;
     }
@@ -442,7 +446,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @return string
      */
-    public function getUploadTo(): string
+    public function getUploadTo (): string
     {
         return $this->uploadTo;
     }
@@ -450,7 +454,7 @@ class DownloadFromURLState extends SimpleState
     /**
      * @return string
      */
-    public function getFilename(): string
+    public function getFilename (): string
     {
         return $this->filename;
     }

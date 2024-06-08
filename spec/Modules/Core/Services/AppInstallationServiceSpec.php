@@ -130,6 +130,16 @@ describe("Core::AppInstallationService", function () {
                     expect($appInstallationService->getMessage())->toContain('App Successfully Uploaded');
                 });*/
 
+        // Testing OneDrive Link
+        /* it('should upload remote module successfully with valid parameters', function () use ($settings) {
+             $appInstallationService = newInstanceOfAppInstallationService($this);
+             $settings['AppType'] = 1;
+             unset($settings['DownloadURLOverride']);
+             $appInstallationService->uploadApp('https://faruqa-my.sharepoint.com/:u:/g/personal/olayemi_faruqa_onmicrosoft_com/ETJ_L3_KdIdBg-l7h2sQ9GUBFcHVmGjVf51GgP8U7opV4w?e=GBZOn0&download=1', $settings);
+             expect($appInstallationService->fails())->toBeFalsy();
+             expect($appInstallationService->getMessage())->toContain('App Successfully Uploaded');
+         });*/
+
     });
 
 });
