@@ -258,7 +258,7 @@ class UpdateMechanismState extends SimpleState
         $appInstallationService = $this->getAppInstallationService();
         $this->updates = $updates;
         foreach ($modulesOrApps as $module) {
-            if (!$this->isValidModuleApp($module)) {
+            if (!$this->isValidModuleApp($module, false)) {
                 continue;
             }
 
@@ -328,7 +328,6 @@ class UpdateMechanismState extends SimpleState
      * Return true if...
      *
      * - If classString implements teh ExtensionConfig interface
-     * - We Have at least 2 types (app and module)
      * - The updates property is not empty
      * - there is an update
      *
@@ -338,16 +337,19 @@ class UpdateMechanismState extends SimpleState
      * @throws \ReflectionException
      * @throws \Exception
      */
-    private function isValidModuleApp (string|object $objectOrClass): bool
+    private function isValidModuleApp (string|object $objectOrClass, bool $checkNameInUpdates = true): bool
     {
         $string = $objectOrClass::class;
         $ref = new \ReflectionClass($objectOrClass);
         $dir = dirname($ref->getFileName());
         $dirName = helper()->getFileName($dir);
 
-        return helper()->classImplements($string, [ExtensionConfig::class]) &&
-            count($this->types) === 1 &&
-            key_exists(strtolower($dirName), $this->updates);
+        $result = helper()->classImplements($string, [ExtensionConfig::class]);
+        if ($checkNameInUpdates) {
+            return $result && key_exists(strtolower($dirName), $this->updates);
+        }
+
+        return $result;
     }
 
     /**
