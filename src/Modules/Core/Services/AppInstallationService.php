@@ -306,7 +306,7 @@ class AppInstallationService extends AbstractService
             # If there is .installed in the app path, drop it in the tempPath, if it fails, then user might
             # want to re-install the app
             if ($this->helpers->fileExists($appModulePathFolder . DIRECTORY_SEPARATOR . '.installed')) {
-                @file_put_contents($extractToTemp . DIRECTORY_SEPARATOR . '.installed', '');
+                @file_put_contents($appTempPathDir . DIRECTORY_SEPARATOR . '.installed', '');
             }
 
             # Time For Copying To The Actual Directory, First, Lets Backup The Original if There is one
