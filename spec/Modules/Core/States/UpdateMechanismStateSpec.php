@@ -22,7 +22,6 @@ use Devsrealm\TonicsContainer\Container;
 
 describe("Core::UpdateMechanismState", function () {
     beforeAll(function () {
-
         function container (): Container
         {
             return new Container();
@@ -159,7 +158,7 @@ function compatibleVersionCollate (): array
             'App\Modules\Comment\CommentActivator' => [
                 "name"                  => "Comment",
                 "folder_name"           => "Comment",
-                "hash"                  => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx22222222",
+                "hash"                  => "18AXduV4x/inmW2vDdUy93uyIFucXuEMlzTc2r7ZWvCL48UFizNXeMCnTkJ2qvZRrvsxQIODrNsRFTz4WIsoCA",
                 "version"               => "1-O-Ola.1714604528",
                 "download_url"          => "...",
                 "download_url_override" => dirname(__FILE__, 2) . '/Services/AppInstallationService/Comment.zip',
@@ -171,7 +170,7 @@ function compatibleVersionCollate (): array
             "App\Apps\Tonics404Handler\Tonics404HandlerActivator" => [
                 "name"                  => "Tonics404Handler",
                 "folder_name"           => "Tonics404Handler",
-                "hash"                  => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx22222222",
+                "hash"                  => "I3YtrvQLE9+iqM9EUQEtQdn3eLiB3Mh0mUU5zkaGqsqsotC9v+GljtK8Jh9rYB0uWI35punoRbWl+47U2Cw7DQ",
                 "version"               => "1-O-app.1714604528",
                 "download_url"          => "...",
                 // this would download from the local storage and bypass remote
@@ -191,7 +190,7 @@ function oldVersionCollate (): array
             'App\Modules\Comment\CommentActivator' => [
                 "name"                  => "Comment",
                 "folder_name"           => "Comment",
-                "hash"                  => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx22222222",
+                "hash"                  => "18AXduV4x/inmW2vDdUy93uyIFucXuEMlzTc2r7ZWvCL48UFizNXeMCnTkJ2qvZRrvsxQIODrNsRFTz4WIsoCA",
                 "version"               => "1-O-Ola.1714604528",
                 "download_url"          => "...",
                 "download_url_override" => dirname(__FILE__, 2) . '/Services/AppInstallationService/Comment.zip',
@@ -203,7 +202,7 @@ function oldVersionCollate (): array
             "App\Apps\Tonics404Handler\Tonics404HandlerActivator" => [
                 "name"                  => "Tonics404Handler",
                 "folder_name"           => "Tonics404Handler",
-                "hash"                  => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx22222222",
+                "hash"                  => "I3YtrvQLE9+iqM9EUQEtQdn3eLiB3Mh0mUU5zkaGqsqsotC9v+GljtK8Jh9rYB0uWI35punoRbWl+47U2Cw7DQ",
                 "version"               => "1-O-app.1714604528",
                 "download_url"          => "...",
                 // this would download from the local storage and bypass remote
@@ -214,7 +213,7 @@ function oldVersionCollate (): array
             "App\Apps\TonicsAI\TonicsAIActivator"                 => [
                 "name"                  => "TonicsAI",
                 "folder_name"           => "TonicsAI",
-                "hash"                  => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx22222222",
+                "hash"                  => "mgGtbnN93MSVuRVzOeG3b6b5olKLbIpW6kiLE4Xg9cQZAajCAP2jEZ1amWPHG2w7eWg8bRO1v03cQd2P2dIaDw",
                 "version"               => "1-O-app.1714604528",
                 "download_url"          => "...",
                 // this would download from the local storage and bypass remote
