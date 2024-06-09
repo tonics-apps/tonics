@@ -618,8 +618,15 @@ SQL, ...$parameter);
         }
 
         $limit = 30;
-        $encodeCurs = fn($cursor, $nextPage) => urlencode(base64_encode(gzcompress(serialize([$cursor, $nextPage]), 9)));
-        $decodeCurs = fn($cursor) => @unserialize(gzuncompress(base64_decode($cursor)));
+        $encodeCurs = function ($cursor, $nextPage) {
+            return urlencode(base64_encode(gzcompress(serialize([$cursor, $nextPage]), 9)));
+        };
+        $decodeCurs = function ($cursor) {
+            if (!empty($cursor)) {
+                return @unserialize(gzuncompress(base64_decode($cursor)));
+            }
+            return null;
+        };
 
         $newQ = $db->Q()
             ->Select('*')
