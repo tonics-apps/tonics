@@ -38,14 +38,15 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct(){
+    public function __construct ()
+    {
         $this->fieldData = new FieldData();
     }
 
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -53,7 +54,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -62,7 +63,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             OnHookIntoTemplate::class => [
@@ -70,7 +71,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
             ],
 
             OnAfterPreSavePostEditorFieldItems::class => [
-                HandleOldSeoURLForSEORedirection::class
+                HandleOldSeoURLForSEORedirection::class,
             ],
 
             OnEditorFieldSelection::class => [
@@ -86,7 +87,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function tables(): array
+    public function tables (): array
     {
         return [];
     }
@@ -94,12 +95,12 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onInstall(): void
+    public function onInstall (): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         return;
     }
@@ -107,7 +108,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
     }
@@ -115,9 +116,9 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onDelete(): void
+    public function onDelete (): void
     {
-        db(onGetDB: function (TonicsQuery $db){
+        db(onGetDB: function (TonicsQuery $db) {
             $toDelete = ['app-tonicsseo-settings'];
             $tb = $this->fieldData->getFieldTable();
             $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
@@ -127,29 +128,29 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "TonicsSeo",
-            "type" => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "name"                 => "TonicsSeo",
+            "type"                 => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1714604528',
-            "description" => "This is TonicsSeo",
-            "info_url" => '',
-            "settings_page" => route('tonicsSeo.settings'), // can be null or a route name
+            "version"              => '1-O-app.1717926200',
+            "description"          => "This is TonicsSeo",
+            "info_url"             => '',
+            "settings_page"        => route('tonicsSeo.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_seo/releases/latest",
-            "authors" => [
-                "name" => "Your Name",
+            "authors"              => [
+                "name"  => "Your Name",
                 "email" => "name@website.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
-    function fieldItems(): array
+    function fieldItems (): array
     {
-        $json =<<<'JSON'
+        $json = <<<'JSON'
 [
   {
     "fk_field_id": "App TonicsSeo Structured Data »» [Product Review]",

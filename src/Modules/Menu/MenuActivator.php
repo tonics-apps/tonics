@@ -34,7 +34,7 @@ class MenuActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -42,27 +42,28 @@ class MenuActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             OnMenuMetaBox::class => [
 
             ],
-            OnAdminMenu::class => [
-                MenuMenus::class
+            OnAdminMenu::class   => [
+                MenuMenus::class,
             ],
-            OnMenuCreate::class => [
+            OnMenuCreate::class  => [
 
-            ]
+            ],
         ];
     }
 
     /**
      * @param Route $routes
+     *
      * @return Route
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         return $this->routeWeb($routes);
     }
@@ -70,51 +71,51 @@ class MenuActivator implements ExtensionConfig
     /**
      * @return array
      */
-    public function tables(): array
+    public function tables (): array
     {
         return
             [
                 Tables::getTable(Tables::MENU_ITEM_PERMISSION) => Tables::$TABLES[Tables::MENU_ITEM_PERMISSION],
-                Tables::getTable(Tables::MENU_ITEMS) => Tables::$TABLES[Tables::MENU_ITEMS],
-                Tables::getTable(Tables::MENUS) => Tables::$TABLES[Tables::MENUS],
+                Tables::getTable(Tables::MENU_ITEMS)           => Tables::$TABLES[Tables::MENU_ITEMS],
+                Tables::getTable(Tables::MENUS)                => Tables::$TABLES[Tables::MENUS],
             ];
     }
 
-    public function onInstall(): void
+    public function onInstall (): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Menu",
-            "type" => "Module",
+            "name"                 => "Menu",
+            "type"                 => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714604528',
-            "description" => "The Menu Module",
-            "info_url" => '',
+            "version"              => '1-O-Ola.1717926200',
+            "description"          => "The Menu Module",
+            "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-menu-module/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         // TODO: Implement onUpdate() method.
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }

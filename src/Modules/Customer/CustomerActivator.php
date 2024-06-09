@@ -17,6 +17,7 @@
  */
 
 namespace App\Modules\Customer;
+
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Customer\Routes\RouteWeb;
@@ -29,7 +30,7 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -37,17 +38,17 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
 
-            ];
+        ];
     }
 
     /**
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         return $this->routeWeb($routes);
     }
@@ -55,7 +56,7 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @return array
      */
-    public function tables(): array
+    public function tables (): array
     {
         return
             [
@@ -63,44 +64,44 @@ class CustomerActivator implements ExtensionConfig
             ];
     }
 
-    public function onInstall(): void
+    public function onInstall (): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Customer",
-            "type" => "Module",
+            "name"                 => "Customer",
+            "type"                 => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1715951400',
+            "version"              => '1-O-Ola.1717926200',
             // "version" => '1-O-Ola.943905600', // fake old date
-            "description" => "The Customer Module",
-            "info_url" => '',
+            "description"          => "The Customer Module",
+            "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-customer-module/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
     /**
      */
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         return;
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }

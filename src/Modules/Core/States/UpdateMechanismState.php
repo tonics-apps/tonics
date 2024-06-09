@@ -420,6 +420,7 @@ class UpdateMechanismState extends SimpleState
         $appInstallationService = $this->getAppInstallationService();
         $this->updates = $updates;
         foreach ($modulesOrApps as $module) {
+
             if (!$this->isValidModuleApp($module, false)) {
                 continue;
             }

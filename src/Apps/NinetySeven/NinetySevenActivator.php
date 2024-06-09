@@ -19,8 +19,8 @@
 namespace App\Apps\NinetySeven;
 
 use App\Apps\NinetySeven\EventHandler\AssetsHookHandler;
-use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
 use App\Apps\NinetySeven\EventHandler\ConfigureNinetySevenPageSettings;
+use App\Apps\NinetySeven\EventHandler\EditorsAssetsHandler;
 use App\Apps\NinetySeven\EventHandler\Hook_AddSvgSymbols;
 use App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder\ThemeFolderViewHandler;
 use App\Apps\NinetySeven\EventHandler\PageTemplates\AudioTonics\ThemeFolder\TonicsNinetySevenAudioTonicsThemeFolderHomeTemplate;
@@ -45,14 +45,15 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct(){
+    public function __construct ()
+    {
         $this->fieldData = new FieldData();
     }
 
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -60,15 +61,15 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             EditorsAsset::class => [
-                EditorsAssetsHandler::class
+                EditorsAssetsHandler::class,
             ],
 
             BeforePageView::class => [
-                ConfigureNinetySevenPageSettings::class
+                ConfigureNinetySevenPageSettings::class,
             ],
 
             OnPageTemplate::class => [
@@ -81,7 +82,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             OnHookIntoTemplate::class => [
                 AssetsHookHandler::class,
                 ThemeFolderViewHandler::class,
-                Hook_AddSvgSymbols::class
+                Hook_AddSvgSymbols::class,
             ],
         ];
     }
@@ -90,7 +91,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @inheritDoc
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         return $this->routeWeb($routes);
     }
@@ -98,7 +99,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function tables(): array
+    public function tables (): array
     {
         return [];
     }
@@ -106,7 +107,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onInstall(): void
+    public function onInstall (): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
     }
@@ -114,30 +115,28 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onUninstall(): void
-    {
-    }
+    public function onUninstall (): void {}
 
     /**
      * @throws \Exception
      */
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "NinetySeven",
-            "type" => "Theme",
+            "name"                 => "NinetySeven",
+            "type"                 => "Theme",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714604528',
-            "description" => "NinetySeven Theme, The First Tonic Theme",
-            "info_url" => '',
-            "settings_page" => route('ninetySeven.settings'), // can be null or a route name
+            "version"              => '1-O-Ola.1717926200',
+            "description"          => "NinetySeven Theme, The First Tonic Theme",
+            "info_url"             => '',
+            "settings_page"        => route('ninetySeven.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/theme-ninetyseven/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
@@ -145,28 +144,39 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @return void
      * @throws \ReflectionException
      */
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         self::migrateDatabases();
     }
 
     /**
+     * @throws \Exception
+     */
+    public function onDelete (): void
+    {
+        $toDelete = ['app-ninety-seven-settings', 'app-ninety-seven-post-home-page', 'app-ninety-seven-writonics-post-page-settings'];
+        db(onGetDB: function (TonicsQuery $db) use ($toDelete) {
+            $db->FastDelete($this->getFieldTable(), db()->WhereIn(table()->getColumn($this->getFieldTable(), 'field_slug'), $toDelete));
+        });
+    }
+
+    /**
      * @throws \ReflectionException
      */
-    public static function migrateDatabases()
+    public static function migrateDatabases ()
     {
         $appMigrate = new AppMigrate();
         $commandOptions = [
-            '--app' => 'NinetySeven',
+            '--app'     => 'NinetySeven',
             '--migrate' => '',
         ];
         $appMigrate->setIsCLI(false);
         $appMigrate->run($commandOptions);
     }
 
-    public function fieldItems(): array
+    public function fieldItems (): array
     {
-        $json =<<<'JSON'
+        $json = <<<'JSON'
 [
   {
     "fk_field_id": "App Ninety Seven Settings",
@@ -288,7 +298,7 @@ JSON;
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -296,23 +306,12 @@ JSON;
     /**
      * @param FieldData $fieldData
      */
-    public function setFieldData(FieldData $fieldData): void
+    public function setFieldData (FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function onDelete(): void
-    {
-        $toDelete = ['app-ninety-seven-settings', 'app-ninety-seven-post-home-page', 'app-ninety-seven-writonics-post-page-settings'];
-        db(onGetDB: function (TonicsQuery $db) use ($toDelete) {
-            $db->FastDelete($this->getFieldTable(), db()->WhereIn(table()->getColumn($this->getFieldTable(), 'field_slug'), $toDelete));
-        });
-    }
-
-    public function getFieldTable(): string
+    public function getFieldTable (): string
     {
         return $this->fieldData->getFieldTable();
     }

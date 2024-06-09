@@ -507,7 +507,7 @@ class AppConfig
      */
     public static function getAppPostEndpoint (): ?string
     {
-        return env('APP_POST_ENDPOINT', null);
+        return env('APP_POST_ENDPOINT', 'https://tonics.app/api/app_store');
     }
 
     /**

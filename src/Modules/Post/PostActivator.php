@@ -20,7 +20,6 @@ namespace App\Modules\Post;
 
 
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
-use App\Modules\Core\Commands\Module\ModuleMigrate;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
@@ -53,7 +52,7 @@ class PostActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -61,23 +60,23 @@ class PostActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             OnMenuMetaBox::class => [
                 PostMenuMetaBox::class,
-                CategoryMenuMetaBox::class
+                CategoryMenuMetaBox::class,
             ],
 
             OnAdminMenu::class => [
-                PostMenus::class
+                PostMenus::class,
             ],
 
             OnBeforePostSave::class => [
             ],
 
             OnPostCategoryCreate::class => [
-                HandleNewCategorySlugIDGeneration::class
+                HandleNewCategorySlugIDGeneration::class,
             ],
 
             OnPostCreate::class => [
@@ -90,11 +89,11 @@ class PostActivator implements ExtensionConfig
             ],
 
             OnPostDefaultField::class => [
-              DefaultPostFieldHandler::class
+                DefaultPostFieldHandler::class,
             ],
 
             OnPostCategoryDefaultField::class => [
-                DefaultPostCategoryFieldHandler::class
+                DefaultPostCategoryFieldHandler::class,
             ],
 
             OnAddSitemap::class => [
@@ -106,64 +105,65 @@ class PostActivator implements ExtensionConfig
 
     /**
      * @param Route $routes
+     *
      * @return Route
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
-       return $this->routeWeb($routes);
+        return $this->routeWeb($routes);
     }
 
     /**
      * @return array
      */
-    public function tables(): array
+    public function tables (): array
     {
         return
             [
-                Tables::getTable(Tables::CATEGORIES) => Tables::$TABLES[Tables::CATEGORIES],
-                Tables::getTable(Tables::POSTS) => Tables::$TABLES[Tables::POSTS],
+                Tables::getTable(Tables::CATEGORIES)      => Tables::$TABLES[Tables::CATEGORIES],
+                Tables::getTable(Tables::POSTS)           => Tables::$TABLES[Tables::POSTS],
                 Tables::getTable(Tables::POST_CATEGORIES) => Tables::$TABLES[Tables::POST_CATEGORIES],
             ];
     }
 
-    public function onInstall(): void
+    public function onInstall (): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Post",
-            "type" => "Module",
+            "name"                 => "Post",
+            "type"                 => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714742193',
-            "description" => "The Post Module",
-            "info_url" => '',
+            "version"              => '1-O-Ola.1717926200',
+            "description"          => "The Post Module",
+            "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-post-module/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
     /**
      */
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         return;
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }
