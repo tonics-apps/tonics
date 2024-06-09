@@ -37,14 +37,15 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct(){
+    public function __construct ()
+    {
         $this->fieldData = new FieldData();
     }
 
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -52,7 +53,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -61,28 +62,28 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
 
             OnEditorFieldSelection::class => [
-                TonicsTocFieldSelection::class
+                TonicsTocFieldSelection::class,
             ],
 
             FieldTemplateFile::class => [
-                TonicsTocFieldHandler::class
+                TonicsTocFieldHandler::class,
             ],
 
             EditorsAsset::class => [
-                EditorsAssetsHandler::class
-            ]
+                EditorsAssetsHandler::class,
+            ],
         ];
     }
 
     /**
      * @inheritDoc
      */
-    public function tables(): array
+    public function tables (): array
     {
         return [];
     }
@@ -90,7 +91,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onInstall(): void
+    public function onInstall (): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
     }
@@ -98,18 +99,52 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onUninstall(): void
-    {
-    }
+    public function onUninstall (): void {}
 
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         return;
     }
 
-    public function fieldItems(): array
+    /**
+     * @throws \Exception
+     */
+    public function info (): array
     {
-        $json =<<<'JSON'
+        return [
+            "name"                 => "TonicsToc",
+            "type"                 => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version"              => '1-O-app.1717926200',
+            "description"          => "This is TonicsToc",
+            "info_url"             => '',
+            "settings_page"        => route('tonicsToc.settings'), // can be null or a route name
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_toc/releases/latest",
+            "authors"              => [
+                "name"  => "Your Name",
+                "email" => "name@website.com",
+                "role"  => "Developer",
+            ],
+            "credits"              => [],
+        ];
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public function onDelete (): void
+    {
+        db(onGetDB: function (TonicsQuery $db) {
+            $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
+            $tb = $this->fieldData->getFieldTable();
+            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+        });
+    }
+
+    public function fieldItems (): array
+    {
+        $json = <<<'JSON'
 [
   {
     "fk_field_id": "App TonicsToc",
@@ -166,32 +201,9 @@ JSON;
     }
 
     /**
-     * @throws \Exception
-     */
-    public function info(): array
-    {
-        return [
-            "name" => "TonicsToc",
-            "type" => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1714604528',
-            "description" => "This is TonicsToc",
-            "info_url" => '',
-            "settings_page" => route('tonicsToc.settings'), // can be null or a route name
-            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_toc/releases/latest",
-            "authors" => [
-                "name" => "Your Name",
-                "email" => "name@website.com",
-                "role" => "Developer"
-            ],
-            "credits" => []
-        ];
-    }
-
-    /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -199,21 +211,8 @@ JSON;
     /**
      * @param FieldData $fieldData
      */
-    public function setFieldData(FieldData $fieldData): void
+    public function setFieldData (FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
-    }
-
-    /**
-     * @return void
-     * @throws \Exception
-     */
-    public function onDelete(): void
-    {
-        db(onGetDB: function (TonicsQuery $db){
-            $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
-            $tb = $this->fieldData->getFieldTable();
-            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
-        });
     }
 }

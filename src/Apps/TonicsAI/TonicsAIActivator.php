@@ -37,19 +37,20 @@ class TonicsAIActivator implements ExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct(FieldData $fieldData){
+    public function __construct (FieldData $fieldData)
+    {
         $this->fieldData = $fieldData;
     }
 
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
-    
-    public function route(Route $routes): Route
+
+    public function route (Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -58,7 +59,7 @@ class TonicsAIActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             OnEditorFieldSelection::class => [
@@ -72,15 +73,15 @@ class TonicsAIActivator implements ExtensionConfig
             ],
 
             EditorsAsset::class => [
-                EditorsAssetsHandler::class
-            ]
+                EditorsAssetsHandler::class,
+            ],
         ];
     }
 
     /**
      * @inheritDoc
      */
-    public function tables(): array
+    public function tables (): array
     {
         return [];
     }
@@ -88,50 +89,47 @@ class TonicsAIActivator implements ExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onInstall(): void
+    public function onInstall (): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
         return;
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         return;
     }
 
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         return;
     }
-    
 
-    public function onDelete(): void
-    {
-    
-    }
 
-    public function info(): array
+    public function onDelete (): void {}
+
+    public function info (): array
     {
         return [
-            "name" => "TonicsAI",
-            "type" => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "name"                 => "TonicsAI",
+            "type"                 => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-app.1714604528',
-            "description" => "This is TonicsAI",
-            "info_url" => '',
-            "settings_page" => route('tonicsAI.settings'), // can be null or a route name
+            "version"              => '1-O-app.1717926200',
+            "description"          => "This is TonicsAI",
+            "info_url"             => '',
+            "settings_page"        => route('tonicsAI.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_ai/releases/latest",
-            "authors" => [
-                "name" => "Your Name",
+            "authors"              => [
+                "name"  => "Your Name",
                 "email" => "name@website.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
 
-    function fieldItems(): array
+    function fieldItems (): array
     {
         $json = <<<'JSON'
 [

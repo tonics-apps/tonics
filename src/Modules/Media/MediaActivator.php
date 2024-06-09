@@ -32,7 +32,7 @@ class MediaActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -40,11 +40,11 @@ class MediaActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             OnAdminMenu::class => [
-                MediaMenus::class
+                MediaMenus::class,
             ],
         ];
     }
@@ -52,7 +52,7 @@ class MediaActivator implements ExtensionConfig
     /**
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         $this->routeWeb($routes);
         return $this->routeApi($routes);
@@ -61,51 +61,51 @@ class MediaActivator implements ExtensionConfig
     /**
      * @return array
      */
-    public function tables(): array
+    public function tables (): array
     {
         return
             [
                 Tables::getTable(Tables::DRIVE_BLOB_COLLATOR) => Tables::$TABLES[Tables::DRIVE_BLOB_COLLATOR],
-                Tables::getTable(Tables::DRIVE_SYSTEM) => Tables::$TABLES[Tables::DRIVE_SYSTEM],
+                Tables::getTable(Tables::DRIVE_SYSTEM)        => Tables::$TABLES[Tables::DRIVE_SYSTEM],
             ];
     }
 
-    public function onInstall(): void
+    public function onInstall (): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Media",
-            "type" => "Module",
+            "name"                 => "Media",
+            "type"                 => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714604528',
+            "version"              => '1-O-Ola.1717926200',
             // "version" => '1-O-Ola.943905600', // fake old date
-            "description" => "The Media Module",
-            "info_url" => '',
+            "description"          => "The Media Module",
+            "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-media-module/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         // TODO: Implement onUpdate() method.
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }

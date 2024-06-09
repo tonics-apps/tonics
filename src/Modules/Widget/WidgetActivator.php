@@ -39,7 +39,7 @@ class WidgetActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled(): bool
+    public function enabled (): bool
     {
         return true;
     }
@@ -47,31 +47,32 @@ class WidgetActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events(): array
+    public function events (): array
     {
         return [
             OnWidgetCreate::class => [
 
             ],
 
-            OnAdminMenu::class => [
-                WidgetMenus::class
+            OnAdminMenu::class         => [
+                WidgetMenus::class,
             ],
             OnMenuWidgetMetaBox::class => [
                 // RecentPostMenuWidget::class,
                 ImageMenuWidget::class,
                 PlainTextMenuWidget::class,
-                RichTextMenuWidget::class
+                RichTextMenuWidget::class,
             ],
         ];
     }
 
     /**
      * @param Route $routes
+     *
      * @return Route
      * @throws \ReflectionException
      */
-    public function route(Route $routes): Route
+    public function route (Route $routes): Route
     {
         return $this->routeWeb($routes);
     }
@@ -79,50 +80,50 @@ class WidgetActivator implements ExtensionConfig
     /**
      * @return array
      */
-    public function tables(): array
+    public function tables (): array
     {
         return
             [
-                Tables::getTable(Tables::WIDGETS) => Tables::$TABLES[Tables::WIDGETS],
+                Tables::getTable(Tables::WIDGETS)      => Tables::$TABLES[Tables::WIDGETS],
                 Tables::getTable(Tables::WIDGET_ITEMS) => Tables::$TABLES[Tables::WIDGET_ITEMS],
             ];
     }
 
-    public function onInstall(): void
+    public function onInstall (): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall(): void
+    public function onUninstall (): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info(): array
+    public function info (): array
     {
         return [
-            "name" => "Widget",
-            "type" => "Module",
+            "name"                 => "Widget",
+            "type"                 => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version" => '1-O-Ola.1714604528',
-            "description" => "The Widget Module",
-            "info_url" => '',
+            "version"              => '1-O-Ola.1717926200',
+            "description"          => "The Widget Module",
+            "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-widget-module/releases/latest",
-            "authors" => [
-                "name" => "The Devsrealm Guy",
+            "authors"              => [
+                "name"  => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role" => "Developer"
+                "role"  => "Developer",
             ],
-            "credits" => []
+            "credits"              => [],
         ];
     }
 
-    public function onUpdate(): void
+    public function onUpdate (): void
     {
         // TODO: Implement onUpdate() method.
     }
 
-    public function onDelete(): void
+    public function onDelete (): void
     {
         // TODO: Implement onDelete() method.
     }
