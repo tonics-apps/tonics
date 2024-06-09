@@ -20,7 +20,6 @@ namespace App\Modules\Core\Services;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
-use App\Modules\Core\CoreActivator;
 use App\Modules\Core\Library\AbstractService;
 use App\Modules\Media\FileManager\LocalDriver;
 use Devsrealm\TonicsContainer\Container;
@@ -174,8 +173,7 @@ class AppInstallationService extends AbstractService
      *      'TempPathFolderName' => '...',
      *      // it would use this path and skip downloading from the URL
      *      'DownloadURLOverride' => '/path/to/app/zip',
-     *      // If this is not set or is false, it would check if it is appropriate to use signing
-     *      'ForceSigning' => true, // false to turn of
+     *      'ForceSigning' => true, // false to turn of, true by default
      *      'Signature' => '...', // The signed signature to verify the authenticity of the App
      * ]
      * ```
@@ -195,7 +193,7 @@ class AppInstallationService extends AbstractService
             return;
         }
 
-        $signing = $settings['ForceSigning'] ?? false;
+        $signing = $settings['ForceSigning'] ?? true;
         $isModule = $appType === 1;
         $isApp = $appType === 2;
 
@@ -276,9 +274,8 @@ class AppInstallationService extends AbstractService
             }
 
             $infoArray = $this->extractInfoArrayToArray($getFileContent);
-            # The signing should only work in newer version for backward compatibility reason
-            # If signing is true, then we force check signing regardless
-            if ($signing === true || $this->usingCoreWithSigning()) {
+            # If signing is true, we check signing
+            if ($signing === true) {
                 # Grab the app signature
                 $signature = $settings['Signature'] ?? '';
 
@@ -347,20 +344,6 @@ class AppInstallationService extends AbstractService
             $cleanUpTempDir();
         }
 
-    }
-
-    /**
-     * For backward compatibility you can check if core is using signing or not
-     * @return bool
-     * @throws \ReflectionException
-     * @throws \Throwable
-     */
-    public function usingCoreWithSigning (): bool
-    {
-        /** @var CoreActivator $coreActivator */
-        $coreActivator = $this->container->get(CoreActivator::class);
-        $coreReleaseTimestamp = $this->helpers->getTimeStampFromVersion($coreActivator->info()['version'] ?? '');
-        return $coreReleaseTimestamp && $coreReleaseTimestamp > 1715951400;
     }
 
     /**
