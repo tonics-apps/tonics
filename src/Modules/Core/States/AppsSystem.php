@@ -20,6 +20,7 @@ namespace App\Modules\Core\States;
 
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\RequestInterceptor\RefreshTreeSystem;
@@ -123,6 +124,7 @@ class AppsSystem extends SimpleState
             session()->flash(["[$installedApp] App Installed"], [], type: Session::SessionCategories_FlashMessageSuccess);
             AppConfig::updateRestartService();
             RefreshTreeSystem::RefreshTreeSystem();
+            Roles::REFRESH_ROLES_AND_PERMISSIONS();
             return self::DONE;
         }
 

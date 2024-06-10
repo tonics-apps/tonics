@@ -58,7 +58,6 @@ use App\Modules\Core\Events\OnAddConsoleCommand;
 use App\Modules\Core\Events\OnAddRole;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
-use App\Modules\Core\Library\Authentication\Roles;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnAddFieldSanitization;
 use App\Modules\Field\Events\OnFieldMetaBox;
@@ -308,7 +307,6 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
      */
     public function onInstall (): void
     {
-        Roles::REFRESH_ROLES_AND_PERMISSIONS();
         $this->fieldData->importFieldItems($this->fieldItems());
     }
 
