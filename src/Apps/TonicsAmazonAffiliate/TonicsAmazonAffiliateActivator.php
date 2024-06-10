@@ -132,8 +132,9 @@ class TonicsAmazonAffiliateActivator implements ExtensionConfig, FieldItemsExten
         return [
             "name"                 => "TonicsAmazonAffiliate",
             "type"                 => "affiliate", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id"              => '55f3a988-276e-11ef-9736-124c30cfdb6b',
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1717926200',
+            "version"              => '1-O-app.1718095500',
             "description"          => "This is TonicsAmazonAffiliate",
             "info_url"             => '',
             "settings_page"        => route('tonicsAmazonAffiliate.settings'), // can be null or a route name

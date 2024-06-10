@@ -96,8 +96,9 @@ class Tonics404HandlerActivator implements ExtensionConfig, FieldItemsExtensionC
         return [
             "name"                 => "Tonics404Handler",
             "type"                 => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id"              => '176525a1-276c-11ef-9736-124c30cfdb6b',
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1717926200',
+            "version"              => '1-O-app.1718095500',
             "description"          => "This is Tonics404Handler",
             "info_url"             => '',
             "settings_page"        => route('tonics404Handler.settings'), // can be null or a route name

@@ -113,8 +113,9 @@ class TonicsAIActivator implements ExtensionConfig
         return [
             "name"                 => "TonicsAI",
             "type"                 => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id"              => 'c973e5b6-276c-11ef-9736-124c30cfdb6b',
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1717926200',
+            "version"              => '1-O-app.1718095500',
             "description"          => "This is TonicsAI",
             "info_url"             => '',
             "settings_page"        => route('tonicsAI.settings'), // can be null or a route name

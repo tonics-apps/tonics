@@ -107,8 +107,9 @@ class PaymentActivator implements ExtensionConfig
         return [
             "name"                 => "Payment",
             "type"                 => "Module",
+            "slug_id"              => "0e5921cd-2743-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1717926200',
+            "version"              => '1-O-Ola.1718095500',
             "description"          => "The Payment Module",
             "info_url"             => '',
             "settings_page"        => route('payment.settings'), // can be null or a route name

@@ -79,8 +79,9 @@ class CustomerActivator implements ExtensionConfig
         return [
             "name"                 => "Customer",
             "type"                 => "Module",
+            "slug_id"              => "d33a73a6-273f-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1717926200',
+            "version"              => '1-O-Ola.1718095500',
             // "version" => '1-O-Ola.943905600', // fake old date
             "description"          => "The Customer Module",
             "info_url"             => '',

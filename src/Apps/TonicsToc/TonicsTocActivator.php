@@ -115,7 +115,8 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "name"                 => "TonicsToc",
             "type"                 => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1717926200',
+            "slug_id"              => '08d3e041-276f-11ef-9736-124c30cfdb6b',
+            "version"              => '1-O-app.1718095500',
             "description"          => "This is TonicsToc",
             "info_url"             => '',
             "settings_page"        => route('tonicsToc.settings'), // can be null or a route name
