@@ -139,6 +139,9 @@ class AppInstallationService extends AbstractService
         $json = $this->getJSONFromURL('/latest', $this->getPostFieldForLatestAppRelease());
         if (isset($json->data)) {
             $data = $json->data;
+            if (empty($data)) {
+                return [];
+            }
             $updateData = [
                 'name'              => $data->name,
                 'folder_name'       => $data->name,
