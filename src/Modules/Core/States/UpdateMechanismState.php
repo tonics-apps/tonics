@@ -265,8 +265,8 @@ class UpdateMechanismState extends SimpleState
             }
         }
 
-        # If this is not set, then, we can do the DB operation, otherwise, it could only mean user want to bypass the DB
-        if (!isset($this->settings['Collate'])) {
+        # If this is empty then, we can do the DB operation, otherwise, it could only mean user want to bypass the DB as it have collation
+        if (empty($this->settings['Collate'])) {
             $oldCollate = AppConfig::getAppUpdatesObject();
             if (is_array($oldCollate)) {
                 foreach ($oldCollate as $type => $collate) {
@@ -355,8 +355,8 @@ class UpdateMechanismState extends SimpleState
             return self::ERROR;
         }
 
-        # If this is not set, then, we can do the DB operation, otherwise, it could only mean user want to bypass the DB
-        if (!isset($this->settings['Collate'])) {
+        # If this is empty, then, we can do the DB operation, otherwise, it could only mean user want to bypass the DB as it have collation
+        if (empty($this->settings['Collate'])) {
             $globalTable = Tables::getTable(Tables::GLOBAL);
             if (!empty($this->collate)) {
                 db(onGetDB: function (TonicsQuery $db) use ($globalTable) {
@@ -435,8 +435,10 @@ class UpdateMechanismState extends SimpleState
                 $appInstallationService->setAppSlug($slug);
                 $data = $appInstallationService->getUpdateDiscoveryData($tonicsHelper->getTimeStampFromVersion($module->info()['version'] ?? ''));
                 if (!empty($data)) {
-                    $this->collate[$type][$module::class] = $data;
-                    $tonicsHelper->sendMsg(self::getCurrentState(), "Discovered {$data['name']} - {$data['version']}");
+                    if (isset($data['name'])) {
+                        $this->collate[$type][$module::class] = $data;
+                        $tonicsHelper->sendMsg(self::getCurrentState(), "Discovered {$data['name']} - {$data['version']}");
+                    }
                 }
             }
 
