@@ -49,8 +49,13 @@ class RegisterAppsAndModules extends AbstractSchedulerInterface implements Sched
         $appSlugs = [];
         /** @var ExtensionConfig $activator */
         foreach ($apps as $app) {
-            if (isset($app->info()['slug_id'])) {
-                $appSlugs[] = $app->info()['slug_id'];
+            $appInfo = $app->info();
+            if (isset($appInfo['slug_id']) || isset($appInfo['name'])) {
+                $slug = $appInfo['slug_id'] ?? $appInfo['name'];
+                if (empty($slug)) {
+                    continue;
+                }
+                $appSlugs[] = $slug;
             }
         }
 

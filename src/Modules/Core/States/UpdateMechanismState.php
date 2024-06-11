@@ -425,14 +425,21 @@ class UpdateMechanismState extends SimpleState
                 continue;
             }
 
-            if (isset($module->info()['slug_id'])) {
-                $appInstallationService->setAppSlug($module->info()['slug_id']);
+            $moduleInfo = $module->info();
+            if (isset($moduleInfo['slug_id']) || isset($moduleInfo['name'])) {
+                $slug = $moduleInfo['slug_id'] ?? $moduleInfo['name'];
+                if (empty($slug)) {
+                    continue;
+                }
+
+                $appInstallationService->setAppSlug($slug);
                 $data = $appInstallationService->getUpdateDiscoveryData($tonicsHelper->getTimeStampFromVersion($module->info()['version'] ?? ''));
                 if (!empty($data)) {
                     $this->collate[$type][$module::class] = $data;
                     $tonicsHelper->sendMsg(self::getCurrentState(), "Discovered {$data['name']} - {$data['version']}");
                 }
             }
+
         }
     }
 
