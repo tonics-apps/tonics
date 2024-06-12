@@ -77,6 +77,12 @@ class AppInstallationService extends AbstractService
      * If ForceSigning is true, then, we need the signed signature to verify the authenticity of the App
      */
     const SettingsKeyUploadAppSignature = 'Signature';
+    /**
+     * `Accept: Bool`
+     *
+     * Whether you want verbosity or not
+     */
+    const SettingsKeyUploadAppVerbosity = 'Verbosity';
 
     # PROPRIETIES
     private array          $settings = [];
@@ -148,6 +154,9 @@ class AppInstallationService extends AbstractService
             return;
         }
 
+        $verbosity = $settings[self::SettingsKeyUploadAppVerbosity] ?? true;
+        helper()->updateActivateEventStreamMessage($verbosity);
+
         $signing = $settings[self::SettingsKeyUploadAppForceSigning] ?? true;
         $isModule = $appType === 1;
         $isApp = $appType === 2;
@@ -197,7 +206,6 @@ class AppInstallationService extends AbstractService
             if (!$extractedFileResult) {
                 throw new Exception("Failed To Extract File");
             }
-
             $dir = array_filter(glob($extractToTemp . DIRECTORY_SEPARATOR . '*'), 'is_dir');
             # It should only contain one folder which should be the name of the app, so, we return an error fam
             $countDir = count($dir);

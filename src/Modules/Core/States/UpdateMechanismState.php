@@ -482,6 +482,7 @@ class UpdateMechanismState extends SimpleState
                     AppInstallationService::SettingsKeyUploadAppAppPath    => $this->appPath,
                     AppInstallationService::SettingsKeyUploadAppModulePath => $this->modulePath,
                     AppInstallationService::SettingsKeyUploadAppTempPath   => $this->tempPath,
+                    AppInstallationService::SettingsKeyUploadAppVerbosity  => $this->isVerbosity(),
                 ];
 
                 # Override remote download and download from the local storage instead

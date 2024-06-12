@@ -263,5 +263,183 @@ describe("Tonics Helper", function () {
 
         });
     });
+
+    describe("->updateEnvValue();", function () use ($helper) {
+
+        function createTempEnvFile (string $content = ""): string
+        {
+            $tempFile = tempnam(sys_get_temp_dir(), 'env');
+            file_put_contents($tempFile, $content);
+            return $tempFile;
+        }
+
+        function deleteTempEnvFile (string $tempFile): void
+        {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        it("should throw an exception if the environment file does not exist", function () use ($helper) {
+            $nonExistentPath = "/path/to/nonexistent/.env";
+            $envKey = "NEW_KEY";
+            $envValue = "NEW_VALUE";
+
+            expect(function () use ($helper, $nonExistentPath, $envKey, $envValue) {
+                $helper->updateEnvValue($nonExistentPath, $envKey, $envValue);
+            })->toThrow(new InvalidArgumentException("The environment file '$nonExistentPath' does not exist."));
+        });
+
+        it("should append a new key-value pair if the key does not exist", function () use ($helper) {
+            $envContent = "EXISTING_KEY=EXISTING_VALUE\n";
+            $envPath = createTempEnvFile($envContent);
+            $envKey = "NEW_KEY";
+            $envValue = "NEW_VALUE";
+
+            $helper->updateEnvValue($envPath, $envKey, $envValue);
+
+            $updatedContent = file_get_contents($envPath);
+            expect($updatedContent)->toContain("NEW_KEY=NEW_VALUE");
+
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should update the value of an existing key", function () use ($helper) {
+            $envContent = "EXISTING_KEY=OLD_VALUE\n";
+            $envPath = createTempEnvFile($envContent);
+            $envKey = "EXISTING_KEY";
+            $envValue = "UPDATED_VALUE";
+
+            $helper->updateEnvValue($envPath, $envKey, $envValue);
+
+            $updatedContent = file_get_contents($envPath);
+            expect($updatedContent)->toContain("EXISTING_KEY=UPDATED_VALUE");
+            expect($updatedContent)->not->toContain("EXISTING_KEY=OLD_VALUE");
+
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should handle an environment file with different line endings", function () use ($helper) {
+            $envContent = "EXISTING_KEY=OLD_VALUE\r\n";
+            $envPath = createTempEnvFile($envContent);
+            $envKey = "EXISTING_KEY";
+            $envValue = "UPDATED_VALUE";
+
+            $helper->updateEnvValue($envPath, $envKey, $envValue);
+
+            $updatedContent = file_get_contents($envPath);
+            expect($updatedContent)->toContain("EXISTING_KEY=UPDATED_VALUE");
+            expect($updatedContent)->not->toContain("EXISTING_KEY=OLD_VALUE");
+
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should handle an empty environment file", function () use ($helper) {
+            $envPath = createTempEnvFile();
+            $envKey = "NEW_KEY";
+            $envValue = "NEW_VALUE";
+
+            $helper->updateEnvValue($envPath, $envKey, $envValue);
+
+            $updatedContent = file_get_contents($envPath);
+            expect($updatedContent)->toEqual("NEW_KEY=NEW_VALUE\n");
+
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should throw an exception if it fails to read the environment file", function () use ($helper) {
+            $envContent = "EXISTING_KEY=EXISTING_VALUE\n";
+            $envPath = createTempEnvFile($envContent);
+            chmod($envPath, 0222); // Write-only permission
+            $envKey = "NEW_KEY";
+            $envValue = "NEW_VALUE";
+
+            expect(function () use ($helper, $envPath, $envKey, $envValue) {
+                $helper->updateEnvValue($envPath, $envKey, $envValue);
+            })->toThrow(new \RuntimeException("The environment file '{$envPath}' is not readable."));
+
+            chmod($envPath, 0644); // Restore permissions so we can delete it
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should throw an exception if it fails to write the environment file", function () use ($helper) {
+            $envContent = "EXISTING_KEY=EXISTING_VALUE\n";
+            $envPath = createTempEnvFile($envContent);
+            chmod($envPath, 0444); // Read-only permission
+            $envKey = "NEW_KEY";
+            $envValue = "NEW_VALUE";
+
+            expect(function () use ($helper, $envPath, $envKey, $envValue) {
+                $helper->updateEnvValue($envPath, $envKey, $envValue);
+            })->toThrow(new \RuntimeException("The environment file '{$envPath}' is not writable."));
+
+            chmod($envPath, 0644); // Restore permissions so we can delete it
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should add multiple keys to an empty environment file", function () use ($helper) {
+            $envPath = createTempEnvFile(); // Empty environment file
+            $envValues = [
+                "KEY1" => "VALUE1",
+                "KEY2" => "VALUE2",
+                "KEY3" => "VALUE3",
+            ];
+
+            foreach ($envValues as $key => $value) {
+                $helper->updateEnvValue($envPath, $key, $value);
+            }
+
+            $updatedContent = file_get_contents($envPath);
+            foreach ($envValues as $key => $value) {
+                expect($updatedContent)->toContain("{$key}={$value}");
+            }
+
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should update multiple keys in an existing environment file", function () use ($helper) {
+            $envContent = "KEY1=OLD_VALUE1\nKEY2=OLD_VALUE2\nKEY3=OLD_VALUE3\n";
+            $envPath = createTempEnvFile($envContent);
+            $envValues = [
+                "KEY1" => "NEW_VALUE1",
+                "KEY2" => "NEW_VALUE2",
+                "KEY3" => "NEW_VALUE3",
+            ];
+
+            foreach ($envValues as $key => $value) {
+                $helper->updateEnvValue($envPath, $key, $value);
+            }
+
+            $updatedContent = file_get_contents($envPath);
+            foreach ($envValues as $key => $value) {
+                expect($updatedContent)->toContain("{$key}={$value}");
+            }
+
+            deleteTempEnvFile($envPath);
+        });
+
+        it("should add new keys and update existing keys in an existing environment file", function () use ($helper) {
+            $envContent = "KEY1=OLD_VALUE1\n";
+            $envPath = createTempEnvFile($envContent);
+            $envValues = [
+                "KEY1" => "NEW_VALUE1",
+                "KEY2" => "VALUE2",
+                "KEY3" => "VALUE3",
+            ];
+
+            foreach ($envValues as $key => $value) {
+                $helper->updateEnvValue($envPath, $key, $value);
+            }
+
+            $updatedContent = file_get_contents($envPath);
+            foreach ($envValues as $key => $value) {
+                expect($updatedContent)->toContain("{$key}={$value}");
+            }
+
+            deleteTempEnvFile($envPath);
+        });
+
+    });
+
 });
 

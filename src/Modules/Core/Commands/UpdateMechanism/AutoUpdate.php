@@ -51,15 +51,14 @@ class AutoUpdate implements ConsoleCommand
         $autoUpdateModules = AppConfig::getAutoUpdateModules();
         $autoUpdateApps = AppConfig::getAutoUpdateApps();
 
-        helper()->updateActivateEventStreamMessage(1);
-
         if ($autoUpdateModules === true || is_array($autoUpdateModules)) {
             $this->infoMessage("Modules Update Initializing...");
             $autoUpdateModules = ($autoUpdateModules === true) ? [] : $autoUpdateModules;
             $updateMechanismState = new UpdateMechanismState([
-                UpdateMechanismState::SettingsKeyUpdates => $autoUpdateModules,
-                UpdateMechanismState::SettingsKeyAction  => UpdateMechanismState::SettingsActionUpdate,
-                UpdateMechanismState::SettingsKeyTypes   => [UpdateMechanismState::SettingsTypeModule],
+                UpdateMechanismState::SettingsKeyUpdates   => $autoUpdateModules,
+                UpdateMechanismState::SettingsKeyAction    => UpdateMechanismState::SettingsActionUpdate,
+                UpdateMechanismState::SettingsKeyTypes     => [UpdateMechanismState::SettingsTypeModule],
+                UpdateMechanismState::SettingsKeyVerbosity => true,
             ]);
             $updateMechanismState->runStates(false);
         }

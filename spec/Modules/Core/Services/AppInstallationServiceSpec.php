@@ -56,6 +56,7 @@ describe("Core::AppInstallationService", function () {
             AppInstallationService::SettingsKeyUploadAppTempPathFolderName  => 'apps',
             AppInstallationService::SettingsKeyUploadAppDownloadURLOverride => __DIR__ . '/AppInstallationService/Tonics404Handler.zip',
             AppInstallationService::SettingsKeyUploadAppForceSigning        => false,
+            AppInstallationService::SettingsKeyUploadAppVerbosity           => false,
         ];
 
         it('should fail if AppType is invalid', function () use ($settings) {
