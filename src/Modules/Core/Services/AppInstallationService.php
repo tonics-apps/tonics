@@ -84,7 +84,7 @@ class AppInstallationService extends AbstractService
         $options = [
             CURLOPT_POST                 => true,
             CURLOPT_POSTFIELDS           => json_encode($postField),
-            CURLOPT_SSL_VERIFYHOST       => true,
+            CURLOPT_SSL_VERIFYHOST       => 2,
             CURLOPT_PROXY_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYSTATUS     => true,
             CURLOPT_DNS_CACHE_TIMEOUT    => false,
