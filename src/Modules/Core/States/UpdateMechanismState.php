@@ -477,16 +477,16 @@ class UpdateMechanismState extends SimpleState
             if ($canUpdate && !empty($module['download_url'])) {
                 $appInstallationService = $this->getAppInstallationService();
                 $settings = [
-                    'AppType'    => ($type === 'module') ? 1 : 2,
-                    'Signature'  => $module['hash'] ?? '',
-                    'AppPath'    => $this->appPath,
-                    'ModulePath' => $this->modulePath,
-                    'TempPath'   => $this->tempPath,
+                    AppInstallationService::SettingsKeyUploadAppAppType    => ($type === 'module') ? 1 : 2,
+                    AppInstallationService::SettingsKeyUploadAppSignature  => $module['hash'] ?? '',
+                    AppInstallationService::SettingsKeyUploadAppAppPath    => $this->appPath,
+                    AppInstallationService::SettingsKeyUploadAppModulePath => $this->modulePath,
+                    AppInstallationService::SettingsKeyUploadAppTempPath   => $this->tempPath,
                 ];
 
                 # Override remote download and download from the local storage instead
                 if (isset($module['download_url_override'])) {
-                    $settings['DownloadURLOverride'] = $module['download_url_override'];
+                    $settings[AppInstallationService::SettingsKeyUploadAppDownloadURLOverride] = $module['download_url_override'];
                 }
 
                 $appInstallationService->uploadApp($module['download_url'], $settings);

@@ -28,6 +28,57 @@ use Exception;
 
 class AppInstallationService extends AbstractService
 {
+    /**
+     * `Accept: Int`
+     *
+     * 1 for modules and 2 for Apps, (2 is set by default), it validates the type and throws an exception if the wrong
+     * type is set.
+     */
+    const SettingsKeyUploadAppAppType = 'AppType';
+    /**
+     * `Accept: String`
+     *
+     * where the app should be uploaded to, default to: `AppConfig::getAppsPath()`.
+     */
+    const SettingsKeyUploadAppAppPath = 'AppPath';
+    /**
+     * `Accept: String`
+     *
+     * where module should be uploaded to, default to: `AppConfig::getModulesPath()`.
+     */
+    const SettingsKeyUploadAppModulePath = 'ModulePath';
+    /**
+     * `Accept: String`
+     *
+     * it defaults to either TempPathForModules or TempPathForApps, override it here.
+     */
+    const SettingsKeyUploadAppTempPath = 'TempPath';
+    /**
+     * `Accept: String`
+     *
+     * folder name to use, where we place the app unto, default to generating random name
+     */
+    const SettingsKeyUploadAppTempPathFolderName = 'TempPathFolderName';
+    /**
+     * `Accept: String`
+     *
+     * It would use this path and skip downloading from the URL.
+     */
+    const SettingsKeyUploadAppDownloadURLOverride = 'DownloadURLOverride';
+    /**
+     * `Accept: Bool`
+     *
+     * Whether you want to verify the authenticity of the App or not, this is true by default
+     */
+    const SettingsKeyUploadAppForceSigning = 'ForceSigning';
+    /**
+     * `Accept: String`
+     *
+     * If ForceSigning is true, then, we need the signed signature to verify the authenticity of the App
+     */
+    const SettingsKeyUploadAppSignature = 'Signature';
+
+    # PROPRIETIES
     private array          $settings = [];
     private array|string   $appSlug  = '';
     private ?TonicsHelpers $helpers;
@@ -63,6 +114,191 @@ class AppInstallationService extends AbstractService
         $this->helpers = $this->settings['TonicsHelper'];
         $this->container = $this->settings['Container'];
         $this->appSlug = $this->settings['APP_SLUG'];
+    }
+
+    /**
+     *
+     * For the settings param, it can contain the below, note that all the below have defaults (it is a good idea to set the AppType though) as such you can just leave it as is:
+     *
+     * ```
+     * [
+     *      AppInstallationService::SettingsKeyUploadAppAppType => 1 or 2,
+     *      AppInstallationService::SettingsKeyUploadAppAppPath => '...',
+     *      AppInstallationService::SettingsKeyUploadAppModulePath => '...',
+     *      AppInstallationService::SettingsKeyUploadAppTempPath => '/path/to/temp/folder',
+     *      AppInstallationService::SettingsKeyUploadAppTempPathFolderName => '...',
+     *      AppInstallationService::SettingsKeyUploadAppDownloadURLOverride => '/path/to/app/zip',
+     *      AppInstallationService::SettingsKeyUploadAppForceSigning => true,
+     *      AppInstallationService::SettingsKeyUploadAppSignature => '...',
+     * ]
+     * ```
+     *
+     * @param string $downloadURL
+     * @param array $settings
+     *
+     * @return void
+     * @throws \Throwable
+     */
+    public function uploadApp (string $downloadURL, array $settings = []): void
+    {
+        $localDriver = new LocalDriver($this->helpers);
+        $appType = $settings[self::SettingsKeyUploadAppAppType] ?? 2; // defaults to App
+        if ($appType > 2 || $appType <= 0) {
+            $this->setFails(true)->setErrors(["App Type Should Either Be 1 for Module or 2 for Apps"]);
+            return;
+        }
+
+        $signing = $settings[self::SettingsKeyUploadAppForceSigning] ?? true;
+        $isModule = $appType === 1;
+        $isApp = $appType === 2;
+
+        $tempPath = $settings[self::SettingsKeyUploadAppTempPath] ?? (($isModule) ? DriveConfig::getTempPathForModules() : DriveConfig::getTempPathForApps());
+        $name = $settings[self::SettingsKeyUploadAppTempPathFolderName] ?? $this->helpers->randomString(15);
+        $zipName = $name . '.zip';
+        $extractToTemp = $tempPath . DIRECTORY_SEPARATOR . $name;
+        $extractToTempZip = $tempPath . DIRECTORY_SEPARATOR . $zipName;
+
+        # Edge case, forceDelete temp zip path if it already exists
+        if ($this->helpers->fileExists($extractToTempZip)) {
+            $this->helpers->forceDeleteFile($extractToTempZip);
+        }
+
+        # For Temp Extract
+        if ($this->helpers->fileExists($extractToTemp)) {
+            $this->helpers->forceDeleteDirectory($extractToTemp);
+        }
+
+        $cleanUpTempDir = function () use ($extractToTempZip, $extractToTemp) {
+            if ($this->helpers->fileExists($extractToTemp)) {
+                $this->helpers->forceDeleteDirectory($extractToTemp);
+            }
+            if ($this->helpers->fileExists($extractToTempZip)) {
+                $this->helpers->forceDeleteFile($extractToTempZip);
+            }
+        };
+
+        try {
+
+            if (!isset($settings[self::SettingsKeyUploadAppDownloadURLOverride])) {
+                if (!$localDriver->createFromURL($downloadURL, $tempPath, $zipName, false)) {
+                    throw new Exception("An Error Occurred Downloading $downloadURL");
+                }
+            } else {
+                $extractToTempZip = $settings[self::SettingsKeyUploadAppDownloadURLOverride];
+            }
+
+            # Let's create the directory structure of our temp path in case it is needed
+            $result = $this->helpers->createDirectoryRecursive($extractToTemp);
+            if (!$result) {
+                throw new Exception("An Error Occurred Creating Directory Structure For Temp. Path");
+            }
+
+            $extractedFileResult = $localDriver->extractFile($extractToTempZip, $extractToTemp, 'zip', false);
+            if (!$extractedFileResult) {
+                throw new Exception("Failed To Extract File");
+            }
+
+            $dir = array_filter(glob($extractToTemp . DIRECTORY_SEPARATOR . '*'), 'is_dir');
+            # It should only contain one folder which should be the name of the app, so, we return an error fam
+            $countDir = count($dir);
+            if (count($dir) !== 1) {
+                throw new Exception("The Extracted Should Contain Only One Folder Which Should be The App Name, Instead We Had ($countDir) Directory");
+            }
+
+            # Validate Activator
+            $appTempPathDir = $dir[0];
+            $activatorFile = $this->helpers->findFilesWithExtension(['php'], $appTempPathDir) ?? [];
+            $getFileContent = @file_get_contents($activatorFile[0] ?? '');
+            if (count($activatorFile) !== 1 || $getFileContent === false) {
+                throw new Exception("Should only have one PHP File at the Root which should be the PHP activator");
+            }
+
+            $class = $this->helpers->getFullClassName($getFileContent);
+            if ($isModule) {
+                if (!AppConfig::isInternalModuleNameSpace($class)) {
+                    throw new Exception("The AppType is Module and Should be a Valid Module Namespace");
+                }
+                $directoryToMoveDestination = $settings[self::SettingsKeyUploadAppModulePath] ?? AppConfig::getModulesPath();
+            } elseif ($isApp) {
+                if (!AppConfig::isAppNameSpace($class)) {
+                    throw new Exception("The AppType is App and Should be a Valid App Namespace");
+                }
+                $directoryToMoveDestination = $settings[self::SettingsKeyUploadAppAppPath] ?? AppConfig::getAppsPath();
+            } else {
+                throw new Exception("The AppType is Invalid");
+            }
+
+            $infoArray = $this->extractInfoArrayToArray($getFileContent);
+            # If signing is true, we check signing
+            if ($signing === true) {
+                # Grab the app signature
+                $signature = $settings[self::SettingsKeyUploadAppSignature] ?? '';
+
+                # Construct Signatures
+                $signatures = [];
+                foreach ($this->getPublicKeys() as $publicKey) {
+                    $signatures[] = [
+                        'key' => $publicKey,
+                        'sig' => $signature,
+                    ];
+                }
+
+                if (!$this->helpers->signingVerifyFileSignature([
+                    'file'       => $extractToTempZip,
+                    'signatures' => $signatures,
+                ])) {
+                    throw new Exception("Can't Verify The Authenticity of The App");
+                }
+
+            }
+
+            $appName = $infoArray['name'] ?? '';
+            if (empty($appName)) {
+                throw new Exception("There is No Valid AppName in App Activator");
+            }
+
+            $appModulePathFolder = $directoryToMoveDestination . DIRECTORY_SEPARATOR . $appName;
+            # If there is .installed in the app path, drop it in the tempPath, if it fails, then user might
+            # want to re-install the app
+            if ($this->helpers->fileExists($appModulePathFolder . DIRECTORY_SEPARATOR . '.installed')) {
+                @file_put_contents($appTempPathDir . DIRECTORY_SEPARATOR . '.installed', '');
+            }
+
+            # Time For Copying To The Actual Directory, First, Lets Backup The Original if There is one
+            $backupDir = $tempPath . DIRECTORY_SEPARATOR . $this->helpers->randomString(10);
+
+            if ($this->helpers->fileExists($appModulePathFolder)) {
+                # Let's create the directory structure of our backup temp path
+                $result = $this->helpers->createDirectoryRecursive($backupDir);
+                if (!$result) {
+                    throw new Exception("An Error Occurred Creating Directory Structure For Backup Temp. Path");
+                }
+
+                $renamedResult = @rename($appModulePathFolder, $backupDir);
+                if (!$renamedResult) {
+                    throw new Exception("Failed To Backup The Existing App, Afraid I Can't Continue :(");
+                }
+            }
+
+            $renamedResult = @rename($appTempPathDir, $appModulePathFolder);
+            if ($renamedResult) {
+                # Should Only Delete The Backup Dirs if renamed is successful
+                $this->helpers->forceDeleteDirectory($backupDir);
+                $this->setFails(false)->setMessage("[$appName] App Successfully Uploaded");
+            } else {
+                # Restore Deleted App Folder, There is no error checking here, as my hands are up at this point
+                $this->helpers->forceDeleteDirectory($appModulePathFolder);
+                rename($backupDir, $appModulePathFolder);
+                $this->helpers->forceDeleteDirectory($backupDir);
+                throw new Exception('An Error Occurred Moving App From Temp To The Actual Directory');
+            }
+        } catch (\Exception $exception) {
+            $this->setFails(true)->setErrors([$exception->getMessage()]);
+        } finally {
+            # Delete Temps
+            $cleanUpTempDir();
+        }
+
     }
 
     /**
@@ -158,195 +394,6 @@ class AppInstallationService extends AbstractService
         }
 
         return $updateData;
-    }
-
-    /**
-     *
-     * For the settings param, it can contain the below, note that all the below have defaults (it is a good idea to set the AppType though) as such you can just leave it as is:
-     *
-     * ```
-     * [
-     *      // 1 for modules and 2 for Apps, (2 is by default), it validates the type
-     *      'AppType' => 1 or 2,
-     *      'AppPath' => '...', // where the app should be uploaded to, default to: AppConfig::getAppsPath()
-     *      'ModulePath' => '...', // for module, where module should be uploaded to, default to: AppConfig::getModulesPath()
-     *      // it defaults to either TempPathForModules or TempPathForApps, override it here
-     *      'TempPath' => '/path/to/temp/folder',
-     *      // folder name to use, where we place the app unto, default to generating random name
-     *      'TempPathFolderName' => '...',
-     *      // it would use this path and skip downloading from the URL
-     *      'DownloadURLOverride' => '/path/to/app/zip',
-     *      'ForceSigning' => true, // false to turn of, true by default
-     *      'Signature' => '...', // The signed signature to verify the authenticity of the App
-     * ]
-     * ```
-     *
-     * @param string $downloadURL
-     * @param array $settings
-     *
-     * @return void
-     * @throws \Throwable
-     */
-    public function uploadApp (string $downloadURL, array $settings = []): void
-    {
-        $localDriver = new LocalDriver($this->helpers);
-        $appType = $settings['AppType'] ?? 2; // defaults to App
-        if ($appType > 2 || $appType <= 0) {
-            $this->setFails(true)->setErrors(["App Type Should Either Be 1 for Module or 2 for Apps"]);
-            return;
-        }
-
-        $signing = $settings['ForceSigning'] ?? true;
-        $isModule = $appType === 1;
-        $isApp = $appType === 2;
-
-        $tempPath = $settings['TempPath'] ?? (($isModule) ? DriveConfig::getTempPathForModules() : DriveConfig::getTempPathForApps());
-        $name = $settings['TempPathFolderName'] ?? $this->helpers->randomString(15);
-        $zipName = $name . '.zip';
-        $extractToTemp = $tempPath . DIRECTORY_SEPARATOR . $name;
-        $extractToTempZip = $tempPath . DIRECTORY_SEPARATOR . $zipName;
-
-        # Edge case, forceDelete temp zip path if it already exists
-        if ($this->helpers->fileExists($extractToTempZip)) {
-            $this->helpers->forceDeleteFile($extractToTempZip);
-        }
-
-        # For Temp Extract
-        if ($this->helpers->fileExists($extractToTemp)) {
-            $this->helpers->forceDeleteDirectory($extractToTemp);
-        }
-
-        $cleanUpTempDir = function () use ($extractToTempZip, $extractToTemp) {
-            if ($this->helpers->fileExists($extractToTemp)) {
-                $this->helpers->forceDeleteDirectory($extractToTemp);
-            }
-            if ($this->helpers->fileExists($extractToTempZip)) {
-                $this->helpers->forceDeleteFile($extractToTempZip);
-            }
-        };
-
-        try {
-
-            if (!isset($settings['DownloadURLOverride'])) {
-                if (!$localDriver->createFromURL($downloadURL, $tempPath, $zipName, false)) {
-                    throw new Exception("An Error Occurred Downloading $downloadURL");
-                }
-            } else {
-                $extractToTempZip = $settings['DownloadURLOverride'];
-            }
-
-            # Let's create the directory structure of our temp path in case it is needed
-            $result = $this->helpers->createDirectoryRecursive($extractToTemp);
-            if (!$result) {
-                throw new Exception("An Error Occurred Creating Directory Structure For Temp. Path");
-            }
-
-            $extractedFileResult = $localDriver->extractFile($extractToTempZip, $extractToTemp, 'zip', false);
-            if (!$extractedFileResult) {
-                throw new Exception("Failed To Extract File");
-            }
-
-            $dir = array_filter(glob($extractToTemp . DIRECTORY_SEPARATOR . '*'), 'is_dir');
-            # It should only contain one folder which should be the name of the app, so, we return an error fam
-            $countDir = count($dir);
-            if (count($dir) !== 1) {
-                throw new Exception("The Extracted Should Contain Only One Folder Which Should be The App Name, Instead We Had ($countDir) Directory");
-            }
-
-            # Validate Activator
-            $appTempPathDir = $dir[0];
-            $activatorFile = $this->helpers->findFilesWithExtension(['php'], $appTempPathDir) ?? [];
-            $getFileContent = @file_get_contents($activatorFile[0] ?? '');
-            if (count($activatorFile) !== 1 || $getFileContent === false) {
-                throw new Exception("Should only have one PHP File at the Root which should be the PHP activator");
-            }
-
-            $class = $this->helpers->getFullClassName($getFileContent);
-            if ($isModule) {
-                if (!AppConfig::isInternalModuleNameSpace($class)) {
-                    throw new Exception("The AppType is Module and Should be a Valid Module Namespace");
-                }
-                $directoryToMoveDestination = $settings['ModulePath'] ?? AppConfig::getModulesPath();
-            } elseif ($isApp) {
-                if (!AppConfig::isAppNameSpace($class)) {
-                    throw new Exception("The AppType is App and Should be a Valid App Namespace");
-                }
-                $directoryToMoveDestination = $settings['AppPath'] ?? AppConfig::getAppsPath();
-            } else {
-                throw new Exception("The AppType is Invalid");
-            }
-
-            $infoArray = $this->extractInfoArrayToArray($getFileContent);
-            # If signing is true, we check signing
-            if ($signing === true) {
-                # Grab the app signature
-                $signature = $settings['Signature'] ?? '';
-
-                # Construct Signatures
-                $signatures = [];
-                foreach ($this->getPublicKeys() as $publicKey) {
-                    $signatures[] = [
-                        'key' => $publicKey,
-                        'sig' => $signature,
-                    ];
-                }
-
-                if (!$this->helpers->signingVerifyFileSignature([
-                    'file'       => $extractToTempZip,
-                    'signatures' => $signatures,
-                ])) {
-                    throw new Exception("Can't Verify The Authenticity of The App");
-                }
-
-            }
-
-            $appName = $infoArray['name'] ?? '';
-            if (empty($appName)) {
-                throw new Exception("There is No Valid AppName in App Activator");
-            }
-
-            $appModulePathFolder = $directoryToMoveDestination . DIRECTORY_SEPARATOR . $appName;
-            # If there is .installed in the app path, drop it in the tempPath, if it fails, then user might
-            # want to re-install the app
-            if ($this->helpers->fileExists($appModulePathFolder . DIRECTORY_SEPARATOR . '.installed')) {
-                @file_put_contents($appTempPathDir . DIRECTORY_SEPARATOR . '.installed', '');
-            }
-
-            # Time For Copying To The Actual Directory, First, Lets Backup The Original if There is one
-            $backupDir = $tempPath . DIRECTORY_SEPARATOR . $this->helpers->randomString(10);
-
-            if ($this->helpers->fileExists($appModulePathFolder)) {
-                # Let's create the directory structure of our backup temp path
-                $result = $this->helpers->createDirectoryRecursive($backupDir);
-                if (!$result) {
-                    throw new Exception("An Error Occurred Creating Directory Structure For Backup Temp. Path");
-                }
-
-                $renamedResult = @rename($appModulePathFolder, $backupDir);
-                if (!$renamedResult) {
-                    throw new Exception("Failed To Backup The Existing App, Afraid I Can't Continue :(");
-                }
-            }
-
-            $renamedResult = @rename($appTempPathDir, $appModulePathFolder);
-            if ($renamedResult) {
-                # Should Only Delete The Backup Dirs if renamed is successful
-                $this->helpers->forceDeleteDirectory($backupDir);
-                $this->setFails(false)->setMessage("[$appName] App Successfully Uploaded");
-            } else {
-                # Restore Deleted App Folder, There is no error checking here, as my hands are up at this point
-                $this->helpers->forceDeleteDirectory($appModulePathFolder);
-                rename($backupDir, $appModulePathFolder);
-                $this->helpers->forceDeleteDirectory($backupDir);
-                throw new Exception('An Error Occurred Moving App From Temp To The Actual Directory');
-            }
-        } catch (\Exception $exception) {
-            $this->setFails(true)->setErrors([$exception->getMessage()]);
-        } finally {
-            # Delete Temps
-            $cleanUpTempDir();
-        }
-
     }
 
     /**

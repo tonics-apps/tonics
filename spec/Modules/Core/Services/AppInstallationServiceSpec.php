@@ -49,13 +49,13 @@ describe("Core::AppInstallationService", function () {
     describe("->uploadApp();", function () {
 
         $settings = [
-            'AppType'             => 2,
-            'AppPath'             => __DIR__ . '/AppInstallationService/apps',
-            'ModulePath'          => __DIR__ . '/AppInstallationService/modules',
-            'TempPath'            => __DIR__ . '/AppInstallationService/temp',
-            'TempPathFolderName'  => 'apps',
-            'DownloadURLOverride' => __DIR__ . '/AppInstallationService/Tonics404Handler.zip',
-            'ForceSigning'        => false,
+            AppInstallationService::SettingsKeyUploadAppAppType             => 2,
+            AppInstallationService::SettingsKeyUploadAppAppPath             => __DIR__ . '/AppInstallationService/apps',
+            AppInstallationService::SettingsKeyUploadAppModulePath          => __DIR__ . '/AppInstallationService/modules',
+            AppInstallationService::SettingsKeyUploadAppTempPath            => __DIR__ . '/AppInstallationService/temp',
+            AppInstallationService::SettingsKeyUploadAppTempPathFolderName  => 'apps',
+            AppInstallationService::SettingsKeyUploadAppDownloadURLOverride => __DIR__ . '/AppInstallationService/Tonics404Handler.zip',
+            AppInstallationService::SettingsKeyUploadAppForceSigning        => false,
         ];
 
         it('should fail if AppType is invalid', function () use ($settings) {
@@ -70,7 +70,7 @@ describe("Core::AppInstallationService", function () {
             $appInstallationService = newInstanceOfAppInstallationService($this);
 
             foreach ($appTypes as $appType) {
-                $settings['AppType'] = $appType;
+                $settings[AppInstallationService::SettingsKeyUploadAppAppType] = $appType;
                 $appInstallationService->uploadApp('', $settings);
                 expect($appInstallationService->fails())->toBeTruthy();
                 expect($appInstallationService->getErrorsAsString())->toContain("App Type Should Either Be 1 for Module or 2 for Apps");
@@ -80,7 +80,7 @@ describe("Core::AppInstallationService", function () {
 
         it('should upload app successfully with valid parameters', function () use ($settings) {
             $appInstallationService = newInstanceOfAppInstallationService($this);
-            $settings['AppType'] = 2;
+            $settings[AppInstallationService::SettingsKeyUploadAppAppType] = 2;
             $appInstallationService->uploadApp('', $settings);
             expect($appInstallationService->fails())->toBeFalsy();
             expect($appInstallationService->getMessage())->toContain('App Successfully Uploaded');
@@ -88,7 +88,7 @@ describe("Core::AppInstallationService", function () {
 
         it('should fail as app has a different namespace', function () use ($settings) {
             $appInstallationService = newInstanceOfAppInstallationService($this);
-            $settings['AppType'] = 1;
+            $settings[AppInstallationService::SettingsKeyUploadAppAppType] = 1;
             $appInstallationService->uploadApp('', $settings);
 
             expect($appInstallationService->fails())->toBeTruthy();
@@ -97,7 +97,7 @@ describe("Core::AppInstallationService", function () {
 
         it('should fail as the authenticity cant be verified', function () use ($settings) {
             $appInstallationService = newInstanceOfAppInstallationService($this);
-            $settings['ForceSigning'] = true;
+            $settings[AppInstallationService::SettingsKeyUploadAppForceSigning] = true;
             $appInstallationService->uploadApp('', $settings);
             expect($appInstallationService->fails())->toBeTruthy();
             expect($appInstallationService->getErrorsAsString())->toContain("The authenticity of Tonics404Handler.zip could not be verified as no valid signature was found.");
@@ -105,8 +105,8 @@ describe("Core::AppInstallationService", function () {
 
         it('The authenticity can be verified, upload app success', function () use ($settings) {
             $appInstallationService = newInstanceOfAppInstallationService($this);
-            $settings['ForceSigning'] = true;
-            $settings['Signature'] = 'I3YtrvQLE9+iqM9EUQEtQdn3eLiB3Mh0mUU5zkaGqsqsotC9v+GljtK8Jh9rYB0uWI35punoRbWl+47U2Cw7DQ';
+            $settings[AppInstallationService::SettingsKeyUploadAppForceSigning] = true;
+            $settings[AppInstallationService::SettingsKeyUploadAppSignature] = 'I3YtrvQLE9+iqM9EUQEtQdn3eLiB3Mh0mUU5zkaGqsqsotC9v+GljtK8Jh9rYB0uWI35punoRbWl+47U2Cw7DQ';
             $appInstallationService->uploadApp('', $settings);
             expect($appInstallationService->fails())->toBeFalsy();
             expect($appInstallationService->getMessage())->toContain('App Successfully Uploaded');
@@ -114,8 +114,8 @@ describe("Core::AppInstallationService", function () {
 
         it('should fail as the signature is incorrect and as such the authenticity cant be verified', function () use ($settings) {
             $appInstallationService = newInstanceOfAppInstallationService($this);
-            $settings['ForceSigning'] = true;
-            $settings['Signature'] = 'I3YtrvQLE9+xxxxxxxxx+GljtK8Jh9rYB0uWI35punoRbWl+47U2Cw7DQ';
+            $settings[AppInstallationService::SettingsKeyUploadAppForceSigning] = true;
+            $settings[AppInstallationService::SettingsKeyUploadAppSignature] = 'I3YtrvQLE9+xxxxxxxxx+GljtK8Jh9rYB0uWI35punoRbWl+47U2Cw7DQ';
             $appInstallationService->uploadApp('', $settings);
             expect($appInstallationService->fails())->toBeTruthy();
             expect($appInstallationService->getErrorsAsString())->toContain('The authenticity of Tonics404Handler.zip could not be verified as no valid signature was found.');

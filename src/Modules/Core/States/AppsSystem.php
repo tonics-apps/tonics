@@ -338,8 +338,8 @@ class AppsSystem extends SimpleState
     public function OnAppProcessUploadState (): string
     {
         $this->appInstallationService->uploadApp($this->getPluginURL(), [
-            'AppType'   => 2, // force AppType
-            'Signature' => $this->getPluginSignatureHash(),
+            AppInstallationService::SettingsKeyUploadAppAppType   => 2, // force AppType
+            AppInstallationService::SettingsKeyUploadAppSignature => $this->getPluginSignatureHash(),
         ]);
 
         if ($this->appInstallationService->fails()) {
