@@ -279,9 +279,10 @@ class AppsSystem extends SimpleState
                     # is module
                     if (str_starts_with($appDirPath, AppConfig::getModulesPath())) {
                         $moduleUpdate = new UpdateMechanismState([
-                            UpdateMechanismState::SettingsKeyUpdates => [helper()->getFileName($appDirPath)],
-                            UpdateMechanismState::SettingsKeyAction  => UpdateMechanismState::SettingsActionUpdate,
-                            UpdateMechanismState::SettingsKeyTypes   => [UpdateMechanismState::SettingsTypeModule],
+                            UpdateMechanismState::SettingsKeyUpdates   => [helper()->getFileName($appDirPath)],
+                            UpdateMechanismState::SettingsKeyAction    => UpdateMechanismState::SettingsActionUpdate,
+                            UpdateMechanismState::SettingsKeyTypes     => [UpdateMechanismState::SettingsTypeModule],
+                            UpdateMechanismState::SettingsKeyVerbosity => false,
                         ]);
                         $moduleUpdate->runStates(false);
                         if ($moduleUpdate->getStateResult() === SimpleState::ERROR) {
@@ -293,9 +294,10 @@ class AppsSystem extends SimpleState
                     # is app
                     if (str_starts_with($appDirPath, AppConfig::getAppsPath())) {
                         $appUpdate = new UpdateMechanismState([
-                            UpdateMechanismState::SettingsKeyUpdates => [helper()->getFileName($appDirPath)],
-                            UpdateMechanismState::SettingsKeyAction  => UpdateMechanismState::SettingsActionUpdate,
-                            UpdateMechanismState::SettingsKeyTypes   => [UpdateMechanismState::SettingsTypeApp],
+                            UpdateMechanismState::SettingsKeyUpdates   => [helper()->getFileName($appDirPath)],
+                            UpdateMechanismState::SettingsKeyAction    => UpdateMechanismState::SettingsActionUpdate,
+                            UpdateMechanismState::SettingsKeyTypes     => [UpdateMechanismState::SettingsTypeApp],
+                            UpdateMechanismState::SettingsKeyVerbosity => false,
                         ]);
                         $appUpdate->runStates(false);
                         if ($appUpdate->getStateResult() === SimpleState::ERROR) {
