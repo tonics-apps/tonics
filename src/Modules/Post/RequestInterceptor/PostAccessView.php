@@ -26,9 +26,7 @@ use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldFormHelper;
-use App\Modules\Page\Events\OnPageDefaultField;
 use App\Modules\Post\Data\PostData;
-use App\Modules\Post\Events\OnPostDefaultField;
 use App\Modules\Post\Helper\PostRedirection;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
@@ -37,36 +35,38 @@ use JetBrains\PhpStorm\NoReturn;
 class PostAccessView
 {
     private PostData $postData;
-    private array $post = [];
-    private array $category = [];
+    private array    $post     = [];
+    private array    $category = [];
 
-    public function __construct(PostData $postData){
+    public function __construct (PostData $postData)
+    {
         $this->postData = $postData;
     }
 
     /**
      * @throws \Exception
      */
-    public function handlePost(): void
+    public function handlePost (): void
     {
         $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $postSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
         $this->getPostData()->getPostByUniqueID($uniqueSlugID, 'slug_id', function ($postData, $role) use ($postSlug) {
             # if empty we can check with the post_slug and do a redirection
-            if (empty($postData)){
+            if (empty($postData)) {
                 $postData = (array)$this->getPostData()->getPostByUniqueID($postSlug, 'post_slug');
-                if (isset($postData['slug_id'])){
+                if (isset($postData['slug_id'])) {
                     redirect(PostRedirection::getPostAbsoluteURLPath($postData), 302);
                 }
                 # if postSlug is not equals to $post['post_slug'], do a redirection to the correct one
-            } elseif (isset($postData['post_slug']) && $postData['post_slug'] !== $postSlug){
+            } elseif (isset($postData['post_slug']) && $postData['post_slug'] !== $postSlug) {
                 redirect(PostRedirection::getPostAbsoluteURLPath($postData), 302);
             }
 
-            if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ) === false){
+            if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ) === false) {
                 if (key_exists('post_status', $postData)) {
                     if ($postData['post_status'] === 1) {
-                        $this->post = $postData; return;
+                        $this->post = $postData;
+                        return;
                     }
                 }
                 throw new URLNotFound(SimpleState::ERROR_FORBIDDEN__MESSAGE, SimpleState::ERROR_FORBIDDEN__CODE);
@@ -79,30 +79,30 @@ class PostAccessView
     /**
      * @throws \Exception
      */
-    public function handleCategory(): void
+    public function handleCategory (): void
     {
         $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
         $catSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
         $category = null;
-        db(onGetDB: function (TonicsQuery $db) use ($uniqueSlugID, &$category){
+        db(onGetDB: function (TonicsQuery $db) use ($uniqueSlugID, &$category) {
             $category = $db->Select("*")
                 ->From($this->getPostData()->getCategoryTable())->WhereEquals('slug_id', $uniqueSlugID)
                 ->setPdoFetchType(\PDO::FETCH_ASSOC)->FetchFirst();
         });
 
         # if empty we can check with the cat_slug and do a redirection
-        if (empty($category)){
+        if (empty($category)) {
             $category = null;
-            db(onGetDB: function (TonicsQuery $db) use ($catSlug, &$category){
+            db(onGetDB: function (TonicsQuery $db) use ($catSlug, &$category) {
                 $category = $db->Select("*")
                     ->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $catSlug)
                     ->setPdoFetchType(\PDO::FETCH_ASSOC)->FetchFirst();
             });
-            if (isset($category['slug_id'])){
+            if (isset($category['slug_id'])) {
                 redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
             }
-        # if catSlug is not equals to $category['cat_slug'], do a redirection to the correct one
-        } elseif (isset($category['cat_slug']) && $category['cat_slug'] !== $catSlug){
+            # if catSlug is not equals to $category['cat_slug'], do a redirection to the correct one
+        } elseif (isset($category['cat_slug']) && $category['cat_slug'] !== $catSlug) {
             redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
         }
 
@@ -110,13 +110,15 @@ class PostAccessView
             $category['categories'][] = array_reverse($this->postData->getPostCategoryParents($category['cat_parent_id'] ?? ''));
             $catCreatedAtTimeStamp = strtotime($category['created_at']);
             if ($category['cat_status'] === 1 && time() >= $catCreatedAtTimeStamp) {
-                $this->category = $category; return;
+                $this->category = $category;
+                return;
             }
 
             ## Else, category is in draft, check if user is logged in and has a read access
             $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
             if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ)) {
-                $this->category = $category; return;
+                $this->category = $category;
+                return;
             }
         }
 
@@ -126,14 +128,14 @@ class PostAccessView
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function showPost(string $postView, $moreData = []): void
+    #[NoReturn] public function showPost (string $postView, $moreData = []): void
     {
         $post = $this->post;
-        if (!empty($post)){
+        if (!empty($post)) {
             $catID = [];
-            if (isset($post['categories'])){
-                foreach ($post['categories'] as $categories){
-                    foreach ($categories as $category){
+            if (isset($post['categories'])) {
+                foreach ($post['categories'] as $categories) {
+                    foreach ($categories as $category) {
                         $catID[] = $category->cat_id;
                     }
                 }
@@ -143,11 +145,11 @@ class PostAccessView
             $postTbl = Tables::getTable(Tables::POSTS);
 
             $relatedPost = null;
-            db(onGetDB: function ($db) use ($post, $catID, $postTbl, &$relatedPost){
+            db(onGetDB: function ($db) use ($post, $catID, $postTbl, &$relatedPost) {
                 $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
                 $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
-                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
+                $tblCol = table()->pickTableExcept($postTbl, ['updated_at'])
                     . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
                     . ", $postTbl.post_excerpt AS _excerpt";
 
@@ -186,10 +188,10 @@ class PostAccessView
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function showCategory(string $postView, $moreData = []): void
+    #[NoReturn] public function showCategory (string $postView, $moreData = []): void
     {
         $category = $this->category;
-        if (!empty($category)){
+        if (!empty($category)) {
 
             # GET CORRESPONDING POST IN CATEGORY
             $postTbl = Tables::getTable(Tables::POSTS);
@@ -198,15 +200,15 @@ class PostAccessView
             try {
                 $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($category['cat_id']);
                 $catIDS = [];
-                foreach ($catIDSResult as $catID){
+                foreach ($catIDSResult as $catID) {
                     $catIDS[] = $catID->cat_id;
                 }
 
                 $postData = null;
-                db(onGetDB: function (TonicsQuery $db) use ($catIDS, $postTbl, &$postData){
+                db(onGetDB: function (TonicsQuery $db) use ($catIDS, $postTbl, &$postData) {
                     $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
                     $CatTbl = Tables::getTable(Tables::CATEGORIES);
-                    $tblCol = table()->pickTableExcept($postTbl,  ['updated_at'])
+                    $tblCol = table()->pickTableExcept($postTbl, ['updated_at'])
                         . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
                         . ", $postTbl.post_excerpt AS _excerpt";
 
@@ -217,12 +219,12 @@ class PostAccessView
                         ->WhereEquals('post_status', 1)
                         ->WhereIn('cat_id', $catIDS)
                         ->Where("$postTbl.created_at", '<=', helper()->date())
-                        ->OrderByAsc(table()->pickTable($postTbl, ['created_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
+                        ->OrderByDesc(table()->pickTable($postTbl, ['created_at']))->SimplePaginate(AppConfig::getAppPaginationMax());
                 });
 
                 $postData = ['PostData' => $postData, 'CategoryData' => $catIDSResult];
 
-            } catch (\Exception $exception){
+            } catch (\Exception $exception) {
                 // log..
             }
 
@@ -250,7 +252,7 @@ class PostAccessView
     /**
      * @return PostData
      */
-    public function getPostData(): PostData
+    public function getPostData (): PostData
     {
         return $this->postData;
     }
@@ -258,7 +260,7 @@ class PostAccessView
     /**
      * @param PostData $postData
      */
-    public function setPostData(PostData $postData): void
+    public function setPostData (PostData $postData): void
     {
         $this->postData = $postData;
     }
@@ -266,7 +268,7 @@ class PostAccessView
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->getPostData()->getFieldData();
     }
