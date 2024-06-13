@@ -30,7 +30,7 @@ class RowColumn implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
@@ -46,14 +46,14 @@ class RowColumn implements HandlerInterface
         },
             handleViewProcessing: function ($data) use ($event) {
                 return $this->viewFrag($event, $data);
-            }
+            },
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'RowColumn';
         $row = 1;
@@ -182,7 +182,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $useTabs = isset($data->useTab) && $data->useTab === '1';
         $isGroup = isset($data->group) && $data->group === '1';
@@ -197,7 +197,7 @@ HTML;
             $column = $data->column;
         }
 
-        if ($isGroup){
+        if ($isGroup) {
             $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle) use ($data, $event) {
                 $slug = $data->field_slug ?? '';
                 $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -222,11 +222,11 @@ HTML;
         // remove the comment to make that effect: This might improve the responsiveness
 
         # The Tabs Version:
-        if ($useTabs){
+        if ($useTabs) {
 
             $tabID = helper()->slug($fieldName, '_');
             $frag .= <<<HTML
-<ul id="$tabID" data-test_tab="checker" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:default border:black">
+<ul id="$tabID" data-test_tab="checker" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:tiny border:black">
 <style>
 .tonicsFieldTabsContainer {
      font-size: unset; 
@@ -241,14 +241,15 @@ HTML;
     margin-right: unset;
 }
 </style>
-HTML; $first = false;
+HTML;
+            $first = false;
             for ($i = 1; $i <= $cell; $i++) {
                 if (!isset($data->_field->_children)) {
                     continue;
                 }
 
                 if (isset($data->_field->_children)) {
-                    foreach ($data->_field->_children as  $child) {
+                    foreach ($data->_field->_children as $child) {
                         $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
                             ? (int)$child->field_options->{$child->field_name . "_cell"}
                             : $i;
@@ -257,17 +258,20 @@ HTML; $first = false;
                             if (isset($child->field_options)) {
                                 $child->field_options->{"_field"} = $child;
                             }
-                            if (!$first){ $first = true; $checked = 'checked'; } else $checked = '';
+                            if (!$first) {
+                                $first = true;
+                                $checked = 'checked';
+                            } else $checked = '';
                             $fieldOptionName = $child->field_options->fieldName;
-                            $fieldOptionNameID = helper()->slug($fieldOptionName, '_')  . '_' . $fieldNameTabUnique;
+                            $fieldOptionNameID = helper()->slug($fieldOptionName, '_') . '_' . $fieldNameTabUnique;
                             $frag .= <<<HTML
 <input tabindex="0" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
 <label tabindex="0" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
 HTML;
-                            if ($child->field_name === RowColumnRepeater::FieldSlug){
+                            if ($child->field_name === RowColumnRepeater::FieldSlug) {
                                 $frag .= '<ul>' . $event->getUsersForm($child->field_name, $child->field_options ?? null) . '</ul>';
                             } else {
-                              $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+                                $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                             }
                         }
                     }
@@ -278,14 +282,14 @@ HTML;
 HTML;
         } else {
 
-            if ($isGroup){
+            if ($isGroup) {
                 $frag .= <<<HTML
 <div class="row-col-parent" data-depth="0">
     <ul style="margin-left: unset;" class="cursor:pointer form-group d:grid flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer">
 HTML;
             } else {
                 $gridTemplateCol = '';
-                if (isset($data->grid_template_col)){
+                if (isset($data->grid_template_col)) {
                     $gridTemplateCol = " grid-template-columns: {$data->grid_template_col};";
                 }
                 $frag .= <<<HTML
@@ -299,7 +303,7 @@ HTML;
                     continue;
                 }
 
-                if (!$isGroup){
+                if (!$isGroup) {
                     $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" class="row-col-item-user owl">
 HTML;
@@ -320,14 +324,14 @@ HTML;
                         }
                     }
                 }
-                if (!$isGroup){
+                if (!$isGroup) {
                     $frag .= <<<HTML
 </ul>
 HTML;
                 }
             }
 
-            if ($isGroup){
+            if ($isGroup) {
                 $frag .= <<<HTML
     </ul>
 </div>
@@ -340,8 +344,8 @@ HTML;
             }
         }
 
-        if ($isGroup){
-            $frag .= $event->_bottomHTMLWrapper(function (){
+        if ($isGroup) {
+            $frag .= $event->_bottomHTMLWrapper(function () {
                 return "</div></li>";
             });
         } else {
@@ -353,7 +357,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function viewFrag(OnFieldMetaBox $event, $data): string
+    public function viewFrag (OnFieldMetaBox $event, $data): string
     {
         $frag = '';
         if (isset($data->_field->_children)) {

@@ -19,7 +19,6 @@
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -28,13 +27,13 @@ class RowColumnRepeater implements HandlerInterface
     const FieldSlug = 'modular_rowcolumnrepeater';
 
     private array $repeaterButton = [];
-    private bool $isRoot = false;
+    private bool  $isRoot         = false;
 
     /**
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
@@ -48,17 +47,17 @@ class RowColumnRepeater implements HandlerInterface
             },
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
-                },
+            },
             handleViewProcessing: function ($data) use ($event) {
                 $this->viewData($event, $data);
-            }
+            },
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'RowColumnRepeater';
         $row = 1;
@@ -201,10 +200,11 @@ HTML;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    private function repeatersButton(OnFieldMetaBox $event, $data): string
+    private function repeatersButton (OnFieldMetaBox $event, $data): string
     {
         return $this->handleUserFormFrag($event, $data,
             function ($field) use ($event) {
@@ -223,7 +223,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         // $this->repeatersButton($event, $data);
         $this->isRoot = false;
@@ -233,10 +233,11 @@ HTML;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    private function getTopWrapper(OnFieldMetaBox $event, $data): string
+    private function getTopWrapper (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->field_name)) ? $data->field_name : '';
         if (empty($fieldName)) {
@@ -253,19 +254,19 @@ HTML;
             $column = $data->column;
         }
 
-        if (!isset($data->depth) || (!isset($data->_field->depth))){
+        if (!isset($data->depth) || (!isset($data->_field->depth))) {
             $depth = 0;
         } else {
             $depth = $data->_field->depth ?? $data->depth;
         }
 
         $root = 'false';
-        if ($this->isRoot === false){
+        if ($this->isRoot === false) {
             $root = 'true';
             $this->isRoot = true;
         }
 
-        if ($depth == '0'){
+        if ($depth == '0') {
             $root = 'true';
         }
 
@@ -301,7 +302,7 @@ data-repeater_depth="$depth"
 data-repeater_input_name="$inputName">
     <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
         color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
-    <div style="border: 2px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move owl flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+    <div style="border: 1px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
 HTML;
 
         return $frag;
@@ -312,10 +313,11 @@ HTML;
      * @param $data
      * @param callable|null $interceptChild
      * @param callable|null $interceptBottom
+     *
      * @return string
      * @throws \Exception
      */
-    private function handleUserFormFrag(OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
+    private function handleUserFormFrag (OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
     {
         $row = 1;
         $column = 1;
@@ -334,9 +336,9 @@ HTML;
         $frag = $this->getTopWrapper($event, $data);
 
         for ($i = 1; $i <= $cell; $i++) {
-            if (isset($data->_children)){
+            if (isset($data->_children)) {
                 $children = $data->_children;
-            } elseif (isset($data->_field->_children)){
+            } elseif (isset($data->_field->_children)) {
                 $children = $data->_field->_children;
             } else {
                 continue;
@@ -347,20 +349,20 @@ HTML;
 
             foreach ($children as $child) {
                 $fieldSlug = '';
-                if (isset($child->field_name)){
+                if (isset($child->field_name)) {
                     $fieldSlug = $child->field_name;
-                } elseif (isset($child->field_options->field_slug)){
+                } elseif (isset($child->field_options->field_slug)) {
                     $fieldSlug = $child->field_options->field_slug;
-                } elseif (isset($child->field_slug)){
+                } elseif (isset($child->field_slug)) {
                     $fieldSlug = $child->field_slug;
                 }
                 $childCellNumber = (isset($child->field_data['_cell_position'])) ? (int)$child->field_data['_cell_position'] : null;
 
-                if (isset($child->_cell_position)){
+                if (isset($child->_cell_position)) {
                     $childCellNumber = (int)$child->_cell_position;
                 }
 
-                if ($childCellNumber === null){
+                if ($childCellNumber === null) {
                     $childCellNumber = (isset($child->field_options->{$fieldSlug . "_cell"}))
                         ? (int)$child->field_options->{$fieldSlug . "_cell"}
                         : $i;
@@ -375,7 +377,7 @@ HTML;
                         $interceptChildFrag = $interceptChild($child->field_options, $data);
                     }
 
-                    if (isset($child->field_options)){
+                    if (isset($child->field_options)) {
                         // meaning we are gonna skip checking user supplied data in global post data
                         // if we do not do this, then it means, the input would be same in repeatable fields.
                         // using double underscore to prefix this as this is a core thing
@@ -401,14 +403,14 @@ HTML;
         $disallowRepeat = (isset($data->disallowRepeat)) ? $data->disallowRepeat : '0';
         $repeaterButtonFrag = '';
 
-        if ($disallowRepeat === '0'){
+        if ($disallowRepeat === '0') {
             $canHaveRepeaterButton = true;
-            if ((isset($data->_field->field_data['_moreOptions']))){
+            if ((isset($data->_field->field_data['_moreOptions']))) {
                 $moreOption = $data->_field->field_data['_moreOptions'];
                 $canHaveRepeaterButton = $moreOption->_can_have_repeater_button;
             }
 
-            if ($canHaveRepeaterButton){
+            if ($canHaveRepeaterButton) {
                 $repeaterButtonFrag = <<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
 color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
@@ -433,7 +435,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function viewData(OnFieldMetaBox $event, $data): string
+    public function viewData (OnFieldMetaBox $event, $data): string
     {
         $frag = '';
         if (isset($data->_field->_children)) {

@@ -34,17 +34,17 @@ class OnFieldMetaBox implements EventInterface
 {
 
     const OnBackEndSettingsType = 'OnSettingsType';
-    const OnUserSettingsType = 'OnUserSettingsType';
-    const OnViewSettingsType = 'OnViewType';
+    const OnUserSettingsType    = 'OnUserSettingsType';
+    const OnViewSettingsType    = 'OnViewType';
 
-    private array $FieldBoxSettings = [];
-    private $fieldSettings = null;
-    private FieldData $fieldData;
-    private ?Validation $validation = null;
-    private bool $errorEmitted = false;
-    private ?stdClass $currentFieldBox = null;
+    private array       $FieldBoxSettings = [];
+    private             $fieldSettings    = null;
+    private FieldData   $fieldData;
+    private ?Validation $validation       = null;
+    private bool        $errorEmitted     = false;
+    private ?stdClass   $currentFieldBox  = null;
 
-    private bool $disableTopHTMLWrapper = false;
+    private bool $disableTopHTMLWrapper    = false;
     private bool $disableBottomHTMLWrapper = false;
 
     private ?OnAddFieldSanitization $fieldSanitization;
@@ -54,7 +54,7 @@ class OnFieldMetaBox implements EventInterface
     /**
      * @throws \Exception
      */
-    public function __construct()
+    public function __construct ()
     {
         $this->fieldData = new FieldData();
         $onAddFieldSanitization = new OnAddFieldSanitization();
@@ -70,6 +70,7 @@ class OnFieldMetaBox implements EventInterface
      * @param callable|null $settingsForm
      * @param callable|null $userForm
      * @param callable|null $handleViewProcessing
+     *
      * @return void
      * @throws \Exception
      */
@@ -88,18 +89,18 @@ class OnFieldMetaBox implements EventInterface
         $category = strtolower($category);
         if (!key_exists($nameKey, $this->FieldBoxSettings)) {
             $this->FieldBoxSettings[$category][$nameKey] = (object)[
-                'name' => $name,
-                'category' => $category,
-                'description' => $description,
-                'scriptPath' => $scriptPath,
-                'settingsForm' => $settingsForm ?? '',
-                'userForm' => $userForm ?? '',
-                'handleViewProcessing' => $handleViewProcessing ?? ''
+                'name'                 => $name,
+                'category'             => $category,
+                'description'          => $description,
+                'scriptPath'           => $scriptPath,
+                'settingsForm'         => $settingsForm ?? '',
+                'userForm'             => $userForm ?? '',
+                'handleViewProcessing' => $handleViewProcessing ?? '',
             ];
         }
     }
 
-    public function generateFieldMetaBox(): string
+    public function generateFieldMetaBox (): string
     {
         $htmlFrag = '';
         if (empty($this->FieldBoxSettings)) {
@@ -160,9 +161,10 @@ HTML;
     /**
      * @param $fieldSlug
      * @param null $settings
+     *
      * @return string
      */
-    public function getSettingsForm($fieldSlug, $settings = null): string
+    public function getSettingsForm ($fieldSlug, $settings = null): string
     {
         $explodeSlug = explode('_', $fieldSlug);
         if (!key_exists(0, $explodeSlug) || !key_exists(1, $explodeSlug)) {
@@ -188,14 +190,15 @@ HTML;
     /**
      * @param $fieldSlug
      * @param null $settings
+     *
      * @return string
      * @throws \Exception
      */
-    public function getUsersForm($fieldSlug, $settings = null): string
+    public function getUsersForm ($fieldSlug, $settings = null): string
     {
         $hideFrag = (isset($settings->hideInUserEditForm)) ? $settings->hideInUserEditForm : '';
 
-        if($hideFrag === '1') {
+        if ($hideFrag === '1') {
             return '';
         }
 
@@ -225,10 +228,11 @@ HTML;
     /**
      * @param $fieldSlug
      * @param null $settings
+     *
      * @return string
      * @throws \Exception
      */
-    public function getViewProcessingFrag($fieldSlug, $settings = null): string
+    public function getViewProcessingFrag ($fieldSlug, $settings = null): string
     {
         $explodeSlug = explode('_', $fieldSlug);
         if (!key_exists(0, $explodeSlug) || !key_exists(1, $explodeSlug)) {
@@ -249,9 +253,10 @@ HTML;
 
     /**
      * @param $fieldSlug
+     *
      * @return mixed
      */
-    public function getFieldMetaSettings($fieldSlug): mixed
+    public function getFieldMetaSettings ($fieldSlug): mixed
     {
         $explodeSlug = explode('_', $fieldSlug);
         if (isset($explodeSlug[0]) && isset($explodeSlug[1])) {
@@ -266,7 +271,7 @@ HTML;
         return [];
     }
 
-    public function getRealName($fieldSlug): string
+    public function getRealName ($fieldSlug): string
     {
         $explodeSlug = explode('_', $fieldSlug);
         $fieldCategory = $explodeSlug[0];
@@ -280,12 +285,13 @@ HTML;
      * @param $data
      * @param bool $root
      * @param callable|null $handleTop
+     *
      * @return string
      * @throws \Exception|\Throwable
      */
-    public function _topHTMLWrapper(string $name, $data, bool $root = false, callable $handleTop = null): string
+    public function _topHTMLWrapper (string $name, $data, bool $root = false, callable $handleTop = null): string
     {
-        if ($this->isDisableBottomHTMLWrapper()){
+        if ($this->isDisableBottomHTMLWrapper()) {
             return '';
         }
         $slug = $data->field_slug ?? '';
@@ -303,33 +309,33 @@ HTML;
         $rootOwl = ($root) ? 'owl' : '';
 
         $openToggle = [
-            'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer toggle-on',
+            'button'        => 'dropdown-toggle bg:transparent border:none cursor:pointer toggle-on',
             'aria-expanded' => 'true',
-            'aria-label' => 'Collapse child menu',
-            'svg' => 'icon:admin tonics-arrow-up color:white',
-            'use' => '#tonics-arrow-up',
-            'div' => 'swing-in-top-fwd d:flex',
+            'aria-label'    => 'Collapse child menu',
+            'svg'           => 'icon:admin tonics-arrow-up color:white',
+            'use'           => '#tonics-arrow-up',
+            'div'           => 'swing-in-top-fwd d:flex',
         ];
 
         $closeToggle = [
-            'button' => 'dropdown-toggle bg:transparent border:none cursor:pointer',
+            'button'        => 'dropdown-toggle bg:transparent border:none cursor:pointer',
             'aria-expanded' => 'false',
-            'aria-label' => 'Expand child menu',
-            'svg' => 'icon:admin tonics-arrow-down color:white',
-            'use' => '#tonics-arrow-down',
-            'div' => 'swing-out-top-fwd d:none',
+            'aria-label'    => 'Expand child menu',
+            'svg'           => 'icon:admin tonics-arrow-down color:white',
+            'use'           => '#tonics-arrow-down',
+            'div'           => 'swing-out-top-fwd d:none',
         ];
 
         $toggle = $openToggle;
 
-        if ($handleTop){
+        if ($handleTop) {
             return $handleTop($isEditorWidgetSettings, $toggle);
         }
 
         $result = '';
         if ($this->getSettingsType() === $this::OnBackEndSettingsType) {
             $toggle = $closeToggle;
-            $result .=<<<HTML
+            $result .= <<<HTML
 <li $isEditorLi tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move field-builder-items overflow:auto"
 $scriptPath>
@@ -356,12 +362,12 @@ HTML;
             $data = $onFieldTopEvent->getData();
 
             $info = (isset($data->info)) ? $data->info : '';
-            if (!empty($info)){
+            if (!empty($info)) {
                 $text = <<<HTML
 <span class="cursor:text">$info</span>
 HTML;
             }
-            $result .=<<<HTML
+            $result .= <<<HTML
 <li $isEditorLi tabIndex="0"
 class="width:100% field-builder-items overflow:auto"
 data-slug="$slug"
@@ -385,14 +391,14 @@ HTML;
 HTML;
     }
 
-    public function _bottomHTMLWrapper(callable $handleBottom = null): string
+    public function _bottomHTMLWrapper (callable $handleBottom = null): string
     {
-        if ($this->isDisableBottomHTMLWrapper()){
+        if ($this->isDisableBottomHTMLWrapper()) {
             return '';
         }
 
-        if ($this->getSettingsType() === $this::OnUserSettingsType){
-            if ($handleBottom){
+        if ($this->getSettingsType() === $this::OnUserSettingsType) {
+            if ($handleBottom) {
                 return $handleBottom();
             }
             return <<<HTML
@@ -402,7 +408,7 @@ HTML;
 HTML;
         }
 
-        if ($this->getSettingsType() === $this::OnBackEndSettingsType){
+        if ($this->getSettingsType() === $this::OnBackEndSettingsType) {
             return <<<HTML
                 <div class="form-group">
                     <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
@@ -424,16 +430,17 @@ HTML;
      * @param $data
      * @param string $key
      * @param bool $findInGlobalPost
+     *
      * @return mixed|string
      * @throws \Exception
      */
-    public function getKeyValueInData($data, string $key, bool $findInGlobalPost = true): mixed
+    public function getKeyValueInData ($data, string $key, bool $findInGlobalPost = true): mixed
     {
         $value = '';
-        if (isset($data->__skip_global_post_data) && $data->__skip_global_post_data){
+        if (isset($data->__skip_global_post_data) && $data->__skip_global_post_data) {
             $findInGlobalPost = false;
         }
-        if ($findInGlobalPost && is_array(getPostData()) && key_exists($key, getPostData())){
+        if ($findInGlobalPost && is_array(getPostData()) && key_exists($key, getPostData())) {
             $value = getPostData()[$key];
         } elseif (isset($data->_field->field_data) && key_exists($key, $data->_field->field_data)) {
             $value = $data->_field->field_data[$key];
@@ -445,7 +452,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function generateMoreSettingsFrag($data = null, string $more = ''): string
+    public function generateMoreSettingsFrag ($data = null, string $more = ''): string
     {
         $hideFrag = (isset($data->hideInUserEditForm)) ? $data->hideInUserEditForm : '';
         $info = (isset($data->info)) ? $data->info : '';
@@ -498,30 +505,31 @@ FORM;
     /**
      * @param $varKey
      * @param $data
+     *
      * @return void
      * @throws \Exception
      */
-    public function defaultInputViewHandler($varKey, $data): void
+    public function defaultInputViewHandler ($varKey, $data): void
     {
-        $displayName =  (isset($data->fieldName)) ? $data->fieldName : 'Select';
-        if (isset($data->inputName)){
-            $inputName =  (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
+        $displayName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
+        if (isset($data->inputName)) {
+            $inputName = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : '';
             $defaultValue = (isset($data->defaultValue) && !empty($inputName)) ? $inputName : $data->defaultValue;
             $inputName = $data->inputName;
             addToGlobalVariable("{$varKey}_$inputName", ['Name' => $displayName, 'InputName' => $inputName, 'Value' => $defaultValue]);
         }
     }
 
-    public function booleanOptionSelect($value = '1'): string
+    public function booleanOptionSelect ($value = '1'): string
     {
-        if ($value === '1'){
+        if ($value === '1') {
             return <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
 HTML;
         }
 
-            return <<<HTML
+        return <<<HTML
 <option value="0" selected>False</option>
 <option value="1">True</option>
 HTML;
@@ -530,7 +538,7 @@ HTML;
     /**
      * @inheritDoc
      */
-    public function event(): static
+    public function event (): static
     {
         return $this;
     }
@@ -538,7 +546,7 @@ HTML;
     /**
      * @return array
      */
-    public function getFieldBoxSettings(): array
+    public function getFieldBoxSettings (): array
     {
         return $this->FieldBoxSettings;
     }
@@ -546,7 +554,7 @@ HTML;
     /**
      * @param array $FieldBoxSettings
      */
-    public function setFieldBoxSettings(array $FieldBoxSettings): void
+    public function setFieldBoxSettings (array $FieldBoxSettings): void
     {
         $this->FieldBoxSettings = $FieldBoxSettings;
     }
@@ -554,7 +562,7 @@ HTML;
     /**
      * @return null
      */
-    public function getFieldSettings()
+    public function getFieldSettings ()
     {
         return $this->fieldSettings;
     }
@@ -562,7 +570,7 @@ HTML;
     /**
      * @param null $fieldSettings
      */
-    public function setFieldSettings($fieldSettings): void
+    public function setFieldSettings ($fieldSettings): void
     {
         $this->fieldSettings = $fieldSettings;
     }
@@ -570,7 +578,7 @@ HTML;
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -578,11 +586,12 @@ HTML;
     /**
      * @param array|stdClass $data
      * @param array $inputNameAndRules
+     *
      * @return string
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function validationMake(array|stdClass $data, array $inputNameAndRules): string
+    public function validationMake (array|stdClass $data, array $inputNameAndRules): string
     {
         $error = '';
         if ($this->validation === null) {
@@ -608,12 +617,13 @@ HTML;
      * @param $sanitizationName
      * @param $sanitizationValue
      * @param $data
+     *
      * @return mixed
      */
-    public function sanitize($sanitizationName, $sanitizationValue, $data): mixed
+    public function sanitize ($sanitizationName, $sanitizationValue, $data): mixed
     {
         foreach ($this->fieldSanitization->getFieldsSanitization() as $fieldSanitizationName => $fieldSanitizationObject) {
-            if ($sanitizationName === $fieldSanitizationName){
+            if ($sanitizationName === $fieldSanitizationName) {
                 /** @var FieldValueSanitizationInterface|DefaultSanitizationAbstract $fieldSanitizationObject */
                 if ($fieldSanitizationObject instanceof DefaultSanitizationAbstract) {
                     $fieldSanitizationObject->setEvent($this)->setData($data);
@@ -628,7 +638,7 @@ HTML;
     /**
      * @return bool
      */
-    public function isErrorEmitted(): bool
+    public function isErrorEmitted (): bool
     {
         return $this->errorEmitted;
     }
@@ -636,12 +646,12 @@ HTML;
     /**
      * @param bool $errorEmitted
      */
-    public function setErrorEmitted(bool $errorEmitted): void
+    public function setErrorEmitted (bool $errorEmitted): void
     {
         $this->errorEmitted = $errorEmitted;
     }
 
-    public function resetErrorEmission(): static
+    public function resetErrorEmission (): static
     {
         $this->errorEmitted = false;
         return $this;
@@ -650,7 +660,7 @@ HTML;
     /**
      * @return stdClass|null
      */
-    public function getCurrentFieldBox(): ?stdClass
+    public function getCurrentFieldBox (): ?stdClass
     {
         return $this->currentFieldBox;
     }
@@ -658,7 +668,7 @@ HTML;
     /**
      * @param stdClass|null $currentFieldBox
      */
-    public function setCurrentFieldBox(?stdClass $currentFieldBox): void
+    public function setCurrentFieldBox (?stdClass $currentFieldBox): void
     {
         $this->currentFieldBox = $currentFieldBox;
     }
@@ -666,16 +676,17 @@ HTML;
     /**
      * @return string
      */
-    public function getSettingsType(): string
+    public function getSettingsType (): string
     {
         return $this->settingsType;
     }
 
     /**
      * @param string $settingsType
+     *
      * @return OnFieldMetaBox
      */
-    public function setSettingsType(string $settingsType): OnFieldMetaBox
+    public function setSettingsType (string $settingsType): OnFieldMetaBox
     {
         $this->settingsType = $settingsType;
         return $this;
@@ -684,7 +695,7 @@ HTML;
     /**
      * @throws \Exception
      */
-    public function dispatchEvent(): OnFieldMetaBox
+    public function dispatchEvent (): OnFieldMetaBox
     {
         return event()->dispatch($this);
     }
@@ -692,16 +703,17 @@ HTML;
     /**
      * @return bool
      */
-    public function isDisableTopHTMLWrapper(): bool
+    public function isDisableTopHTMLWrapper (): bool
     {
         return $this->disableTopHTMLWrapper;
     }
 
     /**
      * @param bool $disableTopHTMLWrapper
+     *
      * @return OnFieldMetaBox
      */
-    public function setDisableTopHTMLWrapper(bool $disableTopHTMLWrapper): OnFieldMetaBox
+    public function setDisableTopHTMLWrapper (bool $disableTopHTMLWrapper): OnFieldMetaBox
     {
         $this->disableTopHTMLWrapper = $disableTopHTMLWrapper;
         return $this;
@@ -710,16 +722,17 @@ HTML;
     /**
      * @return bool
      */
-    public function isDisableBottomHTMLWrapper(): bool
+    public function isDisableBottomHTMLWrapper (): bool
     {
         return $this->disableBottomHTMLWrapper;
     }
 
     /**
      * @param bool $disableBottomHTMLWrapper
+     *
      * @return OnFieldMetaBox
      */
-    public function setDisableBottomHTMLWrapper(bool $disableBottomHTMLWrapper): OnFieldMetaBox
+    public function setDisableBottomHTMLWrapper (bool $disableBottomHTMLWrapper): OnFieldMetaBox
     {
         $this->disableBottomHTMLWrapper = $disableBottomHTMLWrapper;
         return $this;
@@ -728,7 +741,7 @@ HTML;
     /**
      * @return OnAddFieldSanitization|null
      */
-    public function getFieldSanitization(): ?OnAddFieldSanitization
+    public function getFieldSanitization (): ?OnAddFieldSanitization
     {
         return $this->fieldSanitization;
     }
