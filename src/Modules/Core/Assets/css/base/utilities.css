@@ -468,6 +468,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     align-content: flex-start;
 }
 
+.align-content\:end {
+    align-content: end;
+}
+
 .align-items\:center {
     align-items: center;
 }
@@ -774,6 +778,10 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 
 .border-style\:groove {
     border-style: groove;
+}
+
+.border-width\:tiny {
+    border-width: 2px;
 }
 
 .border-width\:default {

@@ -312,7 +312,7 @@ SET THE main element to flex:1 so, it can push the footer down (sit at the botto
 fieldset {
     padding-block-end: 2em;
     min-inline-size: min-content;
-    border-width: clamp(0.2rem, 2vw, 0.1rem);
+    border-width: 2px;
     border-style: groove;
     margin: 0 auto;
 }

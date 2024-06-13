@@ -39,9 +39,9 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #000000!important;
-    border-radius: 10px!important;
-    outline: 1px solid #000!important;
+    background-color: #000000 !important;
+    border-radius: 10px !important;
+    outline: 1px solid #000 !important;
 }
 
 ::-webkit-scrollbar-track-piece {
@@ -63,6 +63,9 @@ input.placeholder-color\:gray::placeholder {
     margin-top: 1rem;
 }
 
+a {
+    color: black;
+}
 
 a:focus {
     outline: dotted 2px;
