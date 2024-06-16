@@ -29,14 +29,15 @@ class CloudJobQueueImageImported extends AbstractJobInterface implements JobHand
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
         $client = $this->getIncusClient();
         $client->images()->info($this->getImageHash());
         $this->updateContainerStatus('Verifying Image Importation');
         # If it is not success, let's queue for a retry
-        if ($client->isSuccess() === false){
+        if ($client->isSuccess() === false) {
             $this->setJobStatusAfterJobHandled(Job::JobStatus_Queued);
             $this->logInfoMessage($client);
         }

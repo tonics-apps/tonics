@@ -34,14 +34,15 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 class DomainController
 {
     use Validator;
-    private FieldData $fieldData;
+
+    private FieldData         $fieldData;
     private AbstractDataLayer $abstractDataLayer;
 
     /**
      * @param FieldData $fieldData
      * @param AbstractDataLayer $abstractDataLayer
      */
-    public function __construct(FieldData $fieldData, AbstractDataLayer $abstractDataLayer)
+    public function __construct (FieldData $fieldData, AbstractDataLayer $abstractDataLayer)
     {
         $this->fieldData = $fieldData;
         $this->abstractDataLayer = $abstractDataLayer;
@@ -52,29 +53,30 @@ class DomainController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function index()
+    public function index ()
     {
         $dataTableHeaders = [
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'slug_id',
-                'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'slug_id'
+            [
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'slug_id',
+                'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'slug_id',
             ],
             [
-                'type' => '',
-                'slug' => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'dns_domain',
-                'title' => 'Domain',
-                'minmax' => '55px, .7fr', 'td' => 'dns_domain'
+                'type'   => '',
+                'slug'   => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'dns_domain',
+                'title'  => 'Domain',
+                'minmax' => '55px, .7fr', 'td' => 'dns_domain',
             ],
             [
-                'type' => '',
-                'slug' => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'dns_status_msg',
-                'title' => 'Info',
-                'minmax' => '60px, .8fr', 'td' => 'dns_status_msg'
+                'type'   => '',
+                'slug'   => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'dns_status_msg',
+                'title'  => 'Info',
+                'minmax' => '60px, .8fr', 'td' => 'dns_status_msg',
             ],
             ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'created_at', 'title' => 'Created At', 'minmax' => '70px, .6fr', 'td' => 'created_at'],
         ];
 
         $data = null;
-        db( onGetDB: function (TonicsQuery $db) use (&$data){
+        db(onGetDB: function (TonicsQuery $db) use (&$data) {
             $dnsRecordsTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
             $data = $db->Select('dns_id, slug_id, dns_domain, CONCAT("http://", dns_domain) _preview_link, dns_status_msg, created_at,
                 CONCAT("/customer/tonics_cloud/domains/", slug_id, "/edit" ) as _edit_link')
@@ -88,11 +90,11 @@ class DomainController
 
         view('Apps::TonicsCloud/Views/Domain/index', [
             'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $data ?? [],
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'   => AppConfig::getAppUrl(),
         ]);
 
     }
@@ -102,7 +104,7 @@ class DomainController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function dataTable()
+    public function dataTable ()
     {
         $entityBag = null;
         if ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -122,7 +124,7 @@ class DomainController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function create(): void
+    public function create (): void
     {
         $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
         if (!is_array($oldFormInput)) {
@@ -130,10 +132,10 @@ class DomainController
         }
 
         view('Apps::TonicsCloud/Views/Domain/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
+            'SiteURL'    => AppConfig::getAppUrl(),
+            'TimeZone'   => AppConfig::getTimeZone(),
             'FieldItems' => $this->getFieldData()
-                ->generateFieldWithFieldSlug(['app-tonicscloud-dns'], $oldFormInput)->getHTMLFrag()
+                ->generateFieldWithFieldSlug(['app-tonicscloud-dns'], $oldFormInput)->getHTMLFrag(),
         ]);
     }
 
@@ -142,12 +144,12 @@ class DomainController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function store()
+    public function store ()
     {
         try {
             $validator = $this->getValidator();
             $validation = $validator->make(input()->fromPost()->all(), $this->getDomainRule());
-            if ($validator->fails()){
+            if ($validator->fails()) {
                 session()->flash($validation->getErrors(), input()->fromPost()->all());
                 redirect(route('tonicsCloud.domains.create'));
             }
@@ -155,10 +157,10 @@ class DomainController
             db(onGetDB: function (TonicsQuery $db) {
                 $serviceOthers = null;
                 $service = null;
-                if (input()->fromPost()->hasValue('dns_cloud_instance')){
+                if (input()->fromPost()->hasValue('dns_cloud_instance')) {
                     $settings = [
                         'instance_id' => input()->fromPost()->retrieve('dns_cloud_instance'),
-                        'user_id' => \session()::getUserID()
+                        'user_id'     => \session()::getUserID(),
                     ];
                     $service = InstanceController::GetServiceInstances($settings);
                     $serviceOthers = json_decode($service->others);
@@ -173,22 +175,22 @@ class DomainController
                 $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
                 $dnsHandler = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudDNSIntegrationType);
                 $domainReturning = $db->InsertReturning($table, [
-                    'dns_domain' => $domain['domain'],
+                    'dns_domain'     => $domain['domain'],
                     'fk_provider_id' => $service->fk_provider_id, 'fk_customer_id' => \session()::getUserID(),
-                    'others' => json_encode(['records' => $records, 'fieldData' => $fields, 'dnsHandler' => $dnsHandler])
+                    'others'         => json_encode(['records' => $records, 'fieldData' => $fields, 'dnsHandler' => $dnsHandler]),
                 ], ['dns_id'], 'dns_id');
 
                 $jobData = [
-                    'domain' => $domain,
+                    'domain'  => $domain,
                     'records' => $records,
-                    'dns_id' => $domainReturning->dns_id
+                    'dns_id'  => $domainReturning->dns_id,
                 ];
 
                 $jobs = [
                     [
-                        'job' => new CloudJobQueueCreateDomain(),
-                        'children' => []
-                    ]
+                        'job'      => new CloudJobQueueCreateDomain(),
+                        'children' => [],
+                    ],
                 ];
 
                 TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
@@ -206,10 +208,11 @@ class DomainController
 
     /**
      * @param string $slugID
+     *
      * @return void
      * @throws \Exception
      */
-    public function edit(string $slugID)
+    public function edit (string $slugID)
     {
         $domain = self::getDomain($slugID, 'slug_id');
         $domainOthers = json_decode($domain->others);
@@ -221,9 +224,9 @@ class DomainController
 
         view('Apps::TonicsCloud/Views/Domain/edit', [
             'DomainData' => $domain,
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $htmlFrag
+            'SiteURL'    => AppConfig::getAppUrl(),
+            'TimeZone'   => AppConfig::getTimeZone(),
+            'FieldItems' => $htmlFrag,
         ]);
 
     }
@@ -232,12 +235,12 @@ class DomainController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function update(string $slugID)
+    public function update (string $slugID)
     {
         try {
             $validator = $this->getValidator();
             $validation = $validator->make(input()->fromPost()->all(), $this->getDomainRule(true));
-            if ($validator->fails()){
+            if ($validator->fails()) {
                 session()->flash($validation->getErrors(), input()->fromPost()->all());
                 redirect(route('tonicsCloud.domains.edit', [$slugID]));
             }
@@ -245,10 +248,10 @@ class DomainController
             $domain = self::getDomain($slugID, 'slug_id');
             $domainOthers = json_decode($domain->others);
             $serviceOthers = null;
-            if (input()->fromPost()->hasValue('dns_cloud_instance')){
+            if (input()->fromPost()->hasValue('dns_cloud_instance')) {
                 $settings = [
                     'instance_id' => input()->fromPost()->retrieve('dns_cloud_instance'),
-                    'user_id' => \session()::getUserID()
+                    'user_id'     => \session()::getUserID(),
                 ];
                 $service = InstanceController::GetServiceInstances($settings);
                 $serviceOthers = json_decode($service->others);
@@ -261,15 +264,15 @@ class DomainController
 
             # No Changes
             $oldRecords = json_decode(json_encode($domainOthers->records), true);
-            if ($domain->dns_domain === $domainFromPost['domain'] && $newRecords === $oldRecords){
+            if ($domain->dns_domain === $domainFromPost['domain'] && $newRecords === $oldRecords) {
                 session()->flash(["No Changes, That's Fine"], [], Session::SessionCategories_FlashMessageInfo);
                 redirect(route('tonicsCloud.domains.edit', [$slugID]));
             }
 
             $recordsUntouched = [];
             # Step One, Add Records If It Isn't in The Old Record
-            foreach ($newRecords as $key => $newRecord){
-                if (isset($oldRecords[$key])){
+            foreach ($newRecords as $key => $newRecord) {
+                if (isset($oldRecords[$key])) {
                     $recordsUntouched[$key] = $oldRecords[$key]; # Using the oldRecords data is important, this way, I can access the record_id
                     unset($newRecords[$key]);
                     unset($oldRecords[$key]);
@@ -277,8 +280,8 @@ class DomainController
             }
 
             # Step Two, Remove Old Records That Isn't In The New Records
-            foreach ($oldRecords as $key => $oldRecord){
-                if (isset($newRecords[$key])){
+            foreach ($oldRecords as $key => $oldRecord) {
+                if (isset($newRecords[$key])) {
                     unset($oldRecords[$key]);
                     $recordsUntouched[$key] = $oldRecord;
                 }
@@ -289,11 +292,11 @@ class DomainController
             $recordsUntouched = $recordsUntouched + $newRecords;
 
             $jobData = [
-                'domain' => $domainFromPost,
-                'records' => $newRecords,
+                'domain'         => $domainFromPost,
+                'records'        => $newRecords,
                 'delete_records' => $oldRecords,
-                'dns_id' => $domain->dns_id,
-                'domain_id' => $domainOthers->domain_id
+                'dns_id'         => $domain->dns_id,
+                'domain_id'      => $domainOthers->domain_id,
             ];
 
             db(onGetDB: function (TonicsQuery $db) use ($recordsUntouched, $fields, $jobData, $domainFromPost, $slugID) {
@@ -308,9 +311,9 @@ class DomainController
 
                 $jobs = [
                     [
-                        'job' => new CloudJobQueueUpdateDomain(),
-                        'children' => []
-                    ]
+                        'job'      => new CloudJobQueueUpdateDomain(),
+                        'children' => [],
+                    ],
                 ];
 
                 TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
@@ -318,7 +321,7 @@ class DomainController
                 $db->commit();
             });
 
-            session()->flash(["Domain Update Enqueued Changes"], [], Session::SessionCategories_FlashMessageSuccess);
+            session()->flash(["Domain {$domainFromPost['domain']} Update Enqueued Changes"], [], Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tonicsCloud.domains.index'));
         } catch (\Throwable $exception) {
             session()->flash([$exception->getMessage()], input()->fromPost()->all());
@@ -331,7 +334,7 @@ class DomainController
     /**
      * @throws \Exception
      */
-    public function deleteMultiple($entityBag): true
+    public function deleteMultiple ($entityBag): true
     {
         $deleteItems = $this->getAbstractDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
         foreach ($deleteItems as $delete) {
@@ -340,18 +343,18 @@ class DomainController
             $slugID = $delete[$serviceInstancePrefix . 'slug_id'] ?? '';
             $domain = self::getDomain($slugID, 'slug_id');
 
-            if ($domain){
+            if ($domain) {
                 $domainOthers = json_decode($domain->others);
                 $jobData = [
-                    'dns_id' => $domain->dns_id,
+                    'dns_id'    => $domain->dns_id,
                     'domain_id' => $domainOthers->domain_id,
                 ];
 
                 $jobs = [
-                  [
-                      'job' => new CloudJobQueueDeleteDomain(),
-                      'children' => []
-                  ]
+                    [
+                        'job'      => new CloudJobQueueDeleteDomain(),
+                        'children' => [],
+                    ],
                 ];
 
                 TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
@@ -371,12 +374,14 @@ class DomainController
      * $resultArray = parseDNSValueToArray($inputString, $keys);
      * print_r($resultArray);
      * ```
+     *
      * @param string $string The input string to parse.
-     * @param array $keys The array of keys corresponding to the expected values in the input string.
+     * @param array $keys    The array of keys corresponding to the expected values in the input string.
+     *
      * @return array The parsed array with values assigned to the specified keys.
      *
      */
-    public static function parseDNSValueToArray(string $string, array $keys): array
+    public static function parseDNSValueToArray (string $string, array $keys): array
     {
         $string = preg_replace('/\s+/', ' ', $string);
         $values = explode(' ', $string);
@@ -385,35 +390,37 @@ class DomainController
         foreach ($keys as $index => $key) {
             if (isset($values[$index])) {
                 $value = $values[$index];
-                if (is_numeric($value)){
+                if (is_numeric($value)) {
                     $value = (int)$value;
                 }
                 $result[$key] = $value;
             } else {
                 $result[$key] = null;
             }
+        }
+
+        return $result;
     }
-    
-    return $result;
-}
 
 
     /**
      * @throws \Exception
      * @throws \Throwable
      */
-    public function getDomainRule($updateRule = false): array
+    public function getDomainRule ($updateRule = false): array
     {
         $slug = 'dns_domain';
-        $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) .':dns_domain';
+        $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) . ':dns_domain';
         if ($updateRule) {
             $slug = 'slug_id';
-            $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) .':dns_domain:slug_id';
+            $slugUnique = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) . ':dns_domain:slug_id';
         }
 
         return [
-            'dns_domain' => ['required', 'string', 'unique' => [
-                $slugUnique => input()->fromPost()->retrieve($slug, '')]
+            'dns_domain'         => [
+                'required', 'string', 'unique' => [
+                    $slugUnique => input()->fromPost()->retrieve($slug, ''),
+                ],
             ],
             'dns_cloud_instance' => ['string'],
         ];
@@ -423,60 +430,57 @@ class DomainController
      * @param array $fields
      * @param array $domain
      * @param \stdClass|null $serviceInstanceOthers
+     *
      * @return array
      */
-    public static function parseDomainRecordsInfo(array &$fields, array $domain, \stdClass $serviceInstanceOthers = null): array
+    public static function parseDomainRecordsInfo (array &$fields, array $domain, \stdClass $serviceInstanceOthers = null): array
     {
         $records = [];
         $new = null;
-        foreach ($fields as $field){
-            if (isset($field->field_name) && $field->field_name === RowColumnRepeater::FieldSlug){
+        foreach ($fields as $field) {
+            if (isset($field->field_name) && $field->field_name === RowColumnRepeater::FieldSlug) {
                 $new = [];
             }
 
             $subDomain = '';
-            if (isset($field->field_input_name)){
+            if (isset($field->field_input_name)) {
                 $fieldOptions = json_decode($field->field_options);
 
                 $fieldValue = $fieldOptions->{$field->field_input_name} ?? null;
 
-                if ($field->field_input_name === 'dns_sub_domain'){
+                if ($field->field_input_name === 'dns_sub_domain') {
                     $subDomain = $fieldValue;
                     $new['name'] = $subDomain . $domain['domain'];
                 }
 
-                if ($field->field_input_name === 'dns_record_type'){
+                if ($field->field_input_name === 'dns_record_type') {
                     $new['type'] = $fieldValue;
                 }
 
-                if ($field->field_input_name === 'dns_value'){
+                if ($field->field_input_name === 'dns_value') {
 
-                    if ($new['type'] === 'A' && empty($fieldValue)){
+                    if ($new['type'] === 'A' && empty($fieldValue)) {
                         $ipv4 = $serviceInstanceOthers?->ip?->ipv4[0];
                         $fieldOptions->{$field->field_input_name} = $ipv4;
                         $field->field_options = json_encode($fieldOptions);
                         $new['target'] = $ipv4;
-                    }
-
-                    else if ($new['type'] === 'AAAA' && empty($fieldValue)){
+                    } else if ($new['type'] === 'AAAA' && empty($fieldValue)) {
                         $ipv4 = $serviceInstanceOthers?->ip?->ipv6[0];
                         $ipv6 = self::extractIPv6($ipv4);
                         $fieldOptions->{$field->field_input_name} = $ipv6;
                         $field->field_options = json_encode($fieldOptions);
                         $new['target'] = $ipv6;
-                    }
-
-                    else if ($new['type'] === 'MX'){
+                    } else if ($new['type'] === 'MX') {
                         $parsed = self::parseDNSValueToArray($fieldValue, ['priority', 'target']);
                         $new = [...$new, ...$parsed];
                         $new['name'] = $subDomain;
-                    } else if ($new['type'] === 'SRV'){
+                    } else if ($new['type'] === 'SRV') {
                         $parsed = self::parseDNSValueToArray($fieldValue, ['priority', 'weight', 'port', 'target']);
                         $parsed['protocol'] = null;
                         $new = [...$new, ...$parsed];
                         $new['name'] = $subDomain;
-                    } else if ($new['type'] === 'CAA'){
-                        $parsed = self::parseDNSValueToArray($fieldValue, ['tag',  'target']);
+                    } else if ($new['type'] === 'CAA') {
+                        $parsed = self::parseDNSValueToArray($fieldValue, ['tag', 'target']);
                         $new = [...$new, ...$parsed];
                         $new['name'] = $subDomain;
                     } else {
@@ -484,7 +488,7 @@ class DomainController
                     }
                 }
 
-                if ($field->field_input_name === 'dns_ttl'){
+                if ($field->field_input_name === 'dns_ttl') {
                     $new['ttl_sec'] = (int)$fieldValue;
                     $records[crc32(json_encode($new))] = $new;
                 }
@@ -497,9 +501,10 @@ class DomainController
 
     /**
      * @param string $inputString
+     *
      * @return string|null
      */
-    public static function extractIPv6(string $inputString): ?string
+    public static function extractIPv6 (string $inputString): ?string
     {
         $pattern = '/([a-fA-F0-9:]+)\/\d+/';
         preg_match($pattern, $inputString, $matches);
@@ -509,10 +514,11 @@ class DomainController
     /**
      * @param $domainID
      * @param string $col
+     *
      * @return \stdclass|null
      * @throws \Exception
      */
-    public static function getDomain($domainID, string $col = 'dns_id'): ?\stdclass
+    public static function getDomain ($domainID, string $col = 'dns_id'): ?\stdclass
     {
         $domain = null;
         db(onGetDB: function (TonicsQuery $db) use ($col, $domainID, &$domain) {
@@ -525,8 +531,8 @@ class DomainController
                 ->FetchFirst();
         });
 
-        if ($domain){
-            return  $domain;
+        if ($domain) {
+            return $domain;
         }
         return null;
     }
@@ -535,7 +541,7 @@ class DomainController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function getSoaDomainRecord(): array
+    public function getSoaDomainRecord (): array
     {
         $soaEmail = MailConfig::getMailFromAddress();
         if (empty($soaEmail)) {
@@ -543,18 +549,18 @@ class DomainController
         }
 
         return [
-            'domain' => input()->fromPost()->retrieve('dns_domain'),
-            'type' => 'master',
-            'ttl_sec' => 3600,
-            'soa_email' => $soaEmail,
-            "description" => "Managed By TonicsCloud"
+            'domain'      => input()->fromPost()->retrieve('dns_domain'),
+            'type'        => 'master',
+            'ttl_sec'     => 3600,
+            'soa_email'   => $soaEmail,
+            "description" => "Managed By TonicsCloud",
         ];
     }
 
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -562,7 +568,7 @@ class DomainController
     /**
      * @param FieldData $fieldData
      */
-    public function setFieldData(FieldData $fieldData): void
+    public function setFieldData (FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }
@@ -570,7 +576,7 @@ class DomainController
     /**
      * @return AbstractDataLayer
      */
-    public function getAbstractDataLayer(): AbstractDataLayer
+    public function getAbstractDataLayer (): AbstractDataLayer
     {
         return $this->abstractDataLayer;
     }

@@ -22,11 +22,12 @@ use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\Migration;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class CloudContainers_2023_05_07_174444 extends Migration {
+class CloudContainers_2023_05_07_174444 extends Migration
+{
     /**
      * @throws \Exception
      */
-    public function up()
+    public function up ()
     {
         $serviceInstance = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
         db(onGetDB: function (TonicsQuery $db) use ($serviceInstance) {
@@ -55,12 +56,12 @@ CREATE TABLE IF NOT EXISTS `{$this->tableName()}` (
     /**
      * @throws \Exception
      */
-    public function down()
+    public function down (): void
     {
         $this->dropTable($this->tableName());
     }
 
-    private function tableName(): string
+    private function tableName (): string
     {
         return TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINERS);
     }

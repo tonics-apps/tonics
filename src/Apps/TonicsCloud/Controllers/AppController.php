@@ -31,16 +31,16 @@ use JetBrains\PhpStorm\NoReturn;
 class AppController
 {
 
-    private FieldData $fieldData;
+    private FieldData         $fieldData;
     private AbstractDataLayer $abstractDataLayer;
-    private AppService $appService;
+    private AppService        $appService;
 
     /**
      * @param FieldData $fieldData
      * @param AbstractDataLayer $abstractDataLayer
      * @param AppService $appService
      */
-    public function __construct(FieldData $fieldData, AbstractDataLayer $abstractDataLayer, AppService $appService)
+    public function __construct (FieldData $fieldData, AbstractDataLayer $abstractDataLayer, AppService $appService)
     {
         $this->fieldData = $fieldData;
         $this->abstractDataLayer = $abstractDataLayer;
@@ -50,7 +50,7 @@ class AppController
     /**
      * @throws \Exception|\Throwable
      */
-    public function index($containerID)
+    public function index ($containerID)
     {
         $appsData = null;
         db(onGetDB: function (TonicsQuery $db) use ($containerID, &$appsData) {
@@ -69,40 +69,43 @@ class AppController
 
         $dataTableHeaders = [
             [
-                'type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_id',
-                'title' => 'ID', 'minmax' => '20px, .2fr', 'td' => 'app_id'
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_id',
+                'title' => 'ID', 'minmax' => '20px, .2fr', 'td' => 'app_id',
             ],
             [
-                'type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status',
-                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'app_status'
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status',
+                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'app_status',
             ],
 
             ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_name', 'title' => 'App', 'minmax' => '50px, .5fr', 'td' => 'app_name'],
 
             [
-                'type' => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_action',
+                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_action',
                 'select_data' => 'Start, ShutDown, Reboot', 'desc' => 'Signal Command',
-                'title' => 'Sig', 'minmax' => '30px, .4fr', 'td' => 'app_status_action'
+                'title'       => 'Sig', 'minmax' => '30px, .4fr', 'td' => 'app_status_action',
             ],
 
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_msg',
-                'title' => 'Msg',  'desc' => 'Last Message', 'minmax' => '50px, .5fr', 'td' => 'app_status_msg'],
+            [
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_msg',
+                'title' => 'Msg', 'desc' => 'Last Message', 'minmax' => '50px, .5fr', 'td' => 'app_status_msg',
+            ],
 
-            ['type' => '',
-                'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_description',
-                'title' => 'Desc', 'desc' => 'App Description', 'minmax' => '50px, .5fr', 'td' => 'app_description'
+            [
+                'type'  => '',
+                'slug'  => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_description',
+                'title' => 'Desc', 'desc' => 'App Description', 'minmax' => '50px, .5fr', 'td' => 'app_description',
             ],
         ];
 
         view('Apps::TonicsCloud/Views/App/index', [
-            'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $appsData ?? [],
-                'containerID' => $containerID,
+            'DataTable'     => [
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $appsData ?? [],
+                'containerID'   => $containerID,
                 'dataTableType' => 'TONICS_CLOUD',
             ],
             'ContainerData' => ContainerService::getContainer($containerID),
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'       => AppConfig::getAppUrl(),
         ]);
     }
 
@@ -110,7 +113,7 @@ class AppController
      * @return void
      * @throws \Exception|\Throwable
      */
-    public function dataTable($containerID)
+    public function dataTable ($containerID)
     {
         $entityBag = null;
         if ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -140,7 +143,7 @@ class AppController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function edit($containerID, $appID): void
+    public function edit ($containerID, $appID): void
     {
         $app = AppService::getApp($appID);
         $container = ContainerService::getContainer($containerID);
@@ -155,14 +158,13 @@ class AppController
 
         $appRowOthers = json_decode($appRow->others);
         $containerOthers = json_decode($container->containerOthers, true);
-
         # User already have the fieldItems stored, else, boot new one.
-        if (isset($appRowOthers->fieldData)){
+        if (isset($appRowOthers->fieldData)) {
             $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($appRowOthers->fieldData));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $fieldPostData = [];
-            if (isset($containerOthers['container_apps_config'][$app->app_name])){
+            if (isset($containerOthers['container_apps_config'][$app->app_name])) {
                 $fieldPostData = $containerOthers['container_apps_config'][$app->app_name];
             }
             $appOthers = json_decode($app->others);
@@ -171,28 +173,29 @@ class AppController
         }
 
         view('Apps::TonicsCloud/Views/App/edit', [
-            'App' => $app,
-            'ContainerID' => $containerID,
+            'App'           => $app,
+            'ContainerID'   => $containerID,
             'ContainerData' => $container,
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $htmlFrag
+            'SiteURL'       => AppConfig::getAppUrl(),
+            'TimeZone'      => AppConfig::getTimeZone(),
+            'FieldItems'    => $htmlFrag,
         ]);
     }
 
     /**
      * @param $containerID
      * @param $appID
+     *
      * @return void
      * @throws \Exception
      * @throws \Throwable
      */
-    public function update($containerID, $appID): void
+    public function update ($containerID, $appID): void
     {
         $this->appService->updateApp(input()->fromPost()->all());
         if ($this->appService->fails()) {
             session()->flash($this->appService->getErrors(), input()->fromPost()->all());
-        }  else {
+        } else {
             session()->flash([$this->appService->getMessage()], [], Session::SessionCategories_FlashMessageSuccess);
         }
         redirect($this->appService->getRedirectsRoute());
@@ -201,10 +204,11 @@ class AppController
     /**
      * @param $entityBag
      * @param $containerID
+     *
      * @return bool
      * @throws \Exception
      */
-    public function updateMultiple($entityBag, $containerID): bool
+    public function updateMultiple ($entityBag, $containerID): bool
     {
         $container = ContainerService::getContainer($containerID);
         $updateItems = $this->getAbstractDataLayer()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveUpdateElements, $entityBag);
@@ -231,7 +235,7 @@ class AppController
     /**
      * @return AbstractDataLayer
      */
-    public function getAbstractDataLayer(): AbstractDataLayer
+    public function getAbstractDataLayer (): AbstractDataLayer
     {
         return $this->abstractDataLayer;
     }
@@ -239,7 +243,7 @@ class AppController
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -247,7 +251,7 @@ class AppController
     /**
      * @param FieldData $fieldData
      */
-    public function setFieldData(FieldData $fieldData): void
+    public function setFieldData (FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }
@@ -256,7 +260,7 @@ class AppController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function UpdateDefaultApps(): void
+    #[NoReturn] public function UpdateDefaultApps (): void
     {
         AppService::UPDATE_DEFAULT_APPS();
         session()->flash(['App Settings Refreshed'], [], Session::SessionCategories_FlashMessageSuccess);

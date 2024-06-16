@@ -32,7 +32,7 @@ class CloudJobQueueImportImage extends AbstractJobInterface implements JobHandle
      * @throws \Exception
      * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
         $container = $this->getContainer();
         $containerOthers = json_decode($container->containerOthers);
@@ -44,30 +44,31 @@ class CloudJobQueueImportImage extends AbstractJobInterface implements JobHandle
             $image = $this->getImageOthers();
             $imageVersion = $this->getDefaultImageVersion();
 
-            if (!isset($image->images->{$imageVersion}->image_hash)){
+            if (!isset($image->images->{$imageVersion}->image_hash)) {
                 throw new \Exception("Image Hash Property is Missing in ImageData");
             }
             $imageHash = $image->images->{$imageVersion}->image_hash;
 
             $siteURL = trim(AppConfig::getAppUrl(), '/');
-            $imageMirror = $siteURL . route('tonicsCloud.images.download', [$containerOthers->container_image]) . "?token=" . AppConfig::getKey() . "&version=$imageVersion";
+            $imageVersionURLEncoded = urlencode($imageVersion);
+            $imageMirror = $siteURL . route('tonicsCloud.images.download', [$containerOthers->container_image]) . "?token=" . AppConfig::getKey() . "&version=$imageVersionURLEncoded";
 
             $parameter = [
                 'auto_update' => false,
-                'aliases' => [
-                    ['name' => $imageHash]
+                'aliases'     => [
+                    ['name' => $imageHash],
                 ],
-                'source' => [
+                'source'      => [
                     'mode' => 'pull',
                     'type' => 'url',
-                    'url' => trim($imageMirror)
-                ]
+                    'url'  => trim($imageMirror),
+                ],
             ];
 
             $this->updateContainerStatus('Importing Image');
             $client->images()->add($parameter);
             // $waitResponse = $client->operations()->wait($client->getResponse()->operation, 25);
-            if ($client->operationIsCreated() === false){
+            if ($client->operationIsCreated() === false) {
                 $this->logInfoMessage($client);
                 $err = "An Error Occurred Creating A Container From Image";
                 throw new \Exception($err);

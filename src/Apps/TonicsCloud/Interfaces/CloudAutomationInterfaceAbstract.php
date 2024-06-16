@@ -36,10 +36,14 @@ use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInputMethodsInter
 
 abstract class CloudAutomationInterfaceAbstract implements HandlerInterface, CloudAutomationInterface
 {
-    const IMAGE_NGINX = 'Nginx';
-    protected mixed $containerID     = null;
-    protected mixed $containerSlugID = null;
-    protected array $images          = [];
+    const IMAGE_NGINX     = 'Nginx';
+    const IMAGE_TONICS    = 'Tonics';
+    const IMAGE_WORDPRESS = 'WordPress';
+    protected mixed $containerID         = null;
+    protected mixed $containerSlugID     = null;
+    protected array $images              = [];
+    protected array $imageOthers         = [];
+    protected array $defaultImageVersion = [];
 
     public function handleEvent (object $event): void
     {
@@ -320,10 +324,42 @@ VARIABLES;
             return $this->images[$imageName];
         }
 
-        $imageID = ContainerService::getContainerImageByName($imageName)?->container_image_id;
+        $image = ContainerService::getContainerImageByName($imageName);
+        $imageID = $image?->container_image_id;
         if ($imageID) {
             $this->images[$imageName] = $imageID;
+            $this->imageOthers[$imageName] = json_decode($image->others);
             return $imageID;
+        }
+
+        return null;
+    }
+
+    /**
+     * This gets the latest version of an image
+     *
+     * @param string $imageName
+     *
+     * @return int|string|null
+     * @throws \Exception
+     */
+    public function getImageVersion (string $imageName): int|string|null
+    {
+        $imageOthers = null;
+        if (isset($this->images[$imageName])) {
+            $imageOthers = $this->imageOthers[$imageName];
+        } else {
+            $image = ContainerService::getContainerImageByName($imageName);
+            $this->images[$imageName] = $image?->container_image_id;
+            $this->imageOthers[$imageName] = json_decode($image->others);
+            $imageOthers = $this->imageOthers[$imageName];
+        }
+        
+        if (is_object($imageOthers)) {
+            # Get the properties of the object
+            $properties = get_object_vars($imageOthers->images);
+            # Get the last property key
+            return array_key_last($properties);
         }
 
         return null;
@@ -378,6 +414,9 @@ VARIABLES;
         # Retrieve input data and calculate the maximum length of the arrays
         foreach ($keyMapping as $inputKey => $outputKey) {
             $data = $input->retrieve($inputKey);
+            if (!is_array($data)) {
+                continue;
+            }
             $inputData[$inputKey] = $data;
             $maxLength = max($maxLength, count($data));
         }

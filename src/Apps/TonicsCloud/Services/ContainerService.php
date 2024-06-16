@@ -693,7 +693,7 @@ class ContainerService extends AbstractService
         $variables = [];
         if ($input->hasValue('variables')) {
             $variables = $input->retrieve('variables');
-            $variables = parse_ini_string($variables);
+            $variables = parse_ini_string($variables, true, INI_SCANNER_RAW);
             $variables = (is_array($variables)) ? $variables : [];
         }
 
@@ -905,6 +905,43 @@ class ContainerService extends AbstractService
 
             TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
         }
+    }
+
+    /**
+     * Here is an example usage:
+     *
+     * ```
+     * [
+     *      'ACME_EMAIL' => $email,
+     *      ...
+     * ]
+     * ```
+     *
+     * @param array $mappers
+     *
+     * @return string
+     */
+    public function createContainerVariables (array $mappers): string
+    {
+        $string = '';
+        foreach ($mappers as $key => $mapper) {
+            $string .= "$key={$mapper}\n";
+        }
+        return $string;
+    }
+
+    /**
+     * @param array $inputs
+     * @param array $rules
+     *
+     * @return Validation
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function validateGeneral (array $inputs, array $rules): Validation
+    {
+        $validator = $this->getValidator();
+        return $validator->make($inputs, $rules);
     }
 
     /**
