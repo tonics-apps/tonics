@@ -300,23 +300,27 @@ HTML;
 
         return <<<HTML
 <li tabindex="0" class="menu-arranger-li max-width:350 field-selection-container">
-        <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
-                <span class="menu-arranger-text-head">Fields Sanitization</span>
-                <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
-                <svg class="icon:admin tonics-arrow-down color:white">
-                    <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
-                </svg>
-            </button>
-            </legend>
-            <div class="menu-widget-information width:100% flex-d:column d:none">
-            <div class="menu-box-checkbox-items max-height:300px overflow:auto">
-                <ul style="margin-left: 0;" class="list:style:none margin-top:0">
-                    $fieldsFrag
-                </ul>
+
+    <form>
+            <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
+                <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+                    <span class="menu-arranger-text-head">Fields Sanitization</span>
+                    <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
+                    <svg class="icon:admin tonics-arrow-down color:white">
+                        <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+                    </svg>
+                </button>
+                </legend>
+                <div class="menu-widget-information width:100% flex-d:column d:none">
+                <div class="menu-box-checkbox-items max-height:300px overflow:auto">
+                    <ul style="margin-left: 0;" class="list:style:none margin-top:0">
+                        $fieldsFrag
+                    </ul>
+                </div>
             </div>
-        </div>
-        </fieldset>
+            </fieldset>
+    </form>
+
 </li>
 HTML;
     }
