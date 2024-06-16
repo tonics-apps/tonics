@@ -20,11 +20,10 @@ namespace App\Apps\TonicsCloud\Jobs\Container\Automations;
 
 
 use App\Apps\TonicsCloud\Apps\TonicsCloudNginx;
-use App\Apps\TonicsCloud\Apps\TonicsCloudUnZip;
 use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueUpdateApp;
+use App\Apps\TonicsCloud\Jobs\Container\Traits\TonicsJobQueueAutomationTrait;
 use App\Apps\TonicsCloud\Jobs\Container\Traits\TonicsJobQueueContainerTrait;
 use App\Apps\TonicsCloud\Services\AppService;
-use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
@@ -32,10 +31,15 @@ use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 class CloudJobQueueAutomationMultipleStaticSite extends AbstractJobInterface implements JobHandlerInterface
 {
 
-    use TonicsJobQueueContainerTrait;
+    use TonicsJobQueueContainerTrait, TonicsJobQueueAutomationTrait;
 
     private AppService $appService;
 
+    /**
+     * @param AppService $appService
+     *
+     * @throws \Exception
+     */
     public function __construct (AppService $appService)
     {
         $this->appService = $appService;
@@ -47,39 +51,18 @@ class CloudJobQueueAutomationMultipleStaticSite extends AbstractJobInterface imp
      */
     public function handle (): void
     {
-        $containerID = $this->getContainerID();
-        $appsInContainer = ContainerService::getAppsInContainer($containerID);
-        $apps = [];
-        foreach ($appsInContainer as $app) {
-            $apps[$app->app_name] = $app;
-        }
-
-        $zipApp = [
-            'container_id'  => $containerID,
-            'app_id'        => $apps['UnZip']->app_id,
-            '_fieldDetails' => TonicsCloudUnZip::createFieldDetails([
-                'unzip_extractTo'   => '/var/www/[[ACME_DOMAIN]]',
-                'unzip_archiveFile' => '[[ARCHIVE_FILE]]',
-                'unzip_format'      => '',
-                'unzip_overwrite'   => '1',
-            ]),
-        ];
-
-        $nginxHTTPMode = $this->NginxMode($containerID, $apps, TonicsCloudNginx::NginxSimple([
-            'serverName' => '[[ACME_DOMAIN]]',
-            'root'       => '/var/www/[[ACME_DOMAIN]]',
-            'ssl'        => false,
-        ]));
-        
+        $this->constructorSetup();
         /** @var CloudJobQueueUpdateApp $cloudJobQueueUpdateApp */
         $cloudJobQueueUpdateApp = container()->get(CloudJobQueueUpdateApp::class);
 
-        $appsToUpdate = [
-            $nginxHTTPMode,
-            $zipApp,
-        ];
-
-        $cloudJobQueueUpdateApp->setData(['appsToUpdate' => $appsToUpdate]);
+        $cloudJobQueueUpdateApp->setData([
+            'appsToUpdate' => $this->pickAppSettings(
+                [
+                    self::APP_SETTING_SIMPLE_NGINX_HTTP_MODE,
+                    self::APP_SETTING_UNZIP,
+                ],
+                $this->getContainerID()),
+        ]);
 
         $jobs = [
             [

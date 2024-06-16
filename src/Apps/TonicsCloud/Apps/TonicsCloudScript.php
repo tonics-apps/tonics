@@ -49,13 +49,16 @@ JSON;
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function updateSettings (): void
     {
-        $this->runCommand(null, null, "bash", "-c", <<<EOF
-{$this->getPostPrepareForFlight()?->content}
-EOF,
+        $code = trim(str_replace("\r", '', $this->getPostPrepareForFlight()?->content)); // quick clean up
+        $this->runCommand(null, null, "bash", "-c", <<<SCRIPT
+$code
+SCRIPT,
         );
+
     }
 
     /**
@@ -115,5 +118,115 @@ EOF,
     public function isStatus (string $statusString): bool
     {
         return true;
+    }
+
+    public static function WordPressScript (): string
+    {
+        return <<<'SCRIPT'
+# Enable logging
+LOG_FILE="/var/log/wp_script.log"
+touch $LOG_FILE
+exec > >(tee -a $LOG_FILE) 2>&1
+
+chown -R "www-data:www-data" [[ROOT]]
+
+#
+#   Change permission of all directory and files
+find [[ROOT]] -type d -exec chmod 755 {} \;
+find [[ROOT]] -type f -exec chmod 644 {} \;
+
+#
+#   Change permission of wp-config
+chmod 660 [[ROOT]]/wp-config.php
+
+#
+#   Allow WordPress To Manage public contents
+find [[ROOT]]/wp-content -type d -exec chmod 775 {} \;
+find [[ROOT]]/wp-content -type f -exec chmod 664 {} \;
+
+#
+# Import WordPress DB if there is one, and clean it up once done
+
+# Define the folder to check
+SQL_FILE="[[ROOT]]/exported.sql"
+
+# Check if the exported.sql file exists in the folder
+if [ -f "$SQL_FILE" ]; then
+  # Import the exported.sql file into MariaDB
+  if mysql --user="[[DB_USER]]" --password="[[DB_PASS]]" "[[DB_DATABASE]]" < "$SQL_FILE"; then
+    echo "Database import completed successfully."
+    echo "Cleaning up the SQL file..."
+    if rm "$SQL_FILE"; then
+      echo "SQL file deleted successfully."
+    else
+      echo "Error: Failed to delete the SQL file."
+      exit 1
+    fi
+  else
+    echo "Error: Database import failed."
+    exit 1
+  fi
+fi
+SCRIPT;
+
+    }
+
+    /**
+     * @return string
+     */
+    public static function TonicsCloudScript (): string
+    {
+        return <<<'SCRIPT'
+# Enable logging
+LOG_FILE="/var/log/tonics_script.log"
+touch $LOG_FILE
+exec > >(tee -a $LOG_FILE) 2>&1
+
+chown -R "www-data:www-data" [[ROOT]]
+
+#
+#   Change permission of all directory and files
+find [[ROOT]] -type d -exec chmod 755 {} \;
+find [[ROOT]] -type f -exec chmod 644 {} \;
+
+#
+#   Change permission of env file
+chmod 660 [[ROOT]]/web/.env
+
+#
+#   Allow Tonics To Manage private uploads
+find [[ROOT]]/private -type d -exec chmod 775 {} \;
+find [[ROOT]]/private -type f -exec chmod 664 {} \;
+
+#
+#   Allow Tonics To Manage public contents
+find [[ROOT]]/web/public -type d -exec chmod 775 {} \;
+find [[ROOT]]/web/public -type f -exec chmod 664 {} \;
+
+#
+# Import Tonics DB if there is one, and clean it up once done
+
+# Define the folder to check
+SQL_FILE="[[ROOT]]/exported.sql"
+
+# Check if the exported.sql file exists in the folder
+if [ -f "$SQL_FILE" ]; then
+  # Import the exported.sql file into MariaDB
+  if mysql --user="[[DB_USER]]" --password="[[DB_PASS]]" "[[DB_DATABASE]]" < "$SQL_FILE"; then
+    echo "Database import completed successfully."
+    echo "Cleaning up the SQL file..."
+    if rm "$SQL_FILE"; then
+      echo "SQL file deleted successfully."
+    else
+      echo "Error: Failed to delete the SQL file."
+      exit 1
+    fi
+  else
+    echo "Error: Database import failed."
+    exit 1
+  fi
+fi
+SCRIPT;
+
     }
 }

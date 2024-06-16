@@ -19,6 +19,7 @@
 namespace App\Apps\TonicsCloud\EventHandlers\Fields\Sanitization;
 
 use App\Apps\TonicsCloud\Interfaces\CloudAppInterface;
+use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Field\Interfaces\FieldValueSanitizationInterface;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -28,22 +29,24 @@ class RenderTonicsCloudDefaultContainerVariablesStringSanitization implements Ha
     /**
      * @inheritDoc
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         $event->addField($this);
     }
 
-    public function sanitizeName(): string
+    public function sanitizeName (): string
     {
         return 'TonicsCloudRenderDefaultContainerVariables';
     }
 
-    public function sanitize($value): string
+    public function sanitize ($value): string
     {
         return CloudAppInterface::replaceVariables($value, [
-            "[[RAND_STRING_RENDER]]" => function() { return bin2hex(random_bytes(30)); },
-                // add more here
-            ]
+            "[[RAND_USERNAME_RENDER]]"  => function () { return bin2hex(random_bytes(7)); },
+            "[[RAND_STRING_RENDER]]"    => function () { return bin2hex(random_bytes(30)); },
+            "[[TONICS_CUSTOMER_EMAIL]]" => function () { return (Session::userTableIsCustomer()) ? Session::getUserEmail() : ''; },
+            // add more here
+        ],
         );
     }
 }

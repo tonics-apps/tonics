@@ -32,6 +32,6 @@ class TonicsContainerDefaultAutomation extends CloudAutomationInterfaceAbstract
 
     public function displayName (): string
     {
-        return 'Default Automation - TonicsCloud';
+        return 'TonicsCloud - Default';
     }
 }

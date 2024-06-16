@@ -19,7 +19,6 @@
 namespace App\Apps\TonicsCloud\Jobs\Container\Automations;
 
 
-use App\Apps\TonicsCloud\Apps\TonicsCloudACME;
 use App\Apps\TonicsCloud\Apps\TonicsCloudNginx;
 use App\Apps\TonicsCloud\Controllers\InstanceController;
 use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueUpdateApp;
@@ -32,16 +31,41 @@ use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 
-class CloudJobQueueAutomationMultipleStaticSiteProxyConfiguration extends AbstractJobInterface implements JobHandlerInterface
+class CloudJobQueueAutomationMultipleSiteProxyConfiguration extends AbstractJobInterface implements JobHandlerInterface
 {
 
     use TonicsJobQueueContainerTrait, TonicsJobQueueAutomationTrait;
 
     private AppService $appService;
 
+    private \stdClass|null $serviceInstanceOthers = null;
+    private                $cloudInstance         = null;
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
     public function __construct (AppService $appService)
     {
         $this->appService = $appService;
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    public function setContainerIDForProxy (): void
+    {
+        $cloudInstance = $this->getDataAsArray()['cloudInstance'];
+        $serviceInstance = InstanceController::GetServiceInstances([
+            'instance_id' => $cloudInstance,
+        ]);
+        $serviceInstanceOthers = json_decode($serviceInstance->others);
+
+        $containerProxyID = $serviceInstanceOthers->containerProxy;
+        $this->containerID = $containerProxyID;
+        $this->serviceInstanceOthers = $serviceInstanceOthers;
+        $this->cloudInstance = $cloudInstance;
     }
 
     /**
@@ -50,20 +74,15 @@ class CloudJobQueueAutomationMultipleStaticSiteProxyConfiguration extends Abstra
      */
     public function handle (): void
     {
+        $this->setContainerIDForProxy();
+        $this->constructorSetup();
 
         $data = $this->getDataAsArray();
 
         if ($this->isValidData($data)) {
 
-            $cloudInstance = $this->getDataAsArray()['cloudInstance'];
-            $serviceInstance = InstanceController::GetServiceInstances([
-                'instance_id' => $cloudInstance,
-            ]);
-            $serviceInstanceOthers = json_decode($serviceInstance->others);
-
-            $containerProxyID = $serviceInstanceOthers->containerProxy;
             $containerProxyTo = $this->getDataAsArray()['containerProxyTo'];
-            $apps = $this->mapAppsByName(ContainerService::getAppsInContainer($containerProxyID));
+            $apps = $this->getApps();
 
             $httpNginx = '';
             $httpsNginx = '';
@@ -105,25 +124,16 @@ class CloudJobQueueAutomationMultipleStaticSiteProxyConfiguration extends Abstra
                 }
             }
 
-            $serviceInstanceOthers->container_proxy_to = $newProxyTo;
-            InstanceController::updateInstanceServiceOthers($serviceInstanceOthers, $cloudInstance);
+            $this->serviceInstanceOthers->container_proxy_to = $newProxyTo;
+            InstanceController::updateInstanceServiceOthers($this->serviceInstanceOthers, $this->cloudInstance);
 
-            $acmeApp = [
-                'container_id'  => $containerProxyID,
-                'app_id'        => $apps['ACME']->app_id,
-                '_fieldDetails' => TonicsCloudACME::createFieldDetails([
-                    'acme_email'  => '[[ACME_EMAIL]]',
-                    'acme_mode'   => 'nginx',
-                    'acme_issuer' => 'zerossl',
-                    'acme_sites'  => $acmeSites,
-                ]),
-            ];
-
-            $appsToUpdate = [
-                $this->NginxMode($containerProxyID, $apps, $httpNginx),
-                $acmeApp,
-                $this->NginxMode($containerProxyID, $apps, $httpsNginx),
-            ];
+            $appsToUpdate = $this->pickAppSettings(
+                [
+                    fn() => $this->NginxMode($this->getCurrentContainerID(), $apps, $httpNginx),
+                    self::APP_SETTING_ACME => ['acme_sites' => $acmeSites,],
+                    fn() => $this->NginxMode($this->getCurrentContainerID(), $apps, $httpsNginx),
+                ],
+                $this->getCurrentContainerID());
 
             /** @var CloudJobQueueUpdateApp $cloudJobQueueUpdateApp */
             $cloudJobQueueUpdateApp = container()->get(CloudJobQueueUpdateApp::class);

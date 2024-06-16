@@ -49,6 +49,7 @@ JSON;
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function updateSettings (): void
     {
@@ -91,18 +92,16 @@ JSON;
 
                 if ($field->field_input_name == 'env_path') {
                     $app = [];
-                    $app['env_path'] = $value;
+                    $app['env_path'] = $this->replaceContainerGlobalVariables($value);
                 }
 
                 if ($field->field_input_name == 'env_content') {
                     $app['env_content'] = $this->replaceContainerGlobalVariables($value);
-                    $field->field_options->{$field->field_input_name} = $app['env_content'];
                     $settings[] = $app;
                 }
             }
         }
 
-        // $this->setFields(json_decode(json_encode($data)));
         return $settings;
     }
 
@@ -139,20 +138,180 @@ JSON;
     }
 
     /**
-     * @throws \Exception
+     * You can currently swap the following if you want to:
+     *
+     * ```
+     *[
+     *  'APP_URL' => '...',
+     *  'APP_KEY' => '...',
+     *  'INSTALL_KEY' => '...',
+     *  'SITE_KEY' => '...',
+     * ]
+     * ```
+     *
+     * @param array $settings
+     *
+     * @return string
      */
-    private function replaceString (string $content, string $targetString, callable $replacer): string
+    public static function TonicsENV (array $settings = []): string
     {
-        // Calculate the length of the target string
-        $targetStringLength = strlen($targetString);
+        $appURL = (!empty($settings['APP_URL'])) ? $settings['APP_URL'] : "https://[[ACME_DOMAIN]]";
+        $installKey = (!empty($settings['INSTALL_KEY'])) ? $settings['INSTALL_KEY'] : "[[RAND_STRING_RENDER]]";
+        $siteKey = (!empty($settings['SITE_KEY'])) ? $settings['SITE_KEY'] : "[[RAND_STRING]]";
+        $appKey = (!empty($settings['APP_KEY'])) ? $settings['APP_KEY'] : "xxx";
 
-        // Replace all occurrences of the target string with random bytes
-        while (($pos = strpos($content, $targetString)) !== false) {
-            $replace = $replacer();
-            // Replace the target string with the random bytes
-            $content = substr_replace($content, $replace, $pos, $targetStringLength);
-        }
+        return <<<ENV
+APP_NAME=Tonics
+APP_ENV=production
+APP_URL_PORT=443
+APP_URL=$appURL
+APP_TIME_ZONE=Africa/Lagos
+APP_LANGUAGE=0
+APP_LOG_404=1
+APP_PAGINATION_MAX_LIMIT=20
+APP_STARTUP_CLI_FORK_LIMIT=1
 
-        return $content;
+JOB_TRANSPORTER=DATABASE
+SCHEDULE_TRANSPORTER=DATABASE
+
+INSTALL_KEY=$installKey
+APP_KEY=$appKey
+APP_POST_ENDPOINT=https://tonics.app/api/app_store
+SITE_KEY=$siteKey
+
+MAINTENANCE_MODE=0
+AUTO_UPDATE_MODULES=1
+AUTO_UPDATE_APPS=0
+
+ACTIVATE_EVENT_STREAM_MESSAGE=1
+
+DB_CONNECTION=mysql
+DB_HOST=[[DB_HOST]]
+DB_PORT=3306
+DB_DATABASE=[[DB_DATABASE]]
+DB_USERNAME=[[DB_USER]]
+DB_PASSWORD=[[DB_PASS]]
+DB_CHARSET=utf8mb4
+DB_ENGINE=InnoDB
+DB_PREFIX=tonics_
+
+MAIL_MAILER=smtp
+MAIL_HOST=mail.domain.com
+MAIL_PORT=587
+MAIL_USERNAME=user
+MAIL_PASSWORD=password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=user@mail.domain.com
+MAIL_REPLY_TO=user@mail.domain.com
+
+DROPBOX_KEY=xxx
+ENV;
+
+    }
+
+    /**
+     * @return string
+     */
+    public static function WordPressENV (): string
+    {
+        return <<<'ENV'
+<?php
+/**
+ * The base configuration for WordPress
+ *
+ * The wp-config.php creation script uses this file during the installation.
+ * You don't have to use the web site, you can copy this file to "wp-config.php"
+ * and fill in the values.
+ *
+ * This file contains the following configurations:
+ *
+ * * Database settings
+ * * Secret keys
+ * * Database table prefix
+ * * ABSPATH
+ *
+ * @link https://wordpress.org/documentation/article/editing-wp-config-php/
+ *
+ * @package WordPress
+ */
+
+// ** Database settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', '[[DB_DATABASE]]' );
+
+/** Database username */
+define( 'DB_USER', '[[DB_USER]]' );
+
+/** Database password */
+define( 'DB_PASSWORD', '[[DB_PASS]]' );
+
+/** Database hostname */
+define( 'DB_HOST', '[[DB_HOST]]' );
+
+/** Database charset to use in creating database tables. */
+define( 'DB_CHARSET', 'utf8' );
+
+/** The database collate type. Don't change this if in doubt. */
+define( 'DB_COLLATE', '' );
+
+/**#@+
+ * Authentication unique keys and salts.
+ *
+ * Change these to different unique phrases! You can generate these using
+ * the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}.
+ *
+ * You can change these at any point in time to invalidate all existing cookies.
+ * This will force all users to have to log in again.
+ *
+ * @since 2.6.0
+ */
+define( 'AUTH_KEY',         '[[RAND_STRING]]' );
+define( 'SECURE_AUTH_KEY',  '[[RAND_STRING]]' );
+define( 'LOGGED_IN_KEY',    '[[RAND_STRING]]' );
+define( 'NONCE_KEY',        '[[RAND_STRING]]' );
+define( 'AUTH_SALT',        '[[RAND_STRING]]' );
+define( 'SECURE_AUTH_SALT', '[[RAND_STRING]]' );
+define( 'LOGGED_IN_SALT',   '[[RAND_STRING]]' );
+define( 'NONCE_SALT',       '[[RAND_STRING]]' );
+
+/**#@-*/
+
+/**
+ * WordPress database table prefix.
+ *
+ * You can have multiple installations in one database if you give each
+ * a unique prefix. Only numbers, letters, and underscores please!
+ */
+$table_prefix = 'wp_';
+
+/**
+ * For developers: WordPress debugging mode.
+ *
+ * Change this to true to enable the display of notices during development.
+ * It is strongly recommended that plugin and theme developers use WP_DEBUG
+ * in their development environments.
+ *
+ * For information on other constants that can be used for debugging,
+ * visit the documentation.
+ *
+ * @link https://wordpress.org/documentation/article/debugging-in-wordpress/
+ */
+define( 'WP_DEBUG', false );
+
+/* Add any custom values between this line and the "stop editing" line. */
+
+$_SERVER['HTTPS']='on';
+
+/* That's all, stop editing! Happy publishing. */
+
+/** Absolute path to the WordPress directory. */
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
+/** Sets up WordPress vars and included files. */
+require_once ABSPATH . 'wp-settings.php';
+ENV;
+
     }
 }

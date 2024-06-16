@@ -113,8 +113,8 @@ CONFIG;
      */
     public static function NginxSimple ($settings): string
     {
-        $serverName = $settings['serverName'] ?: '';
-        $root = $settings['root'] ?: '/var/www/[[ACME_DOMAIN]]';
+        $serverName = $settings['serverName'] ?? '';
+        $root = $settings['root'] ?? '/var/www/[[ACME_DOMAIN]]';
         $ssl = $settings['ssl'];
 
         $config = <<<CONFIG
@@ -181,6 +181,41 @@ JSON;
     }
 
     /**
+     * @inheritDoc
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function updateSettings (): void
+    {
+        $config = $this->getPostPrepareForFlight()->config;
+        if ($this->getPostPrepareForFlight()->backend === 'php') {
+            $config = helper()->replacePlaceHolders($config, [
+                "[[PHP_VERSION]]" => $this->phpVersion(),
+            ]);
+        }
+        $this->createOrReplaceFile("/etc/nginx/conf.d/default.conf", $config);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function install () {}
+
+    /**
+     * @inheritDoc
+     */
+    public function uninstall () {}
+
+    public function prepareForFlight (array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): ?array
+    {
+        if ($flightType === self::PREPARATION_TYPE_SETTINGS) {
+            return $this->extractNginxConfig($data);
+        }
+
+        return null;
+    }
+
+    /**
      *  Example usage:
      *
      *  ```
@@ -195,12 +230,12 @@ JSON;
      *
      * @return string
      */
-    private static function TonicsNginxSimple ($settings): string
+    public static function TonicsNginxSimple ($settings): string
     {
         self::$backend = 'php';
-        $serverName = $settings['serverName'] ?: '';
-        $root = $settings['root'] ?: '/var/www';
-        $ssl = $settings['ssl'] ?: false;
+        $serverName = $settings['serverName'] ?? '';
+        $root = $settings['root'] ?? '/var/www';
+        $ssl = $settings['ssl'] ?? false;
 
         $root = rtrim($root, '/'); // e.g /var/www
         if ($ssl === false) {
@@ -224,7 +259,6 @@ server {
         ssl_certificate /etc/ssl/{$serverName}_fullchain.cer;
         ssl_certificate_key /etc/ssl/$serverName.key;
         ssl_protocols        TLSv1.3 TLSv1.2 TLSv1.1;
-        server_name $serverName;
 CONFIG;
         }
 
@@ -292,18 +326,93 @@ CONFIG;
     }
 
     /**
-     * @inheritDoc
-     * @throws \Exception
+     *  Example usage:
+     *
+     *  ```
+     *  [
+     *      'serverName' => 'cloud.tonics.app', // siteName
+     *      'root' => '/var/www', // container to redirect incoming serverName connection to
+     *      'ssl' => false, // set to true if you want SSL
+     *  ];
+     *  ```
+     *
+     * @param $settings
+     *
+     * @return string
      */
-    public function updateSettings (): void
+    public static function WordPressNginxSimple ($settings): string
     {
-        $config = $this->getPostPrepareForFlight()->config;
-        if ($this->getPostPrepareForFlight()->backend === 'php') {
-            $config = helper()->replacePlaceHolders($config, [
-                "[[PHP_VERSION]]" => $this->phpVersion(),
-            ]);
+        self::$backend = 'php';
+        $serverName = $settings['serverName'] ?? '';
+        $root = $settings['root'] ?? '/var/www';
+        $ssl = $settings['ssl'] ?? false;
+
+        $root = rtrim($root, '/'); // e.g /var/www
+        if ($ssl === false) {
+            $config = <<<CONFIG
+server {
+
+        listen 80;
+CONFIG;
+        } else {
+            $config = <<<CONFIG
+server {
+    listen 80;
+    server_name $serverName www.$serverName;
+    return 301 https://$serverName\$request_uri;
+}
+
+server {
+        listen 443 ssl http2;
+
+        # ssl on;
+        ssl_certificate /etc/ssl/{$serverName}_fullchain.cer;
+        ssl_certificate_key /etc/ssl/$serverName.key;
+        ssl_protocols        TLSv1.3 TLSv1.2 TLSv1.1;
+CONFIG;
         }
-        $this->createOrReplaceFile("/etc/nginx/conf.d/default.conf", $config);
+
+        $config .= <<<CONFIG
+
+        root $root;
+        client_max_body_size 900M;
+        index index.php;
+        # Set server_name directive with the hostname
+        server_name $serverName;
+
+        location / {
+                         try_files \$uri \$uri/ =404;
+            }
+
+            location ~ \.php$ {
+                         include snippets/fastcgi-php.conf;
+                         fastcgi_pass unix:/run/php/php[[PHP_VERSION]]-fpm.sock;
+            }
+            
+            location ~ /\.ht {
+                         deny all;
+            }
+
+            location = /favicon.ico {
+                         log_not_found off;
+                         access_log off;
+            }
+
+            location = /robots.txt {
+                         allow all;
+                         log_not_found off;
+                         access_log off;
+           }
+       
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+                         expires max;
+                         log_not_found off;
+           }
+}
+CONFIG;
+
+        return $config;
+
     }
 
     /**
@@ -323,6 +432,7 @@ EOF,
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function isStatus (string $statusString): bool
     {
@@ -342,6 +452,7 @@ EOF,
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function start (): bool
     {
@@ -350,6 +461,7 @@ EOF,
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function reload (): bool
     {
@@ -358,29 +470,11 @@ EOF,
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function stop (): bool
     {
         return $this->signalSystemDService('nginx', self::SystemDSignalStop);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function install () {}
-
-    /**
-     * @inheritDoc
-     */
-    public function uninstall () {}
-
-    public function prepareForFlight (array $data, string $flightType = self::PREPARATION_TYPE_SETTINGS): ?array
-    {
-        if ($flightType === self::PREPARATION_TYPE_SETTINGS) {
-            return $this->extractNginxConfig($data);
-        }
-
-        return null;
     }
 
     /**

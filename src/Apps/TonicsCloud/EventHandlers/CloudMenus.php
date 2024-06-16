@@ -27,7 +27,7 @@ use Devsrealm\TonicsTreeSystem\Tree;
 
 class CloudMenus implements HandlerInterface
 {
-    const CLOUD_ADMIN = AdminMenuHelper::DASHBOARD . '/TONICS_ADMIN_CLOUD';
+    const CLOUD_ADMIN = AdminMenuHelper::APPS . '/TONICS_ADMIN_CLOUD';
 
     const IMAGES              = self::CLOUD_ADMIN . '/IMAGES';
     const IMAGE_NEW           = self::IMAGES . '/NEW_IMAGE';
@@ -61,7 +61,7 @@ class CloudMenus implements HandlerInterface
 
             $tree->add(self::CLOUD_ADMIN, [
                 'mt_name'     => 'Cloud',
-                'mt_url_slug' => '#0',
+                'mt_url_slug' => route('tonicsCloud.settings'),
                 'mt_icon'     => helper()->getIcon('cloud'),
             ]);
 

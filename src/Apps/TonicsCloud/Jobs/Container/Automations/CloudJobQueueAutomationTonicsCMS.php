@@ -27,7 +27,7 @@ use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 
-class CloudJobQueueAutomationStandaloneStaticSite extends AbstractJobInterface implements JobHandlerInterface
+class CloudJobQueueAutomationTonicsCMS extends AbstractJobInterface implements JobHandlerInterface
 {
 
     use TonicsJobQueueContainerTrait, TonicsJobQueueAutomationTrait;
@@ -35,8 +35,6 @@ class CloudJobQueueAutomationStandaloneStaticSite extends AbstractJobInterface i
     private AppService $appService;
 
     /**
-     * @param AppService $appService
-     *
      * @throws \Exception
      */
     public function __construct (AppService $appService)
@@ -51,19 +49,40 @@ class CloudJobQueueAutomationStandaloneStaticSite extends AbstractJobInterface i
     public function handle (): void
     {
         $this->constructorSetup();
+
         /** @var CloudJobQueueUpdateApp $cloudJobQueueUpdateApp */
         $cloudJobQueueUpdateApp = container()->get(CloudJobQueueUpdateApp::class);
 
+        $appsToUpdate =
+            [
+                self::APP_SETTING_TONICS_NGINX_HTTP_MODE,
+                self::APP_SETTING_MARIADB,
+                self::APP_SETTING_TONICS_ENV,
+                self::APP_SETTING_PHP,
+            ];
+
+        if (isset($this->getDataAsObject()->container_variables->ARCHIVE_FILE)) {
+            $appsToUpdate = [
+                self::APP_SETTING_TONICS_NGINX_HTTP_MODE,
+                self::APP_SETTING_MARIADB,
+                self::APP_SETTING_TONICS_EXISTING_ENV,
+                self::APP_SETTING_UNZIP,
+                self::APP_SETTING_TONICS_SCRIPT,
+                self::APP_SETTING_PHP,
+            ];
+        }
+
         $cloudJobQueueUpdateApp->setData([
-            'appsToUpdate' => $this->pickAppSettings(
-                [
-                    self::APP_SETTING_SIMPLE_NGINX_HTTP_MODE,
-                    self::APP_SETTING_ACME,
-                    self::APP_SETTING_SIMPLE_NGINX_HTTPS_MODE,
-                    self::APP_SETTING_UNZIP,
-                ],
-                $this->getCurrentContainerID()),
+            'appsToUpdate' => $this->pickAppSettings($appsToUpdate, $this->getCurrentContainerID()),
         ]);
-        TonicsCloudActivator::getJobQueue()->enqueue($cloudJobQueueUpdateApp);
+
+        $jobs = [
+            [
+                'job'      => $cloudJobQueueUpdateApp,
+                'children' => [],
+            ],
+        ];
+
+        TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs);
     }
 }

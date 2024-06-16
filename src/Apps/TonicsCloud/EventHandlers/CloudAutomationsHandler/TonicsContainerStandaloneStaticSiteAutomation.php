@@ -33,7 +33,7 @@ class TonicsContainerStandaloneStaticSiteAutomation extends CloudAutomationInter
 
     public function displayName (): string
     {
-        return 'I Want a Static Site - TonicsCloud';
+        return 'TonicsCloud - Standalone Static Site';
     }
 
     public function automate ($data = []): void
@@ -41,18 +41,48 @@ class TonicsContainerStandaloneStaticSiteAutomation extends CloudAutomationInter
         /** @var TonicsRouterRequestInputMethodsInterface $input */
         $input = $data['input'];
         $inputs = $data['input']->all();
+        /** @var ContainerService $containerService */
+        $containerService = $data['containerService'];
+
+        $email = $input->retrieve('tonicsCloud_standalone_static_site_emailAddress');
+        $domain = $input->retrieve('tonicsCloud_standalone_static_site_domainName');
+        $file = $input->retrieve('tonicsCloud_standalone_static_site_archiveFile');
+
+        $validation = $containerService->validateGeneral([
+            'email'  => $email,
+            'domain' => $domain,
+            'file'   => $file,
+        ], $this->getSiteValidationRule());
+
+        if ($validation->fails()) {
+            $containerService->handleValidationFailureForContainerCreate($validation);
+            return;
+        }
 
         $inputs['container_profiles'] = $this->getProfiles();
         $inputs['container_image'] = $this->getImageID(self::IMAGE_NGINX);
-        $inputs['variables'] = <<<VARIABLES
-ACME_EMAIL={$input->retrieve('tonicsCloud_standalone_static_site_emailAddress')}
-ACME_DOMAIN={$input->retrieve('tonicsCloud_standalone_static_site_domainName')}
-ARCHIVE_FILE={$input->retrieve('tonicsCloud_standalone_static_site_archiveFile')}
-VARIABLES;
+        $inputs['variables'] = $containerService->createContainerVariables([
+            'ROOT'         => "/var/www/$domain",
+            'ACME_EMAIL'   => $email,
+            'ACME_DOMAIN'  => $domain,
+            'ARCHIVE_FILE' => $file,
+        ]);
 
         $data['input'] = input()->fromPost($inputs);
         $data['jobs'] = $this->defaultContainerCreateQueuePaths($data['input'], ['job' => container()->get(CloudJobQueueAutomationStandaloneStaticSite::class)]);
         $this->createContainer($data);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getSiteValidationRule (): array
+    {
+        return [
+            'domain' => ['required', 'string', 'CharLen' => ['min' => 3, 'max' => 1000]],
+            'email'  => ['required', 'email'],
+            'file'   => ['required', 'string'],
+        ];
     }
 
     /**

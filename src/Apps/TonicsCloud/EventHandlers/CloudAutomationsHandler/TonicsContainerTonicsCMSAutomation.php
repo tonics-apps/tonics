@@ -20,22 +20,32 @@ namespace App\Apps\TonicsCloud\EventHandlers\CloudAutomationsHandler;
 
 use App\Apps\TonicsCloud\EventHandlers\CloudAutomationsHandler\Traits\ProxyAutomation;
 use App\Apps\TonicsCloud\Interfaces\CloudAutomationInterfaceAbstract;
-use App\Apps\TonicsCloud\Jobs\Container\Automations\CloudJobQueueAutomationMultipleStaticSite;
+use App\Apps\TonicsCloud\Jobs\Container\Automations\CloudJobQueueAutomationTonicsCMS;
 use App\Apps\TonicsCloud\Services\ContainerService;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInputMethodsInterface;
 
-class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterfaceAbstract
+class TonicsContainerTonicsCMSAutomation extends CloudAutomationInterfaceAbstract
 {
     use ProxyAutomation;
 
+    const TONICS_VERSION_CLOUD_TONICS = 'CloudTonics';
+    const TONICS_VERSION_WRI_TONICS   = 'WriTonics';
+    const TONICS_VERSION_Audio_TONICS = 'AudioTonics';
+
+    const solutionsPHPVersion = [
+        self::TONICS_VERSION_CLOUD_TONICS => '8.2',
+        self::TONICS_VERSION_WRI_TONICS   => '8.2',
+        self::TONICS_VERSION_Audio_TONICS => '8.2',
+    ];
+
     public function name (): string
     {
-        return 'app-tonicscloud-automation-multiple-static-site';
+        return 'app-tonicscloud-automation-tonics-cms';
     }
 
     public function displayName (): string
     {
-        return 'TonicsCloud - Multiple Static Site(s)';
+        return 'TonicsCloud - Tonics Site(s)';
     }
 
     public function automate ($data = []): void
@@ -48,11 +58,7 @@ class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterf
      */
     public function getSiteValidationRule (): array
     {
-        return [
-            'domain' => ['required', 'string', 'CharLen' => ['min' => 3, 'max' => 1000]],
-            'email'  => ['required', 'email'],
-            'file'   => ['required', 'string'],
-        ];
+        return $this->getSiteValidationRuleForCommonCMS();
     }
 
     /**
@@ -63,9 +69,12 @@ class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterf
     protected function prepareSites (TonicsRouterRequestInputMethodsInterface $input): array
     {
         return $this->mapInputToArray($input, [
-            'tonicsCloud_multi_static_site_domainName'   => 'domain',
-            'tonicsCloud_multi_static_site_emailAddress' => 'email',
-            'tonicsCloud_multi_static_site_archiveFile'  => 'file',
+            'tonicsCloud_tonicsCMS_site_domainName'   => 'domain',
+            'tonicsCloud_tonicsCMS_site_emailAddress' => 'email',
+            'tonicsCloud_tonicsCMS_site_dbUser'       => 'dbUser',
+            'tonicsCloud_tonicsCMS_site_dbPass'       => 'dbPass',
+            'tonicsCloud_tonicsCMS_site_solution'     => 'solution',
+            'tonicsCloud_tonicsCMS_site_archive'      => 'archive',
         ]);
     }
 
@@ -83,20 +92,31 @@ class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterf
         $input = $data['input'];
         /** @var ContainerService $containerService */
         $containerService = $data['containerService'];
-
         foreach ($sites as $site) {
             $siteInput = $input->all();
             $siteInput['container_name'] = helper()->strLimit($siteInput['container_name'] . '[' . $site['domain'] . ']', 220);
-            $siteInput['container_image'] = $this->getImageID(self::IMAGE_NGINX);
-            $domain = $site['domain'];
-            $siteInput['variables'] = $containerService->createContainerVariables([
-                'ROOT'         => "/var/www/$domain",
-                'ACME_DOMAIN'  => $domain,
-                'ARCHIVE_FILE' => $site['file'],
-            ]);
+            $siteInput['container_image'] = $this->getImageID(self::IMAGE_TONICS);
+            $solution = (empty($site['solution'])) ? self::TONICS_VERSION_CLOUD_TONICS : $site['solution'];
+            $siteInput['image_version'] = $solution;
+            $variables = [
+                'ACME_DOMAIN' => $site['domain'],
+                'DB_DATABASE' => helper()->randomString(10),
+                'DB_USER'     => $site['dbUser'],
+                'DB_PASS'     => $site['dbPass'],
+                'DB_HOST'     => 'localhost',
+                'ROOT'        => '/var/www/tonics',
+                'PHP_VERSION' => self::solutionsPHPVersion[$solution] ?? self::solutionsPHPVersion[self::TONICS_VERSION_CLOUD_TONICS],
+                'INSTALL_KEY' => helper()->randomString(25),
+                'SITE_KEY'    => helper()->randomString(25),
+            ];
 
+            if (!empty($site['archive'])) {
+                $variables['ARCHIVE_FILE'] = $site['archive'];
+            }
+
+            $siteInput['variables'] = $containerService->createContainerVariables($variables);
             $data['input'] = input()->fromPost($siteInput);
-            $data['jobs'] = $this->defaultContainerCreateQueuePaths($data['input'], ['job' => container()->get(CloudJobQueueAutomationMultipleStaticSite::class)]);
+            $data['jobs'] = $this->defaultContainerCreateQueuePaths($data['input'], ['job' => container()->get(CloudJobQueueAutomationTonicsCMS::class)]);
             $this->createContainer($data);
             $containersToProxyTo[] = $this->containerSlugID;
         }

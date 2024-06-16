@@ -20,22 +20,22 @@ namespace App\Apps\TonicsCloud\EventHandlers\CloudAutomationsHandler;
 
 use App\Apps\TonicsCloud\EventHandlers\CloudAutomationsHandler\Traits\ProxyAutomation;
 use App\Apps\TonicsCloud\Interfaces\CloudAutomationInterfaceAbstract;
-use App\Apps\TonicsCloud\Jobs\Container\Automations\CloudJobQueueAutomationMultipleStaticSite;
+use App\Apps\TonicsCloud\Jobs\Container\Automations\CloudJobQueueAutomationWordPressCMS;
 use App\Apps\TonicsCloud\Services\ContainerService;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInputMethodsInterface;
 
-class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterfaceAbstract
+class TonicsContainerWordPressCMSAutomation extends CloudAutomationInterfaceAbstract
 {
     use ProxyAutomation;
 
     public function name (): string
     {
-        return 'app-tonicscloud-automation-multiple-static-site';
+        return 'app-tonicscloud-automation-wordpress-cms';
     }
 
     public function displayName (): string
     {
-        return 'TonicsCloud - Multiple Static Site(s)';
+        return 'TonicsCloud - WordPress Site(s)';
     }
 
     public function automate ($data = []): void
@@ -48,11 +48,7 @@ class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterf
      */
     public function getSiteValidationRule (): array
     {
-        return [
-            'domain' => ['required', 'string', 'CharLen' => ['min' => 3, 'max' => 1000]],
-            'email'  => ['required', 'email'],
-            'file'   => ['required', 'string'],
-        ];
+        return $this->getSiteValidationRuleForCommonCMS();
     }
 
     /**
@@ -63,9 +59,12 @@ class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterf
     protected function prepareSites (TonicsRouterRequestInputMethodsInterface $input): array
     {
         return $this->mapInputToArray($input, [
-            'tonicsCloud_multi_static_site_domainName'   => 'domain',
-            'tonicsCloud_multi_static_site_emailAddress' => 'email',
-            'tonicsCloud_multi_static_site_archiveFile'  => 'file',
+            'tonicsCloud_wordpressCMS_site_domainName'   => 'domain',
+            'tonicsCloud_wordpressCMS_site_emailAddress' => 'email',
+            'tonicsCloud_wordpressCMS_site_dbUser'       => 'dbUser',
+            'tonicsCloud_wordpressCMS_site_dbName'       => 'dbName',
+            'tonicsCloud_wordpressCMS_site_dbPass'       => 'dbPass',
+            'tonicsCloud_wordpressCMS_site_archive'      => 'archive',
         ]);
     }
 
@@ -83,24 +82,47 @@ class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterf
         $input = $data['input'];
         /** @var ContainerService $containerService */
         $containerService = $data['containerService'];
-
         foreach ($sites as $site) {
             $siteInput = $input->all();
             $siteInput['container_name'] = helper()->strLimit($siteInput['container_name'] . '[' . $site['domain'] . ']', 220);
-            $siteInput['container_image'] = $this->getImageID(self::IMAGE_NGINX);
-            $domain = $site['domain'];
-            $siteInput['variables'] = $containerService->createContainerVariables([
-                'ROOT'         => "/var/www/$domain",
-                'ACME_DOMAIN'  => $domain,
-                'ARCHIVE_FILE' => $site['file'],
-            ]);
+            $siteInput['container_image'] = $this->getImageID(self::IMAGE_WORDPRESS);
+            $siteInput['image_version'] = $this->getImageVersion(self::IMAGE_WORDPRESS);
+            $variables = [
+                'ACME_DOMAIN' => $site['domain'],
+                'DB_DATABASE' => $site['dbName'] ?? helper()->randomString(10),
+                'DB_USER'     => $site['dbUser'],
+                'DB_PASS'     => $site['dbPass'],
+                'DB_HOST'     => 'localhost',
+                'ROOT'        => '/var/www/wordpress',
+                'PHP_VERSION' => $this->extractPhpVersion($siteInput['image_version']),
+            ];
 
+            if (!empty($site['archive'])) {
+                $variables['ARCHIVE_FILE'] = $site['archive'];
+            }
+
+            $siteInput['variables'] = $containerService->createContainerVariables($variables);
             $data['input'] = input()->fromPost($siteInput);
-            $data['jobs'] = $this->defaultContainerCreateQueuePaths($data['input'], ['job' => container()->get(CloudJobQueueAutomationMultipleStaticSite::class)]);
+            $data['jobs'] = $this->defaultContainerCreateQueuePaths($data['input'], ['job' => container()->get(CloudJobQueueAutomationWordPressCMS::class)]);
             $this->createContainer($data);
             $containersToProxyTo[] = $this->containerSlugID;
         }
 
         return $containersToProxyTo;
+    }
+
+    /**
+     * @param $string
+     *
+     * @return string|null
+     */
+    public function extractPhpVersion ($string): ?string
+    {
+        // Perform the regex search
+        if (preg_match('/PHP[_ ]?(\d+\.\d+)/i', $string, $matches)) {
+            // Return the first captured group which is the version number
+            return $matches[1];
+        }
+        return null;
     }
 }
