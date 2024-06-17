@@ -65,8 +65,8 @@ class CloudJobQueueAutomationTonicsCMS extends AbstractJobInterface implements J
             $appsToUpdate = [
                 self::APP_SETTING_TONICS_NGINX_HTTP_MODE,
                 self::APP_SETTING_MARIADB,
-                self::APP_SETTING_TONICS_EXISTING_ENV,
                 self::APP_SETTING_UNZIP,
+                self::APP_SETTING_TONICS_EXISTING_ENV,
                 self::APP_SETTING_TONICS_SCRIPT,
                 self::APP_SETTING_PHP,
             ];

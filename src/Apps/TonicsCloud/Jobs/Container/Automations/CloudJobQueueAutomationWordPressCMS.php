@@ -65,8 +65,8 @@ class CloudJobQueueAutomationWordPressCMS extends AbstractJobInterface implement
             $appsToUpdate = [
                 self::APP_SETTING_WORDPRESS_NGINX_HTTP_MODE,
                 self::APP_SETTING_MARIADB,
-                self::APP_SETTING_WORDPRESS_ENV,
                 self::APP_SETTING_UNZIP,
+                self::APP_SETTING_WORDPRESS_ENV,
                 self::APP_SETTING_WORDPRESS_SCRIPT,
                 self::APP_SETTING_PHP,
             ];
