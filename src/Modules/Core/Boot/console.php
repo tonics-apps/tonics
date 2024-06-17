@@ -1,7 +1,6 @@
-#!/usr/bin/php
 <?php
 /*
- *     Copyright (c) 2021-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -17,4 +16,29 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-require dirname(__DIR__) . '/src/Modules/Core/Boot/console.php';
+
+use App\Modules\Core\Boot\TonicsCoreConsoleEntry;
+use App\Modules\Core\Commands\InitConsole;
+use Devsrealm\TonicsConsole\ProcessCommandLineArgs;
+use Devsrealm\TonicsContainer\Container;
+
+require dirname(__DIR__, 4) . '/src/Modules/Core/Library/Composer/autoload.php';
+
+$args = new ProcessCommandLineArgs($argv);
+$container = new Container();
+
+if ($args->passes()) {
+
+    try {
+        TonicsCoreConsoleEntry::entry();
+    } catch (Exception|Throwable $e) {
+        echo $e->getMessage();
+        exit(1);
+    }
+
+    #
+    # INIT Essential COMMANDS
+    #
+    new InitConsole($container, $args);
+}
+exit(1);

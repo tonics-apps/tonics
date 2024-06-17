@@ -1,7 +1,6 @@
-#!/usr/bin/php
 <?php
 /*
- *     Copyright (c) 2021-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -17,4 +16,27 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-require dirname(__DIR__) . '/src/Modules/Core/Boot/console.php';
+namespace App\Modules\Core\Boot;
+
+use Ahc\Env\Loader;
+use App\Modules\Core\Configs\AppConfig;
+
+class TonicsCoreConsoleEntry
+{
+    /**
+     * @throws \Throwable
+     */
+    public static function entry (): void
+    {
+        #-----------------------------
+        # LOAD ENV FILE
+        #---------------------------------
+        define('APP_ROOT', dirname(__DIR__, 4));
+        (new Loader)->load(APP_ROOT . '/.env');
+
+        #-----------------------------------
+        # START BOOTING Console BOOTY ;)
+        #-------------------------------------------
+        AppConfig::initLoaderMinimal()->initConsole();
+    }
+}

@@ -43,11 +43,26 @@ class InitLoaderMinimal
     private DomParser               $domParser; # Incomplete, but 95% usable for my use case.
 
     /**
+     * @throws Exception
+     * @throws \Throwable
+     */
+    public function initConsole (): void
+    {
+        # TimeZone
+        date_default_timezone_set(AppConfig::getTimeZone());
+
+        # INCLUDE THE HELPERS
+        AppConfig::includeHelpers();
+        # Load Others
+        AppConfig::initLoaderOthers();
+    }
+
+    /**
      * Yh, Boot up the application
      * @throws Exception
      * @throws \Throwable
      */
-    public function init ()
+    public function init (): void
     {
         # TimeZone
         date_default_timezone_set(AppConfig::getTimeZone());
