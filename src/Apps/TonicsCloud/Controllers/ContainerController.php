@@ -184,6 +184,7 @@ class ContainerController
      *
      * @return true
      * @throws \Exception
+     * @throws \Throwable
      */
     public function deleteMultiple ($entityBag): true
     {
@@ -204,6 +205,7 @@ class ContainerController
      *
      * @return bool
      * @throws \Exception
+     * @throws \Throwable
      */
     public function updateMultiple ($entityBag): bool
     {

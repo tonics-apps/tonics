@@ -29,7 +29,7 @@ class CloudContainerImages implements HandlerInterface
     /**
      * @inheritDoc
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('CloudContainerImages', 'All Cloud Container Images', 'TonicsCloud',
@@ -39,19 +39,19 @@ class CloudContainerImages implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function () {
-            }
+            handleViewProcessing: function () {},
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      * @throws \Throwable
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Container Images';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
@@ -78,11 +78,12 @@ FORM;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
 
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Container Images';
@@ -117,22 +118,22 @@ FRAG;
 
         $selectedContainerImage = $event->getKeyValueInData($data, $data->inputName);
         $emptyImage = (object)['container_image_id' => '', 'container_image_name' => 'Empty Image', 'container_image_description' => 'Empty Image'];
-        if ($editPage === false){
+        if ($editPage === false) {
             $containerImages = ImageController::getImages();
-            if (empty($containerImages)){
+            if (empty($containerImages)) {
                 return '';
             }
             array_unshift($containerImages, $emptyImage);
         } else {
             $containerImage = ImageController::getImageData($selectedContainerImage);
-            if (empty($containerImage)){
+            if (empty($containerImage)) {
                 $containerImage = $emptyImage;
             }
         }
 
-        if ($editPage){
+        if ($editPage) {
             $imageVersion = $event->getKeyValueInData($data, 'image_version');
-            $trFrag .=<<<Frag
+            $trFrag .= <<<Frag
         <tr class="">
              <td tabindex="-1" style="opacity: 50%;">
                 <label aria-label="$containerImage->container_image_name" class="d:flex flex-gap align-items:center">
@@ -148,11 +149,11 @@ Frag;
         } else {
             foreach ($containerImages as $containerImage) {
                 $selected = '';
-                if ($containerImage->container_image_id == $selectedContainerImage){
+                if ($containerImage->container_image_id == $selectedContainerImage) {
                     $selected = 'checked';
                 }
 
-                $trFrag .=<<<Frag
+                $trFrag .= <<<Frag
         <tr class="">
             <td tabindex="-1">
                 <label aria-label="$containerImage->container_image_name" class="d:flex flex-gap align-items:center">
@@ -186,12 +187,13 @@ CLOSE;
 
     /**
      * @param $containerImage
+     *
      * @return string
      * @throws \Exception
      */
-    private function getLogoFrag($containerImage): string
+    private function getLogoFrag ($containerImage): string
     {
-        if (empty($containerImage->container_image_logo)){
+        if (empty($containerImage->container_image_logo)) {
             $logo = "/logo/o-ola-micky-logo.svg";
         } else {
             $logo = $containerImage->container_image_logo;
@@ -207,18 +209,19 @@ LOGO;
 
     /**
      * @param $containerImage
+     *
      * @return string
      * @throws \Exception
      */
-    private function getImageVersions($containerImage): string
+    private function getImageVersions ($containerImage): string
     {
         $versions = '';
-        if (isset($containerImage->others) && helper()->isJSON($containerImage->others)){
+        if (isset($containerImage->others) && helper()->isJSON($containerImage->others)) {
             $containerImage->others = json_decode($containerImage->others);
-            if (isset($containerImage->others->images)){
+            if (isset($containerImage->others->images)) {
                 $imageVersions = array_keys((array)$containerImage->others->images);
-                foreach ($imageVersions as $imageVersion){
-                    $versions .=<<<VER
+                foreach ($imageVersions as $imageVersion) {
+                    $versions .= <<<VER
 <option title="$imageVersion" value="$imageVersion">$imageVersion</option>
 VER;
                 }

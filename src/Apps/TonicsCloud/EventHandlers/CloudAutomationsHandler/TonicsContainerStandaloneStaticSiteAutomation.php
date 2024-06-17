@@ -61,6 +61,7 @@ class TonicsContainerStandaloneStaticSiteAutomation extends CloudAutomationInter
 
         $inputs['container_profiles'] = $this->getProfiles();
         $inputs['container_image'] = $this->getImageID(self::IMAGE_NGINX);
+        $inputs['image_version'] = $this->getImageVersion(self::IMAGE_NGINX);
         $inputs['variables'] = $containerService->createContainerVariables([
             'ROOT'         => "/var/www/$domain",
             'ACME_EMAIL'   => $email,

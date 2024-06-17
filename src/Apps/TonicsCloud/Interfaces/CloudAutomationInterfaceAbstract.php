@@ -184,7 +184,7 @@ abstract class CloudAutomationInterfaceAbstract implements HandlerInterface, Clo
 
             $variables = $containerService->getContainerVariables($input);
 
-            $imageVersion = $input->retrieve("{$containerImage}_image_version");
+            $imageVersion = $input->retrieve("{$containerImage}_image_version", $input->retrieve("image_version"));
             $containerProfiles = array_filter((array)$input->retrieve('container_profiles', []));
             $containerName = $input->retrieve('container_name');
             $containerDescription = $input->retrieve('container_description');
@@ -291,6 +291,7 @@ abstract class CloudAutomationInterfaceAbstract implements HandlerInterface, Clo
             $containerName = $proxyInput['container_name'] . '[Proxy]';
             $proxyInput['container_name'] = helper()->strLimit($containerName, 220);
             $proxyInput['container_image'] = $this->getImageID(self::IMAGE_NGINX);
+            $proxyInput['image_version'] = $this->getImageVersion(self::IMAGE_NGINX);
             $proxyInput['variables'] = <<<VARIABLES
 ACME_EMAIL={$email}
 VARIABLES;
@@ -354,7 +355,7 @@ VARIABLES;
             $this->imageOthers[$imageName] = json_decode($image->others);
             $imageOthers = $this->imageOthers[$imageName];
         }
-        
+
         if (is_object($imageOthers)) {
             # Get the properties of the object
             $properties = get_object_vars($imageOthers->images);
@@ -432,5 +433,20 @@ VARIABLES;
         }
 
         return $mapped;
+    }
+
+    /**
+     * @param $string
+     *
+     * @return string|null
+     */
+    public function extractPhpVersion ($string): ?string
+    {
+        // Perform the regex search
+        if (preg_match('/PHP[_ ]?(\d+\.\d+)/i', $string, $matches)) {
+            // Return the first captured group which is the version number
+            return $matches[1];
+        }
+        return null;
     }
 }

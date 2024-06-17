@@ -28,14 +28,20 @@ class TonicsContainerTonicsCMSAutomation extends CloudAutomationInterfaceAbstrac
 {
     use ProxyAutomation;
 
-    const TONICS_VERSION_CLOUD_TONICS = 'CloudTonics';
-    const TONICS_VERSION_WRI_TONICS   = 'WriTonics';
-    const TONICS_VERSION_Audio_TONICS = 'AudioTonics';
+    const TONICS_VERSION_CLOUD_TONICS = 'CloudTonics (MariaDB 10.11, PHP 8.2)';
+    const TONICS_VERSION_WRI_TONICS   = 'WriTonics (MariaDB 10.11, PHP 8.2)';
+    const TONICS_VERSION_Audio_TONICS = 'AudioTonics (MariaDB 10.11, PHP 8.2)';
 
     const solutionsPHPVersion = [
         self::TONICS_VERSION_CLOUD_TONICS => '8.2',
         self::TONICS_VERSION_WRI_TONICS   => '8.2',
         self::TONICS_VERSION_Audio_TONICS => '8.2',
+    ];
+
+    const solutions = [
+        'CloudTonics' => self::TONICS_VERSION_CLOUD_TONICS,
+        'WriTonics'   => self::TONICS_VERSION_WRI_TONICS,
+        'AudioTonics' => self::TONICS_VERSION_Audio_TONICS,
     ];
 
     public function name (): string
@@ -96,18 +102,19 @@ class TonicsContainerTonicsCMSAutomation extends CloudAutomationInterfaceAbstrac
             $siteInput = $input->all();
             $siteInput['container_name'] = helper()->strLimit($siteInput['container_name'] . '[' . $site['domain'] . ']', 220);
             $siteInput['container_image'] = $this->getImageID(self::IMAGE_TONICS);
-            $solution = (empty($site['solution'])) ? self::TONICS_VERSION_CLOUD_TONICS : $site['solution'];
+            $solution = (isset(self::solutions[$site['solution']])) ? self::solutions[$site['solution']] : self::TONICS_VERSION_WRI_TONICS;
             $siteInput['image_version'] = $solution;
             $variables = [
-                'ACME_DOMAIN' => $site['domain'],
-                'DB_DATABASE' => helper()->randomString(10),
-                'DB_USER'     => $site['dbUser'],
-                'DB_PASS'     => $site['dbPass'],
-                'DB_HOST'     => 'localhost',
-                'ROOT'        => '/var/www/tonics',
-                'PHP_VERSION' => self::solutionsPHPVersion[$solution] ?? self::solutionsPHPVersion[self::TONICS_VERSION_CLOUD_TONICS],
-                'INSTALL_KEY' => helper()->randomString(25),
-                'SITE_KEY'    => helper()->randomString(25),
+                'ACME_DOMAIN'     => $site['domain'],
+                'DB_DATABASE'     => helper()->randomString(10),
+                'DB_USER'         => $site['dbUser'],
+                'DB_PASS'         => $site['dbPass'],
+                'DB_HOST'         => 'localhost',
+                'ROOT'            => '/var/www/tonics',
+                'TONICS_SOLUTION' => $solution,
+                'PHP_VERSION'     => self::solutionsPHPVersion[$solution] ?? self::solutionsPHPVersion[self::TONICS_VERSION_CLOUD_TONICS],
+                'INSTALL_KEY'     => helper()->randomString(25),
+                'SITE_KEY'        => helper()->randomString(25),
             ];
 
             if (!empty($site['archive'])) {
