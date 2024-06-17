@@ -88,6 +88,7 @@ class TonicsContainerMultipleStaticSitesAutomation extends CloudAutomationInterf
             $siteInput = $input->all();
             $siteInput['container_name'] = helper()->strLimit($siteInput['container_name'] . '[' . $site['domain'] . ']', 220);
             $siteInput['container_image'] = $this->getImageID(self::IMAGE_NGINX);
+            $siteInput['image_version'] = $this->getImageVersion(self::IMAGE_NGINX);
             $domain = $site['domain'];
             $siteInput['variables'] = $containerService->createContainerVariables([
                 'ROOT'         => "/var/www/$domain",

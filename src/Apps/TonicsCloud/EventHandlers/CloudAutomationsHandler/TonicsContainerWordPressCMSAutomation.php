@@ -110,19 +110,4 @@ class TonicsContainerWordPressCMSAutomation extends CloudAutomationInterfaceAbst
 
         return $containersToProxyTo;
     }
-
-    /**
-     * @param $string
-     *
-     * @return string|null
-     */
-    public function extractPhpVersion ($string): ?string
-    {
-        // Perform the regex search
-        if (preg_match('/PHP[_ ]?(\d+\.\d+)/i', $string, $matches)) {
-            // Return the first captured group which is the version number
-            return $matches[1];
-        }
-        return null;
-    }
 }
