@@ -29,14 +29,14 @@ trait ConsoleColor
     private string $errorMessage = '';
     ## Could be a success message or info message
     private string $otherMessage = '';
-    private bool $passes = true;
+    private bool   $passes       = true;
 
     private bool $isCLI = true;
 
     /**
      * @throws \Exception
      */
-    public function initShellColors()
+    public function initShellColors ()
     {
         $this->fgColors['black'] = '0;30';
         $this->fgColors['dark_gray'] = '1;30';
@@ -71,18 +71,19 @@ trait ConsoleColor
      * @param string $fgColor
      * @param string $bgColor
      * @param string $message
+     *
      * @return string
      * @throws \Exception
      */
-    public function coloredText(string $fgColor = 'black', string $bgColor = 'yellow', string $message = ''): string
+    public function coloredText (string $fgColor = 'black', string $bgColor = 'yellow', string $message = ''): string
     {
         $this->initShellColors();
         $shortClassName = '[' . AppConfig::getAppName() . '] ' . '[' . helper()->getObjectShortClassName($this) . ']:';
-        if (key_exists($fgColor, $this->fgColors) && key_exists($bgColor, $this->bgColors)){
+        if (key_exists($fgColor, $this->fgColors) && key_exists($bgColor, $this->bgColors)) {
             $fgColor = $this->fgColors[$fgColor];
             $bgColor = $this->bgColors[$bgColor];
-            $date = date("M  j H:i:s", time());
-            $message ="$date $shortClassName \e[{$fgColor};{$bgColor}m{$message}\e[0m\n";
+            $date = date("Y-m-d H:i:s");
+            $message = "$date $shortClassName \e[{$fgColor};{$bgColor}m{$message}\e[0m\n";
         }
 
         return $message;
@@ -90,69 +91,65 @@ trait ConsoleColor
 
     /**
      * @param $message
+     *
      * @throws \Exception
      */
-    public function successMessage($message)
+    public function successMessage ($message)
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        if ($this->isCLI){
-            echo $this->coloredText("black","green", "$message ✔");
+        if ($this->isCLI) {
+            echo $this->coloredText("black", "green", "$message ✔");
         }
     }
 
     /**
      * @param $message
+     *
      * @throws \Exception
      */
-    public function errorMessage($message)
+    public function errorMessage ($message)
     {
         $this->errorMessage = $message;
         $this->passes = false;
-        if ($this->isCLI){
-            echo $this->coloredText("white","red", "$message ❌");
+        if ($this->isCLI) {
+            echo $this->coloredText("white", "red", "$message ❌");
         }
     }
 
     /**
      * @param $message
+     *
      * @throws \Exception
      */
-    public function infoMessage($message): void
+    public function infoMessage ($message): void
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        if ($this->isCLI()){
+        if ($this->isCLI()) {
             echo $this->coloredText("black", "light_gray", "$message !");
         }
     }
 
     /**
      * @param $message
+     *
      * @throws \Exception
      */
-    public function delayMessage($message)
+    public function delayMessage ($message)
     {
         $this->otherMessage = $message;
         $this->passes = true;
-        if ($this->isCLI()){
+        if ($this->isCLI()) {
             echo $this->coloredText("black", "yellow", "$message...");
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getErrorMessage(): string
-    {
-        return $this->errorMessage;
     }
 
     /**
      * Could be a success message or info message
      * @return string
      */
-    public function getOtherMessage(): string
+    public function getOtherMessage (): string
     {
         return $this->otherMessage;
     }
@@ -160,7 +157,7 @@ trait ConsoleColor
     /**
      * @return bool
      */
-    public function passes(): bool
+    public function passes (): bool
     {
         return $this->passes;
     }
@@ -168,7 +165,7 @@ trait ConsoleColor
     /**
      * @return bool
      */
-    public function isCLI(): bool
+    public function isCLI (): bool
     {
         return $this->isCLI;
     }
@@ -176,8 +173,16 @@ trait ConsoleColor
     /**
      * @param bool $isCLI
      */
-    public function setIsCLI(bool $isCLI): void
+    public function setIsCLI (bool $isCLI): void
     {
         $this->isCLI = $isCLI;
+    }
+
+    /**
+     * @return string
+     */
+    public function getErrorMessage (): string
+    {
+        return $this->errorMessage;
     }
 }
