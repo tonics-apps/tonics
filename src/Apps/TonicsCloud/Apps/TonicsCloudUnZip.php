@@ -77,6 +77,7 @@ JSON;
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function install (): bool
     {
@@ -84,63 +85,9 @@ JSON;
     }
 
     /**
-     * @throws \Exception
-     */
-    private function extractFile (): void
-    {
-        $formats = "7z,a,ace,alz,arc,arj,bz,bz2,cab,cpio,deb,gz,jar,lha,lrz,lz,lzh,lzma,lzo,rar,rpm,rz,t7z,tar,tar.7z,tar.bz,tar.bz2,tar.gz,tar.lz,tar.lzo,tar.xz,tar.Z,tbz,tbz2,tgz,tlz,txz,tZ,tzo,war,xz,Z,zip";
-        $formats = explode(',', $formats);
-        $formats = array_flip($formats);
-        $extracts = $this->getPostPrepareForFlight();
-        foreach ($extracts as $extract) {
-            $option = '';
-            $archiveFile = '';
-            $extractTo = '';
-            $overwrite = false;
-            if (isset($extract->extract_to)) {
-                $extractTo = escapeshellarg($extract->extract_to);
-                $option .= "-X $extractTo ";
-            }
-
-            if (isset($extract->subDirectory) && $extract->extract_to === '1') {
-                $option .= '-D ';
-            }
-
-            if (isset($extract->overwrite) && $extract->overwrite === '1') {
-                $overwrite = true;
-                $option .= '-f ';
-            }
-
-            if (!empty($extract->format) && isset($formats[$extract->format])) {
-                $option .= "-F $extract->format ";
-            }
-
-            if (isset($extract->archiveFile)) {
-                $archiveFile = escapeshellarg($extract->archiveFile);
-            }
-
-            # MkDir If it Does Not Exit
-            # Create a TempDir
-            # Download The File into The Temp Dir
-            # Get The Downloaded File Path
-            # Unpack The Archive Into The Respective Dir
-            # Clean The Temp Dir
-            $command = "mkdir -p $extractTo && temp_dir=$(mktemp -d) && wget --content-disposition -P \$temp_dir $archiveFile && file_path=$(ls -1 \$temp_dir) && ";
-            $command .= ($overwrite) ? "yes |" : "yes N |"; # the --force option is not working, so, we're using yes command as an alternative
-            $command .= " {$this->atoolBin()} $option \$temp_dir/\$file_path && rm -r \$temp_dir";
-            $this->runCommand(null, null, "bash", "-c", $command);
-        }
-
-    }
-
-    private function atoolBin (): string
-    {
-        return "/bin/atool";
-    }
-
-    /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function uninstall (): bool
     {
@@ -185,6 +132,74 @@ JSON;
         }
 
         return $settings;
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    private function extractFile (): void
+    {
+        $formats = "7z,a,ace,alz,arc,arj,bz,bz2,cab,cpio,deb,gz,jar,lha,lrz,lz,lzh,lzma,lzo,rar,rpm,rz,t7z,tar,tar.7z,tar.bz,tar.bz2,tar.gz,tar.lz,tar.lzo,tar.xz,tar.Z,tbz,tbz2,tgz,tlz,txz,tZ,tzo,war,xz,Z,zip";
+        $formats = explode(',', $formats);
+        $formats = array_flip($formats);
+        $extracts = $this->getPostPrepareForFlight();
+        foreach ($extracts as $extract) {
+            $option = '';
+            $archiveFile = '';
+            $extractTo = '';
+            $overwrite = false;
+            if (isset($extract->extract_to)) {
+                $extractTo = escapeshellarg($extract->extract_to);
+            }
+
+            if (isset($extract->subDirectory) && $extract->extract_to === '1') {
+                $option .= '-D ';
+            }
+
+            if (isset($extract->overwrite) && $extract->overwrite === '1') {
+                $overwrite = true;
+                $option .= '-f ';
+            }
+
+            if (!empty($extract->format) && isset($formats[$extract->format])) {
+                $option .= "-F $extract->format ";
+            }
+
+            if (isset($extract->archiveFile)) {
+                $archiveFile = escapeshellarg($extract->archiveFile);
+            }
+
+            # MkDir If it Does Not Exit
+            # Create a TempDir
+            # Download The File into The Temp Dir
+            # Get The Downloaded File Path
+            # Unpack The Archive Into The Respective Dir
+            # Clean The Temp Dir
+            $command = "mkdir -p $extractTo && temp_dir=$(mktemp -d) && wget --content-disposition -P \$temp_dir $archiveFile && file_path=$(ls -1 \$temp_dir) && ";
+            if ($overwrite) {
+                # (for overwrite, it extracts it into a temp dir, and then sync it to $extractTo, anything not in the temp dir, would be deleted from $extractTo for overwrite)
+                # Create a extractTemp Dir
+                # Extract into the extractTemp
+                # Sync extractTemp to ExtractTo, this is complete overwrite, anything not in temp dir, would be deleted from extractTo
+                # Clean up extractTemp
+                $command .= "extract_temp=$(mktemp -d) && ";
+                $command .= "{$this->atoolBin()} $option -X \$extract_temp \$temp_dir/\$file_path && ";
+                $command .= "rsync -av --delete \$extract_temp/ $extractTo/ && rm -r \$extract_temp && ";
+            } else {
+                $command .= "{$this->atoolBin()} $option -X $extractTo \$temp_dir/\$file_path && ";
+            }
+
+            $command .= "rm -r \$temp_dir";
+
+            $this->runCommand(null, null, "bash", "-c", $command);
+        }
+
+    }
+
+    private function atoolBin (): string
+    {
+        return "/bin/atool";
     }
 
     public function reload (): true
