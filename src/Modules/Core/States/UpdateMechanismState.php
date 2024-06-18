@@ -513,7 +513,7 @@ class UpdateMechanismState extends SimpleState
     /**
      * Return true if...
      *
-     * - If classString implements teh ExtensionConfig interface
+     * - If classString implements the ExtensionConfig interface
      * - The updates property is not empty
      * - there is an update
      *
@@ -529,6 +529,11 @@ class UpdateMechanismState extends SimpleState
         if (is_object($objectOrClass)) {
             $objectOrClass = $objectOrClass::class;
         }
+
+        if (!AppConfig::nameSpaceExistPath($objectOrClass)) {
+            return false;
+        }
+
         $ref = new \ReflectionClass($objectOrClass);
         $dir = dirname($ref->getFileName());
         $dirName = helper()->getFileName($dir);

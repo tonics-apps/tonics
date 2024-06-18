@@ -721,12 +721,22 @@ class AppConfig
         return APP_ROOT . DIRECTORY_SEPARATOR . '.env';
     }
 
+    /**
+     * @param string $class
+     *
+     * @return bool
+     */
     public static function isInternalModuleNameSpace (string $class): bool
     {
         $moduleNameSpace = 'App\Modules';
         return str_starts_with($class, $moduleNameSpace);
     }
 
+    /**
+     * @param string|object $object_or_class
+     *
+     * @return bool
+     */
     public static function isAppNameSpace (string|object $object_or_class): bool
     {
         if (is_object($object_or_class)) {
@@ -736,5 +746,29 @@ class AppConfig
         return str_starts_with($object_or_class, $moduleNameSpace);
     }
 
+    /**
+     * This returns true if the namespace exist in either App or Modules directory
+     *
+     * @param $namespace
+     *
+     * @return bool
+     */
+    public static function nameSpaceExistPath ($namespace): bool
+    {
+        $baseDir = '';
+        $sep = DIRECTORY_SEPARATOR;
+        if (AppConfig::isInternalModuleNameSpace($namespace)) {
+            $baseDir = AppConfig::getModulesPath();
+            $namespace = str_replace("\\", $sep, $namespace);
+            $namespace = str_replace("App{$sep}Modules$sep", '', $namespace);
+        } elseif (AppConfig::isAppNameSpace($namespace)) {
+            $baseDir = AppConfig::getAppsPath();
+            $namespace = str_replace("\\", $sep, $namespace);
+            $namespace = str_replace("App{$sep}Apps$sep", '', $namespace);
+        }
 
+        // Combine the base directory with the relative path
+        $filePath = rtrim($baseDir, $sep) . $sep . $namespace . '.php';
+        return file_exists($filePath);
+    }
 }
