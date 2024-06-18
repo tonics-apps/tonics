@@ -19,6 +19,7 @@
 namespace App\Apps\TonicsCloud\Jobs\Container\Automations;
 
 
+use App\Apps\TonicsCloud\Apps\TonicsCloudScript;
 use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueUpdateApp;
 use App\Apps\TonicsCloud\Jobs\Container\Traits\TonicsJobQueueAutomationTrait;
 use App\Apps\TonicsCloud\Jobs\Container\Traits\TonicsJobQueueContainerTrait;
@@ -61,6 +62,7 @@ class CloudJobQueueAutomationStandaloneStaticSite extends AbstractJobInterface i
                     self::APP_SETTING_ACME,
                     self::APP_SETTING_SIMPLE_NGINX_HTTPS_MODE,
                     self::APP_SETTING_UNZIP,
+                    self::APP_SETTING_TONICS_SCRIPT => ['content' => TonicsCloudScript::StaticSiteScript()],
                 ],
                 $this->getCurrentContainerID()),
         ]);
