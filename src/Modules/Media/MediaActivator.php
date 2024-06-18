@@ -87,7 +87,7 @@ class MediaActivator implements ExtensionConfig
             "type"                 => "Module",
             "slug_id"              => "aba811f4-2741-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1718095500',
+            "version"              => '1-O-Ola.1718718625',
             "description"          => "The Media Module",
             "info_url"             => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-media-module/releases/latest",
