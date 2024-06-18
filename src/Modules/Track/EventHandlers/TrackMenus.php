@@ -103,21 +103,6 @@ class TrackMenus implements HandlerInterface
                 'ignore'      => true,
             ]);
 
-            $tree->add(AdminMenuHelper::TRACK_LICENSE, ['mt_name' => 'License', 'mt_url_slug' => route('admin.licenses.index'), 'mt_icon' => helper()->getIcon('license', 'icon:admin')]);
-            $tree->add(AdminMenuHelper::TRACK_LICENSE_NEW, ['mt_name' => 'New License', 'mt_url_slug' => route('admin.licenses.create'), 'mt_icon' => helper()->getIcon('plus', 'icon:admin')]);
-
-            $tree->add(AdminMenuHelper::TRACK_LICENSE_EDIT, [
-                'mt_name'     => 'Edit License',
-                'mt_url_slug' => '/admin/tools/license/:license/edit',
-                'ignore'      => true,
-            ]);
-
-            $tree->add(AdminMenuHelper::TRACK_LICENSE_ITEMS_EDIT, [
-                'mt_name'     => 'Edit License Items',
-                'mt_url_slug' => '/admin/tools/license/items/:license/builder',
-                'ignore'      => true,
-            ]);
-
         }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_TRACK])]);
     }
 }

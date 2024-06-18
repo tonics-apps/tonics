@@ -50,8 +50,12 @@ final class AdminMenuHelper
     const PAGE_NEW  = self::PAGE . '/NEW_PAGE';
     const PAGE_EDIT = self::PAGE . '/ALL_PAGE';
 
-    const MEDIA        = self::DASHBOARD . '/MEDIA';
-    const FILE_MANAGER = self::MEDIA . '/FILE_MANAGER';
+    const MEDIA              = self::DASHBOARD . '/MEDIA';
+    const FILE_MANAGER       = self::MEDIA . '/FILE_MANAGER';
+    const LICENSE            = self::MEDIA . '/LICENSE';
+    const LICENSE_NEW        = self::LICENSE . '/NEW_LICENSE';
+    const LICENSE_EDIT       = self::LICENSE . '/EDIT_LICENSE';
+    const LICENSE_ITEMS_EDIT = self::LICENSE . '/EDIT_LICENSE_ITEMS';
 
     const TRACK      = self::MEDIA . '/TRACK';
     const TRACK_NEW  = self::TRACK . '/NEW_TRACK';
@@ -60,12 +64,7 @@ final class AdminMenuHelper
     const TRACK_CATEGORY      = self::TRACK . '/TRACK_CATEGORY';
     const TRACK_CATEGORY_NEW  = self::TRACK_CATEGORY . '/NEW_TRACK_CATEGORY';
     const TRACK_CATEGORY_EDIT = self::TRACK_CATEGORY . '/EDIT_TRACK_CATEGORY';
-
-    const TRACK_LICENSE            = self::TRACK . '/TRACK_LICENSE';
-    const TRACK_LICENSE_NEW        = self::TRACK_LICENSE . '/NEW_TRACK_LICENSE';
-    const TRACK_LICENSE_EDIT       = self::TRACK_LICENSE . '/EDIT_TRACK_LICENSE';
-    const TRACK_LICENSE_ITEMS_EDIT = self::TRACK_LICENSE . '/EDIT_TRACK_LICENSE_ITEMS';
-
+    
     const GENRE      = self::MEDIA . '/GENRE';
     const GENRE_NEW  = self::GENRE . '/NEW_GENRE';
     const GENRE_EDIT = self::GENRE . '/EDIT_GENRE';

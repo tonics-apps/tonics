@@ -27,14 +27,40 @@ class MediaMenus implements HandlerInterface
 {
     /**
      * @param object $event
-     * @throws \Exception
+     *
+     * @throws \Exception|\Throwable
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        \tree()->group('', function (Tree $tree){
+        \tree()->group('', function (Tree $tree) {
 
-            $tree->add(AdminMenuHelper::MEDIA, ['mt_name' => 'Media','mt_url_slug' => '#0', 'mt_icon' => helper()->getIcon('play','icon:admin') ]);
-            $tree->add(AdminMenuHelper::FILE_MANAGER, ['mt_name' => 'File Manager','mt_url_slug' => route('media.show'), 'mt_icon' => helper()->getIcon('media-file','icon:admin') ]);
+            $tree->add(AdminMenuHelper::MEDIA,
+                [
+                    'mt_name' => 'Media', 'mt_url_slug' => '#0', 'mt_icon' => helper()->getIcon('play', 'icon:admin'),
+                ]);
+            $tree->add(AdminMenuHelper::FILE_MANAGER,
+                [
+                    'mt_name' => 'File Manager', 'mt_url_slug' => route('media.show'), 'mt_icon' => helper()->getIcon('media-file', 'icon:admin'),
+                ]);
+
+            $tree->add(AdminMenuHelper::LICENSE,
+                [
+                    'mt_name' => 'License', 'mt_url_slug' => route('admin.licenses.index'), 'mt_icon' => helper()->getIcon('license', 'icon:admin'),
+                ]);
+            $tree->add(AdminMenuHelper::LICENSE_NEW,
+                [
+                    'mt_name' => 'New License', 'mt_url_slug' => route('admin.licenses.create'), 'mt_icon' => helper()->getIcon('plus', 'icon:admin'),
+                ]);
+
+            $tree->add(AdminMenuHelper::LICENSE_EDIT,
+                [
+                    'mt_name' => 'Edit License', 'mt_url_slug' => '/admin/tools/license/:license/edit', 'ignore' => true,
+                ]);
+
+            $tree->add(AdminMenuHelper::LICENSE_ITEMS_EDIT,
+                [
+                    'mt_name' => 'Edit License Items', 'mt_url_slug' => '/admin/tools/license/items/:license/builder', 'ignore' => true,
+                ]);
 
         }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_MEDIA])]);
     }
