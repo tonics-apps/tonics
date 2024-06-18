@@ -53,6 +53,7 @@ JSON;
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function updateSettings (): bool
     {
@@ -81,7 +82,7 @@ JSON;
      */
     public function install (): bool
     {
-        return $this->runCommand(null, null, "bash", "-c", "apt update -y && apt-get install -y atool wget");
+        return $this->runCommand(null, null, "bash", "-c", "apt update -y && apt-get install -y atool wget rsync");
     }
 
     /**

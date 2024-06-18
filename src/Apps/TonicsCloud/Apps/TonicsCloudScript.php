@@ -174,6 +174,22 @@ SCRIPT;
     /**
      * @return string
      */
+    public static function StaticSiteScript (): string
+    {
+        return <<<'SCRIPT'
+chown -R "www-data:www-data" [[ROOT]]
+
+#
+#   Change permission of all directory and files
+find [[ROOT]] -type d -exec chmod 755 {} \;
+find [[ROOT]] -type f -exec chmod 644 {} \;
+SCRIPT;
+
+    }
+
+    /**
+     * @return string
+     */
     public static function TonicsCloudScript (): string
     {
         return <<<'SCRIPT'
