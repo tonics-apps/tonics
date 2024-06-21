@@ -5,6 +5,9 @@ TonicsCloud 🌧️ is a Domain specific project under the TonicsCMS.
 It is an open source system container server management tool that leverages the flexibility of system containers such as
 Incus and VPS API for provisioning the server and managing DNS.
 
+Here is a video
+preview: [Video Preview](https://faruqa-my.sharepoint.com/personal/olayemi_faruqa_onmicrosoft_com/Documents/Tonics/Videos/TonicsCloud%20Deployment%20Showcase.mp4?ga=1)
+
 ## Why I Built TonicsCloud
 
 …so I can host multiple application/projects on a server in a truly isolated way.
