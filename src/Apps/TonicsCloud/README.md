@@ -65,7 +65,7 @@ manually by following the instructions
 here: [Tonics » Getting Started (Overview and Installation)](https://tonics.app/posts/4823863fd7b5f88c/getting-started#installation).
 
 The faster way of installing TonicsCloud is by supporting me and trying it
-here: [https://tonics.app/customer/](https://tonics.app/customer/signup)[signup](https://cloud.tonics.app/customer/register)
+here: [https://cloud.tonics.app/customer/register](https://cloud.tonics.app/customer/register)
 
 Building this project cost money and effort, I have been working on the TonicsCMS itself since 2021, and I started
 TonicsCloud last year, if you use the link above to signup, you are in essence supporting the project, and would be use
