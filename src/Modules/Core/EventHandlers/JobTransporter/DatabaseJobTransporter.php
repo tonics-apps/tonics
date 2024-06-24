@@ -37,36 +37,25 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
 {
     use ConsoleColor;
 
-    private int $maxForks = 10;
-    private int $forkCount  = 0;
-    private array $pIDS  = [];
-    private ?TonicsHelpers $helper = null;
-    private ?SharedMemory $sharedMemory = null;
+    private int            $maxForks     = 10;
+    private int            $forkCount    = 0;
+    private array          $pIDS         = [];
+    private ?TonicsHelpers $helper       = null;
+    private ?SharedMemory  $sharedMemory = null;
 
     /**
      * @inheritDoc
      */
-    public function name(): string
+    public function name (): string
     {
         return 'Database';
-    }
-
-    public function getTable(): string
-    {
-        return Tables::getTable(Tables::JOBS);
-    }
-
-    public function handleEvent(object $event): void
-    {
-        /** @var $event OnAddJobTransporter */
-        $event->addJobTransporter($this);
     }
 
     /**
      * @inheritDoc
      * @throws \Exception
      */
-    public function enqueue(AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
+    public function enqueue (AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
     {
         $this->helper = helper();
         $toInsert = $this->getToInsert($jobEvent);
@@ -75,7 +64,7 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
         }
 
         db(onGetDB: function (TonicsQuery $db) use ($afterEnqueue, $toInsert) {
-            if ($afterEnqueue){
+            if ($afterEnqueue) {
                 $returning = $db->InsertReturning($this->getTable(), $toInsert, Tables::$TABLES[Tables::JOBS], 'job_id');
                 $afterEnqueue($returning);
             } else {
@@ -87,28 +76,9 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
     }
 
     /**
-     * @param AbstractJobInterface $jobEvent
-     * @return array
-     */
-    public function getToInsert(AbstractJobInterface $jobEvent): array
-    {
-        return [
-            'job_name' => $jobEvent->getJobName() ?: $this->helper->getObjectShortClassName($jobEvent),
-            'job_parent_id' => $jobEvent->getJobParent(),
-            'job_status' => $jobEvent->getJobStatus(),
-            'job_priority' => $jobEvent->getPriority(),
-            'job_data' => json_encode([
-                    'data' => $jobEvent->getData(),
-                    'class' => get_class($jobEvent)]
-            )
-        ];
-    }
-
-
-    /**
      * @inheritDoc
      */
-    public function isStatic(): bool
+    public function isStatic (): bool
     {
         return false;
     }
@@ -117,12 +87,12 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
      * @return void
      * @throws \Exception
      */
-    public function runJob(): void
+    public function runJob (): void
     {
-       $this->helper = helper();
-       $this->sharedMemory = new SharedMemory(JobManager::masterKey(), JobManager::semaphoreID(), JobManager::sharedMemorySize());
+        $this->helper = helper();
+        $this->sharedMemory = new SharedMemory(JobManager::masterKey(), JobManager::semaphoreID(), JobManager::sharedMemorySize());
 
-        $this->run(function (){
+        $this->run(function () {
             $job = $this->getNextJob();
             if (empty($job)) {
                 # While the job event is empty, we sleep for a 0.2s, this reduces the CPU usage, thus giving the CPU the chance to do other things
@@ -146,7 +116,7 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
                         exit(1); # Failed
                     }
                 },
-                onParent: function ($pid){
+                onParent: function ($pid) {
                     $this->pIDS[] = $pid; # store the child pid
                     // here is where we limit the number of forked process,
                     // if the maxed forked has been reached, we wait for any child fork to exit,
@@ -162,11 +132,42 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
                     // handle the fork error here for the parent, this is because when a fork error occurs
                     // it propagates to the parent which abruptly stop the script execution
                     $this->errorMessage("Unable to Fork");
-                }
+                },
             );
-        }, shutDown: function (){
+        }, shutDown: function () {
             $this->sharedMemory->cleanSharedMemory();
         });
+    }
+
+    public function getTable (): string
+    {
+        return Tables::getTable(Tables::JOBS);
+    }
+
+    public function handleEvent (object $event): void
+    {
+        /** @var $event OnAddJobTransporter */
+        $event->addJobTransporter($this);
+    }
+
+    /**
+     * @param AbstractJobInterface $jobEvent
+     *
+     * @return array
+     */
+    public function getToInsert (AbstractJobInterface $jobEvent): array
+    {
+        return [
+            'job_name'      => $jobEvent->getJobName() ?: $this->helper->getObjectShortClassName($jobEvent),
+            'job_parent_id' => $jobEvent->getJobParent(),
+            'job_status'    => $jobEvent->getJobStatus(),
+            'job_priority'  => $jobEvent->getPriority(),
+            'job_data'      => json_encode([
+                'data'  => $jobEvent->getData(),
+                'class' => get_class($jobEvent),
+            ],
+            ),
+        ];
     }
 
     /**
@@ -178,11 +179,11 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
      * @return mixed|null
      * @throws \Exception
      */
-    public function getNextJob(): mixed
+    public function getNextJob (): mixed
     {
-        return $this->sharedMemory->ensureAtomicity(function (SharedMemory $sharedMemory){
+        return $this->sharedMemory->ensureAtomicity(function (SharedMemory $sharedMemory) {
             $nextJob = null;
-            db(onGetDB: function (TonicsQuery $db) use (&$nextJob){
+            db(onGetDB: function (TonicsQuery $db) use (&$nextJob) {
                 $table = $this->getTable();
                 $nextJob = $db->row(<<<SQL
 SELECT * 
@@ -194,7 +195,7 @@ SQL, Job::JobStatus_Queued, 1);
 
                 # Since we have gotten access to semaphore, let's use this opportunity to quickly update the job status
                 # this completely prevents different jobs from stepping on each other toes for concurrent job
-                if ($nextJob){
+                if ($nextJob) {
                     $this->infoMessage("Running job $nextJob->job_name with an id of $nextJob->job_id");
                     # Job In_Progress
                     $update = ['job_status' => Job::JobStatus_InProgress];
@@ -214,10 +215,11 @@ SQL, Job::JobStatus_Queued, 1);
 
     /**
      * @param $job
+     *
      * @return void
      * @throws \Exception
      */
-    public function prepJobHandle($job): void
+    public function prepJobHandle ($job): void
     {
         try {
             $this->handleIndividualJob($job);
@@ -240,10 +242,11 @@ SQL, Job::JobStatus_Queued, 1);
 
     /**
      * @param $job
+     *
      * @return void
      * @throws \Exception
      */
-    public function handleIndividualJob($job): void
+    public function handleIndividualJob ($job): void
     {
         $jobData = json_decode($job->job_data);
         if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class, true)) {

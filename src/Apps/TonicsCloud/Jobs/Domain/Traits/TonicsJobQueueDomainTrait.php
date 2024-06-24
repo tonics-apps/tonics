@@ -19,10 +19,12 @@
 namespace App\Apps\TonicsCloud\Jobs\Domain\Traits;
 
 use App\Apps\TonicsCloud\Controllers\TonicsCloudSettingsController;
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudDomainMessage;
 use App\Apps\TonicsCloud\Interfaces\CloudDNSInterface;
 use App\Apps\TonicsCloud\Jobs\Domain\CloudJobQueueCreateDomainRecord;
 use App\Apps\TonicsCloud\Jobs\Domain\CloudJobQueueDeleteDomainRecord;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
+use App\Modules\Core\Events\OnAddMessageType;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 trait TonicsJobQueueDomainTrait
@@ -31,7 +33,7 @@ trait TonicsJobQueueDomainTrait
      * DNS ID from the database
      * @return mixed
      */
-    public function getDNSID(): mixed
+    public function getDNSID (): mixed
     {
         return $this->getDataAsArray()['dns_id'] ?? '';
     }
@@ -40,21 +42,31 @@ trait TonicsJobQueueDomainTrait
      * DNS ID from the database
      * @return mixed
      */
-    public function getDNSRecordUniqueKey(): mixed
+    public function getDNSRecordUniqueKey (): mixed
     {
         return $this->getDataAsArray()['record_unique_key'] ?? '';
     }
 
     /**
+     * DNS ID from the database
+     * @return mixed
+     */
+    public function getCustomerID (): mixed
+    {
+        return $this->getDataAsArray()['fk_customer_id'] ?? null;
+    }
+
+
+    /**
      * Domain ID from the cloud provider
      * @return string
      */
-    public function getDomainID(): string
+    public function getDomainID (): string
     {
         return $this->getDataAsArray()['domain_id'] ?? '';
     }
 
-    public function getDomainData(): array
+    public function getDomainData (): array
     {
         return (array)$this->getDataAsArray()['domain'] ?? [];
     }
@@ -63,7 +75,7 @@ trait TonicsJobQueueDomainTrait
      * Gets all to be inserted records
      * @return array
      */
-    public function getAllToBeDeletedDomainRecords(): array
+    public function getAllToBeDeletedDomainRecords (): array
     {
         return (array)$this->getDataAsArray()['delete_records'] ?? [];
     }
@@ -72,32 +84,34 @@ trait TonicsJobQueueDomainTrait
      * Gets all to be inserted records
      * @return array
      */
-    public function getAllToBeInsertedDomainRecords(): array
+    public function getAllToBeInsertedDomainRecords (): array
     {
         return (array)$this->getDataAsArray()['records'] ?? [];
     }
 
     /**
      * @param $domainID
+     *
      * @return void
      * @throws \Exception
      */
-    public function enqueueDomainRecordsForCreate($domainID): void
+    public function enqueueDomainRecordsForCreate ($domainID): void
     {
-        foreach ($this->getAllToBeInsertedDomainRecords() as $recordKey => $record){
+        foreach ($this->getAllToBeInsertedDomainRecords() as $recordKey => $record) {
             $record = (array)$record;
             $record['domain_id'] = $domainID;
             $jobData = [
-                'dns_id' => $this->getDNSID(),
-                'domain_id' => $domainID,
+                'dns_id'            => $this->getDNSID(),
+                'domain_id'         => $domainID,
                 'record_unique_key' => $recordKey,
-                'record' => $record
+                'record'            => $record,
+                'fk_customer_id'    => $this->getCustomerID(),
             ];
             $jobs = [
                 [
-                    'job' => new CloudJobQueueCreateDomainRecord(),
-                    'children' => []
-                ]
+                    'job'      => new CloudJobQueueCreateDomainRecord(),
+                    'children' => [],
+                ],
             ];
 
             TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
@@ -107,22 +121,23 @@ trait TonicsJobQueueDomainTrait
     /**
      * @throws \Exception
      */
-    public function enqueueDomainRecordsForDelete(): void
+    public function enqueueDomainRecordsForDelete (): void
     {
-        foreach ($this->getAllToBeDeletedDomainRecords() as $recordKey => $record){
+        foreach ($this->getAllToBeDeletedDomainRecords() as $recordKey => $record) {
             $record = (array)$record;
             $record['domain_id'] = $this->getDomainID();
             $jobData = [
-                'dns_id' => $this->getDNSID(),
-                'domain_id' => $this->getDomainID(),
+                'fk_customer_id'    => $this->getCustomerID(),
+                'dns_id'            => $this->getDNSID(),
+                'domain_id'         => $this->getDomainID(),
                 'record_unique_key' => $recordKey,
-                'record' => $record
+                'record'            => $record,
             ];
             $jobs = [
                 [
-                    'job' => new CloudJobQueueDeleteDomainRecord(),
-                    'children' => []
-                ]
+                    'job'      => new CloudJobQueueDeleteDomainRecord(),
+                    'children' => [],
+                ],
             ];
 
             TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
@@ -133,7 +148,7 @@ trait TonicsJobQueueDomainTrait
      * Get the single record type
      * @return array|mixed
      */
-    public function getDomainRecord(): mixed
+    public function getDomainRecord (): mixed
     {
         return (array)$this->getDataAsArray()['record'] ?? [];
     }
@@ -142,20 +157,27 @@ trait TonicsJobQueueDomainTrait
     /**
      * @param string $statusMsg
      * @param null $callableUpdateMore -- set more data, you'll be passed the TonicsQuery
+     *
      * @return void
      * @throws \Exception
      */
-    public function updateDNSStatusMessage(string $statusMsg, $callableUpdateMore = null): void
+    public function updateDNSStatusMessage (string $statusMsg, $callableUpdateMore = null): void
     {
         db(onGetDB: function (TonicsQuery $db) use ($callableUpdateMore, $statusMsg) {
-            $DNSID = $this->getDNSID();
+            $dnsID = $this->getDNSID();
             $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
             $db->Update($table)
                 ->Set('dns_status_msg', $statusMsg);
-            if ($callableUpdateMore){
+            if ($callableUpdateMore) {
                 $callableUpdateMore($db);
             }
-            $db->WhereEquals('dns_id', $DNSID)->Exec();
+            $db->WhereEquals('dns_id', $dnsID)->Exec();
+            message()->send(
+                [
+                    'dns_id'    => $dnsID,
+                    'eventType' => OnAddMessageType::EVENT_TYPE_UPDATE,
+                ], TonicsCloudDomainMessage::MessageTypeKey($this->getCustomerID()),
+            );
         });
     }
 
@@ -164,7 +186,7 @@ trait TonicsJobQueueDomainTrait
      * @throws \Exception
      * @throws \Throwable
      */
-    public function getCloudDNSHandler(): CloudDNSInterface
+    public function getCloudDNSHandler (): CloudDNSInterface
     {
         return TonicsCloudActivator::getCloudDNSHandler(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudDNSIntegrationType));
 

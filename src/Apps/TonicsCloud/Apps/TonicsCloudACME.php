@@ -120,7 +120,7 @@ JSON;
 
         foreach ($data as $field) {
             if (isset($field->main_field_slug) && isset($field->field_input_name)) {
-                $fieldOptions = json_decode($field->field_options);
+                $fieldOptions = $this->getFieldOption($field);
 
                 $value = strtolower($fieldOptions->{$field->field_input_name} ?? '');
 

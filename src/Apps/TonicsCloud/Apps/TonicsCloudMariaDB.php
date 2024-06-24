@@ -138,19 +138,6 @@ JSON;
     }
 
     /**
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    private function runMySQLCommand (string $command): void
-    {
-        if (empty($command)) {
-            return;
-        }
-        $command = "mysql --user=root --password=tonics_cloud  <<< \"$command FLUSH PRIVILEGES;\"";
-        $this->runCommand(null, null, "bash", "-c", $command);
-    }
-
-    /**
      * @inheritDoc
      */
     public function install (): void
@@ -183,7 +170,7 @@ JSON;
         $database = [];
         foreach ($data as $field) {
             if (isset($field->main_field_slug) && isset($field->field_input_name)) {
-                $fieldOptions = json_decode($field->field_options);
+                $fieldOptions = $this->getFieldOption($field);
                 $field->field_options = $fieldOptions;
                 $value = trim(strtolower($fieldOptions->{$field->field_input_name} ?? ''));
                 $value = $this->replaceContainerGlobalVariables($value);
@@ -236,6 +223,19 @@ JSON;
         }
 
         return $settings;
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    private function runMySQLCommand (string $command): void
+    {
+        if (empty($command)) {
+            return;
+        }
+        $command = "mysql --user=root --password=tonics_cloud  <<< \"$command FLUSH PRIVILEGES;\"";
+        $this->runCommand(null, null, "bash", "-c", $command);
     }
 
     /**

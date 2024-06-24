@@ -4080,10 +4080,12 @@ class DataTable {
     editingElementsCloneBeforeChanges = new Map();
     editingElements = new Map();
     deletingElements = new Map();
+    channel = null;
 
     constructor($parentElement, apiEntry = '') {
         this.parentElement = document.querySelector($parentElement)
         this.apiEntry = apiEntry;
+        this.channel = new BroadcastChannel("DataTableChannel");
         if (this.parentElement) {
             this.resetListID();
         }
@@ -4124,6 +4126,52 @@ class DataTable {
         return this.apiEntry;
     }
 
+    handleEventSource() {
+        this.channel.addEventListener("message", (event) => {
+            const data = event.data;
+            console.log(data);
+            this.handleTableRowForEventSource(data);
+        });
+    }
+
+    handleTableRowForEventSource(data) {
+        let td = data.data.td;
+        let tr = document.querySelector(`[data-td='${td}']`)?.closest('tr');
+
+        if (tr) {
+            if (data.type === 'DELETE') {
+                tr.remove();
+                return true;
+            } else if (data.type === 'UPDATE') {
+                let newTr = document.createElement('tr');
+                newTr.innerHTML = data.data.frag;
+                tr.innerHTML = newTr.innerHTML;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    createEventSource(url, retryOnCloseTime = 2000) {
+        let eventSource = new EventSource(url);
+
+        eventSource.addEventListener('message', (e) => {
+            const data = JSON.parse(e.data);
+            if (data?.data?.td) {
+                this.handleTableRowForEventSource(data); // for the current tab as it might not listen
+                this.channel.postMessage(data);
+            }
+        });
+
+        eventSource.addEventListener('close', (e) => {
+            eventSource.close(); // Close the current connection
+            setTimeout(() => {
+                this.createEventSource(url); // Retry connection after a custom delay
+            }, retryOnCloseTime); // Retry after 1 second
+        });
+    }
+
     boot() {
         if (this.getParentElement()) {
 
@@ -4136,6 +4184,16 @@ class DataTable {
                 self.getEventDispatcher().dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnDoubleClick, OnDoubleClickEvent);
             }
 
+            // FOR MESSAGE EVENTS
+            if (!this.getParentElement().hasAttribute("data-event-message-event")) {
+                this.getParentElement().setAttribute('data-event-message-event', 'true');
+
+                if (this.getParentElement()?.dataset.hasOwnProperty('message')) {
+                    const msgURL = this.getParentElement().dataset.message;
+                    this.createEventSource(msgURL);
+                    this.handleEventSource();
+                }
+            }
             // Double Click For Mobile
             if (!this.getParentElement().hasAttribute("data-event-dblclick-mobile")) {
                 this.getParentElement().setAttribute('data-event-dblclick-mobile', 'true');

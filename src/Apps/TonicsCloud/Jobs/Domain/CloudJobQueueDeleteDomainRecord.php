@@ -28,14 +28,15 @@ class CloudJobQueueDeleteDomainRecord extends AbstractJobInterface implements Jo
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
         $record = $this->getDomainRecord();
         $type = $record['type'] ?? '';
         try {
             $this->getCloudDNSHandler()->deleteDomainRecord($record);
-        } catch (\Exception $exception){
+        } catch (\Exception|\Throwable $exception) {
             $msg = $exception->getMessage();
             $this->updateDNSStatusMessage("Error: $msg | $type");
             throw $exception;

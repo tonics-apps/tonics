@@ -16,12 +16,15 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use App\Modules\Core\Commands\Job\JobManager;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateEngines;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\JobSystem\Job;
+use App\Modules\Core\Library\MessageQueue;
 use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use Devsrealm\TonicsContainer\Container;
+use Devsrealm\TonicsDomParser\DomParser;
 use Devsrealm\TonicsEventSystem\EventDispatcher;
 use Devsrealm\TonicsHelpers\TonicsHelpers;
 use Devsrealm\TonicsQueryBuilder\Tables;
@@ -30,6 +33,7 @@ use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInputInterface;
 use Devsrealm\TonicsRouterSystem\Response;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
+use Devsrealm\TonicsTreeSystem\Tree;
 use JetBrains\PhpStorm\NoReturn;
 
 /**
@@ -40,7 +44,7 @@ use JetBrains\PhpStorm\NoReturn;
  * @return Session
  * @throws Exception
  */
-function session(): Session
+function session (): Session
 {
     return AppConfig::initLoaderMinimal()->getSession();
 }
@@ -52,7 +56,7 @@ function session(): Session
  * @throws Exception
  * @throws Throwable
  */
-function url(): OnRequestProcess
+function url (): OnRequestProcess
 {
     return request();
 }
@@ -64,7 +68,7 @@ function url(): OnRequestProcess
  * @throws Exception
  * @throws Throwable
  */
-function request(): OnRequestProcess
+function request (): OnRequestProcess
 {
     return AppConfig::initLoaderOthers()->getRouter()->getOnRequestProcessingEvent();
 }
@@ -74,7 +78,7 @@ function request(): OnRequestProcess
  * @throws Exception
  * @throws Throwable
  */
-function response(): Response
+function response (): Response
 {
     return AppConfig::initLoaderOthers()->getRouter()->getResponse();
 }
@@ -83,18 +87,20 @@ function response(): Response
  * @throws Exception
  * @throws Throwable
  */
-function input(): TonicsRouterRequestInputInterface
+function input (): TonicsRouterRequestInputInterface
 {
     return AppConfig::initLoaderOthers()->getRouter()->getResponse()->getRequestInput();
 }
 
 /**
  * Redirect to $url
+ *
  * @param string $url
  * @param int|null $code
+ *
  * @throws Exception
  */
-#[NoReturn] function redirect(string $url, ?int $code = null): void
+#[NoReturn] function redirect (string $url, ?int $code = null): void
 {
     if ($code !== null) {
         response()->httpResponseCode($code);
@@ -114,13 +120,15 @@ function input(): TonicsRouterRequestInputInterface
  *
  * Note: Avoid using the same required parameter in route url if you are retrieving route using this function, having /api/:name/:name,
  * would replace both :name. You can use a numbered array to overcome that limitation.
+ *
  * @param string $name
  * @param array $parameters
+ *
  * @return string
  * @throws Exception
  * @throws Throwable
  */
-function route(string $name,  array $parameters = []): string
+function route (string $name, array $parameters = []): string
 {
     return AppConfig::initLoaderOthers()->getRouter()->getRoute()->getRouteTreeGenerator()->namedURL($name, $parameters);
 }
@@ -130,7 +138,7 @@ function route(string $name,  array $parameters = []): string
  * @return TonicsHelpers
  * @throws Exception
  */
-function helper(): TonicsHelpers
+function helper (): TonicsHelpers
 {
     return AppConfig::initLoaderMinimal()->getTonicsHelpers();
 }
@@ -140,7 +148,7 @@ function helper(): TonicsHelpers
  * @return TonicsHelpers
  * @throws Exception
  */
-function utility(): TonicsHelpers
+function utility (): TonicsHelpers
 {
     return helper();
 }
@@ -164,15 +172,17 @@ function utility(): TonicsHelpers
  * reason, you don't want an automatically clean up when a TonicsQuery is passed to function param, you can disable it this way:
  *
  * `$db->Select('')->setCloseTonicQueryPassedToParam(false)...`
+ *
  * @param bool $newConnection
  * @param callable|null $onGetDB
+ *
  * @return TonicsQuery|null
  * @throws Exception
  */
-function db(bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
+function db (bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
 {
     $db = AppConfig::initLoaderMinimal()->getDatabase($newConnection);
-    if (is_callable($onGetDB)){
+    if (is_callable($onGetDB)) {
         $onGetDB($db);
         $db->getTonicsQueryBuilder()->destroyPdoConnection();
     } else {
@@ -185,7 +195,7 @@ function db(bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
 /**
  * @throws Exception
  */
-function table(): Tables
+function table (): Tables
 {
     return db()->getTonicsQueryBuilder()->getTables();
 }
@@ -194,7 +204,7 @@ function table(): Tables
  * @throws Exception
  * @throws Throwable
  */
-function templateEngines(): TonicsTemplateEngines
+function templateEngines (): TonicsTemplateEngines
 {
     return AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
 }
@@ -203,20 +213,20 @@ function templateEngines(): TonicsTemplateEngines
  * @throws Exception
  * @throws Throwable
  */
-function job(string $transporterName = ''): Job
+function job (string $transporterName = ''): Job
 {
-    if (!$transporterName){
+    if (!$transporterName) {
         $transporterName = AppConfig::getJobTransporter();
     }
     return AppConfig::initLoaderOthers()::getJobEventDispatcher($transporterName);
 }
 
 /**
- * @throws Exception
+ * @throws Exception|Throwable
  */
-function schedule(string $transporterName = ''): Scheduler
+function schedule (string $transporterName = ''): Scheduler
 {
-    if (!$transporterName){
+    if (!$transporterName) {
         $transporterName = AppConfig::getSchedulerTransporter();
     }
     return AppConfig::initLoaderOthers()::getScheduler($transporterName);
@@ -225,10 +235,11 @@ function schedule(string $transporterName = ''): Scheduler
 /**
  * @param string $key
  * @param $data
+ *
  * @return void
  * @throws Exception
  */
-function addToGlobalVariable(string $key, $data): void
+function addToGlobalVariable (string $key, $data): void
 {
     AppConfig::initLoaderMinimal()::addToGlobalVariable($key, $data);
 }
@@ -236,7 +247,7 @@ function addToGlobalVariable(string $key, $data): void
 /**
  * @throws Exception
  */
-function getPostData()
+function getPostData ()
 {
     return AppConfig::initLoaderMinimal()::getGlobalVariableData('Data') ?? [];
 }
@@ -244,7 +255,7 @@ function getPostData()
 /**
  * @throws Exception
  */
-function getGlobalVariableData(): array
+function getGlobalVariableData (): array
 {
     return AppConfig::initLoaderMinimal()::getGlobalVariable();
 }
@@ -257,13 +268,15 @@ function getGlobalVariableData(): array
  * - `TonicsView::RENDER_TOKENIZE_ONLY` if you only want to tokenize and get the view object
  *
  * Note: If you have a custom render, It won't respect $condition
- * @param string $viewname
+ *
+ * @param string $viewName
  * @param array|stdClass $data
  * @param int $condition
+ *
  * @return mixed
  * @throws Exception|Throwable
  */
-function view(string $viewname, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
+function view (string $viewName, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
     $data = [...$data, ...getGlobalVariableData()];
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data)->setCachePrefix(AppConfig::getCachePrefix());
@@ -271,13 +284,13 @@ function view(string $viewname, array|stdClass $data = [], int $condition = Toni
     # For Some reason, in CLI, if we call view multiple times, it renders hook_into content that number of times,
     # instead of just once, the below is a work-around until I find a fix
     #
-    if (helper()->isCLI()){
+    if (helper()->isCLI()) {
         $newView = new TonicsView();
         $newView->setVariableData($data);
         $view->reset()->copySettingsToNewViewInstance($newView);
         $view = $newView;
     }
-    return $view->render($viewname, $condition);
+    return $view->render($viewName, $condition);
 }
 
 /**
@@ -290,7 +303,7 @@ function view(string $viewname, array|stdClass $data = [], int $condition = Toni
  * For multiple class, do: `container()->resolveMany([Class::class, Class2::class]);`
  * @throws Exception
  */
-function container(): Container
+function container (): Container
 {
     return AppConfig::initLoaderMinimal()->getContainer();
 }
@@ -299,7 +312,7 @@ function container(): Container
  * @throws Exception
  * @throws Throwable
  */
-function event(): EventDispatcher
+function event (): EventDispatcher
 {
     return AppConfig::initLoaderOthers()->getEventDispatcher();
 }
@@ -307,7 +320,7 @@ function event(): EventDispatcher
 /**
  * @throws Exception
  */
-function dom(): \Devsrealm\TonicsDomParser\DomParser
+function dom (): DomParser
 {
     return AppConfig::initLoaderMinimal()->getDomParser();
 }
@@ -316,7 +329,12 @@ function dom(): \Devsrealm\TonicsDomParser\DomParser
  * @throws Exception
  * @throws Throwable
  */
-function tree(): \Devsrealm\TonicsTreeSystem\Tree
+function tree (): Tree
 {
     return AppConfig::initLoaderTree();
+}
+
+function message (): MessageQueue
+{
+    return new MessageQueue(JobManager::semaphoreID());
 }

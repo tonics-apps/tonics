@@ -18,14 +18,15 @@
 
 namespace App\Apps\TonicsCloud\Controllers;
 
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudInstanceMessage;
 use App\Apps\TonicsCloud\Interfaces\DefaultJobQueuePaths;
 use App\Apps\TonicsCloud\Interfaces\QueuePathHelper;
+use App\Apps\TonicsCloud\Services\InstanceService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -37,19 +38,14 @@ class InstanceController
 
     const CREATE_METHOD = 'CREATE';
     const EDIT_METHOD   = 'EDIT';
-    private static string     $currentControllerMethod = '';
-    private FieldData         $fieldData;
-    private AbstractDataLayer $abstractDataLayer;
+    private static string $currentControllerMethod = '';
 
     /**
      * @param FieldData $fieldData
      * @param AbstractDataLayer $abstractDataLayer
+     * @param InstanceService $instanceService
      */
-    public function __construct (FieldData $fieldData, AbstractDataLayer $abstractDataLayer)
-    {
-        $this->fieldData = $fieldData;
-        $this->abstractDataLayer = $abstractDataLayer;
-    }
+    public function __construct (private FieldData $fieldData, private readonly AbstractDataLayer $abstractDataLayer, private readonly InstanceService $instanceService) {}
 
     /**
      * @return void
@@ -58,39 +54,13 @@ class InstanceController
      */
     public function index (): void
     {
-
-        $dataTableHeaders = [
-            [
-                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_status',
-                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'service_instance_status',
-            ],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'provider_instance_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'provider_instance_id'],
-
-            [
-                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_status_action',
-                'select_data' => 'Start, ShutDown, Reboot, Terminate', 'desc' => 'Signal Command',
-                'title'       => 'Sig', 'minmax' => '40px, .4fr', 'td' => 'service_instance_status_action',
-            ],
-
-            [
-                'type'   => '',
-                'slug'   => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_name',
-                'title'  => 'Instance', 'desc' => 'Name of the instance',
-                'minmax' => '55px, .6fr', 'td' => 'service_instance_name',
-            ],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICES . '::' . 'service_description', 'title' => 'PLan', 'desc' => 'Current Plan', 'minmax' => '50px, .5fr', 'td' => 'service_description'],
-        ];
-
         $data = null;
         db(onGetDB: function (TonicsQuery $db) use (&$data) {
             $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
             $serviceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
 
-            $data = $db->Select('service_instance_status, provider_instance_id, service_instance_name, 
-                CONCAT("/customer/tonics_cloud/instances/", provider_instance_id, "/edit" ) as _edit_link, 
-                service_description')
+            $data = $db->Select("service_instance_status, service_instance_id, provider_instance_id, 
+            service_instance_name, {$this->instanceService::EditLinkColumn()}, service_description")
                 ->From("$serviceInstanceTable")
                 ->Join("$serviceTable", "$serviceInstanceTable.fk_service_id", "$serviceTable.service_id")
                 ->WhereEquals('fk_customer_id', \session()::getUserID())->WhereNull('end_time')
@@ -102,9 +72,10 @@ class InstanceController
 
         view('Apps::TonicsCloud/Views/Instance/index', [
             'DataTable' => [
-                'headers'       => $dataTableHeaders,
+                'headers'       => $this->instanceService::DataTableHeaders(),
                 'paginateData'  => $data ?? [],
                 'dataTableType' => 'TONICS_CLOUD',
+                'messageURL'    => route('messageEvent', [TonicsCloudInstanceMessage::MessageTypeKey(\session()::getUserID())]),
             ],
             'SiteURL'   => AppConfig::getAppUrl(),
         ]);
@@ -123,7 +94,7 @@ class InstanceController
                 $entityBag = $decodedBag;
             })) {
             if ($this->deleteMultiple($entityBag)) {
-                response()->onSuccess([], "Records Deletion Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeDelete);
+                response()->onSuccess([], "Records Deletion Enqueued", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
                 response()->onError(500);
             }
@@ -132,7 +103,7 @@ class InstanceController
                 $entityBag = $decodedBag;
             })) {
             if ($this->updateMultiple($entityBag)) {
-                response()->onSuccess([], "Records Update Enqueued, Reload For Changes in a Minute", more: AbstractDataLayer::DataTableEventTypeUpdate);
+                response()->onSuccess([], "Records Update Enqueued", more: AbstractDataLayer::DataTableEventTypeUpdate);
             } else {
                 response()->onError(500, 'An Error Occurred Updating Records');
             }
@@ -259,38 +230,7 @@ class InstanceController
      */
     public static function GetServiceInstances (array $settings): mixed
     {
-        $serviceInstances = null;
-        db(onGetDB: function (TonicsQuery $db) use ($settings, &$serviceInstances) {
-
-            $instanceID = $settings['instance_id'] ?? '';
-            $column = $settings['column'] ?? 'provider_instance_id';
-            $userID = $settings['user_id'] ?? '';
-            $fetchAll = $settings['fetch_all'] ?? false;
-
-            $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
-
-            $select = "service_instance_id, provider_instance_id, service_instance_name, service_instance_status, fk_provider_id, fk_service_id, fk_customer_id, start_time, end_time, others";
-            $col = table()->pick([TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES) => [$column]]);
-            $db->Select($select)
-                ->From($serviceInstanceTable)
-                ->when($userID, function (TonicsQuery $db) use ($serviceInstanceTable, $userID) {
-                    $customerTable = Tables::getTable(Tables::CUSTOMERS);
-                    $db->Join($customerTable, "$customerTable.user_id", "$serviceInstanceTable.fk_customer_id");
-                    $db->WhereEquals('fk_customer_id', $userID);
-                })
-                ->when($instanceID, function (TonicsQuery $db) use ($col, $instanceID) {
-                    $db->WhereEquals($col, $instanceID);
-                })
-                ->WhereNull('end_time');
-
-            if ($fetchAll) {
-                $serviceInstances = $db->FetchResult();
-            } else {
-                $serviceInstances = $db->FetchFirst();
-            }
-        });
-
-        return $serviceInstances;
+        return InstanceService::GetServiceInstances($settings);
     }
 
     /**

@@ -26,45 +26,50 @@ class DriveConfig
     /*
      * @return string
      */
-    public static function getPrivatePath(): string
+    public static function getPrivatePath (): string
     {
         return dirname(APP_ROOT) . '/private';
     }
 
-    public static function xAccelDownloadFilePath(): string
+    public static function xAccelDownloadFilePath (): string
     {
         return "/download_file_path_987654321/";
     }
 
-    public static function serveFilePath(): string
+    public static function serveFilePath (): string
     {
         return "/serve_file_path_987654321/";
     }
 
-    public static function xAccelAppFilePath(): string
+    public static function xAccelAppFilePath (): string
     {
         return "/apps_file_path_987654321/";
     }
 
-    public static function serveAppFilePath(): string
+    public static function serveAppFilePath (): string
     {
         return "/serve_app_file_path_987654321/";
     }
 
-    public static function xAccelModuleFilePath(): string
+    public static function xAccelModuleFilePath (): string
     {
         return "/modules_file_path_987654321/";
     }
 
-    public static function serveModuleFilePath(): string
+    public static function serveModuleFilePath (): string
     {
         return "/serve_module_file_path_987654321/";
+    }
+
+    public static function messagePath (): string
+    {
+        return "/message_987654321/";
     }
 
     /**
      * @return string
      */
-    public static function getUploadsPath(): string
+    public static function getUploadsPath (): string
     {
         return dirname(APP_ROOT) . '/private/uploads';
     }
@@ -73,25 +78,25 @@ class DriveConfig
      * This is where you dump temp data, never dump temp data in the uploads path
      * @return string
      */
-    public static function getTempPath(): string
+    public static function getTempPath (): string
     {
         return dirname(APP_ROOT) . '/private/temp';
     }
 
-    public static function getTempPathForModules(): string
+    public static function getTempPathForModules (): string
     {
         return self::getTempPath() . '/modules';
     }
 
-    public static function getTempPathForApps(): string
+    public static function getTempPathForApps (): string
     {
-        return  self::getTempPath() . '/apps';
+        return self::getTempPath() . '/apps';
     }
 
     /**
      * @return string
      */
-    public static function getWordPressImportPath(): string
+    public static function getWordPressImportPath (): string
     {
         return dirname(APP_ROOT) . '/private/uploads/wordpress_import';
     }
@@ -99,7 +104,7 @@ class DriveConfig
     /**
      * @return string
      */
-    public static function getWordPressImportUploadsPath(): string
+    public static function getWordPressImportUploadsPath (): string
     {
         return dirname(APP_ROOT) . '/private/uploads/wordpress_import/uploads';
     }
@@ -107,12 +112,12 @@ class DriveConfig
     /**
      * @throws \Exception
      */
-    public static function getDropBoxKey(): mixed
+    public static function getDropBoxKey (): mixed
     {
         $name = CoreSettingsController::getSettingsValue(CoreSettingsController::MediaDrive_DropBoxName, []);
         $key = CoreSettingsController::getSettingsValue(CoreSettingsController::MediaDrive_DropBoxKey, []);
         $value = array_combine($name, $key);
-        if (!empty($value)){
+        if (!empty($value)) {
             return $value;
         }
         return env('DROPBOX_KEY', '');

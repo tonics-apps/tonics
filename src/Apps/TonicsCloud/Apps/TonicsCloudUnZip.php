@@ -107,7 +107,7 @@ JSON;
         $atool = [];
         foreach ($data as $field) {
             if (isset($field->main_field_slug) && isset($field->field_input_name)) {
-                $fieldOptions = json_decode($field->field_options);
+                $fieldOptions = $this->getFieldOption($field);
                 $value = $fieldOptions->{$field->field_input_name} ?? null;
                 if ($field->field_input_name == 'unzip_extractTo') {
                     $atool['extract_to'] = $this->replaceContainerGlobalVariables($value);

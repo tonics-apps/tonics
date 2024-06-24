@@ -35,10 +35,9 @@ use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueStartApp;
 use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueStopApp;
 use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueUpdateAppSettings;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
-use App\Modules\Core\Library\AbstractService;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
-class AppService extends AbstractService
+class AppService extends TonicsCloudAbstractService
 {
 
     /**
@@ -132,7 +131,7 @@ class AppService extends AbstractService
             $fieldDetails = $input->retrieve('_fieldDetails');
             /** @var CloudAppInterface $jobObject */
             $jobObject = container()->get($data->class);
-            $jobObject->setFields(json_decode($fieldDetails));
+            $jobObject->setFields((is_object($fieldDetails) ? $fieldDetails : json_decode($fieldDetails)));
             $jobObject->setContainerReplaceableVariables($containerOthers->container_variables ?? []);
             $jobData = [
                 'update_status'            => false,
@@ -198,6 +197,55 @@ class AppService extends AbstractService
 
         return $app;
     }
+
+    /**
+     * @param $appID
+     * @param $containerID
+     *
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public static function GetContainerApp ($appID, $containerID): mixed
+    {
+        $appRow = null;
+        db(onGetDB: function (TonicsQuery $db) use ($appID, $containerID, &$appRow) {
+            $appTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS);
+            $appsContainersTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS_TO_CONTAINERS);
+            $editCol = self::EditLinkColumn($containerID);
+            $appRow = $db->Select("$appsContainersTable.id, fk_container_id, app_id, app_status, app_name, app_status_msg, app_description, $editCol, $appsContainersTable.others")
+                ->From($appsContainersTable)
+                ->Join("$appTable", "$appTable.app_id", "$appsContainersTable.fk_app_id")
+                ->WhereEquals('fk_container_id', $containerID)
+                ->WhereEquals('fk_app_id', $appID)
+                ->FetchFirst();
+        });
+
+        return $appRow;
+    }
+
+    /**
+     * @param array $appNames
+     * @param string $col
+     *
+     * @return array|null
+     * @throws \Exception
+     */
+    public static function getAppsBy (array $appNames, string $col = 'app_name'): ?array
+    {
+        if (empty($appNames)) {
+            return null;
+        }
+
+        $apps = null;
+        $col = table()->pick([TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS) => [$col]]);
+        db(onGetDB: function (TonicsQuery $db) use ($col, $appNames, &$apps) {
+            $apps = $db->Select("*")
+                ->From(TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS))
+                ->WhereIn($col, $appNames)->FetchResult();
+        });
+        return $apps;
+    }
+
 
     /**
      * @param $container
@@ -285,5 +333,54 @@ class AppService extends AbstractService
 
         }
 
+    }
+
+    /**
+     * @param $containerID
+     *
+     * @return string
+     */
+    public static function EditLinkColumn ($containerID): string
+    {
+        return "CONCAT('/customer/tonics_cloud/containers/$containerID/apps/', fk_app_id, '/edit' ) as _edit_link";
+    }
+
+    /**
+     * @return array[]
+     */
+    public static function DataTableHeaders (): array
+    {
+        return [
+            [
+                'type' => '', 'hide' => true, 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS_TO_CONTAINERS . '::' . 'id', 'title' => 'ID', 'minmax' => '20px, .2fr', 'td' => 'id',
+            ],
+            [
+                'type'  => '', 'hide' => true, 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_id',
+                'title' => 'App ID', 'minmax' => '20px, .2fr', 'td' => 'app_id',
+            ],
+            [
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status',
+                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'app_status',
+            ],
+
+            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_name', 'title' => 'App', 'minmax' => '50px, .5fr', 'td' => 'app_name'],
+
+            [
+                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_action',
+                'select_data' => 'Start, ShutDown, Reboot', 'desc' => 'Signal Command',
+                'title'       => 'Sig', 'minmax' => '30px, .4fr', 'td' => 'app_status_action',
+            ],
+
+            [
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_msg',
+                'title' => 'Msg', 'desc' => 'Last Message', 'minmax' => '50px, .5fr', 'td' => 'app_status_msg',
+            ],
+
+            [
+                'type'  => '',
+                'slug'  => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_description',
+                'title' => 'Desc', 'desc' => 'App Description', 'minmax' => '50px, .5fr', 'td' => 'app_description',
+            ],
+        ];
     }
 }

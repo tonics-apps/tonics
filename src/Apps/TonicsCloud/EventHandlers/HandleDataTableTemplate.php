@@ -80,12 +80,15 @@ class HandleDataTableTemplate implements HandlerInterface
             if ($this->isDataTableTypeTonicsCloud($tonicsView)) {
                 $editButton = '';
                 $dtRow = $tonicsView->accessArrayWithSeparator('dtRow');
-                $editButton .= <<<HTML
+                if (!empty($dtRow->_edit_link)) {
+                    $editButton .= <<<HTML
 <a class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-3" href="$dtRow->_edit_link">
     <span>Edit</span>
 </a>
 HTML;
+                }
+
                 if (isset($dtRow->service_instance_status) && strtolower($dtRow->service_instance_status) === 'running') {
                     $containerCreateRoute = route('tonicsCloud.containers.create') . "?instance_id=$dtRow->provider_instance_id";
                     $editButton .= <<<HTML
@@ -96,7 +99,7 @@ HTML;
 HTML;
                 }
 
-                if ($this->isTypeContainerController($tonicsView)) {
+                if (isset($dtRow->_apps_link)) {
                     $editButton .= <<<HTML
 <a class="text-align:center bg:transparent border:none color:black bg:white-one border-width:default border:black padding:small
                         margin-top:0 cursor:pointer button:box-shadow-variant-3" href="$dtRow->_apps_link">

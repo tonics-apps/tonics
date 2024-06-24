@@ -231,7 +231,7 @@ abstract class CloudAutomationInterfaceAbstract implements HandlerInterface, Clo
         });
 
         $containerService->setFails(false)
-            ->setMessage('Container Creation Enqueued, Refresh For Changes in Few Seconds')
+            ->setMessage('Container Creation Enqueued')
             ->setRedirectsRoute(route('tonicsCloud.containers.index'));
     }
 
