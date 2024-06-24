@@ -28,7 +28,7 @@ readonly class MessageController
      */
     public function __construct (private OnAddMessageType $onAddMessageType)
     {
-        helper()->addEventStreamHeader();
+        helper()->addEventStreamHeader(forceEventStream: true);
     }
 
     /**
@@ -41,7 +41,7 @@ readonly class MessageController
     {
         event()->dispatch($this->onAddMessageType);
         if ($this->onAddMessageType->exist($msgType)) {
-            $this->onAddMessageType->processMessages(fn($type, $message) => helper()->sendMsg($type, $message), $msgType);
+            $this->onAddMessageType->processMessages(fn($type, $message) => helper()->sendEventStreamMsg($type, $message), $msgType);
         }
         helper()->sendMsg('Close', null, event: 'close');
         exit(0);
