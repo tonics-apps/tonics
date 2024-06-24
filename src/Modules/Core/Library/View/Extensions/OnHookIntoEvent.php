@@ -28,7 +28,7 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
 class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface
 {
 
-    public function validate(OnTagToken $tagToken): bool
+    public function validate (OnTagToken $tagToken): bool
     {
         $view = $this->getTonicsView();
         return $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName(), 1, 0);
@@ -37,12 +37,12 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
     /**
      * @throws \Exception
      */
-    public function stickToContent(OnTagToken $tagToken)
+    public function stickToContent (OnTagToken $tagToken): void
     {
         $this->getTonicsView()->getContent()->addToContent($tagToken->getTagName(), '', $tagToken->getArg());
     }
 
-    public function error(): string
+    public function error (): string
     {
         return '';
     }
@@ -51,10 +51,12 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
      * @param string $content
      * @param array $args
      * @param array $nodes
+     *
      * @return string
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function render(string $content, array $args, array $nodes = []): string
+    public function render (string $content, array $args, array $nodes = []): string
     {
         $this->handleHookIntoTemplateEventDispatcher($args);
         return '';
@@ -62,8 +64,9 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handleHookIntoTemplateEventDispatcher($args)
+    public function handleHookIntoTemplateEventDispatcher ($args): void
     {
         $onHookIntoTemplateEvent = new OnHookIntoTemplate($this->getTonicsView());
         event()->dispatch($onHookIntoTemplateEvent);
@@ -77,13 +80,13 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
         # on a norm, when we use several hooks withing a single class, it shouldn't give us any problem but this would cause a mess and duplication
         # in a certain context, e.g. the `[[each()]` context or any context that is a late renderer
         #
-        if (!empty($args)){
+        if (!empty($args)) {
             $hook_name = $args[0];
-            foreach ($hookers as $hooker){
+            foreach ($hookers as $hooker) {
                 $hook_into = $hooker['hook_into'];
-                if ($hook_name === $hook_into){
+                if ($hook_name === $hook_into) {
                     $handler = $hooker['handler'];
-                    if (isset($storage[$hook_into])){
+                    if (isset($storage[$hook_into])) {
                         $tag = new Tag('char');
                         $handlerInit = $handler($this->getTonicsView()) ?? '';
                         $tag->setContent($handlerInit);
@@ -93,10 +96,10 @@ class OnHookIntoEvent extends TonicsTemplateViewAbstract implements TonicsModeIn
                 }
             }
         } else {
-            foreach ($hookers as $hooker){
+            foreach ($hookers as $hooker) {
                 $hook_into = $hooker['hook_into'];
                 $handler = $hooker['handler'];
-                if (isset($storage[$hook_into])){
+                if (isset($storage[$hook_into])) {
                     $tag = new Tag('char');
                     $handlerInit = $handler($this->getTonicsView()) ?? '';
                     $tag->setContent($handlerInit);

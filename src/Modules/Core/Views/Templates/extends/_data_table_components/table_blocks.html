@@ -1,0 +1,22 @@
+[[b('DataTable::TableRow')
+
+    [[each("dtRow in DataTable.paginateData.data")
+                <tr>
+                    [[add_hook('Core::before_data_table_data')]]
+
+                    [[each("dtHeader in DataTable.headers")
+                        [[if("v[dtRow->dtHeader.td] || v[__current_var_key_exist]")
+                            <td [[if("v[dtHeader.hide]") style="visibility:collapse; display:none;"]] tabindex="-1" data-td="[[v('dtHeader.td')]]_[[v('dtRow->dtHeader.td')]]">[[add_hook('Core::on_data_table_data')[[_v('dtRow->dtHeader.td')]]]]</td>
+                    ]]
+                    ]]
+
+                    [[add_hook('Core::after_data_table_data')]]
+                </tr>
+    ]]
+
+   [[add_hook('Core::after_data_table_row')]]
+]]
+
+[[b('DataTable::Table_before_data_table_Hook')
+    [[add_hook('Core::before_data_table')]]
+]]

@@ -54,29 +54,29 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
 
     private string $error = '';
 
-    public function validate(OnTagToken $tagToken): bool
+    public function validate (OnTagToken $tagToken): bool
     {
         $view = $this->getTonicsView();
         return $view->validateMaxArg($tagToken->getArg(), $tagToken->getTagName());
     }
 
-    public function stickToContent(OnTagToken $tagToken)
+    public function stickToContent (OnTagToken $tagToken): void
     {
         $view = $this->getTonicsView();
         $tagname = $tagToken->getTagName();
-        if ($tagname === 'hook_into' || $tagname === 'place_into'){
+        if ($tagname === 'hook_into' || $tagname === 'place_into') {
             $this->handleHookInto($tagToken);
         }
 
-        if ($tagname === 'add_hook' || $tagname === 'add_placeholder'){
+        if ($tagname === 'add_hook' || $tagname === 'add_placeholder') {
             $view->getContent()->addToContent($tagToken->getTagName(), '', $tagToken->getArg());
             $storage = $view->getModeStorage($tagToken->getTagName());
-            if (!isset($storage[$tagToken->getFirstArgChild()])){
+            if (!isset($storage[$tagToken->getFirstArgChild()])) {
                 $storage[$tagToken->getFirstArgChild()] = $this->setUpHook();
                 $view->storeDataInModeStorage('add_hook', $storage);
                 // if add_hook has a children, then we use it as a default for hook_into,
                 // this way, we can make things faster a bit when hooking default data
-                if (!empty($tagToken->getContent()) || $tagToken->hasChildren()){
+                if (!empty($tagToken->getContent()) || $tagToken->hasChildren()) {
                     $new_tag = clone $tagToken->getTag();
                     $hook_into_default = new OnTagToken($new_tag);
                     $hook_into_default->getTag()->setTagName('hook_into');
@@ -85,18 +85,18 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
             }
         }
 
-        if ($tagname === 'reset_all_hooks' || $tagname === 'reset_all_placeholder'){
+        if ($tagname === 'reset_all_hooks' || $tagname === 'reset_all_placeholder') {
             $storage = $view->getModeStorage('add_hook');
-            foreach ($storage as $k => $s){
+            foreach ($storage as $k => $s) {
                 $storage[$k]['nodes'] = [];
             }
             $view->storeDataInModeStorage('add_hook', $storage);
         }
 
-        if ($tagname === 'reset_hook' || $tagname === 'reset_placeholder'){
+        if ($tagname === 'reset_hook' || $tagname === 'reset_placeholder') {
             $storage = $view->getModeStorage('add_hook');
             $hook_name = $tagToken->getFirstArgChild();
-            if (isset($storage[$hook_name])){
+            if (isset($storage[$hook_name])) {
                 $storage[$hook_name]['nodes'] = [];
                 $view->storeDataInModeStorage('add_hook', $storage);
             }
@@ -104,7 +104,7 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
 
     }
 
-    public function error(): string
+    public function error (): string
     {
         return $this->error;
     }
@@ -112,23 +112,23 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
     /**
      * @throws \Exception
      */
-    public function render(string $content, array $args, array $nodes = []): string
+    public function render (string $content, array $args, array $nodes = []): string
     {
         $current = $this->getTonicsView()->getCurrentRenderingContentMode();
         // this is for hook_into, probably called from a nested tag
-        if ($current === 'hook_into' || $current === 'place_into'){
+        if ($current === 'hook_into' || $current === 'place_into') {
             $tag = (new Tag())->setNodes($nodes)->setArgs($args);
             $tag->setContent($content);
             $onTagToken = new OnTagToken($tag);
             $this->handleHookInto($onTagToken);
         }
 
-        if ($current === 'add_hook' || $current === 'add_placeholder'){
+        if ($current === 'add_hook' || $current === 'add_placeholder') {
 
             $hook_name = $args[0];
             $storage = $this->getTonicsView()->getModeStorage('add_hook');
 
-            if (isset($storage[$hook_name]['nodes']) === false){
+            if (isset($storage[$hook_name]['nodes']) === false) {
                 # There are context in which you won't be able to hook into an event, for-example, a foreach
                 # is a late-renderer, for that reason, we need to use the OnHookEvent renderer each time we have an add_hook, but
                 # it doesn't exist in the add_hook storage.
@@ -159,12 +159,12 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
         return '';
     }
 
-    public function renderAddHookNodes($storage, $hook_name): string
+    public function renderAddHookNodes ($storage, $hook_name): string
     {
         $output = '';
-        if (isset($storage[$hook_name]['nodes'])){
+        if (isset($storage[$hook_name]['nodes'])) {
             /**@var Tag $node */
-            foreach ($storage[$hook_name]['nodes'] as $node){
+            foreach ($storage[$hook_name]['nodes'] as $node) {
                 $mode = $this->getTonicsView()->getModeRendererHandler($node->getTagName());
                 if ($mode instanceof TonicsModeRendererInterface) {
                     $this->getTonicsView()->setCurrentRenderingContentMode($node->getTagName());
@@ -176,31 +176,31 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
         return $output;
     }
 
-    public function handleHookInto(OnTagToken $tagToken)
+    public function handleHookInto (OnTagToken $tagToken)
     {
         $hook_name = $tagToken->getFirstArgChild();
         $this->handleContentInTag($tagToken);
         $storage = $this->getTonicsView()->getModeStorage('add_hook');
         // resolve nested add_hook or add_placeholder
         /** @var Tag $node */
-        foreach ($tagToken->getTag()->childNodes() as $node){
-            if ($node->getTagName() === 'add_hook' || $node->getTagName() === 'add_placeholder'){
-                if (!isset($storage[$node->getFirstArgChild()])){
+        foreach ($tagToken->getTag()->childNodes() as $node) {
+            if ($node->getTagName() === 'add_hook' || $node->getTagName() === 'add_placeholder') {
+                if (!isset($storage[$node->getFirstArgChild()])) {
                     $storage[$node->getFirstArgChild()] = ['parent' => $hook_name, 'nodes' => []];
                 }
             }
         }
 
-        if (isset($storage[$hook_name])){
+        if (isset($storage[$hook_name])) {
             $storage[$hook_name]['nodes'] = [...$storage[$hook_name]['nodes'], ...$tagToken->getTag()->getNodes()];
         }
 
         $this->getTonicsView()->storeDataInModeStorage('add_hook', $storage);
     }
 
-    public function handleContentInTag(OnTagToken $tagToken)
+    public function handleContentInTag (OnTagToken $tagToken)
     {
-        if (!empty($tagToken->getContent())){
+        if (!empty($tagToken->getContent())) {
             $tag = new Tag('char');
             $tag->setContent($tagToken->getContent());
             $tagToken->getTag()->prependTagToNode($tag);
@@ -208,11 +208,11 @@ class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, To
         }
     }
 
-    public function setUpHook(): array
+    public function setUpHook (): array
     {
         return [
-            'content_position' =>  array_key_last($this->getTonicsView()->getContent()->getContents()),
-            'nodes' => [],
+            'content_position' => array_key_last($this->getTonicsView()->getContent()->getContents()),
+            'nodes'            => [],
         ];
     }
 

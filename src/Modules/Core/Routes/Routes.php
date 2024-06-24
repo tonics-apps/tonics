@@ -31,6 +31,7 @@ use App\Modules\Core\Controllers\Installer;
 use App\Modules\Core\Controllers\JobManagerController;
 use App\Modules\Core\Controllers\License\LicenseController;
 use App\Modules\Core\Controllers\License\LicenseControllerItems;
+use App\Modules\Core\Controllers\MessageController;
 use App\Modules\Core\Controllers\OEmbedController;
 use App\Modules\Core\RequestInterceptor\AppAccess;
 use App\Modules\Core\RequestInterceptor\Authenticated;
@@ -211,6 +212,10 @@ trait Routes
         #---------------------------------
         $route->get('/services/oembed', [OEmbedController::class, 'OEmbed']);
 
+        #---------------------------------
+        # MESSAGE ROUTE
+        #---------------------------------
+        $route->get(DriveConfig::messagePath() . ':type', [MessageController::class, 'sendMessages'], AuthConfig::getAuthRequestInterceptor([Authenticated::class]), 'messageEvent');
 
         return $route;
     }
