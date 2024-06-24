@@ -21,8 +21,8 @@ class DisableDeleteMenuOnModuleAppSelection {
         let dataTable = event.dataTable;
         let dataTdOfTType;
         let trEl = event.elementTarget.closest('tr');
-        if ((dataTdOfTType = trEl?.querySelector('[data-td="type"]'))){
-            if (dataTdOfTType.innerText.toLowerCase() === 'module'){
+        if ((dataTdOfTType = trEl?.querySelector('[data-td="type"]'))) {
+            if (dataTdOfTType.innerText.toLowerCase() === 'module') {
                 dataTable.deActivateMenus([dataTable.menuActions().DELETE_EVENT]);
             } else {
                 dataTable.activateMenus([dataTable.menuActions().DELETE_EVENT]);
@@ -35,14 +35,11 @@ class DisableUpdateMenuOnNonUpdateAvailability {
 
     constructor(event) {
         let dataTable = event.dataTable;
-        let dataTdOfTType = null;
         let trEl = event.elementTarget.closest('tr');
-        if ((dataTdOfTType = trEl?.querySelector('[data-td="update_available"]'))){
-            if (dataTdOfTType.innerText.toLowerCase() === 'no'){
-                dataTable.deActivateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
-            } else {
-                dataTable.activateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
-            }
+        if (trEl?.querySelector('[data-td="update_available_Yes"]')) {
+            dataTable.activateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
+        } else {
+            dataTable.deActivateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
         }
     }
 
@@ -65,7 +62,7 @@ class UpdateEventHandlerForApps {
 
             appUpdateData.headers = headers;
             let getAllSelectedTrElement = dataTable.getAllSelectedTrElement();
-            if (getAllSelectedTrElement.length > 0){
+            if (getAllSelectedTrElement.length > 0) {
                 dataTable.collateTdFromTrAndPushToSaveTo(getAllSelectedTrElement, appUpdateData.appUpdateElements, appUpdateData.headers);
                 appUpdateData.type.push(dataTable.apiEvents().APP_UPDATE_EVENT);
 
@@ -74,12 +71,12 @@ class UpdateEventHandlerForApps {
                     dataTable.deActivateMenus([dataTable.menuActions().APP_UPDATE_EVENT]);
                     dataTable.sendPostRequest(appUpdateData, (data) => {
                         updateEvent.querySelector('.loading-animation').classList.add('d:none');
-                        if (data.status === 200){
+                        if (data.status === 200) {
                             window.TonicsScript.successToast(data.message);
                         }
                     }, (err) => {
                         let errMsg = err?.message;
-                        if(!errMsg){
+                        if (!errMsg) {
                             errMsg = 'An error occurred updating app';
                         }
                         updateEvent.querySelector('.loading-animation').classList.add('d:none');
