@@ -29,26 +29,27 @@ class CloudJobQueueContainerHasStopped extends AbstractJobInterface implements J
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
-        if ($this->hasContainerUniqueSlugID() === false){
+        if ($this->hasContainerUniqueSlugID() === false) {
             throw new \Exception("Container Unique Name is Missing");
         }
 
         $client = $this->getIncusClient();
         $response = $client->instances()->info($this->getContainerUniqueSlugID());
 
-        if ($client->isSuccess() && isset($response->metadata->status)){
-            if (strtoupper($response->metadata->status) === 'STOPPED'){
+        if ($client->isSuccess() && isset($response->metadata->status)) {
+            if (strtoupper($response->metadata->status) === 'STOPPED') {
                 $this->updateContainerStatus('Stopped');
                 return; # Done, By Default, the Status should be processed
             }
         }
 
         # Meaning The Image Has Been Deleted
-        if ($client->isError()){
-            if ($client->errorMessage() === "Instance not found"){
+        if ($client->isError()) {
+            if ($client->errorMessage() === "Instance not found") {
                 return;
             }
         }

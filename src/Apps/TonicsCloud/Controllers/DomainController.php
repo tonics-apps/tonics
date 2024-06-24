@@ -18,9 +18,11 @@
 
 namespace App\Apps\TonicsCloud\Controllers;
 
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudDomainMessage;
 use App\Apps\TonicsCloud\Jobs\Domain\CloudJobQueueCreateDomain;
 use App\Apps\TonicsCloud\Jobs\Domain\CloudJobQueueDeleteDomain;
 use App\Apps\TonicsCloud\Jobs\Domain\CloudJobQueueUpdateDomain;
+use App\Apps\TonicsCloud\Services\DomainService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\MailConfig;
@@ -35,18 +37,12 @@ class DomainController
 {
     use Validator;
 
-    private FieldData         $fieldData;
-    private AbstractDataLayer $abstractDataLayer;
-
     /**
      * @param FieldData $fieldData
      * @param AbstractDataLayer $abstractDataLayer
+     * @param DomainService $domainService
      */
-    public function __construct (FieldData $fieldData, AbstractDataLayer $abstractDataLayer)
-    {
-        $this->fieldData = $fieldData;
-        $this->abstractDataLayer = $abstractDataLayer;
-    }
+    public function __construct (private FieldData $fieldData, private readonly AbstractDataLayer $abstractDataLayer, private readonly DomainService $domainService) {}
 
     /**
      * @return void
@@ -55,31 +51,10 @@ class DomainController
      */
     public function index ()
     {
-        $dataTableHeaders = [
-            [
-                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'slug_id',
-                'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'slug_id',
-            ],
-            [
-                'type'   => '',
-                'slug'   => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'dns_domain',
-                'title'  => 'Domain',
-                'minmax' => '55px, .7fr', 'td' => 'dns_domain',
-            ],
-            [
-                'type'   => '',
-                'slug'   => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'dns_status_msg',
-                'title'  => 'Info',
-                'minmax' => '60px, .8fr', 'td' => 'dns_status_msg',
-            ],
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_DNS . '::' . 'created_at', 'title' => 'Created At', 'minmax' => '70px, .6fr', 'td' => 'created_at'],
-        ];
-
         $data = null;
         db(onGetDB: function (TonicsQuery $db) use (&$data) {
             $dnsRecordsTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
-            $data = $db->Select('dns_id, slug_id, dns_domain, CONCAT("http://", dns_domain) _preview_link, dns_status_msg, created_at,
-                CONCAT("/customer/tonics_cloud/domains/", slug_id, "/edit" ) as _edit_link')
+            $data = $db->Select($this->domainService::DefaultDomainSelect(false))
                 ->From("$dnsRecordsTable")
                 ->WhereEquals('fk_customer_id', \session()::getUserID())
                 ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
@@ -90,9 +65,10 @@ class DomainController
 
         view('Apps::TonicsCloud/Views/Domain/index', [
             'DataTable' => [
-                'headers'       => $dataTableHeaders,
+                'headers'       => $this->domainService::DataTableHeaders(),
                 'paginateData'  => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
+                'messageURL'    => route('messageEvent', [TonicsCloudDomainMessage::MessageTypeKey(\session()::getUserID())]),
             ],
             'SiteURL'   => AppConfig::getAppUrl(),
         ]);
@@ -104,7 +80,7 @@ class DomainController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function dataTable ()
+    public function dataTable (): void
     {
         $entityBag = null;
         if ($this->getAbstractDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -112,7 +88,7 @@ class DomainController
                 $entityBag = $decodedBag;
             })) {
             if ($this->deleteMultiple($entityBag)) {
-                response()->onSuccess([], "Records Deletion Enqueued", more: AbstractDataLayer::DataTableEventTypeDelete);
+                response()->onSuccess([], "Deletion Enqueued", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
                 response()->onError(500);
             }
@@ -178,12 +154,13 @@ class DomainController
                     'dns_domain'     => $domain['domain'],
                     'fk_provider_id' => $service->fk_provider_id, 'fk_customer_id' => \session()::getUserID(),
                     'others'         => json_encode(['records' => $records, 'fieldData' => $fields, 'dnsHandler' => $dnsHandler]),
-                ], ['dns_id'], 'dns_id');
+                ], ['dns_id', 'fk_customer_id'], 'dns_id');
 
                 $jobData = [
-                    'domain'  => $domain,
-                    'records' => $records,
-                    'dns_id'  => $domainReturning->dns_id,
+                    'domain'         => $domain,
+                    'records'        => $records,
+                    'dns_id'         => $domainReturning->dns_id,
+                    'fk_customer_id' => $domainReturning->fk_customer_id,
                 ];
 
                 $jobs = [
@@ -297,6 +274,7 @@ class DomainController
                 'delete_records' => $oldRecords,
                 'dns_id'         => $domain->dns_id,
                 'domain_id'      => $domainOthers->domain_id,
+                'fk_customer_id' => $domain->fk_customer_id,
             ];
 
             db(onGetDB: function (TonicsQuery $db) use ($recordsUntouched, $fields, $jobData, $domainFromPost, $slugID) {
@@ -332,7 +310,7 @@ class DomainController
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public function deleteMultiple ($entityBag): true
     {
@@ -346,8 +324,9 @@ class DomainController
             if ($domain) {
                 $domainOthers = json_decode($domain->others);
                 $jobData = [
-                    'dns_id'    => $domain->dns_id,
-                    'domain_id' => $domainOthers->domain_id,
+                    'dns_id'         => $domain->dns_id,
+                    'fk_customer_id' => $domain->fk_customer_id,
+                    'domain_id'      => $domainOthers->domain_id,
                 ];
 
                 $jobs = [
@@ -520,21 +499,7 @@ class DomainController
      */
     public static function getDomain ($domainID, string $col = 'dns_id'): ?\stdclass
     {
-        $domain = null;
-        db(onGetDB: function (TonicsQuery $db) use ($col, $domainID, &$domain) {
-            $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS);
-            $providerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_PROVIDER);
-            $domain = $db->Select('*')->From($table)
-                ->Join($providerTable, "$providerTable.provider_id", "$table.fk_provider_id")
-                ->WhereEquals("fk_customer_id", \session()::getUserID())
-                ->WhereEquals(table()->pick([TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_DNS) => [$col]]), $domainID)
-                ->FetchFirst();
-        });
-
-        if ($domain) {
-            return $domain;
-        }
-        return null;
+        return DomainService::getDomain($domainID, $col);
     }
 
     /**

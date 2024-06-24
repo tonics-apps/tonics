@@ -19,9 +19,11 @@
 namespace App\Apps\TonicsCloud\Jobs\Container\Traits;
 
 use App\Apps\TonicsCloud\Controllers\ContainerController;
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudContainerMessage;
 use App\Apps\TonicsCloud\Library\Incus\Client;
 use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
+use App\Modules\Core\Events\OnAddMessageType;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 trait TonicsJobQueueContainerTrait
@@ -102,6 +104,10 @@ trait TonicsJobQueueContainerTrait
 
             $defaultImageVersion = $this->getDataAsObject()?->image_version;
 
+            if (!is_object($image->images)) {
+                return '';
+            }
+
             # Get the properties of the object
             $properties = get_object_vars($image->images);
             # Get the first property key
@@ -121,6 +127,7 @@ trait TonicsJobQueueContainerTrait
      *
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     public function updateContainerStatus (string $statusMsg): void
     {
@@ -133,6 +140,13 @@ trait TonicsJobQueueContainerTrait
                     ->WhereNull("end_time")
                     ->WhereEquals('container_id', $containerID)
                     ->Exec();
+
+                message()->send(
+                    [
+                        'container_id' => $containerID,
+                        'eventType'    => OnAddMessageType::EVENT_TYPE_UPDATE,
+                    ], TonicsCloudContainerMessage::MessageTypeKey($this->getCustomerID()),
+                );
             });
         }
     }
@@ -163,6 +177,7 @@ trait TonicsJobQueueContainerTrait
     /**
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     public function markContainerHasDestroyed (): void
     {
@@ -175,8 +190,20 @@ trait TonicsJobQueueContainerTrait
                     ->Set('container_status', "Destroyed")
                     ->WhereEquals('container_id', $containerID)
                     ->Exec();
+
+                message()->send(['container_id' => $containerID, 'eventType' => OnAddMessageType::EVENT_TYPE_DELETE], TonicsCloudContainerMessage::MessageTypeKey($this->getCustomerID()));
             }
         });
+    }
+
+    /**
+     * @return mixed
+     * @throws \Throwable
+     */
+    public function getCustomerID (): mixed
+    {
+        $container = $this->getContainer();
+        return $container->fk_customer_id;
     }
 
     public function hasContainerUniqueSlugID (): bool

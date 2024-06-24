@@ -25,10 +25,12 @@ final class QueuePathHelper
     /**
      * @param $serviceInstance
      * @param string $path
+     * @param callable|null $handlerName
+     *
      * @return array
      * @throws \Throwable
      */
-    public static function InstancePath($serviceInstance, string $path, callable $handlerName = null): array
+    public static function InstancePath ($serviceInstance, string $path, callable $handlerName = null): array
     {
         if (is_null($serviceInstance) || !isset($serviceInstance->others)) {
             return DefaultJobQueuePaths::$path();

@@ -21,6 +21,7 @@ namespace App\Apps\TonicsCloud\Services;
 use App\Apps\TonicsCloud\EventHandlers\CloudAutomationsHandler\TonicsContainerDefaultAutomation;
 use App\Apps\TonicsCloud\Events\OnAddCloudAutomationEvent;
 use App\Apps\TonicsCloud\Interfaces\CloudAutomationInterface;
+use App\Apps\TonicsCloud\Jobs\App\CloudJobQueueUpdateApp;
 use App\Apps\TonicsCloud\Jobs\Container\CloudJobQueueContainerHasStopped;
 use App\Apps\TonicsCloud\Jobs\Container\CloudJobQueueContainerIsRunning;
 use App\Apps\TonicsCloud\Jobs\Container\CloudJobQueueDeleteContainer;
@@ -30,12 +31,11 @@ use App\Apps\TonicsCloud\Jobs\Container\CloudJobQueueUpdateContainer;
 use App\Apps\TonicsCloud\Library\Incus\Client;
 use App\Apps\TonicsCloud\Library\Incus\URL;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
-use App\Modules\Core\Library\AbstractService;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInputMethodsInterface;
 use Devsrealm\TonicsValidation\Validation;
 
-class ContainerService extends AbstractService
+class ContainerService extends TonicsCloudAbstractService
 {
     public function __construct () {}
 
@@ -620,15 +620,15 @@ class ContainerService extends AbstractService
             return;
         }
 
-        $return = false;
         db(onGetDB: function (TonicsQuery $db) use ($containerID, $input, &$return) {
             $containerProfiles = array_filter((array)$input->retrieve('container_profiles', []));
             $containerDeviceConfig = $input->retrieve('container_devices_config');
             $containerUniqueSlugID = $input->retrieve('slug_id');
 
             $variables = $this->getContainerVariables($input);
-
+            $propagateChanges = $this->getContainerVariablesAppPropagateChanges($input);
             $containerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINERS);
+
             $db->Update($containerTable)
                 ->Set('container_name', $input->retrieve('container_name'))
                 ->Set('container_description', $input->retrieve('container_description'))
@@ -636,39 +636,37 @@ class ContainerService extends AbstractService
                 ->Set('others', db()->JsonSet('others', '$.container_device_config', db()->JsonCompact(json_encode($containerDeviceConfig))))
                 ->Set('others', db()->JsonSet('others', '$.container_variables', db()->JsonCompact(json_encode($variables))))
                 ->Set('others', db()->JsonSet('others', '$.variables', db()->JsonCompact(json_encode($input->retrieve('variables')))))
+                ->Set('others', db()->JsonSet('others', '$.container_propagateChanges', db()->JsonCompact(json_encode($propagateChanges))))
+                ->Set('others', db()->JsonSet('others', '$.propagateChanges', db()->JsonCompact(json_encode($input->retrieve('propagateChanges')))))
                 ->WhereEquals('container_id', $containerID)
                 ->Exec();
 
-            if (!empty($containerProfiles)) {
-                $jobData = [
-                    'container_id'             => $containerID,
-                    'container_unique_slug_id' => $containerUniqueSlugID,
-                    'container_profiles'       => ContainerService::getProfiles($containerProfiles),
-                    'container_device_config'  => $containerDeviceConfig,
-                    'container_variables'      => $variables,
-                ];
+            $jobData = [
+                'container_id'             => $containerID,
+                'container_unique_slug_id' => $containerUniqueSlugID,
+                'container_profiles'       => ContainerService::getProfiles($containerProfiles),
+                'container_device_config'  => $containerDeviceConfig,
+                'container_variables'      => $variables,
+                'appsToUpdate'             => $this->prepContainerAppsUpdate($containerID, $propagateChanges),
+            ];
 
-                $jobs = [
-                    [
-                        'job'      => new CloudJobQueueUpdateContainer(),
-                        'children' => [
-                            [
-                                'job' => new CloudJobQueueContainerIsRunning(),
+            $jobs = [
+                [
+                    'job'      => new CloudJobQueueUpdateContainer(),
+                    'children' => [
+                        [
+                            'job'      => new CloudJobQueueContainerIsRunning(),
+                            'children' => [
+                                ['job' => container()->get(CloudJobQueueUpdateApp::class)],
                             ],
                         ],
                     ],
-                ];
+                ],
+            ];
 
-                TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
-                $this->setFails(false)->setMessage('Container Updated Enqueued')->setRedirectsRoute(route('tonicsCloud.containers.edit', [$containerID]));
-                $return = true;
-            }
-
+            TonicsCloudActivator::getJobQueue()->enqueueBatch($jobs, $jobData);
+            $this->setFails(false)->setMessage('Container Updated Enqueued')->setRedirectsRoute(route('tonicsCloud.containers.edit', [$containerID]));
         });
-
-        if (!$return) {
-            $this->setFails(false)->setMessage('Container Updated')->setRedirectsRoute(route('tonicsCloud.containers.edit', [$containerID]));
-        }
     }
 
     /**
@@ -698,6 +696,54 @@ class ContainerService extends AbstractService
         }
 
         return $variables;
+    }
+
+    /**
+     * @param TonicsRouterRequestInputMethodsInterface $input
+     *
+     * @return array
+     */
+    public function getContainerVariablesAppPropagateChanges (TonicsRouterRequestInputMethodsInterface $input): array
+    {
+        $changes = [];
+        if ($input->hasValue('propagateChanges')) {
+            $changes = $input->retrieve('propagateChanges');
+            // Remove all whitespace characters
+            $changes = preg_replace('/\s+/', '', $changes);
+            $changes = explode(',', $changes);
+        }
+
+        return $changes;
+    }
+
+    /**
+     * @param $containerID
+     * @param array $appNames
+     *
+     * @return array|null
+     * @throws \Exception
+     */
+    public function prepContainerAppsUpdate ($containerID, array $appNames): ?array
+    {
+        $updates = [];
+        $apps = AppService::getAppsBy($appNames);
+        if (empty($apps)) {
+            return null;
+        }
+
+        foreach ($apps as $app) {
+            $containerApp = AppService::GetContainerApp($app->app_id, $containerID);
+            $appOthers = json_decode($containerApp->others);
+            if (isset($appOthers->fieldData) && helper()->isJSON($appOthers->fieldData)) {
+                $updates[] = [
+                    'container_id'  => $containerApp->fk_container_id,
+                    'app_id'        => $app->app_id,
+                    '_fieldDetails' => $appOthers->fieldData,
+                ];
+            }
+        }
+
+        return $updates;
     }
 
     /**
@@ -845,9 +891,11 @@ class ContainerService extends AbstractService
             $containerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINERS);
             $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
 
+            $otherCol = self::EditLinkColumn() . ', ' . self::AppLinksColumn();
             $container = $db->Select("container_id, $containerTable.slug_id, 
-            $containerTable.container_status, container_name, container_description, 
-            $serviceInstanceTable.service_instance_id, $serviceInstanceTable.others as serviceInstanceOthers, $containerTable.others as containerOthers")
+            $containerTable.container_status, container_name, container_description,  $otherCol,
+            $serviceInstanceTable.service_instance_id, service_instance_name, $serviceInstanceTable.fk_customer_id, 
+            $serviceInstanceTable.others as serviceInstanceOthers, $containerTable.others as containerOthers")
                 ->From($containerTable)
                 ->Join("$serviceInstanceTable", "$serviceInstanceTable.service_instance_id", "$containerTable.service_instance_id")
                 ->when($withCustomerID, function (TonicsQuery $db) use ($serviceInstanceTable) {
@@ -981,5 +1029,57 @@ class ContainerService extends AbstractService
         $this->setFails(true)
             ->setErrors($validator->getErrors())
             ->setRedirectsRoute(route('tonicsCloud.containers.create'));
+    }
+
+    /**
+     * @return string
+     */
+    public static function EditLinkColumn (): string
+    {
+        return "CONCAT('/customer/tonics_cloud/containers/', container_id, '/edit' ) as _edit_link";
+    }
+
+    /**
+     * @return string
+     */
+    public static function AppLinksColumn (): string
+    {
+        return "CONCAT('/customer/tonics_cloud/containers/', container_id, '/apps' ) as _apps_link";
+    }
+
+    /**
+     * @return array[]
+     */
+    public static function DataTableHeaders (): array
+    {
+        return [
+            [
+                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status',
+                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'container_status',
+            ],
+
+            [
+                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status_action',
+                'select_data' => 'Start, ShutDown, Reboot, Delete, Force Delete', 'desc' => 'Signal Command',
+                'title'       => 'Sig', 'minmax' => '40px, .4fr', 'td' => 'container_status_action',
+            ],
+
+            ['type' => '', 'hide' => true, 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'container_id'],
+
+            [
+                'type'   => '',
+                'slug'   => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_name',
+                'title'  => 'Container', 'desc' => 'Name of the Container',
+                'minmax' => '50px, .5fr', 'td' => 'container_name',
+            ],
+
+            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_name', 'title' => 'Instance', 'minmax' => '50px, .5fr', 'td' => 'service_instance_name'],
+
+            [
+                'type'  => '',
+                'slug'  => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_description',
+                'title' => 'Desc', 'desc' => 'Container Description', 'minmax' => '50px, .5fr', 'td' => 'container_description',
+            ],
+        ];
     }
 }

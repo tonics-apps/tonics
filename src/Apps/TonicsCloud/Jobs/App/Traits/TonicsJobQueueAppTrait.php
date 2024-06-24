@@ -18,24 +18,22 @@
 
 namespace App\Apps\TonicsCloud\Jobs\App\Traits;
 
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudAppMessage;
 use App\Apps\TonicsCloud\Interfaces\CloudAppInterface;
+use App\Apps\TonicsCloud\Jobs\Container\Traits\TonicsJobQueueContainerTrait;
+use App\Apps\TonicsCloud\Services\AppService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
+use App\Modules\Core\Events\OnAddMessageType;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 trait TonicsJobQueueAppTrait
 {
-    /**
-     * @return mixed|string
-     */
-    public function getContainerID(): mixed
-    {
-        return $this->getDataAsArray()['container_id'] ?? '';
-    }
+    use TonicsJobQueueContainerTrait;
 
     /**
      * @return mixed|string
      */
-    public function getAppID(): mixed
+    public function getAppID (): mixed
     {
         return $this->getDataAsArray()['app_id'] ?? '';
     }
@@ -45,7 +43,7 @@ trait TonicsJobQueueAppTrait
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function appObject(): CloudAppInterface
+    public function appObject (): CloudAppInterface
     {
         $class = $this->getDataAsArray()['app_class'] ?? '';
         $postFlightData = $this->getDataAsArray()['postFlight'] ?? '';
@@ -58,29 +56,42 @@ trait TonicsJobQueueAppTrait
     /**
      * @param string $statusMsg
      * @param null $callableUpdateMore -- set more data, you'll be passed the TonicsQuery
+     *
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function updateStatusMessage(string $statusMsg, $callableUpdateMore = null): void
+    public function updateStatusMessage (string $statusMsg, $callableUpdateMore = null): void
     {
         $statusMsg = helper()->strLimit($statusMsg, 200);
         db(onGetDB: function (TonicsQuery $db) use ($callableUpdateMore, $statusMsg) {
             $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS_TO_CONTAINERS);
             $db->Update($table)
                 ->Set('app_status_msg', $statusMsg);
-            if ($callableUpdateMore){
+            if ($callableUpdateMore) {
                 $callableUpdateMore($db);
             }
             $db->WhereEquals('fk_container_id', $this->getContainerID())
                 ->WhereEquals('fk_app_id', $this->getAppID())
                 ->Exec();
+
+            $app = AppService::GetContainerApp($this->getAppID(), $this->getContainerID());
+            message()->send(
+                [
+                    'id'           => $app->id,
+                    'container_id' => $this->getContainerID(),
+                    'app_id'       => $this->getAppID(),
+                    'eventType'    => OnAddMessageType::EVENT_TYPE_UPDATE,
+                ], TonicsCloudAppMessage::MessageTypeKey($this->getCustomerID()),
+            );
+
         });
     }
 
     /**
      * @return string
      */
-    public function getIncusContainerName(): string
+    public function getIncusContainerName (): string
     {
         return $this->getDataAsArray()['incus_container_name'] ?? '';
     }

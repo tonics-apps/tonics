@@ -18,8 +18,10 @@
 
 namespace App\Apps\TonicsCloud\Jobs\Instance;
 
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudInstanceMessage;
 use App\Apps\TonicsCloud\Jobs\Instance\Traits\TonicsJobQueueInstanceTrait;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
+use App\Modules\Core\Events\OnAddMessageType;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
@@ -35,7 +37,7 @@ class CloudJobQueueInstanceHasDeleted extends AbstractJobInterface implements Jo
      * @throws \Exception
      * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
         $handler = $this->getHandler();
         $deleted = false;
@@ -48,14 +50,14 @@ class CloudJobQueueInstanceHasDeleted extends AbstractJobInterface implements Jo
                 $deleted = true;
                 $this->deleteServer();
             }
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             if ($exception->getMessage() === 'Not Found' || $exception->getCode() === 404) {
                 $deleted = true;
                 $this->deleteServer();
             }
         }
 
-        if ($deleted === false){
+        if ($deleted === false) {
             # Requeue until we can confirm job has stopped
             $this->setJobStatusAfterJobHandled(Job::JobStatus_Queued);
         }
@@ -66,9 +68,9 @@ class CloudJobQueueInstanceHasDeleted extends AbstractJobInterface implements Jo
      * @return void
      * @throws \Throwable
      */
-    public function deleteServer(): void
+    public function deleteServer (): void
     {
-        db(onGetDB: function (TonicsQuery $db) use (&$deleted){
+        db(onGetDB: function (TonicsQuery $db) use (&$deleted) {
             $db->beginTransaction();
 
             $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
@@ -84,11 +86,20 @@ class CloudJobQueueInstanceHasDeleted extends AbstractJobInterface implements Jo
                 ->WhereEquals('service_instance_id', $this->getServiceInstanceID())
                 ->Exec();
 
+            message()->send(
+                [
+                    'instance_id' => $this->getServiceInstanceID(),
+                    'user_id'     => $this->getCustomerID(),
+                    'eventType'   => OnAddMessageType::EVENT_TYPE_DELETE,
+                ]
+                , TonicsCloudInstanceMessage::MessageTypeKey($this->getCustomerID()),
+            );
+
             $db->commit();
         });
     }
 
-    public function getRetryAfter(): ?int
+    public function getRetryAfter (): ?int
     {
         return Scheduler::everySecond(10);
     }

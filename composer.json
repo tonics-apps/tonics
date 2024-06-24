@@ -32,6 +32,7 @@
     "ext-sysvsem": "*",
     "ext-sysvshm": "*",
     "ext-zlib": "*",
+    "ext-sysvmsg": "*",
     "devsrealm/tonics-tree-system": "*",
     "devsrealm/tonics-template-system": "*",
     "devsrealm/tonics-dom-parser": "*",

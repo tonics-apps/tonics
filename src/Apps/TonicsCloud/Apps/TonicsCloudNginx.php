@@ -491,7 +491,7 @@ EOF,
         $ssl = false;
         foreach ($fields as $field) {
             if (isset($field->main_field_slug) && $field->field_name !== FieldSelectionDropper::FieldSlug) {
-                $fieldOptions = json_decode($field->field_options);
+                $fieldOptions = $this->getFieldOption($field);
                 $value = $fieldOptions->{$field->field_input_name} ?? null;
 
                 if ($value === null) {

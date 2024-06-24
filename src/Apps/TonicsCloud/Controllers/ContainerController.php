@@ -18,6 +18,7 @@
 
 namespace App\Apps\TonicsCloud\Controllers;
 
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudContainerMessage;
 use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
 use App\Modules\Core\Configs\AppConfig;
@@ -83,44 +84,13 @@ class ContainerController
      */
     public function index (): void
     {
-        $dataTableHeaders = [
-            [
-                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status',
-                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'container_status',
-            ],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'container_id'],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES . '::' . 'service_instance_name', 'title' => 'Instance', 'minmax' => '50px, .5fr', 'td' => 'service_instance_name'],
-
-            [
-                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_status_action',
-                'select_data' => 'Start, ShutDown, Reboot, Delete, Force Delete', 'desc' => 'Signal Command',
-                'title'       => 'Sig', 'minmax' => '40px, .4fr', 'td' => 'container_status_action',
-            ],
-
-            [
-                'type'   => '',
-                'slug'   => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_name',
-                'title'  => 'Container', 'desc' => 'Name of the Container',
-                'minmax' => '50px, .5fr', 'td' => 'container_name',
-            ],
-
-            [
-                'type'  => '',
-                'slug'  => TonicsCloudActivator::TONICS_CLOUD_CONTAINERS . '::' . 'container_description',
-                'title' => 'Desc', 'desc' => 'Container Description', 'minmax' => '50px, .5fr', 'td' => 'container_description',
-            ],
-        ];
-
         $data = null;
         db(onGetDB: function (TonicsQuery $db) use (&$data) {
             $containerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINERS);
             $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
 
-            $data = $db->Select("container_id, container_name, container_description, 
-            $serviceInstanceTable.service_instance_id, $serviceInstanceTable.service_instance_name, container_status,
-            CONCAT('/customer/tonics_cloud/containers/', container_id, '/edit' ) as _edit_link, CONCAT('/customer/tonics_cloud/containers/', container_id, '/apps' ) as _apps_link")
+            $data = $db->Select("container_id, container_name, container_description, $serviceInstanceTable.service_instance_id, 
+            $serviceInstanceTable.service_instance_name, container_status, {$this->containerService::EditLinkColumn()}, {$this->containerService::AppLinksColumn()}")
                 ->From($containerTable)
                 ->Join("$serviceInstanceTable", "$serviceInstanceTable.service_instance_id", "$containerTable.service_instance_id")
                 ->WhereNull("$containerTable.end_time")
@@ -133,10 +103,11 @@ class ContainerController
 
         view('Apps::TonicsCloud/Views/Container/index', [
             'DataTable' => [
-                'headers'       => $dataTableHeaders,
+                'headers'       => $this->containerService::DataTableHeaders(),
                 'paginateData'  => $data ?? [],
                 'dataTableType' => 'TONICS_CLOUD',
                 'controller'    => ContainerController::class,
+                'messageURL'    => route('messageEvent', [TonicsCloudContainerMessage::MessageTypeKey(\session()::getUserID())]),
             ],
             'SiteURL'   => AppConfig::getAppUrl(),
         ]);
@@ -155,7 +126,7 @@ class ContainerController
                 $entityBag = $decodedBag;
             })) {
             if ($this->deleteMultiple($entityBag)) {
-                response()->onSuccess([], "Records Deletion Enqueued", more: AbstractDataLayer::DataTableEventTypeDelete);
+                response()->onSuccess([], "Deletion Enqueued", more: AbstractDataLayer::DataTableEventTypeDelete);
             } else {
                 response()->onError(500);
             }
@@ -164,7 +135,7 @@ class ContainerController
                 $entityBag = $decodedBag;
             })) {
             if ($this->updateMultiple($entityBag)) {
-                response()->onSuccess([], "Records Update Enqueued", more: AbstractDataLayer::DataTableEventTypeUpdate);
+                response()->onSuccess([], "Update Enqueued", more: AbstractDataLayer::DataTableEventTypeUpdate);
             } else {
                 response()->onError(500, 'An Error Occurred Updating Records');
             }

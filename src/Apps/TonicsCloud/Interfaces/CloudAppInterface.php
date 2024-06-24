@@ -77,6 +77,20 @@ abstract class CloudAppInterface
     }
 
     /**
+     * @param mixed $field
+     *
+     * @return mixed
+     */
+    public function getFieldOption (mixed $field): mixed
+    {
+        if (is_object($field->field_options)) {
+            return $field->field_options;
+        } else {
+            return json_decode($field->field_options);
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function getFields (): mixed

@@ -20,19 +20,43 @@ namespace App\Apps\TonicsCloud\Jobs\Instance\Traits;
 
 use App\Apps\TonicsCloud\Controllers\InstanceController;
 use App\Apps\TonicsCloud\Controllers\TonicsCloudSettingsController;
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudInstanceMessage;
 use App\Apps\TonicsCloud\Interfaces\CloudServerInterfaceAbstract;
+use App\Apps\TonicsCloud\Services\InstanceService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
+use App\Modules\Core\Events\OnAddMessageType;
 
 trait TonicsJobQueueInstanceTrait
 {
     /**
      * @param string $statusMsg
+     *
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function updateContainerStatus(string $statusMsg): void
+    public function updateContainerStatus (string $statusMsg): void
     {
         InstanceController::updateContainerStatus($statusMsg, $this->getServiceInstanceID());
+
+        message()->send(
+            [
+                'instance_id' => $this->getServiceInstanceID(),
+                'eventType'   => OnAddMessageType::EVENT_TYPE_UPDATE,
+            ]
+            , TonicsCloudInstanceMessage::MessageTypeKey($this->getCustomerID()),
+        );
+
+    }
+
+    /**
+     * @return mixed
+     * @throws \Throwable
+     */
+    public function getCustomerID (): mixed
+    {
+        $instance = $this->getServiceInstance();
+        return $instance->fk_customer_id;
     }
 
     /**
@@ -40,20 +64,21 @@ trait TonicsJobQueueInstanceTrait
      * @throws \Exception
      * @throws \Throwable
      */
-    public function getServiceInstanceID(): mixed
+    public function getServiceInstanceID (): mixed
     {
         $serviceInstanceID = $this->getDataAsArray()['service_instance_id'] ?? '';
 
-        if (!empty($serviceInstanceID)){
+        if (!empty($serviceInstanceID)) {
             return $serviceInstanceID;
         }
 
         $providerInstanceID = $this->getDataAsArray()['provider_instance_id'] ?? '';
-        if (!empty($providerInstanceID)){
+        if (!empty($providerInstanceID)) {
             $settings = [
                 'instance_id' => $providerInstanceID,
             ];
-            $serviceInstanceID = InstanceController::GetServiceInstances($settings)?->service_instance_id;
+            $instance = InstanceService::GetServiceInstances($settings);
+            $serviceInstanceID = $instance?->service_instance_id;
         }
         return $serviceInstanceID;
     }
@@ -62,7 +87,7 @@ trait TonicsJobQueueInstanceTrait
      * @return mixed|null
      * @throws \Throwable
      */
-    public function getServiceInstance(): mixed
+    public function getServiceInstance (): mixed
     {
         $instanceID = $this->getDataAsArray()['service_instance_id'] ?? '';
         $providerInstanceID = $this->getDataAsArray()['provider_instance_id'] ?? '';
@@ -74,11 +99,11 @@ trait TonicsJobQueueInstanceTrait
             $column = 'provider_instance_id';
         }
 
-        if (!empty($instanceID)){
+        if (!empty($instanceID)) {
 
             $settings = [
                 'instance_id' => $instanceID,
-                'column' => $column,
+                'column'      => $column,
             ];
             $serviceInstance = InstanceController::GetServiceInstances($settings);
 
@@ -89,9 +114,10 @@ trait TonicsJobQueueInstanceTrait
 
     /**
      * @param $serviceInstance
+     *
      * @return mixed|object
      */
-    public function getServiceInstanceOthers($serviceInstance): mixed
+    public function getServiceInstanceOthers ($serviceInstance): mixed
     {
         if (isset($serviceInstance->others)) {
             return json_decode($serviceInstance->others);
@@ -103,7 +129,7 @@ trait TonicsJobQueueInstanceTrait
     /**
      * @throws \Throwable
      */
-    public function getHandler(): CloudServerInterfaceAbstract
+    public function getHandler (): CloudServerInterfaceAbstract
     {
         $handlerName = $this->getDataAsArray()['handlerName'] ?? '';
         if (empty($handlerName)) {

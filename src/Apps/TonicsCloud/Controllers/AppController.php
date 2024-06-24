@@ -18,6 +18,7 @@
 
 namespace App\Apps\TonicsCloud\Controllers;
 
+use App\Apps\TonicsCloud\EventHandlers\Messages\TonicsCloudAppMessage;
 use App\Apps\TonicsCloud\Services\AppService;
 use App\Apps\TonicsCloud\Services\ContainerService;
 use App\Apps\TonicsCloud\TonicsCloudActivator;
@@ -56,8 +57,7 @@ class AppController
         db(onGetDB: function (TonicsQuery $db) use ($containerID, &$appsData) {
             $appsContainersTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS_TO_CONTAINERS);
             $appTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS);
-            $appsData = $db->Select("app_id, app_status, app_name, app_status_msg, app_description, 
-            CONCAT('/customer/tonics_cloud/containers/$containerID/apps/', fk_app_id, '/edit' ) as _edit_link")
+            $appsData = $db->Select("$appsContainersTable.id, app_id, app_status, app_name, app_status_msg, app_description, {$this->appService::EditLinkColumn($containerID)}")
                 ->From($appsContainersTable)
                 ->Join("$appTable", "$appTable.app_id", "$appsContainersTable.fk_app_id")
                 ->WhereEquals('fk_container_id', $containerID)
@@ -67,42 +67,13 @@ class AppController
                 ->OrderByDesc(table()->pickTable($appTable, ['created_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
         });
 
-        $dataTableHeaders = [
-            [
-                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_id',
-                'title' => 'ID', 'minmax' => '20px, .2fr', 'td' => 'app_id',
-            ],
-            [
-                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status',
-                'title' => 'Status', 'minmax' => '40px, .4fr', 'td' => 'app_status',
-            ],
-
-            ['type' => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_name', 'title' => 'App', 'minmax' => '50px, .5fr', 'td' => 'app_name'],
-
-            [
-                'type'        => 'select', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_action',
-                'select_data' => 'Start, ShutDown, Reboot', 'desc' => 'Signal Command',
-                'title'       => 'Sig', 'minmax' => '30px, .4fr', 'td' => 'app_status_action',
-            ],
-
-            [
-                'type'  => '', 'slug' => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_status_msg',
-                'title' => 'Msg', 'desc' => 'Last Message', 'minmax' => '50px, .5fr', 'td' => 'app_status_msg',
-            ],
-
-            [
-                'type'  => '',
-                'slug'  => TonicsCloudActivator::TONICS_CLOUD_APPS . '::' . 'app_description',
-                'title' => 'Desc', 'desc' => 'App Description', 'minmax' => '50px, .5fr', 'td' => 'app_description',
-            ],
-        ];
-
         view('Apps::TonicsCloud/Views/App/index', [
             'DataTable'     => [
-                'headers'       => $dataTableHeaders,
+                'headers'       => $this->appService::DataTableHeaders(),
                 'paginateData'  => $appsData ?? [],
                 'containerID'   => $containerID,
                 'dataTableType' => 'TONICS_CLOUD',
+                'messageURL'    => route('messageEvent', [TonicsCloudAppMessage::MessageTypeKey(\session()::getUserID())]),
             ],
             'ContainerData' => ContainerService::getContainer($containerID),
             'SiteURL'       => AppConfig::getAppUrl(),
@@ -132,7 +103,7 @@ class AppController
                 $entityBag = $decodedBag;
             })) {
             if ($this->updateMultiple($entityBag, $containerID)) {
-                response()->onSuccess([], "Records Update Enqueued", more: AbstractDataLayer::DataTableEventTypeUpdate);
+                response()->onSuccess([], "Update Enqueued", more: AbstractDataLayer::DataTableEventTypeUpdate);
             } else {
                 response()->onError(500, 'An Error Occurred Updating Records');
             }
@@ -147,14 +118,7 @@ class AppController
     {
         $app = AppService::getApp($appID);
         $container = ContainerService::getContainer($containerID);
-
-        db(onGetDB: function (TonicsQuery $db) use ($appID, $containerID, &$appRow) {
-            $table = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_APPS_TO_CONTAINERS);
-            $appRow = $db->Select("*")->From($table)
-                ->WhereEquals('fk_container_id', $containerID)
-                ->WhereEquals('fk_app_id', $appID)
-                ->FetchFirst();
-        });
+        $appRow = $this->appService::GetContainerApp($appID, $containerID);
 
         $appRowOthers = json_decode($appRow->others);
         $containerOthers = json_decode($container->containerOthers, true);
@@ -207,6 +171,7 @@ class AppController
      *
      * @return bool
      * @throws \Exception
+     * @throws \Throwable
      */
     public function updateMultiple ($entityBag, $containerID): bool
     {
@@ -218,7 +183,6 @@ class AppController
             $appID = $update[$prefix . 'app_id'] ?? '';
             $currentStatus = $update[$prefix . 'app_status'] ?? '';
             $status = $update[$prefix . 'app_status_action'] ?? '';
-
 
             $app = AppService::getApp($appID);
             if (!empty($app)) {

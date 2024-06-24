@@ -31,28 +31,29 @@ class CloudJobQueueUpdateContainer extends AbstractJobInterface implements JobHa
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(): void
+    public function handle (): void
     {
         $container = $this->getContainer();
         $containerOthers = json_decode($container->containerOthers);
 
         $client = $this->getIncusClient();
         $instanceInfo = $client->instances()->info($this->getContainerUniqueSlugID());
-        if ($client->isSuccess()){
+        if ($client->isSuccess()) {
             $update = [
                 "architecture" => $instanceInfo->metadata->architecture,
-                "description" => $container->container_description,
-                "devices" => $this->getCollatedDevicesOrProfiles($containerOthers),
-                "profiles" => ['default'],
-                "config" => (array)$instanceInfo->metadata->config,
-                "ephemeral" => false
+                "description"  => $container->container_description,
+                "devices"      => $this->getCollatedDevicesOrProfiles($containerOthers),
+                "profiles"     => ['default'],
+                "config"       => (array)$instanceInfo->metadata->config,
+                "ephemeral"    => false,
             ];
 
             $response = $client->instances()->update($this->getContainerUniqueSlugID(), $update);
             $waitResponse = $client->operations()->wait($response->operation, 30);
             $this->updateContainerStatus('Updating Container');
-            if (isset($waitResponse->metadata->status) && strtoupper($waitResponse->metadata->status) === 'SUCCESS'){
+            if (isset($waitResponse->metadata->status) && strtoupper($waitResponse->metadata->status) === 'SUCCESS') {
                 return;
             }
         }

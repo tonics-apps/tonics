@@ -84,7 +84,7 @@ SCRIPT,
         $content = '';
         foreach ($data as $field) {
             if (isset($field->main_field_slug) && isset($field->field_input_name)) {
-                $fieldOptions = json_decode($field->field_options);
+                $fieldOptions = $this->getFieldOption($field);
                 if ($field->field_input_name == 'content') {
                     $content = $fieldOptions->{$field->field_input_name} ?? null;
                     if (is_string($content)) {
