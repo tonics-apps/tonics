@@ -731,15 +731,21 @@ class ContainerService extends TonicsCloudAbstractService
             return null;
         }
 
-        foreach ($apps as $app) {
-            $containerApp = AppService::GetContainerApp($app->app_id, $containerID);
-            $appOthers = json_decode($containerApp->others);
-            if (isset($appOthers->fieldData) && helper()->isJSON($appOthers->fieldData)) {
-                $updates[] = [
-                    'container_id'  => $containerApp->fk_container_id,
-                    'app_id'        => $app->app_id,
-                    '_fieldDetails' => $appOthers->fieldData,
-                ];
+        foreach ($appNames as $appName) {
+            foreach ($apps as $app) {
+                if (strtolower($app->app_name) === strtolower($appName)) {
+                    if (($containerApp = AppService::GetContainerApp($app->app_id, $containerID))) {
+                        $appOthers = json_decode($containerApp->others);
+                        if (isset($appOthers->fieldData) && helper()->isJSON($appOthers->fieldData)) {
+                            $updates[] = [
+                                'container_id'  => $containerApp->fk_container_id,
+                                'app_id'        => $app->app_id,
+                                '_fieldDetails' => $appOthers->fieldData,
+                            ];
+                        }
+                    }
+                    break;
+                }
             }
         }
 
