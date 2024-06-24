@@ -57,7 +57,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
     /**
      * @inheritDoc
      */
-    public function displayName(): string
+    public function displayName (): string
     {
         return 'UpCloud';
     }
@@ -65,7 +65,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
     /**
      * @inheritDoc
      */
-    public function name(): string
+    public function name (): string
     {
         return 'UpCloud';
     }
@@ -75,7 +75,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @throws ApiException
      * @throws Exception
      */
-    public function createInstance(array $data): void
+    public function createInstance (array $data): void
     {
         $this->configureUpCloudClient();
 
@@ -98,12 +98,15 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
         $certs = IncusHelper::generateCertificateEncrypted();
         $sshKey = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::UpCloudSSHPublicKeyForDevMode);
 
-        $serverSshKey = new ServerSshKey();
-        $serverSshKey->setSshKey([$sshKey]);
-
         $loginUser = new ServerLoginUser();
         $loginUser->setUsername('root');
-        $loginUser->setSshKeys($serverSshKey);
+
+        if ($mode === false) {
+            $serverSshKey = new ServerSshKey();
+            $serverSshKey->setSshKey([$sshKey]);
+            $loginUser->setSshKeys($serverSshKey);
+        }
+
         $loginUser->setCreatePassword('no');
 
         $serverUniqueName = 'tc-uc-' . helper()->randString(15);
@@ -127,14 +130,14 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
         $ipAddresses->setIpAddress(
             [
                 (new IpAddress())->setFamily('IPv4'),
-            ]
+            ],
         );
 
         $ipAddressesV6 = new IpAddresses();
         $ipAddressesV6->setIpAddress(
             [
                 (new IpAddress())->setFamily('IPv6'),
-            ]
+            ],
         );
 
         $networkInterfaceIPV4->setType('public')
@@ -174,15 +177,15 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
             }
 
             $db->FastUpdate($serviceInstanceTable, [
-                'provider_instance_id' => $server->getUuid(),
+                'provider_instance_id'  => $server->getUuid(),
                 'service_instance_name' => $instanceName,
-                'others' => json_encode(
+                'others'                => json_encode(
                     [
                         'serverHandlerName' => $this->name(),
-                        'instance' => serialize($server),
-                        'ip' => $IpInfo,
-                        'security' => ['cert' => $certs, 'added' => false]
-                    ])
+                        'instance'          => serialize($server),
+                        'ip'                => $IpInfo,
+                        'security'          => ['cert' => $certs, 'added' => false],
+                    ]),
             ], db()->Q()->WhereEquals('service_instance_id', $serviceInstanceID));
         });
     }
@@ -192,7 +195,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @throws GuzzleException
      * @throws ApiException
      */
-    public function destroyInstance(array $data): void
+    public function destroyInstance (array $data): void
     {
         $this->configureUpCloudClient();
         $serverApi = new ServerApi();
@@ -206,7 +209,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
     /**
      * @throws \Throwable
      */
-    public function resizeInstance(array $data): void
+    public function resizeInstance (array $data): void
     {
         $instanceName = $data['service_instance_name'] ?? '';
         $servicePlan = $data['service_plan'] ?? '';
@@ -252,12 +255,12 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
 
                 # Create a new one with the same property somewhat
                 $db->Q()->Insert($serviceInstanceTable, [
-                        'provider_instance_id' => $providerInstanceID, 'service_instance_name' => $instanceName,
-                        'service_instance_status' => 'Resizing',
-                        'fk_service_id' => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
-                        'fk_customer_id' => $customerID,
-                        'others' => json_encode($serviceInstanceOthers),
-                    ]
+                    'provider_instance_id'    => $providerInstanceID, 'service_instance_name' => $instanceName,
+                    'service_instance_status' => 'Resizing',
+                    'fk_service_id'           => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
+                    'fk_customer_id'          => $customerID,
+                    'others'                  => json_encode($serviceInstanceOthers),
+                ],
                 );
 
                 $db->commit();
@@ -274,7 +277,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @throws GuzzleException
      * @throws Exception
      */
-    public function changeInstanceStatus(array $data): void
+    public function changeInstanceStatus (array $data): void
     {
         $this->configureUpCloudClient();
         $status = $data['service_instance_status'] ?? '';
@@ -308,7 +311,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @inheritDoc
      * @throws \Throwable
      */
-    public function isStatus(array $data, string $statusString): bool
+    public function isStatus (array $data, string $statusString): bool
     {
         $this->configureUpCloudClient();
         $status = '';
@@ -334,7 +337,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @inheritDoc
      * @throws \Throwable
      */
-    public function instanceStatus(array $data): mixed
+    public function instanceStatus (array $data): mixed
     {
         return $this->instance($data)->getServer()->getState();
     }
@@ -343,7 +346,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @inheritDoc
      * @throws \Throwable
      */
-    public function instance(array $data): CreateServerResponse|null
+    public function instance (array $data): CreateServerResponse|null
     {
         $this->configureUpCloudClient();
         $serverApi = new ServerApi();
@@ -358,17 +361,17 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @inheritDoc
      * @throws \Throwable
      */
-    public function info(array $data): array
+    public function info (array $data): array
     {
         $instance = self::GetServiceInstances($data);
-        if (isset($instance->others) && helper()->isJSON($instance->others)){
+        if (isset($instance->others) && helper()->isJSON($instance->others)) {
             $instance->others = json_decode($instance->others);
             /** @var Server $server */
             $server = unserialize($instance->others->instance);
             return [
-                'ipv4'   => isset( $instance->others->ip->ipv4) ? $instance->others->ip->ipv4[array_key_first($instance->others->ip->ipv4)] : null,
-                'ipv6'   => (isset($instance->others->ip->ipv6)) ? $instance->others->ip->ipv6[array_key_first($instance->others->ip->ipv6)]: null,
-                'region' =>  $server->getZone()
+                'ipv4'   => isset($instance->others->ip->ipv4) ? $instance->others->ip->ipv4[array_key_first($instance->others->ip->ipv4)] : null,
+                'ipv6'   => (isset($instance->others->ip->ipv6)) ? $instance->others->ip->ipv6[array_key_first($instance->others->ip->ipv6)] : null,
+                'region' => $server->getZone(),
             ];
         }
         return [];
@@ -377,7 +380,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
     /**
      * @inheritDoc
      */
-    public function instances(array $data): \Generator
+    public function instances (array $data): \Generator
     {
         // TODO: Implement instances() method.
     }
@@ -386,7 +389,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @inheritDoc
      * @throws \Exception
      */
-    public function regions(): array
+    public function regions (): array
     {
         $regions = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::UpCloudRegion);
         if (helper()->isJSON($regions)) {
@@ -402,7 +405,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
      * @inheritDoc
      * @throws Exception
      */
-    public function prices(): array
+    public function prices (): array
     {
         $prices = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::UpCloudPriceList);
         if (helper()->isJSON($prices)) {
@@ -414,28 +417,28 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
         return $prices;
     }
 
+    public static function TerminateInstanceJobQueuePaths (): array
+    {
+        return [
+            [
+                'job'      => new CloudJobQueueStopInstance(),
+                'children' => [
+                    [
+                        'job'      => new CloudJobQueueInstanceHasStopped(),
+                        'children' => DefaultJobQueuePaths::TerminateInstanceJobQueuePaths(),
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @throws Exception
      */
-    private function configureUpCloudClient(): void
+    private function configureUpCloudClient (): void
     {
         // Configure HTTP basic authorization: baseAuth
         Configuration::getDefaultConfiguration()->setUsername(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::UpCloudUserName));
         Configuration::getDefaultConfiguration()->setPassword(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::UpCloudPassword));
-    }
-
-    public static function TerminateInstanceJobQueuePaths(): array
-    {
-        return [
-            [
-                'job' => new CloudJobQueueStopInstance(),
-                'children' => [
-                    [
-                        'job' => new CloudJobQueueInstanceHasStopped(),
-                        'children' => DefaultJobQueuePaths::TerminateInstanceJobQueuePaths()
-                    ]
-                ]
-            ]
-        ];
     }
 }
