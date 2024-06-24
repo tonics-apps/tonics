@@ -697,36 +697,50 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 	},
 	{
 		"fk_field_id": "App TonicsCloud [Container Page]",
-		"field_name": "modular_fieldselectiondropper",
+		"field_name": "modular_rowcolumn",
 		"field_id": 7,
 		"field_parent_id": 5,
-		"field_options": "{\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"1\",\"field_slug_unique_hash\":\"5pzv849ileo0000000000\",\"field_input_name\":\"variable_recipe\",\"fieldName\":\"Variable Recipe\",\"inputName\":\"variable_recipe\",\"fieldSlug\":[\"app-tonicscloud-variable-recipe-common\"],\"defaultFieldSlug\":\"app-tonicscloud-variable-recipe-common\",\"info\":\"The variables are container specific, and are available for apps in the container for auto configuration of the container.\\n<br>\\n<br>\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"473mucjbt9w0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Variables Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [Container Page]",
 		"field_name": "input_text",
 		"field_id": 8,
+		"field_parent_id": 7,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"301f68xgxlw0000000000\",\"field_input_name\":\"variables\",\"fieldName\":\"Variables\",\"inputName\":\"variables\",\"textType\":\"textarea\",\"defaultValue\":\"ACME_EMAIL=enter_acme_email_for_ssl\\nACME_DOMAIN=enter_acme_domain_for_ssl\\nDB_DATABASE=enter_databae_here\\nDB_USER=enter_username_here\\nDB_PASS=enter_password_here\\nDB_HOST=localhost\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:150px;\"}"
+	},
+	{
+		"fk_field_id": "App TonicsCloud [Container Page]",
+		"field_name": "input_text",
+		"field_id": 9,
+		"field_parent_id": 7,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1xhpphr770hs000000000\",\"field_input_name\":\"propagateChanges\",\"fieldName\":\"Propagate Changes\",\"inputName\":\"propagateChanges\",\"textType\":\"textarea\",\"defaultValue\":\"UnZip, Script, ENV\",\"info\":\"Which App in the container the variables change should apply to on update. \\n<br>\\nIt should be separated by comma, and the order is important.\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "App TonicsCloud [Container Page]",
+		"field_name": "input_text",
+		"field_id": 10,
 		"field_parent_id": 5,
 		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"tj066j7ddzk000000000\",\"field_input_name\":\"container_devices_config\",\"fieldName\":\"Devices Config\",\"inputName\":\"container_devices_config\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Container Devices Config in JSON format\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [Container Page]",
 		"field_name": "tonicscloud_cloudautomations",
-		"field_id": 9,
+		"field_id": 11,
 		"field_parent_id": 4,
 		"field_options": "{\"field_slug\":\"tonicscloud_cloudautomations\",\"tonicscloud_cloudautomations_cell\":\"1\",\"field_slug_unique_hash\":\"32i7uaarn1k0000000000\",\"field_input_name\":\"automations\",\"fieldName\":\"Automations\",\"inputName\":\"automations\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [Container Page]",
 		"field_name": "tonicscloud_cloudcontainerimages",
-		"field_id": 10,
+		"field_id": 12,
 		"field_parent_id": null,
 		"field_options": "{\"field_slug\":\"tonicscloud_cloudcontainerimages\",\"field_slug_unique_hash\":\"wodp5b20434000000000\",\"field_input_name\":\"container_image\",\"fieldName\":\"Golden Image\",\"inputName\":\"container_image\"}"
 	},
 	{
 		"fk_field_id": "App TonicsCloud [Container Page]",
 		"field_name": "tonicscloud_cloudinstances",
-		"field_id": 11,
+		"field_id": 13,
 		"field_parent_id": null,
 		"field_options": "{\"field_slug\":\"tonicscloud_cloudinstances\",\"field_slug_unique_hash\":\"5iznpo9se6c000000000\",\"field_input_name\":\"cloud_instance\",\"fieldName\":\"Instance:\",\"inputName\":\"cloud_instance\"}"
 	},
