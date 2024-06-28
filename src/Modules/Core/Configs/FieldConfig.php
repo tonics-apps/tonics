@@ -140,7 +140,7 @@ class FieldConfig
      * @return array
      * @throws \Exception
      */
-    public static function savePluginFieldSettings ($key, array $data): array
+    public static function savePluginFieldSettings ($key, array $data, bool $clearCache = true): array
     {
         db(onGetDB: function ($db) use ($key, $data) {
             $key = 'App_Settings_' . $key;
@@ -157,8 +157,10 @@ class FieldConfig
                 ['value'],
             );
         });
-        AppConfig::updateRestartService();
-        apcu_clear_cache();
+        if ($clearCache) {
+            AppConfig::updateRestartService();
+            apcu_clear_cache();
+        }
         return $data;
     }
 

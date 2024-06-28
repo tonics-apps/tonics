@@ -18,6 +18,7 @@
 
 namespace App\Modules\Core\EventHandlers\Messages\Logs;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Controllers\LogController;
 use App\Modules\Core\EventHandlers\Messages\MessageAbstract;
@@ -71,7 +72,7 @@ abstract class TonicsLogMessageAbstract extends MessageAbstract
     {
         $settings = LogController::getSettingsData();
         $msg = helper()->getLinesFromPosition(static::FilePath(), $lastPosition, $settings);
-        FieldConfig::savePluginFieldSettings(LogController::getCacheKey(), $settings);
+        FieldConfig::savePluginFieldSettings(LogController::getCacheKey(), $settings, false);
         return [
             'type' => $event::EVENT_TYPE_LOGGER,
             'data' => LogController::ansiEscapesToHtml($msg),
@@ -80,6 +81,7 @@ abstract class TonicsLogMessageAbstract extends MessageAbstract
 
     /**
      * @return string
+     * @throws \Exception
      */
     public static function LastPositionKey (): string
     {
@@ -88,6 +90,7 @@ abstract class TonicsLogMessageAbstract extends MessageAbstract
 
     /**
      * @return string
+     * @throws \Exception
      */
     public static function FileSizeKey (): string
     {
@@ -97,9 +100,33 @@ abstract class TonicsLogMessageAbstract extends MessageAbstract
 
     /**
      * @return string
+     * @throws \Exception
      */
     public static function FilePath (): string
     {
-        return '/var/log/tonics.log';
+        return self::TonicsLog();
+    }
+
+    /**
+     * Only for `tonics.log` or `tonics.err` paths please.
+     *
+     * If the tonics log does not exist, it would resolve to using the app url
+     *
+     * @param string $fileName
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public static function TonicsLog (string $fileName = 'tonics.log'): string
+    {
+        $logFileName = "/var/log/$fileName";
+        if (file_exists($logFileName) === false) {
+            $appName = AppConfig::getAppUrl();
+            $appName = parse_url($appName, PHP_URL_HOST);
+            if (!empty($appName)) {
+                $logFileName = "/var/log/$appName.$fileName";
+            }
+        }
+        return $logFileName;
     }
 }

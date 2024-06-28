@@ -22,6 +22,6 @@ class TonicsErr extends TonicsLogMessageAbstract
 {
     public static function FilePath (): string
     {
-        return '/var/log/tonics.err';
+        return self::TonicsLog('tonics.err');
     }
 }
