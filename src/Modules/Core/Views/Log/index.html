@@ -1,0 +1,34 @@
+[[inherit("Modules::Core/Views/Templates/core", "Modules::Core/Views/Templates/extends/field")]]
+
+[[hook_into('Core::in_head_title')Log Index]]
+[[hook_into('Core::in_main_header_title')Log]]
+
+[[hook_into('Core::form_action')/admin/tools/log/update]]
+
+[[hook_into('Core::in_main')
+<style>
+    pre > span {
+        counter-increment: line;
+        display: flex;
+    }
+    pre > span:before {
+        content: counter(line);
+        display: inline-block;
+        border-right: 1px solid #ffffff;
+        padding: 0 .5em;
+        margin-right: .5em;
+        color: #ffffff
+    }
+    hr {
+        border-color: rgba(194, 194, 194, 0.28);
+    }
+</style>
+    <div id="terminal">
+        <pre data-log data-msg="[[v('messageURL')]]" style="background: black;">[[_v('Lines')]]</pre>
+    </div>
+]]
+
+[[hook_into('Core::before_footer')
+    [[_use("script:log-tool")]]
+    [[_use("session:delete-artifacts")]]
+]]

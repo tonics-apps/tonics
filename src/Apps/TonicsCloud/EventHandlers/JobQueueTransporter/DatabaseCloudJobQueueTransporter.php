@@ -37,37 +37,129 @@ class DatabaseCloudJobQueueTransporter extends AbstractJobOnStartUpCLIHandler im
 {
     use ConsoleColor;
 
-    private int $maxForks = 3000;
-    private int $forkCount  = 0;
-    private array $pIDS  = [];
-    private ?TonicsHelpers $helper = null;
-    private ?SharedMemory $sharedMemory = null;
+    protected int          $maxForks     = 3000;
+    private int            $forkCount    = 0;
+    private ?TonicsHelpers $helper       = null;
+    private ?SharedMemory  $sharedMemory = null;
 
     private int $perJob = 5;
 
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnAddCloudJobQueueTransporter */
         $event->addJobTransporter($this);
     }
 
-    public function getTable(): string
+    public function getTable (): string
     {
         return TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_JOBS_QUEUE);
     }
 
 
-    public function name(): string
+    public function name (): string
     {
         return 'Database';
     }
 
+    /**
+     * @param AbstractJobInterface $jobEvent
+     * @param callable|null $beforeEnqueue
+     * @param callable|null $afterEnqueue
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function enqueue (AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
+    {
+        $this->helper = helper();
+        $inserts = $this->getToInsert($jobEvent);
+        if ($beforeEnqueue) {
+            $beforeEnqueue($inserts);
+        }
+
+        $parentEnqueued = null;
+        db(onGetDB: function (TonicsQuery $db) use ($jobEvent, &$parentEnqueued, &$inserts) {
+            $db->beginTransaction();
+
+            $inserts['job_queue_parent_job_id'] = null;
+            $parentEnqueued = $this->insertJobDatabase($jobEvent, $db, $inserts);
+
+            if ($jobEvent->chainsIsNotEmpty()) {
+                /** @var AbstractJobInterface $child */
+                foreach ($this->recursivelyGetChildObject($jobEvent) as $child) {
+                    $this->insertJobDatabase($child, $db, $this->getToInsert($child));
+                }
+            }
+
+            $db->commit();
+        });
+
+        if ($afterEnqueue) {
+            $afterEnqueue($parentEnqueued);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function runJob (): void
+    {
+
+        $this->helper = helper();
+        $this->sharedMemory = new SharedMemory(CloudJobQueueManager::masterKey(), CloudJobQueueManager::semaphoreID(), CloudJobQueueManager::sharedMemorySize());
+
+        $this->run(function () {
+            $jobs = $this->getNextJobs();
+            if (empty($jobs)) {
+                # While the job event is empty, we sleep for a 0.4s, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(400000);
+                return;
+            }
+
+            /**
+             * As long as we haven't reached maxForks and there are jobs to process, it would keep forking,
+             * the good thing about this is that we now have the luxury of handle multiple jobs at a go in batches,
+             * isn't that awesome, and to put an icing on the cake, it is fork process safe.
+             */
+            foreach ($jobs as $job) {
+                $this->helper->fork(
+                    onChild: function () use ($job) {
+                        try {
+                            $this->prepJobHandle($job);
+                            exit(0); # Success if no exception is thrown
+                        } catch (Throwable $exception) {
+                            $this->errorMessage($exception->getMessage());
+                            exit(1); # Failed
+                        }
+                    },
+                    onParent: function ($pid) {
+                        $this->collectPIDSInParent($pid);
+                    },
+                    onForkError: function () {
+                        // handle the fork error here for the parent, this is because when a fork error occurs
+                        // it propagates to the parent which abruptly stop the script execution
+                        $this->errorMessage("Unable to Fork");
+                    },
+                );
+            }
+
+            unset($jobs);
+        }, shutDown: function () {
+            $this->sharedMemory->cleanSharedMemory();
+        });
+    }
+
+    public function isStatic (): bool
+    {
+        return false;
+    }
 
     /**
      * @param AbstractJobInterface $scheduleObject
+     *
      * @return \Generator
      */
-    public function recursivelyGetChildObject(AbstractJobInterface $scheduleObject): \Generator
+    public function recursivelyGetChildObject (AbstractJobInterface $scheduleObject): \Generator
     {
         foreach ($scheduleObject->getChains() as $chain) {
             /**@var AbstractJobInterface $chain */
@@ -82,9 +174,10 @@ class DatabaseCloudJobQueueTransporter extends AbstractJobOnStartUpCLIHandler im
      * @param AbstractJobInterface $jobEvent
      * @param TonicsQuery $db
      * @param array $inserts
+     *
      * @return ?\stdClass
      */
-    public function insertJobDatabase(AbstractJobInterface $jobEvent, TonicsQuery $db, array $inserts): ?\stdClass
+    public function insertJobDatabase (AbstractJobInterface $jobEvent, TonicsQuery $db, array $inserts): ?\stdClass
     {
         $returning = $db->Q()->InsertReturning($this->getTable(), $inserts, TonicsCloudActivator::$TABLES[TonicsCloudActivator::TONICS_CLOUD_JOBS_QUEUE], 'job_queue_id');
         $jobEvent->setData($returning);
@@ -93,139 +186,23 @@ class DatabaseCloudJobQueueTransporter extends AbstractJobOnStartUpCLIHandler im
 
     /**
      * @param AbstractJobInterface $jobEvent
-     * @param callable|null $beforeEnqueue
-     * @param callable|null $afterEnqueue
-     * @return void
-     * @throws \Exception
-     */
-    public function enqueue(AbstractJobInterface $jobEvent, callable $beforeEnqueue = null, callable $afterEnqueue = null): void
-    {
-        $this->helper = helper();
-        $inserts = $this->getToInsert($jobEvent);
-        if ($beforeEnqueue) {
-            $beforeEnqueue($inserts);
-        }
-
-        $parentEnqueued = null;
-        db(onGetDB: function (TonicsQuery $db) use ($jobEvent, &$parentEnqueued, &$inserts){
-            $db->beginTransaction();
-
-            $inserts['job_queue_parent_job_id'] = null;
-            $parentEnqueued = $this->insertJobDatabase($jobEvent, $db, $inserts);
-
-            if ($jobEvent->chainsIsNotEmpty()){
-                /** @var AbstractJobInterface $child */
-                foreach ($this->recursivelyGetChildObject($jobEvent) as $child) {
-                   $this->insertJobDatabase($child, $db, $this->getToInsert($child));
-                }
-            }
-
-            $db->commit();
-        });
-
-        if($afterEnqueue){
-            $afterEnqueue($parentEnqueued);
-        }
-    }
-
-
-    /**
-     * @param AbstractJobInterface $jobEvent
+     *
      * @return array
      */
-    public function getToInsert(AbstractJobInterface $jobEvent): array
+    public function getToInsert (AbstractJobInterface $jobEvent): array
     {
         return [
             'job_queue_parent_job_id' => $jobEvent->getParentObject()?->getData()?->job_queue_id,
-            'job_queue_name' => $jobEvent->getJobName() ?: $this->helper->getObjectShortClassName($jobEvent),
-            'job_queue_status' => $jobEvent->getJobStatus(),
-            'job_queue_priority' => $jobEvent->getPriority(),
-            'job_attempts' => $jobEvent->getMaxAttempts(),
-            'job_queue_data' => json_encode([
-                    'data' => $jobEvent->getData(),
-                    'class' => get_class($jobEvent)]
-            )
+            'job_queue_name'          => $jobEvent->getJobName() ?: $this->helper->getObjectShortClassName($jobEvent),
+            'job_queue_status'        => $jobEvent->getJobStatus(),
+            'job_queue_priority'      => $jobEvent->getPriority(),
+            'job_attempts'            => $jobEvent->getMaxAttempts(),
+            'job_queue_data'          => json_encode([
+                'data'  => $jobEvent->getData(),
+                'class' => get_class($jobEvent),
+            ],
+            ),
         ];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function runJob(): void
-    {
-
-        $this->helper = helper();
-        $this->sharedMemory = new SharedMemory(CloudJobQueueManager::masterKey(), CloudJobQueueManager::semaphoreID(), CloudJobQueueManager::sharedMemorySize());
-
-        $this->run(function (){
-            $jobs = $this->getNextJobs();
-            if (empty($jobs)) {
-                # While the job event is empty, we sleep for a 0.4s, this reduces the CPU usage, thus giving the CPU the chance to do other things
-                usleep(400000);
-                return;
-            }
-
-            /**
-             * As long as we haven't reached maxForks and there are jobs to process, it would keep forking,
-             * the good thing about this is that we now have the luxury of handle multiple jobs at a go in batches,
-             * isn't that awesome, and to put an icing on the cake, it is fork process safe.
-             */
-            foreach ($jobs as $job){
-                $this->helper->fork(
-                    onChild: function () use ($job) {
-                        try {
-                            $this->prepJobHandle($job);
-                            exit(0); # Success if no exception is thrown
-                        } catch (Throwable $exception) {
-                            $this->errorMessage($exception->getMessage());
-                            exit(1); # Failed
-                        }
-                    },
-                    onParent: function ($pid){
-                        $this->pIDS[] = $pid; # store the child pid
-                        // here is where we limit the number of forked process,
-                        // if the maxed forked has been reached, we wait for any child fork to exit,
-                        // once it does, we remove the pid that exited from the list (queue) so another one can come in.
-                        // this effectively limit too many processes from forking
-                        if (count($this->pIDS) >= $this->maxForks) {
-                            $pid = pcntl_waitpid(-1, $status);
-                            unset($this->pIDS[$pid]); // Remove PID that exited from the list
-                            $this->infoMessage("Maximum Number of {$this->maxForks} TonicsCloud JobQueue Forks Reached, Opening For New Fork");
-
-                            $pIDSCountBeforeGC = count($this->pIDS);
-                            $this->infoMessage("Garbage Collecting pIDS To See if We Can Have More Forks At a Go, pIDS Before GC Count is: $pIDSCountBeforeGC");
-
-                            $this->garbageCollectPID();
-
-                            $pIDSCountAfterGC = count($this->pIDS);
-                            $this->infoMessage("pIDS After GC Count is: $pIDSCountAfterGC");
-                        }
-                    },
-                    onForkError: function () {
-                        // handle the fork error here for the parent, this is because when a fork error occurs
-                        // it propagates to the parent which abruptly stop the script execution
-                        $this->errorMessage("Unable to Fork");
-                    }
-                );
-            }
-
-            unset($jobs);
-        }, shutDown: function (){
-            $this->sharedMemory->cleanSharedMemory();
-        });
-    }
-
-    /**
-     * Clean PIDS that are no longer running in $this->pIDS, this way, we can run more processes as long as we haven't reached the maxForks limit
-     * @return void
-     */
-    public function garbageCollectPID(): void
-    {
-        foreach ($this->pIDS as $key => $pID) {
-            if (posix_getpgid($pID) === false){
-                unset($this->pIDS[$key]);
-            }
-        }
     }
 
     /**
@@ -245,11 +222,11 @@ class DatabaseCloudJobQueueTransporter extends AbstractJobOnStartUpCLIHandler im
      *
      * @throws \Exception
      */
-    public function getNextJobs(): mixed
+    public function getNextJobs (): mixed
     {
-        return $this->sharedMemory->ensureAtomicity(function (SharedMemory $sharedMemory){
+        return $this->sharedMemory->ensureAtomicity(function (SharedMemory $sharedMemory) {
             $nextJobs = null;
-            db(onGetDB: function (TonicsQuery $db) use (&$nextJobs){
+            db(onGetDB: function (TonicsQuery $db) use (&$nextJobs) {
                 $table = $this->getTable();
                 $nextJobs = $db->run(<<<SQL
 SELECT j.*
@@ -268,20 +245,20 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
 
                 # Since we have gotten access to semaphore, let's use this opportunity to quickly update the job status
                 # this completely prevents different jobs from stepping on each other toes for concurrent job
-                if (!empty($nextJobs)){
+                if (!empty($nextJobs)) {
 
                     # Job In_Progress
                     $updates = [];
-                    foreach ($nextJobs as $nextJob){
+                    foreach ($nextJobs as $nextJob) {
                         $retryAfter = null;
                         $this->getJobObject($nextJob, function (AbstractJobInterface $jobObject) use ($nextJob, &$retryAfter) {
                             $retryAfter = $this->retryAfter($jobObject);
                         });
 
                         $updates[] = [
-                            'job_queue_id' => $nextJob->job_queue_id, 'job_queue_status' => Job::JobStatus_InProgress,
+                            'job_queue_id'       => $nextJob->job_queue_id, 'job_queue_status' => Job::JobStatus_InProgress,
                             'job_queue_priority' => $nextJob->job_queue_priority, 'job_attempts' => $nextJob->job_attempts,
-                            'job_retry_after' => $retryAfter, 'job_queue_name' => $nextJob->job_queue_name
+                            'job_retry_after'    => $retryAfter, 'job_queue_name' => $nextJob->job_queue_name,
                         ];
                     }
 
@@ -301,10 +278,11 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
 
     /**
      * @param $job
+     *
      * @return void
      * @throws \Exception
      */
-    public function prepJobHandle($job): void
+    public function prepJobHandle ($job): void
     {
 
         # Name CLI Process
@@ -321,7 +299,7 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
             db(onGetDB: function (TonicsQuery $db) use ($attempts, $jobObject, $priority, $job) {
                 // we can't just set the status to success, it would only become processed if the $job handle says so,
                 // this way, we can go back and retry albeit with a low priority, if the priority is 0, we stop trying
-               // $update = ['job_queue_status' => 'processed', 'job_queue_priority' => $priority, 'job_attempts' => $attempts];
+                // $update = ['job_queue_status' => 'processed', 'job_queue_priority' => $priority, 'job_attempts' => $attempts];
                 $update = ['job_queue_status' => $jobObject->getJobStatusAfterJobHandled(), 'job_queue_priority' => $priority, 'job_attempts' => $attempts];
                 $db->Q()->FastUpdate($this->getTable(), $update, db()->WhereEquals('job_queue_id', $job->job_queue_id));
             });
@@ -338,9 +316,10 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
 
     /**
      * @param AbstractJobInterface $jobObject
+     *
      * @return string
      */
-    public function retryAfter(AbstractJobInterface $jobObject): string
+    public function retryAfter (AbstractJobInterface $jobObject): string
     {
         $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $this->helper->date());
         $dateTime->modify('+' . $jobObject->getRetryAfter() . ' seconds');
@@ -350,13 +329,14 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
 
     /**
      * @param $job
+     *
      * @return AbstractJobInterface|JobHandlerInterface|null
      * @throws \Exception
      */
-    public function handleIndividualJob($job): JobHandlerInterface|AbstractJobInterface|null
+    public function handleIndividualJob ($job): JobHandlerInterface|AbstractJobInterface|null
     {
         $jobObj = null;
-        $this->getJobObject($job, onGetJobObject: function ($jobObject) use (&$jobObj){
+        $this->getJobObject($job, onGetJobObject: function ($jobObject) use (&$jobObj) {
             $jobObj = $jobObject;
             $jobObject->handle();
         });
@@ -367,11 +347,12 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
     /**
      * @param $job
      * @param callable|null $onGetJobObject
+     *
      * @return AbstractJobInterface|JobHandlerInterface|null
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function getJobObject($job, callable $onGetJobObject = null): JobHandlerInterface|AbstractJobInterface|null
+    public function getJobObject ($job, callable $onGetJobObject = null): JobHandlerInterface|AbstractJobInterface|null
     {
         $jobData = json_decode($job->job_queue_data);
         if (isset($jobData->class) && is_a($jobData->class, AbstractJobInterface::class, true)) {
@@ -380,7 +361,7 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
             $jobObject->setData($jobData->data ?? []);
             $jobObject->setJobParent($jobData->job_queue_parent_job_id ?? null);
             if ($jobObject instanceof JobHandlerInterface) {
-                if ($onGetJobObject){
+                if ($onGetJobObject) {
                     $onGetJobObject($jobObject);
                 }
                 return $jobObject;
@@ -390,15 +371,10 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
         return null;
     }
 
-    public function isStatic(): bool
-    {
-        return false;
-    }
-
     /**
      * @return int
      */
-    public function getPerJob(): int
+    public function getPerJob (): int
     {
         return $this->perJob;
     }
@@ -406,7 +382,7 @@ SQL, Job::JobStatus_Queued, Job::JobStatus_Processed, $this->getPerJob());
     /**
      * @param int $perJob
      */
-    public function setPerJob(int $perJob): void
+    public function setPerJob (int $perJob): void
     {
         $this->perJob = $perJob;
     }

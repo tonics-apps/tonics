@@ -29,7 +29,7 @@ class InputText implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
@@ -38,46 +38,46 @@ class InputText implements HandlerInterface
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
             handleViewProcessing: function ($data) use ($event) {
                 $this->viewData($event, $data);
-            }
+            },
         );
     }
 
-    public function getTestTypes(): array
+    public function getTestTypes (): array
     {
         return [
-            'Text' => 'text',
-            'Number' => 'number',
+            'Text'      => 'text',
+            'Number'    => 'number',
             'Telephone' => 'tel',
-            'URL' => 'url',
-            'Email' => 'email',
-            'Hidden' => 'hidden',
-            'Password' => 'password',
-            'Search' => 'search',
-            'Textarea' => 'textarea',
+            'URL'       => 'url',
+            'Email'     => 'email',
+            'Hidden'    => 'hidden',
+            'Password'  => 'password',
+            'Search'    => 'search',
+            'Textarea'  => 'textarea',
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Text';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $maxChar =  (isset($data->maxChar)) ? $data->maxChar : '';
-        $placeholder =  (isset($data->placeholder)) ? $data->placeholder : '';
-        $styles =  (isset($data->styles)) ? helper()->htmlSpecChar($data->styles ): '';
-        $textType =  (isset($data->textType)) ? $data->textType : 'text';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Text';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        $maxChar = (isset($data->maxChar)) ? $data->maxChar : '';
+        $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
+        $styles = (isset($data->styles)) ? helper()->htmlSpecChar($data->styles) : '';
+        $textType = (isset($data->textType)) ? $data->textType : 'text';
 
         $textTypes = $this->getTestTypes();
         $textFrag = '';
-        foreach ($textTypes as $textK => $textV){
-            if ($textV === $textType){
+        foreach ($textTypes as $textK => $textV) {
+            if ($textV === $textType) {
                 $textFrag .= <<<HTML
 <option value="$textV" selected>$textK</option>
 HTML;
@@ -94,7 +94,7 @@ HTML;
         $required = (isset($data->required)) ? $data->required : '1';
         $required = $event->booleanOptionSelect($required);
 
-        $defaultValue =  (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
+        $defaultValue = (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -144,7 +144,8 @@ HTML;
     </label>
 </div>
 
-HTML);
+HTML,
+        );
 
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
@@ -191,36 +192,36 @@ FORM;
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Text';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Text';
 
         $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
-        $defaultValue =  $keyValue ?: $defaultValue;
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
+        $defaultValue = $keyValue ?: $defaultValue;
 
-        $maxChar =  (isset($data->maxChar)) ?  'maxlength="' . $data->maxChar . '"' : '';
-        $placeholder =  (isset($data->placeholder)) ? $data->placeholder : '';
-        $styles =  (isset($data->styles)) ? $data->styles : '';
-        $textType =  (isset($data->textType)) ? $data->textType : 'text';
-        $readOnly =  ($data->readOnly == 1) ? 'readonly' : '';
-        $required =  ($data->required == 1) ? 'required' : '';
+        $maxChar = (isset($data->maxChar)) ? 'maxlength="' . $data->maxChar . '"' : '';
+        $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
+        $styles = (isset($data->styles)) ? $data->styles : '';
+        $textType = (isset($data->textType)) ? $data->textType : 'text';
+        $readOnly = ($data->readOnly == 1) ? 'readonly' : '';
+        $required = ($data->required == 1) ? 'required' : '';
         $changeID = helper()->randString(10);
 
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $error = '';
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
-        if (!empty($fieldValidation)){
+        if (!empty($fieldValidation)) {
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
 
-        if (!empty($fieldSanitization)){
+        if (!empty($fieldSanitization)) {
             $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
 
@@ -255,7 +256,7 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewData(OnFieldMetaBox $event, $data)
+    public function viewData (OnFieldMetaBox $event, $data)
     {
         $event->defaultInputViewHandler('InputText', $data);
     }

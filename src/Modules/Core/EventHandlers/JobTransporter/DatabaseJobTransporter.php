@@ -37,9 +37,7 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
 {
     use ConsoleColor;
 
-    private int            $maxForks     = 10;
     private int            $forkCount    = 0;
-    private array          $pIDS         = [];
     private ?TonicsHelpers $helper       = null;
     private ?SharedMemory  $sharedMemory = null;
 
@@ -117,16 +115,7 @@ class DatabaseJobTransporter extends AbstractJobOnStartUpCLIHandler implements J
                     }
                 },
                 onParent: function ($pid) {
-                    $this->pIDS[] = $pid; # store the child pid
-                    // here is where we limit the number of forked process,
-                    // if the maxed forked has been reached, we wait for any child fork to exit,
-                    // once it does, we remove the pid that exited from the list (queue) so another one can come in.
-                    // this effectively limit
-                    if (count($this->pIDS) >= $this->maxForks) {
-                        $pid = pcntl_waitpid(-1, $status);
-                        unset($this->pIDS[$pid]); // Remove PID that exited from the list
-                        $this->infoMessage("Maximum Number of {$this->maxForks} Job Forks Reached, Opening For New Fork");
-                    }
+                    $this->collectPIDSInParent($pid);
                 },
                 onForkError: function () {
                     // handle the fork error here for the parent, this is because when a fork error occurs

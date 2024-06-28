@@ -45,7 +45,6 @@ abstract class TonicsCloudMessageAbstract implements HandlerInterface
             self::MessageTypeKey(session()::getUserID()),
             helper()->getObjectShortClassName($this),
             fn($message) => $this->sendEvent($event, $message),
-            fn() => self::MessageTypeKey(session()::getUserID()),
         );
     }
 

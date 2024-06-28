@@ -131,19 +131,20 @@ h6 {
 
 pre {
     background: #f7f7f7;
-    border-top: 10px solid #000000;
-    max-width: 900px;
+    border-bottom-style: double;
+    border-bottom-width: 2px;
+    border-left-style: double;
+    border-left-width: 2px;
+    border-radius: 4px;
+    border-right-style: double;
+    border-right-width: 2px;
+    border-top: 3px solid #000;
+    margin: 0 auto;
     max-height: 900px;
     overflow: auto;
-    margin: 0 auto;
-    border-radius: 4px;
-    border-left-style: double;
-    border-left-width: 5px;
-    border-right-style: double;
-    border-right-width: 5px;
-    border-bottom-style: double;
-    border-bottom-width: 5px;
     scroll-snap-type: y proximity;
+    white-space: pre-wrap; /* CSS3 browsers  */
+    word-wrap: break-word; /* IE 5.5+ and up */
 }
 
 code {
@@ -261,6 +262,7 @@ p {
     justify-content: center;
     border-top: 1px solid;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .menu-block:last-child {
@@ -494,7 +496,8 @@ fieldset {
 .menu-box {
     display: flex;
     flex-direction: row;
-    padding: 10px clamp(20px, 2vw, 25px);
+    font-size: 10px;
+    padding: 10px clamp(15px, 2vw, 20px);
     align-items: center;
     border-radius: 5px;
     text-decoration: none;
@@ -902,7 +905,6 @@ fieldset {
     align-items: center;
     border-left: 1px solid rgb(0 0 0 / 49%);
     border-top: 1px solid #c9d7dd;
-    word-break: break-word;
 }
 
 .dataTable tr:nth-child(even) td {

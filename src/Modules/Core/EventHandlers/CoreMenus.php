@@ -49,6 +49,8 @@ class CoreMenus implements HandlerInterface
 
             $tree->add(AdminMenuHelper::TOOL, ['mt_name' => 'Tools', 'mt_url_slug' => '#0', 'mt_icon' => helper()->getIcon('tools', 'icon:admin')]);
 
+            $tree->add(AdminMenuHelper::APPEARANCE, ['mt_name' => 'Appearance', 'mt_url_slug' => '#0', 'mt_icon' => helper()->getIcon('theme', 'icon:admin')]);
+
             $tree->add(AdminMenuHelper::APPS, ['mt_name' => 'Apps', 'mt_url_slug' => route('apps.index'), 'mt_icon' => helper()->getIcon('plugin', 'icon:admin')]);
 
             $tree->add(AdminMenuHelper::APP_FORCE_UPDATE_CHECK, ['mt_name' => 'Force Update Check', 'mt_url_slug' => route('apps.discover_updates'), 'mt_icon' => helper()->getIcon('more-horizontal', 'icon:admin')]);
@@ -71,6 +73,8 @@ class CoreMenus implements HandlerInterface
             $tree->add(AdminMenuHelper::JOBS, ['mt_name' => 'Jobs', 'mt_url_slug' => route('jobs.jobsIndex'), 'mt_icon' => helper()->getIcon('jobs', 'icon:admin')]);
 
             $tree->add(AdminMenuHelper::JOB_SCHEDULER, ['mt_name' => 'Jobs Scheduler', 'mt_url_slug' => route('jobs.jobsSchedulerIndex'), 'mt_icon' => helper()->getIcon('schedule', 'icon:admin')]);
+
+            $tree->add(AdminMenuHelper::LOGS, ['mt_name' => 'Logs', 'mt_url_slug' => route('tools.log'), 'mt_icon' => helper()->getIcon('note', 'icon:admin')]);
 
         }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_CORE])]);
 

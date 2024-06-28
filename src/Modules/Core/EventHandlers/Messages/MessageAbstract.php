@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -16,26 +16,20 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\RequestInterceptor;
+namespace App\Modules\Core\EventHandlers\Messages;
 
-use App\Modules\Core\Data\UserData;
-use App\Modules\Core\Library\Authentication\Roles;
-use App\Modules\Core\Library\SimpleState;
-use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
-use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
+use App\Modules\Core\Library\MessageQueue;
+use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class CoreAccess implements TonicsRouterRequestInterceptorInterface
+abstract class MessageAbstract implements HandlerInterface
 {
-
     /**
-     * @inheritDoc
-     * @throws \Exception
-     * @throws \Throwable
+     * @param string $uniqueID
+     *
+     * @return int
      */
-    public function handle (OnRequestProcess $request): void
+    public static function MessageTypeKey (string $uniqueID = ''): int
     {
-        if (UserData::canAccess(Roles::CAN_ACCESS_CORE) === false) {
-            SimpleState::displayUnauthorizedErrorMessage();
-        }
+        return MessageQueue::GetType(static::class . $uniqueID);
     }
 }

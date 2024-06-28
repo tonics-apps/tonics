@@ -24,15 +24,18 @@ final class AdminMenuHelper
 
     const TOOL = self::DASHBOARD . '/TOOLS';
 
-    const WIDGET      = self::TOOL . '/WIDGET';
+    const APPEARANCE = self::TOOL . '/APPEARANCE';
+    const LOGS       = self::TOOL . '/LOGS';
+    const WIDGET     = self::APPEARANCE . '/WIDGET';
+
     const WIDGET_NEW  = self::WIDGET . '/NEW_WIDGET';
     const WIDGET_EDIT = self::WIDGET . '/EDIT_WIDGET';
 
-    const MENU      = self::TOOL . '/MENU';
+    const MENU      = self::APPEARANCE . '/MENU';
     const MENU_NEW  = self::MENU . '/NEW_MENU';
     const MENU_EDIT = self::MENU . '/EDIT_MENU';
 
-    const FIELD            = self::TOOL . '/FIELD';
+    const FIELD            = self::APPEARANCE . '/FIELD';
     const FIELD_NEW        = self::FIELD . '/NEW_FIELD';
     const FIELD_EDIT       = self::FIELD . '/EDIT_FIELD';
     const FIELD_ITEMS_EDIT = self::FIELD . '/EDIT_FIELD_ITEMS';
@@ -64,7 +67,7 @@ final class AdminMenuHelper
     const TRACK_CATEGORY      = self::TRACK . '/TRACK_CATEGORY';
     const TRACK_CATEGORY_NEW  = self::TRACK_CATEGORY . '/NEW_TRACK_CATEGORY';
     const TRACK_CATEGORY_EDIT = self::TRACK_CATEGORY . '/EDIT_TRACK_CATEGORY';
-    
+
     const GENRE      = self::MEDIA . '/GENRE';
     const GENRE_NEW  = self::GENRE . '/NEW_GENRE';
     const GENRE_EDIT = self::GENRE . '/EDIT_GENRE';

@@ -84,7 +84,7 @@
     font-display: swap;
 }
 
-h1, h2, h3, h4, h5, h6, p, .main-header, .entry-content>ul>li, .entry-content>ol>li {
+h1, h2, h3, h4, h5, h6, p, .main-header, .entry-content > ul > li, .entry-content > ol > li {
     /* font-size: clamp(var(--font-min), var(--font-pref-val), var(--font-max)); */
     font-size: max(var(--font-min), min(var(--font-pref-val), var(--font-max)));
     margin: auto;
@@ -462,12 +462,12 @@ fieldset {
 
 .flex-card {
     /*IF VIEWPORT IS GREATER THAN 1200PX, USE 6EM, IF IT IS LOWER THAN 1200 USE 2EM*/
-    padding: 0 clamp( (2em), (100vw - 1200px )*1000, 6em);
+    padding: 0 clamp((2em), (100vw - 1200px) * 1000, 6em);
 }
 
 .search-card {
     /*IF VIEWPORT IS GREATER THAN 1200PX, USE 6EM, IF IT IS LOWER THAN 1200 USE 2EM*/
-    padding: 0 clamp( (.5em), (100vw - 1200px )*1000, 6em);
+    padding: 0 clamp((.5em), (100vw - 1200px) * 1000, 6em);
 }
 
 .draggable-start {
@@ -511,7 +511,8 @@ fieldset {
 .menu-box {
     display: flex;
     flex-direction: row;
-    padding: 10px clamp(20px, 2vw, 25px);
+    font-size: 10px;
+    padding: 10px clamp(15px, 2vw, 20px);
     align-items: center;
     border-radius: 5px;
     text-decoration: none;
@@ -888,11 +889,11 @@ b, strong {
     font-weight: bold;
 }
 
-cite,dfn,em,i {
+cite, dfn, em, i {
     font-style: italic
 }
 
-blockquote,q {
+blockquote, q {
     quotes: "" ""
 }
 
@@ -902,7 +903,7 @@ blockquote {
     margin: 0
 }
 
-.entry-content>blockquote {
+.entry-content > blockquote {
     padding-left: 1em;
     margin-left: 1.5rem;
 }
@@ -939,7 +940,7 @@ article.entry-content {
     padding-left: 25px;
 }
 
-.entry-content>*, .entry-summary>*, .page-content>* {
+.entry-content > *, .entry-summary > *, .page-content > * {
     padding-right: clamp(2rem, 2.5vw, 4rem);
     padding-left: clamp(2rem, 2.5vw, 4rem);
 }
@@ -948,16 +949,16 @@ article.entry-content {
     margin-bottom: 2em;
 }
 
-.entry-content>li>ol,.entry-content>li>ul {
+.entry-content > li > ol, .entry-content > li > ul {
     margin-bottom: 0;
     margin-left: 1.5em
 }
 
-.entry-content>ol>li, .entry-content>ul>li {
+.entry-content > ol > li, .entry-content > ul > li {
     margin-top: clamp(0.3rem, 0.8vw, 1rem);
 }
 
-.entry-content>ol, .entry-content>ul {
+.entry-content > ol, .entry-content > ul {
     margin-left: clamp(1rem, 5.5vw, 3rem);
 }
 
@@ -1020,7 +1021,7 @@ article.entry-content {
      HOME PAGE
 ************************/
 
-.more-owl >*+* {
+.more-owl > * + * {
     margin-top: 4rem;
 }
 
@@ -1060,7 +1061,7 @@ article.entry-content {
         "category-desc"
         "category-article"
         "category-sidebar";
-    grid-template-columns: repeat(auto-fit,minmax(min(100%,400px),1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
 }
 
 .tonics-category-no-sidebar {
@@ -1070,7 +1071,7 @@ article.entry-content {
         "category-desc"
         "category-article"
         "category-sidebar";
-    grid-template-columns: repeat(auto-fit,minmax(min(100%,400px),1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
 }
 
 .category-title {
@@ -1088,7 +1089,7 @@ article.entry-content {
 
 .category-sidebar {
     border-left: solid #000;
-    border-width: clamp(0.2rem,2vw,0.1rem);
+    border-width: clamp(0.2rem, 2vw, 0.1rem);
     padding-left: 25px;
     grid-area: category-sidebar;
 }
@@ -1107,7 +1108,7 @@ article.entry-content {
     }
 
     .tonics-category {
-        grid-template-columns: repeat(4,1fr);
+        grid-template-columns: repeat(4, 1fr);
         grid-template-areas:
                 "category-title category-title category-title category-sidebar"
                 "category-desc category-desc category-desc category-sidebar"
@@ -1115,7 +1116,7 @@ article.entry-content {
     }
 
     .tonics-category-no-sidebar {
-        grid-template-columns: repeat(4,1fr);
+        grid-template-columns: repeat(4, 1fr);
         grid-template-areas:
                 "category-title category-title category-title category-sidebar"
                 "category-desc category-desc category-desc category-sidebar"
@@ -1164,17 +1165,17 @@ FOR TONICS TRACK FOLDER
     grid-area: tt-content;
 }
 
-.tonics-track-content>* {
-    padding-left: clamp(2rem,2.5vw,4rem);
-    padding-right: clamp(2rem,2.5vw,4rem);
+.tonics-track-content > * {
+    padding-left: clamp(2rem, 2.5vw, 4rem);
+    padding-right: clamp(2rem, 2.5vw, 4rem);
 }
 
-.tonics-track-content>ol, .tonics-track-content>ul {
-    margin-left: clamp(1rem,5.5vw,3rem);
+.tonics-track-content > ol, .tonics-track-content > ul {
+    margin-left: clamp(1rem, 5.5vw, 3rem);
 }
 
-.tonics-track-content>ol>li, .tonics-track-content>ul>li, .main-header, h1, h2, h3, h4, h5, h6, p {
-    font-size: max(var(--font-min),min(var(--font-pref-val),var(--font-max)));
+.tonics-track-content > ol > li, .tonics-track-content > ul > li, .main-header, h1, h2, h3, h4, h5, h6, p {
+    font-size: max(var(--font-min), min(var(--font-pref-val), var(--font-max)));
     font-weight: 400;
     -webkit-hyphens: manual;
     -ms-hyphens: manual;
@@ -1199,9 +1200,9 @@ FOR TONICS TRACK FOLDER
     }
 }
 
- /*===========================
- TRACK DOWNLOAD LIST SECTION
- =============================*/
+/*===========================
+TRACK DOWNLOAD LIST SECTION
+=============================*/
 
 .track-download-buy-container .download-li {
     display: flex;
