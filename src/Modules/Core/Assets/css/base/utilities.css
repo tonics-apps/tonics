@@ -581,7 +581,7 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
 }
 
 .image\:avatar {
-    width: 70px;
+    width: 60px;
 }
 
 .image\:featured-image {

@@ -6438,23 +6438,23 @@ if (inputTitle){
  */
 
 let getAllTonicsFieldTabContainer = document.querySelectorAll('.tonicsFieldTabsContainer');
-if (getAllTonicsFieldTabContainer){
+if (getAllTonicsFieldTabContainer) {
     getAllTonicsFieldTabContainer.forEach(eachTabContainer => {
-        if (eachTabContainer.id){
+        if (eachTabContainer.id) {
             let parentID = eachTabContainer.id;
             // get all items from session and check it...
             let tonicsTabFieldIDLocalStorage = localStorage.getItem(`tonicsTabFieldID_${parentID}`);
-            if (tonicsTabFieldIDLocalStorage){
-                let tabID = eachTabContainer.querySelector(`#${tonicsTabFieldIDLocalStorage}`);
-                if (tabID?.tagName.toString() === 'INPUT' && tabID?.parentElement === eachTabContainer){
+            if (tonicsTabFieldIDLocalStorage) {
+                let tabID = eachTabContainer.querySelector(`input[data-unique="${tonicsTabFieldIDLocalStorage}"]`);
+                if (tabID?.tagName.toString() === 'INPUT' && tabID?.parentElement === eachTabContainer) {
                     tabID.checked = true;
                 }
             }
 
             eachTabContainer.addEventListener('click', (e) => {
                 let el = e.target;
-                if (el?.tagName.toString() === 'INPUT' && el?.parentElement === eachTabContainer){
-                    let inputID = el.id;
+                if (el?.tagName.toString() === 'INPUT' && el?.parentElement === eachTabContainer) {
+                    let inputID = el.dataset?.unique;
                     // set local storage item
                     localStorage.setItem(`tonicsTabFieldID_${parentID}`, inputID);
                 }

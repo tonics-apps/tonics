@@ -4168,7 +4168,7 @@ class DataTable {
             eventSource.close(); // Close the current connection
             setTimeout(() => {
                 this.createEventSource(url); // Retry connection after a custom delay
-            }, retryOnCloseTime); // Retry after 1 second
+            }, retryOnCloseTime); // Retry after 2 second
         });
     }
 
