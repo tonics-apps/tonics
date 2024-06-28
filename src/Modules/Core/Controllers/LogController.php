@@ -55,7 +55,12 @@ class LogController
                 'log_path' => $logPath, // not required, just for saving
             ];
 
-            $lines = helper()->getLastLines($logPath, $options);
+            try {
+                $lines = helper()->getLastLines($logPath, $options);
+            } catch (\Exception $exception) {
+                session()->flash([$exception->getMessage()], []);
+                $lines = '';
+            }
             FieldConfig::savePluginFieldSettings(self::getCacheKey(), $options);
         }
 
@@ -291,6 +296,7 @@ class LogController
 
     /**
      * @return string[]
+     * @throws \Exception
      */
     public static function WhiteListLogFiles (): array
     {
