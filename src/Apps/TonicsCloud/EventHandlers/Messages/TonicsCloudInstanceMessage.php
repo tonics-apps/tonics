@@ -28,10 +28,10 @@ class TonicsCloudInstanceMessage extends TonicsCloudMessageAbstract
      * @param OnAddMessageType $event
      * @param $message
      *
-     * @return mixed
+     * @return array|false
      * @throws \Throwable
      */
-    public function sendEvent (OnAddMessageType $event, $message): mixed
+    public function sendEvent (OnAddMessageType $event, $message): array|false
     {
         if (!empty($message->instance_id) && !empty($message->eventType)) {
 
