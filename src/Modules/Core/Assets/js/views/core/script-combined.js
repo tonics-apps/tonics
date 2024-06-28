@@ -6079,8 +6079,9 @@ if (getAllTonicsFieldTabContainer) {
     getAllTonicsFieldTabContainer.forEach(eachTabContainer => {
         if (eachTabContainer.id) {
             let parentID = eachTabContainer.id;
+            let pathName = window.location.pathname;
             // get all items from session and check it...
-            let tonicsTabFieldIDLocalStorage = localStorage.getItem(`tonicsTabFieldID_${parentID}`);
+            let tonicsTabFieldIDLocalStorage = localStorage.getItem(`tonicsTabFieldID_${parentID}_${pathName}`);
             if (tonicsTabFieldIDLocalStorage) {
                 let tabID = eachTabContainer.querySelector(`input[data-unique="${tonicsTabFieldIDLocalStorage}"]`);
                 if (tabID?.tagName.toString() === 'INPUT' && tabID?.parentElement === eachTabContainer) {
@@ -6093,7 +6094,7 @@ if (getAllTonicsFieldTabContainer) {
                 if (el?.tagName.toString() === 'INPUT' && el?.parentElement === eachTabContainer) {
                     let inputID = el.dataset?.unique;
                     // set local storage item
-                    localStorage.setItem(`tonicsTabFieldID_${parentID}`, inputID);
+                    localStorage.setItem(`tonicsTabFieldID_${parentID}_${pathName}`, inputID);
                 }
             });
         }

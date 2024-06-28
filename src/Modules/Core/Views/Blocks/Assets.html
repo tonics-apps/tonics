@@ -200,9 +200,31 @@
         'MODULE::/Core/Assets/js/tools/Widget/WidgetDate.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetTitleSlug.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetSelectCategory.js',
+        'MODULE::/Core/Assets/js/tools/RememberTonicsTabSectionID.js',
     )]]
 <script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/category/script-combined.min.js"></script>
 ]]
+
+[[b('script:log-tool')
+    [[combine('MODULE::/Core/Assets/js/views/log/script-combined.js',
+        'MODULE::/Core/Assets/js/modules/Event/EventDispatcher.js',
+        'MODULE::/Core/Assets/js/modules/Event/EventQueue.js',
+        'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
+        'MODULE::/Core/Assets/js/tools/CoreMinimalEvents.js',
+        'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
+
+        'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
+        'MODULE::/Core/Assets/js/modules/Element/Query.js',
+        'MODULE::/Core/Assets/js/modules/Others/Helpers.js',
+
+        'MODULE::/Core/Assets/js/views/log/main.js',
+        'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
+        'MODULE::/Core/Assets/js/tools/ToastMessage.js',
+        'MODULE::/Core/Assets/js/tools/RememberTonicsTabSectionID.js',
+    )]]
+    <script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/log/script-combined.min.js"></script>
+]]
+
 
 [[b('script:post-index')
     [[combine('MODULE::/Core/Assets/js/views/post/index/script-combined.js',
