@@ -263,10 +263,11 @@ HTML;
                                 $checked = 'checked';
                             } else $checked = '';
                             $fieldOptionName = $child->field_options->fieldName;
+                            $fieldUniqueHash = $fieldOptionName . '_' . $child->field_options->field_slug_unique_hash;
                             $fieldOptionNameID = helper()->slug($fieldOptionName, '_') . '_' . $fieldNameTabUnique;
                             $frag .= <<<HTML
-<input tabindex="0" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
-<label tabindex="0" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
+<input tabindex="0" data-unique="$fieldUniqueHash" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
+<label tabindex="0" data-unique="$fieldUniqueHash" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
 HTML;
                             if ($child->field_name === RowColumnRepeater::FieldSlug) {
                                 $frag .= '<ul>' . $event->getUsersForm($child->field_name, $child->field_options ?? null) . '</ul>';

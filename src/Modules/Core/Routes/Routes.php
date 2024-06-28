@@ -26,11 +26,11 @@ use App\Modules\Core\Controllers\Auth\ForgotPasswordController;
 use App\Modules\Core\Controllers\Auth\LoginController;
 use App\Modules\Core\Controllers\CoreSettingsController;
 use App\Modules\Core\Controllers\DashboardController;
-use App\Modules\Core\Controllers\ImportExport\ImportController;
 use App\Modules\Core\Controllers\Installer;
 use App\Modules\Core\Controllers\JobManagerController;
 use App\Modules\Core\Controllers\License\LicenseController;
 use App\Modules\Core\Controllers\License\LicenseControllerItems;
+use App\Modules\Core\Controllers\LogController;
 use App\Modules\Core\Controllers\MessageController;
 use App\Modules\Core\Controllers\OEmbedController;
 use App\Modules\Core\RequestInterceptor\AppAccess;
@@ -147,15 +147,6 @@ trait Routes
 
             $route->group('', function (Route $route) {
 
-
-                $route->group('/imports', function (Route $route) {
-                    $route->get('', [ImportController::class, 'index'], alias: 'index');
-                    $route->match(['get', 'post'], 'wordpress', [ImportController::class, 'wordpress'], alias: 'wordpress');
-                    $route->match(['get'], 'wordpress-events', [ImportController::class, 'wordpressEvent'], alias: 'wordpressEvent');
-                    $route->match(['get', 'post'], 'beatstars', [ImportController::class, 'beatstars'], alias: 'beatstars');
-                    $route->match(['get', 'post'], 'airbit', [ImportController::class, 'airbit'], alias: 'airbit');
-                }, alias: 'imports');
-
                 $route->group('/job_manager', function (Route $route) {
 
                     $route->group('jobs', function (Route $route) {
@@ -170,6 +161,10 @@ trait Routes
 
                 }, alias: 'jobs');
 
+                $route->group('log', function (Route $route) {
+                    $route->get('', [LogController::class, 'view'], alias: 'tools.log');
+                    $route->post('update', [LogController::class, 'update']);
+                });
 
             }, [CoreAccess::class]);
 

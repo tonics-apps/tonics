@@ -24,13 +24,13 @@ use App\Modules\Core\Events\OnAddMessageType;
 class TonicsCloudAppMessage extends TonicsCloudMessageAbstract
 {
     /**
-     * @param object $event
+     * @param OnAddMessageType $event
      * @param $message
      *
-     * @return mixed
+     * @return array|false
      * @throws \Throwable
      */
-    public function sendEvent (object $event, $message): mixed
+    public function sendEvent (OnAddMessageType $event, $message): array|false
     {
         if (!empty($message->app_id) &&
             !empty($message->id) &&

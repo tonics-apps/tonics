@@ -184,7 +184,7 @@ class FieldConfig
             }
         });
 
-        if (isset($updates->value) && !empty($updates->value)) {
+        if (!empty($updates->value)) {
             return json_decode($updates->value, true);
         }
         return [];
@@ -1348,6 +1348,27 @@ class FieldConfig
 		"field_id": 3,
 		"field_parent_id": 1,
 		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"2\",\"field_slug_unique_hash\":\"3f64ul4us160000000000\",\"field_input_name\":\"\",\"fieldName\":\"Import JSON Text\",\"inputName\":\"track_page_import_text\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Paste JSON text\",\"readOnly\":\"0\",\"required\":\"0\"}"
+	},
+	{
+		"fk_field_id": "Log Page",
+		"field_name": "modular_rowcolumn",
+		"field_id": 1,
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"56kr657ik5s0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Log Settings\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"1\",\"cell\":\"on\"}"
+	},
+	{
+		"fk_field_id": "Log Page",
+		"field_name": "input_text",
+		"field_id": 2,
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1hrf1z96ta2o000000000\",\"field_input_name\":\"log_path\",\"fieldName\":\"Path\",\"inputName\":\"log_path\",\"textType\":\"text\",\"defaultValue\":\"/var/log/tonics.log\",\"info\":\"<pre style=\\\"all: revert;\\\">\\nThe log path, currently support the followings:\\n\\n/var/log/tonics.err\\n/var/log/tonics.log\\n/var/log/nginx/access.log\\n/var/log/nginx/error.log\\n\\n</pre>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Log Path\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Log Page",
+		"field_name": "input_text",
+		"field_id": 3,
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2q9bb0fqhmw0000000000\",\"field_input_name\":\"log_lines\",\"fieldName\":\"Number of Lines\",\"inputName\":\"log_lines\",\"textType\":\"number\",\"defaultValue\":\"500\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Number of Last Lines To Read\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
 	}
 ]
 JSON;

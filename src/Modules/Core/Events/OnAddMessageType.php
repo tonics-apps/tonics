@@ -24,6 +24,7 @@ class OnAddMessageType implements EventInterface
 {
     const EVENT_TYPE_UPDATE = 'UPDATE';
     const EVENT_TYPE_DELETE = 'DELETE';
+    const EVENT_TYPE_LOGGER = 'LOGGER';
 
     private array $messageTypes = [];
 
@@ -36,16 +37,16 @@ class OnAddMessageType implements EventInterface
      * @param int $msgTypeKey
      * @param string $msgTypeName
      * @param callable $callBack
-     * @param callable $typeKeyCallBack
+     * @param callable|null $onBeforeProcessing
      *
      * @return $this
      */
-    public function addMessageType (int $msgTypeKey, string $msgTypeName, callable $callBack, callable $typeKeyCallBack): static
+    public function addMessageType (int $msgTypeKey, string $msgTypeName, callable $callBack, callable $onBeforeProcessing = null): static
     {
         $this->messageTypes[$msgTypeKey] = [
-            'fn'     => $callBack,
-            'fn_key' => $typeKeyCallBack,
-            'type'   => $msgTypeName,
+            'fn'   => $callBack,
+            'b_fn' => $onBeforeProcessing,
+            'type' => $msgTypeName,
         ];
         return $this;
     }
@@ -72,6 +73,11 @@ class OnAddMessageType implements EventInterface
      */
     public function processMessages (callable $callBack, int $msgType = 0): void
     {
+        if ($this->exist($msgType) && !empty($this->messageTypes[$msgType]['b_fn'])) {
+            $b_fn = $this->messageTypes[$msgType]['b_fn'];
+            $b_fn();
+        }
+
         message()->receive($msgType, function ($key, $message) use ($callBack) {
 
             if ($this->exist($key)) {
