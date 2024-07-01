@@ -60,6 +60,9 @@ final class Roles
     # THEMES and PLUGIN...
     const CAN_ACCESS_FIELD = 'CAN_ACCESS_FIELD';
 
+    # FIELD RENDERING
+    const CAN_RENDER_FIELDS = 'CAN_RENDER_FIELDS';
+
     # FIELD
     const CAN_UPDATE_MODULES = 'CAN_UPDATE_MODULES';
 
@@ -107,6 +110,9 @@ final class Roles
         return null;
     }
 
+    /**
+     * @return string[]
+     */
     public static function ROLE_ADMIN (): array
     {
         return [
@@ -123,6 +129,7 @@ final class Roles
             self::CAN_ACCESS_TRACK,
             self::CAN_ACCESS_WIDGET,
             self::CAN_ACCESS_FIELD,
+            self::CAN_RENDER_FIELDS,
             self::CAN_ACCESS_APPS,
             self::CAN_ACCESS_MODULE,
             self::CAN_UPDATE_MODULES,
@@ -130,6 +137,9 @@ final class Roles
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public static function ROLE_GUEST (): array
     {
         return [
@@ -138,11 +148,15 @@ final class Roles
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public static function ROLE_CUSTOMER (): array
     {
         return [
             self::CAN_READ,
             self::CAN_ACCESS_CUSTOMER,
+            self::CAN_RENDER_FIELDS,
         ];
     }
 
