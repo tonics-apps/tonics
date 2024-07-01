@@ -28,13 +28,14 @@ class TonicsCloudDomainAccess implements TonicsRouterRequestInterceptorInterface
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(OnRequestProcess $request): void
+    public function handle (OnRequestProcess $request): void
     {
         $foundURLRequiredParam = $request->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
         $domain = DomainController::getDomain($foundURLRequiredParam[0], 'slug_id');
         # If isset, then customer has access, we return, otherwise, we display UnauthorizedErrorMessage
-        if (isset($domain->slug_id)){
+        if (isset($domain->slug_id)) {
             return;
         }
 

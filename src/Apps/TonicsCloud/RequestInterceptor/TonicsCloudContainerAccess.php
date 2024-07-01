@@ -28,15 +28,16 @@ class TonicsCloudContainerAccess implements TonicsRouterRequestInterceptorInterf
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(OnRequestProcess $request): void
+    public function handle (OnRequestProcess $request): void
     {
         $foundURLRequiredParam = $request->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
         $containerID = $foundURLRequiredParam[0];
 
         $container = ContainerService::getContainer($containerID);
         # If isset, then customer has access, we return, otherwise, we display UnauthorizedErrorMessage
-        if (isset($container->container_id)){
+        if (isset($container->container_id)) {
             return;
         }
 
