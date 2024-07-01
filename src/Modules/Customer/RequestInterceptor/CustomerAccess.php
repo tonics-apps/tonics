@@ -30,10 +30,11 @@ class CustomerAccess implements TonicsRouterRequestInterceptorInterface
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(OnRequestProcess $request): void
+    public function handle (OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER) === false){
+        if (UserData::canAccess(Roles::CAN_ACCESS_CUSTOMER) === false) {
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

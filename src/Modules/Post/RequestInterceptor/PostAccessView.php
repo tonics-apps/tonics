@@ -45,6 +45,7 @@ class PostAccessView
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handlePost (): void
     {
@@ -78,6 +79,7 @@ class PostAccessView
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handleCategory (): void
     {

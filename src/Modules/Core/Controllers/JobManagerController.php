@@ -30,15 +30,15 @@ class JobManagerController
     /**
      * @param AbstractDataLayer $dataLayer
      */
-    public function __construct(AbstractDataLayer $dataLayer)
+    public function __construct (AbstractDataLayer $dataLayer)
     {
         $this->dataLayer = $dataLayer;
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function jobsIndex()
+    public function jobsIndex (): void
     {
         $table = Tables::getTable(Tables::JOBS);
         $dataTableHeaders = [
@@ -71,7 +71,7 @@ class JobManagerController
         END AS overall_progress";
 
         $data = null;
-        db(onGetDB: function ($db) use ($table, $select, &$data){
+        db(onGetDB: function ($db) use ($table, $select, &$data) {
             $data = $db->Select($select)
                 ->From("$table p")
                 ->LeftJoin("$table j", 'j.job_parent_id', 'p.job_id')
@@ -86,18 +86,19 @@ class JobManagerController
 
         view('Modules::Core/Views/JobsManager/jobs_index', [
             'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $data ?? []
+                'headers'      => $dataTableHeaders,
+                'paginateData' => $data ?? [],
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'   => AppConfig::getAppUrl(),
         ]);
 
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function jobDataTable(): void
+    public function jobDataTable (): void
     {
         $entityBag = null;
         if ($this->getDataLayer()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -114,9 +115,11 @@ class JobManagerController
 
     /**
      * @param $entityBag
+     *
      * @return bool|int
+     * @throws \Throwable
      */
-    protected function jobDeleteMultiple($entityBag): bool|int
+    protected function jobDeleteMultiple ($entityBag): bool|int
     {
         $toDelete = [];
         try {
@@ -143,8 +146,9 @@ class JobManagerController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function jobsSchedulerIndex()
+    public function jobsSchedulerIndex (): void
     {
         $table = Tables::getTable(Tables::SCHEDULER);
         $dataTableHeaders = [
@@ -158,7 +162,7 @@ class JobManagerController
         ];
 
         $data = null;
-        db(onGetDB: function ($db) use ($table, &$data){
+        db(onGetDB: function ($db) use ($table, &$data) {
             $data = $db->Select('*')
                 ->From($table)
                 ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
@@ -168,17 +172,17 @@ class JobManagerController
 
         view('Modules::Core/Views/JobsManager/jobs_scheduler_index', [
             'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $data ?? []
+                'headers'      => $dataTableHeaders,
+                'paginateData' => $data ?? [],
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'   => AppConfig::getAppUrl(),
         ]);
     }
 
     /**
      * @return AbstractDataLayer
      */
-    public function getDataLayer(): AbstractDataLayer
+    public function getDataLayer (): AbstractDataLayer
     {
         return $this->dataLayer;
     }

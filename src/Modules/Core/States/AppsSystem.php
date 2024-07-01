@@ -123,8 +123,7 @@ class AppsSystem extends SimpleState
             $installedApp = implode(',', $installedApp);
             session()->flash(["[$installedApp] App Installed"], [], type: Session::SessionCategories_FlashMessageSuccess);
             AppConfig::updateRestartService();
-            RefreshTreeSystem::RefreshTreeSystem();
-            Roles::REFRESH_ROLES_AND_PERMISSIONS();
+            $this->refreshSystem();
             return self::DONE;
         }
 
@@ -178,7 +177,7 @@ class AppsSystem extends SimpleState
             $unInstalledApp = implode(',', $unInstalledApp);
             session()->flash(["[$unInstalledApp] App UnInstalled"], [], type: Session::SessionCategories_FlashMessageSuccess);
             AppConfig::updateRestartService();
-            RefreshTreeSystem::RefreshTreeSystem();
+            $this->refreshSystem();
             return self::DONE;
         }
 
@@ -245,7 +244,7 @@ class AppsSystem extends SimpleState
             $deletedApp = implode(', ', $deletedApp);
             $this->setSuccessMessage("[$deletedApp] App Deleted");
             AppConfig::updateRestartService();
-            RefreshTreeSystem::RefreshTreeSystem();
+            $this->refreshSystem();
             return self::DONE;
         }
 
@@ -315,7 +314,7 @@ class AppsSystem extends SimpleState
         AppConfig::updateRestartService();
         $appOrModuleToUpdate = implode(', ', $appOrModuleToUpdate);
         $this->setSuccessMessage("[$appOrModuleToUpdate] Updated: Reload Page (If Any, Migrations Scheduled)");
-        RefreshTreeSystem::RefreshTreeSystem();
+        $this->refreshSystem();
         return self::DONE;
     }
 
@@ -383,7 +382,6 @@ class AppsSystem extends SimpleState
     {
         return str_starts_with($appDir, AppConfig::getModulesPath());
     }
-
 
     /**
      * @return array
@@ -488,6 +486,16 @@ class AppsSystem extends SimpleState
     {
         $this->pluginSignatureHash = $pluginSignatureHash;
         return $this;
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    private function refreshSystem (): void
+    {
+        RefreshTreeSystem::RefreshTreeSystem();
+        Roles::REFRESH_ROLES_AND_PERMISSIONS();
     }
 
 }

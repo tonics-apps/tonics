@@ -39,7 +39,7 @@ class FieldController
 
     private FieldData $fieldData;
 
-    public function __construct(FieldData $fieldData)
+    public function __construct (FieldData $fieldData)
     {
         $this->fieldData = $fieldData;
     }
@@ -47,7 +47,7 @@ class FieldController
     /**
      * @throws \Exception
      */
-    public function index()
+    public function index ()
     {
 
         $dataTableHeaders = [
@@ -57,9 +57,8 @@ class FieldController
         ];
 
 
-
         $data = null;
-        db(onGetDB: function (TonicsQuery $db) use (&$data){
+        db(onGetDB: function (TonicsQuery $db) use (&$data) {
             $table = Tables::getTable(Tables::FIELD);
             $tblCol = '*, CONCAT("/admin/tools/field/", field_slug, "/edit" ) as _edit_link, CONCAT("/admin/tools/field/items/", field_slug, "/builder") as _builder_link';
             $data = $db->Select($tblCol)
@@ -72,22 +71,22 @@ class FieldController
 
                 })->OrderByDesc(table()->pickTable($table, ['updated_at']))->SimplePaginate(url()->getParam('per_page', AppConfig::getAppPaginationMax()));
         });
-        
+
         view('Modules::Field/Views/index', [
             'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $data ?? [],
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $data ?? [],
                 'dataTableType' => 'EDITABLE_BUILDER',
 
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'   => AppConfig::getAppUrl(),
         ]);
     }
 
     /**
      * @throws \Exception
      */
-    public function dataTable(): void
+    public function dataTable (): void
     {
         $entityBag = null;
         if ($this->getFieldData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -112,7 +111,7 @@ class FieldController
             getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
                 $entityBag = $decodedBag;
             })) {
-            if (( $data = $this->copyFieldItemsJSON($entityBag))) {
+            if (($data = $this->copyFieldItemsJSON($entityBag))) {
                 response()->onSuccess($data, "Copied Field Item(s)", more: AbstractDataLayer::DataTableEventTypeCopyFieldItems);
             } else {
                 response()->onError(500);
@@ -123,7 +122,7 @@ class FieldController
     /**
      * @throws \Exception
      */
-    public function create()
+    public function create ()
     {
         view('Modules::Field/Views/create');
     }
@@ -132,7 +131,7 @@ class FieldController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function store()
+    public function store ()
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->fieldStoreRule());
         if ($validator->fails()) {
@@ -143,7 +142,7 @@ class FieldController
         try {
             $widget = $this->getFieldData()->createField();
             $widgetReturning = null;
-            db(onGetDB: function ($db) use ($widget, &$widgetReturning){
+            db(onGetDB: function ($db) use ($widget, &$widgetReturning) {
                 $widgetReturning = $db->insertReturning($this->getFieldData()->getFieldTable(), $widget, $this->getFieldData()->getFieldColumns(), 'field_id');
             });
 
@@ -151,9 +150,9 @@ class FieldController
             event()->dispatch($onFieldCreate);
 
             session()->flash(['Field Created'], type: Session::SessionCategories_FlashMessageSuccess);
-            
+
             redirect(route('fields.edit', ['field' => $onFieldCreate->getFieldSlug()]));
-        } catch (\Exception){
+        } catch (\Exception) {
             session()->flash(['An Error Occurred Creating The Field Item'], input()->fromPost()->all());
             redirect(route('widgets.create'));
         }
@@ -161,10 +160,11 @@ class FieldController
 
     /**
      * @param string $slug
+     *
      * @return void
      * @throws \Exception
      */
-    public function edit(string $slug)
+    public function edit (string $slug)
     {
         $menu = $this->getFieldData()->selectWithCondition($this->getFieldData()->getFieldTable(), ['*'], "field_slug = ?", [$slug]);
         if (!is_object($menu)) {
@@ -181,10 +181,10 @@ class FieldController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    #[NoReturn] public function update(string $slug)
+    #[NoReturn] public function update (string $slug)
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->fieldUpdateRule());
-        if ($validator->fails()){
+        if ($validator->fails()) {
             session()->flash($validator->getErrors());
             redirect(route('fields.edit', [$slug]));
         }
@@ -198,9 +198,9 @@ class FieldController
 
             $slug = $widgetToUpdate['field_slug'];
             session()->flash(['Field Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-            
+
             redirect(route('fields.edit', ['field' => $slug]));
-        }catch (\Exception){
+        } catch (\Exception) {
             session()->flash(['An Error Occurred Updating The Field Item']);
             redirect(route('fields.edit', [$slug]));
         }
@@ -209,44 +209,47 @@ class FieldController
 
     /**
      * @param $entityBag
+     *
      * @return bool
      * @throws \Exception
      */
-    protected function updateMultiple($entityBag): bool
+    protected function updateMultiple ($entityBag): bool
     {
         return $this->getFieldData()->dataTableUpdateMultiple([
-            'id' => 'field_id',
-            'table' => Tables::getTable(Tables::FIELD),
-            'rules' => $this->fieldUpdateMultipleRule(),
+            'id'        => 'field_id',
+            'table'     => Tables::getTable(Tables::FIELD),
+            'rules'     => $this->fieldUpdateMultipleRule(),
             'entityBag' => $entityBag,
         ]);
     }
 
     /**
      * @param $entityBag
+     *
      * @return bool
      * @throws \Exception
      */
-    public function deleteMultiple($entityBag): bool
+    public function deleteMultiple ($entityBag): bool
     {
         return $this->getFieldData()->dataTableDeleteMultiple([
-            'id' => 'field_id',
-            'table' => Tables::getTable(Tables::FIELD),
+            'id'        => 'field_id',
+            'table'     => Tables::getTable(Tables::FIELD),
             'entityBag' => $entityBag,
         ]);
     }
 
     /**
      * @param $entityBag
+     *
      * @return bool|array|null
      */
-    public function copyFieldItemsJSON($entityBag): bool|array|null
+    public function copyFieldItemsJSON ($entityBag): bool|array|null
     {
         try {
             $fieldIDS = [];
             $fieldItems = $this->getFieldData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveCopyFieldItems, $entityBag);
-            foreach ($fieldItems as $fieldItem){
-                if (isset($fieldItem->{"fields::field_id"})){
+            foreach ($fieldItems as $fieldItem) {
+                if (isset($fieldItem->{"fields::field_id"})) {
                     $fieldIDS[] = $fieldItem->{"fields::field_id"};
                 }
             }
@@ -273,28 +276,30 @@ class FieldController
     /**
      * @throws \Exception
      */
-    public function fieldResetItems(): void
+    public function fieldResetItems (): void
     {
-        $modules = [...helper()->getModuleActivators([ExtensionConfig::class, FieldItemsExtensionConfig::class]),
-            ...helper()->getModuleActivators([ExtensionConfig::class, FieldItemsExtensionConfig::class], helper()->getAllAppsDirectory())];
+        $modules = [
+            ...helper()->getModuleActivators([ExtensionConfig::class, FieldItemsExtensionConfig::class]),
+            ...helper()->getModuleActivators([ExtensionConfig::class, FieldItemsExtensionConfig::class], helper()->getAllAppsDirectory()),
+        ];
 
         /** @var FieldItemsExtensionConfig&ExtensionConfig $module */
         try {
             apcu_clear_cache();
-            foreach ($modules as $module){
+            foreach ($modules as $module) {
                 $fieldItems = $module->fieldItems();
 
-                if (helper()->isJSON($fieldItems)){
+                if (helper()->isJSON($fieldItems)) {
                     $fieldItems = json_decode($fieldItems);
                 }
 
-                if (is_array($fieldItems)){
+                if (is_array($fieldItems)) {
                     $this->getFieldData()->importFieldItems($fieldItems);
                 }
             }
             session()->flash(['Field Items Reset Successful'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('fields.index'));
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // Log..
         }
 
@@ -303,9 +308,9 @@ class FieldController
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function getFieldItemsAPI(): void
+    public function getFieldItemsAPI (): void
     {
         $this->fieldData->getFieldItemsAPI();
     }
@@ -313,7 +318,7 @@ class FieldController
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }

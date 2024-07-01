@@ -30,10 +30,11 @@ class FieldAccess implements TonicsRouterRequestInterceptorInterface
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function handle(OnRequestProcess $request): void
+    public function handle (OnRequestProcess $request): void
     {
-        if (UserData::canAccess(Roles::CAN_ACCESS_FIELD) === false){
+        if (UserData::canAccess(Roles::CAN_ACCESS_FIELD) === false) {
             SimpleState::displayUnauthorizedErrorMessage();
         }
     }

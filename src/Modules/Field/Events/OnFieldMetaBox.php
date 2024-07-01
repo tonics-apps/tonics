@@ -43,6 +43,7 @@ class OnFieldMetaBox implements EventInterface
     private ?Validation $validation       = null;
     private bool        $errorEmitted     = false;
     private ?stdClass   $currentFieldBox  = null;
+    private ?stdClass   $callBackData     = null;
 
     private bool $disableTopHTMLWrapper    = false;
     private bool $disableBottomHTMLWrapper = false;
@@ -184,6 +185,7 @@ HTML;
             $settings = new stdClass();
             $settings->field_slug = $fieldSlug;
         }
+        $this->callBackData = $settings;
         return $formCallback($settings);
     }
 
@@ -222,6 +224,7 @@ HTML;
             $settings->field_slug = $fieldSlug;
         }
 
+        $this->callBackData = $settings;
         return $formCallback($settings);
     }
 
@@ -300,7 +303,7 @@ HTML;
         $postData = getPostData();
 
         $settings = $this->currentFieldBox ?? $this->getFieldMetaSettings($slug);
-        $scriptPath = isset($settings->scriptPath) && !empty($settings->scriptPath) ? "data-script_path={$settings->scriptPath}" : '';
+        $scriptPath = !empty($settings->scriptPath) ? "data-script_path={$settings->scriptPath}" : '';
         $hideField = (isset($postData['hide_field'][$hash])) ? "<input type='hidden' name='hide_field[$hash]' value='$hash'>" : '';
 
         $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
@@ -350,7 +353,7 @@ $scriptPath>
                     </svg>
                 </button>
             </legend>
-            <div $isEditorWidgetSettings role="form"  data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+            <div $isEditorWidgetSettings role="form" spellcheck="false"  data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
 HTML;
         }
 
@@ -744,6 +747,16 @@ HTML;
     public function getFieldSanitization (): ?OnAddFieldSanitization
     {
         return $this->fieldSanitization;
+    }
+
+    public function getCallBackData (): ?stdClass
+    {
+        return $this->callBackData;
+    }
+
+    public function setCallBackData (?stdClass $callBackData): void
+    {
+        $this->callBackData = $callBackData;
     }
 
 }

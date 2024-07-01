@@ -27,6 +27,7 @@ abstract class TonicsCloudAbstractService extends AbstractService
     /**
      * @param array $tableHeaders
      * @param $data
+     * @param string $tableType
      *
      * @return string
      * @throws \Throwable

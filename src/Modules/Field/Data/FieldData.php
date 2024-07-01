@@ -461,8 +461,9 @@ HTML;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function getFieldItemsAPI ()
+    public function getFieldItemsAPI (): void
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
             url()->removeFromHeader('HTTP_ACTION'); # This fixes the contentEditable appearing in page fields
@@ -474,8 +475,9 @@ HTML;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function getFieldItemsAPIForEditor ()
+    public function getFieldItemsAPIForEditor (): void
     {
         if (url()->getHeaderByKey('action') === 'getFieldItems') {
             $fieldSlugs = json_decode(url()->getHeaderByKey('FIELDSLUG'), true);

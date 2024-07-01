@@ -63,7 +63,7 @@ class InputText implements HandlerInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {

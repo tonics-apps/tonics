@@ -35,15 +35,16 @@ class RegisterController extends Controller
 
     private UserData $usersData;
 
-    public function __construct(UserData $userData)
+    public function __construct (UserData $userData)
     {
         $this->usersData = $userData;
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function showRegistrationForm()
+    public function showRegistrationForm ()
     {
         view('Modules::Customer/Views/Auth/register');
     }
@@ -51,24 +52,25 @@ class RegisterController extends Controller
     /**
      * @throws \ReflectionException
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function register()
+    public function register ()
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->getRegisterRules());
-        if ($validator->fails()){
+        if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('customer.register'));
         }
 
         $customersData = [
-            'user_name' => input()->fromPost()->retrieve('username'),
-            'email' => input()->fromPost()->retrieve('email'),
+            'user_name'     => input()->fromPost()->retrieve('username'),
+            'email'         => input()->fromPost()->retrieve('email'),
             'user_password' => helper()->securePass(input()->fromPost()->retrieve('password')),
-            'settings'=> UserData::generateCustomerJSONSettings()
+            'settings'      => UserData::generateCustomerJSONSettings(),
         ];
 
         $customerInserted = $this->getUsersData()->insertForCustomer($customersData, ['user_name', 'email', 'role']);
-        if ($customerInserted === false){
+        if ($customerInserted === false) {
             session()->flash(['Failed To Register User'], input()->fromPost()->all());
             redirect(route('customer.register'));
         } else {
@@ -82,10 +84,11 @@ class RegisterController extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] public function sendRegisterVerificationCode()
+    #[NoReturn] public function sendRegisterVerificationCode (): void
     {
-        if (\session()->hasKey(Session::SessionCategories_NewVerification)){
+        if (\session()->hasKey(Session::SessionCategories_NewVerification)) {
             $data = session()->retrieve(Session::SessionCategories_NewVerification, jsonDecode: true);
             $verification = $data->verification;
             $data->verification = $this->getUsersData()->handleVerificationCodeGeneration($verification, 5,
@@ -102,8 +105,9 @@ class RegisterController extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function showVerifyEmailForm()
+    public function showVerifyEmailForm ()
     {
         view('Modules::Customer/Views/Auth/verify-email');
     }
@@ -111,18 +115,19 @@ class RegisterController extends Controller
     /**
      * @throws \ReflectionException
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function verifyEmail()
+    public function verifyEmail ()
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->getVerificationCodeRule());
-        if ($validator->fails()){
+        if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('customer.verifyEmailForm'));
         }
 
-        if (\session()->hasKey(Session::SessionCategories_NewVerification)){
+        if (\session()->hasKey(Session::SessionCategories_NewVerification)) {
             $data = session()->retrieve(Session::SessionCategories_NewVerification, jsonDecode: true);
-            if (!hash_equals(input()->fromPost()->retrieve('verification-code', helper()->randomString()), (string)$data->verification->verification_code)){
+            if (!hash_equals(input()->fromPost()->retrieve('verification-code', helper()->randomString()), (string)$data->verification->verification_code)) {
                 session()->flash(['Invalid Verification Code']);
                 redirect(route('customer.verifyEmailForm'));
             }
@@ -133,8 +138,8 @@ class RegisterController extends Controller
                     $this->getUsersData()->getCustomersTable(),
                     [
                         'email_verified_at' => helper()->date(),
-                        'role' => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER),
-                        'is_guest' => 0
+                        'role'              => Roles::getRoleIDFromDB(Roles::ROLE_CUSTOMER),
+                        'is_guest'          => 0,
                     ],
                     db()->WhereEquals('email', $data->email));
             });
@@ -149,21 +154,27 @@ class RegisterController extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function getRegisterRules(): array
+    public function getRegisterRules (): array
     {
-        $customerUnique = Tables::getTable(Tables::CUSTOMERS) .':email';
+        $customerUnique = Tables::getTable(Tables::CUSTOMERS) . ':email';
         return [
             'username' => ['required', 'string'],
-            'email' => ['required', 'string', 'email', 'unique' => [
-                $customerUnique => input()->fromPost()->retrieve('email', '')]],
-            'password' => ['required', 'string', 'CharLen' => [
-                'min' => 5, 'max' => 1000
-            ]]
+            'email'    => [
+                'required', 'string', 'email', 'unique' => [
+                    $customerUnique => input()->fromPost()->retrieve('email', ''),
+                ],
+            ],
+            'password' => [
+                'required', 'string', 'CharLen' => [
+                    'min' => 5, 'max' => 1000,
+                ],
+            ],
         ];
     }
 
-    public function getVerificationCodeRule(): array
+    public function getVerificationCodeRule (): array
     {
         return [
             'verification-code' => ['required', 'number'],
@@ -172,8 +183,9 @@ class RegisterController extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] private function sendNewRegistrationJob($data)
+    #[NoReturn] private function sendNewRegistrationJob ($data)
     {
         $customerVerificationCodeJob = new CustomerRegistrationVerificationCodeEmail();
         $customerVerificationCodeJob->setJobName('CustomerRegistrationVerificationCodeEmail');
@@ -188,25 +200,28 @@ class RegisterController extends Controller
      * each time the x_verification_code is 5 and above, we add the current_time plus 5 more minutes to...
      * lock user from generating too much verification code, this is like throttling if you get me ;)
      * And whenever the time expires, user can send a new one, if they fail again, we give another 5 minutes :p
+     *
      * @param \stdClass $verification
+     *
      * @return \stdClass
      * @throws \Exception
+     * @throws \Throwable
      */
-    private function handleVerificationCodeGeneration(\stdClass $verification): \stdClass
+    private function handleVerificationCodeGeneration (\stdClass $verification): \stdClass
     {
 
-        if (is_string($verification->expire_lock_time)){
+        if (is_string($verification->expire_lock_time)) {
             $verification->expire_lock_time = strtotime($verification->expire_lock_time);
         }
 
         # You are generating too much verification code, wait 5 minutes to generate a new one
-        if ($verification->expire_lock_time > time()){
+        if ($verification->expire_lock_time > time()) {
             $waitTime = $verification->expire_lock_time - time();
             session()->flash(["Too many request, wait $waitTime second(s) to generate a new one"], type: Session::SessionCategories_FlashMessageInfo);
             redirect(route('customer.verifyEmailForm'));
         }
 
-        if ($verification->x_verification_code >= 5){
+        if ($verification->x_verification_code >= 5) {
             $verification->expire_lock_time = time() + Scheduler::everyMinute(5);
         }
 
@@ -219,7 +234,7 @@ class RegisterController extends Controller
     /**
      * @return UserData
      */
-    public function getUsersData(): UserData
+    public function getUsersData (): UserData
     {
         return $this->usersData;
     }
