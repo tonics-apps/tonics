@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress\Extensions;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode\Extensions;
 
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRenderWithTagInterface;
@@ -28,52 +28,52 @@ class Audio extends TonicsTemplateViewAbstract implements TonicsModeRenderWithTa
     /**
      * @throws \Exception
      */
-    public function render(string $content, array $args, Tag $tag): string
+    public function render (string $content, array $args, Tag $tag): string
     {
         $args = helper()->htmlSpecialCharsOnArrayValues($args);
         $source = '';
         $updateOptSrc = false;
         ## Orders are not preserved, so, if mp3 comes last, this src of mp3
         ## would be the one used in  $args['src']regardless of its position (when it is empty, it uses ogg, etc)
-        foreach ($args as $k => $src){
+        foreach ($args as $k => $src) {
             $k = strtolower($k);
 
-            if (empty($src)){
+            if (empty($src)) {
                 continue;
             }
-            if ($k === 'mp3'){
+            if ($k === 'mp3') {
                 $updateOptSrc = true;
                 $source .= <<<HTML
   <source src="$src" type="audio/mpeg">
 HTML;
             }
-            if ($k === 'ogg'){
+            if ($k === 'ogg') {
                 $source .= <<<HTML
   <source src="$src" type="audio/ogg">
 HTML;
             }
-            if ($k === 'wav'){
+            if ($k === 'wav') {
                 $updateOptSrc = true;
                 $source .= <<<HTML
   <source src="$src" type="audio/wav">
 HTML;
             }
 
-            if ($k === 'wma'){
+            if ($k === 'wma') {
                 $updateOptSrc = true;
                 $source .= <<<HTML
   <source src="$src">
 HTML;
             }
 
-            if ($k === 'm4a'){
+            if ($k === 'm4a') {
                 $updateOptSrc = true;
                 $source .= <<<HTML
   <source src="$src">
 HTML;
             }
 
-            if ($updateOptSrc && empty($args['src'])){
+            if ($updateOptSrc && empty($args['src'])) {
                 $args['src'] = $src;
             }
         }
@@ -95,9 +95,9 @@ HTML;
 HTML;
     }
 
-    public function defaultArgs(): array
+    public function defaultArgs (): array
     {
-        return  [
+        return [
             'src'      => '',
             'mp3'      => '',
             'ogg'      => '',

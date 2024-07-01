@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress\Extensions;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode\Extensions;
 
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRenderWithTagInterface;
@@ -29,10 +29,11 @@ class Video extends TonicsTemplateViewAbstract implements TonicsModeRenderWithTa
      * @param string $content
      * @param array $args
      * @param TOC $tag
+     *
      * @return string
      * @throws \Exception
      */
-    public function render(string $content, array $args, Tag $tag): string
+    public function render (string $content, array $args, Tag $tag): string
     {
         $args = helper()->htmlSpecialCharsOnArrayValues($args);
 
@@ -40,45 +41,45 @@ class Video extends TonicsTemplateViewAbstract implements TonicsModeRenderWithTa
         $updateOptSrc = false;
         ## Orders are not preserved, so, if mp4 comes last, this src of mp4
         ## would be the one used in $args['src'] regardless of its position (when it is empty, it uses webm, etc)
-        foreach ($args as $k => $src){
+        foreach ($args as $k => $src) {
             $k = strtolower($k);
 
-            if (empty($src)){
+            if (empty($src)) {
                 continue;
             }
 
-            if ($k === 'mp4'){
+            if ($k === 'mp4') {
                 $updateOptSrc = true;
                 $source .= "<source src=$src type='video/mp4'>";
             }
-            if ($k === 'webm'){
+            if ($k === 'webm') {
                 $source .= "<source src=$src type='video/webm'>";
             }
-            if ($k === 'm4v'){
+            if ($k === 'm4v') {
                 $updateOptSrc = true;
                 $source .= "<source src=$src type='audio/wav'>";
             }
-            if ($k === 'ogv'){
+            if ($k === 'ogv') {
                 $updateOptSrc = true;
                 $source .= "<source src=$src>";
             }
-            if ($k === 'wmv'){
+            if ($k === 'wmv') {
                 $updateOptSrc = true;
                 $source .= "<source src=$src>";
             }
-            if ($k === 'flv'){
+            if ($k === 'flv') {
                 $updateOptSrc = true;
                 $source .= "<source src='$src'>";
             }
-            if ($updateOptSrc && empty($args['src'])){
+            if ($updateOptSrc && empty($args['src'])) {
                 $args['src'] = $src;
             }
         }
 
         $autoPlay = (strtolower($args['autoplay']) === 'on') ? 'autoplay' : '';
         $loop = (strtolower($args['loop']) === 'on') ? 'loop' : '';
-        $height = empty($args['height']) ? '' : "height=". (int)$args['height'] .'px';
-        $width = empty($args['width']) ? '' : "width=". (int)$args['width'] .'px';
+        $height = empty($args['height']) ? '' : "height=" . (int)$args['height'] . 'px';
+        $width = empty($args['width']) ? '' : "width=" . (int)$args['width'] . 'px';
 
         return <<<HTML
 <figure class="video-shortcode">
@@ -94,12 +95,12 @@ class Video extends TonicsTemplateViewAbstract implements TonicsModeRenderWithTa
 HTML;
     }
 
-    public function defaultArgs(): array
+    public function defaultArgs (): array
     {
-        return  [
+        return [
             'src'      => '',
             'mp4'      => '',
-            'webm'      => '',
+            'webm'     => '',
             'm4v'      => '',
             'wmv'      => '',
             'flv'      => '',
@@ -108,9 +109,9 @@ HTML;
             'preload'  => 'none',
             'class'    => 'audio-shortcode',
             'style'    => '',
-            'height'    => '',
+            'height'   => '',
             'width'    => '',
-            'poster'    => '',
+            'poster'   => '',
         ];
     }
 }

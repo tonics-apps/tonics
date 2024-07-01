@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress\Extensions\WordPressWPContentURL;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode\Extensions\WordPressWPContentURL;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DriveConfig;
@@ -24,23 +24,23 @@ use App\Modules\Media\FileManager\LocalDriver;
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
 
-class URL  extends TonicsTemplateViewAbstract implements TonicsModeRendererInterface
+class URL extends TonicsTemplateViewAbstract implements TonicsModeRendererInterface
 {
 
     /**
      * @throws \Exception
      */
-    public function render(string $content, array $args, array $nodes = []): string
+    public function render (string $content, array $args, array $nodes = []): string
     {
         $localDriver = new LocalDriver();
         $path = DriveConfig::getWordPressImportUploadsPath() . '/' . $args['path'];
         $path = str_replace("/wp-content/uploads", '', $path);
         $fileObject = $localDriver->convertFilePathToFileObject($path);
-        if ($fileObject !== false){
+        if ($fileObject !== false) {
             $url = parse_url(AppConfig::getAppUrl(), PHP_URL_HOST);
-            return $content . rtrim($url, '/').$fileObject->urlDownload . '?render';
+            return $content . rtrim($url, '/') . $fileObject->urlDownload . '?render';
         }
 
-        return $content . $args['url'].$args['path'];
+        return $content . $args['url'] . $args['path'];
     }
 }

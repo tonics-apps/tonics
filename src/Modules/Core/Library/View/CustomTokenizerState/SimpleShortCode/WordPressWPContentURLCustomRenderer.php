@@ -16,31 +16,31 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode;
 
 use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateRangeException;
-use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRenderWithTagInterface;
+use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateCustomRendererInterface;
 use Devsrealm\TonicsTemplateSystem\Node\Tag;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
-class WordPressShortCodeCustomRenderer implements TonicsTemplateCustomRendererInterface
+class WordPressWPContentURLCustomRenderer implements TonicsTemplateCustomRendererInterface
 {
 
-    public function render(TonicsView $tonicsView): string
+    public function render (TonicsView $tonicsView): string
     {
         $modeOutput = '';
         /**@var Tag $tag */
         foreach ($tonicsView->getStackOfOpenTagEl() as $tag) {
             try {
                 $mode = $tonicsView->getModeRendererHandler($tag->getTagName());
-                if ($mode instanceof TonicsModeRenderWithTagInterface) {
-                    $modeOutput .= $mode->render($tag->getContent(), helper()->mergeKeyIntersection($mode->defaultArgs(), $tag->getArgs()), $tag);
+                if ($mode instanceof TonicsModeRendererInterface) {
+                    $modeOutput .= $mode->render($tag->getContent(), $tag->getArgs());
                 }
             } catch (TonicsTemplateRangeException) {
             }
         }
-        // $tv->reset();
+        $tonicsView->reset();
         return $modeOutput;
     }
 }

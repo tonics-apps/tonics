@@ -16,16 +16,11 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode;
 
-use App\Modules\Core\Library\View\CustomTokenizerState\WordPress\Extensions\WordPressWPContentURL\URL;
+use App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode\Extensions\WordPressWPContentURL\URL;
 use Devsrealm\TonicsTemplateSystem\Content;
-use Devsrealm\TonicsTemplateSystem\Exceptions\TonicsTemplateRangeException;
-use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRendererInterface;
-use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateCustomRendererInterface;
-use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateHandleEOF;
 use Devsrealm\TonicsTemplateSystem\Loader\TonicsTemplateArrayLoader;
-use Devsrealm\TonicsTemplateSystem\Node\Tag;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 use Devsrealm\TonicsTemplateSystem\Tree\Mode\Handlers\CharacterModeHandler;
 
@@ -33,16 +28,16 @@ class WordPressWPContentURL
 {
     private TonicsView|null $init = null;
 
-    public function __construct()
+    public function __construct ()
     {
         ## Tonics View
         $templateLoader = new TonicsTemplateArrayLoader();
         $settings = [
             'templateLoader' => $templateLoader,
             'tokenizerState' => new WordPressWPContentURLTokenizerState(),
-            'content' => new Content(),
-            'handleEOF' => new WordPressWPContentURLHandleEOF(),
-            'render' => new WordPressWPContentURLCustomRenderer()
+            'content'        => new Content(),
+            'handleEOF'      => new WordPressWPContentURLHandleEOF(),
+            'render'         => new WordPressWPContentURLCustomRenderer(),
         ];
         $view = new TonicsView($settings);
         // clear in-built mode handler
@@ -52,7 +47,7 @@ class WordPressWPContentURL
         $this->init = $view;
     }
 
-    public function getView(): ?TonicsView
+    public function getView (): ?TonicsView
     {
         return $this->init;
     }

@@ -16,16 +16,22 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode\Extensions;
 
-use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateHandleEOF;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
+use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
+use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRenderWithTagInterface;
+use Devsrealm\TonicsTemplateSystem\Node\Tag;
 
-class WordPressWPContentURLHandleEOF implements TonicsTemplateHandleEOF
+class TOC extends TonicsTemplateViewAbstract implements TonicsModeRenderWithTagInterface
 {
 
-    public function handleEOF(TonicsView $tonicsView): void
+    public function render (string $content, array $args, Tag $tag): string
     {
-        $tonicsView->getTokenizerState()::finalEOFStackSort($tonicsView);
+        return $content;
+    }
+
+    public function defaultArgs (): array
+    {
+        return [];
     }
 }
