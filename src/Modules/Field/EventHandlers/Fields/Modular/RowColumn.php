@@ -181,6 +181,7 @@ HTML;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function userForm (OnFieldMetaBox $event, $data): string
     {
@@ -197,12 +198,14 @@ HTML;
             $column = $data->column;
         }
 
+        $repeaterFragCount = 0;
         if ($isGroup) {
             $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle) use ($data, $event) {
                 $slug = $data->field_slug ?? '';
                 $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
                 $inputName = (isset($data->inputName)) ? $data->inputName : '';
                 $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
+
                 return <<<HTML
 <li tabIndex="0" class="width:100% field-builder-items overflow:auto">
             <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
@@ -226,7 +229,7 @@ HTML;
 
             $tabID = helper()->slug($fieldName, '_');
             $frag .= <<<HTML
-<ul id="$tabID" data-test_tab="checker" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:tiny border:black">
+<ul id="$tabID" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:tiny border:black">
 <style>
 .tonicsFieldTabsContainer {
      font-size: unset; 
@@ -249,6 +252,7 @@ HTML;
                 }
 
                 if (isset($data->_field->_children)) {
+                    $sameRepeater = true;
                     foreach ($data->_field->_children as $child) {
                         $childCellNumber = (isset($child->field_options->{$child->field_name . "_cell"}))
                             ? (int)$child->field_options->{$child->field_name . "_cell"}
@@ -265,15 +269,33 @@ HTML;
                             $fieldOptionName = $child->field_options->fieldName;
                             $fieldUniqueHash = $fieldOptionName . '_' . $child->field_options->field_slug_unique_hash;
                             $fieldOptionNameID = helper()->slug($fieldOptionName, '_') . '_' . $fieldNameTabUnique;
-                            $frag .= <<<HTML
+
+                            if ($repeaterFragCount === 0) {
+                                $frag .= <<<HTML
 <input tabindex="0" data-unique="$fieldUniqueHash" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
 <label tabindex="0" data-unique="$fieldUniqueHash" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
 HTML;
-                            if ($child->field_name === RowColumnRepeater::FieldSlug) {
-                                $frag .= '<ul>' . $event->getUsersForm($child->field_name, $child->field_options ?? null) . '</ul>';
-                            } else {
-                                $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
                             }
+
+                            if ($child->field_name === RowColumnRepeater::FieldSlug) {
+                                ++$repeaterFragCount;
+
+                                # OpenStart of Repeater Field
+                                if ($repeaterFragCount === 1) {
+                                    $frag .= "<ul>";
+                                }
+
+                            } else {
+                                $sameRepeater = false;
+                            }
+                            $frag .= $event->getUsersForm($child->field_name, $child->field_options ?? null);
+
+                            # End Consumption of Repeater
+                            if ($sameRepeater === false && $repeaterFragCount > 0) {
+                                $repeaterFragCount = 0; // reset repeatFragCount
+                                $frag .= '</ul>';
+                            }
+
                         }
                     }
                 }
