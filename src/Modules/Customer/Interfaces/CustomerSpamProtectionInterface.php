@@ -16,37 +16,26 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Field\Events;
+namespace App\Modules\Customer\Interfaces;
 
-use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
-
-class OnFieldTopHTMLWrapperUserSettings implements EventInterface
+interface CustomerSpamProtectionInterface
 {
-    private array|\stdClass $data;
-
-    public function __construct (array|\stdClass $data = [])
-    {
-        $this->data = $data;
-    }
-
-    public function event (): static
-    {
-        return $this;
-    }
+    /**
+     * This should be the field slug name if you are using field
+     * @return string
+     */
+    public function name (): string;
 
     /**
-     * @return array|\stdClass
+     * User-friendly display name
+     * @return string
      */
-    public function getData (): array|\stdClass
-    {
-        return $this->data;
-    }
+    public function displayName (): string;
 
     /**
-     * @param array|\stdClass $data
+     * @param array $data
+     *
+     * @return bool
      */
-    public function setData (array|\stdClass $data): void
-    {
-        $this->data = $data;
-    }
+    public function isSpam (array $data): bool;
 }

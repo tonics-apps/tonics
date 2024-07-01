@@ -211,10 +211,11 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     }
 
     /**
+     * @throws \Exception
      */
     public function onUpdate (): void
     {
-        return;
+        (new FieldData())->importFieldItems(FieldConfig::DefaultFieldItems());
     }
 
     public function onDelete (): void

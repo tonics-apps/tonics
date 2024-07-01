@@ -27,67 +27,93 @@ use App\Modules\Core\RequestInterceptor\RedirectToInstallerOnTonicsNotReady;
 use App\Modules\Customer\Controllers\CustomerAuth\ForgotPasswordController;
 use App\Modules\Customer\Controllers\CustomerAuth\LoginController;
 use App\Modules\Customer\Controllers\CustomerAuth\RegisterController;
+use App\Modules\Customer\Controllers\CustomerController;
+use App\Modules\Customer\Controllers\CustomerSettingsController;
 use App\Modules\Customer\Controllers\DashboardController;
 use App\Modules\Customer\Controllers\OrderController;
 use App\Modules\Customer\RequestInterceptor\CustomerAccess;
 use App\Modules\Customer\RequestInterceptor\RedirectCustomerGuest;
+use App\Modules\Customer\RequestInterceptor\SpamProtection;
 use Devsrealm\TonicsRouterSystem\Route;
 
 trait RouteWeb
 {
     /**
      * @param Route $route
+     *
      * @return Route
      * @throws \ReflectionException
      */
-    public function routeWeb(Route $route): Route
+    public function routeWeb (Route $route): Route
     {
-        $route->group('/customer',  function (Route $route){
+        $route->group('', function (Route $route) {
 
-            $route->group('', function (Route $route){
-                        #---------------------------------
+            $route->group('/admin', function (Route $route) {
+
+                $route->group('/customers', function (Route $route) {
+                    $route->get('', [CustomerController::class, 'index'], alias: 'index');
+                    $route->post('', [CustomerController::class, 'dataTable'], alias: 'dataTables');
+                }, alias: 'customers');
+
+                #---------------------------------
+                # Customer Settings
+                #---------------------------------
+                $route->group('/customer', function (Route $route) {
+
+                    $route->get('settings', [CustomerSettingsController::class, 'edit'], alias: 'settings');
+                    $route->post('settings', [CustomerSettingsController::class, 'update']);
+
+                }, alias: 'customer');
+            }, [Authenticated::class], alias: 'admin');
+
+            $route->group('/customer', function (Route $route) {
+
+                $route->group('', function (Route $route) {
+                    #---------------------------------
                     # LOGIN ROUTES...
-                #---------------------------------
-                $route->get('login', [LoginController::class, 'showLoginForm'], requestInterceptor: [RedirectAuthenticated::class], alias: 'login');
-                $route->post('login', [LoginController::class, 'login']);
-                $route->post('logout', [LoginController::class, 'logout'], alias: 'logout');
+                    #---------------------------------
+                    $route->get('login', [LoginController::class, 'showLoginForm'], requestInterceptor: [RedirectAuthenticated::class], alias: 'login');
+                    $route->post('login', [LoginController::class, 'login']);
+                    $route->post('logout', [LoginController::class, 'logout'], alias: 'logout');
 
-                        #---------------------------------
+                    #---------------------------------
                     # REGISTRATION ROUTES...
-                #---------------------------------
-                $route->get('register', [RegisterController::class, 'showRegistrationForm'], alias: 'register');
-                $route->post('register', [RegisterController::class, 'register']);
-            });
-
                     #---------------------------------
+                    $route->get('register', [RegisterController::class, 'showRegistrationForm'], alias: 'register');
+                    $route->post('register', [RegisterController::class, 'register'], [SpamProtection::class]);
+                });
+
+                #---------------------------------
                 # PASSWORD RESET ROUTES...
-            #---------------------------------
-            $route->group('/password', callback: function (Route $route){
-                $route->get('/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'request');
-                $route->post('/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'email');
-                $route->get('/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'verifyEmail');
-                $route->post('/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'update');
-            }, alias: 'password');
+                #---------------------------------
+                $route->group('/password', callback: function (Route $route) {
+                    $route->get('/reset', [ForgotPasswordController::class, 'showLinkRequestForm'], alias: 'request');
+                    $route->post('/email', [ForgotPasswordController::class, 'sendResetLinkEmail'], alias: 'email');
+                    $route->get('/reset/verify_email', [ForgotPasswordController::class, 'showVerifyCodeForm'], alias: 'verifyEmail');
+                    $route->post('/reset/verify_email', [ForgotPasswordController::class, 'reset'], alias: 'update');
+                }, alias: 'password');
+
+                #---------------------------------
+                # EMAIL VERIFICATION...
+                #---------------------------------
+                $route->get('send_verification_code', [RegisterController::class, 'sendRegisterVerificationCode'], alias: 'sendRegisterVerificationCode');
+                $route->get('verifyEmail', [RegisterController::class, 'showVerifyEmailForm'], alias: 'verifyEmailForm');
+                $route->post('verifyEmail', [RegisterController::class, 'verifyEmail'], alias: 'verifyEmail');
+
+                $route->group('', function (Route $route) {
 
                     #---------------------------------
-                # EMAIL VERIFICATION...
-            #---------------------------------
-            $route->get('send_verification_code', [RegisterController::class, 'sendRegisterVerificationCode'], alias: 'sendRegisterVerificationCode');
-            $route->get('verifyEmail', [RegisterController::class, 'showVerifyEmailForm'], alias: 'verifyEmailForm');
-            $route->post('verifyEmail', [RegisterController::class, 'verifyEmail'], alias: 'verifyEmail');
-
-            $route->group('', function (Route $route){
-
-                        #---------------------------------
                     # CUSTOMER DASHBOARD CONTROLLER...
-                #---------------------------------
-                $route->get('dashboard', [DashboardController::class, 'index'], requestInterceptor: [RedirectAuthenticatedToCorrectDashboard::class], alias: 'dashboard');
-                $route->get('orders', [OrderController::class, 'index'], alias: 'order.index');
-                $route->get('order/audiotonics/:slug_id', [OrderController::class, 'audioTonicsPurchaseDetails'], alias: 'order.audiotonics.details');
-                $route->get('order/tonicscloud/:slug_id', [OrderController::class, 'tonicsCloudPurchaseDetails'], alias: 'order.tonicscloud.details');
+                    #---------------------------------
+                    $route->get('dashboard', [DashboardController::class, 'index'], requestInterceptor: [RedirectAuthenticatedToCorrectDashboard::class], alias: 'dashboard');
+                    $route->get('orders', [OrderController::class, 'index'], alias: 'order.index');
+                    $route->get('order/audiotonics/:slug_id', [OrderController::class, 'audioTonicsPurchaseDetails'], alias: 'order.audiotonics.details');
+                    $route->get('order/tonicscloud/:slug_id', [OrderController::class, 'tonicsCloudPurchaseDetails'], alias: 'order.tonicscloud.details');
 
-            }, [Authenticated::class, RedirectCustomerGuest::class, CustomerAccess::class]);
-        }, AuthConfig::getCSRFRequestInterceptor([RedirectToInstallerOnTonicsNotReady::class]),  'customer');
+                }, [Authenticated::class, RedirectCustomerGuest::class, CustomerAccess::class]);
+            }, alias: 'customer');
+
+        }, AuthConfig::getCSRFRequestInterceptor([RedirectToInstallerOnTonicsNotReady::class]));
 
         return $route;
     }

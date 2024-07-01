@@ -21,6 +21,7 @@ namespace App\Modules\Core\Configs;
 use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Events\OnFieldMetaBox;
 
 class FieldConfig
 {
@@ -131,11 +132,63 @@ class FieldConfig
         return $htmlFrag;
     }
 
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $defaultFieldSlug
+     * @param \stdClass $data
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public static function expandFieldWithChildrenFromMetaBox (OnFieldMetaBox $event, $defaultFieldSlug): string
+    {
+        $defaultFieldSlugFrag = '';
+        $data = $event->getCallBackData();
+        if (isset($data->_field->_children)) {
+
+            $originalFieldItems = null;
+            db(onGetDB: function ($db) use ($event, $defaultFieldSlug, &$originalFieldItems) {
+                $fieldTable = $event->getFieldData()->getFieldTable();
+                $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
+                $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
+
+                $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
+                    ->From($fieldItemsTable)
+                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                    ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
+            });
+
+            foreach ($originalFieldItems as $originalFieldItem) {
+                $fieldOption = json_decode($originalFieldItem->field_options);
+                $originalFieldItem->field_options = $fieldOption;
+            }
+
+            // Sort and Arrange OriginalFieldItems
+            $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
+            if (isset($data->_field->_children)) {
+                $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+            } else {
+                $sortedFieldWalkerItems = $originalFieldItems;
+            }
+
+            foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
+                if (isset($sortedFieldWalkerItem->_children)) {
+                    $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
+                }
+            }
+            $fieldCategories = [$defaultFieldSlug => $sortedFieldWalkerItems];
+            $defaultFieldSlugFrag = $event->getFieldData()->getUsersFormFrag($fieldCategories);
+        }
+
+        return $defaultFieldSlugFrag;
+    }
+
 
     /**
      * @param $key
      * Only File That Contains JSON data
      * @param array $data
+     * @param bool $clearCache
      *
      * @return array
      * @throws \Exception
@@ -1371,6 +1424,55 @@ class FieldConfig
 		"field_id": 3,
 		"field_parent_id": 1,
 		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"2q9bb0fqhmw0000000000\",\"field_input_name\":\"log_lines\",\"fieldName\":\"Number of Lines\",\"inputName\":\"log_lines\",\"textType\":\"number\",\"defaultValue\":\"500\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter Number of Last Lines To Read\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Customer Settings",
+		"field_name": "modular_rowcolumn",
+		"field_id": 1,
+		"field_parent_id": null,
+		"field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"2t7c9c0jkqm0000000000\",\"field_input_name\":\"tonics_customer_settings\",\"fieldName\":\"Customer Settings\",\"inputName\":\"tonics_customer_settings\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"1\",\"cell\":\"on\"}"
+	},
+	{
+		"fk_field_id": "Customer Settings",
+		"field_name": "modular_rowcolumnrepeater",
+		"field_id": 2,
+		"field_parent_id": 1,
+		"field_options": "{\"field_slug\":\"modular_rowcolumnrepeater\",\"modular_rowcolumnrepeater_cell\":\"1\",\"field_slug_unique_hash\":\"3f3l7l7av5s0000000000\",\"field_input_name\":\"tonics_customer_settings_SpamProtectionContainer\",\"fieldName\":\"Spam Protections\",\"inputName\":\"tonics_customer_settings_SpamProtectionContainer\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Only one instance of a spam protection would be recognized\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"New Spam Protection\",\"cell\":\"on\"}"
+	},
+	{
+		"fk_field_id": "Customer Settings",
+		"field_name": "customer_spamprotection",
+		"field_id": 3,
+		"field_parent_id": 2,
+		"field_options": "{\"field_slug\":\"customer_spamprotection\",\"customer_spamprotection_cell\":\"1\",\"field_slug_unique_hash\":\"lkbrxa1ww8w000000000\",\"field_input_name\":\"tonics_customer_settings_SpamProtectionContainer_SpamField\",\"fieldName\":\"Spam\",\"inputName\":\"tonics_customer_settings_SpamProtectionContainer_SpamField\"}"
+	},
+	{
+		"fk_field_id": "Customer Settings Spam Protection »» [HoneyPot Trap]",
+		"field_name": "input_text",
+		"field_id": 1,
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"3971dz6hcaa0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Decoy Input\",\"inputName\":\"customerSettingsSpamProtectionHoneyPotTrapDecoyInput\",\"textType\":\"text\",\"defaultValue\":\"trap,not-trap\",\"info\":\"Enter Decoy Input, can be separated by comma\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Customer Settings Spam Protection »» [Global Variables Check]",
+		"field_name": "input_text",
+		"field_id": 1,
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"20wrybxoynds000000000\",\"field_input_name\":\"customerSettingsSpamProtectionGlobalVariablesCheckInput\",\"fieldName\":\"Global Variables\",\"inputName\":\"customerSettingsSpamProtectionGlobalVariablesCheckInput\",\"textType\":\"textarea\",\"defaultValue\":\"/**\\nNote: value can contain:\\n\\nvalue|valueStartsWith|valueEndsWith|valueContains // negate the value with valueNot\\n\\nyou can check if value is not empty with: valueEmpty='0' OR valueEmpty='1' for empty value\\n**/\\n\\n// if there is no user agent, we mark as spam\\n[SERVER keyNot='HTTP_USER_AGENT' spam='1']\\n\\n// if there is user agent and the value contains bot, we mark as spam\\n[SERVER key='HTTP_USER_AGENT' valueContains='bot' spam='1']\\n\\n// if there is no accept language, we mark as spam\\n[SERVER  keyNot='HTTP_ACCEPT_LANGUAGE' spam='1']\\n\\n// for $_POST...the below is same as the honeytrap spam protection\\n\\n// if there is no key such as trap, we mark as spam\\n[POST  keyNot='trap' spam='1']\\n\\n// if there is a key such as trap and the value is not empty, we mark as spam\\n[POST  key='trap' valueEmpty='0' spam='1']\",\"info\":\"<pre style=\\\"all: revert;\\\">\\nCheck spam in a shortcode style syntax, examples provided in the textarea by default\\n</pre>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:200px;\"}"
+	},
+	{
+		"fk_field_id": "Customer Settings Spam Protection »» [Prevent Disposable Email]",
+		"field_name": "input_text",
+		"field_id": 1,
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"66gih9j81200000000000\",\"field_input_name\":\"customerSettingsSpamProtectionPreventDisposableEmailInput\",\"fieldName\":\"Input\",\"inputName\":\"customerSettingsSpamProtectionPreventDisposableEmailInput\",\"textType\":\"text\",\"defaultValue\":\"email\",\"info\":\"The input name to be checked\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter the input name of the email field\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\"}"
+	},
+	{
+		"fk_field_id": "Customer Settings Spam Protection »» [Prevent Disposable Email]",
+		"field_name": "input_text",
+		"field_id": 2,
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"dpzvmw0ez9c000000000\",\"field_input_name\":\"customerSettingsSpamProtectionPreventDisposableEmailMoreDisposableDomains\",\"fieldName\":\"More Disposable Domains\",\"inputName\":\"customerSettingsSpamProtectionPreventDisposableEmailMoreDisposableDomains\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"info\":\"Thousands of disposable emails is included by default, if the spam protection is not catching the one you want, include them here and ensure you separate them by a comma.\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter More Disposable Domains\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:100px;\"}"
 	}
 ]
 JSON;

@@ -16,37 +16,16 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Field\Events;
+namespace App\Modules\Customer\Interfaces;
 
-use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
+use App\Modules\Customer\Events\OnAddCustomerSpamProtectionEvent;
+use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class OnFieldTopHTMLWrapperUserSettings implements EventInterface
+abstract class CustomerSpamProtectionInterfaceAbstract implements CustomerSpamProtectionInterface, HandlerInterface
 {
-    private array|\stdClass $data;
-
-    public function __construct (array|\stdClass $data = [])
+    public function handleEvent (object $event): void
     {
-        $this->data = $data;
-    }
-
-    public function event (): static
-    {
-        return $this;
-    }
-
-    /**
-     * @return array|\stdClass
-     */
-    public function getData (): array|\stdClass
-    {
-        return $this->data;
-    }
-
-    /**
-     * @param array|\stdClass $data
-     */
-    public function setData (array|\stdClass $data): void
-    {
-        $this->data = $data;
+        /** @var $event OnAddCustomerSpamProtectionEvent */
+        $event->addHandler($this);
     }
 }

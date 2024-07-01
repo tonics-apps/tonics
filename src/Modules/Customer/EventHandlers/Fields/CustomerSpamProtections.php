@@ -16,30 +16,30 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Apps\TonicsCloud\EventHandlers\Fields;
+namespace App\Modules\Customer\EventHandlers\Fields;
 
-use App\Apps\TonicsCloud\Controllers\ContainerController;
-use App\Apps\TonicsCloud\Events\OnAddCloudAutomationEvent;
+
 use App\Apps\TonicsCloud\Interfaces\CloudAutomationInterface;
+use App\Modules\Core\Configs\FieldConfig;
+use App\Modules\Customer\Events\OnAddCustomerSpamProtectionEvent;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelectionDropper;
 use App\Modules\Field\Events\OnFieldMetaBox;
 
-class CloudAutomations extends FieldSelectionDropper
+class CustomerSpamProtections extends FieldSelectionDropper
 {
-
     public function fieldBoxName (): string
     {
-        return 'CloudAutomations';
+        return 'SpamProtection';
     }
 
     public function fieldBoxDescription (): string
     {
-        return 'Cloud Automation Handlers';
+        return 'Spam Protections';
     }
 
     public function fieldBoxCategory (): string
     {
-        return self::CATEGORY_TONICS_CLOUD;
+        return static::CATEGORY_CUSTOMER;
     }
 
     /**
@@ -85,31 +85,33 @@ FORM;
      */
     public function userForm (OnFieldMetaBox $event, $data): string
     {
-        if (ContainerController::getCurrentControllerMethod() === ContainerController::EDIT_METHOD) {
-            return '';
-        }
-
-        $onAddCloudAutomationEvent = new OnAddCloudAutomationEvent();
-        event()->dispatch($onAddCloudAutomationEvent);
+        $onAddCustomerSpamProtectionEvent = new OnAddCustomerSpamProtectionEvent();
+        event()->dispatch($onAddCustomerSpamProtectionEvent);
 
         $frag = $this->getField()->getTopHTMLWrapper();
         $changeID = $this->getField()->getFieldChangeID();
         $inputName = $this->getField()->getFieldInputName();
         $defaultValue = $this->getField()->getDefaultValue();
 
-        $fieldSelectionFrag = '';
+        $fieldSelectionFrag = '<option label=" "></option>';
         $defaultFieldSlugFrag = '';
-        $handlers = $onAddCloudAutomationEvent->getCloudAutomations();
+        $handlers = $onAddCustomerSpamProtectionEvent->getCustomerSpamProtections();
 
         /** @var CloudAutomationInterface $handler */
         foreach ($handlers as $handler) {
             $fieldSelected = '';
             if ($defaultValue === $handler->name()) {
                 $fieldSelected = 'selected';
-                $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
-                    [$handler->name()],
-                    getPostData(),
-                )->getHTMLFrag();
+
+                if (isset($data->_field->_children)) {
+                    $defaultFieldSlugFrag = FieldConfig::expandFieldWithChildrenFromMetaBox($event, $defaultValue);
+                } else {
+                    $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
+                        [$handler->name()],
+                        getPostData(),
+                    )->getHTMLFrag();
+                }
+
             }
             $fieldSelectionFrag .= <<<HTML
 <option value="{$handler->name()}" $fieldSelected>{$handler->displayName()}</option>
@@ -126,7 +128,7 @@ FieldSelectionDropperFrag;
 
         $frag .= <<<HTML
 <div class="form-group tonics-field-selection-dropper-form-group margin-top:0 owl">
-     <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">Choose Automation
+     <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">Choose Spam Protection
      <select name="$inputName" class="default-selector mg-b-plus-1 tonics-field-selection-dropper-select" id="fieldSlug-$changeID">
         $fieldSelectionFrag
      </select>
