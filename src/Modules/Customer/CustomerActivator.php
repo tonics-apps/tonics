@@ -19,8 +19,16 @@
 namespace App\Modules\Customer;
 
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
+use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Customer\EventHandlers\CustomerMenus;
+use App\Modules\Customer\EventHandlers\Fields\CustomerSpamProtections;
+use App\Modules\Customer\EventHandlers\SpamProtections\GlobalVariablesCheck;
+use App\Modules\Customer\EventHandlers\SpamProtections\HoneyPotTrap;
+use App\Modules\Customer\EventHandlers\SpamProtections\PreventDisposableEmails;
+use App\Modules\Customer\Events\OnAddCustomerSpamProtectionEvent;
 use App\Modules\Customer\Routes\RouteWeb;
+use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class CustomerActivator implements ExtensionConfig
@@ -41,7 +49,18 @@ class CustomerActivator implements ExtensionConfig
     public function events (): array
     {
         return [
+            OnAddCustomerSpamProtectionEvent::class => [
+                HoneyPotTrap::class,
+                GlobalVariablesCheck::class,
+                PreventDisposableEmails::class,
+            ],
 
+            OnFieldMetaBox::class => [
+                CustomerSpamProtections::class,
+            ],
+            OnAdminMenu::class    => [
+                CustomerMenus::class,
+            ],
         ];
     }
 
@@ -74,6 +93,9 @@ class CustomerActivator implements ExtensionConfig
         // TODO: Implement onUninstall() method.
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function info (): array
     {
         return [
@@ -81,10 +103,11 @@ class CustomerActivator implements ExtensionConfig
             "type"                 => "Module",
             "slug_id"              => "d33a73a6-273f-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1718095500',
+            "version"              => '1-O-Ola.1718718680',
             // "version" => '1-O-Ola.943905600', // fake old date
             "description"          => "The Customer Module",
             "info_url"             => '',
+            "settings_page"        => route('admin.customer.settings'),
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-customer-module/releases/latest",
             "authors"              => [
                 "name"  => "The Devsrealm Guy",

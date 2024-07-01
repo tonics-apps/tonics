@@ -267,6 +267,9 @@
 <form method="POST" action="[[arg('1')]]" class="padding:small owl margin-top:0">
     <input type="hidden" name="token" value="[[csrf()]]">
 
+    <input tabindex="-1" autocomplete="off" type="hidden" name="trap" value="">
+    <input tabindex="-1" autocomplete="off" style="opacity: 0; position: absolute; top: -9999px; left: -9999px;" type="text" class="d:none" name="not-trap" value="">
+
     <div class="form-group row">
         <label style="margin-inline-end: auto;" for="email">
             <span class="field-label">Username</span>

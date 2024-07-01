@@ -16,16 +16,26 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress;
+namespace App\Modules\Field\RequestInterceptor;
 
-use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsTemplateHandleEOF;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
+use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Library\Authentication\Roles;
+use App\Modules\Core\Library\SimpleState;
+use Devsrealm\TonicsRouterSystem\Events\OnRequestProcess;
+use Devsrealm\TonicsRouterSystem\Interfaces\TonicsRouterRequestInterceptorInterface;
 
-class WordPressShortCodeHandleEOF implements TonicsTemplateHandleEOF
+class FieldRenderAccess implements TonicsRouterRequestInterceptorInterface
 {
 
-    public function handleEOF(TonicsView $tonicsView): void
+    /**
+     * @inheritDoc
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function handle (OnRequestProcess $request): void
     {
-        $tonicsView->getTokenizerState()::finalEOFStackSort($tonicsView);
+        if (UserData::canAccess(Roles::CAN_RENDER_FIELDS) === false) {
+            SimpleState::displayUnauthorizedErrorMessage();
+        }
     }
 }

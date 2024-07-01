@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress\Extensions;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode\Extensions;
 
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRenderWithTagInterface;
@@ -28,16 +28,16 @@ class Caption extends TonicsTemplateViewAbstract implements TonicsModeRenderWith
     /**
      * @throws \Exception
      */
-    public function render(string $content, array $args, Tag $tag): string
+    public function render (string $content, array $args, Tag $tag): string
     {
         $args = helper()->htmlSpecialCharsOnArrayValues($args);
 
         $id = (empty($args['id'])) ? '' : 'id="' . $args['id'] . '" ';
-        $class = trim( 'caption ' . $args['align'] . ' ' . $args['class'] );
+        $class = trim('caption ' . $args['align'] . ' ' . $args['class']);
         $style = '';
-       // $style = 'style="width: ' . (int) $args['width'] . 'px" ';
+        // $style = 'style="width: ' . (int) $args['width'] . 'px" ';
         $describedby = (empty($args['caption_id'])) ? '' : 'aria-describedby="' . $args['caption_id'] . '" ';
-        $caption_id  = (empty($args['caption_id'])) ? '' : 'id="' . $args['caption_id'] . '" ';
+        $caption_id = (empty($args['caption_id'])) ? '' : 'id="' . $args['caption_id'] . '" ';
         $caption = $args['caption'];
 
         return <<<HTML
@@ -48,7 +48,7 @@ class Caption extends TonicsTemplateViewAbstract implements TonicsModeRenderWith
 HTML;
     }
 
-    public function defaultArgs(): array
+    public function defaultArgs (): array
     {
         return [
             'id'         => '',

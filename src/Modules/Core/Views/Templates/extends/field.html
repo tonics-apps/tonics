@@ -1,6 +1,6 @@
 [[hook_into('Core::in_main')
 [[set('Field.ButtonName', 'Save Changes')]]
-<form method="post" style="margin-top: 0;" class="EditorsForm" id="EditorsForm"  action="[[add_hook('Core::form_action')]]" accept-charset="UTF-8" enctype="multipart/form-data">
+<form method="post" style="margin-top: 0;"  spellcheck="false" class="EditorsForm" id="EditorsForm"  action="[[add_hook('Core::form_action')]]" accept-charset="UTF-8" enctype="multipart/form-data">
   <input type="hidden" name="token" value="[[csrf()]]" >
   [[add_hook('Core::before_form_section')]]
   <section class="post-admin-wrapper owl">

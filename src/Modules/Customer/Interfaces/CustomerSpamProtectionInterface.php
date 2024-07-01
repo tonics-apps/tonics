@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -16,22 +16,26 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress\Extensions;
+namespace App\Modules\Customer\Interfaces;
 
-use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
-use Devsrealm\TonicsTemplateSystem\Interfaces\TonicsModeRenderWithTagInterface;
-use Devsrealm\TonicsTemplateSystem\Node\Tag;
-
-class Character extends TonicsTemplateViewAbstract implements TonicsModeRenderWithTagInterface
+interface CustomerSpamProtectionInterface
 {
+    /**
+     * This should be the field slug name if you are using field
+     * @return string
+     */
+    public function name (): string;
 
-    public function render(string $content, array $args, Tag $tag): string
-    {
-        return $content;
-    }
+    /**
+     * User-friendly display name
+     * @return string
+     */
+    public function displayName (): string;
 
-    public function defaultArgs(): array
-    {
-        return [];
-    }
+    /**
+     * @param array $data
+     *
+     * @return bool
+     */
+    public function isSpam (array $data): bool;
 }

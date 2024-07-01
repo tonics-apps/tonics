@@ -45,6 +45,8 @@ final class AdminMenuHelper
     const APP_FORCE_UPDATE_CHECK = self::APPS . '/FORCE_UPDATE_CHECK_APP';
     const APP_UPLOAD_APP         = self::APPS . '/UPLOAD_APP';
 
+    const CUSTOMER = self::TOOL . '/CUSTOMERS';
+
     const JOB_MANAGER   = self::TOOL . '/JOBS_MANAGER';
     const JOBS          = self::JOB_MANAGER . '/JOBS';
     const JOB_SCHEDULER = self::JOB_MANAGER . '/JOBS_SCHEDULER';

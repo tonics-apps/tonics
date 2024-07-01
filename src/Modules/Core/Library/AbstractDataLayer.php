@@ -484,7 +484,7 @@ SQL, ...$parameter);
             $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
             // log..
             if (is_callable($onError)) {
-                $onError();
+                $onError($exception->getMessage());
             }
             return false;
         }

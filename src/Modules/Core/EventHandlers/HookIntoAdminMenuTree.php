@@ -41,12 +41,8 @@ class HookIntoAdminMenuTree implements HandlerInterface
 
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('Core::before_in_main_header_title', function (TonicsView $tonicsView) {
-            $foundNode = request()->getRouteObject()->getRouteTreeGenerator()?->getFoundURLNode();
-            $findURL = null;
-            if ($foundNode === null) {
-                $findURL = url()->getRouteObject()->getRouteTreeGenerator()->findURL(url()->getRequestURL());
-                $foundNode = $findURL->getFoundURLNode();
-            }
+            $findURL = url()->getRouteObject()->getRouteTreeGenerator()->findURL(url()->getRequestURL());
+            $foundNode = $findURL->getFoundURLNode();
             $path = $foundNode?->getFullRoutePath();
             $breadCrumb = '';
 

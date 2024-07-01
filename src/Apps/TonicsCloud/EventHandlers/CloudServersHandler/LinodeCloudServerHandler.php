@@ -37,10 +37,10 @@ require dirname(__FILE__, 3) . '/Library/Linode/Webinarium/vendor/autoload.php';
 
 class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 {
-    const API_INSTANCES = '/linode/instances';
+    const API_INSTANCES     = '/linode/instances';
     const API_STACK_SCRIPTS = '/linode/stackscripts';
 
-    public function displayName(): string
+    public function displayName (): string
     {
         return LinodePricingServices::DisplayName;
     }
@@ -48,18 +48,19 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
     /**
      * @return string
      */
-    public function name(): string
+    public function name (): string
     {
         return LinodePricingServices::PermName;
     }
 
     /**
      * @param array $data
+     *
      * @return void
      * @throws LinodeException
      * @throws Exception
      */
-    public function createInstance(array $data): void
+    public function createInstance (array $data): void
     {
         $client = $this->getLinodeClient();
         $cloudRegion = $data['cloud_region'] ?? '';
@@ -76,10 +77,10 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
         $repository = $client->linodes;
         $parameters = [
-            Linode::FIELD_TYPE => $service->service_name,
-            Linode::FIELD_REGION => $cloudRegion,
+            Linode::FIELD_TYPE            => $service->service_name,
+            Linode::FIELD_REGION          => $cloudRegion,
             Linode::FIELD_BACKUPS_ENABLED => $enableBackup === '1',
-            Linode::FIELD_ROOT_PASS => helper()->randString(),
+            Linode::FIELD_ROOT_PASS       => helper()->randString(),
         ];
 
         $deploymentOption = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeDeploymentOption);
@@ -97,8 +98,8 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
             $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
                 'USERNAME' => $sshUserOrPass,
                 'PASSWORD' => $sshUserOrPass,
-                'SSHKEY' => $sshKey,
-                'CERT' => $certs['cert'] // the client cert to be added to the server on deployment
+                'SSHKEY'   => $sshKey,
+                'CERT'     => $certs['cert'], // the client cert to be added to the server on deployment
             ];
 
         } else {
@@ -109,8 +110,8 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
             $parameters[Linode::FIELD_STACKSCRIPT_DATA] = [
                 'USERNAME' => $sshUserOrPass,
                 'PASSWORD' => $sshUserOrPass,
-                'SSHKEY' => $sshKey,
-                'CERT' => $certs['cert'] // the client cert to be added to the server on deployment
+                'SSHKEY'   => $sshKey,
+                'CERT'     => $certs['cert'], // the client cert to be added to the server on deployment
             ];
 
             $parameters[Linode::FIELD_IMAGE] = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeImage);
@@ -123,18 +124,18 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
             db(onGetDB: function (TonicsQuery $db) use ($certs, $serviceInstanceID, $instanceName, $linode, $service) {
                 $serviceInstanceTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICE_INSTANCES);
                 $db->FastUpdate($serviceInstanceTable, [
-                    'provider_instance_id' => $linode->id,
+                    'provider_instance_id'  => $linode->id,
                     'service_instance_name' => $instanceName,
-                    'others' => json_encode(
+                    'others'                => json_encode(
                         [
                             'serverHandlerName' => $this->name(),
-                            'instance' => $linode->toArray(),
-                            'ip' => [
+                            'instance'          => $linode->toArray(),
+                            'ip'                => [
                                 'ipv4' => $linode->ipv4,
                                 'ipv6' => $linode->ipv6,
                             ],
-                            'security' => ['cert' => $certs, 'added' => false]
-                        ])
+                            'security'          => ['cert' => $certs, 'added' => false],
+                        ]),
                 ], db()->Q()->WhereEquals('service_instance_id', $serviceInstanceID));
             });
         }
@@ -142,10 +143,11 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
     /**
      * @param array $data
+     *
      * @return void
      * @throws Exception|Throwable
      */
-    public function resizeInstance(array $data): void
+    public function resizeInstance (array $data): void
     {
         $instanceName = $data['service_instance_name'] ?? '';
         $servicePlan = $data['service_plan'] ?? '';
@@ -174,12 +176,12 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
                 # Create a new one with the same property somewhat
                 $insertedInstance = $db->Q()->InsertReturning($serviceInstanceTable, [
-                        'provider_instance_id' => $providerInstanceID, 'service_instance_name' => $instanceName,
-                        'service_instance_status' => 'Resizing',
-                        'fk_service_id' => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
-                        'fk_customer_id' => $customerID,
-                        'others' => $serviceInstance->others,
-                    ], ['service_instance_id'], 'service_instance_id'
+                    'provider_instance_id'    => $providerInstanceID, 'service_instance_name' => $instanceName,
+                    'service_instance_status' => 'Resizing',
+                    'fk_service_id'           => $service->service_id, 'fk_provider_id' => $service->service_provider_id,
+                    'fk_customer_id'          => $customerID,
+                    'others'                  => $serviceInstance->others,
+                ], ['service_instance_id'], 'service_instance_id',
                 );
 
                 $containerTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINERS);
@@ -187,7 +189,7 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
                     db()->Q()->WhereEquals('service_instance_id', $serviceInstance->service_instance_id));
 
                 $client = $this->getLinodeClient();
-                $client->linodes->resizeLinodeInstance($providerInstanceID, ['type' =>  $service->service_name]);
+                $client->linodes->resizeLinodeInstance($providerInstanceID, ['type' => $service->service_name]);
                 $db->commit();
             } catch (Exception $exception) {
                 $db->rollBack();
@@ -204,7 +206,7 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
      * @throws Exception
      * @throws Throwable
      */
-    public function isStatus(array $data, string $statusString): bool
+    public function isStatus (array $data, string $statusString): bool
     {
         $status = '';
         if ($statusString === CloudServerInterface::STATUS_STOPPED) {
@@ -230,22 +232,29 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
     /**
      * @param array $data
+     *
      * @return void
      * @throws LinodeException
      * @throws Exception|Throwable
      */
-    public function destroyInstance(array $data): void
+    public function destroyInstance (array $data): void
     {
+        $providerInstanceID = self::ProviderInstanceID($data);
+        # if there is no provider instance id, it was never created due to provider error, just return
+        if ($providerInstanceID === null) {
+            return;
+        }
         $client = $this->getLinodeClient();
         $client->linodes->deleteLinodeInstance(self::ProviderInstanceID($data));
     }
 
     /**
      * @param array $data
+     *
      * @throws LinodeException
      * @throws Exception
      */
-    public function changeInstanceStatus(array $data): void
+    public function changeInstanceStatus (array $data): void
     {
         $client = $this->getLinodeClient();
         $status = $data['service_instance_status'] ?? '';
@@ -278,9 +287,12 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
      * @throws Exception
      * @throws Throwable
      */
-    public function instance(array $data): array
+    public function instance (array $data): array
     {
         $providerInstanceID = self::ProviderInstanceID($data);
+        if ($providerInstanceID === null) {
+            throw new Exception("Not Found", 404);
+        }
         $client = $this->getLinodeClient();
         return $client->linodes->find($providerInstanceID)->toArray();
     }
@@ -289,15 +301,15 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
     /**
      * @throws Throwable
      */
-    public function info(array $data): array
+    public function info (array $data): array
     {
         $instance = self::GetServiceInstances($data);
-        if (isset($instance->others) && helper()->isJSON($instance->others)){
+        if (isset($instance->others) && helper()->isJSON($instance->others)) {
             $instance->others = json_decode($instance->others);
             return [
                 'ipv4'   => $instance->others->ip->ipv4[array_key_first($instance->others->instance->ipv4)],
                 'ipv6'   => $instance->others->ip->ipv6,
-                'region' =>  $instance->others->instance->region
+                'region' => $instance->others->instance->region,
             ];
         }
         return [];
@@ -305,10 +317,11 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
     /**
      * @param array $data
+     *
      * @return mixed
      * @throws Exception|Throwable
      */
-    public function instanceStatus(array $data): mixed
+    public function instanceStatus (array $data): mixed
     {
         $instanceInfo = $this->instance($data);
         if (isset($instanceInfo['status'])) {
@@ -320,11 +333,12 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
 
     /**
      * @param array $data
+     *
      * @return Generator
      * @throws LinodeException
      * @throws Exception
      */
-    public function instances(array $data): Generator
+    public function instances (array $data): Generator
     {
         $json = null;
         $page = $data['page'] ?? 1;
@@ -381,21 +395,11 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
         }
     }
 
-
-    /**
-     * @return LinodeClient
-     * @throws \Exception
-     */
-    private function getLinodeClient(): LinodeClient
-    {
-        return new LinodeClient(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeAPIToken));
-    }
-
     /**
      * @return array[]
      * @throws Exception
      */
-    public function regions(): array
+    public function regions (): array
     {
         $regions = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeRegion);
         if (helper()->isJSON($regions)) {
@@ -422,8 +426,17 @@ class LinodeCloudServerHandler extends CloudServerInterfaceAbstract
     /**
      * @throws Exception
      */
-    public function prices(): array
+    public function prices (): array
     {
         return LinodePricingServices::priceList();
+    }
+
+    /**
+     * @return LinodeClient
+     * @throws \Exception
+     */
+    private function getLinodeClient (): LinodeClient
+    {
+        return new LinodeClient(TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::LinodeAPIToken));
     }
 }

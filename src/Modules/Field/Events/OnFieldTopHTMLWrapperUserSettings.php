@@ -24,28 +24,28 @@ class OnFieldTopHTMLWrapperUserSettings implements EventInterface
 {
     private array|\stdClass $data;
 
-    public function __construct(array|\stdClass $data = [])
+    public function __construct (array|\stdClass $data = [])
     {
         $this->data = $data;
     }
 
-    public function event(): static
+    public function event (): static
     {
         return $this;
     }
 
     /**
-     * @return array
+     * @return array|\stdClass
      */
-    public function getData(): array|\stdClass
+    public function getData (): array|\stdClass
     {
         return $this->data;
     }
 
     /**
-     * @param array $data
+     * @param array|\stdClass $data
      */
-    public function setData(array|\stdClass $data): void
+    public function setData (array|\stdClass $data): void
     {
         $this->data = $data;
     }

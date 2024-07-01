@@ -23,26 +23,23 @@ use App\Apps\TonicsCloud\Events\OnAddCloudAutomationEvent;
 use App\Apps\TonicsCloud\Interfaces\CloudAutomationInterface;
 use App\Modules\Field\EventHandlers\Fields\Modular\FieldSelectionDropper;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
-class CloudAutomations extends FieldSelectionDropper implements HandlerInterface
+class CloudAutomations extends FieldSelectionDropper
 {
 
-    /**
-     * @inheritDoc
-     */
-    public function handleEvent (object $event): void
+    public function fieldBoxName (): string
     {
-        /** @var $event OnFieldMetaBox */
-        $event->addFieldBox('CloudAutomations', 'Cloud Automation Handlers', 'TonicsCloud',
-            settingsForm: function ($data) use ($event) {
-                return $this->settingsForm($event, $data);
-            },
-            userForm: function ($data) use ($event) {
-                return $this->userForm($event, $data);
-            },
-            handleViewProcessing: function () {},
-        );
+        return 'CloudAutomations';
+    }
+
+    public function fieldBoxDescription (): string
+    {
+        return 'Cloud Automation Handlers';
+    }
+
+    public function fieldBoxCategory (): string
+    {
+        return self::CATEGORY_TONICS_CLOUD;
     }
 
     /**
@@ -54,10 +51,16 @@ class CloudAutomations extends FieldSelectionDropper implements HandlerInterface
      */
     public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Automations';
-        $inputName = (isset($data->inputName)) ? $data->inputName : '';
-        $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $field = $this->getField();
+        $field->processData($event, [
+            'fieldName' => $this->fieldBoxDescription(),
+        ]);
+
+        $fieldName = $field->getFieldName();
+        $inputName = $field->getInputName();
+        $changeID = $field->getFieldChangeIDOnSettingsForm();
+        $frag = $field->getTopHTMLWrapper();
+
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
@@ -89,15 +92,10 @@ FORM;
         $onAddCloudAutomationEvent = new OnAddCloudAutomationEvent();
         event()->dispatch($onAddCloudAutomationEvent);
 
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Automations';
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $slug = $data->field_slug;
-        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
-
-        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
-        $keyValue = $event->getKeyValueInData($data, $data->inputName);
-        $defaultValue = $keyValue ?: $defaultValue;
+        $frag = $this->getField()->getTopHTMLWrapper();
+        $changeID = $this->getField()->getFieldChangeID();
+        $inputName = $this->getField()->getFieldInputName();
+        $defaultValue = $this->getField()->getDefaultValue();
 
         $fieldSelectionFrag = '';
         $defaultFieldSlugFrag = '';

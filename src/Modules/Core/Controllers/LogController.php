@@ -43,7 +43,7 @@ class LogController
     public function view (): void
     {
         $settings = self::getSettingsData();
-        $logPath = $settings['log_path'] ?? self::WhiteListLogFiles()[0];
+        $logPath = $settings['log_path'] ?? array_key_first(self::WhiteListLogFiles());
         if (isset(self::WhiteListLogFiles()[$logPath])) {
 
             $options = [
@@ -61,7 +61,7 @@ class LogController
                 session()->flash([$exception->getMessage()], []);
                 $lines = '';
             }
-            FieldConfig::savePluginFieldSettings(self::getCacheKey(), $options);
+            FieldConfig::savePluginFieldSettings(self::getCacheKey(), $options, false);
         }
 
         $messageURL = null;

@@ -200,6 +200,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
         $this->configureUpCloudClient();
         $serverApi = new ServerApi();
         $instanceID = self::ProviderInstanceID($data);
+        # if there is no provider instance id, it was never created due to provider error, just return
         if (empty($instanceID)) {
             return;
         }
@@ -352,7 +353,7 @@ class UpCloudServerHandler extends CloudServerInterfaceAbstract
         $serverApi = new ServerApi();
         $instanceID = self::ProviderInstanceID($data);
         if (empty($instanceID)) {
-            return null;
+            throw new Exception("Not Found", 404);
         }
         return $serverApi->serverDetails(self::ProviderInstanceID($data));
     }

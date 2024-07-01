@@ -18,14 +18,12 @@
 
 namespace App\Modules\Core\Controllers;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
-use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Field\Data\FieldData;
 
-class CoreSettingsController
+class CoreSettingsController extends AbstractFieldSettingsController
 {
-    const TonicsModule_TonicsCoreSettings = 'TonicsModule_TonicsCoreSettings';
+    const        TonicsModule_TonicsCoreSettings = 'TonicsModule_TonicsCoreSettings';
+    public const CACHE_KEY                       = self::TonicsModule_TonicsCoreSettings;
 
     const AppSettings_AppSiteKey     = 'tonics_core_settings_appSettings_siteKey';
     const AppSettings_AppName        = 'tonics_core_settings_appSettings_appName';
@@ -46,16 +44,9 @@ class CoreSettingsController
     const Updates_AutoUpdateModules = 'tonics_core_settings_updates_autoUpdateModules';
     const Updates_AutoUpdateApps    = 'tonics_core_settings_updates_autoUpdateApps';
 
-    const MediaDrive_DropBoxRepeaterName = 'tonics_core_settings_mediaDrives_dropBoxRepeater';
-    const MediaDrive_DropBoxKey          = 'tonics_core_settings_mediaDrives_dropBoxRepeater_Key';
-    const MediaDrive_DropBoxName         = 'tonics_core_settings_mediaDrives_dropBoxRepeater_Name';
-    private static array $settings = [];
-    private ?FieldData   $fieldData;
-
-    public function __construct (FieldData $fieldData = null)
-    {
-        $this->fieldData = $fieldData;
-    }
+    const        MediaDrive_DropBoxRepeaterName = 'tonics_core_settings_mediaDrives_dropBoxRepeater';
+    const        MediaDrive_DropBoxKey          = 'tonics_core_settings_mediaDrives_dropBoxRepeater_Key';
+    const        MediaDrive_DropBoxName         = 'tonics_core_settings_mediaDrives_dropBoxRepeater_Name';
 
     /**
      * @throws \Exception
@@ -75,84 +66,9 @@ class CoreSettingsController
      * @return void
      * @throws \Throwable
      */
-    public function update ()
+    public function update (): void
     {
-        try {
-            $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
-            apcu_store(self::getCacheKey(), $settings);
-
-            session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('admin.core.settings'));
-        } catch (\Exception) {
-            session()->flash(['An Error Occurred Saving Settings'], $_POST);
-            redirect(route('admin.core.settings'));
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public static function getSettingsData ()
-    {
-        if (!self::$settings) {
-            $settings = apcu_fetch(self::getCacheKey());
-            if ($settings === false) {
-                $settings = FieldConfig::loadPluginSettings(self::getCacheKey());
-            }
-            self::$settings = $settings;
-        }
-
-        return self::$settings;
-    }
-
-    /**
-     * @param string $key
-     * @param $default
-     * If $key value is empty, we use $default
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public static function getSettingsValue (string $key, $default = null): mixed
-    {
-        #
-        # If DB doesn't exist here, then it means we are accessing settings too early,
-        # we fall back to $default
-        #
-        if (!function_exists('db')) {
-            return $default;
-        }
-
-        $settings = self::getSettingsData();
-        if (key_exists($key, $settings)) {
-            $value = $settings[$key];
-            if ($value !== '') {
-                return $value;
-            }
-        }
-
-        return $default;
-    }
-
-    public static function getCacheKey (): string
-    {
-        return AppConfig::getAppCacheKey() . self::TonicsModule_TonicsCoreSettings;
-    }
-
-    /**
-     * @return FieldData|null
-     */
-    public function getFieldData (): ?FieldData
-    {
-        return $this->fieldData;
-    }
-
-    /**
-     * @param FieldData|null $fieldData
-     */
-    public function setFieldData (?FieldData $fieldData): void
-    {
-        $this->fieldData = $fieldData;
+        $this->updateSettings('admin.core.settings');
     }
 
     /**

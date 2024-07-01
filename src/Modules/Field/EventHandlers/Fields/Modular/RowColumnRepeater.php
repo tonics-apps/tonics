@@ -316,6 +316,7 @@ HTML;
      *
      * @return string
      * @throws \Exception
+     * @throws \Throwable
      */
     private function handleUserFormFrag (OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
     {

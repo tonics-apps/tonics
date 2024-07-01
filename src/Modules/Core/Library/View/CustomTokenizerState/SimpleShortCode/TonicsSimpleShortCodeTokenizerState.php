@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace App\Modules\Core\Library\View\CustomTokenizerState\WordPress;
+namespace App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode;
 
 use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateTokenizerStateAbstract;
 use Devsrealm\TonicsTemplateSystem\Node\Tag;
@@ -32,38 +32,36 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
  * - No quirks found for now...
  *
  */
-class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstract
+class TonicsSimpleShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstract
 {
 
-    private static string $currentArgKey = '';
-    private static string $rawTagName = '';
-    private static string $nestedTagName = '';
-    private static string $invalidTagName = '';
-    private static string $tagNameInOpenTagState = '';
+    const TonicsSimpleShortCodeOpenTagStateHandler                                = 'TonicsSimpleShortCodeOpenTagStateHandler';
+    const TonicsSimpleShortCodeRawStateHandler                                    = 'TonicsSimpleShortCodeRawStateHandler';
+    const TonicsSimpleShortCodeTagNameStateHandler                                = 'TonicsSimpleShortCodeTagNameStateHandler';
+    const TonicsSimpleShortCodeClosingOpenTagStateHandler                         = 'TonicsSimpleShortCodeClosingOpenTagStateHandler';
+    const TonicsSimpleShortCodeSelfCloseTagStateHandler                           = 'TonicsSimpleShortCodeSelfCloseTagStateHandler';
+    const TonicsSimpleShortCodeOpenAttributeStateHandler                          = 'TonicsSimpleShortCodeOpenAttributeStateHandler';
+    const TonicsSimpleShortCodeOpenAttributeValueStateHandler                     = 'TonicsSimpleShortCodeOpenAttributeValueStateHandler';
+    const TonicsSimpleShortCodeSingleQuotedValueStateHandler                      = 'TonicsSimpleShortCodeSingleQuotedValueStateHandler';
+    const TonicsSimpleShortCodeDoubleQuotedValueStateHandler                      = 'TonicsSimpleShortCodeDoubleQuotedValueStateHandler';
+    const TonicsSimpleShortCodeArgValueStateHandler                               = 'TonicsSimpleShortCodeArgValueStateHandler';
+    const TonicsSimpleShortCodeArgKeyStateHandler                                 = 'TonicsSimpleShortCodeArgKeyStateHandler';
+    const TonicsSimpleShortCodeAfterArgValueStateHandler                          = 'TonicsSimpleShortCodeAfterArgValueStateHandler';
+    const TonicsSimpleShortCodeClosingCloseTagStateHandler                        = 'TonicsSimpleShortCodeClosingCloseTagStateHandler';
+    const TonicsSimpleShortCodeClosingCloseTagNameStateHandler                    = 'TonicsSimpleShortCodeClosingCloseTagNameStateHandler';
+    const TonicsSimpleShortCodeNoQuoteValueStateHandler                           = 'TonicsSimpleShortCodeNoQuoteValueStateHandler';
+    const TonicsSimpleShortCodeCanTagBeNestedStateHandler                         = 'TonicsSimpleShortCodeCanTagBeNestedStateHandler';
+    const TonicsSimpleShortCodeRawContentsStateHandler                            = 'TonicsSimpleShortCodeRawContentsStateHandler';
+    const TonicsSimpleShortCodeRawEncounterRightSquareBracketStateHandler         = 'TonicsSimpleShortCodeRawEncounterRightSquareBracketStateHandler';
+    const TonicsSimpleShortCodeRawAfterEncounteringRightSquareBracketStateHandler = 'TonicsSimpleShortCodeRawAfterEncounteringRightSquareBracketStateHandler';
+    private static string $currentArgKey          = '';
+    private static string $rawTagName             = '';
+    private static string $nestedTagName          = '';
+    private static string $invalidTagName         = '';
+    private static string $tagNameInOpenTagState  = '';
     private static string $tagNameInCloseTagState = '';
 
-    const WordPressShortCodeOpenTagStateHandler = 'WordPressShortCodeOpenTagStateHandler';
-    const WordPressShortCodeRawStateHandler = 'WordPressShortCodeRawStateHandler';
-    const WordPressShortCodeTagNameStateHandler = 'WordPressShortCodeTagNameStateHandler';
-    const WordPressShortCodeClosingOpenTagStateHandler = 'WordPressShortCodeClosingOpenTagStateHandler';
-    const WordPressShortCodeSelfCloseTagStateHandler = 'WordPressShortCodeSelfCloseTagStateHandler';
-    const WordPressShortCodeOpenAttributeStateHandler = 'WordPressShortCodeOpenAttributeStateHandler';
-    const WordPressShortCodeOpenAttributeValueStateHandler = 'WordPressShortCodeOpenAttributeValueStateHandler';
-    const WordPressShortCodeSingleQuotedValueStateHandler = 'WordPressShortCodeSingleQuotedValueStateHandler';
-    const WordPressShortCodeDoubleQuotedValueStateHandler = 'WordPressShortCodeDoubleQuotedValueStateHandler';
-    const WordPressShortCodeArgValueStateHandler = 'WordPressShortCodeArgValueStateHandler';
-    const WordPressShortCodeArgKeyStateHandler = 'WordPressShortCodeArgKeyStateHandler';
-    const WordPressShortCodeAfterArgValueStateHandler = 'WordPressShortCodeAfterArgValueStateHandler';
-    const WordPressShortCodeClosingCloseTagStateHandler = 'WordPressShortCodeClosingCloseTagStateHandler';
-    const WordPressShortCodeClosingCloseTagNameStateHandler = 'WordPressShortCodeClosingCloseTagNameStateHandler';
-    const WordPressShortCodeNoQuoteValueStateHandler = 'WordPressShortCodeNoQuoteValueStateHandler';
-    const WordPressShortCodeCanTagBeNestedStateHandler = 'WordPressShortCodeCanTagBeNestedStateHandler';
-    const WordPressShortCodeRawContentsStateHandler = 'WordPressShortCodeRawContentsStateHandler';
-    const WordPressShortCodeRawEncounterRightSquareBracketStateHandler = 'WordPressShortCodeRawEncounterRightSquareBracketStateHandler';
-    const WordPressShortCodeRawAfterEncounteringRightSquareBracketStateHandler = 'WordPressShortCodeRawAfterEncounteringRightSquareBracketStateHandler';
-
-
-    public static function InitialStateHandler(TonicsView $tv): void
+    public static function InitialStateHandler (TonicsView $tv): void
     {
         if ($tv->charIsEOF()) {
             return;
@@ -71,21 +69,21 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
 
         if ($tv->charIsLeftSquareBracket()) {
             # E.G. [b
-            if ($nextChar = $tv->nextCharHypothetical()){
-                if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscore($nextChar)){
+            if ($nextChar = $tv->nextCharHypothetical()) {
+                if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscore($nextChar)) {
                     self::handleEmission(Token::Character, $tv);
-                    $tv->switchState(self::WordPressShortCodeOpenTagStateHandler);
+                    $tv->switchState(self::TonicsSimpleShortCodeOpenTagStateHandler);
                     return;
                 }
                 # E.G. [/
                 if ($tv->charIsForwardSlash($nextChar)) {
-                    $tv->switchState(self::WordPressShortCodeClosingCloseTagNameStateHandler);
+                    $tv->switchState(self::TonicsSimpleShortCodeClosingCloseTagNameStateHandler);
                     return;
                 }
                 # E.G. [[
                 if ($tv->charIsLeftSquareBracket($nextChar)) {
                     self::handleEmission(Token::Character, $tv);
-                    $tv->switchState(self::WordPressShortCodeRawStateHandler);
+                    $tv->switchState(self::TonicsSimpleShortCodeRawStateHandler);
                     return;
                 }
             }
@@ -94,30 +92,40 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         $tv->appendToCharacterToken($tv->getChar());
     }
 
-    public static function WordPressShortCodeOpenTagStateHandler(TonicsView $tv)
+    public static function TonicsTagLeftSquareBracketStateHandler (TonicsView $tonicsView): void {}
+
+    public static function TonicsTagOpenStateHandler (TonicsView $view): void {}
+
+    public static function TonicsTagNameStateHandler (TonicsView $tonicsView): void {}
+
+    public static function TonicsTagOpenArgValueSingleQuotedStateHandler (TonicsView $tonicsView): void {}
+
+    public static function TonicsTagOpenArgValueDoubleQuotedStateHandler (TonicsView $tonicsView): void {}
+
+    public static function TonicsSimpleShortCodeOpenTagStateHandler (TonicsView $tv)
     {
         if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash()) {
             self::$tagNameInOpenTagState = '';
-            $tv->reconsumeIn(self::WordPressShortCodeTagNameStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeTagNameStateHandler);
         }
     }
 
-    public static function WordPressShortCodeRawStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeRawStateHandler (TonicsView $tv)
     {
-        if ($tv->charIsEOF()){
+        if ($tv->charIsEOF()) {
             return;
         }
 
-        if (key_exists(self::$rawTagName, $tv->getModeHandler())) {
+        if (key_exists(strtolower(self::$rawTagName), $tv->getModeHandler())) {
             self::$rawTagName = '';
             $tv->appendToCharacterToken(self::$rawTagName);
-            $tv->reconsumeIn(self::WordPressShortCodeRawContentsStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeRawContentsStateHandler);
             return;
         }
 
-        if ($tv->charIsRightSquareBracket()){
+        if ($tv->charIsRightSquareBracket()) {
             $tv->appendToCharacterToken($tv->getChar());
-            $tv->switchState(self::WordPressShortCodeRawEncounterRightSquareBracketStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeRawEncounterRightSquareBracketStateHandler);
             return;
         }
 
@@ -129,22 +137,22 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         $tv->appendToCharacterToken($tv->getChar());
     }
 
-    public static function WordPressShortCodeRawEncounterRightSquareBracketStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeRawEncounterRightSquareBracketStateHandler (TonicsView $tv)
     {
-        if ($tv->charIsRightSquareBracket()){
+        if ($tv->charIsRightSquareBracket()) {
             $tv->prependAndAppendToCharacterToken('[', ']');
-            $tv->switchState(self::WordPressShortCodeRawAfterEncounteringRightSquareBracketStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeRawAfterEncounteringRightSquareBracketStateHandler);
             return;
         }
 
         $tv->appendToCharacterToken($tv->getChar());
     }
 
-    public static function WordPressShortCodeRawAfterEncounteringRightSquareBracketStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeRawAfterEncounteringRightSquareBracketStateHandler (TonicsView $tv)
     {
-        if ($tv->charIsLeftSquareBracket()){
-            if ($next = $tv->nextCharHypothetical()){
-                if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscore($next)){
+        if ($tv->charIsLeftSquareBracket()) {
+            if ($next = $tv->nextCharHypothetical()) {
+                if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscore($next)) {
                     $tv->reconsumeIn(self::InitialStateHandler);
                 }
             }
@@ -153,9 +161,9 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         $tv->appendToCharacterToken($tv->getChar());
     }
 
-    public static function WordPressShortCodeRawContentsStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeRawContentsStateHandler (TonicsView $tv)
     {
-        if ($tv->consumeMultipleCharactersIf(']]')){
+        if ($tv->consumeMultipleCharactersIf(']]')) {
             $tv->appendToCharacterToken($tv->getChar());
             $tv->switchState(self::InitialStateHandler);
             return;
@@ -163,7 +171,7 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         $tv->appendToCharacterToken($tv->getChar());
     }
 
-    public static function WordPressShortCodeTagNameStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeTagNameStateHandler (TonicsView $tv)
     {
         if ($tv->charIsEOF()) {
             return;
@@ -171,15 +179,15 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
 
         $char = $tv->getChar();
         self::$tagNameInOpenTagState .= $char;
-        if (key_exists(self::$tagNameInOpenTagState, $tv->getModeHandler())) {
+        if (key_exists(strtolower(self::$tagNameInOpenTagState), $tv->getModeHandler())) {
             $tv->createNewTagInOpenStackTag(self::$tagNameInOpenTagState)
-                ->switchState(self::WordPressShortCodeOpenAttributeStateHandler);
+                ->switchState(self::TonicsSimpleShortCodeOpenAttributeStateHandler);
             return;
         }
 
         if ($tv->charIsLeftSquareBracket()) {
-            if ($char = $tv->nextCharHypothetical()){
-                if (!$tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash($char)){
+            if ($char = $tv->nextCharHypothetical()) {
+                if (!$tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash($char)) {
                     if (empty($tv->getStackOfOpenTagEl())) {
                         $tv->appendToCharacterToken('[' . self::$tagNameInOpenTagState);
                     } else {
@@ -190,11 +198,11 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
                 }
             }
             self::$nestedTagName = '';
-            $tv->reconsumeIn(self::WordPressShortCodeCanTagBeNestedStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeCanTagBeNestedStateHandler);
             return;
         }
 
-        if ($tv->charIsRightSquareBracket()){
+        if ($tv->charIsRightSquareBracket()) {
             if (empty($tv->getStackOfOpenTagEl())) {
                 $tv->appendToCharacterToken('[' . self::$tagNameInOpenTagState);
             } else {
@@ -205,15 +213,15 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         }
 
         if ($tv->charIsForwardSlash()) {
-            if ($char = $tv->nextCharHypothetical()){
-                if ($tv->charIsRightSquareBracket($char)){
-                    $tv->switchState(self::WordPressShortCodeSelfCloseTagStateHandler);
+            if ($char = $tv->nextCharHypothetical()) {
+                if ($tv->charIsRightSquareBracket($char)) {
+                    $tv->switchState(self::TonicsSimpleShortCodeSelfCloseTagStateHandler);
                 }
             }
         }
     }
 
-    public static function WordPressShortCodeCanTagBeNestedStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeCanTagBeNestedStateHandler (TonicsView $tv)
     {
         if ($tv->charIsEOF()) {
             $tv->getLastCreateTag()->appendCharacterToContent('[' . self::$nestedTagName);
@@ -223,24 +231,24 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         $char = $tv->getChar();
         self::appendNestedTagName($char);
 
-        if (key_exists(self::$nestedTagName, $tv->getModeHandler())) {
+        if (key_exists(strtolower(self::$nestedTagName), $tv->getModeHandler())) {
             $tv->createNewTagInOpenStackTag(self::$nestedTagName)
-                ->switchState(self::WordPressShortCodeOpenAttributeStateHandler);
+                ->switchState(self::TonicsSimpleShortCodeOpenAttributeStateHandler);
             self::$nestedTagName = '';
             return;
         }
 
         if ($tv->charIsRightSquareBracket()) {
             $tv->appendCharToCurrentTokenTagContent('[' . self::$nestedTagName);
-            $tv->switchState(self::WordPressShortCodeClosingOpenTagStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeClosingOpenTagStateHandler);
         }
 
     }
 
-    public static function WordPressShortCodeOpenAttributeStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeOpenAttributeStateHandler (TonicsView $tv)
     {
         if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash()) {
-            $tv->reconsumeIn(self::WordPressShortCodeArgKeyStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeArgKeyStateHandler);
             return;
         }
 
@@ -252,11 +260,11 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
             $tv->appendCharToArgValue(self::$currentArgKey);
             self::$currentArgKey = '';
             $tv->incrementSigilCounter();
-            $tv->switchState(self::WordPressShortCodeClosingOpenTagStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeClosingOpenTagStateHandler);
         }
     }
 
-    public static function WordPressShortCodeArgKeyStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeArgKeyStateHandler (TonicsView $tv)
     {
         if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash()) {
             self::appendCurrentTokenTagArgKey($tv->getChar());
@@ -267,30 +275,30 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
             $tv->startNewArgsInCurrentTagToken(self::$currentArgKey);
             self::$currentArgKey = '';
             $tv->incrementSigilCounter();
-            $tv->switchState(self::WordPressShortCodeClosingOpenTagStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeClosingOpenTagStateHandler);
             return;
         }
 
         if ($tv->charIsEqual()) {
-            $tv->switchState(self::WordPressShortCodeOpenAttributeValueStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeOpenAttributeValueStateHandler);
         }
 
         if ($tv->charIsTabOrLFOrFFOrSpace()) {
-            $tv->switchState(self::WordPressShortCodeArgValueStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeArgValueStateHandler);
         }
     }
 
-    public static function WordPressShortCodeArgValueStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeArgValueStateHandler (TonicsView $tv)
     {
         if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash()) {
             $tv->startNewArgsInCurrentTagToken(self::$currentArgKey);
             self::$currentArgKey = '';
-            $tv->reconsumeIn(self::WordPressShortCodeOpenAttributeStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeOpenAttributeStateHandler);
             return;
         }
     }
 
-    public static function WordPressShortCodeOpenAttributeValueStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeOpenAttributeValueStateHandler (TonicsView $tv)
     {
         if ($tv->charIsTabOrLFOrFFOrSpace()) {
             return;
@@ -298,84 +306,84 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
 
         if ($tv->charIsApostrophe()) {
             $tv->startNewArgsInCurrentTagToken();
-            $tv->switchState(self::WordPressShortCodeSingleQuotedValueStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeSingleQuotedValueStateHandler);
             return;
         }
 
         if ($tv->charIsQuotationMark()) {
             $tv->startNewArgsInCurrentTagToken();
-            $tv->switchState(self::WordPressShortCodeDoubleQuotedValueStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeDoubleQuotedValueStateHandler);
             return;
         }
 
         if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash()) {
             $tv->startNewArgsInCurrentTagToken();
-            $tv->reconsumeIn(self::WordPressShortCodeNoQuoteValueStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeNoQuoteValueStateHandler);
         }
     }
 
-    public static function WordPressShortCodeNoQuoteValueStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeNoQuoteValueStateHandler (TonicsView $tv)
     {
         if ($tv->charIsRightSquareBracket()) {
             $tv->replaceCurrentTokenTagArgKey(self::$currentArgKey);
             self::$currentArgKey = '';
-            $tv->reconsumeIn(self::WordPressShortCodeAfterArgValueStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeAfterArgValueStateHandler);
             return;
         }
 
         if ($tv->charIsTabOrLFOrFFOrSpace()) {
             $tv->replaceCurrentTokenTagArgKey(self::$currentArgKey);
             self::$currentArgKey = '';
-            $tv->switchState(self::WordPressShortCodeOpenAttributeStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeOpenAttributeStateHandler);
             return;
         }
 
         $tv->appendCharToArgValue($tv->getChar());
     }
 
-    public static function WordPressShortCodeSingleQuotedValueStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeSingleQuotedValueStateHandler (TonicsView $tv)
     {
         if ($tv->charIsApostrophe()) {
             $tv->replaceCurrentTokenTagArgKey(self::$currentArgKey);
             self::$currentArgKey = '';
-            $tv->switchState(self::WordPressShortCodeAfterArgValueStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeAfterArgValueStateHandler);
             return;
         }
 
         $tv->appendCharToArgValue($tv->getChar());
     }
 
-    public static function WordPressShortCodeDoubleQuotedValueStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeDoubleQuotedValueStateHandler (TonicsView $tv)
     {
         if ($tv->charIsQuotationMark()) {
             $tv->replaceCurrentTokenTagArgKey(self::$currentArgKey);
             self::$currentArgKey = '';
-            $tv->switchState(self::WordPressShortCodeAfterArgValueStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeAfterArgValueStateHandler);
             return;
         }
 
         $tv->appendCharToArgValue($tv->getChar());
     }
 
-    public static function WordPressShortCodeAfterArgValueStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeAfterArgValueStateHandler (TonicsView $tv)
     {
         if ($tv->charIsTabOrLFOrFFOrSpace()) {
-            $tv->switchState(self::WordPressShortCodeOpenAttributeStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeOpenAttributeStateHandler);
             return;
         }
 
         if ($tv->charIsForwardSlash()) {
-            $tv->switchState(self::WordPressShortCodeSelfCloseTagStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeSelfCloseTagStateHandler);
             return;
         }
 
         if ($tv->charIsRightSquareBracket()) {
             $tv->incrementSigilCounter();
-            $tv->switchState(self::WordPressShortCodeClosingOpenTagStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeClosingOpenTagStateHandler);
         }
     }
 
-    public static function WordPressShortCodeSelfCloseTagStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeSelfCloseTagStateHandler (TonicsView $tv)
     {
         if ($tv->charIsRightSquareBracket()) {
             $tv->decrementSigilCounter();
@@ -385,20 +393,20 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         }
     }
 
-    public static function WordPressShortCodeClosingOpenTagStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeClosingOpenTagStateHandler (TonicsView $tv)
     {
         if ($tv->charIsEOF()) {
             return;
         }
 
         if ($tv->consumeMultipleCharactersIf('[/')) {
-            $tv->switchState(self::WordPressShortCodeClosingCloseTagNameStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeClosingCloseTagNameStateHandler);
             return;
         }
 
         if ($tv->charIsLeftSquareBracket()) {
             self::$nestedTagName = '';
-            $tv->switchState(self::WordPressShortCodeCanTagBeNestedStateHandler);
+            $tv->switchState(self::TonicsSimpleShortCodeCanTagBeNestedStateHandler);
             return;
         }
 
@@ -410,9 +418,10 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
      * but since some tags support no-closing name e.g [toc], we need to differentiate it
      * from tag that supports closing name e.g [caption]...[/caption], this way we can
      * specify if we should set its closeState to true or not
+     *
      * @param TonicsView $tv
      */
-    public static function WordPressShortCodeClosingCloseTagNameStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeClosingCloseTagNameStateHandler (TonicsView $tv)
     {
         if ($tv->charIsAsciiAlphaOrAsciiDigitOrUnderscoreOrDash()) {
             self::$tagNameInCloseTagState .= $tv->getChar();
@@ -420,14 +429,14 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         }
 
         if ($tv->charIsRightSquareBracket()) {
-            $tv->reconsumeIn(self::WordPressShortCodeClosingCloseTagStateHandler);
+            $tv->reconsumeIn(self::TonicsSimpleShortCodeClosingCloseTagStateHandler);
         }
     }
 
-    public static function WordPressShortCodeClosingCloseTagStateHandler(TonicsView $tv)
+    public static function TonicsSimpleShortCodeClosingCloseTagStateHandler (TonicsView $tv)
     {
         if ($tv->charIsRightSquareBracket()) {
-            if (self::$tagNameInCloseTagState === self::$tagNameInOpenTagState){
+            if (self::$tagNameInCloseTagState === self::$tagNameInOpenTagState) {
                 self::closeLastCurrentTokenTagState($tv);
             }
             self::$tagNameInOpenTagState = '';
@@ -439,27 +448,27 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         }
     }
 
-    private static function appendCurrentTokenTagArgKey(string $character): void
+    private static function appendCurrentTokenTagArgKey (string $character): void
     {
         self::$currentArgKey .= $character;
     }
 
-    private static function appendCurrentCharToRawTagName(string $character): void
+    private static function appendCurrentCharToRawTagName (string $character): void
     {
         self::$rawTagName .= $character;
     }
 
-    private static function appendNestedTagName(string $character): void
+    private static function appendNestedTagName (string $character): void
     {
         self::$nestedTagName .= $character;
     }
 
-    private static function appendInvalidTagName(string $character): void
+    private static function appendInvalidTagName (string $character): void
     {
         self::$invalidTagName .= $character;
     }
 
-    private static function handleEmission(string $toEmit, TonicsView $tv): void
+    private static function handleEmission (string $toEmit, TonicsView $tv): void
     {
         if ($toEmit === Token::Character) {
             if (!empty($tv->getCharacterToken()['data'])) {
@@ -478,7 +487,7 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         }
     }
 
-    public static function sortStackOfOpenTagEl(TonicsView $tv)
+    public static function sortStackOfOpenTagEl (TonicsView $tv)
     {
         if ($tv->getSigilCounter() > 0) {
             $revs = $tv->reverseStackOfOpenTagEl();
@@ -499,7 +508,7 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         }
     }
 
-    public static function finalEOFStackSort(TonicsView $tv)
+    public static function finalEOFStackSort (TonicsView $tv)
     {
         self::handleEmission(Token::Character, $tv);
         foreach ($tv->getStackOfOpenTagEl() as $key => $tag) {
@@ -519,28 +528,8 @@ class WordPressShortCodeTokenizerState extends TonicsTemplateTokenizerStateAbstr
         }
     }
 
-    private static function closeLastCurrentTokenTagState(TonicsView $tv): void
+    private static function closeLastCurrentTokenTagState (TonicsView $tv): void
     {
         $tv->getLastOpenTag()->setCloseState(true);
-    }
-
-    public static function TonicsTagLeftSquareBracketStateHandler(TonicsView $tonicsView): void
-    {
-    }
-
-    public static function TonicsTagOpenStateHandler(TonicsView $view): void
-    {
-    }
-
-    public static function TonicsTagNameStateHandler(TonicsView $tonicsView): void
-    {
-    }
-
-    public static function TonicsTagOpenArgValueSingleQuotedStateHandler(TonicsView $tonicsView): void
-    {
-    }
-
-    public static function TonicsTagOpenArgValueDoubleQuotedStateHandler(TonicsView $tonicsView): void
-    {
     }
 }

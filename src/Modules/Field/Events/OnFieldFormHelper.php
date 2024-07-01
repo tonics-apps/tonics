@@ -19,8 +19,6 @@
 namespace App\Modules\Field\Events;
 
 use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\FieldConfig;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -28,19 +26,20 @@ use JetBrains\PhpStorm\Pure;
 
 class OnFieldFormHelper implements EventInterface
 {
-    private FieldData $fieldData;
+    private FieldData      $fieldData;
     private OnFieldMetaBox $fieldMetaBox;
-    private string $userForm = '';
-    private array $fieldIDS = [];
+    private string         $userForm = '';
+    private array          $fieldIDS = [];
 
     /**
      * @param array $fieldIDS
      * @param FieldData $fieldData
      * @param array $postData
      * @param array $sortedFieldItems
+     *
      * @throws \Exception
      */
-    public function __construct(array $fieldIDS, FieldData $fieldData, array $postData = [], array $sortedFieldItems = [])
+    public function __construct (array $fieldIDS, FieldData $fieldData, array $postData = [], array $sortedFieldItems = [])
     {
         $htmlFrag = '';
         $this->fieldData = $fieldData;
@@ -56,10 +55,11 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @param $sortedFieldItems
      * @param array $postData
+     *
      * @return string
      * @throws \Exception
      */
-    public function generateHTMLFrags($sortedFieldItems, array $postData = []): string
+    public function generateHTMLFrags ($sortedFieldItems, array $postData = []): string
     {
         $oldPostData = getPostData();
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
@@ -76,10 +76,11 @@ class OnFieldFormHelper implements EventInterface
 
     /**
      * @param $sortedFieldItems
+     *
      * @return mixed
      * @throws \Exception
      */
-    public function generateTreeForSortedFieldItems($sortedFieldItems): mixed
+    public function generateTreeForSortedFieldItems ($sortedFieldItems): mixed
     {
         foreach ($sortedFieldItems as $k => $sortFieldItem) {
             $sortedFieldItems[$k] = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $sortFieldItem, onData: function ($field) {
@@ -95,7 +96,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @throws \Exception
      */
-    public function getUsersFormFrag($fields, array $postData = []): string
+    public function getUsersFormFrag ($fields, array $postData = []): string
     {
         $htmlFrag = '';
 
@@ -114,7 +115,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @throws \Exception
      */
-    public function getViewFrag($fields): string
+    public function getViewFrag ($fields): string
     {
         $htmlFrag = '';
         # re-dispatch so we can get the form values
@@ -132,10 +133,11 @@ class OnFieldFormHelper implements EventInterface
      * @param array $fieldSlugs
      * @param array $postData
      * @param bool $cachedData
+     *
      * @return void
      * @throws \Exception
      */
-    public function handleFrontEnd(array $fieldSlugs, array $postData = [], bool $cachedData = true): void
+    public function handleFrontEnd (array $fieldSlugs, array $postData = [], bool $cachedData = true): void
     {
         if (empty($fieldSlugs)) {
             return;
@@ -149,8 +151,8 @@ class OnFieldFormHelper implements EventInterface
             $cachedKey .= 'sortedField_' . $fieldSlug;
         }
         AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
-        $cachedKey = AppConfig::getCachePrefix() . $cachedKey .'_GlobalVariableData';
-        if ($cachedData && apcu_exists($cachedKey)){
+        $cachedKey = AppConfig::getCachePrefix() . $cachedKey . '_GlobalVariableData';
+        if ($cachedData && apcu_exists($cachedKey)) {
             $data = [...apcu_fetch($cachedKey), ...getGlobalVariableData()];
             AppConfig::initLoaderMinimal()::setGlobalVariable($data);
         } else {
@@ -168,10 +170,11 @@ class OnFieldFormHelper implements EventInterface
 
     /**
      * @param $fieldIDS
+     *
      * @return array
      * @throws \Exception
      */
-    public function getFieldSortedItems($fieldIDS): array
+    public function getFieldSortedItems ($fieldIDS): array
     {
         $sortedFieldItems = [];
         $fieldData = $this->fieldData;
@@ -182,7 +185,7 @@ class OnFieldFormHelper implements EventInterface
 
 
             $fieldItems = null;
-            db(onGetDB: function (TonicsQuery $db) use ($fieldIDS, $fieldData, &$fieldItems){
+            db(onGetDB: function (TonicsQuery $db) use ($fieldIDS, $fieldData, &$fieldItems) {
 
                 $fieldTable = $fieldData->getFieldTable();
                 $fieldItemsTable = $fieldData->getFieldItemsTable();
@@ -200,8 +203,8 @@ class OnFieldFormHelper implements EventInterface
             }
 
             $sortedFieldItemsOnPriority = [];
-            foreach ($fieldIDS as $fieldID){
-                if (isset($sortedFieldItems[$fieldID])){
+            foreach ($fieldIDS as $fieldID) {
+                if (isset($sortedFieldItems[$fieldID])) {
                     $sortedFieldItemsOnPriority[$fieldID] = $sortedFieldItems[$fieldID];
                 }
             }
@@ -215,7 +218,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @inheritDoc
      */
-    public function event(): static
+    public function event (): static
     {
         return $this;
     }
@@ -223,7 +226,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -231,7 +234,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @return string
      */
-    public function getHTMLFrag(): string
+    public function getHTMLFrag (): string
     {
         return $this->userForm;
     }
@@ -239,12 +242,12 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @param string $userForm
      */
-    public function setUserForm(string $userForm): void
+    public function setUserForm (string $userForm): void
     {
         $this->userForm = $userForm;
     }
 
-    #[Pure] public function hasError(): bool
+    #[Pure] public function hasError (): bool
     {
         return $this->fieldMetaBox->isErrorEmitted();
     }
@@ -252,7 +255,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @return array
      */
-    public function getFieldIDS(): array
+    public function getFieldIDS (): array
     {
         return $this->fieldIDS;
     }
@@ -260,7 +263,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @param array $fieldIDS
      */
-    public function setFieldIDS(array $fieldIDS): void
+    public function setFieldIDS (array $fieldIDS): void
     {
         $this->fieldIDS = $fieldIDS;
     }
@@ -268,7 +271,7 @@ class OnFieldFormHelper implements EventInterface
     /**
      * @return OnFieldMetaBox
      */
-    public function getFieldMetaBox(): OnFieldMetaBox
+    public function getFieldMetaBox (): OnFieldMetaBox
     {
         return $this->fieldMetaBox;
     }

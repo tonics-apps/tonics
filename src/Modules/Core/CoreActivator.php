@@ -195,7 +195,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "type"                 => "Module",
             "slug_id"              => "166f7ea3-2703-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1718718676',
+            "version"              => '1-O-Ola.1718718680',
             "stable"               => 0,
             "description"          => "The Core Module",
             "info_url"             => '',
@@ -211,10 +211,11 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     }
 
     /**
+     * @throws \Exception
      */
     public function onUpdate (): void
     {
-        return;
+        (new FieldData())->importFieldItems(FieldConfig::DefaultFieldItems());
     }
 
     public function onDelete (): void
