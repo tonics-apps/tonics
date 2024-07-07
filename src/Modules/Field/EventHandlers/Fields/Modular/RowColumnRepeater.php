@@ -56,6 +56,7 @@ class RowColumnRepeater implements HandlerInterface
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
@@ -203,6 +204,7 @@ HTML;
      *
      * @return string
      * @throws \Exception
+     * @throws \Throwable
      */
     private function repeatersButton (OnFieldMetaBox $event, $data): string
     {
@@ -222,6 +224,7 @@ HTML;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function userForm (OnFieldMetaBox $event, $data): string
     {

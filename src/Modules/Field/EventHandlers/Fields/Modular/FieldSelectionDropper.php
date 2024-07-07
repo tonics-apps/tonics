@@ -210,6 +210,7 @@ FieldSelectionDropperFrag;
 <div class="form-group tonics-field-selection-dropper-form-group margin-top:0 owl">
      <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">Choose Field
      <select name="$inputName" class="default-selector mg-b-plus-1 tonics-field-selection-dropper-select" id="fieldSlug-$changeID">
+        <option label=" "></option>
         $fieldSelectionFrag
      </select>
     </label>

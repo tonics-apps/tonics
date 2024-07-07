@@ -53,6 +53,7 @@ JSON;
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function updateSettings (): true
     {

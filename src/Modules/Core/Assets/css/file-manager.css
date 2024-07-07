@@ -15,7 +15,6 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 @import "base/beat-player.css";
 @import "base/essential.css";
 
@@ -318,7 +317,7 @@ p {
     z-index: 50;
 }
 
-.z-index\:time-progress-marker{
+.z-index\:time-progress-marker {
     z-index: 60;
 }
 
@@ -855,7 +854,6 @@ p {
 
 .default-selector {
     width: 100%;
-    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
     line-height: 1.25;
     font-family: inherit;
     padding: 14px;
@@ -900,8 +898,14 @@ p {
     }
 }
 
-header { grid-area: header; }
-nav { grid-area: nav; }
+header {
+    grid-area: header;
+}
+
+nav {
+    grid-area: nav;
+}
+
 main {
     grid-area: main;
     display: flex;
@@ -910,7 +914,10 @@ main {
     justify-content: flex-start;
     align-items: flex-start;
 }
-footer { grid-area: footer; }
+
+footer {
+    grid-area: footer;
+}
 
 /* show… */
 body {
@@ -951,8 +958,8 @@ header, .tonics-fm-nav-menu, main, footer {
     background: #eaeaea;
     color: #18234ed1;
     -webkit-text-stroke-width: thin;
-    transition: box-shadow 0.15s ease,transform 0.15s ease;
-    will-change: box-shadow,transform;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    will-change: box-shadow, transform;
     justify-content: center;
     align-items: center;
     box-shadow: 0 2px 0 #18234e;
@@ -1000,6 +1007,7 @@ header, .tonics-fm-nav-menu, main, footer {
 .breadcrumb a {
     color: #ffffff;
 }
+
 .tonics-fm-container {
     color: black;
     display: flex;
@@ -1012,8 +1020,8 @@ header, .tonics-fm-nav-menu, main, footer {
     text-decoration: none;
     color: black;
     display: flex;
-    transition: box-shadow 0.15s ease,transform 0.15s ease;
-    will-change: box-shadow,transform;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    will-change: box-shadow, transform;
 }
 
 .tonics-fm-link:active {
@@ -1050,7 +1058,7 @@ header, .tonics-fm-nav-menu, main, footer {
 }
 
 .tonics-file {
-    box-shadow: 3px 1px 0 rgba(16,67,90,.21);
+    box-shadow: 3px 1px 0 rgba(16, 67, 90, .21);
     margin: 5px;
     width: 300px;
     display: flex;
@@ -1059,7 +1067,7 @@ header, .tonics-fm-nav-menu, main, footer {
 }
 
 .tonics-file:focus {
-    outline-offset: calc(1rem/ 1.4/ 1.4/1.4/1.4/1.4);
+    outline-offset: calc(1rem / 1.4 / 1.4 / 1.4 / 1.4 / 1.4);
     outline: #808080 solid thin;
 }
 
@@ -1230,7 +1238,7 @@ header, .tonics-fm-nav-menu, main, footer {
     color: #00000082 !important;
 }
 
-.inner-file-upload-container  .icon {
+.inner-file-upload-container .icon {
     transform: scale(1.6);
     margin-right: 0.5em;
     color: #000000;
@@ -1249,8 +1257,8 @@ header, .tonics-fm-nav-menu, main, footer {
 .menu-item button {
     background: #00ffff00;
     border: none;
-    transition: box-shadow 0.15s ease,transform 0.15s ease;
-    will-change: box-shadow,transform;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    will-change: box-shadow, transform;
 }
 
 .menu-item button:active {
@@ -1342,22 +1350,22 @@ header, .tonics-fm-nav-menu, main, footer {
     padding: 15px;
     -webkit-box-shadow: 0px 16px 10px 0px rgb(0 0 0 / 14%), 0px 11px 18px 0px rgb(0 0 0 / 12%), 0px 13px 5px -1px rgb(0 0 0 / 20%);
     box-shadow: 0px 16px 10px 0px rgb(0 0 0 / 14%), 0px 11px 18px 0px rgb(0 0 0 / 12%), 0px 13px 5px -1px rgb(0 0 0 / 20%);
-    -webkit-transition-property: background-color,box-shadow,max-width,min-width;
-    transition-property: background-color,box-shadow,max-width,min-width;
+    -webkit-transition-property: background-color, box-shadow, max-width, min-width;
+    transition-property: background-color, box-shadow, max-width, min-width;
     flex-direction: column;
     transform: scale(0);
 }
 
 .context-menu.show {
     transform: scale(1);
-    transition: transform 0.3s cubic-bezier(.24,1.31,.69,.76);
+    transition: transform 0.3s cubic-bezier(.24, 1.31, .69, .76);
 }
 
 .context-menu .context-menu-item {
     display: flex;
     margin-bottom: 10px;
     transition: 0.3s all ease;
-    will-change: box-shadow,transform;
+    will-change: box-shadow, transform;
     flex-direction: row;
     align-items: center;
 }
@@ -1403,7 +1411,7 @@ header, .tonics-fm-nav-menu, main, footer {
     text-decoration: none;
 }
 
-@media screen and (min-width: 800px){
+@media screen and (min-width: 800px) {
     #site-navigation {
         flex-grow: 0.23;
     }
@@ -1476,9 +1484,13 @@ header, .tonics-fm-nav-menu, main, footer {
     border-bottom: 1px solid #9e9e9e;
 }
 
-.display-none { display: none; }
+.display-none {
+    display: none;
+}
 
-.display-flex { display: flex; }
+.display-flex {
+    display: flex;
+}
 
 .swing-in-top-fwd {
     -webkit-animation: swing-in-top-fwd 0.5s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
@@ -1632,6 +1644,7 @@ header, .tonics-fm-nav-menu, main, footer {
         opacity: 1;
     }
 }
+
 @keyframes scale-out-ver-top {
     0% {
         -webkit-transform: scaleY(1);
@@ -1678,6 +1691,7 @@ header, .tonics-fm-nav-menu, main, footer {
         opacity: 1;
     }
 }
+
 @keyframes swing-in-top-fwd {
     0% {
         -webkit-transform: rotateX(-100deg);
@@ -1723,6 +1737,7 @@ header, .tonics-fm-nav-menu, main, footer {
         opacity: 0;
     }
 }
+
 @keyframes swing-out-top-fwd {
     0% {
         -webkit-transform: rotateX(0deg);
@@ -1747,9 +1762,10 @@ header, .tonics-fm-nav-menu, main, footer {
  * ----------------------------------------
  */
 
-.swal2-title-dark{
+.swal2-title-dark {
     color: #264762d1 !important;
 }
-.swal2-title-red{
+
+.swal2-title-red {
     color: #941943 !important;
 }

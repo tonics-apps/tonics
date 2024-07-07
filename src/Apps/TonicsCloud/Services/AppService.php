@@ -88,8 +88,8 @@ class AppService extends TonicsCloudAbstractService
             ],
             [
                 'app_name'        => 'Haraka',
-                'app_description' => 'Haraka, Provided By Tonics',
-                'others'          => json_encode(['field' => $defaultConfigField, 'class' => TonicsCloudHaraka::class]),
+                'app_description' => 'Haraka SMTP Server, Provided By Tonics',
+                'others'          => json_encode(['field' => 'app-tonicscloud-app-config-haraka', 'class' => TonicsCloudHaraka::class]),
             ],
             [
                 'app_name'        => 'Script',
@@ -133,6 +133,8 @@ class AppService extends TonicsCloudAbstractService
             $jobObject = container()->get($data->class);
             $jobObject->setFields((is_object($fieldDetails) ? $fieldDetails : json_decode($fieldDetails)));
             $jobObject->setContainerReplaceableVariables($containerOthers->container_variables ?? []);
+            $jobObject->setContainerID($containerID);
+            $jobObject->setIncusContainerName(ContainerController::getIncusContainerName($container->slug_id));
             $jobData = [
                 'update_status'            => false,
                 'container_id'             => $containerID,

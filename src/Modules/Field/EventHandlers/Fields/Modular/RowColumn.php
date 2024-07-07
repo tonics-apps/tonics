@@ -266,6 +266,7 @@ HTML;
                                 $first = true;
                                 $checked = 'checked';
                             } else $checked = '';
+
                             $fieldOptionName = $child->field_options->fieldName;
                             $fieldUniqueHash = $fieldOptionName . '_' . $child->field_options->field_slug_unique_hash;
                             $fieldOptionNameID = helper()->slug($fieldOptionName, '_') . '_' . $fieldNameTabUnique;
