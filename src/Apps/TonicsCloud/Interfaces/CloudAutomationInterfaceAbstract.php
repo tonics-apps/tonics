@@ -39,6 +39,8 @@ abstract class CloudAutomationInterfaceAbstract implements HandlerInterface, Clo
     const IMAGE_NGINX     = 'Nginx';
     const IMAGE_TONICS    = 'Tonics';
     const IMAGE_WORDPRESS = 'WordPress';
+    const IMAGE_HARAKA    = 'Haraka';
+
     protected mixed $containerID         = null;
     protected mixed $containerSlugID     = null;
     protected array $images              = [];

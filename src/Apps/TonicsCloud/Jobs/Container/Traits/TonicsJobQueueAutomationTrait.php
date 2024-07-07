@@ -20,6 +20,7 @@ namespace App\Apps\TonicsCloud\Jobs\Container\Traits;
 
 use App\Apps\TonicsCloud\Apps\TonicsCloudACME;
 use App\Apps\TonicsCloud\Apps\TonicsCloudENV;
+use App\Apps\TonicsCloud\Apps\TonicsCloudHaraka;
 use App\Apps\TonicsCloud\Apps\TonicsCloudMariaDB;
 use App\Apps\TonicsCloud\Apps\TonicsCloudNginx;
 use App\Apps\TonicsCloud\Apps\TonicsCloudPHP;
@@ -190,6 +191,16 @@ trait TonicsJobQueueAutomationTrait
      *  ```
      */
     const APP_SETTING_PHP = 'PHP_SETTINGS';
+    /**
+     * It uses the following fieldSettings by default:
+     * ```
+     * [
+     * 'haraka_server'      => '[[ACME_DOMAIN]]',
+     * 'haraka_dkim_domain' => '[[ACME_DOMAIN]]',
+     * ]
+     * ```
+     */
+    const APP_SETTING_HARAKA = 'HARAKA_SETTINGS';
 
     # APP NAME
     const APP_NGINX   = 'Nginx';
@@ -499,6 +510,19 @@ trait TonicsJobQueueAutomationTrait
                         ...[
                             'fpm' => TonicsCloudPHP::PHP_FPM(),
                             'ini' => TonicsCloudPHP::INI_OPTIMIZED(),
+                        ],
+                        ...$fieldDetails,
+                    ]),
+                ];
+            },
+            self::APP_SETTING_HARAKA                     => function ($containerID, array $fieldDetails = []) {
+                return [
+                    'container_id'  => $containerID,
+                    'app_id'        => $this->getApps()[self::APP_HARAKA]->app_id,
+                    '_fieldDetails' => TonicsCloudHaraka::createFieldDetails([
+                        ...[
+                            'haraka_server'      => '[[ACME_DOMAIN]]',
+                            'haraka_dkim_domain' => '[[ACME_DOMAIN]]',
                         ],
                         ...$fieldDetails,
                     ]),
