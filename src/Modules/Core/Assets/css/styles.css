@@ -496,7 +496,6 @@ fieldset {
 .menu-box {
     display: flex;
     flex-direction: row;
-    font-size: 10px;
     padding: 10px clamp(15px, 2vw, 20px);
     align-items: center;
     border-radius: 5px;

@@ -871,10 +871,9 @@ body#tinymce > .tabs [type=radio]:checked + label, .tonicsFieldTabsContainer [ty
     border-radius: 4px;
     border-right-style: double;
     border-right-width: 5px;
-    font-family: inherit;
-    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
     line-height: 1.25;
     padding: 14px;
+    font-size: clamp(1rem, (800px - 100vw) * 1000, 0.8rem);
     width: 100%;
 }
 
