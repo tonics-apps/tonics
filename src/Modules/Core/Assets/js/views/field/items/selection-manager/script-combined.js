@@ -1,4 +1,3 @@
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -17,277 +16,332 @@
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Util/Element/Abstract/ElementAbstract.ts
 var ElementAbstract = class {
-  constructor($Element) {
-    if ($Element) {
-      return this.query($Element);
+    constructor($Element) {
+        if ($Element) {
+            return this.query($Element);
+        }
+        return this;
     }
-    return this;
-  }
-  query($classOrID) {
-    let $temp = document.querySelector(`${$classOrID}`);
-    if ($temp) {
-      this.setQueryResult($temp);
-      return this;
+
+    query($classOrID) {
+        let $temp = document.querySelector(`${$classOrID}`);
+        if ($temp) {
+            this.setQueryResult($temp);
+            return this;
+        }
+        console.log(`Invalid class or id name - ${$classOrID}`);
     }
-    console.log(`Invalid class or id name - ${$classOrID}`);
-  }
-  setQueryResult($result) {
-    this.$queryResult = $result;
-    return this;
-  }
-  getQueryResult() {
-    return this.$queryResult;
-  }
+
+    setQueryResult($result) {
+        this.$queryResult = $result;
+        return this;
+    }
+
+    getQueryResult() {
+        return this.$queryResult;
+    }
 };
 __name(ElementAbstract, "ElementAbstract");
 
 // src/Util/Others/Draggables.ts
 var Draggables = class extends ElementAbstract {
-  constructor($draggableContainer) {
-    super($draggableContainer);
-    this.dragging = null;
-    this.droppedTarget = null;
-    this._draggingOriginalRect = null;
-    this.xPosition = 0;
-    this.yPosition = -1;
-    this.mouseActive = false;
-    this._constrainedQuad = false;
-    this.$draggableElementDetails = {};
-  }
-  get draggingOriginalRect() {
-    return this._draggingOriginalRect;
-  }
-  set draggingOriginalRect(value) {
-    this._draggingOriginalRect = value;
-  }
-  get constrainedQuad() {
-    return this._constrainedQuad;
-  }
-  set constrainedQuad(value) {
-    this._constrainedQuad = value;
-  }
-  settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
-    this.constrainedQuad = $constrainedQuad;
-    this.getDraggableElementDetails().draggable = {
-      constrainedQuad: $constrainedQuad,
-      draggableElement: $draggableElement,
-      ignoreElements: $elementsToIgnore,
-      callbacks: {
-        onDragging: null,
-        onDragDrop: null,
-        onDragRight: null,
-        onDragLeft: null,
-        onDragBottom: null,
-        onDragTop: null
-      }
-    };
-    return this;
-  }
-  getDraggableElementDetails() {
-    return this.$draggableElementDetails;
-  }
-  checkIfSettingsIsSet() {
-    return this.getDraggableElementDetails().draggable;
-  }
-  onDragDrop($onDragDrop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
-      return this;
+    constructor($draggableContainer) {
+        super($draggableContainer);
+        this.dragging = null;
+        this.droppedTarget = null;
+        this._draggingOriginalRect = null;
+        this.xPosition = 0;
+        this.yPosition = -1;
+        this.mouseActive = false;
+        this._constrainedQuad = false;
+        this.$draggableElementDetails = {};
     }
-  }
-  onDragRight($onDragRight) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
-      return this;
+
+    get draggingOriginalRect() {
+        return this._draggingOriginalRect;
     }
-  }
-  onDragLeft($onDragLeft) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
-      return this;
+
+    set draggingOriginalRect(value) {
+        this._draggingOriginalRect = value;
     }
-  }
-  onDragBottom($onDragBottom) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
-      return this;
+
+    get constrainedQuad() {
+        return this._constrainedQuad;
     }
-  }
-  onDragTop($onDragTop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
-      return this;
+
+    set constrainedQuad(value) {
+        this._constrainedQuad = value;
     }
-  }
-  run() {
-    let $draggableContainer = this.getQueryResult();
-    let self = this;
-    let shiftX;
-    let shiftY;
-    if ($draggableContainer) {
-      $draggableContainer.addEventListener("pointerdown", function(e) {
-        self.setMouseActive(true);
-        let el = e.target;
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
+
+    settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
+        this.constrainedQuad = $constrainedQuad;
+        this.getDraggableElementDetails().draggable = {
+            constrainedQuad: $constrainedQuad,
+            draggableElement: $draggableElement,
+            ignoreElements: $elementsToIgnore,
+            callbacks: {
+                onDragging: null,
+                onDragDrop: null,
+                onDragRight: null,
+                onDragLeft: null,
+                onDragBottom: null,
+                onDragTop: null
+            }
+        };
+        return this;
+    }
+
+    getDraggableElementDetails() {
+        return this.$draggableElementDetails;
+    }
+
+    checkIfSettingsIsSet() {
+        return this.getDraggableElementDetails().draggable;
+    }
+
+    onDragDrop($onDragDrop) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
+            return this;
+        }
+    }
+
+    onDragRight($onDragRight) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
+            return this;
+        }
+    }
+
+    onDragLeft($onDragLeft) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
+            return this;
+        }
+    }
+
+    onDragBottom($onDragBottom) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
+            return this;
+        }
+    }
+
+    onDragTop($onDragTop) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
+            return this;
+        }
+    }
+
+    canDrag(el) {
+        let self = this, startDrag = true;
+        const ignoreElements = self.getDraggableElementDetails().draggable.ignoreElements;
+        for (let index = 0; index < ignoreElements.length; index++) {
+            const value = ignoreElements[index];
+            if (el.closest(value)) {
+                startDrag = false;
+                break; // Exit the loop early if the condition is met
+            }
+        }
+
+        if (!startDrag) {
+            this.setMouseActive(false);
+        }
+
+        return startDrag;
+    }
+
+    run() {
+        let $draggableContainer = this.getQueryResult();
+        let self = this;
+        let shiftX;
+        let shiftY;
+        let hasMoved = false;
+        if ($draggableContainer) {
+            $draggableContainer.addEventListener("pointerdown", function (e) {
+                self.setMouseActive(true);
+                let el = e.target;
+                let startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+                if (el.closest(draggableSelector)) {
+                    self == null ? void 0 : self.setDragging(el.closest(draggableSelector));
+                    let draggable = self.getDragging();
+                    if (startDrag) {
+                        shiftX = e.clientX;
+                        shiftY = e.clientY;
+                        draggable.classList.add("draggable-start");
+                        draggable.classList.add("touch-action:none");
+                        self._draggingOriginalRect = draggable.getBoundingClientRect();
+                    }
+                    draggable?.classList.remove("draggable-animation");
+                }
+            });
+        }
+        $draggableContainer.addEventListener("pointerup", function (e) {
+            let el = e.target;
+            if (self.isMouseActive()) {
+                self.setMouseActive(false);
+                let startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                self.setXPosition(0);
+                self.setYPosition(-1);
+                let draggable = self.getDragging();
+                if (draggable && startDrag) {
+                    draggable.style["transform"] = "";
+                    draggable.classList.remove("draggable-start");
+                    draggable.classList.remove("touch-action:none");
+                    draggable.classList.add("draggable-animation");
+                } else {
+                    draggable?.classList.remove("draggable-animation");
+                    return false;
+                }
+                let onDragDrop = self.getDraggableElementDetails().draggable.callbacks.onDragDrop;
+                if (hasMoved && onDragDrop !== null && typeof onDragDrop == "function") {
+                    onDragDrop(el, self);
+                    hasMoved = false;
+                }
+            }
         });
-        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
-        if (el.closest(draggableSelector) && startDrag) {
-          self == null ? void 0 : self.setDragging(el.closest(draggableSelector));
-          let draggable = self.getDragging();
-          shiftX = e.clientX;
-          shiftY = e.clientY;
-          draggable.classList.add("draggable-start");
-          draggable.classList.add("touch-action:none");
-          draggable.classList.remove("draggable-animation");
-          self._draggingOriginalRect = draggable.getBoundingClientRect();
-        }
-      });
+
+        $draggableContainer.addEventListener("pointermove", function (e) {
+            if (self.isMouseActive()) {
+                let el = e.target, startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                let draggable = self.getDragging();
+                let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+                if (el.closest(draggableSelector) && startDrag && draggable) {
+                    draggable.classList.add("pointer-events:none");
+                    let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+                    self.setDroppedTarget(elemBelow.closest(draggableSelector));
+                    draggable.classList.remove("pointer-events:none");
+                    e.preventDefault();
+                    let tx = e.clientX - shiftX;
+                    let ty = e.clientY - shiftY;
+                    if (!self.constrainedQuad) {
+                        draggable.style.transform = "translate3d(" + tx + "px," + ty + "px, 0px)";
+                    }
+                    if (e.movementX >= 1 && e.movementY === 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
+                        }
+                        let onDragRight = self.getDraggableElementDetails().draggable.callbacks.onDragRight;
+                        if (onDragRight !== null && typeof onDragRight == "function") {
+                            onDragRight(draggable);
+                        }
+                    }
+                    if (e.movementX < 0 && e.movementY === 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
+                        }
+                        let onDragLeft = self.getDraggableElementDetails().draggable.callbacks.onDragLeft;
+                        if (onDragLeft !== null && typeof onDragLeft == "function") {
+                            onDragLeft(draggable, self);
+                        }
+                    }
+                    if (e.movementX === 0 && e.movementY > 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
+                        }
+                        let onDragBottom = self.getDraggableElementDetails().draggable.callbacks.onDragBottom;
+                        if (onDragBottom !== null && typeof onDragBottom == "function") {
+                            onDragBottom(draggable, self);
+                        }
+                    } else if (e.movementX === 0 && e.movementY < 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
+                        }
+                        let onDragTop = self.getDraggableElementDetails().draggable.callbacks.onDragTop;
+                        if (onDragTop !== null && typeof onDragTop == "function") {
+                            onDragTop(draggable, self);
+                        }
+                    }
+                    hasMoved = true; // Set movement flag on pointermove
+                }
+            }
+        });
     }
-    $draggableContainer.addEventListener("pointerup", function(e) {
-      let el = e.target;
-      if (self.isMouseActive()) {
-        self.setMouseActive(false);
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        self.setXPosition(0);
-        self.setYPosition(-1);
-        let draggable = self.getDragging();
-        if (draggable && startDrag) {
-          draggable.style["transform"] = "";
-          draggable.classList.remove("draggable-start");
-          draggable.classList.remove("touch-action:none");
-          draggable.classList.add("draggable-animation");
-        } else {
-          return false;
-        }
-        let onDragDrop = self.getDraggableElementDetails().draggable.callbacks.onDragDrop;
-        if (onDragDrop !== null && typeof onDragDrop == "function") {
-          onDragDrop(el, self);
-        }
-      }
-    });
-    $draggableContainer.addEventListener("pointermove", function(e) {
-      if (self.isMouseActive()) {
-        let el = e.target, startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        let draggable = self.getDragging();
-        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
-        if (el.closest(draggableSelector) && startDrag && draggable) {
-          draggable.classList.add("pointer-events:none");
-          let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-          self.setDroppedTarget(elemBelow.closest(draggableSelector));
-          draggable.classList.remove("pointer-events:none");
-          e.preventDefault();
-          let tx = e.clientX - shiftX;
-          let ty = e.clientY - shiftY;
-          if (!self.constrainedQuad) {
-            draggable.style.transform = "translate3d(" + tx + "px," + ty + "px, 0px)";
-          }
-          if (e.movementX >= 1 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragRight = self.getDraggableElementDetails().draggable.callbacks.onDragRight;
-            if (onDragRight !== null && typeof onDragRight == "function") {
-              onDragRight(draggable);
-            }
-          }
-          if (e.movementX < 0 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragLeft = self.getDraggableElementDetails().draggable.callbacks.onDragLeft;
-            if (onDragLeft !== null && typeof onDragLeft == "function") {
-              onDragLeft(draggable, self);
-            }
-          }
-          if (e.movementX === 0 && e.movementY > 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragBottom = self.getDraggableElementDetails().draggable.callbacks.onDragBottom;
-            if (onDragBottom !== null && typeof onDragBottom == "function") {
-              onDragBottom(draggable, self);
-            }
-          } else if (e.movementX === 0 && e.movementY < 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragTop = self.getDraggableElementDetails().draggable.callbacks.onDragTop;
-            if (onDragTop !== null && typeof onDragTop == "function") {
-              onDragTop(draggable, self);
-            }
-          }
-        }
-      }
-    });
-  }
-  getXPosition() {
-    return this.xPosition;
-  }
-  setXPosition(xPosition) {
-    this.xPosition = xPosition;
-  }
-  getYPosition() {
-    return this.yPosition;
-  }
-  setYPosition(yPosition) {
-    this.yPosition = yPosition;
-  }
-  incrementXPosition() {
-    return ++this.xPosition;
-  }
-  decrementXPosition() {
-    return this.xPosition = this.xPosition - 1;
-  }
-  incrementYPosition() {
-    return ++this.yPosition;
-  }
-  decrementYPosition() {
-    return this.yPosition = this.xPosition - 1;
-  }
-  getDragging() {
-    return this.dragging;
-  }
-  setDragging(draggedData) {
-    this.dragging = draggedData;
-  }
-  getDroppedTarget() {
-    return this.droppedTarget;
-  }
-  setDroppedTarget(el) {
-    this.droppedTarget = el;
-  }
-  isMouseActive() {
-    return this.mouseActive;
-  }
-  setMouseActive(result) {
-    this.mouseActive = result;
-  }
+
+    getXPosition() {
+        return this.xPosition;
+    }
+
+    setXPosition(xPosition) {
+        this.xPosition = xPosition;
+    }
+
+    getYPosition() {
+        return this.yPosition;
+    }
+
+    setYPosition(yPosition) {
+        this.yPosition = yPosition;
+    }
+
+    incrementXPosition() {
+        return ++this.xPosition;
+    }
+
+    decrementXPosition() {
+        return this.xPosition = this.xPosition - 1;
+    }
+
+    incrementYPosition() {
+        return ++this.yPosition;
+    }
+
+    decrementYPosition() {
+        return this.yPosition = this.xPosition - 1;
+    }
+
+    getDragging() {
+        return this.dragging;
+    }
+
+    setDragging(draggedData) {
+        this.dragging = draggedData;
+    }
+
+    getDroppedTarget() {
+        return this.droppedTarget;
+    }
+
+    setDroppedTarget(el) {
+        this.droppedTarget = el;
+    }
+
+    isMouseActive() {
+        return this.mouseActive;
+    }
+
+    setMouseActive(result) {
+        this.mouseActive = result;
+    }
 };
 __name(Draggables, "Draggables");
 if (!window.hasOwnProperty("TonicsScript")) {
-  window.TonicsScript = {};
+    window.TonicsScript = {};
 }
 window.TonicsScript.Draggables = ($draggableContainer) => new Draggables($draggableContainer);
 export {
-  Draggables
+    Draggables
 };
 
 /*
@@ -577,7 +631,6 @@ const EventsConfig = {
 window.TonicsEvent.EventConfig = EventsConfig;
 
 
-
 /*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -597,6 +650,10 @@ window.TonicsEvent.EventConfig = EventsConfig;
 
 if (typeof tonicsFieldSaveChangesButton === 'undefined') {
     var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+}
+
+if (typeof meniArrangerInCoreMinimal === 'undefined') {
+    var meniArrangerInCoreMinimal = document.querySelector('.menu-arranger');
 }
 
 if (tonicsFieldSaveChangesButton) {
@@ -624,16 +681,16 @@ class OnSubmitFieldEditorsFormEvent {
     editorsForm = null;
 
     constructor(e = null) {
-        if (e){
+        if (e) {
             this.editorsForm = document.getElementById('EditorsForm');
         }
     }
 
     addHiddenInputToForm(form, key, value) {
         let inputExist = form.querySelector(`input[name="${key}"]`);
-        if (inputExist){
+        if (inputExist) {
             inputExist.value = value
-        }else {
+        } else {
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = key;
@@ -643,34 +700,118 @@ class OnSubmitFieldEditorsFormEvent {
     }
 
     getInputData(inputs, settings = {}) {
-        // collect checkbox
-        if (inputs.type === 'checkbox'){
-            let checkboxName = inputs.name;
-            if (!settings.hasOwnProperty(checkboxName)){
-                settings[checkboxName] = [];
-            }
-            if (inputs.checked){
-                settings[checkboxName].push(inputs.value);
-            }
-        }else if (inputs.type === 'select-multiple'){
-            let selectOptions = inputs.options;
-            let selectBoxName = inputs.name;
-            for (let k = 0; k < selectOptions.length; k++) {
-                let option = selectOptions[k];
-                if (option.selected){
-                    if (!settings.hasOwnProperty(selectBoxName)){
-                        settings[selectBoxName] = [];
-                    }
+        const inputName = inputs.name;
 
-                    settings[selectBoxName].push(option.value || option.text);
+        switch (inputs.type) {
+            case 'checkbox':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
                 }
-            }
-        }else if (!settings.hasOwnProperty(inputs.name)) {
-            settings[inputs.name] = inputs.value;
+                if (inputs.checked) {
+                    settings[inputName].push(inputs.value);
+                }
+                break;
+
+            case 'select-multiple':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
+                }
+                let selectOptions = inputs.options;
+                for (let k = 0; k < selectOptions.length; k++) {
+                    let option = selectOptions[k];
+                    if (option.selected) {
+                        if (!settings.hasOwnProperty(inputName)) {
+                            settings[inputName] = [];
+                        }
+                        settings[inputName].push(option.value || option.text);
+                    }
+                }
+                break;
+
+            case 'select-one': // Handling single select elements
+                const selectedOption = inputs.options[inputs.selectedIndex];
+                settings[inputName] = selectedOption.value || selectedOption.text;
+                break;
+
+            case 'radio':
+                if (inputs.checked) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
+
+            default:
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
         }
 
         return settings;
     }
+}
+
+
+if (meniArrangerInCoreMinimal) {
+
+    window.onload = function () {
+        let previews = document.querySelectorAll('[data-field_input_name="tonics-preview-layout"]:checked');
+        if (previews.length > 0) {
+            previews.forEach(preview => {
+                preview.click();
+            });
+        }
+    };
+
+    meniArrangerInCoreMinimal.addEventListener('click', (e) => {
+        let el = e.target;
+        let tonicsPreviewLayout = el.getAttribute('data-field_input_name') === 'tonics-preview-layout';
+        let layout = el.closest('[data-field_input_name="tonics-preview-layout"]');
+
+        if (tonicsPreviewLayout) {
+            let tabsField = layout?.closest('.tonicsFieldTabsContainer');
+            let builderItems = tabsField?.querySelector('.preview-iframe');
+            if (!builderItems) {
+                builderItems = tabsField?.querySelector('.field-builder-items');
+            }
+
+            if (builderItems) {
+                builderItems.classList.remove('field-builder-items');
+                builderItems.classList.add('preview-iframe');
+                builderItems.innerHTML = '<div class="margin-left:1em loading-animation"></div>';
+                let layoutSelector = el.closest('[data-repeater_input_name="layout-selector-modular-repeater"]')?.closest('.field-builder-items');
+                if (layoutSelector) {
+                    let selectedBreakPoint = layoutSelector.querySelector('select[name="tonics-preview-break-point"]');
+                    const ulElement = document.createElement('ul');
+                    ulElement.appendChild(layoutSelector.cloneNode(true));
+                    let collateFieldItemsObject = new CollateFieldItemsOnFieldsEditorsSubmit(new OnSubmitFieldEditorsFormEvent(null), ulElement);
+                    let fieldItems = collateFieldItemsObject.setListDataArray(ulElement);
+                    fieldPreviewFromPostData
+                    (fieldItems,
+                        (data) => {
+                            if (data?.data) {
+                                const iframe = document.createElement('iframe');
+                                builderItems.innerHTML = '';
+                                builderItems.appendChild(iframe);
+                                iframe.srcdoc = data.data;
+                                Object.assign(iframe.style, {
+                                    width: selectedBreakPoint?.value || '100%',
+                                    height: "100%",
+                                    border: "2px dashed rgb(110 102 97)",
+                                    resize: "horizontal"
+                                });
+                                builderItems.style.height = "750px";
+                            }
+                        }, () => {
+
+                        }, (postData) => {
+                            return {layoutSelector: postData};
+                        });
+                }
+            }
+
+        }
+
+    });
 
 }
 /*
@@ -4260,7 +4401,6 @@ export {
 * sweetalert2 v11.1.10
 * Released under the MIT License.
 */
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -4292,9 +4432,9 @@ function hookTinyMCE() {
         const tinyDialogObserver = new MutationObserver(((mutationsList, observer) => {
             for (const mutation of mutationsList) {
                 // added nodes.
-                if (mutation.addedNodes.length > 0){
-                    mutation.addedNodes.forEach((addedNode =>  {
-                        if (addedNode.nodeType === Node.ELEMENT_NODE){
+                if (mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach((addedNode => {
+                        if (addedNode.nodeType === Node.ELEMENT_NODE) {
                             let tinyArea = addedNode.querySelector('.tinyMCEBodyArea');
                             if (tinyArea) {
                                 // if tinyInstance is available, re-initialize it
@@ -4351,7 +4491,7 @@ function addTiny(editorID) {
         content_css = content_css.slice(0, -1);
     }
     let fieldSelectionManager = '';
-    if (tinyAssets){
+    if (tinyAssets) {
         fieldSelectionManager = 'tonics-fieldselectionmanager';
     }
 
@@ -4382,8 +4522,12 @@ function addTiny(editorID) {
         body_class: "entry-content",
         remove_trailing_brs: true,
         setup: function (editor) {
-            if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
-            if (!window.TonicsScript.hasOwnProperty('tinymce')){ window.TonicsScript.tinymce = [] }
+            if (!window.hasOwnProperty('TonicsScript')) {
+                window.TonicsScript = {};
+            }
+            if (!window.TonicsScript.hasOwnProperty('tinymce')) {
+                window.TonicsScript.tinymce = []
+            }
             window.TonicsScript.tinymce.push(editor);
             editor.on('init', function (e) {
                 if (tinyJSAssets && tinyJSAssets.length > 0) {
@@ -4406,13 +4550,13 @@ function addTiny(editorID) {
 
                     if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
-                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
+                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                             let tonicsFieldWrapper = tabContainer.querySelector('.tonicsFieldWrapper');
                             let jsonValue = tonicsFieldWrapper.value;
                             const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(jsonValue, target);
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
-                            if (OnBeforeTonicsFieldPreview.canRequest()){
+                            if (OnBeforeTonicsFieldPreview.canRequest()) {
                                 OnBeforeTonicsFieldPreview.loadAnimation(target)
                                 fieldPreviewFromPostData(OnBeforeTonicsFieldPreview.getPostData(), function (data) {
                                     if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
@@ -4426,34 +4570,34 @@ function addTiny(editorID) {
                 });
 
                 editor.getBody().addEventListener('change', (e) => {
-                   let input = e.target, tagName = input.tagName;
-                   if (tagName.toLowerCase() === 'input'){
-                       input.setAttribute('value', input.value);
-                       if (input.type === 'checkbox'){
-                           (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-                       }
+                    let input = e.target, tagName = input.tagName;
+                    if (tagName.toLowerCase() === 'input') {
+                        input.setAttribute('value', input.value);
+                        if (input.type === 'checkbox') {
+                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                        }
 
-                       if(input.type === 'radio'){
-                           let parentRadio = input.parentElement;
-                           if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0){
-                               parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
-                                   radio.removeAttribute('checked');
-                               });
-                           }
-                           (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-                       }
-                   }
+                        if (input.type === 'radio') {
+                            let parentRadio = input.parentElement;
+                            if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0) {
+                                parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
+                                    radio.removeAttribute('checked');
+                                });
+                            }
+                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                        }
+                    }
 
-                   if (tagName.toLowerCase() === 'textarea'){
-                       let text = input.value;
-                       input.innerHTML = text;
-                       input.value = text;
-                   }
+                    if (tagName.toLowerCase() === 'textarea') {
+                        let text = input.value;
+                        input.innerHTML = text;
+                        input.value = text;
+                    }
 
-                   if (tagName.toLowerCase() === 'select'){
-                       input.options[input.selectedIndex].selected = 'selected';
-                       input.options[input.selectedIndex].setAttribute('selected', 'selected');
-                   }
+                    if (tagName.toLowerCase() === 'select') {
+                        input.options[input.selectedIndex].selected = 'selected';
+                        input.options[input.selectedIndex].setAttribute('selected', 'selected');
+                    }
                 });
 
                 let svgInline = document.querySelector('.tonics-inline-svg');
@@ -4506,15 +4650,22 @@ function addTiny(editorID) {
     });
 }
 
-function fieldPreviewFromPostData(postData, onSuccess = null, onError = null) {
+function fieldPreviewFromPostData(postData, onSuccess = null, onError = null, onConstructDataToSend = null) {
     let url = "/admin/tools/field/field-preview";
     let defaultHeader = {
         'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
     };
-    let dataToSend = {
-        'postData': postData
+
+    let dataToSend = null;
+    if (onConstructDataToSend) {
+        dataToSend = onConstructDataToSend(postData);
+    } else {
+        dataToSend = {
+            'postData': postData
+        }
     }
-   new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
+
+    new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
         if (data) {
             data = JSON.parse(data);
             if (onSuccess) {
@@ -4534,28 +4685,28 @@ function getPostData(fieldSettingsEl) {
     elements.forEach((inputs) => {
 
         // collect checkbox
-        if (inputs.type === 'checkbox'){
+        if (inputs.type === 'checkbox') {
             let checkboxName = inputs.name;
-            if (!widgetSettings.hasOwnProperty(checkboxName)){
+            if (!widgetSettings.hasOwnProperty(checkboxName)) {
                 widgetSettings[checkboxName] = [];
             }
-            if (inputs.checked){
+            if (inputs.checked) {
                 widgetSettings[checkboxName].push(inputs.value);
             }
-        }else if (inputs.type === 'select-multiple'){
+        } else if (inputs.type === 'select-multiple') {
             let selectOptions = inputs.options;
             let selectBoxName = inputs.name;
             for (let k = 0; k < selectOptions.length; k++) {
                 let option = selectOptions[k];
-                if (option.selected){
-                    if (!widgetSettings.hasOwnProperty(selectBoxName)){
+                if (option.selected) {
+                    if (!widgetSettings.hasOwnProperty(selectBoxName)) {
                         widgetSettings[selectBoxName] = [];
                     }
 
                     widgetSettings[selectBoxName].push(option.value || option.text);
                 }
             }
-        }else if (!widgetSettings.hasOwnProperty(inputs.name)) {
+        } else if (!widgetSettings.hasOwnProperty(inputs.name)) {
             widgetSettings[inputs.name] = inputs.value;
         }
     });
@@ -4566,20 +4717,21 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
     /** @type OnSubmitFieldEditorsFormEvent */
     fieldSubmitEvObj = null;
     event = null;
+
     constructor(event) {
         this.event = event;
         this.fieldSubmitEvObj = event;
         this.handleTinymceChildNodes();
     }
 
-   handleTinymceChildNodes() {
+    handleTinymceChildNodes() {
         let self = this;
         if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
             bodyNode.forEach((node) => {
                 if (node.classList.contains('tonicsFieldTabsContainer')) {
-                    if (nodesData.hasOwnProperty(key) &&  window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
+                    if (nodesData.hasOwnProperty(key) && window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                         ++key;
                     }
 
@@ -4610,7 +4762,13 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                 }
             });
 
-            self.event.addHiddenInputToForm(self.event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
+            let nodesDataStringify = JSON.stringify(nodesData);
+            let fieldBuilderItems = tinymce.activeEditor.contentAreaContainer.closest('.field-builder-items');
+            if (fieldBuilderItems) {
+                fieldBuilderItems.dataset._tinymce_fields = nodesDataStringify;
+            }
+
+            self.event.addHiddenInputToForm(self.event.editorsForm, 'fieldItemsDataFromEditor', nodesDataStringify);
         }
     }
 }
@@ -4620,6 +4778,12 @@ if (window?.TonicsEvent?.EventConfig) {
 }
 
 class OnBeforeTonicsFieldPreviewEvent {
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+        this._canRequest = true;
+    }
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -4627,6 +4791,7 @@ class OnBeforeTonicsFieldPreviewEvent {
     set elementTarget(value) {
         this._elementTarget = value;
     }
+
     get postData() {
         return this._postData;
     }
@@ -4643,17 +4808,11 @@ class OnBeforeTonicsFieldPreviewEvent {
         this._canRequest = value;
     }
 
-    constructor(postData, target) {
-        this._postData = postData;
-        this._elementTarget = target;
-        this._canRequest = true;
-    }
-
     canRequest() {
         return this._canRequest;
     }
 
-    getCSFRToken(){
+    getCSFRToken() {
         return getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])
     }
 
@@ -4675,6 +4834,14 @@ class OnBeforeTonicsFieldPreviewEvent {
 }
 
 class OnBeforeTonicsFieldSubmitEvent {
+    postData = null;
+    elementTarget = null;
+
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+    }
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -4689,13 +4856,6 @@ class OnBeforeTonicsFieldSubmitEvent {
 
     set postData(value) {
         this._postData = value;
-    }
-
-    postData = null; elementTarget = null;
-
-    constructor(postData, target) {
-        this._postData = postData;
-        this._elementTarget = target;
     }
 
     getPostData() {
@@ -4835,7 +4995,6 @@ if (parent.tinymce && parent.tinymce.activeEditor) {
 }
 
 
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -4863,23 +5022,28 @@ if (typeof tonicsFieldSaveChangesButton === 'undefined') {
 
 let repeaterParent = '.menu-arranger',
     repeaterDraggable, repeaterChild = '[data-slug="modular_rowcolumnrepeater"]';
-if ((repeaterDraggable = window?.TonicsScript?.Draggables)){
+if ((repeaterDraggable = window?.TonicsScript?.Draggables)) {
     let repeaterTop = false, repeaterBottom = false,
         repeaterSensitivity = 0, repeaterSensitivityMax = 5;
-    repeaterDraggable(repeaterParent).settings(repeaterChild, ['input', 'textarea', 'select', 'label', 'button', 'legend'], false)
+    repeaterDraggable(repeaterParent).settings(repeaterChild, [
+        'input', 'textarea', 'select', 'label', 'button',
+        'legend', 'svg', 'span', 'pre', 'code', 'p', '[data-draggable-ignore]',
+        '.tox-tinymce', '.tox-statusbar', '.tox-editor-header', 'iframe'
+    ], false)
         .onDragDrop((element, self) => {
             let elementDropped = self.getDroppedTarget()?.closest(repeaterChild);
             let elementDragged = self.getDragging()?.closest(repeaterChild);
-            if (elementDropped && elementDropped !== elementDragged){
+            if (elementDropped && elementDropped !== elementDragged) {
                 // swap element
                 let swapNodes;
-                if ((swapNodes = window?.TonicsScript?.swapNodes)){
+                if ((swapNodes = window?.TonicsScript?.swapNodes)) {
                     let rowColElDragged = elementDragged.querySelector('.repeater-field');
                     let rowColElDropped = elementDropped.querySelector('.repeater-field');
-                    if ((rowColElDragged && rowColElDropped) && rowColElDragged.dataset.repeater_field_name === rowColElDropped.dataset.repeater_field_name){
+                    if ((rowColElDragged && rowColElDropped) && rowColElDragged.dataset.repeater_field_name === rowColElDropped.dataset.repeater_field_name) {
                         swapNodes(elementDragged, elementDropped, self.draggingOriginalRect);
                         repeaterSensitivity = 0;
-                        repeaterTop = false; repeaterBottom = false;
+                        repeaterTop = false;
+                        repeaterBottom = false;
                     }
                 }
             }
@@ -4887,79 +5051,100 @@ if ((repeaterDraggable = window?.TonicsScript?.Draggables)){
         }).run();
 }
 
+let selectionManager = document.querySelector('.selection-manager');
+if (selectionManager) {
+    new MenuToggle('.selection-manager', new Query())
+        .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
+        .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
+        .menuIsOff(["d:none"], ["d:flex"])
+        .menuIsOn(["d:flex"], ["d:none"])
+        .closeOnClickOutSide(false)
+        .stopPropagation(false)
+        .run();
+}
+
 class CollateFieldItemsOnFieldsEditorsSubmit {
     draggable = null;
     editorsForm = null;
     /** @type OnSubmitFieldEditorsFormEvent */
     fieldSubmitEvObj = null;
-    constructor(event = null) {
-        this.handle(event);
+
+    constructor(event = null, parentEl = document) {
+        this.handle(event, parentEl);
     }
 
-    handle(event = null) {
-        this.draggable = document.querySelectorAll('.field-builder-items');
-        if (event){
+    handle(event = null, parentEl = document) {
+        this.draggable = parentEl.querySelectorAll('.field-builder-items');
+        if (event) {
             this.fieldSubmitEvObj = event;
-            event.addHiddenInputToForm(event.editorsForm, '_fieldDetails', JSON.stringify(this.setListDataArray()));
+            if (event.editorsForm && parentEl === document) {
+                event.addHiddenInputToForm(event.editorsForm, '_fieldDetails', JSON.stringify(this.setListDataArray()));
+            }
         }
     }
 
-    setListDataArray() {
-        if(this.draggable){
+    setListDataArray(parentEl = document) {
+        if (this.draggable) {
             let draggable = this.draggable;
-            for(let i = 0, len = draggable.length ; i < len ; i++) {
+            for (let i = 0, len = draggable.length; i < len; i++) {
                 let id = i + 1;
                 draggable[i].setAttribute("data-id", id); // add ID's to all draggable item
                 let parentID = null;
                 let parentDraggable = draggable[i].parentElement.closest('.field-builder-items');
-                if (parentDraggable){
+                if (parentDraggable) {
                     parentID = parentDraggable.getAttribute("data-id");
                 }
                 draggable[i].setAttribute("data-parentid",
-                    (draggable[i].classList.contains('field-builder-items'))  ? parentID : null)
+                    (draggable[i].classList.contains('field-builder-items')) ? parentID : null)
             }
-            for(let i = 0, len = draggable.length ; i < len ; i++) {
+            for (let i = 0, len = draggable.length; i < len; i++) {
                 let cell = 1;
                 let cellsEl = draggable[i].querySelectorAll('.row-col-item');
                 cellsEl.forEach((cellEl) => {
-                    if (cellEl.querySelector('.field-builder-items')){
-                        if (cellEl.querySelector('.field-builder-items').dataset.parentid === draggable[i].dataset.id){
-                            cellEl.dataset.cell =`${cell}`;
+                    if (cellEl.querySelector('.field-builder-items')) {
+                        if (cellEl.querySelector('.field-builder-items').dataset.parentid === draggable[i].dataset.id) {
+                            cellEl.dataset.cell = `${cell}`;
                             cell++;
                         }
                     }
                 });
             }
-            return this.getListDataArray();
+            return this.getListDataArray(parentEl);
         }
     }
 
-    getListDataArray() {
-        if(this.draggable){
-            let draggable = this.draggable;
+    getListDataArray(parentEl = document) {
+
+        if (this.draggable) {
             let ListArray = [], fieldName = '', fieldMainSlug = '', fieldInputName = '',
-            fieldSettingsEl = document.querySelectorAll('.widgetSettings'),
-                i = 0,  parentID = null, self = this;
+                fieldSettingsEl = parentEl.querySelectorAll('.widgetSettings'),
+                i = 0, parentID = null, self = this;
             fieldSettingsEl.forEach(form => {
                 let formTagname = form.tagName.toLowerCase();
-                if (formTagname === 'form' || formTagname === 'div'){
+                let toggleState = null;
+                if (formTagname === 'form' || formTagname === 'div') {
                     let draggable = form.closest('.field-builder-items');
                     parentID = draggable.getAttribute('data-parentid');
-                    if (parentID === 'null'){
+                    if (parentID === 'null') {
                         parentID = null;
                     } else {
                         parentID = parseInt(parentID);
                     }
 
-                    if(draggable.querySelector('input[name="field_slug"]') ){
+                    toggleState = draggable.querySelector('button[data-field_toggle]')?.ariaExpanded.toLowerCase();
+                    if (toggleState === 'true' || toggleState === 'false') {
+                        toggleState = toggleState === 'true';
+                    }
+
+                    if (draggable.querySelector('input[name="field_slug"]')) {
                         fieldName = draggable.querySelector('input[name="field_slug"]').value;
                     }
 
-                    if(draggable.querySelector('input[name="main_field_slug"]') ){
+                    if (draggable.querySelector('input[name="main_field_slug"]')) {
                         fieldMainSlug = draggable.querySelector('input[name="main_field_slug"]').value;
                     }
 
-                    if(draggable.querySelector('input[name="field_input_name"]') ){
+                    if (draggable.querySelector('input[name="field_input_name"]')) {
                         fieldInputName = draggable.querySelector('input[name="field_input_name"]').value;
                     }
 
@@ -4969,16 +5154,18 @@ class CollateFieldItemsOnFieldsEditorsSubmit {
                     let fieldSettings = {};
                     for (let i = 0; i < elements.length; i++) {
                         let inputs = elements[i];
-                        if (inputs.closest('.field-builder-items').dataset.id === firstElementParentID){
+                        let inputFieldBuilderItems = inputs.closest('.field-builder-items');
+                        if (inputFieldBuilderItems.dataset.id === firstElementParentID) {
                             fieldSettings = self.fieldSubmitEvObj.getInputData(inputs, fieldSettings);
+                            fieldSettings['_dataset'] = inputFieldBuilderItems?.dataset;
                             let repeatEl = inputs.closest('.widgetSettings').querySelector('[data-repeater_input_name]');
-                            if (fieldName === 'modular_rowcolumnrepeater'){
+                            if (fieldName === 'modular_rowcolumnrepeater') {
                                 let field = {};
                                 field.inputName = repeatEl.dataset.repeater_input_name;
                                 let cellPosition = repeatEl.closest('[data-cell_position]');
-                                let repeaterButtonsIsNextSibling = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
-                                repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSibling) ? repeaterButtonsIsNextSibling.classList.contains('row-col-repeater-button') : false;
-                                if (cellPosition){
+                                let repeaterButtonsIsNextSiblingEl = repeatEl.closest('[data-slug="modular_rowcolumnrepeater"]').nextElementSibling;
+                                let repeaterButtonsIsNextSibling = (repeaterButtonsIsNextSiblingEl) ? repeaterButtonsIsNextSiblingEl.classList.contains('row-col-repeater-button') : false;
+                                if (cellPosition) {
                                     cellPosition = cellPosition.dataset.cell_position;
                                 } else {
                                     cellPosition = null;
@@ -4993,15 +5180,16 @@ class CollateFieldItemsOnFieldsEditorsSubmit {
                                 field.row = repeatEl.dataset.row;
                                 field.column = repeatEl.dataset.col;
                                 field._cell_position = cellPosition;
-                                field._can_have_repeater_button = repeaterButtonsIsNextSibling
+                                field._can_have_repeater_button = repeaterButtonsIsNextSibling;
 
                                 fieldSettings['_moreOptions'] = field;
                             }
                             fieldSettings['_cell_position'] = elements[i].closest('[data-cell_position]')?.dataset.cell_position;
+                            fieldSettings['toggle_state'] = toggleState;
                         }
                     }
 
-                    i = i+1;
+                    i = i + 1;
                     ListArray.push({
                         "field_id": i,
                         "field_parent_id": (draggable.classList.contains('field-builder-items')) ? parentID : null,
@@ -5012,6 +5200,7 @@ class CollateFieldItemsOnFieldsEditorsSubmit {
                     });
                 }
             });
+
             return ListArray;
         }
     }
@@ -5024,6 +5213,7 @@ if (window?.TonicsEvent?.EventConfig) {
 function nativeFieldModules() {
 
     if (menuArranger) {
+
         menuArranger.addEventListener('change', (e) => {
             let el = e.target;
             if (el.closest('select[name=dateType]')) {
@@ -5039,14 +5229,14 @@ function nativeFieldModules() {
                 }
             }
 
-            if (el.closest('input[type="range"]')){
+            if (el.closest('input[type="range"]')) {
                 let inputRange = el.closest('input[type="range"]');
                 inputRange.nextElementSibling.value = inputRange.value;
             }
 
-            if (el.closest('[name="grid_template_col"]')){
+            if (el.closest('[name="grid_template_col"]')) {
                 let gridTemplateCol = el.closest('[name="grid_template_col"]');
-                let rowColParent =  el.closest('[name="grid_template_col"]').closest('.row-col-parent'),
+                let rowColParent = el.closest('[name="grid_template_col"]').closest('.row-col-parent'),
                     rowColItemContainer = rowColParent.querySelector('.rowColumnItemContainer');
                 rowColItemContainer.style.gridTemplateColumns = `${gridTemplateCol.value}`;
                 return;
@@ -5054,10 +5244,12 @@ function nativeFieldModules() {
 
             if (el.closest('.rowColumn')) {
                 let rowCol = el.closest('.rowColumn'), row = rowCol.querySelector("[name='row']").value,
-                    column = rowCol.querySelector("[name='column']").value, rowColParent = rowCol.closest('.row-col-parent');
+                    column = rowCol.querySelector("[name='column']").value,
+                    rowColParent = rowCol.closest('.row-col-parent');
                 updateRowCol(row, column, rowColParent);
             }
         })
+
         menuArranger.addEventListener('click', (e) => {
             let el = e.target;
             if (el.closest('.row-col-item')) {
@@ -5080,13 +5272,14 @@ function nativeFieldModules() {
             if ((rowColRepeaterButton = el.closest('.row-col-repeater-button'))) {
                 let repeaterFragment = rowColRepeaterButton.querySelector('template.repeater-frag');
                 let cloneFrag = repeaterFragment?.content?.querySelector('.field-builder-items').cloneNode(true);
-                rowColRepeaterButton.insertAdjacentElement('beforebegin', cloneFrag);
+                rowColRepeaterButton.insertAdjacentElement('beforebegin', changeRepeaterTabsIDOnClone(cloneFrag));
             }
 
             let removeRowColRepeaterButton;
             if ((removeRowColRepeaterButton = el.closest('.remove-row-col-repeater-button'))) {
                 removeRowColRepeaterButton?.closest('.field-builder-items').remove();
             }
+
         });
     }
 
@@ -5096,7 +5289,6 @@ function updateRowCol(row, col, parent) {
     let times = row * col;
     let rowColumnItemContainer = parent.querySelector('.rowColumnItemContainer');
     let rowColItems = rowColumnItemContainer.querySelectorAll(':scope > .row-col-item');
-
     let cellItems = times - rowColItems.length;
 
     // if negative
@@ -5157,6 +5349,57 @@ if (inputTitle) {
 }
 
 nativeFieldModules();
+
+
+function changeRepeaterTabsIDOnClone(cloneFrag) {
+
+    let toCheck = [];
+
+    cloneFrag.querySelectorAll('.tonicsFieldTabsContainer').forEach((container, containerIndex) => {
+        // Get all input and label elements within the container
+        const inputs = container.querySelectorAll('input[data-row-tabber]');
+        const uniqueNameAttr = container.querySelector('input[name="field_slug_unique_hash"]')?.value + '_' + (Math.random() * 1e32).toString(36);
+
+        inputs.forEach((input, inputIndex) => {
+            // Store the checked state of the input
+            const isChecked = input.checked;
+
+            // Generate unique suffix based on container index and input index
+            const uniqueSuffix = `_${containerIndex}_${inputIndex}_${(Math.random() * 1e32).toString(36)}`;
+
+            // Modify the data-unique attribute
+            input.setAttribute('data-unique', input.getAttribute('data-unique') + uniqueSuffix);
+
+            // Modify the id attribute of the input
+            const newId = input.getAttribute('id') + uniqueSuffix;
+            input.setAttribute('id', newId);
+
+            // Modify the name attribute of the input if necessary (optional)
+            input.setAttribute('name', uniqueNameAttr);
+
+            // Find the corresponding label and modify its attributes
+            const label = container.querySelector(`label[for="${input.getAttribute('id').replace(uniqueSuffix, '')}"]`);
+            if (label) {
+                // Modify the data-unique attribute
+                label.setAttribute('data-unique', label.getAttribute('data-unique') + uniqueSuffix);
+
+                // Modify the for attribute of the label to match the input's id
+                label.setAttribute('for', newId);
+            }
+
+            // store the checked for later restoration
+            // if we do not removeAttribute and checked later once everything is done, it doesn't work
+            if (isChecked) {
+                input.removeAttribute('checked');
+                toCheck.push(input);
+            }
+        });
+    });
+
+    // restore checked
+    toCheck.forEach((input) => input.click())
+    return cloneFrag;
+}
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *

@@ -38,17 +38,18 @@ class HttpMessageProvider implements ServiceProvider
     /**
      * @param Router $router
      */
-    public function __construct(Router $router)
+    public function __construct (Router $router)
     {
         $this->router = $router;
     }
 
     /**
      * @param Container $container
+     *
      * @return void
      * @throws \Throwable
      */
-    public function provide(Container $container): void
+    public function provide (Container $container): void
     {
         try {
             $this->getRouter()->dispatchRequestURL();
@@ -71,8 +72,8 @@ class HttpMessageProvider implements ServiceProvider
                                     Tables::getTable(Tables::BROKEN_LINKS),
                                     [
                                         'from' => $reURL,
-                                        'to' => null,
-                                    ]
+                                        'to'   => null,
+                                    ],
                                 );
                             });
                         } catch (\Exception $exception) {
@@ -91,10 +92,10 @@ class HttpMessageProvider implements ServiceProvider
                                         Tables::getTable(Tables::BROKEN_LINKS),
                                         [
                                             '`from`' => $reURL,
-                                            '`to`' => null,
-                                            '`hit`' => ++$hit,
+                                            '`to`'   => null,
+                                            '`hit`'  => ++$hit,
                                         ],
-                                        db()->WhereEquals('`from`', $reURL)
+                                        db()->WhereEquals('`from`', $reURL),
                                     );
                                 });
                             } catch (\Exception $exception) {
@@ -115,11 +116,11 @@ class HttpMessageProvider implements ServiceProvider
     /**
      * @throws \Exception
      */
-    public function tryURLRedirection(): object|bool
+    public function tryURLRedirection (): object|bool
     {
         try {
             $result = null;
-            db(onGetDB: function (TonicsQuery $db) use (&$result){
+            db(onGetDB: function (TonicsQuery $db) use (&$result) {
                 $table = Tables::getTable(Tables::BROKEN_LINKS);
                 $result = $db->Select('*')->From($table)->WhereEquals(table()->pickTable($table, ['from']), url()->getRequestURL())->FetchFirst();
             });
@@ -136,7 +137,7 @@ class HttpMessageProvider implements ServiceProvider
     /**
      * @return Router
      */
-    public function getRouter(): Router
+    public function getRouter (): Router
     {
         return $this->router;
     }

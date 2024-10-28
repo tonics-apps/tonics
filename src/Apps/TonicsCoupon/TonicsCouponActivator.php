@@ -30,7 +30,6 @@ use App\Apps\TonicsCoupon\EventHandlers\HandleNewCouponSlugIDGeneration;
 use App\Apps\TonicsCoupon\EventHandlers\HandleNewCouponToCouponTypeMapping;
 use App\Apps\TonicsCoupon\EventHandlers\HandleNewCouponTypeSlugIDGeneration;
 use App\Apps\TonicsCoupon\EventHandlers\HandleUpdateCouponToCouponTypeMapping;
-use App\Apps\TonicsCoupon\EventHandlers\PageTemplates\TonicsCouponDefaultPageTemplate;
 use App\Apps\TonicsCoupon\Events\OnBeforeCouponSave;
 use App\Apps\TonicsCoupon\Events\OnCouponCreate;
 use App\Apps\TonicsCoupon\Events\OnCouponDefaultField;
@@ -47,7 +46,6 @@ use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Page\Events\OnPageTemplate;
 use Devsrealm\TonicsRouterSystem\Route;
 
 class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfig
@@ -131,10 +129,6 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
 
             OnCouponTypeDefaultField::class => [
                 DefaultCouponTypeFieldHandler::class,
-            ],
-
-            OnPageTemplate::class => [
-                TonicsCouponDefaultPageTemplate::class,
             ],
 
             OnHookIntoTemplate::class => [

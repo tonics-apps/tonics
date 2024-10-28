@@ -20,7 +20,6 @@ namespace App\Modules\Field\EventHandlers\Fields\Post;
 
 use App\Modules\Core\Data\UserData;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Post\Data\PostData;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class PostAuthorSelect implements HandlerInterface
@@ -30,17 +29,16 @@ class PostAuthorSelect implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('PostAuthorSelect', 'Post Author HTML Selection', 'Post',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
         );
     }
 
@@ -48,13 +46,14 @@ class PostAuthorSelect implements HandlerInterface
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Posts Author Select';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Posts Author Select';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -78,14 +77,14 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostAuthorSelect';
         $userData = new UserData();
         $authors = $userData->getPostAuthorHTMLSelect($event->getKeyValueInData($data, $data->inputName) ?: null);
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $frag .= <<<FORM

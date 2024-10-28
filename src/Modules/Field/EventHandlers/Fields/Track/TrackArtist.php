@@ -28,28 +28,30 @@ class TrackArtist implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('TrackArtist', 'Track Artist With Customizations', 'Track',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
-            }, userForm: function (){},handleViewProcessing: function (){}
+            },
+            userForm: function () {},
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param null $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Tracks Artist Settings';
-        $artistPagination =  (isset($data->artistPagination)) ? $data->artistPagination : '1';
-        $noOfArtistPerPage =  (isset($data->noOfArtistPerPage)) ? $data->noOfArtistPerPage : '6';
-        if ($artistPagination=== '1'){
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Tracks Artist Settings';
+        $artistPagination = (isset($data->artistPagination)) ? $data->artistPagination : '1';
+        $noOfArtistPerPage = (isset($data->noOfArtistPerPage)) ? $data->noOfArtistPerPage : '6';
+        if ($artistPagination === '1') {
             $artistPagination = <<<HTML
 <option value="1" selected>True</option>
 <option value="0">False</option>

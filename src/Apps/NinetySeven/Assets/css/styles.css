@@ -16,8 +16,8 @@
  */
 
 /* CHANGE THIS WITH A BUILD TOOL */
-@import "../../../../../src/Modules/Core/Assets/css/base/utilities.css";
 @import "../../../../../src/Modules/Core/Assets/css/base/essential.css";
+@import "../../../../../src/Modules/Core/Assets/css/base/utilities.css";
 @import "../../../../../src/Modules/Core/Assets/css/base/beat-player.css";
 
 :root {
@@ -30,6 +30,11 @@
     --color-quote-border: #000;
     --color-quote-citation: #6c7781;
     --assetPath: 'serve_app_file_path_987654321';
+    --scale-factor: 0.5;
+}
+
+body {
+    /*zoom: 80%;*/
 }
 
 /* IBMPlexSans light */
@@ -109,56 +114,6 @@ h1, h2, h3, h4, h5, h6, header {
     clear: both;
     line-height: 1.4;
     letter-spacing: -0.04em;
-}
-
-h1, .main-header {
-    --font-min: calc(1rem * 2.5);
-    --font-pref-val: 4vw;
-    --font-max: calc(1rem * 3.2);
-}
-
-h2 {
-    --font-min: calc(1rem * 2);
-    --font-pref-val: 3.5vw;
-    --font-max: calc(1rem * 2.2);
-}
-
-h3 {
-    --font-min: calc(1rem * 1.8);
-    --font-pref-val: 3vw;
-    --font-max: calc(1rem * 2);
-}
-
-h4 {
-    --font-min: calc(1rem * 1.6);
-    --font-pref-val: 2.5vw;
-    --font-max: calc(1rem * 1.7);
-}
-
-h5 {
-    --font-min: calc(1rem * 1.2);
-    --font-pref-val: 2vw;
-    --font-max: calc(1rem * 1.4);
-}
-
-p {
-    --font-min: 1.1rem;
-    --font-pref-val: 2vw;
-    --font-max: 1.2rem;
-    line-height: 1.5;
-}
-
-li {
-    --font-min: 1.1rem;
-    --font-pref-val: 2vw;
-    --font-max: 1.2rem;
-    line-height: 1.5;
-}
-
-h6 {
-    --font-min: calc(1rem * 1.2);
-    --font-pref-val: 1.7vw;
-    --font-max: calc(1rem * 1.4);
 }
 
 pre {
@@ -323,10 +278,14 @@ main > * + * {
 /**
 SET THE main element to flex:1 so, it can push the footer down (sit at the bottom)
  */
-.body-sticky-footer {
+.body-sticky-footer, body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
+}
+
+main {
+    flex: 1;
 }
 
 .footer-area {
@@ -511,10 +470,8 @@ fieldset {
 .menu-box {
     display: flex;
     flex-direction: row;
-    font-size: 10px;
     padding: 10px clamp(15px, 2vw, 20px);
     align-items: center;
-    border-radius: 5px;
     text-decoration: none;
 }
 
@@ -1211,4 +1168,50 @@ TRACK DOWNLOAD LIST SECTION
     align-items: flex-end;
     border-right: 1px solid #ffffff;
     border-bottom: 1px solid #a19c9c;
+}
+
+/*===========================
+        COMPONENTS
+=============================*/
+
+.button-shadow, .menu-box {
+    box-shadow: 2px 1px 0 #FAFAFA, 8px 6px 0 #9E9E9E;
+}
+
+.box-shadow {
+    box-shadow: 5px 5px 2px 0px #000, 0 0 0 0 rgba(45, 35, 66, .3), inset 0 0 0 #89464833;
+}
+
+.box-shadow-card {
+    box-shadow: 4px 1px 0 #000000, 8px 6px 0 rgb(34 34 34);
+}
+
+.transition-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.transition-card:hover {
+    transform: translateY(-3px);
+}
+
+.blog-card {
+    display: grid;
+    grid-template-areas:
+        "a"
+        "a"
+        "b"
+        "c";
+    grid-template-rows: auto auto 1fr;
+    width: 400px;
+}
+
+.pagination-item {
+    padding: 10px 15px;
+}
+
+.pagination-item.active {
+    background-color: #000000;
+    color: #fff;
+    text-decoration: none;
+    cursor: default;
 }

@@ -10,9 +10,11 @@ MAINLY FOR FIELD
 ------------ -]]
 [[b('Widget::Field-Meta')
 
-<li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
-    <fieldset class=" padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Field Meta</legend>
+<li data-draggable-ignore class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
+    <fieldset class=" padding:default width:100% height:100% ">
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Field Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Field Slug -->
             <div class="form-group">
@@ -30,8 +32,10 @@ MAINLY FOR FIELD
 [[b('Widget::Field-Meta_Update')
 <input type="hidden" name="field_id" value="[[v('Data.field_id')]]">
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
-    <fieldset class=" padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Field Meta</legend>
+    <fieldset class="padding:default width:100% height:100% ">
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Field Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Field Slug -->
             <div class="form-group">
@@ -51,8 +55,10 @@ MAIN FOR ADMIN MENU
 --------------- -]]
 [[b('Widget::Menu-Date')
     <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
-        <fieldset class=" padding:default width:100% height:100%  draggable">
-            <legend class="bg:pure-black color:white padding:default">[[use('String::Widget-Save')]]</legend>
+        <fieldset class="padding:default width:100% height:100% ">
+            <legend class="bg:pure-black color:white padding:tiny">
+                <span class="menu-arranger-text-head">[[use('String::Widget-Save')]]</span>
+            </legend>
             <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
                 <div class="form-group">
                     <button data-widget-date-forpost="true" type="submit" class="background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
@@ -66,8 +72,10 @@ MAIN FOR ADMIN MENU
 
 [[b('Widget::Menu-Meta')
     <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center ">
-    <fieldset class=" padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Menu Meta</legend>
+    <fieldset class="padding:default width:100% height:100% ">
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Menu Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -85,8 +93,10 @@ MAIN FOR ADMIN MENU
 [[b('Widget::Menu-Meta_Update')
 <input type="hidden" name="menu_id" value="[[v('Data.menu_id')]]">
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
-    <fieldset class=" padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Menu Meta</legend>
+    <fieldset class="padding:default width:100% height:100% ">
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Menu Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -106,8 +116,10 @@ MAIN FOR ADMIN MENU WIDGET
 ---------------------- -]]
 [[b('Widget::Widget-Meta')
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
-    <fieldset class=" padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Widget Meta</legend>
+    <fieldset class="padding:default width:100% height:100%">
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Widget Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -126,7 +138,9 @@ MAIN FOR ADMIN MENU WIDGET
 <input type="hidden" name="widget_id" value="[[v('Data.widget_id')]]">
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
     <fieldset class="padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Widget Meta</legend>
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Widget Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -146,8 +160,10 @@ MAIN FOR TRACK ARTIST
 ----------------- -]]
 [[b('Widget::Artist-Meta')
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
-    <fieldset class=" padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Artist Meta</legend>
+    <fieldset class="padding:default width:100% height:100% ">
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Artist Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -166,7 +182,9 @@ MAIN FOR TRACK ARTIST
 <input type="hidden" name="artist_id" value="[[v('Data.artist_id')]]">
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
     <fieldset class="padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Artist Meta</legend>
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Artist Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -186,8 +204,10 @@ MAIN FOR TRACK ARTIST
 ----------------- -]]
 [[b('Widget::Genre-Meta')
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
-    <fieldset class=" padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Genre Meta</legend>
+    <fieldset class="padding:default width:100% height:100% ">
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Genre Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -206,7 +226,9 @@ MAIN FOR TRACK ARTIST
 <input type="hidden" name="genre_id" value="[[v('Data.genre_id')]]">
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
     <fieldset class="padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Genre Meta</legend>
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Genre Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -227,7 +249,9 @@ MAIN FOR ADMIN LICENSE WIDGET
 [[b('License::Widget-Meta')
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
     <fieldset class="padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">License Meta</legend>
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">License Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -246,7 +270,9 @@ MAIN FOR ADMIN LICENSE WIDGET
 <input type="hidden" name="license_id" value="[[v('Data.license_id')]]">
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
     <fieldset class="padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">License Meta</legend>
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">License Meta</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <!-- Post Slug -->
             <div class="form-group">
@@ -268,7 +294,9 @@ GENERAL WIDGET
 [[b('Widget::Select-Categories')
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
     <fieldset class="padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Parent Category</legend>
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Parent Category</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <select id="categories" data-widget-select-category="[[arg('1')]]" name="cat_parent_id" class="default-selector">
                 <option value="" selected style="color: #004085">-Parent Category-</option>
@@ -284,7 +312,9 @@ GENERAL WIDGET
 [[b('Widget::Featured-Image')
 <li class="admin-widget-item d:flex flex-d:column align-items:center justify-content:center">
     <fieldset class="padding:default width:100% height:100%  draggable">
-        <legend class="bg:pure-black color:white padding:default">Featured Image</legend>
+        <legend class="bg:pure-black color:white padding:tiny">
+            <span class="menu-arranger-text-head">Featured Image</span>
+        </legend>
         <div class="admin-widget-information d:flex flex-gap flex-d:column width:90%">
             <div class="form-group">
                 <input id="featured-image" class="tonics-featured-image color:black border-width:default border:black placeholder-color:gray"

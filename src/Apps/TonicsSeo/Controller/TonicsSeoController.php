@@ -35,50 +35,51 @@ use JetBrains\PhpStorm\NoReturn;
 
 class TonicsSeoController
 {
-    private ?FieldData $fieldData;
-
     const CACHE_KEY = 'TonicsPlugin_TonicsSEOSettings';
-    private ?PostData $postData;
+    private ?FieldData $fieldData;
+    private ?PostData  $postData;
 
-    public function __construct(FieldData $fieldData = null, PostData $postData = null)
+    public function __construct (FieldData $fieldData = null, PostData $postData = null)
     {
         $this->fieldData = $fieldData;
         $this->postData = $postData;
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function edit(): void
+    public function edit (): void
     {
         $fieldSettings = $this->getSettingsData();
-        if (!isset($fieldSettings['app_tonicsseo_robots_txt'])){ $fieldSettings['app_tonicsseo_robots_txt'] = '';}
-        if (isset($fieldSettings['app_tonicsseo_robots_txt']) && empty($fieldSettings['app_tonicsseo_robots_txt'])){
+        if (!isset($fieldSettings['app_tonicsseo_robots_txt'])) {
+            $fieldSettings['app_tonicsseo_robots_txt'] = '';
+        }
+        if (isset($fieldSettings['app_tonicsseo_robots_txt']) && empty($fieldSettings['app_tonicsseo_robots_txt'])) {
             $fieldSettings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
         }
 
-        if (isset($fieldSettings['_fieldDetails'])){
+        if (isset($fieldSettings['_fieldDetails'])) {
             addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
         } else {
             $htmlFrag = $this->getFieldData()->generateFieldWithFieldSlug(
                 ['app-tonicsseo-settings'],
-                $fieldSettings
+                $fieldSettings,
             )->getHTMLFrag();
         }
 
         view('Apps::TonicsSeo/Views/settings', [
-                'FieldItems' => $htmlFrag,
-            ]
+            'FieldItems' => $htmlFrag,
+        ],
         );
     }
 
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function update()
+    public function update ()
     {
         try {
             $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
@@ -89,7 +90,7 @@ class TonicsSeoController
 
             session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
             redirect(route('tonicsSeo.settings'));
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             session()->flash(['An Error Occurred Saving Settings'], $_POST);
             redirect(route('tonicsSeo.settings'));
         }
@@ -97,21 +98,22 @@ class TonicsSeoController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function rssHomePage()
+    public function rssHomePage (): void
     {
         $settings = self::getSettingsData();
         $rssSettingsData = [
-            'Title' => $settings['app_tonicsseo_site_title'] ?? null,
+            'Title'       => $settings['app_tonicsseo_site_title'] ?? null,
             'Description' => null,
-            'Logo' => null,
-            'RequestURL' => AppConfig::getAppUrl(),
-            'Language' => null,
-            'Query' => [],
+            'Logo'        => null,
+            'RequestURL'  => AppConfig::getAppUrl(),
+            'Language'    => null,
+            'Query'       => [],
         ];
-        if (isset($settings['_fieldDetails'])){
+        if (isset($settings['_fieldDetails'])) {
             $fieldDetails = json_decode($settings['_fieldDetails']);
-            $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field){
+            $fieldDetails = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldDetails, onData: function ($field) {
                 if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
                     $fieldOption = json_decode($field->field_options);
                     $field->field_options = $fieldOption;
@@ -125,26 +127,26 @@ class TonicsSeoController
             $app_tonicsseo_rss_settings_language = 'app_tonicsseo_rss_settings_language';
             $app_tonicsseo_rss_settings_postQueryBuilder = 'app_tonicsseo_rss_settings_postQueryBuilder';
 
-            if (isset($fieldDetails[0]->_children)){
-                foreach ($fieldDetails[0]->_children as $field){
-                    if (isset($field->field_options)){
-                        if ($field->field_input_name === $app_tonicsseo_rss_settings_parent && isset($field->_children)){
-                            foreach ($field->_children as $child){
+            if (isset($fieldDetails[0]->_children)) {
+                foreach ($fieldDetails[0]->_children as $field) {
+                    if (isset($field->field_options)) {
+                        if ($field->field_input_name === $app_tonicsseo_rss_settings_parent && isset($field->_children)) {
+                            foreach ($field->_children as $child) {
 
-                                if ($child->field_input_name === $app_tonicsseo_rss_settings_logo){
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_logo) {
                                     $rssSettingsData['Logo'] = $child->field_options->app_tonicsseo_rss_settings_logo;
                                 }
 
-                                if ($child->field_input_name === $app_tonicsseo_rss_settings_description){
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_description) {
                                     $rssSettingsData['Description'] = $child->field_options->app_tonicsseo_rss_settings_description;
                                 }
 
-                                if ($child->field_input_name === $app_tonicsseo_rss_settings_language){
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_language) {
                                     $rssSettingsData['Language'] = trim($child->field_options->app_tonicsseo_rss_settings_language);
                                 }
 
-                                if ($child->field_input_name === $app_tonicsseo_rss_settings_postQueryBuilder){
-                                    if (isset($child->_children[0]->_children)){
+                                if ($child->field_input_name === $app_tonicsseo_rss_settings_postQueryBuilder) {
+                                    if (isset($child->_children[0]->_children)) {
                                         $rssSettingsData['Query'] = FieldHelpers::postDataFromPostQueryBuilderField($child->_children[0]->_children, 'created_at');
                                     }
                                 }
@@ -165,35 +167,37 @@ class TonicsSeoController
 
     /**
      * @param string $categoryName
+     *
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function rssPostCategory(string $categoryName)
+    public function rssPostCategory (string $categoryName): void
     {
         $postTbl = Tables::getTable(Tables::POSTS);
         $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
         $CatTbl = Tables::getTable(Tables::CATEGORIES);
 
         $categoryData = null;
-        db(onGetDB: function (TonicsQuery $db) use ($categoryName, $CatTbl, &$categoryData){
+        db(onGetDB: function (TonicsQuery $db) use ($categoryName, $CatTbl, &$categoryData) {
             $categoryData = $db
                 ->Select('*, JSON_UNQUOTE(JSON_EXTRACT(field_settings, "$.seo_description")) as cat_description')
                 ->From($CatTbl)->WhereEquals('cat_slug', $categoryName)->FetchFirst();
         });
 
-        if ($categoryData){
+        if ($categoryData) {
 
             $settings = self::getSettingsData();
             $rssSettingsData = [
-                'Title' => $settings['app_tonicsseo_site_title'] ?? null,
+                'Title'       => $settings['app_tonicsseo_site_title'] ?? null,
                 'Description' => $categoryData->cat_description,
-                'Logo' => $settings['app_tonicsseo_rss_settings_logo'] ?? null,
-                'RequestURL' => AppConfig::getAppUrl(),
-                'Language' => $settings['app_tonicsseo_rss_settings_language'] ?? 'en',
+                'Logo'        => $settings['app_tonicsseo_rss_settings_logo'] ?? null,
+                'RequestURL'  => AppConfig::getAppUrl(),
+                'Language'    => $settings['app_tonicsseo_rss_settings_language'] ?? 'en',
             ];
 
             $queryData = null;
-            db(onGetDB: function ($db) use($CatTbl, $postCatTbl, $postTbl, $categoryData, &$queryData) {
+            db(onGetDB: function ($db) use ($CatTbl, $postCatTbl, $postTbl, $categoryData, &$queryData) {
                 $postFieldSettings = $postTbl . '.field_settings';
                 $tblCol = table()->pick([$postTbl => ['post_id', 'post_title', 'post_slug', 'field_settings', 'slug_id', 'created_at', 'updated_at', 'image_url']])
                     . ", $postTbl.post_title as _title, $postTbl.image_url as _image "
@@ -203,7 +207,7 @@ class TonicsSeoController
 
                 $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($categoryData->cat_id);
                 $catIDS = [];
-                foreach ($catIDSResult as $catID){
+                foreach ($catIDSResult as $catID) {
                     $catIDS[] = $catID->cat_id;
                 }
 
@@ -227,7 +231,10 @@ class TonicsSeoController
         }
     }
 
-    private function getDefaultRobots()
+    /**
+     * @throws \Exception
+     */
+    private function getDefaultRobots ()
     {
         $sitemapURL = AppConfig::getAppUrl() . '/sitemap.xml';
         return <<<ROBOT
@@ -241,8 +248,9 @@ ROBOT;
     /**
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function ads(): void
+    public function ads (): void
     {
         response()->header("content-type: text/plain; charset=UTF-8");
         $settings = self::getSettingsData();
@@ -251,8 +259,9 @@ ROBOT;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] public function sitemap(): void
+    #[NoReturn] public function sitemap (): void
     {
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
@@ -267,24 +276,24 @@ ROBOT;
 
         $sitemapIndexes = [];
         $typeNameFromParam = strtolower(url()->getParam('type', ''));
-        if (url()->hasParam('type') && key_exists($typeNameFromParam, $includeSitemaps)){
+        if (url()->hasParam('type') && key_exists($typeNameFromParam, $includeSitemaps)) {
             /** @var AbstractSitemapInterface $sitemapHandlerObject */
             $sitemapHandlerObject = $sitemapTypeEvent->getSitemap()[$typeNameFromParam];
             $sitemapPerPage = (isset(self::getSettingsData()['app_tonicsseo_sitemap_per_page'])) ? (int)self::getSettingsData()['app_tonicsseo_sitemap_per_page'] : 1000;
             $sitemapHandlerObject->setLimit($sitemapPerPage);
 
             # If it includes a page param, then get the sitemap data
-            if (url()->hasParam('page')){
+            if (url()->hasParam('page')) {
                 $this->sitemapEntry($sitemapHandlerObject);
             }
 
             # Sitemap Index for page type
-            if ($sitemapHandlerObject->getSitemapDataCount() > $sitemapPerPage){
+            if ($sitemapHandlerObject->getSitemapDataCount() > $sitemapPerPage) {
                 $count = $sitemapHandlerObject->getSitemapDataCount();
                 # Total Pages we can paginate through
                 $totalPages = (int)ceil($count / $sitemapPerPage);
-                for ($i = 1; $i <= $totalPages; ++$i){
-                    $indexURL = AppConfig::getAppUrl(). url()->appendQueryString("page=" . $i)->getRequestURLWithQueryString();
+                for ($i = 1; $i <= $totalPages; ++$i) {
+                    $indexURL = AppConfig::getAppUrl() . url()->appendQueryString("page=" . $i)->getRequestURLWithQueryString();
                     $sitemapIndexes[] = $indexURL;
                 }
                 $this->sitemapIndex($sitemapIndexes);
@@ -292,8 +301,8 @@ ROBOT;
 
             $this->sitemapEntry($sitemapHandlerObject);
         } else {
-            foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue){
-                $indexURL = url()->getFullURL() . '?type=' .$sitemapName;
+            foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue) {
+                $indexURL = url()->getFullURL() . '?type=' . $sitemapName;
                 $sitemapIndexes[] = $indexURL;
             }
             $this->sitemapIndex($sitemapIndexes);
@@ -302,8 +311,9 @@ ROBOT;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] public function sitemapNews(): void
+    #[NoReturn] public function sitemapNews (): void
     {
         /** @var OnAddSitemap $sitemapTypeEvent */
         $sitemapTypeEvent = event()->dispatch(new OnAddSitemap());
@@ -318,24 +328,24 @@ ROBOT;
 
         $sitemapIndexes = [];
         $typeNameFromParam = strtolower(url()->getParam('type', ''));
-        if (url()->hasParam('type') && key_exists($typeNameFromParam, $includeSitemaps)){
+        if (url()->hasParam('type') && key_exists($typeNameFromParam, $includeSitemaps)) {
             /** @var AbstractSitemapInterface $sitemapHandlerObject */
             $sitemapHandlerObject = $sitemapTypeEvent->getSitemap()[$typeNameFromParam];
             $sitemapPerPage = (isset(self::getSettingsData()['app_tonicsseo_sitemap_per_page'])) ? (int)self::getSettingsData()['app_tonicsseo_sitemap_per_page'] : 1000;
             $sitemapHandlerObject->setLimit($sitemapPerPage);
 
             # If it includes a page param, then get the sitemap data
-            if (url()->hasParam('page')){
+            if (url()->hasParam('page')) {
                 $this->sitemapNewsEntry($sitemapHandlerObject);
             }
 
             # Sitemap Index for page type
-            if ($sitemapHandlerObject->getSitemapNewsDataCount() > $sitemapPerPage){
+            if ($sitemapHandlerObject->getSitemapNewsDataCount() > $sitemapPerPage) {
                 $count = $sitemapHandlerObject->getSitemapNewsDataCount();
                 # Total Pages we can paginate through
                 $totalPages = (int)ceil($count / $sitemapPerPage);
-                for ($i = 1; $i <= $totalPages; ++$i){
-                    $indexURL = AppConfig::getAppUrl(). url()->appendQueryString("page=" . $i)->getRequestURLWithQueryString();
+                for ($i = 1; $i <= $totalPages; ++$i) {
+                    $indexURL = AppConfig::getAppUrl() . url()->appendQueryString("page=" . $i)->getRequestURLWithQueryString();
                     $sitemapIndexes[] = $indexURL;
                 }
                 $this->sitemapIndex($sitemapIndexes);
@@ -343,8 +353,8 @@ ROBOT;
 
             $this->sitemapNewsEntry($sitemapHandlerObject);
         } else {
-            foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue){
-                $indexURL = url()->getFullURL() . '?type=' .$sitemapName;
+            foreach ($sitemapTypeEvent->getSitemap() as $sitemapName => $sitemapValue) {
+                $indexURL = url()->getFullURL() . '?type=' . $sitemapName;
                 $sitemapIndexes[] = $indexURL;
             }
             $this->sitemapIndex($sitemapIndexes);
@@ -353,8 +363,9 @@ ROBOT;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] private function sitemapIndex($sitemapIndexes): void
+    #[NoReturn] private function sitemapIndex ($sitemapIndexes): void
     {
         view('Apps::TonicsSeo/Views/sitemap', [
             'sitemapIndexes' => $sitemapIndexes,
@@ -364,37 +375,40 @@ ROBOT;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] private function sitemapEntry($sitemapHandlerObject): void
+    #[NoReturn] private function sitemapEntry ($sitemapHandlerObject): void
     {
         view('Apps::TonicsSeo/Views/sitemap_entries', [
             'sitemapData' => $sitemapHandlerObject->getSitemapData(),
-            'seoSettings' => self::getSettingsData()
+            'seoSettings' => self::getSettingsData(),
         ]);
         exit();
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] private function sitemapNewsEntry($sitemapHandlerObject): void
+    #[NoReturn] private function sitemapNewsEntry ($sitemapHandlerObject): void
     {
         view('Apps::TonicsSeo/Views/sitemap_news_entries', [
             'sitemapData' => $sitemapHandlerObject->getSitemapNewsData(),
-            'seoSettings' => self::getSettingsData()
+            'seoSettings' => self::getSettingsData(),
         ]);
         exit();
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function robots(): void
+    public function robots (): void
     {
         $settings = self::getSettingsData();
-        if (!isset($settings['app_tonicsseo_robots_txt'])){
+        if (!isset($settings['app_tonicsseo_robots_txt'])) {
             $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
-        }elseif (empty($settings['app_tonicsseo_robots_txt'])){
+        } elseif (empty($settings['app_tonicsseo_robots_txt'])) {
             $settings['app_tonicsseo_robots_txt'] = $this->getDefaultRobots();
         }
         response()->header("content-type: text/plain; charset=UTF-8");
@@ -404,17 +418,12 @@ ROBOT;
     /**
      * @throws \Exception
      */
-    public static function getSettingsData()
+    public static function getSettingsData (): array
     {
-        $settings = apcu_fetch(self::getCacheKey());
-        if ($settings === false){
-            $settings = FieldConfig::loadPluginSettings(self::getCacheKey());
-        }
-
-        return $settings ?? [];
+        return FieldConfig::loadPluginSettings(self::getCacheKey(), apcu_fetch(self::getCacheKey())) ?? [];
     }
 
-    public static function getCacheKey(): string
+    public static function getCacheKey (): string
     {
         return AppConfig::getAppCacheKey() . self::CACHE_KEY;
     }
@@ -422,7 +431,7 @@ ROBOT;
     /**
      * @return FieldData|null
      */
-    public function getFieldData(): ?FieldData
+    public function getFieldData (): ?FieldData
     {
         return $this->fieldData;
     }
@@ -430,7 +439,7 @@ ROBOT;
     /**
      * @param FieldData|null $fieldData
      */
-    public function setFieldData(?FieldData $fieldData): void
+    public function setFieldData (?FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }
@@ -438,7 +447,7 @@ ROBOT;
     /**
      * @return PostData|null
      */
-    public function getPostData(): ?PostData
+    public function getPostData (): ?PostData
     {
         return $this->postData;
     }
@@ -446,7 +455,7 @@ ROBOT;
     /**
      * @param PostData|null $postData
      */
-    public function setPostData(?PostData $postData): void
+    public function setPostData (?PostData $postData): void
     {
         $this->postData = $postData;
     }

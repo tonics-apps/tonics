@@ -29,7 +29,7 @@ class InputDate implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         $script = AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js');
         /** @var $event OnFieldMetaBox */
@@ -38,43 +38,40 @@ class InputDate implements HandlerInterface
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
-            }
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Date';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "";
-        $min =  (isset($data->min)) ? $data->min : '';
-        $max =  (isset($data->max)) ? $data->max : '';
-        $dateType =  (isset($data->dateType)) ? $data->dateType : 'date';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Date';
+        $inputName = (isset($data->inputName)) ? $data->inputName : "";
+        $min = (isset($data->min)) ? $data->min : '';
+        $max = (isset($data->max)) ? $data->max : '';
+        $dateType = (isset($data->dateType)) ? $data->dateType : 'date';
 
         $dateTypes = [
-            'Date' => 'date',
+            'Date'           => 'date',
             'DateTime Local' => 'datetime-local',
-            'Month' => 'month',
-            'Week' => 'week',
-            'Time' => 'time',
+            'Month'          => 'month',
+            'Week'           => 'week',
+            'Time'           => 'time',
         ];
 
         $dateFrag = '';
-        foreach ($dateTypes as $dateK => $dateV){
+        foreach ($dateTypes as $dateK => $dateV) {
             $dateSelected = ($dateV === $dateType) ? 'selected' : '';
             $dateFrag .= <<<HTML
 <option value="$dateV" name="dateType" $dateSelected>$dateK</option>
 HTML;
         }
 
-        if (isset($data->readOnly) && $data->readOnly === '1'){
+        if (isset($data->readOnly) && $data->readOnly === '1') {
             $readOnly = <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
@@ -86,7 +83,7 @@ HTML;
 HTML;
         }
         $required = (isset($data->required)) ? $data->required : '1';
-        if ($required === '1'){
+        if ($required === '1') {
             $required = <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
@@ -97,7 +94,7 @@ HTML;
 <option value="1">True</option>
 HTML;
         }
-        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
+        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -180,54 +177,46 @@ FORM;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Date';
 
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultValue = (isset($data->defaultValue) && !empty($keyValue)) ? $keyValue : $data->defaultValue;
 
         $min = (isset($data->min)) ? "min='$data->min'" : '';
         $max = (isset($data->max)) ? "max='$data->max'" : '';
-        $dateType =  (isset($data->dateType)) ? $data->dateType : 'date';
+        $dateType = (isset($data->dateType)) ? $data->dateType : 'date';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
         $error = '';
-        if (!empty($fieldValidation)){
+        if (!empty($fieldValidation)) {
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
-        if (!empty($fieldSanitization)){
+        if (!empty($fieldSanitization)) {
             $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
 
         $defaultValue = str_replace(' ', 'T', $defaultValue);
         $frag .= <<<FORM
-<div class="form-group margin-top:0">
+<div data-draggable-ignore class="form-group margin-top:0">
 $error
-     <label class="menu-settings-handle-name" for="fieldName-$changeID">$fieldName
+     <label class="menu-settings-handle-name screen-reader-text" for="fieldName-$changeID">$fieldName</label>
             <input id="fieldName-$changeID" name="$inputName" type="$dateType" $min $max
             class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$defaultValue">
-    </label>
 </div>
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData(OnFieldMetaBox $event, $data)
-    {
-        $event->defaultInputViewHandler('InputDate', $data);
     }
 
 }

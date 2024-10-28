@@ -1,4 +1,3 @@
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -30,9 +29,9 @@ function hookTinyMCE() {
         const tinyDialogObserver = new MutationObserver(((mutationsList, observer) => {
             for (const mutation of mutationsList) {
                 // added nodes.
-                if (mutation.addedNodes.length > 0){
-                    mutation.addedNodes.forEach((addedNode =>  {
-                        if (addedNode.nodeType === Node.ELEMENT_NODE){
+                if (mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach((addedNode => {
+                        if (addedNode.nodeType === Node.ELEMENT_NODE) {
                             let tinyArea = addedNode.querySelector('.tinyMCEBodyArea');
                             if (tinyArea) {
                                 // if tinyInstance is available, re-initialize it
@@ -89,7 +88,7 @@ function addTiny(editorID) {
         content_css = content_css.slice(0, -1);
     }
     let fieldSelectionManager = '';
-    if (tinyAssets){
+    if (tinyAssets) {
         fieldSelectionManager = 'tonics-fieldselectionmanager';
     }
 
@@ -120,8 +119,12 @@ function addTiny(editorID) {
         body_class: "entry-content",
         remove_trailing_brs: true,
         setup: function (editor) {
-            if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
-            if (!window.TonicsScript.hasOwnProperty('tinymce')){ window.TonicsScript.tinymce = [] }
+            if (!window.hasOwnProperty('TonicsScript')) {
+                window.TonicsScript = {};
+            }
+            if (!window.TonicsScript.hasOwnProperty('tinymce')) {
+                window.TonicsScript.tinymce = []
+            }
             window.TonicsScript.tinymce.push(editor);
             editor.on('init', function (e) {
                 if (tinyJSAssets && tinyJSAssets.length > 0) {
@@ -144,13 +147,13 @@ function addTiny(editorID) {
 
                     if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
-                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
+                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                             let tonicsFieldWrapper = tabContainer.querySelector('.tonicsFieldWrapper');
                             let jsonValue = tonicsFieldWrapper.value;
                             const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(jsonValue, target);
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
-                            if (OnBeforeTonicsFieldPreview.canRequest()){
+                            if (OnBeforeTonicsFieldPreview.canRequest()) {
                                 OnBeforeTonicsFieldPreview.loadAnimation(target)
                                 fieldPreviewFromPostData(OnBeforeTonicsFieldPreview.getPostData(), function (data) {
                                     if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
@@ -164,34 +167,34 @@ function addTiny(editorID) {
                 });
 
                 editor.getBody().addEventListener('change', (e) => {
-                   let input = e.target, tagName = input.tagName;
-                   if (tagName.toLowerCase() === 'input'){
-                       input.setAttribute('value', input.value);
-                       if (input.type === 'checkbox'){
-                           (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-                       }
+                    let input = e.target, tagName = input.tagName;
+                    if (tagName.toLowerCase() === 'input') {
+                        input.setAttribute('value', input.value);
+                        if (input.type === 'checkbox') {
+                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                        }
 
-                       if(input.type === 'radio'){
-                           let parentRadio = input.parentElement;
-                           if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0){
-                               parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
-                                   radio.removeAttribute('checked');
-                               });
-                           }
-                           (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-                       }
-                   }
+                        if (input.type === 'radio') {
+                            let parentRadio = input.parentElement;
+                            if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0) {
+                                parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
+                                    radio.removeAttribute('checked');
+                                });
+                            }
+                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                        }
+                    }
 
-                   if (tagName.toLowerCase() === 'textarea'){
-                       let text = input.value;
-                       input.innerHTML = text;
-                       input.value = text;
-                   }
+                    if (tagName.toLowerCase() === 'textarea') {
+                        let text = input.value;
+                        input.innerHTML = text;
+                        input.value = text;
+                    }
 
-                   if (tagName.toLowerCase() === 'select'){
-                       input.options[input.selectedIndex].selected = 'selected';
-                       input.options[input.selectedIndex].setAttribute('selected', 'selected');
-                   }
+                    if (tagName.toLowerCase() === 'select') {
+                        input.options[input.selectedIndex].selected = 'selected';
+                        input.options[input.selectedIndex].setAttribute('selected', 'selected');
+                    }
                 });
 
                 let svgInline = document.querySelector('.tonics-inline-svg');
@@ -244,15 +247,22 @@ function addTiny(editorID) {
     });
 }
 
-function fieldPreviewFromPostData(postData, onSuccess = null, onError = null) {
+function fieldPreviewFromPostData(postData, onSuccess = null, onError = null, onConstructDataToSend = null) {
     let url = "/admin/tools/field/field-preview";
     let defaultHeader = {
         'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
     };
-    let dataToSend = {
-        'postData': postData
+
+    let dataToSend = null;
+    if (onConstructDataToSend) {
+        dataToSend = onConstructDataToSend(postData);
+    } else {
+        dataToSend = {
+            'postData': postData
+        }
     }
-   new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
+
+    new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
         if (data) {
             data = JSON.parse(data);
             if (onSuccess) {
@@ -272,28 +282,28 @@ function getPostData(fieldSettingsEl) {
     elements.forEach((inputs) => {
 
         // collect checkbox
-        if (inputs.type === 'checkbox'){
+        if (inputs.type === 'checkbox') {
             let checkboxName = inputs.name;
-            if (!widgetSettings.hasOwnProperty(checkboxName)){
+            if (!widgetSettings.hasOwnProperty(checkboxName)) {
                 widgetSettings[checkboxName] = [];
             }
-            if (inputs.checked){
+            if (inputs.checked) {
                 widgetSettings[checkboxName].push(inputs.value);
             }
-        }else if (inputs.type === 'select-multiple'){
+        } else if (inputs.type === 'select-multiple') {
             let selectOptions = inputs.options;
             let selectBoxName = inputs.name;
             for (let k = 0; k < selectOptions.length; k++) {
                 let option = selectOptions[k];
-                if (option.selected){
-                    if (!widgetSettings.hasOwnProperty(selectBoxName)){
+                if (option.selected) {
+                    if (!widgetSettings.hasOwnProperty(selectBoxName)) {
                         widgetSettings[selectBoxName] = [];
                     }
 
                     widgetSettings[selectBoxName].push(option.value || option.text);
                 }
             }
-        }else if (!widgetSettings.hasOwnProperty(inputs.name)) {
+        } else if (!widgetSettings.hasOwnProperty(inputs.name)) {
             widgetSettings[inputs.name] = inputs.value;
         }
     });
@@ -304,20 +314,21 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
     /** @type OnSubmitFieldEditorsFormEvent */
     fieldSubmitEvObj = null;
     event = null;
+
     constructor(event) {
         this.event = event;
         this.fieldSubmitEvObj = event;
         this.handleTinymceChildNodes();
     }
 
-   handleTinymceChildNodes() {
+    handleTinymceChildNodes() {
         let self = this;
         if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
             bodyNode.forEach((node) => {
                 if (node.classList.contains('tonicsFieldTabsContainer')) {
-                    if (nodesData.hasOwnProperty(key) &&  window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
+                    if (nodesData.hasOwnProperty(key) && window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                         ++key;
                     }
 
@@ -348,7 +359,13 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                 }
             });
 
-            self.event.addHiddenInputToForm(self.event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
+            let nodesDataStringify = JSON.stringify(nodesData);
+            let fieldBuilderItems = tinymce.activeEditor.contentAreaContainer.closest('.field-builder-items');
+            if (fieldBuilderItems) {
+                fieldBuilderItems.dataset._tinymce_fields = nodesDataStringify;
+            }
+
+            self.event.addHiddenInputToForm(self.event.editorsForm, 'fieldItemsDataFromEditor', nodesDataStringify);
         }
     }
 }
@@ -358,6 +375,12 @@ if (window?.TonicsEvent?.EventConfig) {
 }
 
 class OnBeforeTonicsFieldPreviewEvent {
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+        this._canRequest = true;
+    }
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -365,6 +388,7 @@ class OnBeforeTonicsFieldPreviewEvent {
     set elementTarget(value) {
         this._elementTarget = value;
     }
+
     get postData() {
         return this._postData;
     }
@@ -381,17 +405,11 @@ class OnBeforeTonicsFieldPreviewEvent {
         this._canRequest = value;
     }
 
-    constructor(postData, target) {
-        this._postData = postData;
-        this._elementTarget = target;
-        this._canRequest = true;
-    }
-
     canRequest() {
         return this._canRequest;
     }
 
-    getCSFRToken(){
+    getCSFRToken() {
         return getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])
     }
 
@@ -413,6 +431,14 @@ class OnBeforeTonicsFieldPreviewEvent {
 }
 
 class OnBeforeTonicsFieldSubmitEvent {
+    postData = null;
+    elementTarget = null;
+
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+    }
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -427,13 +453,6 @@ class OnBeforeTonicsFieldSubmitEvent {
 
     set postData(value) {
         this._postData = value;
-    }
-
-    postData = null; elementTarget = null;
-
-    constructor(postData, target) {
-        this._postData = postData;
-        this._elementTarget = target;
     }
 
     getPostData() {

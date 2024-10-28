@@ -25,7 +25,7 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class Sitemap implements HandlerInterface
 {
 
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox(
@@ -37,16 +37,20 @@ class Sitemap implements HandlerInterface
             }, userForm: function ($data) use ($event) {
             return $this->userForm($event, $data);
         },
-            handleViewProcessing: function ($data) use ($event) {
-                // $this->viewData($event, $data);
-            }
         );
     }
 
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    /**
+     * @param OnFieldMetaBox $event
+     * @param $data
+     *
+     * @return string
+     * @throws \Throwable
+     */
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Sitemaps';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Sitemaps';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -69,30 +73,34 @@ FORM;
 
 
     /**
-     * @throws \Exception
+     * @param OnFieldMetaBox $event
+     * @param $data
+     *
+     * @return string
+     * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Sitemaps';
         $selectedSitemap = (isset(getPostData()[$data->inputName])) ? getPostData()[$data->inputName] : [];
-        if (!is_array($selectedSitemap)){
+        if (!is_array($selectedSitemap)) {
             $selectedSitemap = [];
         }
         $selectedSitemap = array_combine($selectedSitemap, $selectedSitemap);
 
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $onAddSitemapEvent = (new OnAddSitemap())->dispatchEvent();
         $sitemapHandlers = $onAddSitemapEvent->getSitemap();
 
         $sitemapFrag = '';
-        foreach ($sitemapHandlers as $sitemapName => $sitemapObject){
+        foreach ($sitemapHandlers as $sitemapName => $sitemapObject) {
             $selected = '';
             $sitemapName = ucfirst($sitemapName);
-            if (isset($selectedSitemap[$sitemapName])){
+            if (isset($selectedSitemap[$sitemapName])) {
                 $selected = 'checked';
             }
             $sitemapFrag .= <<<HTML

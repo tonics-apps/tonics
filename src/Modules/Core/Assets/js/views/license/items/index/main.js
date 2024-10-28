@@ -1,4 +1,3 @@
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -39,21 +38,22 @@ new Draggables(parent)
     .onDragDrop(function (element, self) {
         let elementDropped = self.getDroppedTarget().closest(widgetChild);
         let elementDragged = self.getDragging().closest(widgetChild);
-        if (elementDropped !== elementDragged && top || bottom){
+        if (elementDropped !== elementDragged && top || bottom) {
             // swap element
             swapNodes(elementDragged, elementDropped, self.draggingOriginalRect);
             sensitivity = 0;
-            top = false; bottom = false;
+            top = false;
+            bottom = false;
         }
     }).onDragTop((element) => {
-    if (sensitivity++ >= sensitivityMax){
+    if (sensitivity++ >= sensitivityMax) {
         let dragToTheTop = element.previousElementSibling;
-        if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')){
+        if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')) {
             top = true;
         }
     }
-}).onDragBottom( (element) => {
-    if (sensitivity++ >= sensitivityMax){
+}).onDragBottom((element) => {
+    if (sensitivity++ >= sensitivityMax) {
         let dragToTheBottom = element.nextElementSibling;
         if (dragToTheBottom && dragToTheBottom.classList.contains('menu-arranger-li')) {
             bottom = true;
@@ -62,12 +62,13 @@ new Draggables(parent)
 }).run();
 
 let licenseArranger = document.getElementsByClassName('license-arranger')[0];
+
 function generateNewLicenseForm() {
     return `<li tabIndex="0"
                class="width:100% draggable menu-arranger-li cursor:move">
         <fieldset
             class="width:100% padding:default d:flex justify-content:center pointer-events:none">
-            <legend class="bg:pure-black color:white padding:default pointer-events:none d:flex flex-gap:small align-items:center">
+            <legend class="bg:pure-black color:white padding:tiny pointer-events:none d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">New License</span>
                 <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer"
                         aria-expanded="false" aria-label="Expand child menu">
@@ -116,23 +117,23 @@ function generateNewLicenseForm() {
 
 // add new license
 let addNewLicenseButton = document.querySelector('.add-new-license');
-if (addNewLicenseButton){
+if (addNewLicenseButton) {
     addNewLicenseButton.addEventListener('click', (e) => {
         e.preventDefault();
-        if (licenseArranger.querySelector('ul')){
+        if (licenseArranger.querySelector('ul')) {
             licenseArranger.querySelector('ul').insertAdjacentHTML('beforeend', generateNewLicenseForm());
         }
     });
 }
 
 // delete menu or widget
-if (licenseArranger){
+if (licenseArranger) {
     licenseArranger.addEventListener('click', (e) => {
         e.preventDefault();
         let el = e.target;
-        if (el.classList.contains('delete-license-button')){
+        if (el.classList.contains('delete-license-button')) {
             let arranger = el.closest('.draggable');
-            if (arranger){
+            if (arranger) {
                 arranger.remove();
             }
         }
@@ -140,12 +141,12 @@ if (licenseArranger){
 }
 
 function getListDataArray() {
-    if(draggable){
+    if (draggable) {
         let widgetSettingsEl = document.querySelectorAll('.widgetSettings'), licenseArray = [],
             i = 0;
         widgetSettingsEl.forEach(form => {
             let widgetSettings = {};
-            if (form.tagName === 'FORM'){
+            if (form.tagName === 'FORM') {
                 let widgetFormData = new FormData(form);
                 widgetFormData.forEach((value, key) => {
                     widgetSettings[key] = value;
@@ -163,7 +164,7 @@ let windowInstanceForLicenceContract = null;
 let licenceContractParent = null;
 document.addEventListener('click', (e) => {
     let el = e.target;
-    if (el.classList.contains('license-contract-button')){
+    if (el.classList.contains('license-contract-button')) {
         if (tonicsFileManagerURL) {
             licenceContractParent = el.parentElement;
             let windowFeatures = "left=95,top=100";
@@ -178,7 +179,7 @@ window.addEventListener('message', (e) => {
     }
     let data = e.data;
     if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:DocLink') {
-        if (licenceContractParent){
+        if (licenceContractParent) {
             let licenceContractInput = licenceContractParent.querySelector('.license-contract');
             licenceContractInput.value = data.value;
             windowInstanceForLicenceContract.close();
@@ -189,7 +190,7 @@ window.addEventListener('message', (e) => {
 // save license builder
 let saveAllLicense = document.querySelector('.save-license-builder-changes'),
     saveLicenseChangesForm = document.getElementById('saveLicenseBuilderItems');
-if(saveAllLicense && saveLicenseChangesForm){
+if (saveAllLicense && saveLicenseChangesForm) {
     saveAllLicense.addEventListener('click', function (e) {
         e.preventDefault();
         addHiddenInputToForm(saveLicenseChangesForm, 'licenseSlug', licenseSlug);

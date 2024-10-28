@@ -27,33 +27,34 @@ class CouponTypeSelect implements HandlerInterface
 
     /**
      * @param object $event
+     *
      * @return void
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('CouponTypeSelect', 'Coupon Type HTML Selection', 'TonicsCoupon',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Coupon Type Select';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Coupon Type Select';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
 
 
@@ -100,21 +101,22 @@ FORM;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'CouponTypeSelect';
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $multipleAttr = '';
         $selectName = "$inputName";
         $height = '';
-        if ($multipleSelection === '1'){
+        if ($multipleSelection === '1') {
             $multipleAttr = 'multiple';
             $selectName = "{$inputName}[]";
             $height = 'height: 300px;';

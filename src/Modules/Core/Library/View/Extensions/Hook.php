@@ -29,24 +29,20 @@ use Devsrealm\TonicsTemplateSystem\Tokenizer\Token\Events\OnTagToken;
  * This extension supports the ability to add hook (more like a placeholder reserve for some future content),
  * and the ability to hook into created hooks.
  *
- * <br>
  * To create a hook or a reserved spot, you do:
  *
  * `[[add_hook('Core::hook_name')]]`
  *
- * <br>
  * To use the hook later, you do:
  *
  * ```
  * [[hook_into('Core::in_head')This data would be hooked into in_head]]
  * ```
  *
- * <br>
  * Reset hook using:  `[[reset_hook('in_head')`]]
  *
  * There is no limit to the number of times you can hook_into, so, enjoy ;)
  *
- * <br>
  * Note: add_hook and hook_into can't and shouldn't be nested.
  */
 class Hook extends TonicsTemplateViewAbstract implements TonicsModeInterface, TonicsModeRendererInterface

@@ -27,33 +27,31 @@ class InputRange implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Range', 'A Range slider for setting a numeric value',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
-            }
         );
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Range';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $min =  (isset($data->min)) ? $data->min : '';
-        $max =  (isset($data->max)) ? $data->max : '';
-        $step =  (isset($data->step)) ? $data->step : '';
-        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Range';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        $min = (isset($data->min)) ? $data->min : '';
+        $max = (isset($data->max)) ? $data->max : '';
+        $step = (isset($data->step)) ? $data->step : '';
+        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -64,7 +62,7 @@ class InputRange implements HandlerInterface
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
         $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);
 
-        $frag .=<<<FORM
+        $frag .= <<<FORM
 <div class="form-group d:flex flex-gap">
      <label class="menu-settings-handle-name" for="fieldName-$changeID">Field Name
             <input id="fieldName-$changeID" name="fieldName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
@@ -120,41 +118,41 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Text';
         $maxChar = (isset($data->maxChar)) ? "maxlength='$data->maxChar'" : '';
         $step = (isset($data->step)) ? "step='$data->step'" : '';
-        $min = (isset($data->min)) ? "min='$data->min'"  : '';
-        $max= (isset($data->max)) ? "max='$data->max'"  : '';
+        $min = (isset($data->min)) ? "min='$data->min'" : '';
+        $max = (isset($data->max)) ? "max='$data->max'" : '';
         $textType = 'range';
 
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultValue = (isset($data->defaultValue) && !empty($keyValue)) ? $keyValue : $data->defaultValue;
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
         $error = '';
-        if (!empty($fieldValidation)){
+        if (!empty($fieldValidation)) {
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
 
-        if (!empty($fieldSanitization)){
+        if (!empty($fieldSanitization)) {
             $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
 
-        if (empty($defaultValue)){
+        if (empty($defaultValue)) {
             $defaultValue = '0';
         }
 
         $frag .= <<<FORM
-<div class="form-group margin-top:0">
+<div data-draggable-ignore class="form-group margin-top:0">
 $error
      <label class="menu-settings-handle-name d:flex align-items:center flex-gap:small" for="fieldName-$changeID">$fieldName
             <input style="width: unset; transform: unset;" id="fieldName-$changeID" $min $max $step  name="$inputName" type="$textType" $maxChar
@@ -167,13 +165,5 @@ FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData(OnFieldMetaBox $event, $data)
-    {
-        $event->defaultInputViewHandler('InputRange', $data);
     }
 }

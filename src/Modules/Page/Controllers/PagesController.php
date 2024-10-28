@@ -19,19 +19,18 @@
 namespace App\Modules\Page\Controllers;
 
 use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Page\Data\PageData;
-use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
-use App\Modules\Page\Events\OnPageTemplate;
 use App\Modules\Page\Rules\PageValidationRules;
+use App\Modules\Page\Services\PageService;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
@@ -44,7 +43,7 @@ class PagesController
     private ?FieldData          $fieldData;
     private ?OnPageDefaultField $onPageDefaultField;
 
-    public function __construct (PageData $pageData, FieldData $fieldData = null, OnPageDefaultField $onPageDefaultField = null)
+    public function __construct (PageData $pageData, private PageService $pageService, FieldData $fieldData = null, OnPageDefaultField $onPageDefaultField = null)
     {
         $this->pageData = $pageData;
         $this->fieldData = $fieldData;
@@ -53,23 +52,10 @@ class PagesController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function index (): void
     {
-        $onPageTemplateEvent = new OnPageTemplate();
-        event()->dispatch($onPageTemplateEvent);
-        $templateNames = $onPageTemplateEvent->getTemplateNames();
-        $pageTemplateSelectDataAttribute = '';
-        foreach ($templateNames as $templateName => $templateClass) {
-            $pageTemplateSelectDataAttribute .= $templateName . ',';
-        }
-
-        $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::PAGES . '::' . 'page_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'page_id'],
-            ['type' => 'text', 'slug' => Tables::PAGES . '::' . 'page_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'page_title'],
-            ['type' => 'select', 'slug' => Tables::PAGES . '::' . 'page_template', 'title' => 'Template', 'minmax' => '150px, 1.6fr', 'select_data' => "$pageTemplateSelectDataAttribute", 'td' => 'page_template'],
-            ['type' => 'date_time_local', 'slug' => Tables::PAGES . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
-        ];
 
         $data = null;
         db(onGetDB: function (TonicsQuery $db) use (&$data) {
@@ -95,7 +81,7 @@ class PagesController
 
         view('Modules::Page/Views/index', [
             'DataTable' => [
-                'headers'       => $dataTableHeaders,
+                'headers'       => $this->pageService::DataTableHeaders(),
                 'paginateData'  => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
@@ -106,6 +92,7 @@ class PagesController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function dataTable (): void
     {
@@ -128,11 +115,21 @@ class PagesController
             } else {
                 response()->onError(500);
             }
+        } elseif ($this->getFieldData()->isDataTableType(AbstractDataLayer::DataTableEventTypeCopyFieldItems,
+            getEntityDecodedBagCallable: function ($decodedBag) use (&$entityBag) {
+                $entityBag = $decodedBag;
+            })) {
+            if (($data = $this->copyFieldItemsJSON($entityBag))) {
+                response()->onSuccess($data, "Copied Page Item(s)", more: AbstractDataLayer::DataTableEventTypeCopyFieldItems);
+            } else {
+                response()->onError(500);
+            }
         }
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function create ()
     {
@@ -173,6 +170,7 @@ class PagesController
         }
 
         $page = $this->pageData->createPage(['token']);
+        $page = $this->pageService->unwrapCompareAndSortPageFieldSettings($page);
         $pageReturning = null;
         db(onGetDB: function ($db) use ($page, &$pageReturning) {
             $pageReturning = $db->insertReturning($this->getPageData()->getPageTable(), $page, $this->getPageData()->getPageColumns(), 'page_id');
@@ -191,41 +189,29 @@ class PagesController
      *
      * @return void
      * @throws Exception
+     * @throws \Throwable
      */
-    public function edit (string $id)
+    public function edit (string $id): void
     {
         $this->fieldData->getFieldItemsAPI();
-
-        $page = $this->pageData->selectWithCondition($this->pageData->getPageTable(), ['*'], "page_id = ?", [$id]);
-        if (!is_object($page)) {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
-        }
-
-        $fieldSettings = json_decode($page->field_settings, true);
-        if (empty($fieldSettings)) {
-            $fieldSettings = (array)$page;
-        } else {
-            $fieldSettings = [...$fieldSettings, ...(array)$page];
-        }
+        $page = null;
+        db(onGetDB: function ($db) use ($id, &$page) {
+            $page = $db->Select("*, IF(LEFT(page_slug, 1) = '/', page_slug, CONCAT('/', page_slug)) AS _preview_link")
+                ->From($this->pageData->getPageTable())
+                ->WhereEquals('page_id', $id)
+                ->FetchFirst();
+        });
 
         $onPageDefaultField = $this->onPageDefaultField;
         $fieldIDS = ($page->field_ids === null) ? [] : json_decode($page->field_ids, true);
         $onPageDefaultField->setFieldSlug($fieldIDS);
         event()->dispatch($onPageDefaultField);
 
-        if (isset($fieldSettings['_fieldDetails'])) {
-            addToGlobalVariable('Data', $fieldSettings);
-            $fieldCategories = $this->getFieldData()
-                ->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']), $onPageDefaultField->getFieldSlug());
-            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
-        } else {
-            $htmlFrag = $this->fieldData->generateFieldWithFieldSlug($onPageDefaultField->getFieldSlug(), $fieldSettings)->getHTMLFrag();
-            addToGlobalVariable('Data', $page);
-        }
-
         view('Modules::Page/Views/edit', [
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
-            'FieldItems'     => $htmlFrag,
+            'Page'           => $page,
+            'FieldItems'     => $this->fieldData
+                ->controllerUnwrapFieldDetails($this->fieldData, $page, $onPageDefaultField->getFieldSlug(), 'field_settings'),
         ]);
     }
 
@@ -233,6 +219,7 @@ class PagesController
     /**
      * @throws \ReflectionException
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function update (string $id)
     {
@@ -253,8 +240,9 @@ class PagesController
         try {
             $pageToUpdate = $this->pageData->createPage(['token']);
             $pageToUpdate['page_slug'] = helper()->slugForPage(input()->fromPost()->retrieve('page_slug'), '-');
+            $pageToUpdate = $this->pageService->unwrapCompareAndSortPageFieldSettings($pageToUpdate);
 
-            db(onGetDB: function ($db) use ($id, $pageToUpdate) {
+            db(onGetDB: function (TonicsQuery $db) use ($id, $pageToUpdate) {
                 $db->FastUpdate($this->pageData->getPageTable(), $pageToUpdate, db()->Where('page_id', '=', $id));
             });
 
@@ -280,6 +268,7 @@ class PagesController
      *
      * @return bool
      * @throws Exception
+     * @throws \Throwable
      */
     protected function updateMultiple ($entityBag): bool
     {
@@ -296,6 +285,7 @@ class PagesController
      *
      * @return bool
      * @throws Exception
+     * @throws \Throwable
      */
     public function deleteMultiple ($entityBag): bool
     {
@@ -307,49 +297,61 @@ class PagesController
     }
 
     /**
+     * @param $entityBag
+     *
+     * @return bool|array|null
+     * @throws \Throwable
+     */
+    public function copyFieldItemsJSON ($entityBag): bool|array|null
+    {
+        try {
+            $pagesID = [];
+            $fieldItems = $this->getFieldData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveCopyFieldItems, $entityBag);
+            foreach ($fieldItems as $fieldItem) {
+                if (isset($fieldItem->{"pages::page_id"})) {
+                    $pagesID[] = $fieldItem->{"pages::page_id"};
+                }
+            }
+
+            return PageService::getPagesBy($pagesID, 'page_id', "page_title, field_ids, page_slug, page_status, field_settings");
+
+        } catch (\Exception $exception) {
+            // log..
+        }
+
+        return false;
+
+    }
+
+    /**
      * @throws Exception
+     * @throws \Throwable
      */
     public function viewPage (): void
     {
         $foundURL = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode();
         $page = $foundURL->getMoreSettings('GET');
+
         if (!is_object($page)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
-        $fieldSettings = json_decode($page->field_settings, true);
-        if (empty($fieldSettings)) {
-            $fieldSettings = (array)$page;
-        } else {
-            $fieldSettings = [...$fieldSettings, ...(array)$page];
-        }
+        $fieldSettings = json_decode($page->field_settings);
 
-        $onPageTemplateEvent = new OnPageTemplate();
-        $onPageTemplateEvent->setFieldSettings($fieldSettings);
-        event()->dispatch($onPageTemplateEvent);
-        if (isset($fieldSettings['page_template']) && $onPageTemplateEvent->exist($fieldSettings['page_template'])) {
-            $pageTemplateObject = $onPageTemplateEvent->getTemplate($fieldSettings['page_template']);
-            $pageTemplateObject->handleTemplate($onPageTemplateEvent);
+        $fieldCategories = helper()->unCompressFieldItems($fieldSettings->_fieldDetailsSorted ?? null) ?? [];
+        $dropper = FieldConfig::getFieldSelectionDropper()->setPage($page);
+        $dropper->processLogicWithEarlyAndLateCallbacks($fieldCategories->{'layout-selector'} ?? []);
 
-            $fieldSettings = $onPageTemplateEvent->getFieldSettings();
-            $pagePath = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode()?->getFullRoutePath();
-            /** @var $beforePageViewEvent BeforePageView */
-            $beforePageViewEvent = event()->dispatch(new BeforePageView($fieldSettings, $pagePath));
-            $fieldSettings = $beforePageViewEvent->getFieldSettings();
-
-            $onFieldUserForm = new OnFieldFormHelper([], new FieldData());
-            $fieldSlugs = $this->getFieldSlug($fieldSettings);
-
-            $onFieldUserForm->handleFrontEnd($fieldSlugs, $fieldSettings);
-            view($onPageTemplateEvent->getViewName());
-            return;
-        }
-
-        die('No Valid Page Template');
+        view('Modules::Core/Views/Templates/theme', [
+            'SiteURL' => AppConfig::getAppUrl(),
+            'Dropper' => $dropper,
+            'Page'    => $page,
+        ]);
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function getFieldSlug ($page): array
     {

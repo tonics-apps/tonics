@@ -28,30 +28,30 @@ class TrackGenre implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('TrackGenre', 'Track Genre With Customizations', 'Track',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function (){},
-            handleViewProcessing: function (){}
+            userForm: function () {},
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Tracks Genre Settings';
-        $genrePagination =  (isset($data->genrePagination)) ? $data->genrePagination : '1';
-        $noOfGenrePerPage =  (isset($data->noOfGenrePerPage)) ? $data->noOfGenrePerPage : '6';
-        if ($genrePagination=== '1'){
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Tracks Genre Settings';
+        $genrePagination = (isset($data->genrePagination)) ? $data->genrePagination : '1';
+        $noOfGenrePerPage = (isset($data->noOfGenrePerPage)) ? $data->noOfGenrePerPage : '6';
+        if ($genrePagination === '1') {
             $genrePagination = <<<HTML
 <option value="1" selected>True</option>
 <option value="0">False</option>

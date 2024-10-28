@@ -113,23 +113,6 @@ class OnFieldFormHelper implements EventInterface
     }
 
     /**
-     * @throws \Exception
-     */
-    public function getViewFrag ($fields): string
-    {
-        $htmlFrag = '';
-        # re-dispatch so we can get the form values
-        $onFieldMetaBox = new OnFieldMetaBox();
-        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnViewSettingsType)->dispatchEvent();
-        foreach ($fields as $field) {
-            $field->field_options->{"_field"} = $field;
-            $htmlFrag .= $onFieldMetaBox->getViewProcessingFrag($field->field_options->field_slug, $field->field_options);
-        }
-        $this->fieldMetaBox = $onFieldMetaBox;
-        return $htmlFrag;
-    }
-
-    /**
      * @param array $fieldSlugs
      * @param array $postData
      * @param bool $cachedData
@@ -139,33 +122,34 @@ class OnFieldFormHelper implements EventInterface
      */
     public function handleFrontEnd (array $fieldSlugs, array $postData = [], bool $cachedData = true): void
     {
-        if (empty($fieldSlugs)) {
-            return;
-        }
-
-        $fieldItemsSorted = $this->getFieldData()->getFieldSortedItems($fieldSlugs);
-
-        $cachedKey = '';
-        foreach ($fieldSlugs as $k => $fieldSlug) {
-            $fieldSlugs[$k] = 'sortedField_' . $fieldSlug;
-            $cachedKey .= 'sortedField_' . $fieldSlug;
-        }
-        AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
-        $cachedKey = AppConfig::getCachePrefix() . $cachedKey . '_GlobalVariableData';
-        if ($cachedData && apcu_exists($cachedKey)) {
-            $data = [...apcu_fetch($cachedKey), ...getGlobalVariableData()];
-            AppConfig::initLoaderMinimal()::setGlobalVariable($data);
-        } else {
-            try {
-                $fieldItemsSorted = $this->generateTreeForSortedFieldItems($fieldItemsSorted);
-                foreach ($fieldItemsSorted as $fields) {
-                    $this->getViewFrag($fields);
+        /*        if (empty($fieldSlugs)) {
+                    return;
                 }
-                apcu_store($cachedKey, getGlobalVariableData());
-            } catch (\Exception $exception) {
-                // log...
-            }
-        }
+
+                $fieldItemsSorted = $this->getFieldData()->getFieldSortedItems($fieldSlugs);
+
+                $cachedKey = '';
+                foreach ($fieldSlugs as $k => $fieldSlug) {
+                    $fieldSlugs[$k] = 'sortedField_' . $fieldSlug;
+                    $cachedKey .= 'sortedField_' . $fieldSlug;
+                }
+                AppConfig::initLoaderMinimal()::addToGlobalVariable('Data', $postData);
+                $cachedKey = AppConfig::getCachePrefix() . $cachedKey . '_GlobalVariableData';
+                if ($cachedData && apcu_exists($cachedKey)) {
+                    $data = [...apcu_fetch($cachedKey), ...getGlobalVariableData()];
+                    AppConfig::initLoaderMinimal()::setGlobalVariable($data);
+                } else {
+                    try {
+                        $fieldItemsSorted = $this->generateTreeForSortedFieldItems($fieldItemsSorted);
+                        foreach ($fieldItemsSorted as $fields) {
+                            $this->getViewFrag($fields);
+                        }
+                        apcu_store($cachedKey, getGlobalVariableData());
+                    } catch (\Exception $exception) {
+                        // log...
+                    }
+                }*/
+
     }
 
     /**

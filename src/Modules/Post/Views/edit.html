@@ -7,7 +7,7 @@
 [[hook_into('Core::form_action')[[func('Post::route::posts.update', 'Post::route::slug')]]]]
 
 [[hook_into('Core::before_form_section')
-<input type="hidden" name="post_id" value="[[v('Data.post_id')]]">
+<input type="hidden" name="post_id" value="[[v('Post.post_id')]]">
 ]]
 
 [[hook_into('Core::before_footer')

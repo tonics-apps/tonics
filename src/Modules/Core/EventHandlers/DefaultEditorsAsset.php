@@ -21,11 +21,10 @@ namespace App\Modules\Core\EventHandlers;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\EditorsAsset;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class DefaultEditorsAsset implements HandlerInterface
 {
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event EditorsAsset */
         $event
@@ -33,5 +32,7 @@ class DefaultEditorsAsset implements HandlerInterface
             ->addJS(AppConfig::getModuleAsset('Core', '/js/views/field/native/script.js'))
             ->addJS(AppConfig::getModuleAsset('Core', '/js/tools/Widget/FeaturedImage.js'))
             ->addJS(AppConfig::getModuleAsset('Core', '/js/tools/Widget/FeaturedLink.js'));
+
+        $event->addCSS(AppConfig::getModuleAsset('Core', '/css/base/utilities.css'));
     }
 }

@@ -28,15 +28,19 @@ use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Post\Data\PostData;
 use App\Modules\Post\Helper\PostRedirection;
+use App\Modules\Post\Services\PostService;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use JetBrains\PhpStorm\NoReturn;
 
 class PostAccessView
 {
-    private PostData $postData;
-    private array    $post     = [];
-    private array    $category = [];
+    const POST_PAGE_TEMPLATE     = ['ninetysevenpostpagetemplate'];
+    const CATEGORY_PAGE_TEMPLATE = ['ninetysevencategorypagetemplate'];
+
+    private PostData   $postData;
+    private array      $post     = [];
+    private ?\stdClass $category = null;
 
     public function __construct (PostData $postData)
     {
@@ -63,6 +67,16 @@ class PostAccessView
                 redirect(PostRedirection::getPostAbsoluteURLPath($postData), 302);
             }
 
+            if (!empty($postData)) {
+                $postData['field_settings'] = json_decode($postData['field_settings']);
+                $postData['field_settings']->_fieldDetails = json_decode($postData['field_settings']?->_fieldDetails ?? '');
+                $postData['field_settings']->post_content = json_decode($postData['field_settings']->post_content) ?? $postData['field_settings']->post_content ?? null;
+                $postData['payload_settings'] = (object)[
+                    'fieldDetails' => $postData['field_settings']->_fieldDetails,
+                    'post_content' => $postData['field_settings']->post_content,
+                ];
+            }
+
             if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ) === false) {
                 if (key_exists('post_status', $postData)) {
                     if ($postData['post_status'] === 1) {
@@ -83,108 +97,106 @@ class PostAccessView
      */
     public function handleCategory (): void
     {
-        $uniqueSlugID = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[0] ?? null;
-        $catSlug = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams()[1] ?? null;
-        $category = null;
-        db(onGetDB: function (TonicsQuery $db) use ($uniqueSlugID, &$category) {
-            $category = $db->Select("*")
-                ->From($this->getPostData()->getCategoryTable())->WhereEquals('slug_id', $uniqueSlugID)
-                ->setPdoFetchType(\PDO::FETCH_ASSOC)->FetchFirst();
-        });
+        $routeParams = request()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
+        $uniqueSlugID = $routeParams[0] ?? null;
+        $catSlug = $routeParams[1] ?? null;
 
-        # if empty we can check with the cat_slug and do a redirection
-        if (empty($category)) {
-            $category = null;
-            db(onGetDB: function (TonicsQuery $db) use ($catSlug, &$category) {
-                $category = $db->Select("*")
-                    ->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', $catSlug)
-                    ->setPdoFetchType(\PDO::FETCH_ASSOC)->FetchFirst();
-            });
-            if (isset($category['slug_id'])) {
-                redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
-            }
-            # if catSlug is not equals to $category['cat_slug'], do a redirection to the correct one
-        } elseif (isset($category['cat_slug']) && $category['cat_slug'] !== $catSlug) {
-            redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
+        $category = PostService::QueryLoopCategory([
+            PostService::QUERY_LOOP_SETTINGS_CATEGORY_FIELD_NAME => 'slug_id',
+            PostService::QUERY_LOOP_SETTINGS_PAGINATION_PER_PAGE => 1,
+            PostService::QUERY_LOOP_SETTINGS_CATEGORY_IN         => $uniqueSlugID,
+        ]);
+
+        # If we can find the category by slug_id, try with cat_slug
+        if (!PostService::QueryHasData($category)) {
+            $category = PostService::QueryLoopCategory([
+                PostService::QUERY_LOOP_SETTINGS_CATEGORY_FIELD_NAME => 'cat_slug',
+                PostService::QUERY_LOOP_SETTINGS_PAGINATION_PER_PAGE => 1,
+                PostService::QUERY_LOOP_SETTINGS_CATEGORY_IN         => $catSlug,
+            ]);
         }
 
-        if (is_array($category) && key_exists('cat_status', $category)) {
-            $category['categories'][] = array_reverse($this->postData->getPostCategoryParents($category['cat_parent_id'] ?? ''));
-            $catCreatedAtTimeStamp = strtotime($category['created_at']);
-            if ($category['cat_status'] === 1 && time() >= $catCreatedAtTimeStamp) {
+        if (PostService::QueryHasData($category)) {
+
+            $category = PostService::GrabQueryData($category, true);
+            $category->{'category_id_trail'} = $this->getCategoryTrail($category);
+            $category->{'field_settings'} = json_decode($category->{'field_settings'});
+
+            if (isset($category->{'field_settings'}->_fieldDetails)) {
+                $category->{'field_settings'}->_fieldDetails = json_decode($category->{'field_settings'}->_fieldDetails);
+            }
+
+            $category->{'field_settings'}->post_content = json_decode($category->{'field_settings'}->cat_content);
+            $category->{'payload_settings'} = (object)[
+                'fieldDetails' => $category->{'field_settings'}->_fieldDetails ?? [],
+                'post_content' => $category->{'field_settings'}->post_content,
+            ];
+
+            # Redirect if category exists but cat_slug doesn't match
+            if (isset($category->{'cat_slug'}) && $category->{'cat_slug'} !== $catSlug) {
+                redirect(PostRedirection::getCategoryAbsoluteURLPath($category), 302);
+            }
+
+            # Handle category based on its status and creation time
+            if ($this->isValidCategory($category)) {
                 $this->category = $category;
                 return;
             }
 
-            ## Else, category is in draft, check if user is logged in and has a read access
-            $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
-            if (Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ)) {
+            # Check if the user has read access for draft categories
+            if ($this->userHasReadAccess()) {
                 $this->category = $category;
                 return;
             }
+
         }
 
         throw new URLNotFound(SimpleState::ERROR_FORBIDDEN__MESSAGE, SimpleState::ERROR_FORBIDDEN__CODE);
     }
 
     /**
+     * @param $category
+     *
+     * @return bool
      * @throws \Exception
      */
-    #[NoReturn] public function showPost (string $postView, $moreData = []): void
+    private function isValidCategory ($category): bool
     {
-        $post = $this->post;
-        if (!empty($post)) {
-            $catID = [];
-            if (isset($post['categories'])) {
-                foreach ($post['categories'] as $categories) {
-                    foreach ($categories as $category) {
-                        $catID[] = $category->cat_id;
-                    }
-                }
-            }
-
-            # GET CORRESPONDING POST IN CATEGORY
-            $postTbl = Tables::getTable(Tables::POSTS);
-
-            $relatedPost = null;
-            db(onGetDB: function ($db) use ($post, $catID, $postTbl, &$relatedPost) {
-                $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-                $CatTbl = Tables::getTable(Tables::CATEGORIES);
-
-                $tblCol = table()->pickTableExcept($postTbl, ['updated_at'])
-                    . ", CONCAT_WS('/', '/posts', $postTbl.slug_id, post_slug) as _preview_link "
-                    . ", $postTbl.post_excerpt AS _excerpt";
-
-                $relatedPost = $db->Select($tblCol)
-                    ->From($postCatTbl)
-                    ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-                    ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-                    ->addRawString("WHERE MATCH(post_title) AGAINST(?)")->addParam($post['post_title'])->setLastEmittedType('WHERE')
-                    ->WhereEquals('post_status', 1)
-                    ->when(!empty($catID), function (TonicsQuery $db) use ($catID) {
-                        $db->WhereIn('cat_id', $catID);
-                    })
-                    ->WhereNotIn('post_id', $post['post_id'])
-                    ->Where("$postTbl.created_at", '<=', helper()->date())
-                    ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->SimplePaginate(6);
-            });
-
-            $post['related_post'] = $relatedPost;
-
-            $this->getFieldData()->unwrapForPost($post);
-            $onFieldUserForm = new OnFieldFormHelper([], $this->getFieldData());
-            event()->dispatch($this->getPostData()->getOnPostDefaultField());
-
-            # We are only interested in the hidden slug
-            $slugs = $this->getPostData()->getOnPostDefaultField()->getHiddenFieldSlug();
-            # MoreData can't use the _fieldDetails here
-            unset($moreData['_fieldDetails']);
-            # Cache Post Data
-            $onFieldUserForm->handleFrontEnd($slugs, [...$post, ...$moreData]);
-            view($postView);
+        if (property_exists($category, 'cat_status')) {
+            $category->{'categories'}[] = array_reverse($this->postData->getPostCategoryParents($category->{'cat_parent_id'} ?? ''));
+            $catCreatedAtTimeStamp = strtotime($category->{'created_at'});
+            return $category->{'cat_status'} === 1 && time() >= $catCreatedAtTimeStamp;
         }
 
-        exit();
+        return false;
+    }
+
+    /**
+     * Check if the current user has read access to draft categories.
+     * @throws \Exception
+     */
+    private function userHasReadAccess (): bool
+    {
+        $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
+        return Roles::ROLE_HAS_PERMISSIONS($role, Roles::CAN_READ);
+    }
+
+    /**
+     * @param $category
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function getCategoryTrail ($category): string
+    {
+        $catIDSResult = $this->getPostData()->getChildCategoriesOfParent($category->{'cat_id'});
+
+        $ids = [];
+        foreach ($catIDSResult as $catID) {
+            $ids[] = $catID->cat_id;
+        }
+
+        return implode(',', $ids);
     }
 
     /**
@@ -274,4 +286,26 @@ class PostAccessView
     {
         return $this->getPostData()->getFieldData();
     }
+
+    public function getPost (): array
+    {
+        return $this->post;
+    }
+
+    public function setPost (array $post): void
+    {
+        $this->post = $post;
+    }
+
+    public function getCategory (): ?\stdClass
+    {
+        return $this->category;
+    }
+
+    public function setCategory (?\stdClass $category): PostAccessView
+    {
+        $this->category = $category;
+        return $this;
+    }
+
 }

@@ -18,6 +18,8 @@
 
 namespace App\Modules\Field\Data;
 
+use App\Modules\Core\Configs\AppConfig;
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
@@ -25,9 +27,12 @@ use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnAddFieldSanitization;
 use App\Modules\Field\Events\OnAfterPreSavePostEditorFieldItems;
+use App\Modules\Field\Events\OnComparedSortedFieldCategories;
 use App\Modules\Field\Events\OnFieldFormHelper;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
+use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class FieldData extends AbstractDataLayer
 {
@@ -35,6 +40,7 @@ class FieldData extends AbstractDataLayer
 
     const UNWRAP_FIELD_CONTENT_PREVIEW_MODE  = 1;
     const UNWRAP_FIELD_CONTENT_FRONTEND_MODE = 2;
+    private ?OnFieldMetaBox $onFieldMetaBox = null;
 
     public function getFieldTable (): string
     {
@@ -248,7 +254,7 @@ HTML;
         return <<<HTML
 <li tabindex="0" class="menu-arranger-li max-width:350 field-selection-container">
         <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">Fields Validation</span>
                 <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
@@ -303,7 +309,7 @@ HTML;
 
     <form>
             <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-                <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+                <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
                     <span class="menu-arranger-text-head">Fields Sanitization</span>
                     <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                     <svg class="icon:admin tonics-arrow-down color:white">
@@ -361,7 +367,7 @@ HTML;
         return <<<HTML
 <li tabindex="0" class="menu-arranger-li max-width:350 field-selection-container">
         <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">Fields</span>
                 <button type="button" class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
@@ -547,33 +553,68 @@ HTML;
         }
 
         $fieldTable = Tables::getTable(Tables::FIELD);
-        $fieldNameToID = [];
+        $fieldSlugToID = [];
         $dbTx = db();
         try {
             $dbTx->beginTransaction();
             foreach ($fieldItems as $k => $item) {
                 $json = json_decode($item->field_options, true) ?? [];
-                if (isset($item->fk_field_id) && is_string($item->fk_field_id)) {
-                    if (!isset($fieldNameToID[$item->fk_field_id])) {
-                        $result = null;
-                        $field = null;
-                        db(onGetDB: function ($db) use ($item, $fieldTable, &$field, &$result) {
-                            $db->FastDelete($fieldTable, db()->Where('field_slug', '=', helper()->slug($item->fk_field_id, '-')));
-                            $field = $db->insertReturning($fieldTable, ['field_name' => $item->fk_field_id, 'field_slug' => helper()->slug($item->fk_field_id)], ['field_id'], 'field_id');
-                        });
+                # In the previous version, the fk_field_id was stupidly storing the field.field_name in the fk_field_id
+                # and then slugifying it as the slug, the new version now support the field_slug, and slugifying fk_field_id for backward compatibility
+                if (isset($item->field_slug)) {
+                    $slug = $item->field_slug;
+                } elseif (isset($item->fk_field_id)) {
+                    $slug = helper()->slug($item->fk_field_id, '-');
+                } else {
+                    return;
+                }
 
-                        if (isset($field->field_id)) {
-                            $fieldNameToID[$item->fk_field_id] = $field->field_id;
-                            $item->fk_field_id = $field->field_id;
-                            $item->field_options = json_encode($json);
-                        }
-                    } else {
-                        $item->fk_field_id = $fieldNameToID[$item->fk_field_id];
-                        $item->field_options = json_encode($json, flags: JSON_UNESCAPED_SLASHES);
+                if (!isset($fieldSlugToID[$slug])) {
+                    $result = null;
+                    $field = null;
+                    db(onGetDB: function (TonicsQuery $db) use ($slug, $item, $fieldTable, &$field, &$result) {
+                        $fieldFieldName = $item->field_field_name ?? $item->fk_field_id ?? $slug;
+                        $db->FastDelete($fieldTable, db()->Where('field_slug', '=', $slug));
+                        $field = $db->insertReturning($fieldTable, ['field_name' => $fieldFieldName, 'field_slug' => $slug], ['field_id'], 'field_id');
+                    });
+
+                    /**
+                     * "fk_field_id" => 1262
+                     * "field_name" => "input_text"
+                     * "field_id" => 2
+                     * "field_parent_id" => 1
+                     * "field_options" =>
+                     */
+
+                    if (isset($field->field_id)) {
+                        $fieldSlugToID[$slug] = $field->field_id;
+                        $item->fk_field_id = $field->field_id;
+                        $item->field_options = json_encode($json);
+                    }
+                } else {
+                    $item->fk_field_id = $fieldSlugToID[$slug];
+                    $item->field_options = json_encode($json, flags: JSON_UNESCAPED_SLASHES);
+                }
+
+                $validItems = [
+                    'fk_field_id',
+                    'field_id',
+                    'field_parent_id',
+                    'field_name',
+                    'field_options',
+                ];
+
+                $newItem = [];
+                foreach ($validItems as $key) {
+                    if (property_exists($item, $key)) {
+                        $newItem[$key] = $item->{$key};
                     }
                 }
-                $fieldItems[$k] = (array)$item;
+
+                $fieldItems[$k] = $newItem;
+
             }
+
             db(onGetDB: function ($db) use ($fieldItems) {
                 $db->Insert($this->getFieldItemsTable(), $fieldItems);
             });
@@ -583,8 +624,6 @@ HTML;
         } catch (\Exception $exception) {
             $dbTx->rollBack();
             $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
-            // log...
-            // var_dump($exception->getMessage(), $exception->getTraceAsString());
         }
     }
 
@@ -594,7 +633,7 @@ HTML;
      * @param string $contentKey
      *
      * @return void
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function unwrapFieldContent (&$fieldSettings, int $mode = self::UNWRAP_FIELD_CONTENT_FRONTEND_MODE, string $contentKey = 'post_content'): void
     {
@@ -614,12 +653,28 @@ HTML;
 
         # PREVIEW MODE
         if ($mode === self::UNWRAP_FIELD_CONTENT_PREVIEW_MODE) {
+
             if (helper()->isJSON(request()->getEntityBody())) {
+
                 $entityBody = json_decode(request()->getEntityBody());
                 if (isset($entityBody->postData) && helper()->isJSON($entityBody->postData)) {
                     helper()->onSuccess($this->previewFragForFieldHandler($entityBody->postData));
                 }
+
+                if (isset($entityBody->layoutSelector)) {
+                    $fieldItems = $this->compareSortAndUpdateFieldItems($entityBody->layoutSelector, [], ['sortOriginal' => false]);
+                    $dropper = FieldConfig::getFieldSelectionDropper();
+                    $dropper->processLogicWithEarlyAndLateCallbacks($fieldItems);
+                    $string = view('Modules::Core/Views/Templates/theme', [
+                        'SiteURL' => AppConfig::getAppUrl(),
+                        'Dropper' => $dropper,
+                        'Page'    => new \stdClass(),
+                    ], TonicsView::RENDER_CONCATENATE);
+                    helper()->onSuccess($string);
+                }
+
             }
+
         }
 
 
@@ -660,6 +715,7 @@ HTML;
      *
      * @return string
      * @throws \Exception
+     * @throws \Throwable
      */
     public function previewFragForFieldHandler (string $postData, array $field = []): string
     {
@@ -822,29 +878,68 @@ HTML;
      *
      * The $fieldItems is expected to be a decoded field from the POST REQUEST
      *
+     * ```
+     * The settings param can contain:
+     *
+     * [
+     *      `data` => {...}, // replace data input with the data
+     *      `sortOriginal` => true, // if true, it would try to sort and update the fieldItems with properties from the original fields in database
+     *      `all` => false, // if true, it would replace each data instance, false for only one instance
+     *      `breakNestedField` => false, // if true, it would remove `_field` from fieldItems, this way, you can json_encode
+     *      `onFieldItem` => fn($fieldItem) => {}, // whenever a fieldItem is sorted, you can use this callable to get it
+     * ]
+     * ```
+     *
      * @param array $fieldItems
      * @param array $slugIDS
+     * @param array $settings
      *
      * @return array
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function compareSortAndUpdateFieldItems (array $fieldItems, array $slugIDS = []): array
+    public function compareSortAndUpdateFieldItems (array $fieldItems, array $slugIDS = [], array $settings = []): array
     {
         $fieldCategories = [];
         $fieldSlugIDS = [];
-        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($slugIDS, &$fieldSlugIDS) {
+        $data = $settings['data'] ?? null;
+        $sortOriginal = $settings['sortOriginal'] ?? true;
+
+        if (is_array($data)) {
+            $data = (object)$data;
+        }
+
+        $all = $settings['all'] ?? false;
+
+        $fieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $fieldItems, onData: function ($field) use ($sortOriginal, $slugIDS, &$fieldSlugIDS, $data, $all) {
             if (isset($field->main_field_slug) && !key_exists($field->main_field_slug, $fieldSlugIDS)) {
                 $fieldSlugIDS[$field->main_field_slug] = $field->main_field_slug;
             }
 
             if (isset($field->field_options) && helper()->isJSON($field->field_options)) {
                 $fieldOption = json_decode($field->field_options);
-                $field->field_data = (array)$fieldOption;
+                if (isset($fieldOption->field_input_name) && isset($data->{$fieldOption->field_input_name}) && !isset($data->{"$fieldOption->field_input_name" . '_stop'})) {
+                    if (!$all) {
+                        $data->{"$fieldOption->field_input_name" . '_stop'} = '';
+                    }
+                    $fieldOption->{$field->field_input_name} = $data->{$fieldOption->field_input_name};
+                }
+
+                if (!$sortOriginal) {
+                    $field->field_data = $fieldOption;
+                } else {
+                    $field->field_data = (array)$fieldOption;
+                }
+
                 $field->field_options = $fieldOption;
             }
 
             return $field;
         });
+
+        if (!$sortOriginal) {
+            return $fieldItems;
+        }
 
         if (!empty($slugIDS)) {
             $fieldSlugIDS = $slugIDS;
@@ -874,7 +969,7 @@ HTML;
             }
 
             $originalFieldItems = null;
-            db(onGetDB: function ($db) use ($fieldItemsTable, $fieldAndFieldItemsCols, $fieldIDS, $fieldTable, &$originalFieldItems) {
+            db(onGetDB: function (TonicsQuery $db) use ($fieldItemsTable, $fieldAndFieldItemsCols, $fieldIDS, $fieldTable, &$originalFieldItems) {
                 $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
                     ->From($fieldItemsTable)
                     ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
@@ -905,12 +1000,85 @@ HTML;
             foreach ($originalFieldCategories as $originalFieldCategoryKey => $originalFieldCategory) {
                 if (isset($fieldCategories[$originalFieldCategoryKey])) {
                     $userFieldItems = $fieldCategories[$originalFieldCategoryKey];
-                    $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems);
+                    $fieldCategories[$originalFieldCategoryKey] = $this->sortFieldWalkerTree($originalFieldCategory, $userFieldItems, $settings);
                 }
             }
         }
 
+        event()->dispatch(new OnComparedSortedFieldCategories($fieldCategories));
+
         return $fieldCategories;
+    }
+
+    /**
+     * This would unwrap, compare and sort the fields, it would be appended under the field_settings as _fieldDetailsSorted,
+     * the benefit of this is that we wouldn't need to sort it again when rendering the page for fronted user
+     *
+     * @param $data
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function unwrapCompareAndSortFieldSettings ($data): mixed
+    {
+        # Note: The sorted is compressed, to not only save space, but it is too complex for mariadb to save, so compressing it works fine
+        $compressJSON = function ($json) {
+            $json = json_decode(json_encode($json));
+            return helper()->compressFieldItems($json);
+        };
+
+        if (is_object($data)) {
+
+            if (isset($data->field_settings)) {
+                $data->field_settings = json_decode($data->field_settings, true);
+                $data->field_settings = json_encode(
+                    [
+                        '_fieldDetailsSorted' => $compressJSON($this->compareSortAndUpdateFieldItems(
+                            json_decode($data->field_settings['_fieldDetails']),
+                            [],
+                            ['data' => $data, 'breakNestedField' => true,],
+                        )),
+                        '_fieldDetails'       => $data->field_settings['_fieldDetails'],
+                    ],
+                );
+            }
+
+
+            if (isset($data->_fieldDetails)) {
+                $data->_fieldDetailsSorted = $compressJSON($this->compareSortAndUpdateFieldItems(
+                    json_decode($data->_fieldDetails),
+                    [],
+                    ['data' => $data, 'breakNestedField' => true],
+                ));
+            }
+        }
+
+        if (is_array($data)) {
+            if (isset($data['field_settings'])) {
+                $data['field_settings'] = json_decode($data['field_settings'], true);
+                $data['field_settings'] = json_encode(
+                    [
+                        '_fieldDetailsSorted' => $compressJSON($this->compareSortAndUpdateFieldItems(
+                            json_decode($data['field_settings']['_fieldDetails']),
+                            [],
+                            ['data' => $data, 'breakNestedField' => true],
+                        )),
+                        '_fieldDetails'       => json_decode($data['field_settings']['_fieldDetails']),
+                    ],
+                );
+            }
+
+            if (isset($data['_fieldDetails'])) {
+                $data['_fieldDetailsSorted'] = $compressJSON($this->compareSortAndUpdateFieldItems(
+                    json_decode($data['_fieldDetails']),
+                    [],
+                    ['data' => $data, 'breakNestedField' => true],
+                ));
+            }
+
+        }
+
+        return $data;
     }
 
     /**
@@ -921,14 +1089,17 @@ HTML;
      */
     public function getUsersFormFrag (array $fieldCategories): string
     {
-        # re-dispatch so we can get the form values
-        $onFieldMetaBox = new OnFieldMetaBox();
-        $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+        if ($this->onFieldMetaBox === null) {
+            # re-dispatch so we can get the form values
+            $onFieldMetaBox = new OnFieldMetaBox();
+            $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnUserSettingsType)->dispatchEvent();
+            $this->onFieldMetaBox = $onFieldMetaBox;
+        }
 
         $htmlFrag = '';
         foreach ($fieldCategories as $fieldItems) {
             foreach ($fieldItems as $fieldItem) {
-                $htmlFrag .= $onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
+                $htmlFrag .= $this->onFieldMetaBox->getUsersForm($fieldItem->field_options->field_slug, $fieldItem->field_options);
             }
         }
 
@@ -938,11 +1109,16 @@ HTML;
     /**
      * @param $originalFieldItems
      * @param $userFieldItems
+     * @param array $settings
      *
      * @return array
      */
-    public function sortFieldWalkerTree ($originalFieldItems, $userFieldItems): array
+    public function sortFieldWalkerTree ($originalFieldItems, $userFieldItems, array $settings = []): array
     {
+        $breakNestedField = $settings['breakNestedField'] ?? false;
+        $onFieldItem = $settings['onFieldItem'] ?? null;
+        $parent = $settings['__parent'] ?? null;
+
         $sorted = [];
         foreach ($originalFieldItems as $originalFieldItem) {
             $originalFieldSlugHash = $originalFieldItem->field_options->field_slug_unique_hash;
@@ -950,7 +1126,7 @@ HTML;
             $doneKey = [];
             foreach ($userFieldItems as $userFieldKey => $userFieldItem) {
                 if (isset($userFieldItem->field_data)) {
-                    $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'];
+                    $userFieldSlugHash = $userFieldItem->field_data->field_slug_unique_hash ?? $userFieldItem->field_data['field_slug_unique_hash'] ?? null;
                 } else {
                     $userFieldSlugHash = $userFieldItem->field_options->field_slug_unique_hash ?? $userFieldItem->field_options['field_slug_unique_hash'];
                 }
@@ -965,7 +1141,9 @@ HTML;
                     $fieldData = null;
                     $fieldData = $userFieldItem->field_data ?? $userFieldItem->field_options;
                     $userFieldItem->field_options = json_decode(json_encode($originalFieldItem->field_options));
-                    $userFieldItem->field_options->{"_field"} = $userFieldItem;
+                    if ($breakNestedField === false) {
+                        $userFieldItem->field_options->{"_field"} = $userFieldItem;
+                    }
                     $userFieldItem->field_data = (array)$fieldData;
                     $sorted[] = $userFieldItem;
                     $match = true;
@@ -976,10 +1154,17 @@ HTML;
                     // nothing is really wrong though, it could be a situation where it is a repeatable field, and user has deleted all the repeated fields,
                     // that is the reason why it appears that $userFieldItem has no children
                     if (isset($originalFieldItem->_children)) {
+
+                        $settings['__parent'] = $userFieldItem;
+
                         if (isset($userFieldItem->_children)) {
-                            $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children);
+                            $userFieldItem->_children = $this->sortFieldWalkerTree($originalFieldItem->_children, $userFieldItem->_children, $settings);
                         } else {
                             $userFieldItem->_children = $originalFieldItem->_children;
+                        }
+
+                        if ($onFieldItem) {
+                            $onFieldItem($userFieldItem, $parent);
                         }
                     }
                 }
@@ -990,6 +1175,9 @@ HTML;
             // the originalFields has a new field push it in the sorted
             // for now, we won't do anything...
             if (!$match) {
+
+                $settings['__parent'] = $originalFieldItem;
+
                 $cellName = $originalFieldItem->field_options->field_slug . '_cell';
                 if (isset($originalFieldItem->field_options->{$cellName})) {
                     $cellPosition = $originalFieldItem->field_options->{$cellName};
@@ -997,6 +1185,10 @@ HTML;
                 }
                 if (isset($originalFieldItem->_children)) {
                     $originalFieldItem->field_options->_children = $originalFieldItem->_children;
+                }
+
+                if ($onFieldItem) {
+                    $onFieldItem($originalFieldItem, $parent);
                 }
 
                 $sorted[] = $originalFieldItem;

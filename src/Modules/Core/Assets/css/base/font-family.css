@@ -1,0 +1,72 @@
+/*
+ *     Copyright (c) 2021-2024. Olayemi Faruq <olayemi@tonics.app>
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/* fonts:
+================================================================================= */
+
+
+/* IBMPlexSans Light */
+
+@font-face {
+    font-family: "IBMPlexSans-Light";
+    src: url("../fonts/IBMPlexSans-Light.eot");
+    /* IE9 Compat Modes */
+    src: url("../fonts/IBMPlexSans-Light.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("../fonts/IBMPlexSans-Light.otf") format("opentype"), /* Open Type Font */ url("../fonts/IBMPlexSans-Light.ttf") format("truetype"), /* Safari, Android, iOS */ url("../fonts/IBMPlexSans-Light.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* IBMPlexSans regular */
+@font-face {
+    font-family: "IBMPlexSans-Regular";
+    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.eot");
+    /* IE9 Compat Modes */
+    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.otf") format("opentype"), /* Open Type Font */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* IBMPlexSans italic */
+
+@font-face {
+    font-family: "IBMPlexSans-Italic";
+    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.eot");
+    /* IE9 Compat Modes */
+    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.otf") format("opentype"), /* Open Type Font */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* IBMPlexSans bold */
+
+@font-face {
+    font-family: "IBMPlexSans-Bold";
+    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.eot");
+    /* IE9 Compat Modes */
+    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.otf") format("opentype"), /* Open Type Font */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}

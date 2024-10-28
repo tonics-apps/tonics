@@ -28,9 +28,10 @@ class OnMenuMetaBox implements EventInterface
     /**
      * @param $condition
      * @param callable $callback
+     *
      * @return OnMenuMetaBox
      */
-    public function if($condition, callable $callback): static
+    public function if ($condition, callable $callback): static
     {
         if ($condition) {
             return $callback($this);
@@ -41,54 +42,56 @@ class OnMenuMetaBox implements EventInterface
     /**
      * If the data items in the $paginationInfo are linkable,
      * be sure you add `_link` property to each of one the data items
+     *
      * @param string $name
      * @param string $svgIcon
      * @param \stdClass|null $paginationInfo
      * @param callable|null $moreMenuItems
      * @param callable|null $dataCondition
+     *
      * @return void
      * @throws \Exception
      */
     public function addMenuBox
     (
-        string $name,
-        string $svgIcon = '',
+        string    $name,
+        string    $svgIcon = '',
         \stdClass $paginationInfo = null,
-        callable $moreMenuItems = null,
-        callable $dataCondition = null,
+        callable  $moreMenuItems = null,
+        callable  $dataCondition = null,
     )
     {
         $nameKey = helper()->slug($name);
-        if(!key_exists($nameKey, $this->MenuBoxSettings)){
-            if($dataCondition === null){
-                $dataCondition = function (){
+        if (!key_exists($nameKey, $this->MenuBoxSettings)) {
+            if ($dataCondition === null) {
+                $dataCondition = function () {
                     return true;
                 };
             }
             $this->MenuBoxSettings[$nameKey] = (object)[
-                'name' => $name,
-                'svgIcon' => $svgIcon,
+                'name'           => $name,
+                'svgIcon'        => $svgIcon,
                 'paginationInfo' => $paginationInfo,
-                'moreMenuItems' => $moreMenuItems,
-                'condition' => $dataCondition
+                'moreMenuItems'  => $moreMenuItems,
+                'condition'      => $dataCondition,
             ];
         }
     }
 
-    public function generateMenuMetaBox(): string
+    public function generateMenuMetaBox (): string
     {
         $htmlFrag = '';
-        if (empty($this->MenuBoxSettings)){
+        if (empty($this->MenuBoxSettings)) {
             return $htmlFrag;
         }
 
-        foreach ($this->MenuBoxSettings as $menuBoxName => $menuBox){
+        foreach ($this->MenuBoxSettings as $menuBoxName => $menuBox) {
             $checkBoxFrag = '';
             $htmlMoreFrag = '';
 
             # CHECKBOX
-            if(isset($menuBox->paginationInfo->data) && is_array($menuBox->paginationInfo->data) && !empty($menuBox->paginationInfo->data)){
-                $checkBoxFrag .=<<<HTML
+            if (isset($menuBox->paginationInfo->data) && is_array($menuBox->paginationInfo->data) && !empty($menuBox->paginationInfo->data)) {
+                $checkBoxFrag .= <<<HTML
 <input style="margin-bottom: 1em;"
  data-action ="search" 
  data-query="{$menuBox->paginationInfo->path}&query="
@@ -97,13 +100,13 @@ class OnMenuMetaBox implements EventInterface
  class="menu-box-item-search position:sticky top:0" type="search" required="" name="query" aria-label="Search and Hit Enter" placeholder="Search &amp; Hit Enter">
 HTML;
 
-                foreach ($menuBox->paginationInfo->data as $data){
+                foreach ($menuBox->paginationInfo->data as $data) {
                     $menuBoxCondition = $menuBox->condition;
                     $condition = $menuBoxCondition($data);
-                    if($condition === true){
-                        if(isset($data->_name)){
+                    if ($condition === true) {
+                        if (isset($data->_name)) {
                             $link = (isset($data->_link)) ? $data->_link : '';
-                            $id = $menuBoxName . '_' .$data->_name . '_' . $data->_id;
+                            $id = $menuBoxName . '_' . $data->_name . '_' . $data->_id;
                             $checkBoxFrag .= <<<HTML
 <li class="menu-item" data-parentid="null">
     <input type="checkbox" 
@@ -118,7 +121,7 @@ HTML;
                 }
 
                 # MORE BUTTON
-                if(isset($menuBox->paginationInfo->has_more) && $menuBox->paginationInfo->has_more){
+                if (isset($menuBox->paginationInfo->has_more) && $menuBox->paginationInfo->has_more) {
                     $htmlMoreFrag = <<<HTML
  <button 
  data-morepageUrl="{$menuBox->paginationInfo->next_page_url}" 
@@ -134,8 +137,8 @@ HTML;
             $htmlFrag .= <<<HTML
 <li class="width:100% menu-item-parent-picker menu-box-li cursor:pointer">
     <fieldset class="padding:default d:flex">
-        <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
-        $menuBox->name
+        <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
+        <span class="menu-arranger-text-head">$menuBox->name</span>
             <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
                     <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
@@ -164,24 +167,25 @@ HTML;
     /**
      * @param $menuBoxName
      * @param $menuBox
+     *
      * @return string
      * @throws \Exception
      */
-    public function moreMenuItems($menuBoxName, $menuBox): string
+    public function moreMenuItems ($menuBoxName, $menuBox): string
     {
         $menuBoxName = helper()->slug($menuBoxName);
         $menuBoxSettings = $this->MenuBoxSettings[$menuBoxName];
         $checkBoxFrag = '';
         # CHECKBOX
-        if(isset($menuBox->data) && is_array($menuBox->data) && !empty($menuBox->data)) {
+        if (isset($menuBox->data) && is_array($menuBox->data) && !empty($menuBox->data)) {
             foreach ($menuBox->data as $k => $data) {
                 if (isset($data->_name)) {
                     $link = (isset($data->_link)) ? $data->_link : '';
-                    $id = $menuBoxName . '_' .$data->_name . '_' . $data->_id;
+                    $id = $menuBoxName . '_' . $data->_name . '_' . $data->_id;
 
                     $menuBoxCondition = $menuBoxSettings->condition;
                     $condition = $menuBoxCondition($data);
-                    if($condition === true){
+                    if ($condition === true) {
                         $checkBoxFrag .= <<<HTML
 <li class="menu-item" data-parentid="null">
     <input type="checkbox" 
@@ -196,7 +200,7 @@ HTML;
             }
 
             # MORE BUTTON
-            if(isset($menuBox->has_more) && $menuBox->has_more){
+            if (isset($menuBox->has_more) && $menuBox->has_more) {
                 $htmlMoreFrag = <<<HTML
  <button 
  data-morepageUrl="{$menuBox->next_page_url}" 
@@ -211,12 +215,12 @@ HTML;
         return $checkBoxFrag;
     }
 
-    public function getMoreMenuBoxItems(string $menuBoxName): string
+    public function getMoreMenuBoxItems (string $menuBoxName): string
     {
-        if(key_exists($menuBoxName, $this->MenuBoxSettings)){
+        if (key_exists($menuBoxName, $this->MenuBoxSettings)) {
             $menuBox = $this->MenuBoxSettings[$menuBoxName];
             $moreCallBack = $menuBox->moreMenuItems;
-            if($moreCallBack instanceof \Closure){
+            if ($moreCallBack instanceof \Closure) {
                 return $moreCallBack();
             }
         }
@@ -227,7 +231,7 @@ HTML;
     /**
      * @inheritDoc
      */
-    public function event(): static
+    public function event (): static
     {
         return $this;
     }
@@ -235,7 +239,7 @@ HTML;
     /**
      * @return array
      */
-    public function getMenuBoxSettings(): array
+    public function getMenuBoxSettings (): array
     {
         return $this->MenuBoxSettings;
     }

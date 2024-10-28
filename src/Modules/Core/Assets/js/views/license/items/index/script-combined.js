@@ -225,7 +225,6 @@ const EventsConfig = {
 window.TonicsEvent.EventConfig = EventsConfig;
 
 
-
 /*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -245,6 +244,10 @@ window.TonicsEvent.EventConfig = EventsConfig;
 
 if (typeof tonicsFieldSaveChangesButton === 'undefined') {
     var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+}
+
+if (typeof meniArrangerInCoreMinimal === 'undefined') {
+    var meniArrangerInCoreMinimal = document.querySelector('.menu-arranger');
 }
 
 if (tonicsFieldSaveChangesButton) {
@@ -272,16 +275,16 @@ class OnSubmitFieldEditorsFormEvent {
     editorsForm = null;
 
     constructor(e = null) {
-        if (e){
+        if (e) {
             this.editorsForm = document.getElementById('EditorsForm');
         }
     }
 
     addHiddenInputToForm(form, key, value) {
         let inputExist = form.querySelector(`input[name="${key}"]`);
-        if (inputExist){
+        if (inputExist) {
             inputExist.value = value
-        }else {
+        } else {
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = key;
@@ -291,34 +294,118 @@ class OnSubmitFieldEditorsFormEvent {
     }
 
     getInputData(inputs, settings = {}) {
-        // collect checkbox
-        if (inputs.type === 'checkbox'){
-            let checkboxName = inputs.name;
-            if (!settings.hasOwnProperty(checkboxName)){
-                settings[checkboxName] = [];
-            }
-            if (inputs.checked){
-                settings[checkboxName].push(inputs.value);
-            }
-        }else if (inputs.type === 'select-multiple'){
-            let selectOptions = inputs.options;
-            let selectBoxName = inputs.name;
-            for (let k = 0; k < selectOptions.length; k++) {
-                let option = selectOptions[k];
-                if (option.selected){
-                    if (!settings.hasOwnProperty(selectBoxName)){
-                        settings[selectBoxName] = [];
-                    }
+        const inputName = inputs.name;
 
-                    settings[selectBoxName].push(option.value || option.text);
+        switch (inputs.type) {
+            case 'checkbox':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
                 }
-            }
-        }else if (!settings.hasOwnProperty(inputs.name)) {
-            settings[inputs.name] = inputs.value;
+                if (inputs.checked) {
+                    settings[inputName].push(inputs.value);
+                }
+                break;
+
+            case 'select-multiple':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
+                }
+                let selectOptions = inputs.options;
+                for (let k = 0; k < selectOptions.length; k++) {
+                    let option = selectOptions[k];
+                    if (option.selected) {
+                        if (!settings.hasOwnProperty(inputName)) {
+                            settings[inputName] = [];
+                        }
+                        settings[inputName].push(option.value || option.text);
+                    }
+                }
+                break;
+
+            case 'select-one': // Handling single select elements
+                const selectedOption = inputs.options[inputs.selectedIndex];
+                settings[inputName] = selectedOption.value || selectedOption.text;
+                break;
+
+            case 'radio':
+                if (inputs.checked) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
+
+            default:
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
         }
 
         return settings;
     }
+}
+
+
+if (meniArrangerInCoreMinimal) {
+
+    window.onload = function () {
+        let previews = document.querySelectorAll('[data-field_input_name="tonics-preview-layout"]:checked');
+        if (previews.length > 0) {
+            previews.forEach(preview => {
+                preview.click();
+            });
+        }
+    };
+
+    meniArrangerInCoreMinimal.addEventListener('click', (e) => {
+        let el = e.target;
+        let tonicsPreviewLayout = el.getAttribute('data-field_input_name') === 'tonics-preview-layout';
+        let layout = el.closest('[data-field_input_name="tonics-preview-layout"]');
+
+        if (tonicsPreviewLayout) {
+            let tabsField = layout?.closest('.tonicsFieldTabsContainer');
+            let builderItems = tabsField?.querySelector('.preview-iframe');
+            if (!builderItems) {
+                builderItems = tabsField?.querySelector('.field-builder-items');
+            }
+
+            if (builderItems) {
+                builderItems.classList.remove('field-builder-items');
+                builderItems.classList.add('preview-iframe');
+                builderItems.innerHTML = '<div class="margin-left:1em loading-animation"></div>';
+                let layoutSelector = el.closest('[data-repeater_input_name="layout-selector-modular-repeater"]')?.closest('.field-builder-items');
+                if (layoutSelector) {
+                    let selectedBreakPoint = layoutSelector.querySelector('select[name="tonics-preview-break-point"]');
+                    const ulElement = document.createElement('ul');
+                    ulElement.appendChild(layoutSelector.cloneNode(true));
+                    let collateFieldItemsObject = new CollateFieldItemsOnFieldsEditorsSubmit(new OnSubmitFieldEditorsFormEvent(null), ulElement);
+                    let fieldItems = collateFieldItemsObject.setListDataArray(ulElement);
+                    fieldPreviewFromPostData
+                    (fieldItems,
+                        (data) => {
+                            if (data?.data) {
+                                const iframe = document.createElement('iframe');
+                                builderItems.innerHTML = '';
+                                builderItems.appendChild(iframe);
+                                iframe.srcdoc = data.data;
+                                Object.assign(iframe.style, {
+                                    width: selectedBreakPoint?.value || '100%',
+                                    height: "100%",
+                                    border: "2px dashed rgb(110 102 97)",
+                                    resize: "horizontal"
+                                });
+                                builderItems.style.height = "750px";
+                            }
+                        }, () => {
+
+                        }, (postData) => {
+                            return {layoutSelector: postData};
+                        });
+                }
+            }
+
+        }
+
+    });
 
 }
 /*
@@ -814,7 +901,6 @@ window.TonicsScript.Query = () => new Query();
 export {
   Query
 };
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -833,277 +919,332 @@ export {
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Util/Element/Abstract/ElementAbstract.ts
 var ElementAbstract = class {
-  constructor($Element) {
-    if ($Element) {
-      return this.query($Element);
+    constructor($Element) {
+        if ($Element) {
+            return this.query($Element);
+        }
+        return this;
     }
-    return this;
-  }
-  query($classOrID) {
-    let $temp = document.querySelector(`${$classOrID}`);
-    if ($temp) {
-      this.setQueryResult($temp);
-      return this;
+
+    query($classOrID) {
+        let $temp = document.querySelector(`${$classOrID}`);
+        if ($temp) {
+            this.setQueryResult($temp);
+            return this;
+        }
+        console.log(`Invalid class or id name - ${$classOrID}`);
     }
-    console.log(`Invalid class or id name - ${$classOrID}`);
-  }
-  setQueryResult($result) {
-    this.$queryResult = $result;
-    return this;
-  }
-  getQueryResult() {
-    return this.$queryResult;
-  }
+
+    setQueryResult($result) {
+        this.$queryResult = $result;
+        return this;
+    }
+
+    getQueryResult() {
+        return this.$queryResult;
+    }
 };
 __name(ElementAbstract, "ElementAbstract");
 
 // src/Util/Others/Draggables.ts
 var Draggables = class extends ElementAbstract {
-  constructor($draggableContainer) {
-    super($draggableContainer);
-    this.dragging = null;
-    this.droppedTarget = null;
-    this._draggingOriginalRect = null;
-    this.xPosition = 0;
-    this.yPosition = -1;
-    this.mouseActive = false;
-    this._constrainedQuad = false;
-    this.$draggableElementDetails = {};
-  }
-  get draggingOriginalRect() {
-    return this._draggingOriginalRect;
-  }
-  set draggingOriginalRect(value) {
-    this._draggingOriginalRect = value;
-  }
-  get constrainedQuad() {
-    return this._constrainedQuad;
-  }
-  set constrainedQuad(value) {
-    this._constrainedQuad = value;
-  }
-  settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
-    this.constrainedQuad = $constrainedQuad;
-    this.getDraggableElementDetails().draggable = {
-      constrainedQuad: $constrainedQuad,
-      draggableElement: $draggableElement,
-      ignoreElements: $elementsToIgnore,
-      callbacks: {
-        onDragging: null,
-        onDragDrop: null,
-        onDragRight: null,
-        onDragLeft: null,
-        onDragBottom: null,
-        onDragTop: null
-      }
-    };
-    return this;
-  }
-  getDraggableElementDetails() {
-    return this.$draggableElementDetails;
-  }
-  checkIfSettingsIsSet() {
-    return this.getDraggableElementDetails().draggable;
-  }
-  onDragDrop($onDragDrop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
-      return this;
+    constructor($draggableContainer) {
+        super($draggableContainer);
+        this.dragging = null;
+        this.droppedTarget = null;
+        this._draggingOriginalRect = null;
+        this.xPosition = 0;
+        this.yPosition = -1;
+        this.mouseActive = false;
+        this._constrainedQuad = false;
+        this.$draggableElementDetails = {};
     }
-  }
-  onDragRight($onDragRight) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
-      return this;
+
+    get draggingOriginalRect() {
+        return this._draggingOriginalRect;
     }
-  }
-  onDragLeft($onDragLeft) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
-      return this;
+
+    set draggingOriginalRect(value) {
+        this._draggingOriginalRect = value;
     }
-  }
-  onDragBottom($onDragBottom) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
-      return this;
+
+    get constrainedQuad() {
+        return this._constrainedQuad;
     }
-  }
-  onDragTop($onDragTop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
-      return this;
+
+    set constrainedQuad(value) {
+        this._constrainedQuad = value;
     }
-  }
-  run() {
-    let $draggableContainer = this.getQueryResult();
-    let self = this;
-    let shiftX;
-    let shiftY;
-    if ($draggableContainer) {
-      $draggableContainer.addEventListener("pointerdown", function(e) {
-        self.setMouseActive(true);
-        let el = e.target;
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
+
+    settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
+        this.constrainedQuad = $constrainedQuad;
+        this.getDraggableElementDetails().draggable = {
+            constrainedQuad: $constrainedQuad,
+            draggableElement: $draggableElement,
+            ignoreElements: $elementsToIgnore,
+            callbacks: {
+                onDragging: null,
+                onDragDrop: null,
+                onDragRight: null,
+                onDragLeft: null,
+                onDragBottom: null,
+                onDragTop: null
+            }
+        };
+        return this;
+    }
+
+    getDraggableElementDetails() {
+        return this.$draggableElementDetails;
+    }
+
+    checkIfSettingsIsSet() {
+        return this.getDraggableElementDetails().draggable;
+    }
+
+    onDragDrop($onDragDrop) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
+            return this;
+        }
+    }
+
+    onDragRight($onDragRight) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
+            return this;
+        }
+    }
+
+    onDragLeft($onDragLeft) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
+            return this;
+        }
+    }
+
+    onDragBottom($onDragBottom) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
+            return this;
+        }
+    }
+
+    onDragTop($onDragTop) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
+            return this;
+        }
+    }
+
+    canDrag(el) {
+        let self = this, startDrag = true;
+        const ignoreElements = self.getDraggableElementDetails().draggable.ignoreElements;
+        for (let index = 0; index < ignoreElements.length; index++) {
+            const value = ignoreElements[index];
+            if (el.closest(value)) {
+                startDrag = false;
+                break; // Exit the loop early if the condition is met
+            }
+        }
+
+        if (!startDrag) {
+            this.setMouseActive(false);
+        }
+
+        return startDrag;
+    }
+
+    run() {
+        let $draggableContainer = this.getQueryResult();
+        let self = this;
+        let shiftX;
+        let shiftY;
+        let hasMoved = false;
+        if ($draggableContainer) {
+            $draggableContainer.addEventListener("pointerdown", function (e) {
+                self.setMouseActive(true);
+                let el = e.target;
+                let startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+                if (el.closest(draggableSelector)) {
+                    self == null ? void 0 : self.setDragging(el.closest(draggableSelector));
+                    let draggable = self.getDragging();
+                    if (startDrag) {
+                        shiftX = e.clientX;
+                        shiftY = e.clientY;
+                        draggable.classList.add("draggable-start");
+                        draggable.classList.add("touch-action:none");
+                        self._draggingOriginalRect = draggable.getBoundingClientRect();
+                    }
+                    draggable?.classList.remove("draggable-animation");
+                }
+            });
+        }
+        $draggableContainer.addEventListener("pointerup", function (e) {
+            let el = e.target;
+            if (self.isMouseActive()) {
+                self.setMouseActive(false);
+                let startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                self.setXPosition(0);
+                self.setYPosition(-1);
+                let draggable = self.getDragging();
+                if (draggable && startDrag) {
+                    draggable.style["transform"] = "";
+                    draggable.classList.remove("draggable-start");
+                    draggable.classList.remove("touch-action:none");
+                    draggable.classList.add("draggable-animation");
+                } else {
+                    draggable?.classList.remove("draggable-animation");
+                    return false;
+                }
+                let onDragDrop = self.getDraggableElementDetails().draggable.callbacks.onDragDrop;
+                if (hasMoved && onDragDrop !== null && typeof onDragDrop == "function") {
+                    onDragDrop(el, self);
+                    hasMoved = false;
+                }
+            }
         });
-        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
-        if (el.closest(draggableSelector) && startDrag) {
-          self == null ? void 0 : self.setDragging(el.closest(draggableSelector));
-          let draggable = self.getDragging();
-          shiftX = e.clientX;
-          shiftY = e.clientY;
-          draggable.classList.add("draggable-start");
-          draggable.classList.add("touch-action:none");
-          draggable.classList.remove("draggable-animation");
-          self._draggingOriginalRect = draggable.getBoundingClientRect();
-        }
-      });
+
+        $draggableContainer.addEventListener("pointermove", function (e) {
+            if (self.isMouseActive()) {
+                let el = e.target, startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                let draggable = self.getDragging();
+                let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+                if (el.closest(draggableSelector) && startDrag && draggable) {
+                    draggable.classList.add("pointer-events:none");
+                    let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+                    self.setDroppedTarget(elemBelow.closest(draggableSelector));
+                    draggable.classList.remove("pointer-events:none");
+                    e.preventDefault();
+                    let tx = e.clientX - shiftX;
+                    let ty = e.clientY - shiftY;
+                    if (!self.constrainedQuad) {
+                        draggable.style.transform = "translate3d(" + tx + "px," + ty + "px, 0px)";
+                    }
+                    if (e.movementX >= 1 && e.movementY === 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
+                        }
+                        let onDragRight = self.getDraggableElementDetails().draggable.callbacks.onDragRight;
+                        if (onDragRight !== null && typeof onDragRight == "function") {
+                            onDragRight(draggable);
+                        }
+                    }
+                    if (e.movementX < 0 && e.movementY === 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
+                        }
+                        let onDragLeft = self.getDraggableElementDetails().draggable.callbacks.onDragLeft;
+                        if (onDragLeft !== null && typeof onDragLeft == "function") {
+                            onDragLeft(draggable, self);
+                        }
+                    }
+                    if (e.movementX === 0 && e.movementY > 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
+                        }
+                        let onDragBottom = self.getDraggableElementDetails().draggable.callbacks.onDragBottom;
+                        if (onDragBottom !== null && typeof onDragBottom == "function") {
+                            onDragBottom(draggable, self);
+                        }
+                    } else if (e.movementX === 0 && e.movementY < 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
+                        }
+                        let onDragTop = self.getDraggableElementDetails().draggable.callbacks.onDragTop;
+                        if (onDragTop !== null && typeof onDragTop == "function") {
+                            onDragTop(draggable, self);
+                        }
+                    }
+                    hasMoved = true; // Set movement flag on pointermove
+                }
+            }
+        });
     }
-    $draggableContainer.addEventListener("pointerup", function(e) {
-      let el = e.target;
-      if (self.isMouseActive()) {
-        self.setMouseActive(false);
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        self.setXPosition(0);
-        self.setYPosition(-1);
-        let draggable = self.getDragging();
-        if (draggable && startDrag) {
-          draggable.style["transform"] = "";
-          draggable.classList.remove("draggable-start");
-          draggable.classList.remove("touch-action:none");
-          draggable.classList.add("draggable-animation");
-        } else {
-          return false;
-        }
-        let onDragDrop = self.getDraggableElementDetails().draggable.callbacks.onDragDrop;
-        if (onDragDrop !== null && typeof onDragDrop == "function") {
-          onDragDrop(el, self);
-        }
-      }
-    });
-    $draggableContainer.addEventListener("pointermove", function(e) {
-      if (self.isMouseActive()) {
-        let el = e.target, startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        let draggable = self.getDragging();
-        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
-        if (el.closest(draggableSelector) && startDrag && draggable) {
-          draggable.classList.add("pointer-events:none");
-          let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-          self.setDroppedTarget(elemBelow.closest(draggableSelector));
-          draggable.classList.remove("pointer-events:none");
-          e.preventDefault();
-          let tx = e.clientX - shiftX;
-          let ty = e.clientY - shiftY;
-          if (!self.constrainedQuad) {
-            draggable.style.transform = "translate3d(" + tx + "px," + ty + "px, 0px)";
-          }
-          if (e.movementX >= 1 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragRight = self.getDraggableElementDetails().draggable.callbacks.onDragRight;
-            if (onDragRight !== null && typeof onDragRight == "function") {
-              onDragRight(draggable);
-            }
-          }
-          if (e.movementX < 0 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragLeft = self.getDraggableElementDetails().draggable.callbacks.onDragLeft;
-            if (onDragLeft !== null && typeof onDragLeft == "function") {
-              onDragLeft(draggable, self);
-            }
-          }
-          if (e.movementX === 0 && e.movementY > 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragBottom = self.getDraggableElementDetails().draggable.callbacks.onDragBottom;
-            if (onDragBottom !== null && typeof onDragBottom == "function") {
-              onDragBottom(draggable, self);
-            }
-          } else if (e.movementX === 0 && e.movementY < 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragTop = self.getDraggableElementDetails().draggable.callbacks.onDragTop;
-            if (onDragTop !== null && typeof onDragTop == "function") {
-              onDragTop(draggable, self);
-            }
-          }
-        }
-      }
-    });
-  }
-  getXPosition() {
-    return this.xPosition;
-  }
-  setXPosition(xPosition) {
-    this.xPosition = xPosition;
-  }
-  getYPosition() {
-    return this.yPosition;
-  }
-  setYPosition(yPosition) {
-    this.yPosition = yPosition;
-  }
-  incrementXPosition() {
-    return ++this.xPosition;
-  }
-  decrementXPosition() {
-    return this.xPosition = this.xPosition - 1;
-  }
-  incrementYPosition() {
-    return ++this.yPosition;
-  }
-  decrementYPosition() {
-    return this.yPosition = this.xPosition - 1;
-  }
-  getDragging() {
-    return this.dragging;
-  }
-  setDragging(draggedData) {
-    this.dragging = draggedData;
-  }
-  getDroppedTarget() {
-    return this.droppedTarget;
-  }
-  setDroppedTarget(el) {
-    this.droppedTarget = el;
-  }
-  isMouseActive() {
-    return this.mouseActive;
-  }
-  setMouseActive(result) {
-    this.mouseActive = result;
-  }
+
+    getXPosition() {
+        return this.xPosition;
+    }
+
+    setXPosition(xPosition) {
+        this.xPosition = xPosition;
+    }
+
+    getYPosition() {
+        return this.yPosition;
+    }
+
+    setYPosition(yPosition) {
+        this.yPosition = yPosition;
+    }
+
+    incrementXPosition() {
+        return ++this.xPosition;
+    }
+
+    decrementXPosition() {
+        return this.xPosition = this.xPosition - 1;
+    }
+
+    incrementYPosition() {
+        return ++this.yPosition;
+    }
+
+    decrementYPosition() {
+        return this.yPosition = this.xPosition - 1;
+    }
+
+    getDragging() {
+        return this.dragging;
+    }
+
+    setDragging(draggedData) {
+        this.dragging = draggedData;
+    }
+
+    getDroppedTarget() {
+        return this.droppedTarget;
+    }
+
+    setDroppedTarget(el) {
+        this.droppedTarget = el;
+    }
+
+    isMouseActive() {
+        return this.mouseActive;
+    }
+
+    setMouseActive(result) {
+        this.mouseActive = result;
+    }
 };
 __name(Draggables, "Draggables");
 if (!window.hasOwnProperty("TonicsScript")) {
-  window.TonicsScript = {};
+    window.TonicsScript = {};
 }
 window.TonicsScript.Draggables = ($draggableContainer) => new Draggables($draggableContainer);
 export {
-  Draggables
+    Draggables
 };
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
@@ -4364,8 +4505,7 @@ export function swapNodes(el1, el2, el1InitialRect, onSwapDone = null) {
 }
 
 if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
-window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);
-/*
+window.TonicsScript.swapNodes = (el1, el2, el1InitialRect, onSwapDone = null) => swapNodes(el1, el2, el1InitialRect, onSwapDone);/*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -4396,9 +4536,9 @@ function hookTinyMCE() {
         const tinyDialogObserver = new MutationObserver(((mutationsList, observer) => {
             for (const mutation of mutationsList) {
                 // added nodes.
-                if (mutation.addedNodes.length > 0){
-                    mutation.addedNodes.forEach((addedNode =>  {
-                        if (addedNode.nodeType === Node.ELEMENT_NODE){
+                if (mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach((addedNode => {
+                        if (addedNode.nodeType === Node.ELEMENT_NODE) {
                             let tinyArea = addedNode.querySelector('.tinyMCEBodyArea');
                             if (tinyArea) {
                                 // if tinyInstance is available, re-initialize it
@@ -4455,7 +4595,7 @@ function addTiny(editorID) {
         content_css = content_css.slice(0, -1);
     }
     let fieldSelectionManager = '';
-    if (tinyAssets){
+    if (tinyAssets) {
         fieldSelectionManager = 'tonics-fieldselectionmanager';
     }
 
@@ -4486,8 +4626,12 @@ function addTiny(editorID) {
         body_class: "entry-content",
         remove_trailing_brs: true,
         setup: function (editor) {
-            if (!window.hasOwnProperty('TonicsScript')){ window.TonicsScript = {};}
-            if (!window.TonicsScript.hasOwnProperty('tinymce')){ window.TonicsScript.tinymce = [] }
+            if (!window.hasOwnProperty('TonicsScript')) {
+                window.TonicsScript = {};
+            }
+            if (!window.TonicsScript.hasOwnProperty('tinymce')) {
+                window.TonicsScript.tinymce = []
+            }
             window.TonicsScript.tinymce.push(editor);
             editor.on('init', function (e) {
                 if (tinyJSAssets && tinyJSAssets.length > 0) {
@@ -4510,13 +4654,13 @@ function addTiny(editorID) {
 
                     if (target.classList.contains('fieldsPreview')) {
                         let tabContainer = target.closest('.tabs');
-                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig){
+                        if (window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                             let tonicsFieldWrapper = tabContainer.querySelector('.tonicsFieldWrapper');
                             let jsonValue = tonicsFieldWrapper.value;
                             const OnBeforeTonicsFieldPreview = new OnBeforeTonicsFieldPreviewEvent(jsonValue, target);
                             let eventDispatcher = window.TonicsEvent.EventDispatcher;
                             eventDispatcher.dispatchEventToHandlers(window.TonicsEvent.EventConfig, OnBeforeTonicsFieldPreview, OnBeforeTonicsFieldPreviewEvent);
-                            if (OnBeforeTonicsFieldPreview.canRequest()){
+                            if (OnBeforeTonicsFieldPreview.canRequest()) {
                                 OnBeforeTonicsFieldPreview.loadAnimation(target)
                                 fieldPreviewFromPostData(OnBeforeTonicsFieldPreview.getPostData(), function (data) {
                                     if (data.status === 200 && target.nextElementSibling.classList.contains('fieldsPreviewContent')) {
@@ -4530,34 +4674,34 @@ function addTiny(editorID) {
                 });
 
                 editor.getBody().addEventListener('change', (e) => {
-                   let input = e.target, tagName = input.tagName;
-                   if (tagName.toLowerCase() === 'input'){
-                       input.setAttribute('value', input.value);
-                       if (input.type === 'checkbox'){
-                           (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-                       }
+                    let input = e.target, tagName = input.tagName;
+                    if (tagName.toLowerCase() === 'input') {
+                        input.setAttribute('value', input.value);
+                        if (input.type === 'checkbox') {
+                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                        }
 
-                       if(input.type === 'radio'){
-                           let parentRadio = input.parentElement;
-                           if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0){
-                               parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
-                                   radio.removeAttribute('checked');
-                               });
-                           }
-                           (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
-                       }
-                   }
+                        if (input.type === 'radio') {
+                            let parentRadio = input.parentElement;
+                            if (parentRadio && parentRadio.querySelectorAll(`input[name="${input.name}"]`).length > 0) {
+                                parentRadio.querySelectorAll(`input[name="${input.name}"]`).forEach((radio) => {
+                                    radio.removeAttribute('checked');
+                                });
+                            }
+                            (input.checked) ? input.setAttribute('checked', input.checked) : input.removeAttribute('checked');
+                        }
+                    }
 
-                   if (tagName.toLowerCase() === 'textarea'){
-                       let text = input.value;
-                       input.innerHTML = text;
-                       input.value = text;
-                   }
+                    if (tagName.toLowerCase() === 'textarea') {
+                        let text = input.value;
+                        input.innerHTML = text;
+                        input.value = text;
+                    }
 
-                   if (tagName.toLowerCase() === 'select'){
-                       input.options[input.selectedIndex].selected = 'selected';
-                       input.options[input.selectedIndex].setAttribute('selected', 'selected');
-                   }
+                    if (tagName.toLowerCase() === 'select') {
+                        input.options[input.selectedIndex].selected = 'selected';
+                        input.options[input.selectedIndex].setAttribute('selected', 'selected');
+                    }
                 });
 
                 let svgInline = document.querySelector('.tonics-inline-svg');
@@ -4610,15 +4754,22 @@ function addTiny(editorID) {
     });
 }
 
-function fieldPreviewFromPostData(postData, onSuccess = null, onError = null) {
+function fieldPreviewFromPostData(postData, onSuccess = null, onError = null, onConstructDataToSend = null) {
     let url = "/admin/tools/field/field-preview";
     let defaultHeader = {
         'Tonics-CSRF-Token': `${getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])}`
     };
-    let dataToSend = {
-        'postData': postData
+
+    let dataToSend = null;
+    if (onConstructDataToSend) {
+        dataToSend = onConstructDataToSend(postData);
+    } else {
+        dataToSend = {
+            'postData': postData
+        }
     }
-   new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
+
+    new XHRApi({...defaultHeader}).Post(url, JSON.stringify(dataToSend), function (err, data) {
         if (data) {
             data = JSON.parse(data);
             if (onSuccess) {
@@ -4638,28 +4789,28 @@ function getPostData(fieldSettingsEl) {
     elements.forEach((inputs) => {
 
         // collect checkbox
-        if (inputs.type === 'checkbox'){
+        if (inputs.type === 'checkbox') {
             let checkboxName = inputs.name;
-            if (!widgetSettings.hasOwnProperty(checkboxName)){
+            if (!widgetSettings.hasOwnProperty(checkboxName)) {
                 widgetSettings[checkboxName] = [];
             }
-            if (inputs.checked){
+            if (inputs.checked) {
                 widgetSettings[checkboxName].push(inputs.value);
             }
-        }else if (inputs.type === 'select-multiple'){
+        } else if (inputs.type === 'select-multiple') {
             let selectOptions = inputs.options;
             let selectBoxName = inputs.name;
             for (let k = 0; k < selectOptions.length; k++) {
                 let option = selectOptions[k];
-                if (option.selected){
-                    if (!widgetSettings.hasOwnProperty(selectBoxName)){
+                if (option.selected) {
+                    if (!widgetSettings.hasOwnProperty(selectBoxName)) {
                         widgetSettings[selectBoxName] = [];
                     }
 
                     widgetSettings[selectBoxName].push(option.value || option.text);
                 }
             }
-        }else if (!widgetSettings.hasOwnProperty(inputs.name)) {
+        } else if (!widgetSettings.hasOwnProperty(inputs.name)) {
             widgetSettings[inputs.name] = inputs.value;
         }
     });
@@ -4670,20 +4821,21 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
     /** @type OnSubmitFieldEditorsFormEvent */
     fieldSubmitEvObj = null;
     event = null;
+
     constructor(event) {
         this.event = event;
         this.fieldSubmitEvObj = event;
         this.handleTinymceChildNodes();
     }
 
-   handleTinymceChildNodes() {
+    handleTinymceChildNodes() {
         let self = this;
         if (typeof tinymce !== 'undefined' && tinymce.activeEditor && tinymce.activeEditor.getBody().hasChildNodes()) {
             let nodesData = {}, key = 0;
             let bodyNode = tinymce.activeEditor.getBody().childNodes;
             bodyNode.forEach((node) => {
                 if (node.classList.contains('tonicsFieldTabsContainer')) {
-                    if (nodesData.hasOwnProperty(key) &&  window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
+                    if (nodesData.hasOwnProperty(key) && window.parent?.TonicsEvent?.EventDispatcher && window.parent.TonicsEvent?.EventConfig) {
                         ++key;
                     }
 
@@ -4714,7 +4866,13 @@ class CollatePostContentFieldItemsOnFieldsEditorsSubmit {
                 }
             });
 
-            self.event.addHiddenInputToForm(self.event.editorsForm, 'fieldItemsDataFromEditor', JSON.stringify(nodesData));
+            let nodesDataStringify = JSON.stringify(nodesData);
+            let fieldBuilderItems = tinymce.activeEditor.contentAreaContainer.closest('.field-builder-items');
+            if (fieldBuilderItems) {
+                fieldBuilderItems.dataset._tinymce_fields = nodesDataStringify;
+            }
+
+            self.event.addHiddenInputToForm(self.event.editorsForm, 'fieldItemsDataFromEditor', nodesDataStringify);
         }
     }
 }
@@ -4724,6 +4882,12 @@ if (window?.TonicsEvent?.EventConfig) {
 }
 
 class OnBeforeTonicsFieldPreviewEvent {
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+        this._canRequest = true;
+    }
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -4731,6 +4895,7 @@ class OnBeforeTonicsFieldPreviewEvent {
     set elementTarget(value) {
         this._elementTarget = value;
     }
+
     get postData() {
         return this._postData;
     }
@@ -4747,17 +4912,11 @@ class OnBeforeTonicsFieldPreviewEvent {
         this._canRequest = value;
     }
 
-    constructor(postData, target) {
-        this._postData = postData;
-        this._elementTarget = target;
-        this._canRequest = true;
-    }
-
     canRequest() {
         return this._canRequest;
     }
 
-    getCSFRToken(){
+    getCSFRToken() {
         return getCSRFFromInput(['tonics_csrf_token', 'csrf_token', 'token'])
     }
 
@@ -4779,6 +4938,14 @@ class OnBeforeTonicsFieldPreviewEvent {
 }
 
 class OnBeforeTonicsFieldSubmitEvent {
+    postData = null;
+    elementTarget = null;
+
+    constructor(postData, target) {
+        this._postData = postData;
+        this._elementTarget = target;
+    }
+
     get elementTarget() {
         return this._elementTarget;
     }
@@ -4795,13 +4962,6 @@ class OnBeforeTonicsFieldSubmitEvent {
         this._postData = value;
     }
 
-    postData = null; elementTarget = null;
-
-    constructor(postData, target) {
-        this._postData = postData;
-        this._elementTarget = target;
-    }
-
     getPostData() {
         return this._postData;
     }
@@ -4809,8 +4969,7 @@ class OnBeforeTonicsFieldSubmitEvent {
     getElementTarget() {
         return this._elementTarget;
     }
-}
-/*
+}/*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -4850,21 +5009,22 @@ new Draggables(parent)
     .onDragDrop(function (element, self) {
         let elementDropped = self.getDroppedTarget().closest(widgetChild);
         let elementDragged = self.getDragging().closest(widgetChild);
-        if (elementDropped !== elementDragged && top || bottom){
+        if (elementDropped !== elementDragged && top || bottom) {
             // swap element
             swapNodes(elementDragged, elementDropped, self.draggingOriginalRect);
             sensitivity = 0;
-            top = false; bottom = false;
+            top = false;
+            bottom = false;
         }
     }).onDragTop((element) => {
-    if (sensitivity++ >= sensitivityMax){
+    if (sensitivity++ >= sensitivityMax) {
         let dragToTheTop = element.previousElementSibling;
-        if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')){
+        if (dragToTheTop && dragToTheTop.classList.contains('menu-arranger-li')) {
             top = true;
         }
     }
-}).onDragBottom( (element) => {
-    if (sensitivity++ >= sensitivityMax){
+}).onDragBottom((element) => {
+    if (sensitivity++ >= sensitivityMax) {
         let dragToTheBottom = element.nextElementSibling;
         if (dragToTheBottom && dragToTheBottom.classList.contains('menu-arranger-li')) {
             bottom = true;
@@ -4873,12 +5033,13 @@ new Draggables(parent)
 }).run();
 
 let licenseArranger = document.getElementsByClassName('license-arranger')[0];
+
 function generateNewLicenseForm() {
     return `<li tabIndex="0"
                class="width:100% draggable menu-arranger-li cursor:move">
         <fieldset
             class="width:100% padding:default d:flex justify-content:center pointer-events:none">
-            <legend class="bg:pure-black color:white padding:default pointer-events:none d:flex flex-gap:small align-items:center">
+            <legend class="bg:pure-black color:white padding:tiny pointer-events:none d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">New License</span>
                 <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer"
                         aria-expanded="false" aria-label="Expand child menu">
@@ -4927,23 +5088,23 @@ function generateNewLicenseForm() {
 
 // add new license
 let addNewLicenseButton = document.querySelector('.add-new-license');
-if (addNewLicenseButton){
+if (addNewLicenseButton) {
     addNewLicenseButton.addEventListener('click', (e) => {
         e.preventDefault();
-        if (licenseArranger.querySelector('ul')){
+        if (licenseArranger.querySelector('ul')) {
             licenseArranger.querySelector('ul').insertAdjacentHTML('beforeend', generateNewLicenseForm());
         }
     });
 }
 
 // delete menu or widget
-if (licenseArranger){
+if (licenseArranger) {
     licenseArranger.addEventListener('click', (e) => {
         e.preventDefault();
         let el = e.target;
-        if (el.classList.contains('delete-license-button')){
+        if (el.classList.contains('delete-license-button')) {
             let arranger = el.closest('.draggable');
-            if (arranger){
+            if (arranger) {
                 arranger.remove();
             }
         }
@@ -4951,12 +5112,12 @@ if (licenseArranger){
 }
 
 function getListDataArray() {
-    if(draggable){
+    if (draggable) {
         let widgetSettingsEl = document.querySelectorAll('.widgetSettings'), licenseArray = [],
             i = 0;
         widgetSettingsEl.forEach(form => {
             let widgetSettings = {};
-            if (form.tagName === 'FORM'){
+            if (form.tagName === 'FORM') {
                 let widgetFormData = new FormData(form);
                 widgetFormData.forEach((value, key) => {
                     widgetSettings[key] = value;
@@ -4974,7 +5135,7 @@ let windowInstanceForLicenceContract = null;
 let licenceContractParent = null;
 document.addEventListener('click', (e) => {
     let el = e.target;
-    if (el.classList.contains('license-contract-button')){
+    if (el.classList.contains('license-contract-button')) {
         if (tonicsFileManagerURL) {
             licenceContractParent = el.parentElement;
             let windowFeatures = "left=95,top=100";
@@ -4989,7 +5150,7 @@ window.addEventListener('message', (e) => {
     }
     let data = e.data;
     if (data.hasOwnProperty('cmd') && data.cmd === 'tonics:DocLink') {
-        if (licenceContractParent){
+        if (licenceContractParent) {
             let licenceContractInput = licenceContractParent.querySelector('.license-contract');
             licenceContractInput.value = data.value;
             windowInstanceForLicenceContract.close();
@@ -5000,7 +5161,7 @@ window.addEventListener('message', (e) => {
 // save license builder
 let saveAllLicense = document.querySelector('.save-license-builder-changes'),
     saveLicenseChangesForm = document.getElementById('saveLicenseBuilderItems');
-if(saveAllLicense && saveLicenseChangesForm){
+if (saveAllLicense && saveLicenseChangesForm) {
     saveAllLicense.addEventListener('click', function (e) {
         e.preventDefault();
         addHiddenInputToForm(saveLicenseChangesForm, 'licenseSlug', licenseSlug);

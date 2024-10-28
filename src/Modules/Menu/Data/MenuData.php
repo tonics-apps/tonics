@@ -26,46 +26,46 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 class MenuData extends AbstractDataLayer
 {
 
-    const CORE_MENU  = "Core-Menu-aebf7108-7136-4bc6-8ee1-85ad6005d18d";
+    const CORE_MENU = "Core-Menu-aebf7108-7136-4bc6-8ee1-85ad6005d18d";
 
     use UniqueSlug;
 
-    public function getMenuTable(): string
+    public function getMenuTable (): string
     {
         return Tables::getTable(Tables::MENUS);
     }
 
-    public function getMenuItemsTable(): string
+    public function getMenuItemsTable (): string
     {
         return Tables::getTable(Tables::MENU_ITEMS);
     }
 
-    public function getMenuItemPermissionsTable(): string
+    public function getMenuItemPermissionsTable (): string
     {
         return Tables::getTable(Tables::MENU_ITEM_PERMISSION);
     }
 
 
-    public function getMenuColumns(): array
+    public function getMenuColumns (): array
     {
-        return [ 'menu_id', 'menu_name', 'menu_slug', 'created_at', 'updated_at' ];
+        return ['menu_id', 'menu_name', 'menu_slug', 'created_at', 'updated_at'];
     }
 
 
-    public function getMenuItemsColumns(): array
+    public function getMenuItemsColumns (): array
     {
         return [
-            'id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at'
+            'id', 'fk_menu_id', 'mt_id', 'mt_parent_id', 'mt_name', 'mt_icon', 'mt_classes', 'mt_target', 'mt_url_slug', 'created_at', 'updated_at',
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function generateMenuTree(): string
+    public function generateMenuTree (): string
     {
         $menus = null;
-        db(onGetDB: function (TonicsQuery $db) use (&$menus){
+        db(onGetDB: function (TonicsQuery $db) use (&$menus) {
             $permissionTable = Tables::getTable(Tables::PERMISSIONS);
             $rolePermissionTable = Tables::getTable(Tables::ROLE_PERMISSIONS);
             $roleTable = Tables::getTable(Tables::ROLES);
@@ -84,14 +84,14 @@ ORDER BY mi.id;
 
         $tree = helper()->generateTree(['parent_id' => 'mt_parent_id', 'id' => 'mt_id'], $menus);
         $htmlFrag = '';
-        foreach ($tree as $t){
+        foreach ($tree as $t) {
             $htmlFrag .= $this->getCoreMenuHTMLFragment($t);
         }
 
         return $htmlFrag;
     }
 
-    private function getCoreMenuHTMLFragment($menu, $depth = 0)
+    private function getCoreMenuHTMLFragment ($menu, $depth = 0)
     {
         $htmlFrag = <<<MENU
 <li class="menu-block" data-menu-depth="$depth">
@@ -99,7 +99,7 @@ ORDER BY mi.id;
         $menu->mt_icon
         <div class="text:paragraph-fluid-one text:no-wrap">$menu->mt_name</div>
 MENU;
-        if (isset($menu->_children)){
+        if (isset($menu->_children)) {
             $htmlFrag .= <<<MENU
         <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false" aria-label="Expand child menu">
             <svg class="icon:admin tonics-arrow-down">
@@ -111,7 +111,7 @@ MENU;
     <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
 MENU;
             $depth = $depth + 1;
-            foreach ($menu->_children as $menu){
+            foreach ($menu->_children as $menu) {
                 $htmlFrag .= $this->getCoreMenuHTMLFragment($menu, $depth);
             }
             $htmlFrag .= <<<MENU
@@ -132,31 +132,32 @@ MENU;
      * @return mixed
      * @throws \Exception
      */
-    public function getCoreMenuID(): mixed
+    public function getCoreMenuID (): mixed
     {
-        $coreMenu = $this->getMenuID(self::CORE_MENU, function (TonicsQuery $db){ $db->WhereEquals('menu_can_edit', 0); });
-        if ($coreMenu === null){
-             db(onGetDB: function (TonicsQuery $db){
-                 $table = $this->getMenuTable();
-                 $db->Insert($table, ['menu_name' => self::CORE_MENU, 'menu_slug' => self::CORE_MENU, 'menu_can_edit' => 0]);
-             });
+        $coreMenu = $this->getMenuID(self::CORE_MENU, function (TonicsQuery $db) { $db->WhereEquals('menu_can_edit', 0); });
+        if ($coreMenu === null) {
+            db(onGetDB: function (TonicsQuery $db) {
+                $table = $this->getMenuTable();
+                $db->Insert($table, ['menu_name' => self::CORE_MENU, 'menu_slug' => self::CORE_MENU, 'menu_can_edit' => 0]);
+            });
         } else {
             return $coreMenu;
         }
 
-        return $this->getMenuID(self::CORE_MENU, function (TonicsQuery $db){ $db->WhereEquals('menu_can_edit', 0); });
+        return $this->getMenuID(self::CORE_MENU, function (TonicsQuery $db) { $db->WhereEquals('menu_can_edit', 0); });
     }
 
     /**
      * @param string $slug
      * @param callable|null $where
+     *
      * @return mixed
      * @throws \Exception
      */
-    public function getMenuID(string $slug, callable $where = null): mixed
+    public function getMenuID (string $slug, callable $where = null): mixed
     {
         $menu = null;
-        db(onGetDB: function (TonicsQuery $db) use ($where, $slug, &$menu){
+        db(onGetDB: function (TonicsQuery $db) use ($where, $slug, &$menu) {
             $table = $this->getMenuTable();
             $menu = $db->Select('menu_id')->From($table)
                 ->WhereEquals('menu_slug', $slug)
@@ -167,16 +168,18 @@ MENU;
         return $menu;
     }
 
-
     /**
+     * @return mixed
      * @throws \Exception
      */
-    public function getMenus(): mixed
+    public function getMenus (): mixed
     {
         $table = $this->getMenuTable();
         $menu = null;
-        db(onGetDB: function ($db) use ($table, &$menu){
-            $menu = $db->run("SELECT * FROM $table");
+        db(onGetDB: function (TonicsQuery $db) use ($table, &$menu) {
+            $menu = $db->Select('*')->From($table)
+                ->WhereEquals('menu_can_edit', 1)
+                ->FetchResult();
         });
         return $menu;
     }
@@ -184,10 +187,10 @@ MENU;
     /**
      * @throws \Exception
      */
-    public function getMenuItems(int|string $menuIDOrSlug, bool $generateTree = true): mixed
+    public function getMenuItems (int|string $menuIDOrSlug, bool $generateTree = true): mixed
     {
         $data = null;
-        db(onGetDB: function (TonicsQuery $db) use ($menuIDOrSlug, &$data){
+        db(onGetDB: function (TonicsQuery $db) use ($menuIDOrSlug, &$data) {
             $menuItemsTable = $this->getMenuItemsTable();
             $menuTable = $this->getMenuTable();
             $menuPermissionsTable = $this->getMenuItemPermissionsTable();
@@ -206,8 +209,8 @@ MENU;
 
         });
 
-        if ($data){
-            if ($generateTree){
+        if ($data) {
+            if ($generateTree) {
                 return helper()->generateTree(['parent_id' => 'mt_parent_id', 'id' => 'mt_id'], $data);
             }
             return $data;
@@ -217,13 +220,85 @@ MENU;
     }
 
     /**
+     * @param string $menuSlug
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function getMenuFrontendFragment (string $menuSlug): string
+    {
+        $frag = '';
+        $tree = $this->getMenuItems($menuSlug);
+        foreach ($tree as $t) {
+            $frag .= $this->getMenuHTMLFragment($t, 0);
+        }
+        return $frag;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function getMenuHTMLFragment ($menu, $depth = 0): string
+    {
+        $svgIcon = '';
+        if (!empty($menu->mt_icon)) {
+            if (array_key_exists($menu->mt_icon, helper()->iconSymbols())) {
+                $this->svgIcon[$menu->mt_icon] = $menu->mt_icon;
+                $svgIcon = "<svg class='icon:admin $svgIcon'><use xlink:href='#tonics-$menu->mt_icon'></use></svg>";
+            }
+        }
+        $menuName = helper()->htmlSpecChar($menu->mt_name);
+        $name = <<<HTML
+<div class="text:paragraph-fluid-one text:no-wrap">$menuName</div>
+HTML;
+        $url = helper()->htmlSpecChar($menu->mt_url_slug);
+        $target = 'target="_blank"';
+        if ($menu->mt_target == 0) {
+            $target = 'target="_self"';
+        }
+        $htmlFrag = <<<MENU
+<li class="menu-block d:flex" data-menu-depth="$depth">
+    <a href="$url" $target class="menu-box act-like-button flex-gap:small color:black border-width:tiny border:black" title="$menuName">
+        $svgIcon
+       $name
+MENU;
+        if (isset($menu->_children)) {
+            $htmlFrag .= <<<MENU
+        <button class="dropdown-toggle bg:transparent  border:none" aria-expanded="false" aria-label="Expand child menu">
+            <svg class="icon:admin tonics-arrow-down">
+                <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
+            </svg>
+        </button>
+    </a>
+    <!-- The child menu-->
+    <ul class="child-menu z-index:child-menu site-navigation-ul flex-gap d:none list:style:none">
+MENU;
+            $depth = $depth + 1;
+            foreach ($menu->_children as $menu) {
+                $htmlFrag .= $this->getMenuHTMLFragment($menu, $depth);
+            }
+            $htmlFrag .= <<<MENU
+    </ul>
+</li>
+MENU;
+        } else {
+            $htmlFrag .= <<<MENU
+    </a>
+</li>
+MENU;
+        }
+
+        return $htmlFrag;
+    }
+
+    /**
      * @return mixed
      * @throws \Exception
      */
-    protected function getAllPermissions(): mixed
+    protected function getAllPermissions (): mixed
     {
         $permissions = null;
-        db(onGetDB: function (TonicsQuery $db) use (&$permissions){
+        db(onGetDB: function (TonicsQuery $db) use (&$permissions) {
             $permissions = $db->Select('*')->From(Tables::getTable(Tables::PERMISSIONS))->FetchResult();
         });
 
@@ -232,15 +307,16 @@ MENU;
 
     /**
      * @param $menuItems
+     *
      * @return string
      * @throws \Exception
      */
-    public function getMenuItemsListing($menuItems): string
+    public function getMenuItemsListing ($menuItems): string
     {
         $permissions = $this->getAllPermissions();
 
         $htmlFrag = '';
-        foreach ($menuItems as $menu){
+        foreach ($menuItems as $menu) {
             $htmlFrag .= $this->getMenuItemsListingFrag($menu, $permissions);
         }
 
@@ -250,7 +326,7 @@ MENU;
     /**
      * @throws \Exception
      */
-    public function getDefaultMenuListingFrag($name, $url = ''): string
+    public function getDefaultMenuListingFrag ($name, $url = ''): string
     {
         $permissions = $this->getAllPermissions();
         $menu = new \stdClass();
@@ -267,15 +343,15 @@ MENU;
 
     }
 
-    protected function getMenuItemsListingFrag($menu, $permissions): string
+    protected function getMenuItemsListingFrag ($menu, $permissions): string
     {
-        $frag =<<<HTML
+        $frag = <<<HTML
 <li tabindex="0" 
 data-id="$menu->mt_id"
 data-parentid="$menu->mt_parent_id"
 class="width:100%  draggable menu-arranger-li d:flex flex-d:column align-items:center justify-content:center cursor:move no-text-highlight">
             <fieldset class="width:100% padding:default d:flex justify-content:center pointer-events:none">
-                <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+                <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
                     <span class="menu-arranger-text-head">$menu->mt_name</span>
                     <button class="dropdown-toggle bg:transparent border:none pointer-events:all cursor:pointer" aria-expanded="false" aria-label="Expand child menu" data-menutoggle_click_outside="true">
                         <svg class="icon:admin tonics-arrow-down color:white">
@@ -311,20 +387,20 @@ class="width:100%  draggable menu-arranger-li d:flex flex-d:column align-items:c
                                 <option value="0" disabled="">Link Target</option>
 HTML;
         $targets = [0 => 'Same Tab', 1 => 'New Tab'];
-        foreach ($targets as $k => $target){
-            if ((int)$menu->mt_target === $k){
-                $frag .="<option value='$k' selected>$target</option>";
+        foreach ($targets as $k => $target) {
+            if ((int)$menu->mt_target === $k) {
+                $frag .= "<option value='$k' selected>$target</option>";
             } else {
-                $frag .="<option value='$k'>$target</option>";
+                $frag .= "<option value='$k'>$target</option>";
             }
         }
 
-        $frag .=<<<HTML
+        $frag .= <<<HTML
         </select>
     </label>
 </div>
 HTML;
-        if (!empty($permissions)){
+        if (!empty($permissions)) {
             $frag .= <<<HTML
                     <div class="form-group">
                         <label>Select Permission(s)
@@ -335,14 +411,14 @@ HTML;
                 $select = '';
                 $menuPermission = explode(',', $menu->fk_permission_id ?? '');
                 $menuPermission = array_flip($menuPermission);
-                if (isset($menuPermission[$permission->permission_id])){
+                if (isset($menuPermission[$permission->permission_id])) {
                     $select = 'selected';
                 }
 
-                $frag .="<option value='$permission->permission_id' $select >$permission->permission_display_name</option>";
+                $frag .= "<option value='$permission->permission_id' $select >$permission->permission_display_name</option>";
             }
 
-            $frag .=<<<HTML
+            $frag .= <<<HTML
     </select>
     </label>
 </div>
@@ -350,7 +426,7 @@ HTML;
         }
 
 
-        $frag .=<<<HTML
+        $frag .= <<<HTML
                     <div class="form-group">
                         <button name="delete" class="delete-menu-arrange-item listing-button border:none bg:white-one border-width:default border:black padding:gentle
                         margin-top:0 cursor:pointer act-like-button">
@@ -361,12 +437,12 @@ HTML;
             </fieldset>
             <ul class="menu-arranger-li-sub width:90%">
 HTML;
-        if (isset($menu->_children)){
-            foreach ($menu->_children as $child){
+        if (isset($menu->_children)) {
+            foreach ($menu->_children as $child) {
                 $frag .= $this->getMenuItemsListingFrag($child, $permissions);
             }
         }
-        $frag .=<<<HTML
+        $frag .= <<<HTML
             </ul>
         </li>
 HTML;
@@ -376,21 +452,23 @@ HTML;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function createMenu(array $ignore = []): array
+    public function createMenu (array $ignore = []): array
     {
         $slug = $this->generateUniqueSlug($this->getMenuTable(),
             'menu_slug', helper()->slug(input()->fromPost()->retrieve('menu_slug')));
 
-        $menu = []; $postColumns = array_flip($this->getMenuColumns());
-        foreach (input()->fromPost()->all() as $inputKey => $inputValue){
-            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)){
+        $menu = [];
+        $postColumns = array_flip($this->getMenuColumns());
+        foreach (input()->fromPost()->all() as $inputKey => $inputValue) {
+            if (key_exists($inputKey, $postColumns) && input()->fromPost()->has($inputKey)) {
 
-                if($inputKey === 'created_at'){
+                if ($inputKey === 'created_at') {
                     $menu[$inputKey] = helper()->date(datetime: $inputValue);
                     continue;
                 }
-                if ($inputKey === 'menu_slug'){
+                if ($inputKey === 'menu_slug') {
                     $menu[$inputKey] = $slug;
                     continue;
                 }
@@ -399,8 +477,8 @@ HTML;
         }
 
         $ignores = array_diff_key($ignore, $menu);
-        if (!empty($ignores)){
-            foreach ($ignores as $v){
+        if (!empty($ignores)) {
+            foreach ($ignores as $v) {
                 unset($menu[$v]);
             }
         }

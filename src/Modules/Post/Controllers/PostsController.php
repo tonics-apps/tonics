@@ -23,7 +23,6 @@ use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
-use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
@@ -36,7 +35,6 @@ use App\Modules\Post\Helper\PostRedirection;
 use App\Modules\Post\Rules\PostValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use JetBrains\PhpStorm\NoReturn;
-use stdClass;
 
 class PostsController
 {
@@ -49,7 +47,7 @@ class PostsController
      * @param PostData $postData
      * @param UserData $userData
      */
-    public function __construct(PostData $postData, UserData $userData)
+    public function __construct (PostData $postData, UserData $userData)
     {
         $this->postData = $postData;
         $this->userData = $userData;
@@ -58,10 +56,10 @@ class PostsController
     /**
      * @throws \Exception
      */
-    public function index()
+    public function index ()
     {
         $categories = null;
-        db(onGetDB: function ($db) use (&$categories){
+        db(onGetDB: function ($db) use (&$categories) {
             $categoryTable = Tables::getTable(Tables::CATEGORIES);
             $categories = $db->Select(table()->pickTableExcept($categoryTable, ['field_settings', 'created_at', 'updated_at']))
                 ->From(Tables::getTable(Tables::CATEGORIES))
@@ -75,7 +73,7 @@ class PostsController
 
         $categoriesSelectDataAttribute = rtrim($categoriesSelectDataAttribute, ',');
         $dataTableHeaders = [
-            ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'post_id'],
+            ['type' => '', 'slug' => Tables::POSTS . '::' . 'post_id', 'hide' => true, 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'post_id'],
             ['type' => 'text', 'slug' => Tables::POSTS . '::' . 'post_title', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'post_title'],
             ['type' => 'TONICS_MEDIA_FEATURE_LINK', 'slug' => Tables::POSTS . '::' . 'image_url', 'title' => 'Image', 'minmax' => '150px, 1fr', 'td' => 'image_url'],
             ['type' => 'select_multiple', 'slug' => Tables::POST_CATEGORIES . '::' . 'fk_cat_id', 'title' => 'Category', 'select_data' => "$categoriesSelectDataAttribute", 'minmax' => '300px, 1fr', 'td' => 'fk_cat_id'],
@@ -83,7 +81,7 @@ class PostsController
         ];
 
         $postData = null;
-        db(onGetDB: function ($db) use (&$postData){
+        db(onGetDB: function ($db) use (&$postData) {
             $postTbl = Tables::getTable(Tables::POSTS);
             $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
             $CatTbl = Tables::getTable(Tables::CATEGORIES);
@@ -116,13 +114,13 @@ class PostsController
         });
 
         view('Modules::Post/Views/index', [
-            'DataTable' => [
-                'headers' => $dataTableHeaders,
-                'paginateData' => $postData ?? [],
+            'DataTable'                => [
+                'headers'       => $dataTableHeaders,
+                'paginateData'  => $postData ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
             ],
-            'SiteURL' => AppConfig::getAppUrl(),
+            'SiteURL'                  => AppConfig::getAppUrl(),
             'DefaultCategoriesMetaBox' => $this->getPostData()->categoryCheckBoxListing($categories, url()->getParam('cat') ?? [], type: 'checkbox'),
         ]);
     }
@@ -130,7 +128,7 @@ class PostsController
     /**
      * @throws \Exception
      */
-    public function dataTable(): void
+    public function dataTable (): void
     {
         $entityBag = null;
         if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -158,7 +156,7 @@ class PostsController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function create()
+    public function create ()
     {
         event()->dispatch($this->getPostData()->getOnPostDefaultField());
 
@@ -168,10 +166,10 @@ class PostsController
         }
 
         view('Modules::Post/Views/create', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
+            'SiteURL'    => AppConfig::getAppUrl(),
+            'TimeZone'   => AppConfig::getTimeZone(),
             'FieldItems' => $this->getFieldData()
-                ->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag()
+                ->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
         ]);
     }
 
@@ -180,7 +178,7 @@ class PostsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function store(): void
+    #[NoReturn] public function store (): void
     {
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
@@ -230,10 +228,11 @@ class PostsController
 
     /**
      * @param array $postData
+     *
      * @return bool|object
      * @throws \Throwable
      */
-    public function storeFromImport(array $postData): bool|object
+    public function storeFromImport (array $postData): bool|object
     {
         $previousPOSTGlobal = $_POST;
         $db = db();
@@ -243,7 +242,7 @@ class PostsController
                 $_POST[$k] = $cat;
             }
             $this->postData->setDefaultPostCategoryIfNotSet();
-            if (isset($_POST['fk_cat_id']) && !is_array($_POST['fk_cat_id'])){
+            if (isset($_POST['fk_cat_id']) && !is_array($_POST['fk_cat_id'])) {
                 $_POST['fk_cat_id'] = [$_POST['fk_cat_id']];
             }
 
@@ -277,13 +276,15 @@ class PostsController
 
     /**
      * @param string $slug
+     *
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function edit(string $slug)
+    public function edit (string $slug): void
     {
         $post = null;
-        db(onGetDB: function ($db) use ($slug, &$post){
+        db(onGetDB: function ($db) use ($slug, &$post) {
             $postTbl = Tables::getTable(Tables::POSTS);
             $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
             $CatTbl = Tables::getTable(Tables::CATEGORIES);
@@ -300,42 +301,19 @@ class PostsController
                 ->FetchFirst();
         });
 
-        if (!is_object($post)) {
-            SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
-        }
-
-        if (isset($post->fk_cat_id)){
+        if (isset($post->fk_cat_id)) {
             $post->fk_cat_id = explode(',', $post->fk_cat_id);
         }
 
-        $fieldSettings = json_decode($post->field_settings, true);
-        if (empty($fieldSettings)) {
-            $fieldSettings = (array)$post;
-        } else {
-            $fieldSettings = [...$fieldSettings, ...(array)$post];
-        }
-
         event()->dispatch($this->getPostData()->getOnPostDefaultField());
-
-        # Since Cat_ID would be multiple, if the multiple version doesn't exist, add it...
-        if (isset($fieldSettings['fk_cat_id']) && !isset($fieldSettings['fk_cat_id[]'])){
-            $fieldSettings['fk_cat_id[]'] = !is_array($fieldSettings['fk_cat_id']) ? [$fieldSettings['fk_cat_id']] : $fieldSettings['fk_cat_id'];
-        }
-
-        if (isset($fieldSettings['_fieldDetails'])){
-            addToGlobalVariable('Data', $fieldSettings);
-            $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
-            $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
-        } else {
-            $fieldForm = $this->getFieldData()->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $fieldSettings);
-            $htmlFrag = $fieldForm->getHTMLFrag();
-            addToGlobalVariable('Data', $post);
-        }
+        $fieldSlugs = $this->getPostData()->getOnPostDefaultField()->getFieldSlug();
 
         view('Modules::Post/Views/edit', [
-            'SiteURL' => AppConfig::getAppUrl(),
-            'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $htmlFrag,
+            'SiteURL'    => AppConfig::getAppUrl(),
+            'TimeZone'   => AppConfig::getTimeZone(),
+            'Post'       => $post,
+            'FieldItems' => $this->getFieldData()
+                ->controllerUnwrapFieldDetails($this->getFieldData(), $post, $fieldSlugs, 'field_settings'),
         ]);
     }
 
@@ -343,7 +321,7 @@ class PostsController
      * @throws \ReflectionException
      * @throws \Exception
      */
-    #[NoReturn] public function update(string $slug)
+    #[NoReturn] public function update (string $slug)
     {
         $this->postData->setDefaultPostCategoryIfNotSet();
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
@@ -375,7 +353,7 @@ class PostsController
             # For Fields
             apcu_clear_cache();
             $slug = $postToUpdate['post_slug'];
-            if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+            if (input()->fromPost()->has('_fieldErrorEmitted') === true) {
                 session()->flash(['Post Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
             } else {
                 session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -395,7 +373,7 @@ class PostsController
     /**
      * @throws \Exception
      */
-    protected function deleteMultiple($entityBag): bool|int
+    protected function deleteMultiple ($entityBag): bool|int
     {
         $toDelete = [];
         try {
@@ -424,7 +402,7 @@ class PostsController
     /**
      * @throws \Exception
      */
-    protected function updateMultiple($entityBag)
+    protected function updateMultiple ($entityBag)
     {
         $postTable = Tables::getTable(Tables::POSTS);
         $dbTx = db();
@@ -442,7 +420,7 @@ class PostsController
 
                     if ($tblCol[1] === 'fk_cat_id') {
                         $categories = explode(',', $value);
-                        foreach ($categories as $category){
+                        foreach ($categories as $category) {
                             $category = explode('::', $category);
                             if (key_exists(0, $category) && !empty($category[0])) {
                                 $colForEvent['fk_cat_id'][] = $category[0];
@@ -450,9 +428,9 @@ class PostsController
                         }
 
                         // Set to Default Category If Empty
-                        if (empty($colForEvent['fk_cat_id'])){
+                        if (empty($colForEvent['fk_cat_id'])) {
                             $findDefault = null;
-                            db(onGetDB: function (TonicsQuery $db) use (&$findDefault){
+                            db(onGetDB: function (TonicsQuery $db) use (&$findDefault) {
                                 $findDefault = $db->Select("slug_id, cat_slug")
                                     ->From($this->getPostData()->getCategoryTable())->WhereEquals('cat_slug', 'default-category')->FetchFirst();
                             });
@@ -495,24 +473,24 @@ class PostsController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function redirect($id): void
+    #[NoReturn] public function redirect ($id): void
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
                 $post = null;
-                db(onGetDB: function (TonicsQuery $db) use ($slugID, &$post){
+                db(onGetDB: function (TonicsQuery $db) use ($slugID, &$post) {
                     $post = $db->Select("slug_id, post_slug")
                         ->From($this->getPostData()->getPostTable())
                         ->WhereEquals('slug_id', $slugID)->FetchFirst();
                 });
                 if (isset($post->slug_id) && isset($post->post_slug)) {
-                     return PostRedirection::getPostAbsoluteURLPath((array)$post);
+                    return PostRedirection::getPostAbsoluteURLPath((array)$post);
                 }
                 return false;
             }, onSlugState: function ($slug) {
 
             $post = null;
-            db(onGetDB: function (TonicsQuery $db) use ($slug, &$post){
+            db(onGetDB: function (TonicsQuery $db) use ($slug, &$post) {
                 $post = $db->Select("slug_id, post_slug")
                     ->From($this->getPostData()->getPostTable())
                     ->WhereEquals('post_slug', $slug)->FetchFirst();
@@ -529,7 +507,7 @@ class PostsController
     /**
      * @return PostData
      */
-    public function getPostData(): PostData
+    public function getPostData (): PostData
     {
         return $this->postData;
     }
@@ -537,7 +515,7 @@ class PostsController
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->getPostData()->getFieldData();
     }

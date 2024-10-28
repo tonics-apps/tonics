@@ -27,32 +27,29 @@ class InputRichText implements HandlerInterface
     /**
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Rich Text', 'A basic single-line text fields.',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
-            }
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Rich Text';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $maxChar = (isset($data->maxChar)) ? $data->maxChar : '';
         $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
-        if (isset($data->readOnly) && $data->readOnly === '1'){
+        if (isset($data->readOnly) && $data->readOnly === '1') {
             $readOnly = <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
@@ -64,7 +61,7 @@ HTML;
 HTML;
         }
         $required = (isset($data->required)) ? $data->required : '1';
-        if ($required === '1'){
+        if ($required === '1') {
             $required = <<<HTML
 <option value="0">False</option>
 <option value="1" selected>True</option>
@@ -75,47 +72,53 @@ HTML;
 <option value="1">True</option>
 HTML;
         }
-        $defaultValue =  (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
+        $defaultValue = (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
 
+        $toggleable = $event->booleanOptionSelectWithNull($data->toggleable ?? '');
+
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
         $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);
 
         $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="max-char-$changeID">Max Character (Blank for no limit)
+<div class="form-group d:flex flex-gap align-items:flex-end">
+     <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="placeholder-$changeID">Placeholder
+            <input id="placeholder-$changeID" name="placeholder" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+            value="$placeholder" placeholder="a placeholder">
+    </label>
+     <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="max-char-$changeID">Max Character (Blank for no limit)
             <input id="max-char-$changeID" name="maxChar" type="number" class="menu-name color:black border-width:default border:black placeholder-color:gray"
             value="$maxChar" placeholder="blank for no limit">
     </label>
 </div>
 
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="placeholder-$changeID">Placeholder
-            <input id="placeholder-$changeID" name="placeholder" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$placeholder" placeholder="a placeholder">
-    </label>
-</div>
-
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="readonly-$changeID">readOnly (Can't be edited by user)
+<div class="form-group d:flex flex-gap align-items:flex-end">
+     <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="readonly-$changeID">readOnly (Can't be edited by user)
      <select name="readOnly" class="default-selector mg-b-plus-1" id="readonly-$changeID">
            $readOnly
       </select>
     </label>
-</div>
-
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="required-$changeID">Required
+    
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="required-$changeID">Required
      <select name="required" class="default-selector mg-b-plus-1" id="required-$changeID">
            $required
       </select>
     </label>
 </div>
-HTML);
+
+<div class="form-group d:flex flex-gap align-items:flex-end">
+        <label class="menu-settings-handle-name d:flex width:100% flex-d:column d:flex width:100% flex-d:column" for="toggleable-$changeID">Toggable
+        <select name="toggleable" class="default-selector mg-b-plus-1" id="toggleable-$changeID">
+           $toggleable
+        </select>
+    </label>
+</div>
+HTML,
+        );
 
         $frag .= <<<FORM
 <div class="form-group d:flex flex-gap align-items:flex-end">
@@ -151,31 +154,36 @@ FORM;
     }
 
     /**
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Rich Text';
         $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
 
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultValue = (isset($data->defaultValue) && !empty($keyValue)) ? $keyValue : $data->defaultValue;
         $readOnly = ($data->readOnly == 1) ? 'readonly' : '';
         $required = ($data->required == 1) ? 'required' : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
+        $isToggleable = null;
+        if (isset($data->toggleable) && $data->toggleable !== '') {
+            $isToggleable = $data->toggleable === '1';
+        }
+
         $slug = $data->field_slug;
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $frag = $event->_topHTMLWrapper($fieldName, $data, toggleUserSettings: $isToggleable);
 
         $fieldValidation = (isset($data->field_validations)) ? $data->field_validations : [];
         $fieldSanitization = (isset($data->field_sanitization[0])) ? $data->field_sanitization[0] : '';
         $error = '';
-        if (!empty($fieldValidation)){
+        if (!empty($fieldValidation)) {
             $error = $event->validationMake([$inputName => $defaultValue], [$inputName => $data->field_validations]);
         }
 
-        if (!empty($fieldSanitization)){
+        if (!empty($fieldSanitization)) {
             $defaultValue = $event->sanitize($fieldSanitization, $defaultValue, $data);
         }
 
@@ -191,13 +199,5 @@ FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData(OnFieldMetaBox $event, $data)
-    {
-        $event->defaultInputViewHandler('InputRichText', $data);
     }
 }

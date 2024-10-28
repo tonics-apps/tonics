@@ -54,6 +54,7 @@ class OnFieldMetaBox implements EventInterface
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function __construct ()
     {
@@ -70,7 +71,6 @@ class OnFieldMetaBox implements EventInterface
      * @param string $scriptPath
      * @param callable|null $settingsForm
      * @param callable|null $userForm
-     * @param callable|null $handleViewProcessing
      *
      * @return void
      * @throws \Exception
@@ -83,20 +83,18 @@ class OnFieldMetaBox implements EventInterface
         string   $scriptPath = '',
         callable $settingsForm = null,
         callable $userForm = null,
-        callable $handleViewProcessing = null,
     ): void
     {
         $nameKey = helper()->slug($name);
         $category = strtolower($category);
         if (!key_exists($nameKey, $this->FieldBoxSettings)) {
             $this->FieldBoxSettings[$category][$nameKey] = (object)[
-                'name'                 => $name,
-                'category'             => $category,
-                'description'          => $description,
-                'scriptPath'           => $scriptPath,
-                'settingsForm'         => $settingsForm ?? '',
-                'userForm'             => $userForm ?? '',
-                'handleViewProcessing' => $handleViewProcessing ?? '',
+                'name'         => $name,
+                'category'     => $category,
+                'description'  => $description,
+                'scriptPath'   => $scriptPath,
+                'settingsForm' => $settingsForm ?? '',
+                'userForm'     => $userForm ?? '',
             ];
         }
     }
@@ -132,8 +130,8 @@ HTML;
             $htmlFrag .= <<<HTML
 <li class="width:100% menu-item-parent-picker menu-box-li cursor:pointer">
     <fieldset class="padding:default d:flex">
-        <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
-        $category
+        <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
+       <span class="menu-arranger-text-head">$category</span>
             <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
                     <use class="svgUse" xlink:href="#tonics-arrow-down"></use>
@@ -230,32 +228,6 @@ HTML;
 
     /**
      * @param $fieldSlug
-     * @param null $settings
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function getViewProcessingFrag ($fieldSlug, $settings = null): string
-    {
-        $explodeSlug = explode('_', $fieldSlug);
-        if (!key_exists(0, $explodeSlug) || !key_exists(1, $explodeSlug)) {
-            return '';
-        }
-        $fieldCategory = $explodeSlug[0];
-        $fieldSlug = $explodeSlug[1];
-        if (!isset($this->FieldBoxSettings[$fieldCategory][$fieldSlug])) {
-            return '';
-        }
-
-        $formCallback = $this->FieldBoxSettings[$fieldCategory][$fieldSlug]->handleViewProcessing;
-        if (!is_callable($formCallback)) {
-            return '';
-        }
-        return $formCallback($settings) ?? '';
-    }
-
-    /**
-     * @param $fieldSlug
      *
      * @return mixed
      */
@@ -285,26 +257,35 @@ HTML;
 
     /**
      * @param string $name
+     *                                The FieldSettings name
      * @param $data
+     *                                The FieldMetaBox Data
      * @param bool $root
+     *                                Is this root
      * @param callable|null $handleTop
+     *                                Handle the top frag yourself
+     * @param bool $toggleUserSettings
+     *                                If you want the user settings to have a toggle, by default this is null, set to false for open toggle and true for close toggle
      *
      * @return string
-     * @throws \Exception|\Throwable
+     * @throws \Throwable
      */
-    public function _topHTMLWrapper (string $name, $data, bool $root = false, callable $handleTop = null): string
+    public function _topHTMLWrapper (string $name, $data, bool $root = false, callable $handleTop = null, bool $toggleUserSettings = null): string
     {
         if ($this->isDisableBottomHTMLWrapper()) {
             return '';
         }
+
         $slug = $data->field_slug ?? '';
-        $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        $hash = $data->field_slug_unique_hash ?? 'CHANGEID';
+        $inputName = $data->inputName ?? '';
+        $hookName = $data->hookName ?? '';     # For hooks
+        $tabKey = $data->_field->field_data['tabbed_key'] ?? $data->tabbed_key ?? '';
         $postData = getPostData();
 
         $settings = $this->currentFieldBox ?? $this->getFieldMetaSettings($slug);
-        $scriptPath = !empty($settings->scriptPath) ? "data-script_path={$settings->scriptPath}" : '';
-        $hideField = (isset($postData['hide_field'][$hash])) ? "<input type='hidden' name='hide_field[$hash]' value='$hash'>" : '';
+        $scriptPath = !empty($settings->scriptPath) ? "data-script_path=$settings->scriptPath" : '';
+        $hideField = isset($postData['hide_field'][$hash]) ? "<input type='hidden' name='hide_field[$hash]' value='$hash'>" : '';
 
         $isEditorLi = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="false"' : '';
         $isEditorWidgetSettings = (url()->getHeaderByKey('action') === 'getFieldItems') ? 'contenteditable="true"' : '';
@@ -317,7 +298,7 @@ HTML;
             'aria-label'    => 'Collapse child menu',
             'svg'           => 'icon:admin tonics-arrow-up color:white',
             'use'           => '#tonics-arrow-up',
-            'div'           => 'swing-in-top-fwd d:flex',
+            'div'           => 'd:flex',
         ];
 
         $closeToggle = [
@@ -326,7 +307,7 @@ HTML;
             'aria-label'    => 'Expand child menu',
             'svg'           => 'icon:admin tonics-arrow-down color:white',
             'use'           => '#tonics-arrow-down',
-            'div'           => 'swing-out-top-fwd d:none',
+            'div'           => 'd:none',
         ];
 
         $toggle = $openToggle;
@@ -335,53 +316,81 @@ HTML;
             return $handleTop($isEditorWidgetSettings, $toggle);
         }
 
+        $toggleButtonFunc = function ($toggle) {
+            return <<<HTML
+<button data-field_toggle title="Click To Toggle" class="{$toggle['button']}" aria-expanded="{$toggle['aria-expanded']}" aria-label="{$toggle['aria-label']}" type="button">
+    <svg class="{$toggle['svg']}">
+        <use class="svgUse" xlink:href="{$toggle['use']}"></use>
+    </svg>
+</button>
+HTML;
+        };
+
+
         $result = '';
         if ($this->getSettingsType() === $this::OnBackEndSettingsType) {
             $toggle = $closeToggle;
+            # The toggle_state is created when user saved field items, this way, we know each field toggle_state instead of closing it everytime
+            # This is for Backend settings
+            if (isset($data->toggle_state) && $data->toggle_state === true) {
+                $toggle = $openToggle;
+            }
+
+            $buttonToggle = $toggleButtonFunc($toggle);
             $result .= <<<HTML
 <li $isEditorLi tabIndex="0"
 class="width:100% draggable menu-arranger-li cursor:move field-builder-items overflow:auto"
 $scriptPath>
         <fieldset
             class="width:100% padding:default d:flex justify-content:center flex-d:column $rootOwl">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
-                <button class="{$toggle['button']}"
-                        aria-expanded="{$toggle['aria-expanded']}" aria-label="{$toggle['aria-label']}" type="button">
-                    <svg class="{$toggle['svg']}">
-                        <use class="svgUse" xlink:href="{$toggle['use']}"></use>
-                    </svg>
-                </button>
+                $buttonToggle
             </legend>
             <div $isEditorWidgetSettings role="form" spellcheck="false"  data-widget-form="true" class="widgetSettings owl flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
 HTML;
         }
 
         if ($this->getSettingsType() === $this::OnUserSettingsType) {
-            $text = '';
 
+            # The toggle_state is created when user saved field items, this way, we know each field toggle_state instead of closing it everytime
+            if (isset($data->_field->field_data['toggle_state'])) {
+                $toggleUserSettings = $data->_field->field_data['toggle_state'] === true;
+            }
+
+            $buttonToggle = '';
+            if (is_bool($toggleUserSettings)) {
+                $toggle = ($toggleUserSettings) ? $openToggle : $closeToggle;
+                $buttonToggle = $toggleButtonFunc($toggle);
+            }
+
+            $text = '';
             $onFieldTopEvent = new OnFieldTopHTMLWrapperUserSettings($data);
             event()->dispatch($onFieldTopEvent);
             $data = $onFieldTopEvent->getData();
 
-            $info = (isset($data->info)) ? $data->info : '';
+            $info = $data->info ?? '';
+            $info = strip_tags($info, ['p', 'a', 'code', 'pre', 'li', 'ul', 'ol', 'br']);
+            $textOwl = '';
             if (!empty($info)) {
+                $textOwl = 'owl';
                 $text = <<<HTML
-<span class="cursor:text">$info</span>
+<span class="cursor:text menu-arranger-text-head-no-line-clamp width:100%">$info</span>
 HTML;
             }
             $result .= <<<HTML
 <li $isEditorLi tabIndex="0"
-class="width:100% field-builder-items overflow:auto"
+class="width:100% field-builder-items overflow:auto menu-arranger-li"
 data-slug="$slug"
 $scriptPath>
         <fieldset
             class="width:100% padding:default d:flex justify-content:center flex-d:column $rootOwl">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">$name</span>
+               $buttonToggle
             </legend>
-            $text
-            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer $textOwl width:100% {$toggle['div']}">
+                $text
 HTML;
         }
 
@@ -391,6 +400,8 @@ HTML;
                 $field_table_slug
                 <input type="hidden" name="field_slug_unique_hash" value="$hash">
                 <input type="hidden" name="field_input_name" value="$inputName">
+                <input type="hidden" name="hook_name" value="$hookName">
+                <input type="hidden" name="tabbed_key" value="$tabKey">
 HTML;
     }
 
@@ -439,14 +450,15 @@ HTML;
      */
     public function getKeyValueInData ($data, string $key, bool $findInGlobalPost = true): mixed
     {
-        $value = '';
+        $value = null;
         if (isset($data->__skip_global_post_data) && $data->__skip_global_post_data) {
             $findInGlobalPost = false;
         }
+        $fieldData = $data->_field->field_data ?? $data->field_data ?? [];
         if ($findInGlobalPost && is_array(getPostData()) && key_exists($key, getPostData())) {
             $value = getPostData()[$key];
-        } elseif (isset($data->_field->field_data) && key_exists($key, $data->_field->field_data)) {
-            $value = $data->_field->field_data[$key];
+        } elseif (isset($fieldData) && key_exists($key, $fieldData)) {
+            $value = $fieldData[$key];
         }
 
         return $value;
@@ -474,9 +486,9 @@ HTML;
 
         $changeID = helper()->randomString(10);
         return <<<FORM
-<li tabindex="0" class="menu-arranger-li max-width:350">
+<li data-draggable-ignore tabindex="0" class="menu-arranger-li max-width:350">
         <fieldset class="width:100% padding:default d:flex justify-content:center flex-d:column">
-            <legend class="tonics-legend bg:pure-black color:white padding:default d:flex flex-gap:small align-items:center">
+            <legend class="tonics-legend bg:pure-black color:white padding:tiny d:flex flex-gap:small align-items:center">
                 <span class="menu-arranger-text-head">More Settings</span>
                 <button class="dropdown-toggle bg:transparent border:none cursor:pointer" aria-expanded="false" aria-label="Expand child menu">
                 <svg class="icon:admin tonics-arrow-down color:white">
@@ -523,18 +535,36 @@ FORM;
         }
     }
 
-    public function booleanOptionSelect ($value = '1'): string
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    public function booleanOptionSelectWithNull (string $value = ''): string
     {
-        if ($value === '1') {
-            return <<<HTML
-<option value="0">False</option>
-<option value="1" selected>True</option>
-HTML;
-        }
+        $selectedTrue = $value === '1' ? 'selected' : '';
+        $selectedFalse = $value === '0' ? 'selected' : '';
 
         return <<<HTML
-<option value="0" selected>False</option>
-<option value="1">True</option>
+<option value=""></option>
+<option value="0" $selectedFalse>False</option>
+<option value="1" $selectedTrue>True</option>
+HTML;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    public function booleanOptionSelect (string $value = '1'): string
+    {
+        $selectedTrue = $value === '1' ? 'selected' : '';
+        $selectedFalse = $value === '0' ? 'selected' : '';
+
+        return <<<HTML
+<option value="0" $selectedFalse>False</option>
+<option value="1" $selectedTrue>True</option>
 HTML;
     }
 

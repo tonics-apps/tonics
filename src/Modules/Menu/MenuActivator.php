@@ -21,6 +21,8 @@ namespace App\Modules\Menu;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Events\FieldSelectionDropper\OnAddFieldSelectionDropperEvent;
+use App\Modules\Menu\EventHandlers\MenuLayoutFields;
 use App\Modules\Menu\EventHandlers\MenuMenus;
 use App\Modules\Menu\Events\OnMenuCreate;
 use App\Modules\Menu\Events\OnMenuMetaBox;
@@ -45,14 +47,17 @@ class MenuActivator implements ExtensionConfig
     public function events (): array
     {
         return [
-            OnMenuMetaBox::class => [
+            OnMenuMetaBox::class                   => [
 
             ],
-            OnAdminMenu::class   => [
+            OnAdminMenu::class                     => [
                 MenuMenus::class,
             ],
-            OnMenuCreate::class  => [
+            OnMenuCreate::class                    => [
 
+            ],
+            OnAddFieldSelectionDropperEvent::class => [
+                MenuLayoutFields::class,
             ],
         ];
     }

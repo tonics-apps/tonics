@@ -18,6 +18,7 @@
 
 namespace App\Apps\TonicsSeo\EventHandler;
 
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnEditorFieldSelection;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\FieldTemplateFileInterface;
@@ -26,100 +27,126 @@ use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 class TonicsStructuredDataFAQHandlerAndSelection implements FieldTemplateFileInterface, HandlerInterface
 {
 
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
-        /** @var $event OnEditorFieldSelection */
         $event->addField('FAQ', 'app-tonicsseo-structured-data-faq', category: OnEditorFieldSelection::CATEGORY_StructuredData);
     }
 
     /**
-     * @throws \Exception
+     * @param OnFieldMetaBox|null $event
+     * @param $fields
+     *
+     * @return string
+     * @throws \Throwable
      */
-    public function handleFieldLogic(OnFieldMetaBox $event = null, $fields = null): string
+    public function handleFieldLogic (OnFieldMetaBox $event = null, $fields = null): string
     {
-        $faqPlain = '';
-        $structuredData = isset(getGlobalVariableData()['Structured_Data']) ? getGlobalVariableData()['Structured_Data'] : null;
-        if (key_exists('FAQ', $structuredData)) {
-            foreach ($fields as $field) {
-                $question = (isset($field->_children[0]->field_data['app_tonics_seo_structured_data_faq_question']))
-                    ? helper()->htmlSpecChar($field->_children[0]->field_data['app_tonics_seo_structured_data_faq_question'])
-                    : null;
-
-                $answer = null;
-                if (isset($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer'])){
-                    $answer = nl2br($field->_children[1]->field_data['app_tonics_seo_structured_data_faq_answer']);
-                    $answer = helper()->htmlSpecChar($answer);
-                    $answer  = str_replace(['&lt;br /&gt;'], ['<br />'], $answer);
+        $dropper = FieldConfig::getFieldSelectionDropper();
+        $dropper->processLogic($fields);
+        $page = $dropper->getPage();
+        $htmlFrag = '';
+        if (!empty($page->TonicsFAQS) && is_iterable($page->TonicsFAQS)) {
+            foreach ($page->TonicsFAQS as $faq) {
+                if (!empty($faq['StructuredFAQToHTML'])) {
+                    $htmlFrag .= $faq['StructuredFAQToHTML'];
                 }
-
-                $faqPlain .=<<<FAQPLAIN
-<h2 class="tonics-structured-data-faq-question">$question</h2>
-<p class="tonics-structured-data-faq-answer">$answer</p>
-FAQPLAIN;
-
-
-                $structuredData['FAQ'][] = <<<FAQ_SCHEMA
-{
-        "@type": "Question",
-        "name": "$question",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "$answer"
-        }
-      }
-FAQ_SCHEMA;
             }
         }
 
-        addToGlobalVariable('Structured_Data', $structuredData);
-        return '<div class="tonics-structured-data-faq owl">' . $faqPlain . '</div>';
+        return '<div class="tonics-structured-data-faq owl">' . $htmlFrag . '</div>';
     }
 
-    public function name(): string
+    public function name (): string
     {
         return 'Tonics Structured Data FAQ';
     }
 
-    public function fieldSlug(): string
+    public function fieldSlug (): string
     {
         return 'app-tonicsseo-structured-data-faq';
     }
 
-    public function canPreSaveFieldLogic(): bool
+    public function canPreSaveFieldLogic (): bool
     {
         return false;
     }
 
     /**
+     * @param string $answer
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public static function cleanAnswer (string $answer): string
+    {
+        $answer = nl2br($answer);
+        $answer = helper()->htmlSpecChar($answer);
+        return str_replace(['&lt;br /&gt;'], ['<br />'], $answer);
+    }
+
+    /**
+     * @param string $question
+     * @param string $answer
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public static function StructuredFAQToHTML (string $question, string $answer): string
+    {
+        $question = helper()->htmlSpecChar($question);
+        $answer = static::cleanAnswer($answer);
+        return <<<FAQPLAIN
+<h2 class="tonics-structured-data-faq-question">$question</h2>
+<p class="tonics-structured-data-faq-answer">$answer</p>
+FAQPLAIN;
+    }
+
+    /**
+     * @param string $question
+     * @param string $answer
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public static function StructuredFAQ (string $question, string $answer): string
+    {
+        $question = helper()->htmlSpecChar($question);
+        $answer = static::cleanAnswer($answer);
+        $structuredData = [
+            "@type"          => "Question",
+            "name"           => "$question",
+            "acceptedAnswer" => [
+                "@type" => "Answer",
+                "text"  => "$answer",
+            ],
+        ];
+        return json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    }
+
+    /**
      * @param array $appTonicsseoStructuredDataFaqSchemaData
+     *
      * @return string
      */
-    public static function handleStructuredData(array $appTonicsseoStructuredDataFaqSchemaData): string
+    public static function HandleStructuredData (array $appTonicsseoStructuredDataFaqSchemaData): string
     {
         $faqSchemaFrag = '';
-        if (!empty($appTonicsseoStructuredDataFaqSchemaData)){
-            $faqSchemaFrag = <<<SchemaFAQ
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-SchemaFAQ;
-            $lastKey = array_key_last($appTonicsseoStructuredDataFaqSchemaData);
-            foreach ($appTonicsseoStructuredDataFaqSchemaData as $key => $faqSchema){
-                if ($lastKey === $key){
-                    $faqSchemaFrag .= $faqSchema;
-                } else {
-                    $faqSchemaFrag .= $faqSchema . ',';
-                }
+
+        if (!empty($appTonicsseoStructuredDataFaqSchemaData)) {
+            # Prepare the main structure of the JSON-LD schema
+            $structuredData = [
+                "@context"   => "https://schema.org",
+                "@type"      => "FAQPage",
+                "mainEntity" => [],
+            ];
+            # Loop through the provided data and add each FAQ schema to the mainEntity array
+            foreach ($appTonicsseoStructuredDataFaqSchemaData as $faqSchema) {
+                $structuredData['mainEntity'][] = is_string($faqSchema) ? json_decode($faqSchema) : $faqSchema;
             }
-
-            $faqSchemaFrag .= <<<ShemaFAQ
-]
-    }
-</script>
-
-ShemaFAQ;
+            # Convert the structured data array to JSON-LD format
+            $structuredDataJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            # Embed the JSON-LD script tag in the output
+            $faqSchemaFrag = '<script type="application/ld+json">' . $structuredDataJson . '</script>';
         }
 
         return $faqSchemaFrag;

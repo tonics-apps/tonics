@@ -15,8 +15,10 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@import "base/coloris.min.css";
 @import "base/utilities.css";
 @import "base/essential.css";
+@import "base/font-family.css";
 @import "base/beat-player.css";
 
 :root {
@@ -25,108 +27,7 @@
     box-sizing: border-box;
     --global-font-family: 'IBMPlexSans-Regular', "Times New Roman", serif;
     --global-font-line-height: 1.5;
-}
-
-
-/* IBMPlexSans regular */
-@font-face {
-    font-family: "IBMPlexSans-Regular";
-    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.eot");
-    /* IE9 Compat Modes */
-    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.otf") format("opentype"), /* Open Type Font */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Regular.woff2") format("woff2");
-    /* Modern Browsers */
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-
-/* IBMPlexSans italic */
-
-@font-face {
-    font-family: "IBMPlexSans-Italic";
-    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.eot");
-    /* IE9 Compat Modes */
-    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.otf") format("opentype"), /* Open Type Font */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Italic.woff2") format("woff2");
-    /* Modern Browsers */
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-
-/* IBMPlexSans bold */
-
-@font-face {
-    font-family: "IBMPlexSans-Bold";
-    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.eot");
-    /* IE9 Compat Modes */
-    src: url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.otf") format("opentype"), /* Open Type Font */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.ttf") format("truetype"), /* Safari, Android, iOS */ url("/serve_module_file_path_987654321/Core?path=css/fonts/IBMPlexSans-Bold.woff2") format("woff2");
-    /* Modern Browsers */
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-h1, h2, h3, h4, h5, h6, p, .main-header {
-    /* font-size: clamp(var(--font-min), var(--font-pref-val), var(--font-max)); */
-    font-size: max(var(--font-min), min(var(--font-pref-val), var(--font-max)));
-    /*padding: 0 1rem 0 1rem;*/
-    margin: auto;
-}
-
-a, abbr, acronym, address, applet, article, aside, big, blockquote, body, caption, cite, code, dd, del, details,
-dfn, div, dl, dt, em, fieldset, figcaption, figure, font, footer,
-form, hgroup, html, iframe, ins, kbd, label, legend, li, menu, nav, object, ol, p,
-pre, q, s, samp, section, small, span, strike, strong, sub, sup, table,
-tbody, td, tfoot, th, thead, tr, tt, ul, var {
-    font-family: var(--global-font-family);
-    line-height: var(--global-font-line-height);
-    font-style: inherit;
-    font-weight: inherit;
-}
-
-h1, h2, h3, h4, h5, h6, header {
-    font-family: var(--global-font-family);
-    clear: both;
-    line-height: 1.4;
-    letter-spacing: -0.04em;
-}
-
-h1, .main-header {
-    --font-min: calc(1rem * 2.5);
-    --font-pref-val: 4vw;
-    --font-max: calc(1rem * 3.2);
-}
-
-h2 {
-    --font-min: calc(1rem * 2.2);
-    --font-pref-val: 3.5vw;
-    --font-max: calc(1rem * 2.5);
-}
-
-h3 {
-    --font-min: calc(1rem * 2);
-    --font-pref-val: 3vw;
-    --font-max: calc(1rem * 2.2);
-}
-
-h4 {
-    --font-min: calc(1rem * 1.8);
-    --font-pref-val: 2.5vw;
-    --font-max: calc(1rem * 2);
-}
-
-h5 {
-    --font-min: calc(1rem * 1.4);
-    --font-pref-val: 2vw;
-    --font-max: calc(1rem * 1.8);
-}
-
-h6 {
-    --font-min: calc(1rem * 1.2);
-    --font-pref-val: 1.7vw;
-    --font-max: calc(1rem * 1.4);
+    --scale-factor: 1rem;
 }
 
 pre {
@@ -157,13 +58,6 @@ pre code {
     overflow-x: auto;
     overflow-y: hidden;
     color: #000000;
-}
-
-p {
-    --font-min: 1.2rem;
-    --font-pref-val: 2.2vw;
-    --font-max: 1.3rem;
-    line-height: 1.5;
 }
 
 p {
@@ -302,13 +196,12 @@ SET THE main element to flex:1 so, it can push the footer down (sit at the botto
 
 [type=date], [type=email], [type=number], [type=url], [type=password], [type=search], [type=tel], [type=text], [type=date], [type=file], [type="datetime-local"], textarea {
     width: 100%;
-    font-size: clamp(1.2rem, (800px - 100vw) * 1000, 1.1rem);
     line-height: 1.25;
-    font-family: inherit;
     appearance: none;
     padding: 14px;
     border-radius: 4px;
     color: #3E3E3E;
+    font-size: 0.9rem;
 }
 
 fieldset {
@@ -320,7 +213,6 @@ fieldset {
 }
 
 .field-label {
-    font-size: clamp(1.3rem, (800px - 100vw) * 1000, 1.1rem);
     line-height: 1.38889;
 }
 

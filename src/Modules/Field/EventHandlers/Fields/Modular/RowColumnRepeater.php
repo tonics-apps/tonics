@@ -48,9 +48,6 @@ class RowColumnRepeater implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
-            },
         );
     }
 
@@ -93,19 +90,29 @@ HTML;
 HTML;
         }
 
+        $useTab = $event->booleanOptionSelect($data->useTab ?? '0');
+        $toggleable = $event->booleanOptionSelectWithNull($data->toggleable ?? '');
         $more = <<<HTML
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="disallowRepeat-$changeID">Disallow Repeat
-     <select name="disallowRepeat" class="default-selector mg-b-plus-1" id="disallowRepeat-$changeID">
-        $disallowRepeatFrag
-     </select>
+<div class="form-group d:flex flex-gap align-items:flex-end">
+     <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="disallowRepeat-$changeID">Disallow Repeat
+         <select name="disallowRepeat" class="default-selector mg-b-plus-1" id="disallowRepeat-$changeID">$disallowRepeatFrag</select>
     </label>
-</div>
-
-<div class="form-group">
-     <label class="menu-settings-handle-name" for="group-$changeID">Repeat Button Text
-     <input id="widget-name-$changeID" name="repeat_button_text" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
-            value="$repeat_button_text" placeholder="Enter Repeat Button Text">
+    
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="useTab-$changeID">Use Tabs
+        <select name="useTab" class="default-selector mg-b-plus-1" id="useTab-$changeID">
+            $useTab
+        </select>
+    </label>
+    
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="toggleable-$changeID">Toggable
+        <select name="toggleable" class="default-selector mg-b-plus-1" id="toggleable-$changeID">
+           $toggleable
+        </select>
+    </label>
+    
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="group-$changeID">Repeat Button Text
+         <input id="widget-name-$changeID" name="repeat_button_text" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+                value="$repeat_button_text" placeholder="Enter Repeat Button Text">
     </label>
 </div>
 HTML;
@@ -242,9 +249,11 @@ HTML;
      */
     private function getTopWrapper (OnFieldMetaBox $event, $data): string
     {
-        $fieldName = (isset($data->field_name)) ? $data->field_name : '';
+        $useTabs = isset($data->useTab) && $data->useTab === '1';
+        $fieldName = $data->field_name ?? '';
+
         if (empty($fieldName)) {
-            $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'DataTable_Repeater';
+            $fieldName = $data->fieldName ?? 'DataTable_Repeater';
         }
 
         $row = 1;
@@ -273,7 +282,18 @@ HTML;
             $root = 'true';
         }
 
-        $frag = $event->_topHTMLWrapper($fieldName, $data, true);
+        $isToggleable = null;
+        if (isset($data->toggleable) && $data->toggleable !== '') {
+            $isToggleable = $data->toggleable === '1';
+        }
+
+        $firstChildDefault = $data->_firstChild->field_options->selectedValue ?? '';
+        $fieldNameDefault = $fieldName;
+        if (!empty($firstChildDefault)) {
+            $fieldName = "$fieldName ($firstChildDefault)";
+        }
+
+        $frag = $event->_topHTMLWrapper($fieldName, $data, true, toggleUserSettings: $isToggleable);
 
         $gridTemplateCol = '';
         # from js tree input
@@ -286,6 +306,15 @@ HTML;
         }
 
         $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
+        $padding = 'padding:1em;';
+        if ($useTabs) {
+            $padding = '';
+        }
+
+        $styles = "style='border: 1px dashed #000; $padding --row:$row; --column:$column; $gridTemplateCol'";
+        $simpleRepeaterStyle = "style='--row:$row; --column:$column; $gridTemplateCol'";
+        $classRepeater = "class='cursor:pointer form-group d:grid cursor:move flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns'";
+        $containerRepeaterStyle = "$styles $classRepeater";
 
         $inputName = $data->inputName ?? '';
         $frag .= <<<HTML
@@ -300,12 +329,13 @@ data-col="$column"
 data-is_repeater_root="$root" 
 data-grid_template_col="$gridTemplateCol" 
 data-repeater_repeat_button_text="$repeat_button_text" 
-data-repeater_field_name="$fieldName" 
-data-repeater_depth="$depth" 
+data-repeater_field_name="$fieldNameDefault" 
+data-repeater_depth="$depth"
 data-repeater_input_name="$inputName">
     <button type="button" class="position:absolute height:2em d:flex align-items:center right:0 remove-row-col-repeater-button text-align:center bg:transparent border:none 
-        color:black bg:white-one border-width:default border:black padding:small cursor:pointer"><span>Delete</span></button>
-    <div style="border: 1px dashed #000; padding: 1em;--row:$row; --column:$column; $gridTemplateCol" class="cursor:pointer form-group d:grid cursor:move flex-gap:small overflow-x:auto overflow-y:auto rowColumnItemContainer grid-template-rows grid-template-columns">
+        color:black bg:white-one border-width:default border:black padding:small cursor:pointer">Delete</button>
+    <div data-contain-repeater $containerRepeaterStyle>
+        <form $simpleRepeaterStyle $classRepeater>
 HTML;
 
         return $frag;
@@ -323,132 +353,187 @@ HTML;
      */
     private function handleUserFormFrag (OnFieldMetaBox $event, $data, callable $interceptChild = null, callable $interceptBottom = null): string
     {
-        $row = 1;
-        $column = 1;
-        if (isset($data->row)) {
-            $row = $data->row;
-        }
-
-        if (isset($data->column)) {
-            $column = $data->column;
-        }
-
+        $useTabs = isset($data->useTab) && $data->useTab === '1';
+        $row = $data->row ?? 1;
+        $column = $data->column ?? 1;
         $cell = $row * $column;
+        $repeatButtonText = $data->repeat_button_text ?? 'Repeat Section';
+        $frag = '';
+        $firstChild = null;
 
-        $repeat_button_text = $data->repeat_button_text ?? 'Repeat Section';
+        $repeaters = [];
+        $lastRepeater = null;
 
-        $frag = $this->getTopWrapper($event, $data);
+        $fieldNameTabUnique = $data->fieldName . '_' . helper()->randString(10);
+
+        if ($useTabs) {
+            $tabID = helper()->slug($data->fieldName, '_');
+            $tabKey = $data->_field->field_data['tabbed_key'] ?? '';
+
+            $frag .= <<<HTML
+<ul id="$tabID" class="tabs tonicsFieldTabsContainer color:black bg:white-one border-width:tiny border:black rowColumnItemContainer">
+<style>
+.tonicsFieldTabsContainer {
+    font-size: unset; 
+    max-width: unset; 
+    min-width: unset; 
+    width: unset; 
+}
+.tabs.tonicsFieldTabsContainer {
+    margin-left: unset;
+    margin-right: unset;
+}
+.menu-arranger-li ul {
+    list-style: none;
+    margin-left: unset;
+}
+</style>
+<input type="hidden" name="tabbed_key" value="$tabKey">
+HTML;
+        }
+
+        $first = false;
 
         for ($i = 1; $i <= $cell; $i++) {
-            if (isset($data->_children)) {
-                $children = $data->_children;
-            } elseif (isset($data->_field->_children)) {
-                $children = $data->_field->_children;
-            } else {
-                continue;
-            }
-            $frag .= <<<HTML
+            $children = $data->_children ?? ($data->_field->_children ?? []);
+            if (empty($children)) continue;
+
+            if (!$useTabs) {
+                $frag .= <<<HTML
 <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="$i" class="row-col-item-user margin-top:0 owl">
 HTML;
+            }
 
             foreach ($children as $child) {
-                $fieldSlug = '';
-                if (isset($child->field_name)) {
-                    $fieldSlug = $child->field_name;
-                } elseif (isset($child->field_options->field_slug)) {
-                    $fieldSlug = $child->field_options->field_slug;
-                } elseif (isset($child->field_slug)) {
-                    $fieldSlug = $child->field_slug;
-                }
-                $childCellNumber = (isset($child->field_data['_cell_position'])) ? (int)$child->field_data['_cell_position'] : null;
+                $fieldSlug = $child->field_name ?? $child->field_options->field_slug ?? $child->field_slug ?? '';
+                $childCellNumber = isset($child->field_data['_cell_position']) ? (int)$child->field_data['_cell_position'] : null;
+                $childCellNumber = $childCellNumber ?? (isset($child->field_options->{$fieldSlug . "_cell"}) ? (int)$child->field_options->{$fieldSlug . "_cell"} : $i);
 
-                if (isset($child->_cell_position)) {
-                    $childCellNumber = (int)$child->_cell_position;
-                }
-
-                if ($childCellNumber === null) {
-                    $childCellNumber = (isset($child->field_options->{$fieldSlug . "_cell"}))
-                        ? (int)$child->field_options->{$fieldSlug . "_cell"}
-                        : $i;
+                if (isset($child->field_data)) {
+                    $child->field_options->{"field_data"} = $child->field_data;
                 }
 
                 if ($childCellNumber === $i) {
-                    if (isset($child->field_options)) {
-                        $child->field_options->{"_field"} = $child;
-                    }
-                    $interceptChildFrag = '';
-                    if ($interceptChild) {
-                        $interceptChildFrag = $interceptChild($child->field_options, $data);
-                    }
+                    $child->field_options->_field = $child;
+                    $fieldSlugUniqueHash = $child->field_options->field_slug_unique_hash;
+                    $interceptChildFrag = $interceptChild ? $interceptChild($child->field_options, $data) : '';
 
                     if (isset($child->field_options)) {
-                        // meaning we are gonna skip checking user supplied data in global post data
-                        // if we do not do this, then it means, the input would be same in repeatable fields.
-                        // using double underscore to prefix this as this is a core thing
                         $child->field_options->__skip_global_post_data = true;
                     }
 
-                    $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($fieldSlug, $child->field_options ?? null) : $interceptChildFrag;
+                    if ($useTabs) {
+
+                        $checked = '';
+                        if (isset($data->_field->field_data['tabbed_key']) && !empty($data->_field->field_data['tabbed_key'])) {
+                            if ($data->_field->field_data['tabbed_key'] === $fieldSlugUniqueHash) {
+                                $checked = 'checked';
+                            }
+                        } else {
+                            if (!$first) {
+                                $first = true;
+                                $checked = 'checked';
+                            }
+                        }
+
+                        $fieldInputName = $child->field_options->field_input_name ?? '';
+                        $fieldOptionName = $child->field_options->fieldName;
+                        $fieldUniqueHash = $fieldOptionName . '_' . $fieldSlugUniqueHash;
+                        $fieldOptionNameID = helper()->slug($fieldOptionName, '_') . '_' . $fieldNameTabUnique . helper()->randString(10);
+
+                        $buildTab = fn() => <<<TAB
+<input tabindex="0" data-row-tabber data-field_input_name="$fieldInputName" data-field_slug_unique_hash="{$child->field_options->field_slug_unique_hash}" data-unique="$fieldUniqueHash" type="radio" id="{$fieldOptionNameID}_field" name="$fieldNameTabUnique" $checked>
+<label tabindex="0" data-unique="$fieldUniqueHash" for="{$fieldOptionNameID}_field">$fieldOptionName</label>
+TAB;
+
+                        $childFieldName = $child->field_name ?? $child->_field->field_name ?? '';
+
+                        if ($childFieldName === RowColumnRepeater::FieldSlug) {
+                            # OpenStart of Repeater Field
+                            if (count($repeaters) === 0) {
+                                $frag .= $buildTab();
+                                $frag .= "<li><ul>";
+                                $lastRepeater = $fieldOptionName;
+                            }
+
+                            if (count($repeaters) > 0 && $lastRepeater !== $fieldOptionName) {
+                                RowColumn::CloseRepeaterFrag($frag, $repeaters, true);
+                                $frag .= $buildTab();
+                                $frag .= "<li><ul>";
+                                $lastRepeater = $fieldOptionName;
+                            }
+                            $repeaters[] = $fieldOptionName;
+
+                        } else {
+                            RowColumn::CloseRepeaterFrag($frag, $repeaters);
+                            $frag .= $buildTab();
+                        }
+                        $frag .= $event->getUsersForm($childFieldName, $child->field_options ?? null);
+
+                    } else {
+                        $frag .= (empty($interceptChildFrag)) ? $event->getUsersForm($fieldSlug, $child->field_options ?? null) : $interceptChildFrag;
+                    }
+
+                    if ($firstChild === null) {
+                        $firstChild = $child;
+                        $data->_firstChild = $firstChild;
+                    }
                 }
             }
 
-            $frag .= <<<HTML
-        </ul>
-HTML;
+            # End Consumption of Repeater
+            RowColumn::CloseRepeaterFrag($frag, $repeaters);
+
+            if (!$useTabs) {
+                $frag .= '</ul>';
+            }
         }
 
+        if ($useTabs) {
+            $frag .= '</ul>';
+        }
 
         $frag .= <<<HTML
+        </form>
     </div>
 </div>
 HTML;
+        $topWrapper = $this->getTopWrapper($event, $data);
         $frag .= $event->_bottomHTMLWrapper();
-
-        $disallowRepeat = (isset($data->disallowRepeat)) ? $data->disallowRepeat : '0';
+        $disallowRepeat = $data->disallowRepeat ?? '0';
         $repeaterButtonFrag = '';
+        $repeaterFrag = $topWrapper . $frag;
 
         if ($disallowRepeat === '0') {
             $canHaveRepeaterButton = true;
-            if ((isset($data->_field->field_data['_moreOptions']))) {
+
+            if (isset($data->_field->field_data['_moreOptions'])) {
                 $moreOption = $data->_field->field_data['_moreOptions'];
                 $canHaveRepeaterButton = $moreOption->_can_have_repeater_button;
             }
 
             if ($canHaveRepeaterButton) {
+
+                $slug = null;
+                if (isset($data->_field->main_field_slug)) {
+                    $slug = $data->_field->main_field_slug;
+                }
+
                 $repeaterButtonFrag = <<<HTML
 <button type="button" class="margin-top:1em row-col-repeater-button width:200px text-align:center bg:transparent border:none 
-color:black bg:white-one border-width:default border:black padding:default cursor:pointer">
-  $repeat_button_text
+color:black bg:white-one border-width:default border:black padding:default cursor:pointer" data-slug="{$slug}">
+  $repeatButtonText
   <template class="repeater-frag">
-    $frag
+    $repeaterFrag
   </template>
 </button>
 HTML;
             }
-
         }
 
-        $frag .= $repeaterButtonFrag;
+        $frag = $topWrapper . $frag . $repeaterButtonFrag;
         if ($interceptBottom) {
             return $interceptBottom($data, $repeaterButtonFrag);
-        }
-
-        return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData (OnFieldMetaBox $event, $data): string
-    {
-        $frag = '';
-        if (isset($data->_field->_children)) {
-            foreach ($data->_field->_children as $child) {
-                if (isset($child->field_options)) {
-                    $child->field_options->{"_field"} = $child;
-                }
-                $event->getViewProcessingFrag($child->field_name, $child->field_options ?? null);
-            }
         }
 
         return $frag;

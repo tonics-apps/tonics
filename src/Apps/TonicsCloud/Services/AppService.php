@@ -53,8 +53,6 @@ class AppService extends TonicsCloudAbstractService
 
     public static function DEFAULT_APPS (): array
     {
-        $defaultConfigField = 'app-tonicscloud-app-config-default';
-
         return [
             [
                 'app_name'        => 'ACME',

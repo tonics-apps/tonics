@@ -39,7 +39,6 @@ class CloudContainerImages implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function () {},
         );
     }
 

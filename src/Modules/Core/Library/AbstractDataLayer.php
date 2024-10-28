@@ -18,6 +18,7 @@
 
 namespace App\Modules\Core\Library;
 
+use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\DatabaseConfig;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
@@ -606,18 +607,18 @@ SQL, ...$parameter);
      *                                   The cursor string
      * @param string|null $endPoint
      *                                   The request url endpoint, defaults to the current one if nones is supplied
+     * @param int $limit
      *
      * @return object
      * @throws \Throwable
      */
-    public function cursorPaginate (TonicsQuery $db, string|array $orderByColumn, $cursor = null, string $endPoint = null): object
+    public static function CursorPagination (TonicsQuery $db, string|array $orderByColumn, $cursor = null, string $endPoint = null, int $limit = 30): object
     {
         # We can use this to support ordering by multiple columns but not supported yet
         if (is_array($orderByColumn) && !empty($orderByColumn)) {
             $orderByColumn = $orderByColumn[array_key_first($orderByColumn)];
         }
 
-        $limit = 30;
         $encodeCurs = function ($cursor, $nextPage) {
             return urlencode(base64_encode(gzcompress(serialize([$cursor, $nextPage]), 9)));
         };
@@ -713,15 +714,29 @@ SQL, ...$parameter);
     }
 
     /**
+     * @param TonicsQuery $db
+     * @param string|array $orderByColumn
+     * @param $cursor
+     * @param string|null $endPoint
+     *
+     * @return object
+     * @throws \Throwable
+     */
+    public function cursorPaginate (TonicsQuery $db, string|array $orderByColumn, $cursor = null, string $endPoint = null): object
+    {
+        return self::CursorPagination($db, $orderByColumn, $cursor, $endPoint);
+    }
+
+    /**
      * @param FieldData $fieldData
      * @param $data
-     * @param string $fieldSlug
+     * @param string|array $fieldSlug
      * @param string $fieldLocation
      *
      * @return string
-     * @throws Exception
+     * @throws \Throwable
      */
-    public function controllerUnwrapFieldDetails (FieldData $fieldData, $data, string $fieldSlug, string $fieldLocation = 'others'): string
+    public function controllerUnwrapFieldDetails (FieldData $fieldData, $data, string|array $fieldSlug, string $fieldLocation = 'others'): string
     {
         if (!is_object($data)) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
@@ -734,17 +749,32 @@ SQL, ...$parameter);
             $fieldSettings = [...$fieldSettings, ...(array)$data];
         }
 
-
+        addToGlobalVariable(AppConfig::GLOBAL_FIELD_SETTINGS_DATA, $data);
         if (isset($fieldSettings['_fieldDetails'])) {
-            addToGlobalVariable('Data', $fieldSettings);
-            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
+
+            if (is_array($fieldSettings['_fieldDetails'])) {
+                $fieldSettings['_fieldDetails'] = json_decode(json_encode($fieldSettings['_fieldDetails']));
+            }
+
+            if (is_string($fieldSettings['_fieldDetails'])) {
+                $fieldSettings['_fieldDetails'] = json_decode($fieldSettings['_fieldDetails']);
+            }
+
+            $fieldCategories = $fieldData->compareSortAndUpdateFieldItems($fieldSettings['_fieldDetails'], $fieldSlug, [
+                'data' => $data,
+            ]);
+
             $htmlFrag = $fieldData->getUsersFormFrag($fieldCategories);
+
         } else {
-            $fieldForm = $fieldData->generateFieldWithFieldSlug([$fieldSlug], $fieldSettings);
+            if (is_string($fieldSlug)) {
+                $fieldSlug = [$fieldSlug];
+            }
+            $fieldForm = $fieldData->generateFieldWithFieldSlug($fieldSlug, $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
-            addToGlobalVariable('Data', $data);
         }
 
+        addToGlobalVariable('Data', $data);
         return $htmlFrag;
 
     }

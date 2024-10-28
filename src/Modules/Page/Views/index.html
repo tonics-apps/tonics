@@ -7,3 +7,7 @@
     [[_use("script:post-index")]]
     [[_use("session:delete-artifacts")]]
 ]]
+
+[[hook_into('Core::in_after_last_data_table_menu')
+    [[_use('Core::data_table_menu_copy_field_items')]]
+]]

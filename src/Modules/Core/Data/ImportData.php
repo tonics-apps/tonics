@@ -23,17 +23,20 @@ use App\Modules\Core\Library\AbstractDataLayer;
 class ImportData extends AbstractDataLayer
 {
 
-    public function adminImportListing(array $importTypes): string
+    public function adminImportListing (array $importTypes): string
     {
-        $htmlFrag = ''; $urlPrefix = "/admin/tools/imports";
-        foreach ($importTypes as $slug => $type){
+        $htmlFrag = '';
+        $urlPrefix = "/admin/tools/imports";
+        foreach ($importTypes as $slug => $type) {
             $htmlFrag .= <<<HTML
     <li 
     tabindex="0" 
     data-db_click_link="$urlPrefix/$slug"
     class="admin-widget-item-for-listing d:flex flex-d:column align-items:center justify-content:center cursor:pointer no-text-highlight">
         <fieldset class="padding:default width:100% box-shadow-variant-1 d:flex justify-content:center">
-            <legend class="bg:pure-black color:white padding:default">$type</legend>
+            <legend class="bg:pure-black color:white padding:tiny">
+                <span class="menu-arranger-text-head">$type</span>
+            </legend>
             <div class="admin-widget-information owl width:100%">
             <div class="text-on-admin-util text-highlight">$type</div>
          
@@ -53,12 +56,12 @@ HTML;
 
     }
 
-    public function getImportTypes(): array
+    public function getImportTypes (): array
     {
         return [
             'wordpress' => 'WordPress',
             'beatstars' => 'BeatStars',
-            'airbit' => 'AirBit',
+            'airbit'    => 'AirBit',
         ];
     }
 }

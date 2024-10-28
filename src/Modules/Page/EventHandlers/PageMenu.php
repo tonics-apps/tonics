@@ -30,23 +30,29 @@ class PageMenu implements HandlerInterface
      * @inheritDoc
      * @throws \Exception|\Throwable
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
 
-        tree()->group('', function (Tree $tree){
+        tree()->group('', function (Tree $tree) {
 
             $tree->add(AdminMenuHelper::PAGE, [
-                'mt_name' => 'Pages',
+                'mt_name'     => 'Pages',
                 'mt_url_slug' => route('pages.index'),
-                'mt_icon' => helper()->getIcon('archive', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('archive', 'icon:admin'),
+            ]);
+
+            $tree->add(AdminMenuHelper::PAGE_EDIT, [
+                'mt_name'     => 'Edit Page',
+                'mt_url_slug' => '/admin/pages/:page/edit',
+                'ignore'      => true,
             ]);
 
             $tree->add(AdminMenuHelper::PAGE_NEW, [
-                'mt_name' => 'New Page',
+                'mt_name'     => 'New Page',
                 'mt_url_slug' => route('pages.create'),
-                'mt_icon' => helper()->getIcon('plus', 'icon:admin')
+                'mt_icon'     => helper()->getIcon('plus', 'icon:admin'),
             ]);
-        },['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_PAGE])], AdminMenuHelper::PRIORITY_EXTREME);
+        }, ['permission' => Roles::GET_PERMISSIONS_ID([Roles::CAN_ACCESS_PAGE])], AdminMenuHelper::PRIORITY_EXTREME);
 
     }
 }

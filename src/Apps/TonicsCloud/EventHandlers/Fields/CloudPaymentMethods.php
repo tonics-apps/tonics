@@ -30,7 +30,7 @@ class CloudPaymentMethods implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('CloudPaymentMethods', 'Cloud Payment Methods', 'TonicsCloud',
@@ -40,18 +40,17 @@ class CloudPaymentMethods implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function () {
-            }
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Payment Method(s)';
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
@@ -72,7 +71,7 @@ FORM;
      * @throws \Exception
      * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Payment Method(s)';
         $frag = $event->_topHTMLWrapper($fieldName, $data);

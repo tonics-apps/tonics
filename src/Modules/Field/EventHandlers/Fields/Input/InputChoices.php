@@ -28,38 +28,37 @@ class InputChoices implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Choices', 'A field for selecting and or deselecting single value out of many',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-               $this->viewData($event, $data);
-            }
         );
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Choice';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $choiceType =  (isset($data->choiceType)) ? $data->choiceType : 'checkbox';
-        $choices =  (isset($data->choices)) ? helper()->htmlSpecChar($data->choices) : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Choice';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        $choiceType = (isset($data->choiceType)) ? $data->choiceType : 'checkbox';
+        $choices = (isset($data->choices)) ? helper()->htmlSpecChar($data->choices) : '';
         $choiceTypes = [
             'Checkbox' => 'checkbox',
-            'Radio' => 'radio',
+            'Radio'    => 'radio',
+            'Color'    => 'color',
         ];
         $choiceFrag = '';
-        foreach ($choiceTypes as $choiceK => $choiceV){
-            if ($choiceV === $choiceType){
+        foreach ($choiceTypes as $choiceK => $choiceV) {
+            if ($choiceV === $choiceType) {
                 $choiceFrag .= <<<HTML
 <option value="$choiceV" selected>$choiceK</option>
 HTML;
@@ -69,7 +68,7 @@ HTML;
 HTML;
             }
         }
-        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '';
+        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag .= <<<FORM
@@ -93,7 +92,7 @@ HTML;
 </div>
 
 <div class="form-group">
-     <label class="menu-settings-handle-name" for="choices-$changeID">Choices (format: k1:kv, k2:v2)
+     <label class="menu-settings-handle-name" for="choices-$changeID">Choices (format: v1:k1, v2:k2), (uses key as value if kv is empty)
      <textarea name="choices" id="choices-$changeID" placeholder="Key and Value should be separated by comma">$choices</textarea>
     </label>
 </div>
@@ -112,68 +111,106 @@ FORM;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Choice';
-        $selectedChoices =  $event->getKeyValueInData($data, $data->inputName);
-        if (!is_array($selectedChoices)){
-            $selectedChoices = [];
+        $selectedChoices = $event->getKeyValueInData($data, $data->inputName);
+        if (empty($selectedChoices)) {
+            $selectedChoices = $event->getKeyValueInData($data, "$data->inputName[]");
         }
+
+        if (!is_array($selectedChoices)) {
+            $selectedChoices = [$selectedChoices];
+        }
+
         $selectedChoices = array_combine($selectedChoices, $selectedChoices);
-        $textType =  (isset($data->choiceType)) ? $data->choiceType : 'checkbox';
+
+        $textType = (isset($data->choiceType)) ? $data->choiceType : 'checkbox';
+        $isColor = false;
+        if ($textType === 'color') {
+            $textType = 'radio';
+            $isColor = true;
+        }
         $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $choices =  (isset($data->choices)) ? $data->choices : '';
+        $choices = (isset($data->choices)) ? $data->choices : '';
         $choiceKeyValue = [];
-        if (!empty($choices)){
+        if (!empty($choices)) {
             $choices = explode(',', $choices);
         }
-        if (is_array($choices)){
-            foreach ($choices as $choice){
+
+        if (is_array($choices)) {
+            foreach ($choices as $choice) {
                 $choice = explode(':', $choice);
-                $choiceKeyValue[$choice[0] ?? ''] = $choice[1] ?? '';
+                $key = $choice[0] ?? '';
+                $value = $choice[1] ?? '';
+
+                # Check if key or value is not only whitespace, if it is not only whitespace, we strip all whitespaces,
+                # if it contains only whitespace, it is left alone
+                if (!ctype_space($key)) {
+                    $key = preg_replace('/\s+/', '', $key);
+                }
+
+                if (!ctype_space($value)) {
+                    $value = preg_replace('/\s+/', '', $value);
+                }
+
+                $choiceKeyValue[$key] = $value;
             }
         }
 
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $choiceFrag = '';
-        foreach ($choiceKeyValue as $key => $value){
+        foreach ($choiceKeyValue as $key => $value) {
+
             $selected = '';
-            if ($key === $defaultValue){
+            if ($key === $defaultValue) {
+                $selected = 'checked';
+            } elseif (isset($selectedChoices[$key])) {
                 $selected = 'checked';
             }
-            if (isset($selectedChoices[$key])){
-                $selected = 'checked';
-            }
-            $choiceFrag .=<<<HTML
-<li>
-    <input $selected type="$textType" title="$value" id="{$key}_$changeID" name="{$inputName}[]" value="$key">
-    <label for="{$key}_$changeID">$value</label>
+
+            if ($isColor) {
+                $color = trim($key);
+                $choiceFrag .= <<<LABEL
+<li data-draggable-ignore>
+    <label  title="Color $value">
+        <input type="$textType" title="$value" name="{$inputName}[]" value="$color" $selected>
+        <input disabled title="Color $value" value="$color" type="color" class="pointer-events:none">
+    </label>
+</li>
+LABEL;
+            } else {
+                $choiceFrag .= <<<HTML
+<li data-draggable-ignore>
+    <label>
+        <input $selected type="$textType" title="$value" name="{$inputName}[]" value="$key">
+        $value
+    </label>
 </li>
 HTML;
+            }
 
         }
+
+        $class = 'list:style:none margin-top:0 max-height:500px overflow-x:auto';
+        if ($isColor) {
+            $class .= " d:flex flex-d:row flex-wrap:wrap";
+        }
         $frag .= <<<FORM
-<div class="form-group margin-top:0">
-<ul style="margin-left: 0;" class="list:style:none margin-top:0 max-height:500px overflow-x:auto">
-    $choiceFrag
-</ul>
+<div data-draggable-ignore class="form-group margin-top:0">
+    <ul style="margin-left: 0;" class="$class">
+        $choiceFrag
+    </ul>
 </div>
 FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData(OnFieldMetaBox $event, $data)
-    {
-        $event->defaultInputViewHandler('InputChoice', $data);
     }
 }

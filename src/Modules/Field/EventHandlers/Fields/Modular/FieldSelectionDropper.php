@@ -22,10 +22,13 @@ use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use App\Modules\Field\Interfaces\AbstractFieldHandler;
+use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 class FieldSelectionDropper extends AbstractFieldHandler
 {
     const FieldSlug = 'modular_fieldselectiondropper';
+    private array $fieldsCollation             = [];
+    private array $fieldSelectionDropEventSlug = [];
 
     public function fieldBoxName (): string
     {
@@ -57,18 +60,7 @@ class FieldSelectionDropper extends AbstractFieldHandler
         $inputName = $field->getInputName();
         $fieldSlug = (isset($data->fieldSlug)) ? $data->fieldSlug : [];
         $expandField = (isset($data->expandField)) ? $data->expandField : '1';
-
-        if ($expandField === '1') {
-            $expandField = <<<HTML
-<option value="0">False</option>
-<option value="1" selected>True</option>
-HTML;
-        } else {
-            $expandField = <<<HTML
-<option value="0" selected>False</option>
-<option value="1">True</option>
-HTML;
-        }
+        $expandField = $event->booleanOptionSelect($expandField);
 
         $frag = $field->getTopHTMLWrapper();
         $fields = null;
@@ -103,13 +95,35 @@ HTML;
 HTML;
         }
 
+        $hookName = (isset($data->hookName)) ? $data->hookName : '';
+        $group = $event->booleanOptionSelect($data->group ?? '0');
+        $toggleable = $event->booleanOptionSelectWithNull($data->toggleable ?? '');
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
+
         $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
-<div class="form-group">
-     <label class="field-settings-handle-name" for="expandField-$changeID">Expand Field
-     <select name="expandField" class="default-selector mg-b-plus-1" id="expandField-$changeID">
-        $expandField
-     </select>
+<div class="form-group d:flex flex-gap align-items:flex-end">
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="expandField-$changeID">Expand Field
+        <select name="expandField" class="default-selector mg-b-plus-1" id="expandField-$changeID">
+            $expandField
+        </select>
+    </label>
+    
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="group-$changeID">Group
+        <select name="group" class="default-selector mg-b-plus-1" id="group-$changeID">
+            $group
+        </select>
+    </label>
+</div>
+
+<div class="form-group d:flex flex-gap align-items:flex-end">
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="toggleable-$changeID">Toggable
+        <select name="toggleable" class="default-selector mg-b-plus-1" id="toggleable-$changeID">
+            $toggleable
+        </select>
+    </label>
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="hookName-$changeID">Hook Name
+        <input id="hookName-$changeID" name="hookName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+        value="$hookName" placeholder="Name of the fieldSelector hook">
     </label>
 </div>
 HTML,
@@ -136,6 +150,7 @@ HTML,
 <div class="form-group">
     <label class="field-settings-handle-name" for="defaultFieldSlug-$changeID">Choose Default Field Slug
            <select name="defaultFieldSlug" class="default-selector mg-b-plus-1" id="defaultFieldSlug-$changeID">
+                <option label=" "></option>
                 $selectedFieldFrag
             </select>
         </label>
@@ -156,16 +171,37 @@ FORM;
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+        $uniqueCollationKey = $data->_field->main_field_slug ?? '' . $changeID;
+        $uniqueCollationKey = $uniqueCollationKey . '_' . $changeID;
         $keyValue = $event->getKeyValueInData($data, $data->inputName);
-        $fieldSlug = array_combine($data?->fieldSlug ?? [], $data?->fieldSlug ?? []);
+        $hookName = $data->hookName ?? '';
+
+        if (!empty($hookName)) {
+
+            if (!isset($this->fieldSelectionDropEventSlug[$hookName])) {
+                $dropperEvent = FieldConfig::getFieldSelectionDropper();
+                $fieldSlug = [...$dropperEvent->getFieldsByName($hookName), ...$data?->fieldSlug ?? []];
+                $this->fieldSelectionDropEventSlug[$hookName] = $fieldSlug;
+            } else {
+                $fieldSlug = $this->fieldSelectionDropEventSlug[$hookName];
+            }
+
+        } else {
+            $fieldSlug = array_combine($data?->fieldSlug ?? [], $data?->fieldSlug ?? []);
+        }
+
+        $fieldSlug = array_combine($fieldSlug, $fieldSlug);
+
         $expandField = (isset($data->expandField)) ? $data->expandField : '1';
         $defaultFieldSlug = (empty($keyValue)) ? $data?->defaultFieldSlug : $keyValue;
+
         $fieldSelectDropperFrag = '';
-        $fields = null;
-        db(onGetDB: function ($db) use (&$fields) {
-            $table = Tables::getTable(Tables::FIELD);
-            $fields = $db->run("SELECT * FROM $table");
-        });
+        if (isset($this->fieldsCollation[$uniqueCollationKey])) {
+            $fields = $this->fieldsCollation[$uniqueCollationKey];
+        } else {
+            $fields = $this->getFields($fieldSlug);
+            $this->fieldsCollation[$uniqueCollationKey] = $fields;
+        }
 
         $fieldSelectionFrag = '';
         $defaultFieldSlugFrag = '';
@@ -174,7 +210,9 @@ FORM;
             if (isset($fieldSlug[$field->field_slug])) {
                 $fieldSelected = '';
                 if ($uniqueSlug === $defaultFieldSlug) {
+                    $data->selectedValue = $field->field_name;
                     $fieldSelected = 'selected';
+                    $defaultFieldSlug = $field->field_slug;
                     if ($expandField === '1') {
                         $defaultFieldSlugFrag = $event->getFieldData()->generateFieldWithFieldSlug(
                             [$uniqueSlug],
@@ -191,26 +229,56 @@ HTML;
         if ($expandField === '1') {
 
             if (isset($data->_field->_children)) {
-                $defaultFieldSlugFrag = FieldConfig::expandFieldWithChildrenFromMetaBox($event, $defaultFieldSlug);
+                helper()->garbageCollect(function () use ($defaultFieldSlug, $event, &$defaultFieldSlugFrag) {
+                    $defaultFieldSlugFrag = FieldConfig::expandFieldWithChildrenFromMetaBox($event, $defaultFieldSlug);
+                });
+
             }
 
             $fieldSelectDropperFrag = <<<FieldSelectionDropperFrag
-<div class="tonics-field-selection-dropper-container">
-        <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-cell_position="1" class="tonics-field-selection-dropper-ul row-col-item-user margin-top:0 owl">
-                $defaultFieldSlugFrag
-         </ul>
-    </div>
+<div style="margin: 0;" class="tonics-field-selection-dropper-container rowColumnItemContainer">
+
+    <ul style="margin-left: 0; transform: unset; box-shadow: unset;" data-hook_name="$hookName" class="tonics-field-selection-dropper-ul row-col-item-user">
+            $defaultFieldSlugFrag
+     </ul>
+         
+</div>
 FieldSelectionDropperFrag;
         }
 
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $isGroup = isset($data->group) && $data->group === '1';
+        $isToggleable = null;
+        if (isset($data->toggleable) && $data->toggleable !== '') {
+            $isToggleable = $data->toggleable === '1';
+        }
+
+        if ($isGroup) {
+            $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle) use ($hookName, $data, $event) {
+                $slug = $data->field_slug ?? '';
+                $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+                $inputName = (isset($data->inputName)) ? $data->inputName : '';
+                $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
+
+                return <<<HTML
+<li tabIndex="0" class="width:100% field-builder-items overflow:auto">
+            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+<input type="hidden" name="field_slug" value="$slug">
+$field_table_slug
+<input type="hidden" name="field_slug_unique_hash" value="$hash">
+<input type="hidden" name="field_input_name" value="$inputName">
+<input type="hidden" name="hook_name" value="$hookName">
+HTML;
+            });
+        } else {
+            $frag = $event->_topHTMLWrapper($fieldName, $data, true, toggleUserSettings: $isToggleable);
+        }
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$data->field_slug}_$changeID";
 
         $frag .= <<<HTML
 <div class="form-group tonics-field-selection-dropper-form-group margin-top:0 owl">
-     <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">Choose Field
-     <select name="$inputName" class="default-selector mg-b-plus-1 tonics-field-selection-dropper-select" id="fieldSlug-$changeID">
-        <option label=" "></option>
+     <label class="field-settings-handle-name owl" for="fieldSlug-$changeID">$fieldName
+     <select style="width:50%" data-hook_name="$hookName" name="$inputName" class="default-selector-no-width mg-b-plus-1 tonics-field-selection-dropper-select" id="fieldSlug-$changeID">
+        <option value="" label=" "></option>
         $fieldSelectionFrag
      </select>
     </label>
@@ -218,7 +286,44 @@ FieldSelectionDropperFrag;
 </div>
 HTML;
 
-        $frag .= $event->_bottomHTMLWrapper();
+        if ($isGroup) {
+            $frag .= $event->_bottomHTMLWrapper(function () {
+                return "</div></li>";
+            });
+        } else {
+            $frag .= $event->_bottomHTMLWrapper();
+        }
         return $frag;
+    }
+
+    /**
+     * @param array $fieldSlug
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function getFields (array $fieldSlug): array
+    {
+        if (empty($fieldSlug)) {
+            return [];
+        }
+
+        $fields = [];
+        $fieldSlug = array_values($fieldSlug);
+        db(onGetDB: function (TonicsQuery $db) use ($fieldSlug, &$fields) {
+            $fields = $db->Select('*')->From(Tables::getTable(Tables::FIELD))->WhereIn('field_slug', $fieldSlug)->FetchResult();
+        });
+
+        if (!empty($fields)) {
+            // Create an associative array where the key is the field_slug and the value is the order
+            $order = array_flip($fieldSlug);
+            // Sort the fields array based on the order array
+            usort($fields, function ($a, $b) use ($order) {
+                return $order[$a->field_slug] <=> $order[$b->field_slug];
+            });
+        }
+
+        return $fields;
+
     }
 }

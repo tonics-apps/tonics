@@ -25,16 +25,15 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Field\Events\OnFieldMetaBox;
+use App\Modules\Field\Events\FieldSelectionDropper\OnAddFieldSelectionDropperEvent;
 use App\Modules\Page\Controllers\PagesController;
 use App\Modules\Page\EventHandlers\DefaultPageFieldHandler;
-use App\Modules\Page\EventHandlers\Fields\PageTemplateFieldSelection;
+use App\Modules\Page\EventHandlers\PageLayoutFields;
 use App\Modules\Page\EventHandlers\PageMenu;
 use App\Modules\Page\EventHandlers\PageSitemap;
 use App\Modules\Page\Events\BeforePageView;
 use App\Modules\Page\Events\OnPageCreated;
 use App\Modules\Page\Events\OnPageDefaultField;
-use App\Modules\Page\Events\OnPageTemplate;
 use App\Modules\Page\Routes\Routes;
 use Devsrealm\TonicsRouterSystem\Route;
 
@@ -73,11 +72,8 @@ class PageActivator implements ExtensionConfig
 
             ],
 
-            OnPageTemplate::class => [
-            ],
-
-            OnFieldMetaBox::class => [
-                PageTemplateFieldSelection::class,
+            OnAddFieldSelectionDropperEvent::class => [
+                PageLayoutFields::class,
             ],
         ];
     }

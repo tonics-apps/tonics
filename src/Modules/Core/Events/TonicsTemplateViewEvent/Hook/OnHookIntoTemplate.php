@@ -19,7 +19,6 @@
 namespace App\Modules\Core\Events\TonicsTemplateViewEvent\Hook;
 
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
-use Devsrealm\TonicsTemplateSystem\AbstractClasses\TonicsTemplateViewAbstract;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 
@@ -29,7 +28,7 @@ class OnHookIntoTemplate implements EventInterface
 
     private TonicsView $tonicsView;
 
-    public function __construct(TonicsView $tonicsView)
+    public function __construct (TonicsView $tonicsView)
     {
         $this->tonicsView = $tonicsView;
     }
@@ -37,19 +36,44 @@ class OnHookIntoTemplate implements EventInterface
     /**
      * @inheritDoc
      */
-    public function event(): static
+    public function event (): static
     {
         return $this;
     }
 
-    public function hookInto(string $name, callable $handler): static
+    /**
+     * @param string $name
+     *                           The hook name to hook into or register unto
+     * @param callable $handler
+     *                           The handler to fire when the hook is called
+     * @param bool $fireInstantly
+     *                           If this is set to true, it won't hook into anything, it immediately checks
+     *                           if the hook name exist and immediately calls the handler, this should only be used
+     *                           to register other hooks say if a condition outside TonicsView is true
+     *
+     * @return $this
+     */
+    public function hookInto (string $name, callable $handler, bool $fireInstantly = false): static
     {
-        $this->hookInto[] = [
-          'hook_into' => $name,
-          'handler' => function() use ($handler) {
-            return $handler($this->getTonicsView());
-          },
-        ];
+
+        if ($fireInstantly) {
+
+            $storage = $this->getTonicsView()->getModeStorage('add_hook');
+
+            if (isset($storage[$name])) {
+                $handler($this->getTonicsView());
+            }
+
+        } else {
+
+            $this->hookInto[] = [
+                'hook_into' => $name,
+                'handler'   => function () use ($handler) {
+                    return $handler($this->getTonicsView());
+                },
+            ];
+
+        }
 
         return $this;
     }
@@ -57,7 +81,7 @@ class OnHookIntoTemplate implements EventInterface
     /**
      * @return array
      */
-    public function getHookInto(): array
+    public function getHookInto (): array
     {
         return $this->hookInto;
     }
@@ -65,7 +89,7 @@ class OnHookIntoTemplate implements EventInterface
     /**
      * @return TonicsView
      */
-    public function getTonicsView(): TonicsView
+    public function getTonicsView (): TonicsView
     {
         return $this->tonicsView;
     }

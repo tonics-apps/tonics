@@ -31,27 +31,27 @@ class PricingTable implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('PricingTable', 'Cloud Instance Pricing Table', 'TonicsCloud',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsCloud PricingTable';
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
@@ -75,7 +75,7 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'TonicsCloud PricingTable';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -89,10 +89,11 @@ FORM;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    private function getPricingTableFrag(OnFieldMetaBox $event, $data): string
+    private function getPricingTableFrag (OnFieldMetaBox $event, $data): string
     {
         $providerName = TonicsCloudSettingsController::getSettingsData(TonicsCloudSettingsController::CloudServerIntegrationType);
         if (isset(getPostData()['others'])) {
@@ -123,7 +124,7 @@ input[type='radio'] {
 FRAG;
 
 
-        db( onGetDB: function (TonicsQuery $db) use ($providerName, &$services){
+        db(onGetDB: function (TonicsQuery $db) use ($providerName, &$services) {
 
             $tcs = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_SERVICES);
             $tcp = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_PROVIDER);
@@ -136,13 +137,13 @@ FRAG;
         });
 
         $trFrag = '';
-        if (is_array($services)){
-            $servicePlanValue =  $event->getKeyValueInData($data, 'fk_service_id');
-            foreach ($services as $service){
-                $hourly = $service->monthly_rate/TonicsCloudSettingsController::TotalMonthlyHours();
+        if (is_array($services)) {
+            $servicePlanValue = $event->getKeyValueInData($data, 'fk_service_id');
+            foreach ($services as $service) {
+                $hourly = $service->monthly_rate / TonicsCloudSettingsController::TotalMonthlyHours();
                 $hourly = round($hourly, 4);
-                if ($servicePlanValue === $service->service_id){
-                    $trFrag .=<<<Frag
+                if ($servicePlanValue === $service->service_id) {
+                    $trFrag .= <<<Frag
         <tr class="disable-select">
             <td tabindex="-1" style="opacity: 50%;">
                 <label aria-label="$service->service_description" class="d:flex flex-gap align-items:center">
@@ -157,7 +158,7 @@ Frag;
                     continue;
                 }
 
-                $trFrag .=<<<Frag
+                $trFrag .= <<<Frag
         <tr class="">
             <td tabindex="-1">
                 <label aria-label="$service->service_description" class="d:flex flex-gap">

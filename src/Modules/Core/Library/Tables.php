@@ -58,8 +58,6 @@ final class Tables
     const ROLE_PERMISSIONS    = 'role_permissions';
     const USERS               = 'user';
     const CUSTOMERS           = 'customer';
-    const WIDGET_ITEMS        = 'widget_items';
-    const WIDGETS             = 'widgets';
     const SCHEDULER           = 'scheduler';
     const JOBS                = 'jobs';
     const COMMENTS            = 'comments';
@@ -103,8 +101,6 @@ final class Tables
         self::ROLE_PERMISSIONS => ['id', 'fk_role_id', 'fk_permission_id'],
 
         self::CUSTOMERS           => ['user_id', 'user_name', 'email', 'email_verified_at', 'user_password', 'is_guest', 'role', 'settings', 'created_at', 'updated_at'],
-        self::WIDGET_ITEMS        => ['id', 'fk_widget_id', 'wgt_id', 'wgt_name', 'wgt_options', 'created_at', 'updated_at'],
-        self::WIDGETS             => ['widget_id', 'widget_name', 'widget_slug', 'created_at', 'updated_at'],
         self::DRIVE_SYSTEM        => ['drive_id', 'drive_parent_id', 'drive_unique_id', 'drive_name', 'filename', '`type`', 'status', 'properties', '`security`'],
         self::DRIVE_BLOB_COLLATOR => ['id', 'hash_id', 'blob_name', 'blob_chunk_part', 'blob_chunk_size', 'live_blob_chunk_size', 'missing_blob_chunk_byte', 'moreBlobInfo'],
 

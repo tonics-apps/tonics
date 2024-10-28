@@ -113,7 +113,7 @@ class InitLoaderMinimal
             'User_Table'     => $authInfo?->user_table,
         ]);
 
-        # Push Structured Data That Relies on the Post Editor Here
+        # (DEPRECATED) Push Structured Data That Relies on the Post Editor Here
         self::addToGlobalVariable('Structured_Data', [
             'FAQ' => [],
         ]);
@@ -141,6 +141,9 @@ class InitLoaderMinimal
         self::DRIVE_CONFIG_GlobalVariable();
     }
 
+    /**
+     * @return void
+     */
     public static function DRIVE_CONFIG_GlobalVariable (): void
     {
         self::addToGlobalVariable('Drive_Config', [

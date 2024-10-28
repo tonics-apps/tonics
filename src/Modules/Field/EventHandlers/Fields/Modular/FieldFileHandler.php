@@ -41,9 +41,6 @@ class FieldFileHandler implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                return $this->viewFrag($event, $data);
-            },
         );
     }
 
@@ -141,6 +138,7 @@ FORM;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function viewFrag (OnFieldMetaBox $event, $data): string
     {

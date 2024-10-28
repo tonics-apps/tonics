@@ -18,7 +18,6 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Post;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
@@ -29,33 +28,31 @@ class PostRecent implements HandlerInterface
     /**
      * @inheritDoc
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('PostRecent', 'Recent Post', 'Post',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event){
-                $this->viewData($event, $data);
-            }
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Posts Recent';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $postTake =  (isset($data->postTake)) ? $data->postTake : '5';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Posts Recent';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        $postTake = (isset($data->postTake)) ? $data->postTake : '5';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -86,17 +83,17 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostAuthorSelect';
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $postTake = (isset($data->postTake)) ? $data->postTake : '';
         $postTake = $keyValue ?: $postTake;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag .= <<<FORM
 <div class="form-group">
     <label class="menu-settings-handle-name" for="recent-post-name">Number of Posts
@@ -113,7 +110,7 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewData(OnFieldMetaBox $event, $data = null)
+    public function viewData (OnFieldMetaBox $event, $data = null)
     {
         $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
         $postData = !empty(getPostData()) ? getPostData() : $fieldData;
@@ -121,15 +118,15 @@ FORM;
         $postTbl = Tables::getTable(Tables::POSTS);
         $postData = [];
         try {
-            db(onGetDB: function ($db) use ($postTake, $postTbl, &$postData){
-                $tblCol = table()->pickTableExcept($postTbl,  ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
+            db(onGetDB: function ($db) use ($postTake, $postTbl, &$postData) {
+                $tblCol = table()->pickTableExcept($postTbl, ['updated_at']) . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link';
                 $postData = $db->Select($tblCol)
                     ->From($postTbl)
                     ->WhereEquals('post_status', 1)
                     ->Where("$postTbl.created_at", '<=', helper()->date())
                     ->OrderByDesc(table()->pickTable($postTbl, ['updated_at']))->Limit($postTake)->FetchResult();
             });
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // log..
         }
 

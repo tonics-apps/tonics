@@ -31,7 +31,7 @@ class CloudInstanceInfo implements HandlerInterface
     /**
      * @inheritDoc
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('CloudInstanceInfo', 'Cloud Instance Info', 'TonicsCloud',
@@ -41,18 +41,17 @@ class CloudInstanceInfo implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function () {
-            }
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Instance Info';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
@@ -79,7 +78,7 @@ FORM;
     /**
      * @throws \Exception|Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $frag = '';
         if (InstanceController::getCurrentControllerMethod() === InstanceController::EDIT_METHOD) {

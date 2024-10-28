@@ -57,8 +57,8 @@ try {
         new MenuToggle('.menu-arranger', new Query())
             .settings('.menu-arranger-li', '.dropdown-toggle', '.menu-widget-information')
             .buttonIcon('#tonics-arrow-up', '#tonics-arrow-down')
-            .menuIsOff(["swing-out-top-fwd", "d:none"], ["swing-in-top-fwd", "d:flex"])
-            .menuIsOn(["swing-in-top-fwd", "d:flex"], ["swing-out-top-fwd", "d:none"])
+            .menuIsOff(["d:none"], ["d:flex"])
+            .menuIsOn(["d:flex"], ["d:none"])
             .closeOnClickOutSide(false)
             .stopPropagation(false)
             .run();
@@ -68,7 +68,7 @@ try {
 }
 
 new Draggables(parent)
-    .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label'], false) // draggable element
+    .settings(fieldChild, ['legend', 'input', 'textarea', 'select', 'label', 'svg', 'span', 'pre', 'code', 'p', '[data-draggable-ignore]'], false) // draggable element
     .onDragDrop(function (element, self) {
         let elementDropped = self.getDroppedTarget()?.closest(fieldChild);
         let elementDragged = self.getDragging().closest(fieldChild);
@@ -139,19 +139,28 @@ function getListDataArray() {
             parentID = null;
         fieldSettingsEl.forEach(form => {
             let formTagname = form.tagName.toLowerCase();
+            let toggleState = null;
             if (formTagname === 'form' || formTagname === 'div') {
                 let draggable = form.closest('.draggable');
                 parentID = draggable.getAttribute('data-parentid');
                 if (parentID === 'null') {
                     parentID = null;
                 }
+
+                toggleState = draggable.querySelector('button[data-field_toggle]')?.ariaExpanded.toLowerCase();
+                if (toggleState === 'true' || toggleState === 'false') {
+                    toggleState = toggleState === 'true';
+                }
+
                 if (draggable.querySelector('input[name="field_slug"]')) {
                     fieldName = draggable.querySelector('input[name="field_slug"]').value;
                 }
                 let elements = form.querySelectorAll('input, textarea, select'),
                     firstElementParentID = elements[0].closest('.draggable').getAttribute('data-id');
 
-                let widgetSettings = {};
+                let widgetSettings = {
+                    "toggle_state": toggleState
+                };
                 let collectCheckboxes = draggable.querySelectorAll("[data-collect_checkboxes]");
                 collectCheckboxes.forEach((checkbox) => {
                     let checkboxName = checkbox.name;

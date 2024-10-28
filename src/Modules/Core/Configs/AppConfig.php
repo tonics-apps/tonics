@@ -52,10 +52,64 @@ use Exception;
 
 class AppConfig
 {
-    private static InitLoader|null        $init              = null;
-    private static InitLoaderMinimal|null $initLoaderMinimal = null;
-    private static Tree|null              $treeSystem        = null;
+    const GLOBAL_FIELD_SETTINGS_DATA                = 'FIELD_SETTINGS_DATA';
+    const GLOBAL_FIELD_SETTINGS_DATA_FIELD_SETTINGS = 'FIELD_SETTINGS_DATA.field_settings';
+    const GLOBAL_CURRENT_LAYOUT_SELECTOR            = 'GLOBAL_CURRENT_LAYOUT_SELECTOR';
 
+    const GLOBAL_AUTH_LOGGED_IN      = 'Auth.Logged_In';
+    const GLOBAL_AUTH_USER_ROLE_NAME = 'Auth.User_Role_Name';
+    const GLOBAL_AUTH_USER_ROLE_ID   = 'Auth.User_Role_ID';
+    const GLOBAL_AUTH_USER_ID        = 'Auth.User_ID';
+    const GLOBAL_AUTH_USER_EMAIL     = 'Auth.User_Email';
+    const GLOBAL_AUTH_USER_TABLE     = 'Auth.User_Table';
+
+    const GLOBAL_APP_SITE_URL          = 'App_Config.SiteURL';
+    const GLOBAL_APP_APP_NAME          = 'App_Config.APP_NAME';
+    const GLOBAL_APP_URL               = 'App_Config.APP_URL';
+    const GLOBAL_APP_TIME_ZONE         = 'App_Config.APP_TIME_ZONE';
+    const GLOBAL_APP_TIME_ZONE_OFFSET  = 'App_Config.APP_TIME_ZONE_OFFSET';
+    const GLOBAL_APP_IS_PRODUCTION     = 'App_Config.isProduction';
+    const GLOBAL_APP_SERVE_APP_PATH    = 'App_Config.SERVE_APP_PATH';
+    const GLOBAL_APP_SERVE_MODULE_PATH = 'App_Config.SERVE_MODULE_PATH';
+
+    const GLOBAL_DRIVE_SERVE_APP_PATH    = 'Drive_Config.SERVE_APP_PATH';
+    const GLOBAL_DRIVE_SERVE_MODULE_PATH = 'Drive_Config.SERVE_MODULE_PATH';
+
+    const GLOBAL_URL_FULL_URL    = 'URL.FULL_URL';
+    const GLOBAL_URL_REQUEST_URL = 'URL.REQUEST_URL';
+    const GLOBAL_URL_PARAMS      = 'URL.PARAMS';
+    const GLOBAL_URL_REFERER     = 'URL.REFERER';
+
+
+    /**
+     * @var InitLoader|null
+     */
+    private static InitLoader|null $init = null;
+
+    /**
+     * @var InitLoaderMinimal|null
+     */
+    private static InitLoaderMinimal|null $initLoaderMinimal = null;
+
+    /**
+     * @var Tree|null
+     */
+    private static Tree|null $treeSystem = null;
+
+    /**
+     * @param string $key
+     *
+     * @return mixed|null
+     * @throws Exception
+     */
+    public static function GlobalVariableConfig (string $key): mixed
+    {
+        return helper()->accessDataWithSeparator($key, getGlobalVariableData());
+    }
+
+    /**
+     * @return string
+     */
     public static function getInitKey (): string
     {
         return AppConfig::getCachePrefix() . self::getAppCacheKey();
@@ -127,7 +181,6 @@ class AppConfig
                     // you can disable each module in its own config
                     // This gives us the module availability
                     if ($module->enabled()) {
-                        // $events = [...$events, ...$module->events()];
                         $events = array_merge_recursive($events, $module->events());
                         // append the Routes by chaining...
                         $module->route($router->getRoute());
@@ -349,7 +402,8 @@ class AppConfig
                     # If url has not been chosen or is not a reserved path
                     $foundURLNode = $route->getRouteTreeGenerator()->findURL($page->page_slug);
                     if ($foundURLNode->getFoundURLNode() === null || empty($foundURLNode->getFoundURLNode()->getSettings())) {
-                        $route->get($page->page_slug, [$controller, 'viewPage'], moreSettings: $page);
+                        $title = helper()->slug($page->page_title);
+                        $route->get($page->page_slug, [$controller, 'viewPage'], alias: "page.$title", moreSettings: $page);
                     }
                 }
             }
@@ -667,6 +721,29 @@ class AppConfig
     }
 
     /**
+     * @param array $attributes
+     * @param string $tagName
+     *
+     * @return string
+     * @throws Exception
+     */
+    public static function LinkAsset (array $attributes, string $tagName = 'link'): string
+    {
+        $htmlAttributes = '';
+        foreach ($attributes as $key => $value) {
+            $htmlAttributes .= helper()->htmlSpecChar($key) . '="' . helper()->htmlSpecChar($value) . '" ';
+        }
+
+        return "<$tagName $htmlAttributes>" . helper()->getHTMLClosingTag($tagName);
+    }
+
+    /**
+     * Example usage:
+     *
+     * ```
+     * AppConfig::getModuleAsset('Core', 'js/views/post/front/script-combined.min.js')
+     * ```
+     *
      * @param string $moduleName
      * @param string $path
      *

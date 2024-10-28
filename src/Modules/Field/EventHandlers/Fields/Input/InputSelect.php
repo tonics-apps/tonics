@@ -18,11 +18,13 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Input;
 
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class InputSelect implements HandlerInterface
 {
+    private array $fieldInputSelects = [];
 
     /**
      * @inheritDoc
@@ -37,9 +39,6 @@ class InputSelect implements HandlerInterface
             },
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
-            },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
             },
         );
     }
@@ -67,6 +66,7 @@ class InputSelect implements HandlerInterface
 
         $validationFrag = $event->getFieldData()->getFieldsValidationSelection($fieldValidation, $changeID);
         $sanitizationFrag = $event->getFieldData()->getFieldsSanitizationSelection($event->getFieldSanitization(), $fieldSanitization, $changeID);
+        $hookName = (isset($data->hookName)) ? $data->hookName : '';
 
         $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
 
@@ -76,6 +76,10 @@ class InputSelect implements HandlerInterface
         <select name="multiSelect" class="default-selector mg-b-plus-1" id="multiSelect-$changeID">
         $multiSelect
         </select>
+    </label>
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="hookName-$changeID">Hook Name
+        <input id="hookName-$changeID" name="hookName" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
+        value="$hookName" placeholder="Name of the Selector hook">
     </label>
     
 </div>
@@ -128,12 +132,13 @@ FORM;
     public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
-
         $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultValue = $keyValue;
-        if (mb_strlen($keyValue, 'UTF-8') === 0 && isset($data->defaultValue)) {
+        $hookName = $data->hookName ?? '';
+        if (is_string($keyValue) && mb_strlen($keyValue, 'UTF-8') === 0 && isset($data->defaultValue)) {
             $defaultValue = $data->defaultValue;
         }
+        $data->selectedValue = $defaultValue;
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $selectData = (isset($data->selectData)) ? $data->selectData : '';
@@ -153,6 +158,19 @@ FORM;
             }
         }
 
+        if (!empty($hookName)) {
+            if (!isset($this->fieldInputSelects[$hookName])) {
+                $dropperEvent = FieldConfig::getFieldSelectionDropper();
+                $eventSelects = $dropperEvent->getInputSelectsByName($hookName, true);
+                foreach ($eventSelects as $eventSelect) {
+                    $choiceKeyValue[$eventSelect] = $eventSelect;
+                }
+                $this->fieldInputSelects[$hookName] = $choiceKeyValue;
+            } else {
+                $choiceKeyValue = $this->fieldInputSelects[$hookName];
+            }
+        }
+
         $slug = $data->field_slug;
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
@@ -164,7 +182,18 @@ FORM;
         $error = '';
         foreach ($choiceKeyValue as $key => $value) {
             $selected = '';
-            if ($key == $defaultValue) {
+
+            if (is_array($defaultValue)) {
+                foreach ($defaultValue as $default) {
+                    if ($key === $default) {
+                        $selected = 'selected';
+                        $data->selectedValue = $default;
+                        break;
+                    }
+                }
+            }
+
+            if ($selected === 'selected' || $key == $defaultValue) {
                 if (!empty($fieldValidation)) {
                     $error = $event->validationMake([$inputName => $value], [$inputName => $data->field_validations]);
                 }
@@ -180,9 +209,11 @@ FORM;
 HTML;
 
         }
+
         $frag .= <<<FORM
-<div class="form-group margin-top:0">
+<div data-draggable-ignore class="form-group margin-top:0">
 $error
+<label class="menu-settings-handle-name screen-reader-text" for="fieldName-$changeID">$fieldName</label>
 <select class="default-selector mg-b-plus-1" name="$inputName" $multiple>
     $choiceFrag
 </select>
@@ -191,14 +222,6 @@ FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData (OnFieldMetaBox $event, $data)
-    {
-        $event->defaultInputViewHandler('InputSelect', $data);
     }
 
 }

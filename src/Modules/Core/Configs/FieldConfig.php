@@ -21,6 +21,7 @@ namespace App\Modules\Core\Configs;
 use App\Modules\Core\Boot\InitLoaderMinimal;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Events\FieldSelectionDropper\OnAddFieldSelectionDropperEvent;
 use App\Modules\Field\Events\OnFieldMetaBox;
 
 class FieldConfig
@@ -135,52 +136,45 @@ class FieldConfig
     /**
      * @param OnFieldMetaBox $event
      * @param $defaultFieldSlug
-     * @param \stdClass $data
      *
      * @return string
      * @throws \Exception
      */
     public static function expandFieldWithChildrenFromMetaBox (OnFieldMetaBox $event, $defaultFieldSlug): string
     {
-        $defaultFieldSlugFrag = '';
         $data = $event->getCallBackData();
-        if (isset($data->_field->_children)) {
+        $originalFieldItems = null;
+        db(onGetDB: function ($db) use ($event, $defaultFieldSlug, &$originalFieldItems) {
+            $fieldTable = $event->getFieldData()->getFieldTable();
+            $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
+            $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
 
-            $originalFieldItems = null;
-            db(onGetDB: function ($db) use ($event, $defaultFieldSlug, &$originalFieldItems) {
-                $fieldTable = $event->getFieldData()->getFieldTable();
-                $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
-                $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
+            $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
+                ->From($fieldItemsTable)
+                ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
+                ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
+        });
 
-                $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
-                    ->From($fieldItemsTable)
-                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                    ->WhereEquals('field_slug', $defaultFieldSlug)->OrderBy('fk_field_id')->FetchResult();
-            });
-
-            foreach ($originalFieldItems as $originalFieldItem) {
-                $fieldOption = json_decode($originalFieldItem->field_options);
-                $originalFieldItem->field_options = $fieldOption;
-            }
-
-            // Sort and Arrange OriginalFieldItems
-            $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
-            if (isset($data->_field->_children)) {
-                $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
-            } else {
-                $sortedFieldWalkerItems = $originalFieldItems;
-            }
-
-            foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
-                if (isset($sortedFieldWalkerItem->_children)) {
-                    $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
-                }
-            }
-            $fieldCategories = [$defaultFieldSlug => $sortedFieldWalkerItems];
-            $defaultFieldSlugFrag = $event->getFieldData()->getUsersFormFrag($fieldCategories);
+        foreach ($originalFieldItems as $originalFieldItem) {
+            $fieldOption = json_decode($originalFieldItem->field_options);
+            $originalFieldItem->field_options = $fieldOption;
         }
 
-        return $defaultFieldSlugFrag;
+        // Sort and Arrange OriginalFieldItems
+        $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
+        if (isset($data->_field->_children)) {
+            $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
+        } else {
+            $sortedFieldWalkerItems = $originalFieldItems;
+        }
+
+        foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
+            if (isset($sortedFieldWalkerItem->_children)) {
+                $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
+            }
+        }
+        $fieldCategories = [$defaultFieldSlug => $sortedFieldWalkerItems];
+        return $event->getFieldData()->getUsersFormFrag($fieldCategories);
     }
 
 
@@ -195,6 +189,9 @@ class FieldConfig
      */
     public static function savePluginFieldSettings ($key, array $data, bool $clearCache = true): array
     {
+        $fieldData = new FieldData();
+        $data = $fieldData->unwrapCompareAndSortFieldSettings($data);
+
         db(onGetDB: function ($db) use ($key, $data) {
             $key = 'App_Settings_' . $key;
             if (isset($data['token'])) {
@@ -218,10 +215,25 @@ class FieldConfig
     }
 
     /**
+     * @param $key
+     *                 The cache key
+     * @param $settings
+     *                 if not null, it doesn't touch the db, it only uncompress the field items when sorted
+     *
+     * @return array
      * @throws \Exception
      */
-    public static function loadPluginSettings ($key): array
+    public static function loadPluginSettings ($key, $settings = null): array
     {
+        if ($settings) {
+
+            if (isset($settings['_fieldDetailsSorted'])) {
+                $settings['_fieldDetailsSorted'] = helper()->unCompressFieldItems($settings['_fieldDetailsSorted']);
+            }
+            return $settings;
+
+        }
+
         if (AppConfig::TonicsIsReady() === false) {
             return [];
         }
@@ -234,15 +246,68 @@ class FieldConfig
         db(onGetDB: function ($db) use ($key, $globalTable, &$updates) {
             try {
                 $updates = $db->row("SELECT * FROM $globalTable WHERE `key` = ?", $key);
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 $updates = [];
             }
         });
 
         if (!empty($updates->value)) {
-            return json_decode($updates->value, true);
+
+            $value = json_decode($updates->value, true);
+
+            if (isset($value['_fieldDetailsSorted'])) {
+                $value['_fieldDetailsSorted'] = helper()->unCompressFieldItems($value['_fieldDetailsSorted']);
+            }
+
+            return $value;
+
         }
+
         return [];
+    }
+
+    /**
+     * @return OnAddFieldSelectionDropperEvent
+     * @throws \ReflectionException
+     * @throws \Throwable
+     */
+    public static function getFieldSelectionDropper (): OnAddFieldSelectionDropperEvent
+    {
+        $dropperEvent = container()->get(OnAddFieldSelectionDropperEvent::class);
+        event()->dispatch($dropperEvent);
+        return $dropperEvent;
+    }
+
+    /**
+     * @param array|\stdClass $pages
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public static function LayoutSelectorsForPages (array|\stdClass $pages): array
+    {
+        $layoutSelectors = [];
+        if (is_object($pages)) {
+            $pages = [$pages];
+        }
+
+        foreach ($pages as $page) {
+            if (isset($page->field_settings)) {
+
+                $fieldSettings = json_decode($page->field_settings);
+                if (isset($fieldSettings->_fieldDetailsSorted)) {
+                    $sorted = helper()->unCompressFieldItems($fieldSettings->_fieldDetailsSorted);
+                }
+
+                $layoutSelector = $sorted->{'layout-selector'} ?? [];
+                foreach ($layoutSelector as $selector) {
+                    $layoutSelectors[] = $selector;
+                }
+
+            }
+        }
+
+        return $layoutSelectors;
     }
 
     public static function DefaultFieldItems (): array

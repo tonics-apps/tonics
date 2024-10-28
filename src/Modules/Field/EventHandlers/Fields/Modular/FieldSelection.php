@@ -18,10 +18,9 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Modular;
 
+use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Tables;
-use App\Modules\Field\Data\FieldData;
 use App\Modules\Field\Events\OnFieldMetaBox;
-use App\Modules\Field\Events\OnFieldFormHelper;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
 class FieldSelection implements HandlerInterface
@@ -31,7 +30,7 @@ class FieldSelection implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox(
@@ -40,41 +39,26 @@ class FieldSelection implements HandlerInterface
             'Modular',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
-            }, userForm: function ($data) use ($event) {
-            return $this->userForm($event, $data);
-        },
-            handleViewProcessing: function ($data) use ($event) {
-                return '';
-            }
+            },
+            userForm: function ($data) use ($event) {
+                return $this->userForm($event, $data);
+            },
         );
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $fieldSlug = (isset($data->fieldSlug)) ? $data->fieldSlug : '';
-        $expandField = (isset($data->expandField)) ? $data->expandField : '0';
-
-        if ($expandField === '1') {
-            $expandField = <<<HTML
-<option value="0">False</option>
-<option value="1" selected>True</option>
-HTML;
-        } else {
-            $expandField = <<<HTML
-<option value="0" selected>False</option>
-<option value="1">True</option>
-HTML;
-        }
-
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
         $fields = null;
-        db(onGetDB: function ($db) use (&$fields){
+        db(onGetDB: function ($db) use (&$fields) {
             $table = Tables::getTable(Tables::FIELD);
             $fields = $db->run("SELECT * FROM $table");
         });
@@ -87,16 +71,28 @@ HTML;
 <option value="$uniqueSlug" $fieldSelected>$field->field_name</option>
 HTML;
         }
+
+        $group = $event->booleanOptionSelect($data->group ?? '0');
+        $toggleable = $event->booleanOptionSelectWithNull($data->toggleable ?? '');
         $changeID = isset($data->_field) ? helper()->randString(10) : 'CHANGEID';
+
         $moreSettings = $event->generateMoreSettingsFrag($data, <<<HTML
-<div class="form-group">
-     <label class="field-settings-handle-name" for="expandField-$changeID">Expand Field
-     <select name="expandField" class="default-selector mg-b-plus-1" id="expandField-$changeID">
-        $expandField
-     </select>
+<div class="form-group d:flex flex-gap align-items:flex-end">
+
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="group-$changeID">Group
+        <select name="group" class="default-selector mg-b-plus-1" id="group-$changeID">
+            $group
+        </select>
     </label>
+    
+    <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="toggleable-$changeID">Toggable
+        <select name="toggleable" class="default-selector mg-b-plus-1" id="toggleable-$changeID">
+            $toggleable
+        </select>
+    </label>
+    
 </div>
-HTML
+HTML,
         );
 
         $frag .= <<<FORM
@@ -127,88 +123,61 @@ FORM;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Field';
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $fieldSlug = (isset($data->fieldSlug) && !empty($keyValue)) ? $keyValue : $data->fieldSlug;
-        $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
-        $expandField = (isset($data->expandField)) ? $data->expandField : '0';
 
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
         $htmlFrag = '';
+        helper()->garbageCollect(function () use ($fieldSlug, $event, &$htmlFrag) {
+            $htmlFrag = FieldConfig::expandFieldWithChildrenFromMetaBox($event, $fieldSlug);
+        });
 
-        $inputName = (isset($data->inputName)) ? $data->inputName : "{$fieldSlug}_$changeID";
-
-        $fieldTable = $event->getFieldData()->getFieldTable();
-        $fieldItemsTable = $event->getFieldData()->getFieldItemsTable();
-        $fieldAndFieldItemsCols = $event->getFieldData()->getFieldAndFieldItemsCols();
-
-        if ($expandField === '1') {
-            $originalFieldItems = null;
-            db(onGetDB: function ($db) use ($fieldSlug, $fieldTable, $fieldItemsTable, $fieldAndFieldItemsCols, &$originalFieldItems){
-                $originalFieldItems = $db->Select($fieldAndFieldItemsCols)
-                    ->From($fieldItemsTable)
-                    ->Join($fieldTable, "$fieldTable.field_id", "$fieldItemsTable.fk_field_id")
-                    ->WhereEquals('field_slug', $fieldSlug)
-                    ->OrderBy('fk_field_id')->FetchResult();
-            });
-
-            foreach ($originalFieldItems as $originalFieldItem){
-                $fieldOption = json_decode($originalFieldItem->field_options);
-                $originalFieldItem->field_options = $fieldOption;
-            }
-
-            // Sort and Arrange OriginalFieldItems
-            $originalFieldItems = helper()->generateTree(['parent_id' => 'field_parent_id', 'id' => 'field_id'], $originalFieldItems);
-            if (isset($data->_field->_children)){
-                $sortedFieldWalkerItems = $event->getFieldData()->sortFieldWalkerTree($originalFieldItems, $data->_field->_children);
-            } else {
-                $sortedFieldWalkerItems = $originalFieldItems;
-            }
-
-            foreach ($sortedFieldWalkerItems as $sortedFieldWalkerItem) {
-                if (isset($sortedFieldWalkerItem->_children)) {
-                    $sortedFieldWalkerItem->field_options->_children = $sortedFieldWalkerItem->_children;
-                }
-
-                $htmlFrag .= $event->getUsersForm($sortedFieldWalkerItem->field_options->field_slug, $sortedFieldWalkerItem->field_options);
-            }
-
-            $frag .= $htmlFrag;
-        } else {
-            $fields = null;
-            db(onGetDB: function ($db) use ($fieldTable, &$fields){
-                $fields = $db->Select('*')->From($fieldTable)->FetchResult();
-            });
-
-            $fieldFrag = '';
-            foreach ($fields as $field) {
-                $uniqueSlug = "$field->field_slug";
-                if ($fieldSlug === $uniqueSlug) {
-                    $fieldFrag .= <<<HTML
-<option value="$uniqueSlug" selected>$field->field_name</option>
-HTML;
-                } else {
-                    $fieldFrag .= <<<HTML
-<option value="$uniqueSlug">$field->field_name</option>
-HTML;
-                }
-            }
-
-            $frag .= <<<HTML
-<div class="form-group margin-top:0">
-     <label class="field-settings-handle-name" for="fieldSlug-$changeID">Choose Field
-     <select name="$inputName" class="default-selector mg-b-plus-1" id="fieldSlug-$changeID">
-        $fieldFrag
-     </select>
-    </label>
-</div>
-HTML;
+        $isGroup = isset($data->group) && $data->group === '1';
+        $isToggleable = null;
+        if (isset($data->toggleable) && $data->toggleable !== '') {
+            $isToggleable = $data->toggleable === '1';
         }
 
-        $frag .= $event->_bottomHTMLWrapper();
+        if ($isGroup) {
+            $frag = $event->_topHTMLWrapper($fieldName, $data, true, function ($isEditorWidgetSettings, $toggle) use ($data, $event) {
+                $slug = $data->field_slug ?? '';
+                $hash = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
+                $inputName = (isset($data->inputName)) ? $data->inputName : '';
+                $field_table_slug = (isset($data->_field->main_field_slug)) ? "<input type='hidden' name='main_field_slug' value='{$data->_field->main_field_slug}'>" : '';
+
+                return <<<HTML
+<li tabIndex="0" class="width:100% field-builder-items overflow:auto">
+            <div $isEditorWidgetSettings role="form" data-widget-form="true" class="widgetSettings flex-d:column menu-widget-information cursor:pointer width:100% {$toggle['div']}">
+<input type="hidden" name="field_slug" value="$slug">
+$field_table_slug
+<input type="hidden" name="field_slug_unique_hash" value="$hash">
+<input type="hidden" name="field_input_name" value="$inputName">
+HTML;
+            });
+        } else {
+            $frag = $event->_topHTMLWrapper($fieldName, $data, true, toggleUserSettings: $isToggleable);
+        }
+
+        $frag .= <<<FieldSelectionDropperFrag
+<div style="margin: 0;" class="tonics-field-selected-container">
+        <ul style="margin-left: 0; transform: unset; box-shadow: unset;"  class="tonics-field-selected-ul row-col-item-user">
+                $htmlFrag
+         </ul>
+    </div>
+FieldSelectionDropperFrag;
+
+        if ($isGroup) {
+            $frag .= $event->_bottomHTMLWrapper(function () {
+                return "</div></li>";
+            });
+        } else {
+            $frag .= $event->_bottomHTMLWrapper();
+        }
+
         return $frag;
     }
 

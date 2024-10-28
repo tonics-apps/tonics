@@ -53,6 +53,11 @@ abstract class AbstractFieldHandler implements HandlerInterface
      */
     abstract public function fieldBoxCategory (): string;
 
+    public function fieldScriptPath (): string
+    {
+        return '';
+    }
+
     /**
      * @param OnFieldMetaBox $event
      * @param $data
@@ -78,7 +83,11 @@ abstract class AbstractFieldHandler implements HandlerInterface
     {
         /** @var $event OnFieldMetaBox */
         $this->field = new Field($event);
-        $event->addFieldBox($this->fieldBoxName(), $this->fieldBoxDescription(), $this->fieldBoxCategory(),
+        $event->addFieldBox(
+            $this->fieldBoxName(),
+            $this->fieldBoxDescription(),
+            $this->fieldBoxCategory(),
+            $this->fieldScriptPath(),
             settingsForm: function ($data) use ($event) {
                 $this->field->processData($event);
                 return $this->settingsForm($event, $data);
@@ -86,10 +95,6 @@ abstract class AbstractFieldHandler implements HandlerInterface
             userForm: function ($data) use ($event) {
                 $this->field->processData($event);
                 return $this->userForm($event, $data);
-            },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->field->processData($event);
-                $this->viewData($event, $data);
             },
         );
     }

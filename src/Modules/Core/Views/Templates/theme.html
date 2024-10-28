@@ -5,43 +5,61 @@
 
 [[on_hook_into_event()]]
 
+[[add_hook('Theme::Bootstrap')]]
 [[add_hook('before_html')]]
-<html lang="en" [[add_hook('in_html_attribute')]]>
+<html [[add_hook('in_html_attribute')]] lang="[[add_hook('in_html_lang')en]]" class="[[add_hook('in_html_class_attribute')]]" id="[[add_hook('in_html_id_attribute')]]" >
 
-[[add_hook('before_head')]]
+    [[add_hook('before_head')]]
 
-<head [[add_hook('in_head_attribute')]]>
-    [[_use("default-meta")]]
-    [[add_hook('in_head')]]
-    [[add_hook('in_head_stylesheet')]]
-</head>
+    <head [[add_hook('in_head_attribute')]]>
+        [[add_hook('before_meta_tags')]]
+        [[_use("default-meta")]]
+        [[add_hook('after_meta_tags')]]
+        [[add_hook('in_head')]]
+        [[add_hook('in_head_stylesheet')]]
+        <style>
+            [[add_hook('in_head_inline_styles')]]
+        </style>
+        [[add_hook('before_closing_head')]]
+    </head>
 
-[[add_hook('before_body')]]
-<body [[add_hook('in_body_attribute')]]>
+    [[add_hook('after_head')]]
 
-    [[- Inline SVG -]]
-    <svg class="tonics-inline-svg" style="position: absolute; width: 0; height: 0; overflow: hidden"
-         xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            [[add_hook('in_svg_defs')]]
-        </defs>
-    </svg>
+    [[add_hook('before_body')]]
 
-    [[add_hook('in_body')]]
+    <body [[add_hook('in_body_attribute')]] class="[[add_hook('in_body_class_attribute')]]" id="[[add_hook('in_body_id_attribute')]]">
+        [[add_hook('before_svg')]]
+        [[- Inline SVG -]]
+            <svg class="tonics-inline-svg" style="position: absolute; width: 0; height: 0; overflow: hidden"
+                    xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    [[add_hook('in_svg_defs')]]
+                </defs>
+            </svg>
+        [[add_hook('after_svg')]]
 
-    [[add_hook('before_header')]]
-<header [[add_hook('in_header_attribute')]]>
-    [[add_hook('in_header')]]
-</header>
-    [[add_hook('after_header')]]
+        [[add_hook('in_body')]]
 
-    [[add_hook('before_closing_body')]]
-</body>
+        [[add_hook('before_header')]]
+        <header [[add_hook('in_header_attribute')]] class="[[add_hook('in_header_class_attribute')]]" id="[[add_hook('in_header_id_attribute')]]" >
+        [[add_hook('in_header')]]
+        </header>
+        [[add_hook('after_header')]]
+
+        [[add_hook('before_main_content')]]
+        <main[[add_hook('in_main_attribute')]] class="[[add_hook('in_main_class_attribute')]]" id="[[add_hook('in_main_id_attribute')]]" >
+            [[add_hook('in_main_content')]]
+        </main>
+        [[add_hook('after_main_content')]]
+
+        [[add_hook('before_closing_body')]]
+    </body>
+
     [[add_hook('after_body')]]
 
     [[add_hook('before_footer')]]
-<footer [[add_hook('in_footer_attribute')]]>
+    <footer [[add_hook('in_footer_attribute')]] class="[[add_hook('in_footer_class_attribute')]]" id="[[add_hook('in_footer_id_attribute')]]" >
     [[add_hook('in_footer')]]
-</footer>
+    </footer>
     [[add_hook('after_footer')]]
 </html>

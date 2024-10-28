@@ -28,30 +28,27 @@ class InputColor implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Color', 'Input Color',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
-            }
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
-        $defaultValue =  (isset($data->defaultValue)) ? $data->defaultValue : '#000000';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Color';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
+        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '#000000';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -83,20 +80,20 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Color';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Color';
 
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultValue = (isset($data->defaultValue) && !empty($keyValue)) ? $keyValue : $data->defaultValue;
 
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $slug = $data->field_slug;
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $frag = $event->_topHTMLWrapper($fieldName, $data);
         $frag .= <<<FORM
-<div class="form-group">
+<div data-draggable-ignore class="form-group">
      <label class="menu-settings-handle-name" for="inputColor-$changeID">Choose Color
      <input name="$inputName" value="$defaultValue" type="color" class="menu-name color:black border-width:default border:black placeholder-color:gray" id="inputColor-$changeID">
     </label>
@@ -105,14 +102,6 @@ FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData(OnFieldMetaBox $event, $data)
-    {
-        $event->defaultInputViewHandler('InputColor', $data);
     }
 
 }

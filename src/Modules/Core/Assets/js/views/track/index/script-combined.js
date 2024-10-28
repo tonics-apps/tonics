@@ -366,7 +366,6 @@ window.TonicsScript.Query = () => new Query();
 export {
   Query
 };
-
 /*
  *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -385,277 +384,332 @@ export {
  */
 
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, "name", {value, configurable: true});
 
 // src/Util/Element/Abstract/ElementAbstract.ts
 var ElementAbstract = class {
-  constructor($Element) {
-    if ($Element) {
-      return this.query($Element);
+    constructor($Element) {
+        if ($Element) {
+            return this.query($Element);
+        }
+        return this;
     }
-    return this;
-  }
-  query($classOrID) {
-    let $temp = document.querySelector(`${$classOrID}`);
-    if ($temp) {
-      this.setQueryResult($temp);
-      return this;
+
+    query($classOrID) {
+        let $temp = document.querySelector(`${$classOrID}`);
+        if ($temp) {
+            this.setQueryResult($temp);
+            return this;
+        }
+        console.log(`Invalid class or id name - ${$classOrID}`);
     }
-    console.log(`Invalid class or id name - ${$classOrID}`);
-  }
-  setQueryResult($result) {
-    this.$queryResult = $result;
-    return this;
-  }
-  getQueryResult() {
-    return this.$queryResult;
-  }
+
+    setQueryResult($result) {
+        this.$queryResult = $result;
+        return this;
+    }
+
+    getQueryResult() {
+        return this.$queryResult;
+    }
 };
 __name(ElementAbstract, "ElementAbstract");
 
 // src/Util/Others/Draggables.ts
 var Draggables = class extends ElementAbstract {
-  constructor($draggableContainer) {
-    super($draggableContainer);
-    this.dragging = null;
-    this.droppedTarget = null;
-    this._draggingOriginalRect = null;
-    this.xPosition = 0;
-    this.yPosition = -1;
-    this.mouseActive = false;
-    this._constrainedQuad = false;
-    this.$draggableElementDetails = {};
-  }
-  get draggingOriginalRect() {
-    return this._draggingOriginalRect;
-  }
-  set draggingOriginalRect(value) {
-    this._draggingOriginalRect = value;
-  }
-  get constrainedQuad() {
-    return this._constrainedQuad;
-  }
-  set constrainedQuad(value) {
-    this._constrainedQuad = value;
-  }
-  settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
-    this.constrainedQuad = $constrainedQuad;
-    this.getDraggableElementDetails().draggable = {
-      constrainedQuad: $constrainedQuad,
-      draggableElement: $draggableElement,
-      ignoreElements: $elementsToIgnore,
-      callbacks: {
-        onDragging: null,
-        onDragDrop: null,
-        onDragRight: null,
-        onDragLeft: null,
-        onDragBottom: null,
-        onDragTop: null
-      }
-    };
-    return this;
-  }
-  getDraggableElementDetails() {
-    return this.$draggableElementDetails;
-  }
-  checkIfSettingsIsSet() {
-    return this.getDraggableElementDetails().draggable;
-  }
-  onDragDrop($onDragDrop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
-      return this;
+    constructor($draggableContainer) {
+        super($draggableContainer);
+        this.dragging = null;
+        this.droppedTarget = null;
+        this._draggingOriginalRect = null;
+        this.xPosition = 0;
+        this.yPosition = -1;
+        this.mouseActive = false;
+        this._constrainedQuad = false;
+        this.$draggableElementDetails = {};
     }
-  }
-  onDragRight($onDragRight) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
-      return this;
+
+    get draggingOriginalRect() {
+        return this._draggingOriginalRect;
     }
-  }
-  onDragLeft($onDragLeft) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
-      return this;
+
+    set draggingOriginalRect(value) {
+        this._draggingOriginalRect = value;
     }
-  }
-  onDragBottom($onDragBottom) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
-      return this;
+
+    get constrainedQuad() {
+        return this._constrainedQuad;
     }
-  }
-  onDragTop($onDragTop) {
-    if (this.checkIfSettingsIsSet()) {
-      this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
-      return this;
+
+    set constrainedQuad(value) {
+        this._constrainedQuad = value;
     }
-  }
-  run() {
-    let $draggableContainer = this.getQueryResult();
-    let self = this;
-    let shiftX;
-    let shiftY;
-    if ($draggableContainer) {
-      $draggableContainer.addEventListener("pointerdown", function(e) {
-        self.setMouseActive(true);
-        let el = e.target;
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
+
+    settings($draggableElement, $elementsToIgnore, $constrainedQuad = false) {
+        this.constrainedQuad = $constrainedQuad;
+        this.getDraggableElementDetails().draggable = {
+            constrainedQuad: $constrainedQuad,
+            draggableElement: $draggableElement,
+            ignoreElements: $elementsToIgnore,
+            callbacks: {
+                onDragging: null,
+                onDragDrop: null,
+                onDragRight: null,
+                onDragLeft: null,
+                onDragBottom: null,
+                onDragTop: null
+            }
+        };
+        return this;
+    }
+
+    getDraggableElementDetails() {
+        return this.$draggableElementDetails;
+    }
+
+    checkIfSettingsIsSet() {
+        return this.getDraggableElementDetails().draggable;
+    }
+
+    onDragDrop($onDragDrop) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragDrop = $onDragDrop;
+            return this;
+        }
+    }
+
+    onDragRight($onDragRight) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragRight = $onDragRight;
+            return this;
+        }
+    }
+
+    onDragLeft($onDragLeft) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragLeft = $onDragLeft;
+            return this;
+        }
+    }
+
+    onDragBottom($onDragBottom) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragBottom = $onDragBottom;
+            return this;
+        }
+    }
+
+    onDragTop($onDragTop) {
+        if (this.checkIfSettingsIsSet()) {
+            this.getDraggableElementDetails().draggable.callbacks.onDragTop = $onDragTop;
+            return this;
+        }
+    }
+
+    canDrag(el) {
+        let self = this, startDrag = true;
+        const ignoreElements = self.getDraggableElementDetails().draggable.ignoreElements;
+        for (let index = 0; index < ignoreElements.length; index++) {
+            const value = ignoreElements[index];
+            if (el.closest(value)) {
+                startDrag = false;
+                break; // Exit the loop early if the condition is met
+            }
+        }
+
+        if (!startDrag) {
+            this.setMouseActive(false);
+        }
+
+        return startDrag;
+    }
+
+    run() {
+        let $draggableContainer = this.getQueryResult();
+        let self = this;
+        let shiftX;
+        let shiftY;
+        let hasMoved = false;
+        if ($draggableContainer) {
+            $draggableContainer.addEventListener("pointerdown", function (e) {
+                self.setMouseActive(true);
+                let el = e.target;
+                let startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+                if (el.closest(draggableSelector)) {
+                    self == null ? void 0 : self.setDragging(el.closest(draggableSelector));
+                    let draggable = self.getDragging();
+                    if (startDrag) {
+                        shiftX = e.clientX;
+                        shiftY = e.clientY;
+                        draggable.classList.add("draggable-start");
+                        draggable.classList.add("touch-action:none");
+                        self._draggingOriginalRect = draggable.getBoundingClientRect();
+                    }
+                    draggable?.classList.remove("draggable-animation");
+                }
+            });
+        }
+        $draggableContainer.addEventListener("pointerup", function (e) {
+            let el = e.target;
+            if (self.isMouseActive()) {
+                self.setMouseActive(false);
+                let startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                self.setXPosition(0);
+                self.setYPosition(-1);
+                let draggable = self.getDragging();
+                if (draggable && startDrag) {
+                    draggable.style["transform"] = "";
+                    draggable.classList.remove("draggable-start");
+                    draggable.classList.remove("touch-action:none");
+                    draggable.classList.add("draggable-animation");
+                } else {
+                    draggable?.classList.remove("draggable-animation");
+                    return false;
+                }
+                let onDragDrop = self.getDraggableElementDetails().draggable.callbacks.onDragDrop;
+                if (hasMoved && onDragDrop !== null && typeof onDragDrop == "function") {
+                    onDragDrop(el, self);
+                    hasMoved = false;
+                }
+            }
         });
-        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
-        if (el.closest(draggableSelector) && startDrag) {
-          self == null ? void 0 : self.setDragging(el.closest(draggableSelector));
-          let draggable = self.getDragging();
-          shiftX = e.clientX;
-          shiftY = e.clientY;
-          draggable.classList.add("draggable-start");
-          draggable.classList.add("touch-action:none");
-          draggable.classList.remove("draggable-animation");
-          self._draggingOriginalRect = draggable.getBoundingClientRect();
-        }
-      });
+
+        $draggableContainer.addEventListener("pointermove", function (e) {
+            if (self.isMouseActive()) {
+                let el = e.target, startDrag = true;
+
+                if (!self.canDrag(el)) {
+                    return;
+                }
+
+                let draggable = self.getDragging();
+                let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
+                if (el.closest(draggableSelector) && startDrag && draggable) {
+                    draggable.classList.add("pointer-events:none");
+                    let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+                    self.setDroppedTarget(elemBelow.closest(draggableSelector));
+                    draggable.classList.remove("pointer-events:none");
+                    e.preventDefault();
+                    let tx = e.clientX - shiftX;
+                    let ty = e.clientY - shiftY;
+                    if (!self.constrainedQuad) {
+                        draggable.style.transform = "translate3d(" + tx + "px," + ty + "px, 0px)";
+                    }
+                    if (e.movementX >= 1 && e.movementY === 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
+                        }
+                        let onDragRight = self.getDraggableElementDetails().draggable.callbacks.onDragRight;
+                        if (onDragRight !== null && typeof onDragRight == "function") {
+                            onDragRight(draggable);
+                        }
+                    }
+                    if (e.movementX < 0 && e.movementY === 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
+                        }
+                        let onDragLeft = self.getDraggableElementDetails().draggable.callbacks.onDragLeft;
+                        if (onDragLeft !== null && typeof onDragLeft == "function") {
+                            onDragLeft(draggable, self);
+                        }
+                    }
+                    if (e.movementX === 0 && e.movementY > 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
+                        }
+                        let onDragBottom = self.getDraggableElementDetails().draggable.callbacks.onDragBottom;
+                        if (onDragBottom !== null && typeof onDragBottom == "function") {
+                            onDragBottom(draggable, self);
+                        }
+                    } else if (e.movementX === 0 && e.movementY < 0) {
+                        if (self.constrainedQuad) {
+                            draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
+                        }
+                        let onDragTop = self.getDraggableElementDetails().draggable.callbacks.onDragTop;
+                        if (onDragTop !== null && typeof onDragTop == "function") {
+                            onDragTop(draggable, self);
+                        }
+                    }
+                    hasMoved = true; // Set movement flag on pointermove
+                }
+            }
+        });
     }
-    $draggableContainer.addEventListener("pointerup", function(e) {
-      let el = e.target;
-      if (self.isMouseActive()) {
-        self.setMouseActive(false);
-        let startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        self.setXPosition(0);
-        self.setYPosition(-1);
-        let draggable = self.getDragging();
-        if (draggable && startDrag) {
-          draggable.style["transform"] = "";
-          draggable.classList.remove("draggable-start");
-          draggable.classList.remove("touch-action:none");
-          draggable.classList.add("draggable-animation");
-        } else {
-          return false;
-        }
-        let onDragDrop = self.getDraggableElementDetails().draggable.callbacks.onDragDrop;
-        if (onDragDrop !== null && typeof onDragDrop == "function") {
-          onDragDrop(el, self);
-        }
-      }
-    });
-    $draggableContainer.addEventListener("pointermove", function(e) {
-      if (self.isMouseActive()) {
-        let el = e.target, startDrag = true;
-        self.getDraggableElementDetails().draggable.ignoreElements.forEach((value, index) => {
-          if (el.closest(value)) {
-            startDrag = false;
-          }
-        });
-        let draggable = self.getDragging();
-        let draggableSelector = self.getDraggableElementDetails().draggable.draggableElement;
-        if (el.closest(draggableSelector) && startDrag && draggable) {
-          draggable.classList.add("pointer-events:none");
-          let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
-          self.setDroppedTarget(elemBelow.closest(draggableSelector));
-          draggable.classList.remove("pointer-events:none");
-          e.preventDefault();
-          let tx = e.clientX - shiftX;
-          let ty = e.clientY - shiftY;
-          if (!self.constrainedQuad) {
-            draggable.style.transform = "translate3d(" + tx + "px," + ty + "px, 0px)";
-          }
-          if (e.movementX >= 1 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragRight = self.getDraggableElementDetails().draggable.callbacks.onDragRight;
-            if (onDragRight !== null && typeof onDragRight == "function") {
-              onDragRight(draggable);
-            }
-          }
-          if (e.movementX < 0 && e.movementY === 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + tx + "px," + 0 + "px, 0px)";
-            }
-            let onDragLeft = self.getDraggableElementDetails().draggable.callbacks.onDragLeft;
-            if (onDragLeft !== null && typeof onDragLeft == "function") {
-              onDragLeft(draggable, self);
-            }
-          }
-          if (e.movementX === 0 && e.movementY > 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragBottom = self.getDraggableElementDetails().draggable.callbacks.onDragBottom;
-            if (onDragBottom !== null && typeof onDragBottom == "function") {
-              onDragBottom(draggable, self);
-            }
-          } else if (e.movementX === 0 && e.movementY < 0) {
-            if (self.constrainedQuad) {
-              draggable.style.transform = "translate3d(" + 0 + "px," + ty + "px, 0px)";
-            }
-            let onDragTop = self.getDraggableElementDetails().draggable.callbacks.onDragTop;
-            if (onDragTop !== null && typeof onDragTop == "function") {
-              onDragTop(draggable, self);
-            }
-          }
-        }
-      }
-    });
-  }
-  getXPosition() {
-    return this.xPosition;
-  }
-  setXPosition(xPosition) {
-    this.xPosition = xPosition;
-  }
-  getYPosition() {
-    return this.yPosition;
-  }
-  setYPosition(yPosition) {
-    this.yPosition = yPosition;
-  }
-  incrementXPosition() {
-    return ++this.xPosition;
-  }
-  decrementXPosition() {
-    return this.xPosition = this.xPosition - 1;
-  }
-  incrementYPosition() {
-    return ++this.yPosition;
-  }
-  decrementYPosition() {
-    return this.yPosition = this.xPosition - 1;
-  }
-  getDragging() {
-    return this.dragging;
-  }
-  setDragging(draggedData) {
-    this.dragging = draggedData;
-  }
-  getDroppedTarget() {
-    return this.droppedTarget;
-  }
-  setDroppedTarget(el) {
-    this.droppedTarget = el;
-  }
-  isMouseActive() {
-    return this.mouseActive;
-  }
-  setMouseActive(result) {
-    this.mouseActive = result;
-  }
+
+    getXPosition() {
+        return this.xPosition;
+    }
+
+    setXPosition(xPosition) {
+        this.xPosition = xPosition;
+    }
+
+    getYPosition() {
+        return this.yPosition;
+    }
+
+    setYPosition(yPosition) {
+        this.yPosition = yPosition;
+    }
+
+    incrementXPosition() {
+        return ++this.xPosition;
+    }
+
+    decrementXPosition() {
+        return this.xPosition = this.xPosition - 1;
+    }
+
+    incrementYPosition() {
+        return ++this.yPosition;
+    }
+
+    decrementYPosition() {
+        return this.yPosition = this.xPosition - 1;
+    }
+
+    getDragging() {
+        return this.dragging;
+    }
+
+    setDragging(draggedData) {
+        this.dragging = draggedData;
+    }
+
+    getDroppedTarget() {
+        return this.droppedTarget;
+    }
+
+    setDroppedTarget(el) {
+        this.droppedTarget = el;
+    }
+
+    isMouseActive() {
+        return this.mouseActive;
+    }
+
+    setMouseActive(result) {
+        this.mouseActive = result;
+    }
 };
 __name(Draggables, "Draggables");
 if (!window.hasOwnProperty("TonicsScript")) {
-  window.TonicsScript = {};
+    window.TonicsScript = {};
 }
 window.TonicsScript.Draggables = ($draggableContainer) => new Draggables($draggableContainer);
 export {
-  Draggables
+    Draggables
 };
 
 /*
@@ -3928,7 +3982,6 @@ const EventsConfig = {
 window.TonicsEvent.EventConfig = EventsConfig;
 
 
-
 /*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -3948,6 +4001,10 @@ window.TonicsEvent.EventConfig = EventsConfig;
 
 if (typeof tonicsFieldSaveChangesButton === 'undefined') {
     var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+}
+
+if (typeof meniArrangerInCoreMinimal === 'undefined') {
+    var meniArrangerInCoreMinimal = document.querySelector('.menu-arranger');
 }
 
 if (tonicsFieldSaveChangesButton) {
@@ -3975,16 +4032,16 @@ class OnSubmitFieldEditorsFormEvent {
     editorsForm = null;
 
     constructor(e = null) {
-        if (e){
+        if (e) {
             this.editorsForm = document.getElementById('EditorsForm');
         }
     }
 
     addHiddenInputToForm(form, key, value) {
         let inputExist = form.querySelector(`input[name="${key}"]`);
-        if (inputExist){
+        if (inputExist) {
             inputExist.value = value
-        }else {
+        } else {
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = key;
@@ -3994,34 +4051,118 @@ class OnSubmitFieldEditorsFormEvent {
     }
 
     getInputData(inputs, settings = {}) {
-        // collect checkbox
-        if (inputs.type === 'checkbox'){
-            let checkboxName = inputs.name;
-            if (!settings.hasOwnProperty(checkboxName)){
-                settings[checkboxName] = [];
-            }
-            if (inputs.checked){
-                settings[checkboxName].push(inputs.value);
-            }
-        }else if (inputs.type === 'select-multiple'){
-            let selectOptions = inputs.options;
-            let selectBoxName = inputs.name;
-            for (let k = 0; k < selectOptions.length; k++) {
-                let option = selectOptions[k];
-                if (option.selected){
-                    if (!settings.hasOwnProperty(selectBoxName)){
-                        settings[selectBoxName] = [];
-                    }
+        const inputName = inputs.name;
 
-                    settings[selectBoxName].push(option.value || option.text);
+        switch (inputs.type) {
+            case 'checkbox':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
                 }
-            }
-        }else if (!settings.hasOwnProperty(inputs.name)) {
-            settings[inputs.name] = inputs.value;
+                if (inputs.checked) {
+                    settings[inputName].push(inputs.value);
+                }
+                break;
+
+            case 'select-multiple':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
+                }
+                let selectOptions = inputs.options;
+                for (let k = 0; k < selectOptions.length; k++) {
+                    let option = selectOptions[k];
+                    if (option.selected) {
+                        if (!settings.hasOwnProperty(inputName)) {
+                            settings[inputName] = [];
+                        }
+                        settings[inputName].push(option.value || option.text);
+                    }
+                }
+                break;
+
+            case 'select-one': // Handling single select elements
+                const selectedOption = inputs.options[inputs.selectedIndex];
+                settings[inputName] = selectedOption.value || selectedOption.text;
+                break;
+
+            case 'radio':
+                if (inputs.checked) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
+
+            default:
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
         }
 
         return settings;
     }
+}
+
+
+if (meniArrangerInCoreMinimal) {
+
+    window.onload = function () {
+        let previews = document.querySelectorAll('[data-field_input_name="tonics-preview-layout"]:checked');
+        if (previews.length > 0) {
+            previews.forEach(preview => {
+                preview.click();
+            });
+        }
+    };
+
+    meniArrangerInCoreMinimal.addEventListener('click', (e) => {
+        let el = e.target;
+        let tonicsPreviewLayout = el.getAttribute('data-field_input_name') === 'tonics-preview-layout';
+        let layout = el.closest('[data-field_input_name="tonics-preview-layout"]');
+
+        if (tonicsPreviewLayout) {
+            let tabsField = layout?.closest('.tonicsFieldTabsContainer');
+            let builderItems = tabsField?.querySelector('.preview-iframe');
+            if (!builderItems) {
+                builderItems = tabsField?.querySelector('.field-builder-items');
+            }
+
+            if (builderItems) {
+                builderItems.classList.remove('field-builder-items');
+                builderItems.classList.add('preview-iframe');
+                builderItems.innerHTML = '<div class="margin-left:1em loading-animation"></div>';
+                let layoutSelector = el.closest('[data-repeater_input_name="layout-selector-modular-repeater"]')?.closest('.field-builder-items');
+                if (layoutSelector) {
+                    let selectedBreakPoint = layoutSelector.querySelector('select[name="tonics-preview-break-point"]');
+                    const ulElement = document.createElement('ul');
+                    ulElement.appendChild(layoutSelector.cloneNode(true));
+                    let collateFieldItemsObject = new CollateFieldItemsOnFieldsEditorsSubmit(new OnSubmitFieldEditorsFormEvent(null), ulElement);
+                    let fieldItems = collateFieldItemsObject.setListDataArray(ulElement);
+                    fieldPreviewFromPostData
+                    (fieldItems,
+                        (data) => {
+                            if (data?.data) {
+                                const iframe = document.createElement('iframe');
+                                builderItems.innerHTML = '';
+                                builderItems.appendChild(iframe);
+                                iframe.srcdoc = data.data;
+                                Object.assign(iframe.style, {
+                                    width: selectedBreakPoint?.value || '100%',
+                                    height: "100%",
+                                    border: "2px dashed rgb(110 102 97)",
+                                    resize: "horizontal"
+                                });
+                                builderItems.style.height = "750px";
+                            }
+                        }, () => {
+
+                        }, (postData) => {
+                            return {layoutSelector: postData};
+                        });
+                }
+            }
+
+        }
+
+    });
 
 }
 /*

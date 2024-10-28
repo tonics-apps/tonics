@@ -28,27 +28,26 @@ class MediaFileManager implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Media Manager', 'Upload Anything Through The Native File Manager', 'Media',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'MediaManager';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $defaultFileLink = (isset($data->file_url)) ? $data->file_url : '';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
@@ -85,28 +84,33 @@ FORM;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'MediaManager';
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultFileLink = (isset($data->file_url) && !empty($keyValue)) ? $keyValue : $data->file_url;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
 
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $frag .= <<<FORM
-<div class="form-group margin-top:0">
-     <label class="menu-settings-handle-name" for="featured-link-$changeID">Upload File
-         <input id="featured-link-$changeID" class="tonics-featured-link color:black border-width:default border:black placeholder-color:gray" name="featured_link" type="file">
-     </label>
- </div>
+<div data-draggable-ignore class="d:flex flex-d:row flex-gap align-items:flex-end">
 
-<div style="margin-top: 1em;" class="form-group">
-    <label class="menu-settings-handle-name" for="featured-link-url-$changeID">File Link (leave blank for no default)
-        <input id="featured-link-url-$changeID" placeholder="Or File URL" type="url" data-widget-file-url="true" name="$inputName" value="$defaultFileLink">
-    </label>
+    <div class="form-group margin-top:0">
+         <label class="menu-settings-handle-name" for="featured-link-$changeID">Upload File
+             <input id="featured-link-$changeID" class="tonics-featured-link color:black border-width:default border:black placeholder-color:gray" name="featured_link" type="file">
+         </label>
+     </div>
+    
+    <div class="form-group">
+        <label class="menu-settings-handle-name" for="featured-link-url-$changeID">File Link (leave blank for no default)
+            <input id="featured-link-url-$changeID" placeholder="Or File URL" type="url" data-widget-file-url="true" name="$inputName" value="$defaultFileLink">
+        </label>
+    </div>
+
 </div>
 FORM;
 

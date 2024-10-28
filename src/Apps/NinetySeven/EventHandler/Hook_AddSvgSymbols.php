@@ -28,14 +28,15 @@ class Hook_AddSvgSymbols implements HandlerInterface
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         $helper = helper();
         /** @var $event OnHookIntoTemplate */
         $event->hookInto('in_svg_defs', function (TonicsView $tonicsView) use ($helper) {
             $audioSymbol = '';
-            if ($tonicsView->accessArrayWithSeparator('Data.TonicsBeatsTonics_Theme')){
+            if ($tonicsView->accessArrayWithSeparator('Data.TonicsBeatsTonics_Theme')) {
                 $audioSymbol = implode('', helper()->getIconSymbols([
                     // Audio Player
                     $helper::SvgSymbol_Shopping_Cart,
@@ -60,22 +61,22 @@ class Hook_AddSvgSymbols implements HandlerInterface
 
             $globalMenus = array_values(InitLoaderMinimal::getGlobalVariableData('Menu.SVG_ICONS') ?? []);
             $Menus = [
-                    $helper::SvgSymbol_Arrow_Down,
-                    $helper::SvgSymbol_Arrow_Up,
-                    $helper::SvgSymbol_Filter,
+                $helper::SvgSymbol_Arrow_Down,
+                $helper::SvgSymbol_Arrow_Up,
+                $helper::SvgSymbol_Filter,
 
-                    // Social Symbol
-                    $helper::SvgSymbol_Facebook,
-                    $helper::SvgSymbol_Youtube,
-                    $helper::SvgSymbol_Pinterest,
-                    $helper::SvgSymbol_Twitter,
-                    $helper::SvgSymbol_Reddit,
-                    $helper::SvgSymbol_Whatsapp,
-                    $helper::SvgSymbol_Instagram,
-                    $helper::SvgSymbol_Mail
+                // Social Symbol
+                $helper::SvgSymbol_Facebook,
+                $helper::SvgSymbol_Youtube,
+                $helper::SvgSymbol_Pinterest,
+                $helper::SvgSymbol_Twitter,
+                $helper::SvgSymbol_Reddit,
+                $helper::SvgSymbol_Whatsapp,
+                $helper::SvgSymbol_Instagram,
+                $helper::SvgSymbol_Mail,
             ];
 
-            foreach ($globalMenus as $globalMenu){
+            foreach ($globalMenus as $globalMenu) {
                 $Menus[] = $globalMenu;
             }
 

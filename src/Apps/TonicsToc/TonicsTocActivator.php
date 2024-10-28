@@ -26,6 +26,7 @@ use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\FieldItemsExtensionConfig;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Field\Data\FieldData;
+use App\Modules\Field\Events\FieldSelectionDropper\OnAddFieldSelectionDropperEvent;
 use App\Modules\Field\Events\FieldTemplateFile;
 use App\Modules\Field\Events\OnEditorFieldSelection;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
@@ -71,6 +72,10 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
             ],
 
             FieldTemplateFile::class => [
+                TonicsTocFieldHandler::class,
+            ],
+
+            OnAddFieldSelectionDropperEvent::class => [
                 TonicsTocFieldHandler::class,
             ],
 

@@ -23,10 +23,12 @@ use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Events\OnAdminMenu;
 use App\Modules\Core\Events\Tools\Sitemap\OnAddSitemap;
 use App\Modules\Core\Library\Tables;
+use App\Modules\Field\Events\FieldSelectionDropper\OnAddFieldSelectionDropperEvent;
 use App\Modules\Menu\Events\OnMenuMetaBox;
 use App\Modules\Post\EventHandlers\CategoryMenuMetaBox;
 use App\Modules\Post\EventHandlers\DefaultPostCategoryFieldHandler;
 use App\Modules\Post\EventHandlers\DefaultPostFieldHandler;
+use App\Modules\Post\EventHandlers\FieldSelectionDropper\PostLayoutSelectorHandler;
 use App\Modules\Post\EventHandlers\HandleNewCategorySlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostSlugIDGeneration;
 use App\Modules\Post\EventHandlers\HandleNewPostToCategoryMapping;
@@ -96,9 +98,12 @@ class PostActivator implements ExtensionConfig
                 DefaultPostCategoryFieldHandler::class,
             ],
 
-            OnAddSitemap::class => [
+            OnAddSitemap::class                    => [
                 PostSitemap::class,
                 PostCategorySitemap::class,
+            ],
+            OnAddFieldSelectionDropperEvent::class => [
+                PostLayoutSelectorHandler::class,
             ],
         ];
     }

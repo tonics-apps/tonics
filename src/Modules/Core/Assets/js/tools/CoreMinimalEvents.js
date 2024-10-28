@@ -1,4 +1,3 @@
-
 /*
  *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
  *
@@ -18,6 +17,10 @@
 
 if (typeof tonicsFieldSaveChangesButton === 'undefined') {
     var tonicsFieldSaveChangesButton = document.querySelector('.tonics-save-changes');
+}
+
+if (typeof meniArrangerInCoreMinimal === 'undefined') {
+    var meniArrangerInCoreMinimal = document.querySelector('.menu-arranger');
 }
 
 if (tonicsFieldSaveChangesButton) {
@@ -45,16 +48,16 @@ class OnSubmitFieldEditorsFormEvent {
     editorsForm = null;
 
     constructor(e = null) {
-        if (e){
+        if (e) {
             this.editorsForm = document.getElementById('EditorsForm');
         }
     }
 
     addHiddenInputToForm(form, key, value) {
         let inputExist = form.querySelector(`input[name="${key}"]`);
-        if (inputExist){
+        if (inputExist) {
             inputExist.value = value
-        }else {
+        } else {
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = key;
@@ -64,33 +67,117 @@ class OnSubmitFieldEditorsFormEvent {
     }
 
     getInputData(inputs, settings = {}) {
-        // collect checkbox
-        if (inputs.type === 'checkbox'){
-            let checkboxName = inputs.name;
-            if (!settings.hasOwnProperty(checkboxName)){
-                settings[checkboxName] = [];
-            }
-            if (inputs.checked){
-                settings[checkboxName].push(inputs.value);
-            }
-        }else if (inputs.type === 'select-multiple'){
-            let selectOptions = inputs.options;
-            let selectBoxName = inputs.name;
-            for (let k = 0; k < selectOptions.length; k++) {
-                let option = selectOptions[k];
-                if (option.selected){
-                    if (!settings.hasOwnProperty(selectBoxName)){
-                        settings[selectBoxName] = [];
-                    }
+        const inputName = inputs.name;
 
-                    settings[selectBoxName].push(option.value || option.text);
+        switch (inputs.type) {
+            case 'checkbox':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
                 }
-            }
-        }else if (!settings.hasOwnProperty(inputs.name)) {
-            settings[inputs.name] = inputs.value;
+                if (inputs.checked) {
+                    settings[inputName].push(inputs.value);
+                }
+                break;
+
+            case 'select-multiple':
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = [];
+                }
+                let selectOptions = inputs.options;
+                for (let k = 0; k < selectOptions.length; k++) {
+                    let option = selectOptions[k];
+                    if (option.selected) {
+                        if (!settings.hasOwnProperty(inputName)) {
+                            settings[inputName] = [];
+                        }
+                        settings[inputName].push(option.value || option.text);
+                    }
+                }
+                break;
+
+            case 'select-one': // Handling single select elements
+                const selectedOption = inputs.options[inputs.selectedIndex];
+                settings[inputName] = selectedOption.value || selectedOption.text;
+                break;
+
+            case 'radio':
+                if (inputs.checked) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
+
+            default:
+                if (!settings.hasOwnProperty(inputName)) {
+                    settings[inputName] = inputs.value;
+                }
+                break;
         }
 
         return settings;
     }
+}
+
+
+if (meniArrangerInCoreMinimal) {
+
+    window.onload = function () {
+        let previews = document.querySelectorAll('[data-field_input_name="tonics-preview-layout"]:checked');
+        if (previews.length > 0) {
+            previews.forEach(preview => {
+                preview.click();
+            });
+        }
+    };
+
+    meniArrangerInCoreMinimal.addEventListener('click', (e) => {
+        let el = e.target;
+        let tonicsPreviewLayout = el.getAttribute('data-field_input_name') === 'tonics-preview-layout';
+        let layout = el.closest('[data-field_input_name="tonics-preview-layout"]');
+
+        if (tonicsPreviewLayout) {
+            let tabsField = layout?.closest('.tonicsFieldTabsContainer');
+            let builderItems = tabsField?.querySelector('.preview-iframe');
+            if (!builderItems) {
+                builderItems = tabsField?.querySelector('.field-builder-items');
+            }
+
+            if (builderItems) {
+                builderItems.classList.remove('field-builder-items');
+                builderItems.classList.add('preview-iframe');
+                builderItems.innerHTML = '<div class="margin-left:1em loading-animation"></div>';
+                let layoutSelector = el.closest('[data-repeater_input_name="layout-selector-modular-repeater"]')?.closest('.field-builder-items');
+                if (layoutSelector) {
+                    let selectedBreakPoint = layoutSelector.querySelector('select[name="tonics-preview-break-point"]');
+                    const ulElement = document.createElement('ul');
+                    ulElement.appendChild(layoutSelector.cloneNode(true));
+                    let collateFieldItemsObject = new CollateFieldItemsOnFieldsEditorsSubmit(new OnSubmitFieldEditorsFormEvent(null), ulElement);
+                    let fieldItems = collateFieldItemsObject.setListDataArray(ulElement);
+                    fieldPreviewFromPostData
+                    (fieldItems,
+                        (data) => {
+                            if (data?.data) {
+                                const iframe = document.createElement('iframe');
+                                builderItems.innerHTML = '';
+                                builderItems.appendChild(iframe);
+                                iframe.srcdoc = data.data;
+                                Object.assign(iframe.style, {
+                                    width: selectedBreakPoint?.value || '100%',
+                                    height: "100%",
+                                    border: "2px dashed rgb(110 102 97)",
+                                    resize: "horizontal"
+                                });
+                                builderItems.style.height = "750px";
+                            }
+                        }, () => {
+
+                        }, (postData) => {
+                            return {layoutSelector: postData};
+                        });
+                }
+            }
+
+        }
+
+    });
 
 }

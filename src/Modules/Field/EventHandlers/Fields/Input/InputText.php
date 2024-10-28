@@ -41,9 +41,6 @@ class InputText implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
-            },
         );
     }
 
@@ -88,12 +85,9 @@ HTML;
             }
         }
 
-        $readOnly = (isset($data->readOnly)) ? $data->readOnly : '1';
-        $readOnly = $event->booleanOptionSelect($readOnly);
-
-        $required = (isset($data->required)) ? $data->required : '1';
-        $required = $event->booleanOptionSelect($required);
-
+        $readOnly = $event->booleanOptionSelect($data->readOnly ?? '0');
+        $required = $event->booleanOptionSelect($data->required ?? '0');
+        $toggleable = $event->booleanOptionSelectWithNull($data->toggleable ?? '');
         $defaultValue = (isset($data->defaultValue)) ? helper()->htmlSpecChar($data->defaultValue) : '';
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
@@ -141,6 +135,11 @@ HTML;
   <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="styles-$changeID">Styles
      <input id="styles-$changeID" name="styles" type="text" class="menu-name color:black border-width:default border:black placeholder-color:gray"
         value="$styles" placeholder="width:100px;height:100px;...">
+    </label>
+        <label class="menu-settings-handle-name d:flex width:100% flex-d:column" for="toggleable-$changeID">Toggable
+        <select name="toggleable" class="default-selector mg-b-plus-1" id="toggleable-$changeID">
+           $toggleable
+        </select>
     </label>
 </div>
 
@@ -196,11 +195,15 @@ FORM;
      */
     public function userForm (OnFieldMetaBox $event, $data): string
     {
-        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Text';
+        $fieldName = $data->fieldName ?? 'Text';
 
-        $defaultValue = (isset($data->defaultValue)) ? $data->defaultValue : '';
+        $defaultValue = $data->defaultValue ?? '';
         $keyValue = $event->getKeyValueInData($data, $data->inputName);
-        $defaultValue = $keyValue ?: $defaultValue;
+        $defaultValue = $keyValue ?? $defaultValue;
+        $isToggleable = null;
+        if (isset($data->toggleable) && $data->toggleable !== '') {
+            $isToggleable = $data->toggleable === '1';
+        }
 
         $maxChar = (isset($data->maxChar)) ? 'maxlength="' . $data->maxChar . '"' : '';
         $placeholder = (isset($data->placeholder)) ? $data->placeholder : '';
@@ -211,7 +214,7 @@ FORM;
         $changeID = helper()->randString(10);
 
         $slug = $data->field_slug;
-        $frag = $event->_topHTMLWrapper($fieldName, $data);
+        $frag = $event->_topHTMLWrapper($fieldName, $data, toggleUserSettings: $isToggleable);
         $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
 
         $error = '';
@@ -229,7 +232,7 @@ FORM;
 
         if ($textType === 'textarea') {
             $frag .= <<<FORM
-<div class="form-group margin-top:0">
+<div data-draggable-ignore class="form-group margin-top:0">
     $error
      <label class="menu-settings-handle-name screen-reader-text" for="fieldName-$changeID">$fieldName</label>
             <textarea style="$styles" id="fieldName-$changeID" $readOnly $required name="$inputName" $maxChar
@@ -239,7 +242,7 @@ FORM;
 FORM;
         } else {
             $frag .= <<<FORM
-<div class="form-group margin-top:0">
+<div data-draggable-ignore class="form-group margin-top:0">
     $error
      <label class="menu-settings-handle-name screen-reader-text" for="fieldName-$changeID">$fieldName</label>
             <input style="$styles" id="fieldName-$changeID" $readOnly $required name="$inputName" type="$textType" $maxChar
@@ -251,13 +254,5 @@ FORM;
 
         $frag .= $event->_bottomHTMLWrapper();
         return $frag;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function viewData (OnFieldMetaBox $event, $data)
-    {
-        $event->defaultInputViewHandler('InputText', $data);
     }
 }

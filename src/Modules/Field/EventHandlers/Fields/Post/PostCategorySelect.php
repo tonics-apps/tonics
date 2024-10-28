@@ -29,27 +29,26 @@ class PostCategorySelect implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('PostCategorySelect', 'Post Category HTML Selection', 'Post',
             settingsForm: function ($data) use ($event) {
                 return $this->settingsForm($event, $data);
             },
-            userForm: function ($data) use ($event){
+            userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function (){}
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Posts Category Select';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : '';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Posts Category Select';
+        $inputName = (isset($data->inputName)) ? $data->inputName : '';
         $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
 
 
@@ -96,18 +95,18 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'PostCategorySelect';
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
 
         $multipleSelection = (isset($data->multipleSelect)) ? $data->multipleSelect : '0';
-        $inputName =  (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
+        $inputName = (isset($data->inputName)) ? $data->inputName : "{$slug}_$changeID";
         $multipleAttr = '';
         $selectName = "$inputName";
         $height = '';
-        if ($multipleSelection === '1'){
+        if ($multipleSelection === '1') {
             $multipleAttr = 'multiple';
             $selectName = "{$inputName}[]";
             $height = 'height: 300px;';

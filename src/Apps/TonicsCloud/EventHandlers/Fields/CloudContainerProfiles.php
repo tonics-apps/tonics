@@ -29,7 +29,7 @@ class CloudContainerProfiles implements HandlerInterface
     /**
      * @inheritDoc
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('CloudContainerProfiles', 'All Cloud Container Profiles', 'TonicsCloud',
@@ -39,18 +39,17 @@ class CloudContainerProfiles implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function () {
-            }
         );
     }
 
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Cloud Container Profiles';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
@@ -79,10 +78,11 @@ FORM;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Container Profiles';
         $frag = $event->_topHTMLWrapper($fieldName, $data);
@@ -104,8 +104,8 @@ FORM;
             $selected = '';
 
             if (is_array($selectedValues)) {
-                foreach ($selectedValues as $selectedValue){
-                    if ($containerProfile->container_profile_id == $selectedValue){
+                foreach ($selectedValues as $selectedValue) {
+                    if ($containerProfile->container_profile_id == $selectedValue) {
                         $selected = 'selected';
                     }
                 }

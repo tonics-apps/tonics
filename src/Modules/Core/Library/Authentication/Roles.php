@@ -51,7 +51,6 @@ final class Roles
     const CAN_ACCESS_PAYMENT  = 'CAN_ACCESS_PAYMENT';
     const CAN_ACCESS_POST     = 'CAN_ACCESS_POST';
     const CAN_ACCESS_TRACK    = 'CAN_ACCESS_TRACK';
-    const CAN_ACCESS_WIDGET   = 'CAN_ACCESS_WIDGET';
     const CAN_ACCESS_MODULE   = 'CAN_ACCESS_MODULE';
 
     # MODULE
@@ -127,7 +126,6 @@ final class Roles
             self::CAN_ACCESS_PAYMENT,
             self::CAN_ACCESS_POST,
             self::CAN_ACCESS_TRACK,
-            self::CAN_ACCESS_WIDGET,
             self::CAN_ACCESS_FIELD,
             self::CAN_RENDER_FIELDS,
             self::CAN_ACCESS_APPS,
@@ -343,7 +341,7 @@ final class Roles
     {
         return [
             self::CAN_READ, self::CAN_WRITE, self::CAN_UPDATE, self::CAN_DELETE, self::CAN_ACCESS_CORE, self::CAN_ACCESS_GUEST, self::CAN_ACCESS_CUSTOMER, self::CAN_ACCESS_MEDIA,
-            self::CAN_ACCESS_MENU, self::CAN_ACCESS_PAGE, self::CAN_ACCESS_PAYMENT, self::CAN_ACCESS_POST, self::CAN_ACCESS_TRACK, self::CAN_ACCESS_WIDGET,
+            self::CAN_ACCESS_MENU, self::CAN_ACCESS_PAGE, self::CAN_ACCESS_PAYMENT, self::CAN_ACCESS_POST, self::CAN_ACCESS_TRACK,
             self::CAN_ACCESS_MODULE, self::CAN_ACCESS_APPS, self::CAN_ACCESS_FIELD, self::CAN_UPDATE_MODULES, self::CAN_UPDATE_APPS,
         ];
     }

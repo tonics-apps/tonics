@@ -27,10 +27,11 @@ class DefaultPageFieldHandler implements HandlerInterface
     /**
      * @inheritDoc
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnPostDefaultField */
         $event->addDefaultField('default-page-field')
+            ->addDefaultField('layout-selector')
             ->addDefaultField('site-header', true)
             ->addDefaultField('site-footer', true);
     }

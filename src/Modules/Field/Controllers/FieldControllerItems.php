@@ -18,7 +18,6 @@
 
 namespace App\Modules\Field\Controllers;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\SimpleState;
@@ -32,49 +31,51 @@ use App\Modules\Field\Rules\FieldValidationRules;
 class FieldControllerItems extends Controller
 {
     use FieldValidationRules, Validator;
-    
+
     private FieldData $fieldData;
 
-    public function __construct(FieldData $fieldData)
+    public function __construct (FieldData $fieldData)
     {
         $this->fieldData = $fieldData;
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function index(string $slug)
+    public function index (string $slug)
     {
 
         $fieldID = $this->getFieldData()->getFieldID($slug);
-        if ($fieldID === null){
+        if ($fieldID === null) {
             SimpleState::displayErrorMessage(SimpleState::ERROR_PAGE_NOT_FOUND__CODE, SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE);
         }
 
         $onFieldMetaBox = new OnFieldMetaBox();
         $onFieldMetaBox->setSettingsType(OnFieldMetaBox::OnBackEndSettingsType)->dispatchEvent();
 
-        if (url()->getParam('action')){
+        if (url()->getParam('action')) {
             $action = url()->getParam('action');
             $slug = url()->getParam('slug');
-            if ($action === 'getForm' && $slug){
+            if ($action === 'getForm' && $slug) {
                 helper()->onSuccess($onFieldMetaBox->getSettingsForm($slug));
             }
         }
 
         view('Modules::Field/Views/Items/index', [
-            'MetaBox' => $onFieldMetaBox->generateFieldMetaBox(),
-            'FieldItems' => $this->getFieldData()->getFieldItemsListing($this->getFieldData()->getFieldItems($fieldID)),
+            'MetaBox'          => $onFieldMetaBox->generateFieldMetaBox(),
+            'FieldItems'       => $this->getFieldData()->getFieldItemsListing($this->getFieldData()->getFieldItems($fieldID)),
             'FieldBuilderName' => ucwords(str_replace('-', ' ', $slug)),
-            'FieldSlug' => $slug,
-            'FieldID' => $fieldID,
+            'FieldSlug'        => $slug,
+            'FieldID'          => $fieldID,
         ]);
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function store()
+    public function store ()
     {
         $fieldSlug = input()->fromPost()->retrieve('fieldSlug', '');
 
@@ -82,7 +83,7 @@ class FieldControllerItems extends Controller
         try {
             $fieldDetails = json_decode(input()->fromPost()->retrieve('fieldDetails'), true);
             $validator = $this->getValidator()->make($fieldDetails, $this->fieldItemsStoreRule());
-        }catch (\Exception){
+        } catch (\Exception) {
             session()->flash(['An Error Occurred Extracting Field Data'], []);
             redirect(route('fields.items.index', ['field' => $fieldSlug]));
         }
@@ -90,7 +91,7 @@ class FieldControllerItems extends Controller
         $errorMessages = [];
         # Stage Two: Working On The Extracted Data and Dumping In DB...
         $error = false;
-        if ($validator->passes()){
+        if ($validator->passes()) {
             $dbTx = db();
             try {
                 $dbTx->beginTransaction();
@@ -103,7 +104,7 @@ class FieldControllerItems extends Controller
                 $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
                 event()->dispatch(new OnFieldItemsSave($fieldDetails));
                 $error = true;
-            } catch (\Exception $exception){
+            } catch (\Exception $exception) {
                 $errorMessages[] = $exception->getMessage();
                 $dbTx->rollBack();
                 $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
@@ -125,8 +126,9 @@ class FieldControllerItems extends Controller
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function fieldSelectionManager(): void
+    public function fieldSelectionManager (): void
     {
         $this->getFieldData()->getFieldItemsAPIForEditor();
 
@@ -134,14 +136,15 @@ class FieldControllerItems extends Controller
         $dispatched = event()->dispatch($onEditorFieldSelection);
 
         view('Modules::Field/Views/Items/selection-manager', [
-            'FieldItems' => $dispatched->getFields()
+            'FieldItems' => $dispatched->getFields(),
         ]);
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function fieldPreview()
+    public function fieldPreview (): void
     {
         $null = null;
         $this->getFieldData()->unwrapFieldContent($null, FieldData::UNWRAP_FIELD_CONTENT_PREVIEW_MODE);
@@ -150,9 +153,9 @@ class FieldControllerItems extends Controller
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
-    
+
 }

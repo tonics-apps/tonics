@@ -18,7 +18,6 @@
 
 namespace App\Modules\Field\EventHandlers\Fields\Media;
 
-use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Field\Events\OnFieldMetaBox;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
 
@@ -29,7 +28,7 @@ class MediaImage implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent(object $event): void
+    public function handleEvent (object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Media Image', 'Upload An Image Through The Native File Manager', 'Media',
@@ -39,16 +38,13 @@ class MediaImage implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {
-                $this->viewData($event, $data);
-            }
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function settingsForm(OnFieldMetaBox $event, $data = null): string
+    public function settingsForm (OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
         $defaultImage = (isset($data->defaultImage)) ? $data->defaultImage : '';
@@ -98,13 +94,14 @@ FORM;
     /**
      * @param OnFieldMetaBox $event
      * @param $data
+     *
      * @return string
      * @throws \Exception
      */
-    public function userForm(OnFieldMetaBox $event, $data): string
+    public function userForm (OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
-        $keyValue =  $event->getKeyValueInData($data, $data->inputName);
+        $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultImage = (isset($data->defaultImage) && !empty($keyValue)) ? $keyValue : $data->defaultImage;
         $slug = $data->field_slug;
         $changeID = (isset($data->field_slug_unique_hash)) ? $data->field_slug_unique_hash : 'CHANGEID';
@@ -123,7 +120,7 @@ FORM;
     <img src="$defaultImage" class="image:featured-image featured-image widgetSettings" alt="">
 </div>
 <div class="margin-top:0">
-    <button type="button" class="remove-featured-image d:none background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cart-width cursor:pointer button:box-shadow-variant-2">
+    <button type="button" class="remove-featured-image d:none background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
         Remove Image
     </button>
 </div>
@@ -136,9 +133,9 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewData(OnFieldMetaBox $event, $data = null)
+    public function viewData (OnFieldMetaBox $event, $data = null)
     {
-        $fieldName =  (isset($data->fieldName)) ? $data->fieldName : 'Widget';
+        $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';
         $postData = !empty(getPostData()) ? getPostData() : $fieldData;
         $inputName = (isset($postData[$data->inputName])) ? $postData[$data->inputName] : '';

@@ -26,10 +26,6 @@ final class AdminMenuHelper
 
     const APPEARANCE = self::TOOL . '/APPEARANCE';
     const LOGS       = self::TOOL . '/LOGS';
-    const WIDGET     = self::APPEARANCE . '/WIDGET';
-
-    const WIDGET_NEW  = self::WIDGET . '/NEW_WIDGET';
-    const WIDGET_EDIT = self::WIDGET . '/EDIT_WIDGET';
 
     const MENU      = self::APPEARANCE . '/MENU';
     const MENU_NEW  = self::MENU . '/NEW_MENU';

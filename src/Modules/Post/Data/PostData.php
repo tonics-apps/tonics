@@ -18,8 +18,6 @@
 
 namespace App\Modules\Post\Data;
 
-use App\Modules\Core\Configs\AppConfig;
-use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Roles;
@@ -27,7 +25,6 @@ use App\Modules\Core\Library\Authentication\Session;
 use App\Modules\Core\Library\CustomClasses\UniqueSlug;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Field\Helper\FieldHelpers;
 use App\Modules\Post\Events\OnPostCategoryCreate;
 use App\Modules\Post\Events\OnPostCategoryDefaultField;
 use App\Modules\Post\Events\OnPostDefaultField;
@@ -36,42 +33,40 @@ use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 class PostData extends AbstractDataLayer
 {
 
-    private ?FieldData $fieldData;
-    private ?OnPostDefaultField $onPostDefaultField;
+    const Post_INT         = 1;
+    const Category_INT     = 2;
+    const PostCategory_INT = 3;
+    const Post_STRING      = 'posts';
+
+    use UniqueSlug;
+
+    const Category_STRING     = 'categories';
+    const PostCategory_STRING = 'post_categories';
+    static array                        $POST_TABLES = [
+        self::Post_INT         => self::Post_STRING,
+        self::Category_INT     => self::Category_STRING,
+        self::PostCategory_INT => self::PostCategory_STRING,
+    ];
+    private ?FieldData                  $fieldData;
+    private ?OnPostDefaultField         $onPostDefaultField;
     private ?OnPostCategoryDefaultField $onPostCategoryDefaultField;
 
-    public function __construct(FieldData $fieldData = null, OnPostDefaultField $onPostDefaultField = null, OnPostCategoryDefaultField $onPostCategoryDefaultField = null)
+    public function __construct (FieldData $fieldData = null, OnPostDefaultField $onPostDefaultField = null, OnPostCategoryDefaultField $onPostCategoryDefaultField = null)
     {
         $this->fieldData = $fieldData;
         $this->onPostDefaultField = $onPostDefaultField;
         $this->onPostCategoryDefaultField = $onPostCategoryDefaultField;
     }
 
-    use UniqueSlug;
-
-    const Post_INT = 1;
-    const Category_INT = 2;
-    const PostCategory_INT = 3;
-
-    const Post_STRING = 'posts';
-    const Category_STRING = 'categories';
-    const PostCategory_STRING = 'post_categories';
-
-    static array $POST_TABLES = [
-        self::Post_INT => self::Post_STRING,
-        self::Category_INT => self::Category_STRING,
-        self::PostCategory_INT => self::PostCategory_STRING,
-    ];
-
     /**
      * @return mixed
      * @throws \Exception
      */
-    public function getCategory(): mixed
+    public function getCategory (): mixed
     {
 
         $result = null;
-        db(onGetDB: function ($db) use (&$result){
+        db(onGetDB: function ($db) use (&$result) {
             $categoryTable = $this->getCategoryTable();
             // tcs stands for tonics category system ;)
             $result = $db->run("
@@ -92,14 +87,15 @@ class PostData extends AbstractDataLayer
 
     /**
      * @param string|int $idSlug
+     *
      * @return array|bool
      * @throws \Exception
      */
-    public function getChildCategoriesOfParent(string|int $idSlug): bool|array
+    public function getChildCategoriesOfParent (string|int $idSlug): bool|array
     {
 
         $result = null;
-        db(onGetDB: function ($db) use ($idSlug, &$result){
+        db(onGetDB: function ($db) use ($idSlug, &$result) {
             $categoryTable = $this->getCategoryTable();
 
             $where = "cat_slug = ?";
@@ -129,10 +125,10 @@ class PostData extends AbstractDataLayer
     /**
      * @throws \Exception
      */
-    public function getPostCategoryParents(string|int $idSlug)
+    public function getPostCategoryParents (string|int $idSlug)
     {
         $result = null;
-        db(onGetDB: function ($db) use ($idSlug, &$result){
+        db(onGetDB: function ($db) use ($idSlug, &$result) {
             $categoryTable = $this->getCategoryTable();
 
             $where = "cat_slug = ?";
@@ -157,10 +153,11 @@ class PostData extends AbstractDataLayer
 
     /**
      * @param null $currentCatData
+     *
      * @return string
      * @throws \Exception
      */
-    public function getCategoryHTMLSelect($currentCatData = null): string
+    public function getCategoryHTMLSelect ($currentCatData = null): string
     {
         $categories = helper()->generateTree(['parent_id' => 'cat_parent_id', 'id' => 'cat_id'], $this->getCategory());
         $catSelectFrag = '';
@@ -176,14 +173,15 @@ class PostData extends AbstractDataLayer
     /**
      * @param $category
      * @param null $currentCatIDS
+     *
      * @return string
      * @throws \Exception
      */
-    private function getCategoryHTMLSelectFragments($category, $currentCatIDS = null): string
+    private function getCategoryHTMLSelectFragments ($category, $currentCatIDS = null): string
     {
         $currentCatIDS = (is_object($currentCatIDS) && property_exists($currentCatIDS, 'cat_parent_id')) ? $currentCatIDS->cat_parent_id : $currentCatIDS;
 
-        if (!is_array($currentCatIDS)){
+        if (!is_array($currentCatIDS)) {
             $currentCatIDS = [$currentCatIDS];
         }
 
@@ -194,7 +192,7 @@ class PostData extends AbstractDataLayer
     <option data-is-parent="yes" data-depth="$category->depth"
             data-slug="$category->cat_slug" data-path="/$category->path/" value="$catID"
 CAT;
-            foreach ($currentCatIDS as $currentCatID){
+            foreach ($currentCatIDS as $currentCatID) {
                 if ($currentCatID == $category->cat_id) {
                     $catSelectFrag .= 'selected';
                 }
@@ -206,7 +204,7 @@ CAT;
     <option data-slug="$category->cat_slug" data-depth="$category->depth" data-path="/$category->path/"
             value="$catID"
 CAT;
-            foreach ($currentCatIDS as $currentCatID){
+            foreach ($currentCatIDS as $currentCatID) {
                 if ($currentCatID == $category->cat_id) {
                     $catSelectFrag .= 'selected';
                 }
@@ -230,40 +228,41 @@ CAT;
     /**
      * @return string
      */
-    public function getCategoryTable(): string
+    public function getCategoryTable (): string
     {
         return Tables::getTable(Tables::CATEGORIES);
     }
 
-    public function getPostTable(): string
+    public function getPostTable (): string
     {
         return Tables::getTable(Tables::POSTS);
     }
 
-    public function getPostToCategoryTable(): string
+    public function getPostToCategoryTable (): string
     {
         return Tables::getTable(Tables::POST_CATEGORIES);
     }
 
-    public function getCategoryColumns(): array
+    public function getCategoryColumns (): array
     {
         return Tables::$TABLES[Tables::CATEGORIES];
     }
 
-    public function getPostColumns(): array
+    public function getPostColumns (): array
     {
         return Tables::$TABLES[Tables::POSTS];
     }
 
-    public function getPostToCategoriesColumns(): array
+    public function getPostToCategoriesColumns (): array
     {
         return Tables::$TABLES[Tables::POST_CATEGORIES];
     }
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function createCategory(array $ignore = [], bool $prepareFieldSettings = true): array
+    public function createCategory (array $ignore = [], bool $prepareFieldSettings = true): array
     {
         $slug = $this->generateUniqueSlug($this->getCategoryTable(),
             'cat_slug',
@@ -301,7 +300,7 @@ CAT;
             }
         }
 
-        if ($prepareFieldSettings){
+        if ($prepareFieldSettings) {
             return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($category, 'cat_name', 'cat_content');
         }
 
@@ -311,7 +310,7 @@ CAT;
     /**
      * @throws \Exception
      */
-    public function createPost(array $ignore = [], bool $prepareFieldSettings = true): array
+    public function createPost (array $ignore = [], bool $prepareFieldSettings = true): array
     {
         # Since post_excerpt columns is a generated column, it can be in the column to return since inserting directly does not work and hence, it would throw an error
         $ignore[] = 'post_excerpt';
@@ -345,7 +344,7 @@ CAT;
             }
         }
 
-        if ($prepareFieldSettings){
+        if ($prepareFieldSettings) {
             return $this->getFieldData()->prepareFieldSettingsDataForCreateOrUpdate($post);
         }
 
@@ -355,7 +354,7 @@ CAT;
     /**
      * @throws \Exception
      */
-    public function insertForPost(array $data, int $type = self::Post_INT, array $return = []): bool|\stdClass
+    public function insertForPost (array $data, int $type = self::Post_INT, array $return = []): bool|\stdClass
     {
         if (!key_exists($type, self::$POST_TABLES)) {
             throw new \Exception("Invalid Post Table Type");
@@ -367,14 +366,14 @@ CAT;
 
         $table = Tables::getTable(self::$POST_TABLES[$type]);
         $primaryKey = 'post_id';
-        if ($type === self::Category_INT){
+        if ($type === self::Category_INT) {
             $primaryKey = 'cat_id';
-        } elseif ($type === self::PostCategory_INT){
+        } elseif ($type === self::PostCategory_INT) {
             $primaryKey = 'id';
         }
 
         $result = null;
-        db(onGetDB: function ($db) use ($primaryKey, $return, $data, $table, &$result){
+        db(onGetDB: function ($db) use ($primaryKey, $return, $data, $table, &$result) {
             $result = $db->insertReturning($table, $data, $return, $primaryKey);
         });
 
@@ -386,13 +385,14 @@ CAT;
      * @param string $column
      * @param callable|null $onPostData
      * If there is a callable, you get the postData in array and the role in case you wanna do anything with that
+     *
      * @return array|void
      * @throws \Exception
      */
-    public function getPostByUniqueID($ID, string $column = 'slug_id', callable $onPostData = null)
+    public function getPostByUniqueID ($ID, string $column = 'slug_id', callable $onPostData = null)
     {
         # verify post column
-        if (!Tables::hasColumn(Tables::POSTS, $column)){
+        if (!Tables::hasColumn(Tables::POSTS, $column)) {
             return [];
         }
 
@@ -400,7 +400,7 @@ CAT;
         $role = UserData::getAuthenticationInfo(Session::SessionCategories_AuthInfo_Role);
 
         $postData = null;
-        db(onGetDB: function ($db) use ($ID, $column, $role, &$postData){
+        db(onGetDB: function ($db) use ($ID, $column, $role, &$postData) {
             $postTable = Tables::getTable(Tables::POSTS);
             $postToCatTable = Tables::getTable(Tables::POST_CATEGORIES);
             $categoryTable = Tables::getTable(Tables::CATEGORIES);
@@ -421,15 +421,15 @@ CAT;
                 ->FetchFirst();
         });
 
-        if (empty($postData) || $postData?->post_status === null){
+        if (empty($postData) || $postData?->post_status === null) {
             $postData = [];
         }
 
         if (isset($postData->fk_cat_id)) {
             $categories = explode(',', $postData->fk_cat_id);
-            foreach ($categories as $category){
+            foreach ($categories as $category) {
                 $category = explode('::', $category);
-                if (count($category) === 2){
+                if (count($category) === 2) {
                     $reverseCategory = array_reverse($this->getPostCategoryParents($category[0]));
                     $postData->categories[] = $reverseCategory;
                 }
@@ -437,7 +437,7 @@ CAT;
         }
 
         $postData = (array)$postData;
-        if ($onPostData){
+        if ($onPostData) {
             $onPostData($postData, $role);
         } else {
             return $postData;
@@ -447,12 +447,13 @@ CAT;
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
-    public function setDefaultPostCategoryIfNotSet()
+    public function setDefaultPostCategoryIfNotSet (): void
     {
         if (input()->fromPost()->hasValue('fk_cat_id') === false) {
             $findDefault = null;
-            db(onGetDB: function (TonicsQuery $db) use (&$findDefault){
+            db(onGetDB: function (TonicsQuery $db) use (&$findDefault) {
                 $findDefault = $db->Select("cat_slug, cat_id")
                     ->From($this->getCategoryTable())
                     ->WhereEquals('cat_slug', 'default-category')
@@ -464,8 +465,8 @@ CAT;
             }
 
             $defaultCategory = [
-                'cat_name' => 'Default Category',
-                'cat_slug' => 'default-category',
+                'cat_name'   => 'Default Category',
+                'cat_slug'   => 'default-category',
                 'cat_status' => 1,
             ];
 
@@ -479,21 +480,23 @@ CAT;
     /**
      * @throws \Exception
      */
-    public static function getPostTableJoiningRelatedColumns($includeFieldSettingsCol = true): string
+    public static function getPostTableJoiningRelatedColumns ($includeFieldSettingsCol = true): string
     {
         $fieldSettings = [];
-        if ($includeFieldSettingsCol){
+        if ($includeFieldSettingsCol) {
             $fieldSettings = ['field_settings'];
         }
 
         $postTable = Tables::getTable(Tables::POSTS);
-        return  table()->pick(
+        return table()->pick(
                 [
-                    $postTable => [...['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'created_at', 'updated_at', 'image_url'], ...$fieldSettings],
-                    Tables::getTable(Tables::USERS) => ['user_name', 'email']
-                ]
+                    $postTable                      => [...['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'created_at', 'updated_at', 'image_url'], ...$fieldSettings],
+                    Tables::getTable(Tables::USERS) => ['user_name', 'email'],
+                ],
             )
             . ', GROUP_CONCAT(CONCAT(cat_id, "::", cat_slug ) ) as fk_cat_id'
+            . ", DATE_FORMAT($postTable.created_at, '%a, %d %b') as created_at_friendly"
+            . ", DATE_FORMAT($postTable.updated_at, '%a, %d %b') as updated_at_friendly"
             . ", CONCAT('/admin/posts/', post_slug, '/edit') as _edit_link, CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _preview_link ";
     }
 
@@ -501,14 +504,14 @@ CAT;
      * @return string
      * @throws \Exception
      */
-    public static function getPostPaginationColumns(): string
+    public static function getPostPaginationColumns (): string
     {
         $postTable = Tables::getTable(Tables::POSTS);
-        return  table()->pick(
-            [
-                $postTable => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'created_at', 'updated_at', 'image_url']
-            ]
-        ) . ", post_excerpt AS _excerpt, 
+        return table()->pick(
+                [
+                    $postTable => ['post_id', 'slug_id', 'post_title', 'post_slug', 'post_status', 'created_at', 'updated_at', 'image_url'],
+                ],
+            ) . ", post_excerpt AS _excerpt, 
         CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _link, 
         CONCAT_WS('/', '/posts', $postTable.slug_id, post_slug) as _preview_link, 
         post_title AS _name, $postTable.post_id AS _id ";
@@ -517,14 +520,14 @@ CAT;
     /**
      * @return string
      */
-    public function getCategoryPaginationColumns(): string
+    public function getCategoryPaginationColumns (): string
     {
         return '`cat_id`, `cat_parent_id`, slug_id, `cat_name`, `cat_slug`, `created_at`, `cat_status`, `updated_at`,
         CONCAT_WS( "/", "/categories", slug_id, cat_slug ) AS `_link`, `cat_name` AS `_name`, `cat_id` AS `_id`';
     }
 
 
-    public function categoryCheckBoxListing(array $categories, $selected = [], string $inputName = 'cat[]', string $type = 'radio'): string
+    public function categoryCheckBoxListing (array $categories, $selected = [], string $inputName = 'cat[]', string $type = 'radio'): string
     {
         $htmlFrag = '';
         $type = ($type !== 'radio') ? 'checkbox' : 'radio';
@@ -556,7 +559,7 @@ HTML;
     /**
      * @return FieldData
      */
-    public function getFieldData(): FieldData
+    public function getFieldData (): FieldData
     {
         return $this->fieldData;
     }
@@ -564,7 +567,7 @@ HTML;
     /**
      * @param FieldData $fieldData
      */
-    public function setFieldData(FieldData $fieldData): void
+    public function setFieldData (FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }
@@ -572,7 +575,7 @@ HTML;
     /**
      * @return OnPostDefaultField|null
      */
-    public function getOnPostDefaultField(): ?OnPostDefaultField
+    public function getOnPostDefaultField (): ?OnPostDefaultField
     {
         return $this->onPostDefaultField;
     }
@@ -580,7 +583,7 @@ HTML;
     /**
      * @param OnPostDefaultField|null $onPostDefaultField
      */
-    public function setOnPostDefaultField(?OnPostDefaultField $onPostDefaultField): void
+    public function setOnPostDefaultField (?OnPostDefaultField $onPostDefaultField): void
     {
         $this->onPostDefaultField = $onPostDefaultField;
     }
@@ -588,7 +591,7 @@ HTML;
     /**
      * @return OnPostCategoryDefaultField|null
      */
-    public function getOnPostCategoryDefaultField(): ?OnPostCategoryDefaultField
+    public function getOnPostCategoryDefaultField (): ?OnPostCategoryDefaultField
     {
         return $this->onPostCategoryDefaultField;
     }
@@ -596,7 +599,7 @@ HTML;
     /**
      * @param OnPostCategoryDefaultField|null $onPostCategoryDefaultField
      */
-    public function setOnPostCategoryDefaultField(?OnPostCategoryDefaultField $onPostCategoryDefaultField): void
+    public function setOnPostCategoryDefaultField (?OnPostCategoryDefaultField $onPostCategoryDefaultField): void
     {
         $this->onPostCategoryDefaultField = $onPostCategoryDefaultField;
     }

@@ -40,6 +40,7 @@ use App\Modules\Core\EventHandlers\SchedulerTransporter\DatabaseSchedulerTranspo
 use App\Modules\Core\EventHandlers\TemplateEngines\DeactivateCombiningFilesInProduction;
 use App\Modules\Core\EventHandlers\TemplateEngines\NativeTemplateEngine;
 use App\Modules\Core\EventHandlers\TemplateEngines\WordPressTemplateEngine;
+use App\Modules\Core\EventHandlers\Theme\HookLayoutSelectors;
 use App\Modules\Core\Events\EditorsAsset;
 use App\Modules\Core\Events\Licenses\OnLicenseCreate;
 use App\Modules\Core\Events\OnAddConsoleCommand;
@@ -122,6 +123,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
             ],
 
             OnHookIntoTemplate::class => [
+                HookLayoutSelectors::class,
                 HookIntoAdminMenuTree::class,
                 HandleDataTableDataInTemplate::class,
                 Hook_AddSvgSymbols::class,

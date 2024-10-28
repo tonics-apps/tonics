@@ -21,18 +21,33 @@ namespace App\Apps\NinetySeven\EventHandler;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Events\TonicsTemplateViewEvent\Hook\OnHookIntoTemplate;
 use Devsrealm\TonicsEventSystem\Interfaces\HandlerInterface;
-use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class AssetsHookHandler implements HandlerInterface
 {
 
-    public function handleEvent(object $event): void
+    /**
+     * @param object $event
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function handleEvent (object $event): void
     {
         /** @var $event OnHookIntoTemplate */
-        $event->hookInto('in_head_stylesheet', function (TonicsView $tonicsView){
-            $ninetySevenCSS = AppConfig::getAppAsset('NinetySeven', 'css/styles.min.css');
-            return "<link rel='preload stylesheet' type='text/css' as='style' href='$ninetySevenCSS'>" . "\n";
-        });
+        $event->hookInto('in_head_stylesheet', fn() => AppConfig::LinkAsset(
+            [
+                'rel'  => 'preload stylesheet',
+                'type' => 'text/css', 'as' => 'style',
+                'href' => AppConfig::getAppAsset('NinetySeven', 'css/styles.min.css'),
+            ],
+        ));
 
+        $event->hookInto('before_closing_body', fn() => AppConfig::LinkAsset(
+            [
+                'type' => 'module',
+                'src'  => AppConfig::getModuleAsset('Core', 'js/views/post/front/script-combined.min.js'),
+            ],
+            'script',
+        ));
     }
 }

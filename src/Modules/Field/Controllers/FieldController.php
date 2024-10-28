@@ -46,6 +46,7 @@ class FieldController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function index ()
     {
@@ -53,6 +54,7 @@ class FieldController
         $dataTableHeaders = [
             ['type' => '', 'slug' => Tables::FIELD . '::' . 'field_id', 'title' => 'ID', 'minmax' => '50px, .5fr', 'td' => 'field_id'],
             ['type' => 'text', 'slug' => Tables::FIELD . '::' . 'field_name', 'title' => 'Title', 'minmax' => '150px, 1.6fr', 'td' => 'field_name'],
+            ['type' => 'text', 'slug' => Tables::FIELD . '::' . 'field_slug', 'td' => 'field_slug', 'hide' => true],
             ['type' => 'date_time_local', 'slug' => Tables::FIELD . '::' . 'updated_at', 'title' => 'Date Updated', 'minmax' => '150px, 1fr', 'td' => 'updated_at'],
         ];
 
@@ -85,6 +87,7 @@ class FieldController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function dataTable (): void
     {
@@ -121,6 +124,7 @@ class FieldController
 
     /**
      * @throws \Exception
+     * @throws \Throwable
      */
     public function create ()
     {
@@ -129,7 +133,7 @@ class FieldController
 
     /**
      * @throws \ReflectionException
-     * @throws \Exception
+     * @throws \Exception|\Throwable
      */
     public function store ()
     {
@@ -163,6 +167,7 @@ class FieldController
      *
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
     public function edit (string $slug)
     {
@@ -180,6 +185,7 @@ class FieldController
     /**
      * @throws \ReflectionException
      * @throws \Exception
+     * @throws \Throwable
      */
     #[NoReturn] public function update (string $slug)
     {
@@ -242,6 +248,7 @@ class FieldController
      * @param $entityBag
      *
      * @return bool|array|null
+     * @throws \Throwable
      */
     public function copyFieldItemsJSON ($entityBag): bool|array|null
     {
@@ -255,9 +262,8 @@ class FieldController
             }
 
             $fields = null;
-            // dd($fieldIDS);
             db(onGetDB: function (TonicsQuery $db) use ($fieldIDS, &$fields) {
-                $fields = $db->Select("tf.field_name AS fk_field_id, tft.field_name AS field_name, tft.field_id AS field_id, field_parent_id, field_options")
+                $fields = $db->Select("tf.field_name AS field_field_name, tft.field_name AS field_name, tft.field_id AS field_id, field_slug, field_parent_id, field_options")
                     ->From("{$this->getFieldData()->getFieldItemsTable()} tft")
                     ->Join("{$this->getFieldData()->getFieldTable()} tf", 'tf.field_id', 'tft.fk_field_id')
                     ->WhereIn('tf.field_id', $fieldIDS)->FetchResult();

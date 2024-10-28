@@ -41,7 +41,6 @@ class Table implements HandlerInterface
             userForm: function ($data) use ($event) {
                 return $this->userForm($event, $data);
             },
-            handleViewProcessing: function ($data) use ($event) {},
         );
     }
 
