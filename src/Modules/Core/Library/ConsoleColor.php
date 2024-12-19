@@ -36,7 +36,7 @@ trait ConsoleColor
     /**
      * @throws \Exception
      */
-    public function initShellColors ()
+    public function initShellColors (): void
     {
         $this->fgColors['black'] = '0;30';
         $this->fgColors['dark_gray'] = '1;30';
@@ -94,7 +94,7 @@ trait ConsoleColor
      *
      * @throws \Exception
      */
-    public function successMessage ($message)
+    public function successMessage ($message): void
     {
         $this->otherMessage = $message;
         $this->passes = true;
@@ -136,7 +136,7 @@ trait ConsoleColor
      *
      * @throws \Exception
      */
-    public function delayMessage ($message)
+    public function delayMessage ($message): void
     {
         $this->otherMessage = $message;
         $this->passes = true;

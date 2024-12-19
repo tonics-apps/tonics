@@ -67,7 +67,8 @@ final class Roles
 
     # Update Mechanism
     const CAN_UPDATE_APPS = 'CAN_UPDATE_APPS';
-    const ROLE_ADMIN      = 'ROLE_ADMIN';
+
+    const ROLE_ADMIN = 'ROLE_ADMIN';
 
 
     # THE ABOVE IS FOR PERMISSION

@@ -92,8 +92,8 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler implem
         $this->run(function () {
             $schedules = $this->getNextScheduledEvent();
             if (empty($schedules)) {
-                # While the schedule event is empty, we sleep for a 0.5, this reduces the CPU usage, thus giving the CPU the chance to do other things
-                usleep(500000);
+                # While the schedule event is empty, we sleep for a 0.8, this reduces the CPU usage, thus giving the CPU the chance to do other things
+                usleep(800000);
                 return;
             }
             foreach ($schedules as $schedule) {
@@ -130,6 +130,8 @@ class DatabaseSchedulerTransporter extends AbstractJobOnStartUpCLIHandler implem
                         },
                     );
                 }
+                // Sleep for a short interval to reduce CPU usage
+                usleep(300000);
             }
         });
     }
