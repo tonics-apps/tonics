@@ -750,6 +750,11 @@ SQL, ...$parameter);
         }
 
         addToGlobalVariable(AppConfig::GLOBAL_FIELD_SETTINGS_DATA, $data);
+
+        if (is_string($fieldSlug)) {
+            $fieldSlug = [$fieldSlug];
+        }
+
         if (isset($fieldSettings['_fieldDetails'])) {
 
             if (is_array($fieldSettings['_fieldDetails'])) {
@@ -767,9 +772,6 @@ SQL, ...$parameter);
             $htmlFrag = $fieldData->getUsersFormFrag($fieldCategories);
 
         } else {
-            if (is_string($fieldSlug)) {
-                $fieldSlug = [$fieldSlug];
-            }
             $fieldForm = $fieldData->generateFieldWithFieldSlug($fieldSlug, $fieldSettings);
             $htmlFrag = $fieldForm->getHTMLFrag();
         }
