@@ -116,7 +116,7 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
             "type"                 => "Theme",
             "slug_id"              => '5f66df5d-2744-11ef-9736-124c30cfdb6b',
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1730113236',
+            "version"              => '1-O-Ola.1730113238',
             "description"          => "NinetySeven Theme, The First Tonic Theme",
             "info_url"             => '',
             "settings_page"        => route('ninetySeven.settings'), // can be null or a route name
@@ -137,7 +137,9 @@ class NinetySevenActivator implements ExtensionConfig, FieldItemsExtensionConfig
     public function onUpdate (): void
     {
         self::migrateDatabases();
-        $db->insertOnDuplicate(Tables::getTable(Tables::PAGES), self::defaultPages(), ['field_ids']);
+        db(onGetDB: function (TonicsQuery $db) {
+            $db->insertOnDuplicate(Tables::getTable(Tables::PAGES), self::defaultPages(), ['field_ids']);
+        });
     }
 
     /**
