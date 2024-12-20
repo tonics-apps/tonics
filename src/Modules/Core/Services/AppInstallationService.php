@@ -330,7 +330,6 @@ class AppInstallationService extends AbstractService
             CURLOPT_POSTFIELDS           => json_encode($postField),
             CURLOPT_SSL_VERIFYHOST       => 2,
             CURLOPT_PROXY_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYSTATUS     => true,
             CURLOPT_DNS_CACHE_TIMEOUT    => false,
             CURLOPT_DNS_USE_GLOBAL_CACHE => false,
             CURLOPT_FOLLOWLOCATION       => false,
@@ -348,6 +347,11 @@ class AppInstallationService extends AbstractService
 
         curl_setopt_array($curl, $options);
         $response = curl_exec($curl);
+        if ($response === false) {
+            $error = curl_error($curl);
+            curl_close($curl);
+            throw new Exception("cURL Error: $error");
+        }
         curl_close($curl);
         return json_decode($response, flags: JSON_PRETTY_PRINT);
     }
