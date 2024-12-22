@@ -22,49 +22,50 @@ use App\Modules\Core\Boot\ModuleRegistrar\Interfaces\ExtensionConfig;
 use App\Modules\Core\Library\JobSystem\AbstractJobInterface;
 use App\Modules\Core\Library\JobSystem\Job;
 use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
-use App\Modules\Core\States\UpdateMechanismState;
 
 class HandleOnUpdate extends AbstractJobInterface implements JobHandlerInterface
 {
-    public function __construct(string $classString = '', $timestamp = null)
+    public function __construct (string $classString = '', $timestamp = null)
     {
         $this->setData(['activator' => $classString, 'timestamp' => $timestamp]);
         $this->setJobName('HandleOnUpdate');
     }
 
     /**
+     * @return void
      * @throws \Exception
      */
-    public function handle(): void
+    public function handle (): void
     {
         try {
+            $data = $this->getDataAsArray();
 
-            if (isset($this->getDataAsArray()['timestamp'])) {
-                $timestamp = $this->getDataAsArray()['timestamp'];
-                $restartTimestamp = UpdateMechanismState::getBinRestartServiceTimestamp();
-                # If the timestamp and restartTimestamp is same, then it means the system hasn't restarted and thus not safe to run onUpdate
-                if ((is_int($timestamp) && is_int($restartTimestamp)) && $timestamp === $restartTimestamp) {
+            if (isset($data['activator'])) {
+
+                $activator = container()->get($data['activator']);
+                $timestamp = helper()->getTimeStampFromVersion($activator->info()['version'] ?? '');
+
+                # If the activator timestamp and the timestamp in the job is the same, then it means the system hasn't restarted and thus not safe to run onUpdate
+                if ($timestamp === $data['timestamp']) {
                     $this->infoMessage('Not Safe Yet To Run OnUpdate, Re-Queueing');
                     $this->setJobStatusAfterJobHandled(Job::JobStatus_Queued);
                     return;
                 }
-            }
 
-            if (isset($this->getDataAsArray()['activator'])) {
-                $activator = $this->getDataAsArray()['activator'];
                 /** @var ExtensionConfig $activator */
-                $activator = container()->get($activator);
                 $activator->onUpdate();
                 return;
+
             }
-
-
         } catch (\Exception $e) {
-            // Log...
-            $this->errorMessage($e->getMessage());
+
+            $this->errorMessage("Error during activator handling: " . $e->getMessage());
+            // You might consider rethrowing or further handling the exception here
+            return;
 
         }
 
-        $this->errorMessage("An Error Occurred Running The OnUpdate Method of The Activator");
+        # Log if activator is not set or other issues occurred
+        $this->errorMessage("Activator is not set or an error occurred during the OnUpdate method execution.");
     }
 }

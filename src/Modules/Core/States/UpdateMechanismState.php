@@ -669,7 +669,8 @@ class UpdateMechanismState extends SimpleState
     {
         if ($handleOnUpdateSuccess === null) {
             $handleOnUpdateSuccess = function ($classString) {
-                job()->enqueue(new HandleOnUpdate($classString, self::getBinRestartServiceTimestamp()));
+                $timestamp = helper()->getTimeStampFromVersion(container()->get($classString)->info()['version'] ?? '');
+                job()->enqueue(new HandleOnUpdate($classString, $timestamp));
             };
         }
 
