@@ -658,81 +658,92 @@ class FieldConfig
 		"field_options": "{\"field_slug\":\"page_pagetemplateselection\",\"page_pagetemplateselection_cell\":\"1\",\"field_slug_unique_hash\":\"54cw77g52yc0000000000\",\"field_input_name\":\"page_template\",\"fieldName\":\"Page Template\",\"inputName\":\"page_template\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 1,
+		"field_slug": "seo-settings",
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4yl3ix1a5280000000000\",\"field_input_name\":\"\",\"fieldName\":\"SEO Settings\",\"inputName\":\"\",\"row\":\"3\",\"column\":\"2\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"toggle_state\":true,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"4yl3ix1a5280000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"SEO Settings\",\"inputName\":\"\",\"row\":\"3\",\"column\":\"2\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"styles\":\"\",\"toggleable\":\"\",\"cell\":\"on\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 2,
+		"field_slug": "seo-settings",
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"17ols4a28d5s000000000\",\"field_input_name\":\"seo_settings_basic\",\"fieldName\":\"Basic\",\"inputName\":\"seo_settings_basic\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"1\",\"field_slug_unique_hash\":\"17ols4a28d5s000000000\",\"field_input_name\":\"seo_settings_basic\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Basic\",\"inputName\":\"seo_settings_basic\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"styles\":\"\",\"toggleable\":\"\",\"cell\":\"on\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "input_text",
 		"field_id": 3,
+		"field_slug": "seo-settings",
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"7glk8wuk0aw0000000000\",\"field_input_name\":\"seo_title\",\"fieldName\":\"Title (Optional)\",\"inputName\":\"seo_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"65\",\"placeholder\":\"Auto-generate from title if empty\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"7glk8wuk0aw0000000000\",\"field_input_name\":\"seo_title\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Title (Optional)\",\"inputName\":\"seo_title\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Auto-generate from title if empty\",\"maxChar\":\"65\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "input_text",
 		"field_id": 4,
+		"field_slug": "seo-settings",
 		"field_parent_id": 2,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4w1vg0g41i40000000000\",\"field_input_name\":\"seo_description\",\"fieldName\":\"Description (Optional)\",\"inputName\":\"seo_description\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"250\",\"placeholder\":\"Enter SEO Description\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"4w1vg0g41i40000000000\",\"field_input_name\":\"seo_description\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Description (Optional)\",\"inputName\":\"seo_description\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter SEO Description\",\"maxChar\":\"250\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "modular_rowcolumn",
 		"field_id": 5,
+		"field_slug": "seo-settings",
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"2\",\"field_slug_unique_hash\":\"14blceu1kl6k000000000\",\"field_input_name\":\"seo_settings_canonical_and_more\",\"fieldName\":\"Settings\",\"inputName\":\"seo_settings_canonical_and_more\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"cell\":\"on\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"modular_rowcolumn_cell\":\"2\",\"field_slug_unique_hash\":\"14blceu1kl6k000000000\",\"field_input_name\":\"seo_settings_canonical_and_more\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Settings\",\"inputName\":\"seo_settings_canonical_and_more\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"1\",\"styles\":\"\",\"toggleable\":\"\",\"cell\":\"on\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "input_text",
 		"field_id": 6,
+		"field_slug": "seo-settings",
 		"field_parent_id": 5,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6ivu9jbpixc0000000000\",\"field_input_name\":\"seo_canonical_url\",\"fieldName\":\"Canonical URL\",\"inputName\":\"seo_canonical_url\",\"textType\":\"url\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"Default to content URL\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6ivu9jbpixc0000000000\",\"field_input_name\":\"seo_canonical_url\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Canonical URL\",\"inputName\":\"seo_canonical_url\",\"textType\":\"url\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Default to content URL\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "input_select",
 		"field_id": 7,
+		"field_slug": "seo-settings",
 		"field_parent_id": 5,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4v28rctp7080000000000\",\"field_input_name\":\"seo_indexing\",\"fieldName\":\"Indexing\",\"inputName\":\"seo_indexing\",\"selectData\":\"1:index,0:noindex\",\"defaultValue\":\"1\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4v28rctp7080000000000\",\"field_input_name\":\"seo_indexing\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Indexing\",\"inputName\":\"seo_indexing\",\"selectData\":\"1:index,0:noindex\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\",\"hookName\":\"\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "input_select",
 		"field_id": 8,
+		"field_slug": "seo-settings",
 		"field_parent_id": 5,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4g1g3x0zpe00000000000\",\"field_input_name\":\"seo_following\",\"fieldName\":\"Following\",\"inputName\":\"seo_following\",\"selectData\":\"1:follow,0:nofollow\",\"defaultValue\":\"1\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4g1g3x0zpe00000000000\",\"field_input_name\":\"seo_following\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Following\",\"inputName\":\"seo_following\",\"selectData\":\"1:follow,0:nofollow\",\"defaultValue\":\"1\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\",\"hookName\":\"\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "input_select",
 		"field_id": 9,
+		"field_slug": "seo-settings",
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"3\",\"field_slug_unique_hash\":\"6fazxbd6gxs0000000000\",\"field_input_name\":\"seo_open_graph_type\",\"fieldName\":\"Open Graph Type\",\"inputName\":\"seo_open_graph_type\",\"selectData\":\"article:Article,website:Website\",\"defaultValue\":\"article\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"3\",\"field_slug_unique_hash\":\"6fazxbd6gxs0000000000\",\"field_input_name\":\"seo_open_graph_type\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Open Graph Type\",\"inputName\":\"seo_open_graph_type\",\"selectData\":\"article:Article,website:Website\",\"defaultValue\":\"article\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\",\"hookName\":\"\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "input_text",
 		"field_id": 10,
+		"field_slug": "seo-settings",
 		"field_parent_id": 1,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"4\",\"field_slug_unique_hash\":\"2quvrericv00000000000\",\"field_input_name\":\"seo_old_urls\",\"fieldName\":\"Old URLs (One Per Line)\",\"inputName\":\"seo_old_urls\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"(One Per Line) (Canonical URL must be set for redirection to work)\",\"readOnly\":\"0\",\"required\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"4\",\"field_slug_unique_hash\":\"2quvrericv00000000000\",\"field_input_name\":\"seo_old_urls\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Old URLs (One Per Line)\",\"inputName\":\"seo_old_urls\",\"textType\":\"textarea\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"(One Per Line) (Canonical URL must be set for redirection to work)\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
-		"fk_field_id": "SEO Settings",
+		"field_field_name": "SEO Settings",
 		"field_name": "modular_fieldselectiondropper",
 		"field_id": 11,
+		"field_slug": "seo-settings",
 		"field_parent_id": 1,
-		"field_options": "{\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"5\",\"field_slug_unique_hash\":\"1mxkpikxb8ww000000000\",\"field_input_name\":\"seo_structured_data\",\"fieldName\":\"Structured Data\",\"inputName\":\"seo_structured_data\",\"fieldSlug\":[\"app-tonicsseo-structured-data-product-review\",\"app-tonicsseo-structured-data-article\",\"app-tonicsseo-structured-data-faq\"],\"defaultFieldSlug\":\"app-tonicsseo-structured-data-article\",\"hideInUserEditForm\":\"0\"}"
+		"field_options": "{\"toggle_state\":true,\"field_slug\":\"modular_fieldselectiondropper\",\"modular_fieldselectiondropper_cell\":\"5\",\"field_slug_unique_hash\":\"1mxkpikxb8ww000000000\",\"field_input_name\":\"seo_structured_data\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Structured Data\",\"inputName\":\"seo_structured_data\",\"fieldSlug\":[\"app-tonicsseo-structured-data-product-review\",\"app-tonicsseo-structured-data-article\",\"app-tonicsseo-structured-data-faq\",\"app-tonicsseo-structured-data-product-review-new\",\"app-tonicsseo-structured-data-article-new\"],\"defaultFieldSlug\":\"app-tonicsseo-structured-data-article\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"expandField\":\"1\",\"group\":\"0\",\"toggleable\":\"\",\"hookName\":\"\"}"
 	},
 	{
 		"fk_field_id": "Site Header",
