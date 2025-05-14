@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -44,7 +44,7 @@ use JetBrains\PhpStorm\NoReturn;
  * @return Session
  * @throws Exception
  */
-function session (): Session
+function session(): Session
 {
     return AppConfig::initLoaderMinimal()->getSession();
 }
@@ -56,7 +56,7 @@ function session (): Session
  * @throws Exception
  * @throws Throwable
  */
-function url (): OnRequestProcess
+function url(): OnRequestProcess
 {
     return request();
 }
@@ -68,7 +68,7 @@ function url (): OnRequestProcess
  * @throws Exception
  * @throws Throwable
  */
-function request (): OnRequestProcess
+function request(): OnRequestProcess
 {
     return AppConfig::initLoaderOthers()->getRouter()->getOnRequestProcessingEvent();
 }
@@ -78,7 +78,7 @@ function request (): OnRequestProcess
  * @throws Exception
  * @throws Throwable
  */
-function response (): Response
+function response(): Response
 {
     return AppConfig::initLoaderOthers()->getRouter()->getResponse();
 }
@@ -87,7 +87,7 @@ function response (): Response
  * @throws Exception
  * @throws Throwable
  */
-function input (): TonicsRouterRequestInputInterface
+function input(): TonicsRouterRequestInputInterface
 {
     return AppConfig::initLoaderOthers()->getRouter()->getResponse()->getRequestInput();
 }
@@ -100,7 +100,7 @@ function input (): TonicsRouterRequestInputInterface
  *
  * @throws Exception
  */
-#[NoReturn] function redirect (string $url, ?int $code = null): void
+#[NoReturn] function redirect(string $url, ?int $code = null): void
 {
     if ($code !== null) {
         response()->httpResponseCode($code);
@@ -128,7 +128,7 @@ function input (): TonicsRouterRequestInputInterface
  * @throws Exception
  * @throws Throwable
  */
-function route (string $name, array $parameters = []): string
+function route(string $name, array $parameters = []): string
 {
     return AppConfig::initLoaderOthers()->getRouter()->getRoute()->getRouteTreeGenerator()->namedURL($name, $parameters);
 }
@@ -138,7 +138,7 @@ function route (string $name, array $parameters = []): string
  * @return TonicsHelpers
  * @throws Exception
  */
-function helper (): TonicsHelpers
+function helper(): TonicsHelpers
 {
     return AppConfig::initLoaderMinimal()->getTonicsHelpers();
 }
@@ -148,7 +148,7 @@ function helper (): TonicsHelpers
  * @return TonicsHelpers
  * @throws Exception
  */
-function utility (): TonicsHelpers
+function utility(): TonicsHelpers
 {
     return helper();
 }
@@ -179,7 +179,7 @@ function utility (): TonicsHelpers
  * @return TonicsQuery|null
  * @throws Exception
  */
-function db (bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
+function db(bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
 {
     $db = AppConfig::initLoaderMinimal()->getDatabase($newConnection);
     if (is_callable($onGetDB)) {
@@ -195,7 +195,7 @@ function db (bool $newConnection = true, callable $onGetDB = null): ?TonicsQuery
 /**
  * @throws Exception
  */
-function table (): Tables
+function table(): Tables
 {
     return db()->getTonicsQueryBuilder()->getTables();
 }
@@ -204,7 +204,7 @@ function table (): Tables
  * @throws Exception
  * @throws Throwable
  */
-function templateEngines (): TonicsTemplateEngines
+function templateEngines(): TonicsTemplateEngines
 {
     return AppConfig::initLoaderOthers()->getTonicsTemplateEngines();
 }
@@ -213,7 +213,7 @@ function templateEngines (): TonicsTemplateEngines
  * @throws Exception
  * @throws Throwable
  */
-function job (string $transporterName = ''): Job
+function job(string $transporterName = ''): Job
 {
     if (!$transporterName) {
         $transporterName = AppConfig::getJobTransporter();
@@ -224,7 +224,7 @@ function job (string $transporterName = ''): Job
 /**
  * @throws Exception|Throwable
  */
-function schedule (string $transporterName = ''): Scheduler
+function schedule(string $transporterName = ''): Scheduler
 {
     if (!$transporterName) {
         $transporterName = AppConfig::getSchedulerTransporter();
@@ -239,7 +239,7 @@ function schedule (string $transporterName = ''): Scheduler
  * @return void
  * @throws Exception
  */
-function addToGlobalVariable (string $key, $data): void
+function addToGlobalVariable(string $key, $data): void
 {
     AppConfig::initLoaderMinimal()::addToGlobalVariable($key, $data);
 }
@@ -247,7 +247,7 @@ function addToGlobalVariable (string $key, $data): void
 /**
  * @throws Exception
  */
-function getPostData ()
+function getPostData()
 {
     return AppConfig::initLoaderMinimal()::getGlobalVariableData('Data') ?? [];
 }
@@ -255,7 +255,7 @@ function getPostData ()
 /**
  * @throws Exception
  */
-function getGlobalVariableData (): array
+function getGlobalVariableData(): array
 {
     return AppConfig::initLoaderMinimal()::getGlobalVariable();
 }
@@ -276,7 +276,7 @@ function getGlobalVariableData (): array
  * @return mixed
  * @throws Exception|Throwable
  */
-function view (string $viewName, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
+function view(string $viewName, array|stdClass $data = [], int $condition = TonicsView::RENDER_CONCATENATE_AND_OUTPUT): mixed
 {
     $data = [...$data, ...getGlobalVariableData()];
     $view = AppConfig::initLoaderOthers()->getTonicsView()->setVariableData($data)->setCachePrefix(AppConfig::getCachePrefix());
@@ -303,7 +303,7 @@ function view (string $viewName, array|stdClass $data = [], int $condition = Ton
  * For multiple class, do: `container()->resolveMany([Class::class, Class2::class]);`
  * @throws Exception
  */
-function container (): Container
+function container(): Container
 {
     return AppConfig::initLoaderMinimal()->getContainer();
 }
@@ -312,7 +312,7 @@ function container (): Container
  * @throws Exception
  * @throws Throwable
  */
-function event (): EventDispatcher
+function event(): EventDispatcher
 {
     return AppConfig::initLoaderOthers()->getEventDispatcher();
 }
@@ -320,7 +320,7 @@ function event (): EventDispatcher
 /**
  * @throws Exception
  */
-function dom (): DomParser
+function dom(): DomParser
 {
     return AppConfig::initLoaderMinimal()->getDomParser();
 }
@@ -329,12 +329,12 @@ function dom (): DomParser
  * @throws Exception
  * @throws Throwable
  */
-function tree (): Tree
+function tree(): Tree
 {
     return AppConfig::initLoaderTree();
 }
 
-function message (): MessageQueue
+function message(): MessageQueue
 {
     return new MessageQueue(JobManager::semaphoreID());
 }

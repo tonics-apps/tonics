@@ -1,0 +1,29 @@
+[[inherit("Modules::Core/Views/Templates/theme-react")]]
+
+[[hook_into('in_head')
+
+  <meta charset="UTF-8" data-client-loading-ready="0" />
+  <link as="style" crossOrigin="anonymous" href="/serve_app_file_path_987654321/NinetySeven/?path=css/styles.min.css" rel="stylesheet" type="text/css"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <script crossorigin src="/serve_app_file_path_987654321/NinetySeven/?path=js/index-tonics.js" type="module"></script>
+  <link crossorigin href="/serve_app_file_path_987654321/NinetySeven/?path=css/index-tonics.css" rel="stylesheet">
+  <template data-head-start=""></template>
+  [[_v("Settings.in_head")]]
+  <template data-head-end=""></template>
+]]
+
+[[hook_into('in_svg_react_defs')
+  [[_v("SvgDefs")]]
+]]
+
+[[hook_into('after_react_root')
+  <script src="/serve_module_file_path_987654321/Core?path=/js/views/post/front/script-combined.min.js" type="module"></script>
+  [[if('v[SettingsJSON]')
+
+  [[- Not Useful at the moment -]]
+  <template data-tonics-audiopage="">
+    [[_v('SettingsJSON')]]
+  </template>
+  ]]
+
+]]

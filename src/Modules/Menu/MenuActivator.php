@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -36,7 +36,7 @@ class MenuActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -44,16 +44,16 @@ class MenuActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
-            OnMenuMetaBox::class                   => [
+            OnMenuMetaBox::class => [
 
             ],
-            OnAdminMenu::class                     => [
+            OnAdminMenu::class => [
                 MenuMenus::class,
             ],
-            OnMenuCreate::class                    => [
+            OnMenuCreate::class => [
 
             ],
             OnAddFieldSelectionDropperEvent::class => [
@@ -68,60 +68,61 @@ class MenuActivator implements ExtensionConfig
      * @return Route
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
+        $this->routeApi($routes);
         return $this->routeWeb($routes);
     }
 
     /**
      * @return array
      */
-    public function tables (): array
+    public function tables(): array
     {
         return
             [
                 Tables::getTable(Tables::MENU_ITEM_PERMISSION) => Tables::$TABLES[Tables::MENU_ITEM_PERMISSION],
-                Tables::getTable(Tables::MENU_ITEMS)           => Tables::$TABLES[Tables::MENU_ITEMS],
-                Tables::getTable(Tables::MENUS)                => Tables::$TABLES[Tables::MENUS],
+                Tables::getTable(Tables::MENU_ITEMS) => Tables::$TABLES[Tables::MENU_ITEMS],
+                Tables::getTable(Tables::MENUS) => Tables::$TABLES[Tables::MENUS],
             ];
     }
 
-    public function onInstall (): void
+    public function onInstall(): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall (): void
+    public function onUninstall(): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "Menu",
-            "type"                 => "Module",
-            "slug_id"              => "4d013734-2742-11ef-9736-124c30cfdb6b",
+            "name" => "Menu",
+            "type" => "Module",
+            "slug_id" => "4d013734-2742-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1730113236',
-            "description"          => "The Menu Module",
-            "info_url"             => '',
+            "version" => '1-O-Ola.1747085600',
+            "description" => "The Menu Module",
+            "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-menu-module/releases/latest",
-            "authors"              => [
-                "name"  => "The Devsrealm Guy",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         // TODO: Implement onUpdate() method.
     }
 
-    public function onDelete (): void
+    public function onDelete(): void
     {
         // TODO: Implement onDelete() method.
     }

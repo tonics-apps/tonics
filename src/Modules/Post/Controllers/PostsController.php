@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -47,7 +47,7 @@ class PostsController
      * @param PostData $postData
      * @param UserData $userData
      */
-    public function __construct (PostData $postData, UserData $userData)
+    public function __construct(PostData $postData, UserData $userData)
     {
         $this->postData = $postData;
         $this->userData = $userData;
@@ -56,7 +56,7 @@ class PostsController
     /**
      * @throws \Exception
      */
-    public function index ()
+    public function index()
     {
         $categories = null;
         db(onGetDB: function ($db) use (&$categories) {
@@ -114,21 +114,30 @@ class PostsController
         });
 
         view('Modules::Post/Views/index', [
-            'DataTable'                => [
-                'headers'       => $dataTableHeaders,
-                'paginateData'  => $postData ?? [],
+            'DataTable' => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => $postData ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
             ],
-            'SiteURL'                  => AppConfig::getAppUrl(),
+            'SiteURL' => AppConfig::getAppUrl(),
             'DefaultCategoriesMetaBox' => $this->getPostData()->categoryCheckBoxListing($categories, url()->getParam('cat') ?? [], type: 'checkbox'),
         ]);
     }
 
     /**
-     * @throws \Exception
+     * @return PostData
      */
-    public function dataTable (): void
+    public function getPostData(): PostData
+    {
+        return $this->postData;
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function dataTable(): void
     {
         $entityBag = null;
         if ($this->getPostData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -153,227 +162,9 @@ class PostsController
     }
 
     /**
-     * @throws \ReflectionException
      * @throws \Exception
      */
-    public function create ()
-    {
-        event()->dispatch($this->getPostData()->getOnPostDefaultField());
-
-        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
-        if (!is_array($oldFormInput)) {
-            $oldFormInput = [];
-        }
-
-        view('Modules::Post/Views/create', [
-            'SiteURL'    => AppConfig::getAppUrl(),
-            'TimeZone'   => AppConfig::getTimeZone(),
-            'FieldItems' => $this->getFieldData()
-                ->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
-        ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    #[NoReturn] public function store (): void
-    {
-        if (input()->fromPost()->hasValue('created_at') === false) {
-            $_POST['created_at'] = helper()->date();
-        }
-
-        if (input()->fromPost()->hasValue('post_slug') === false) {
-            $_POST['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_title'));
-        }
-
-        $this->postData->setDefaultPostCategoryIfNotSet();
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postStoreRule());
-        if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('posts.create'));
-        }
-
-        # Storing db reference is the only way I got tx to work
-        # this could be as a result of pass db() around in event handlers
-        $dbTx = db();
-        try {
-            $dbTx->beginTransaction();
-            $post = $this->postData->createPost();
-            $onBeforePostSave = new OnBeforePostSave($post);
-            event()->dispatch($onBeforePostSave);
-            $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
-            if (is_object($postReturning)) {
-                $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
-            }
-
-            $onPostCreate = new OnPostCreate($postReturning, $this->postData);
-            event()->dispatch($onPostCreate);
-            $dbTx->commit();
-            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
-
-            session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
-            apcu_clear_cache();
-            redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
-        } catch (\Exception $exception) {
-            // log..
-            $dbTx->rollBack();
-            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
-            session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
-            redirect(route('posts.create'));
-        }
-
-    }
-
-    /**
-     * @param array $postData
-     *
-     * @return bool|object
-     * @throws \Throwable
-     */
-    public function storeFromImport (array $postData): bool|object
-    {
-        $previousPOSTGlobal = $_POST;
-        $db = db();
-        try {
-            $db->beginTransaction();
-            foreach ($postData as $k => $cat) {
-                $_POST[$k] = $cat;
-            }
-            $this->postData->setDefaultPostCategoryIfNotSet();
-            if (isset($_POST['fk_cat_id']) && !is_array($_POST['fk_cat_id'])) {
-                $_POST['fk_cat_id'] = [$_POST['fk_cat_id']];
-            }
-
-            $validator = $this->getValidator()->make($_POST, $this->postStoreRule());
-            if ($validator->fails()) {
-                helper()->sendMsg('PostsController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
-                return false;
-            }
-
-            $post = $this->postData->createPost();
-            $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
-            if (is_object($postReturning)) {
-                $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
-            }
-
-            $onPostCreate = new OnPostCreate($postReturning, $this->postData);
-            event()->dispatch($onPostCreate);
-            $_POST = $previousPOSTGlobal;
-
-            $db->commit();
-            $db->getTonicsQueryBuilder()->destroyPdoConnection();
-            return $onPostCreate;
-        } catch (\Exception $e) {
-            $db->rollBack();
-            $db->getTonicsQueryBuilder()->destroyPdoConnection();
-            helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');
-            return false;
-        }
-
-    }
-
-    /**
-     * @param string $slug
-     *
-     * @return void
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function edit (string $slug): void
-    {
-        $post = null;
-        db(onGetDB: function ($db) use ($slug, &$post) {
-            $postTbl = Tables::getTable(Tables::POSTS);
-            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
-            $CatTbl = Tables::getTable(Tables::CATEGORIES);
-            $tblCol = table()->pickTableExcept($postTbl, [])
-                . ', GROUP_CONCAT(CONCAT(cat_id) ) as fk_cat_id'
-                . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
-
-            $post = $db->Select($tblCol)
-                ->From($postCatTbl)
-                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
-                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
-                ->WhereEquals('post_slug', $slug)
-                ->GroupBy('post_id')
-                ->FetchFirst();
-        });
-
-        if (isset($post->fk_cat_id)) {
-            $post->fk_cat_id = explode(',', $post->fk_cat_id);
-        }
-
-        event()->dispatch($this->getPostData()->getOnPostDefaultField());
-        $fieldSlugs = $this->getPostData()->getOnPostDefaultField()->getFieldSlug();
-
-        view('Modules::Post/Views/edit', [
-            'SiteURL'    => AppConfig::getAppUrl(),
-            'TimeZone'   => AppConfig::getTimeZone(),
-            'Post'       => $post,
-            'FieldItems' => $this->getFieldData()
-                ->controllerUnwrapFieldDetails($this->getFieldData(), $post, $fieldSlugs, 'field_settings'),
-        ]);
-    }
-
-    /**
-     * @throws \ReflectionException
-     * @throws \Exception
-     */
-    #[NoReturn] public function update (string $slug)
-    {
-        $this->postData->setDefaultPostCategoryIfNotSet();
-        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
-        if ($validator->fails()) {
-            session()->flash($validator->getErrors(), input()->fromPost()->all());
-            redirect(route('posts.edit', [$slug]));
-        }
-
-        $db = db();
-        $db->beginTransaction();
-        $postToUpdate = $this->postData->createPost();
-
-        try {
-            $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
-            event()->dispatch(new OnBeforePostSave($postToUpdate));
-
-            db(onGetDB: function ($db) use ($slug, $postToUpdate) {
-                $db->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
-            });
-
-            $postToUpdate['fk_cat_id'] = input()->fromPost()->retrieve('fk_cat_id', '');
-            $postToUpdate['post_id'] = input()->fromPost()->retrieve('post_id', '');
-            $onPostUpdate = new OnPostUpdate((object)$postToUpdate, $this->postData);
-            event()->dispatch($onPostUpdate);
-
-            $db->commit();
-            $db->getTonicsQueryBuilder()->destroyPdoConnection();
-
-            # For Fields
-            apcu_clear_cache();
-            $slug = $postToUpdate['post_slug'];
-            if (input()->fromPost()->has('_fieldErrorEmitted') === true) {
-                session()->flash(['Post Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
-            } else {
-                session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-            }
-
-            redirect(route('posts.edit', ['post' => $slug]));
-
-        } catch (\Exception $exception) {
-            $db->rollBack();
-            $db->getTonicsQueryBuilder()->destroyPdoConnection();
-            // log..
-            session()->flash(['Error Occur Updating Post'], $postToUpdate);
-            redirect(route('posts.edit', ['post' => $slug]));
-        }
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function deleteMultiple ($entityBag): bool|int
+    protected function deleteMultiple($entityBag): bool|int
     {
         $toDelete = [];
         try {
@@ -402,7 +193,7 @@ class PostsController
     /**
      * @throws \Exception
      */
-    protected function updateMultiple ($entityBag)
+    protected function updateMultiple($entityBag)
     {
         $postTable = Tables::getTable(Tables::POSTS);
         $dbTx = db();
@@ -469,11 +260,240 @@ class PostsController
         }
     }
 
+    /**
+     * @throws \ReflectionException
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function create()
+    {
+        event()->dispatch($this->getPostData()->getOnPostDefaultField());
+
+        $oldFormInput = \session()->retrieve(Session::SessionCategories_OldFormInput, '', true, true);
+        if (!is_array($oldFormInput)) {
+            $oldFormInput = [];
+        }
+
+        view('Modules::Post/Views/create', [
+            'SiteURL' => AppConfig::getAppUrl(),
+            'TimeZone' => AppConfig::getTimeZone(),
+            'FieldItems' => $this->getFieldData()
+                ->generateFieldWithFieldSlug($this->getPostData()->getOnPostDefaultField()->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
+        ]);
+    }
+
+    /**
+     * @return FieldData
+     */
+    public function getFieldData(): FieldData
+    {
+        return $this->getPostData()->getFieldData();
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    #[NoReturn] public function store(): void
+    {
+        if (input()->fromPost()->hasValue('created_at') === false) {
+            $_POST['created_at'] = helper()->date();
+        }
+
+        if (input()->fromPost()->hasValue('post_slug') === false) {
+            $_POST['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_title'));
+        }
+
+        $this->postData->setDefaultPostCategoryIfNotSet();
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postStoreRule());
+        if ($validator->fails()) {
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
+            redirect(route('posts.create'));
+        }
+
+        # Storing db reference is the only way I got tx to work
+        # this could be as a result of pass db() around in event handlers
+        $dbTx = db();
+        try {
+            $dbTx->beginTransaction();
+            $post = $this->postData->createPost();
+            $onBeforePostSave = new OnBeforePostSave($post);
+            event()->dispatch($onBeforePostSave);
+            $postReturning = $this->postData->insertForPost($onBeforePostSave->getData(), PostData::Post_INT, $this->postData->getPostColumns());
+            if (is_object($postReturning)) {
+                $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
+            }
+
+            $onPostCreate = new OnPostCreate($postReturning, $this->postData);
+            event()->dispatch($onPostCreate);
+            $dbTx->commit();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
+
+            session()->flash(['Post Created'], type: Session::SessionCategories_FlashMessageSuccess);
+            apcu_clear_cache();
+            redirect(route('posts.edit', ['post' => $onPostCreate->getPostSlug()]));
+        } catch (\Exception $exception) {
+            // log..
+            $dbTx->rollBack();
+            $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
+            session()->flash(['An Error Occurred, Creating Post'], input()->fromPost()->all());
+            redirect(route('posts.create'));
+        }
+
+    }
+
+    /**
+     * @param array $postData
+     *
+     * @return bool|object
+     * @throws \Throwable
+     */
+    public function storeFromImport(array $postData): bool|object
+    {
+        $previousPOSTGlobal = $_POST;
+        $db = db();
+        try {
+            $db->beginTransaction();
+            foreach ($postData as $k => $cat) {
+                $_POST[$k] = $cat;
+            }
+            $this->postData->setDefaultPostCategoryIfNotSet();
+            if (isset($_POST['fk_cat_id']) && !is_array($_POST['fk_cat_id'])) {
+                $_POST['fk_cat_id'] = [$_POST['fk_cat_id']];
+            }
+
+            $validator = $this->getValidator()->make($_POST, $this->postStoreRule());
+            if ($validator->fails()) {
+                helper()->sendMsg('PostsController::storeFromImport()', json_encode($validator->getErrors()), 'issue');
+                return false;
+            }
+
+            $post = $this->postData->createPost();
+            $postReturning = $this->postData->insertForPost($post, PostData::Post_INT, $this->postData->getPostColumns());
+            if (is_object($postReturning)) {
+                $postReturning->fk_cat_id = input()->fromPost()->retrieve('fk_cat_id', '');
+            }
+
+            $onPostCreate = new OnPostCreate($postReturning, $this->postData);
+            event()->dispatch($onPostCreate);
+            $_POST = $previousPOSTGlobal;
+
+            $db->commit();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
+            return $onPostCreate;
+        } catch (\Exception $e) {
+            $db->rollBack();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
+            helper()->sendMsg('PostsController::storeFromImport()', $e->getMessage(), 'issue');
+            return false;
+        }
+
+    }
+
+    /**
+     * @param string $slug
+     *
+     * @return void
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function edit(string $slug): void
+    {
+        $post = null;
+        db(onGetDB: function ($db) use ($slug, &$post) {
+            $postTbl = Tables::getTable(Tables::POSTS);
+            $postCatTbl = Tables::getTable(Tables::POST_CATEGORIES);
+            $CatTbl = Tables::getTable(Tables::CATEGORIES);
+            $tblCol = table()->pickTableExcept($postTbl, [])
+                . ', GROUP_CONCAT(CONCAT(cat_id) ) as fk_cat_id'
+                . ', CONCAT_WS("/", "/posts", post_slug) as _preview_link ';
+
+            $post = $db->Select($tblCol)
+                ->From($postCatTbl)
+                ->Join($postTbl, table()->pickTable($postTbl, ['post_id']), table()->pickTable($postCatTbl, ['fk_post_id']))
+                ->Join($CatTbl, table()->pickTable($CatTbl, ['cat_id']), table()->pickTable($postCatTbl, ['fk_cat_id']))
+                ->WhereEquals('post_slug', $slug)
+                ->GroupBy('post_id')
+                ->FetchFirst();
+        });
+
+        if (isset($post->fk_cat_id)) {
+            $post->fk_cat_id = explode(',', $post->fk_cat_id);
+        }
+
+        event()->dispatch($this->getPostData()->getOnPostDefaultField());
+        $fieldSlugs = $this->getPostData()->getOnPostDefaultField()->getFieldSlug();
+
+        view('Modules::Post/Views/edit', [
+            'SiteURL' => AppConfig::getAppUrl(),
+            'TimeZone' => AppConfig::getTimeZone(),
+            'Post' => $post,
+            'FieldItems' => $this->getFieldData()
+                ->controllerUnwrapFieldDetails($this->getFieldData(), $post, $fieldSlugs, 'field_settings'),
+        ]);
+    }
+
+    /**
+     * @throws \ReflectionException
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    #[NoReturn] public function update(string $slug)
+    {
+        $this->postData->setDefaultPostCategoryIfNotSet();
+        $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->postUpdateRule());
+        if ($validator->fails()) {
+            session()->flash($validator->getErrors(), input()->fromPost()->all());
+            redirect(route('posts.edit', [$slug]));
+        }
+
+        $db = db();
+        $db->beginTransaction();
+        $postToUpdate = $this->postData->createPost();
+
+        try {
+            $postToUpdate['post_slug'] = helper()->slug(input()->fromPost()->retrieve('post_slug'));
+            $onBeforePostSave = new OnBeforePostSave($postToUpdate);
+            event()->dispatch($onBeforePostSave);
+            $postToUpdate = $onBeforePostSave->getData();
+
+            db(onGetDB: function ($db) use ($slug, $postToUpdate) {
+                $db->FastUpdate($this->postData->getPostTable(), $postToUpdate, db()->Where('post_slug', '=', $slug));
+            });
+
+            $postToUpdate['fk_cat_id'] = input()->fromPost()->retrieve('fk_cat_id', '');
+            $postToUpdate['post_id'] = input()->fromPost()->retrieve('post_id', '');
+            $onPostUpdate = new OnPostUpdate((object)$postToUpdate, $this->postData);
+            event()->dispatch($onPostUpdate);
+
+            $db->commit();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
+
+            # For Fields
+            apcu_clear_cache();
+            $slug = $postToUpdate['post_slug'];
+            if (input()->fromPost()->has('_fieldErrorEmitted') === true) {
+                session()->flash(['Post Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
+            } else {
+                session()->flash(['Post Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            }
+
+            redirect(route('posts.edit', ['post' => $slug]));
+
+        } catch (\Exception $exception) {
+            $db->rollBack();
+            $db->getTonicsQueryBuilder()->destroyPdoConnection();
+            // log..
+            session()->flash(['Error Occur Updating Post'], $postToUpdate);
+            redirect(route('posts.edit', ['post' => $slug]));
+        }
+    }
 
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function redirect ($id): void
+    #[NoReturn] public function redirect($id): void
     {
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
@@ -502,22 +522,6 @@ class PostsController
         });
 
         $redirection->runStates();
-    }
-
-    /**
-     * @return PostData
-     */
-    public function getPostData (): PostData
-    {
-        return $this->postData;
-    }
-
-    /**
-     * @return FieldData
-     */
-    public function getFieldData (): FieldData
-    {
-        return $this->getPostData()->getFieldData();
     }
 
 }

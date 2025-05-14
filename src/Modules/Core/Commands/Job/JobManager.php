@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -31,29 +31,6 @@ class JobManager implements ConsoleCommand, HandlerInterface, SharedMemoryInterf
 {
     use ConsoleColor;
 
-    public function required(): array
-    {
-        return [
-            "--run",
-            "--job"
-        ];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function run(array $commandOptions): void
-    {
-        $this->successMessage('Job work mode ON, started with a memory of ' . helper()->formatBytes(memory_get_usage()));
-        job()->runJob();
-    }
-
-    public function handleEvent(object $event): void
-    {
-        /** @var $event OnStartUpCLI */
-        $event->addClass(get_class($this));
-    }
-
     public static function masterKey(): string
     {
         return self::class;
@@ -67,5 +44,29 @@ class JobManager implements ConsoleCommand, HandlerInterface, SharedMemoryInterf
     public static function sharedMemorySize(): string
     {
         return '500kb';
+    }
+
+    public function required(): array
+    {
+        return [
+            "--run",
+            "--job",
+        ];
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function run(array $commandOptions): void
+    {
+        $this->successMessage('Job work mode ON, started with a memory of ' . helper()->formatBytes(memory_get_usage()));
+        job()->runJob();
+    }
+
+    public function handleEvent(object $event): void
+    {
+        /** @var $event OnStartUpCLI */
+        $event->addClass(get_class($this));
     }
 }

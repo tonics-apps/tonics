@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,7 @@ use App\Modules\Track\Controllers\Artist\ArtistController;
 use App\Modules\Track\Controllers\Genre\GenreController;
 use App\Modules\Track\Controllers\TrackCategoryController;
 use App\Modules\Track\Controllers\TracksController;
+use App\Modules\Track\Controllers\TracksControllerAPI;
 use App\Modules\Track\Controllers\TracksImportController;
 use App\Modules\Track\Controllers\TracksPaymentController;
 use App\Modules\Track\RequestInterceptor\TrackAccess;
@@ -35,7 +36,7 @@ trait Routes
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function routeWeb (Route $route): Route
+    public function routeWeb(Route $route): Route
     {
         $route->get('tracks/:id/', [TracksController::class, 'redirect']);
         $route->get('track_categories/:id/', [TrackCategoryController::class, 'redirect']);
@@ -128,6 +129,7 @@ trait Routes
             });
 
             $route->group('payment', function (Route $route) {
+                $route->get('/methods', [TracksPaymentController::class, 'PaymentMethods']);
                 $route->get('/get_request_flow', [TracksPaymentController::class, 'RequestFlow']);
                 $route->post('/post_request_flow', [TracksPaymentController::class, 'RequestFlow']);
             });
@@ -135,5 +137,24 @@ trait Routes
         }, AuthConfig::getCSRFRequestInterceptor());
 
         return $route;
+    }
+
+    /**
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function routeApi(Route $routes): Route
+    {
+        $routes->group('/api', function (Route $route) {
+
+            $route->post('/tracks', [TracksControllerAPI::class, 'QueryTrack']);
+            $route->get('/tracks/:slug_id', [TracksControllerAPI::class, 'TrackPageLayout']);
+
+            $route->post('/tracks_category', [TracksControllerAPI::class, 'QueryTrackCategory']);
+            $route->get('/tracks_category/:slug_id', [TracksControllerAPI::class, 'TrackCategoryPageLayout']);
+
+        });
+
+        return $routes;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -36,12 +36,12 @@ class TonicsAmazonAffiliateActivator implements ExtensionConfig, FieldItemsExten
     use Routes;
 
     const AMAZON_AFFILIATE = 'amazon_affiliate';
-    static array      $TABLES = [
+    static array $TABLES = [
         self::AMAZON_AFFILIATE => ['id', 'asin', 'others', 'created_at', 'updated_at'],
     ];
     private FieldData $fieldData;
 
-    public function __construct ()
+    public function __construct()
     {
         $this->fieldData = new FieldData();
     }
@@ -50,12 +50,12 @@ class TonicsAmazonAffiliateActivator implements ExtensionConfig, FieldItemsExten
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
 
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -64,7 +64,7 @@ class TonicsAmazonAffiliateActivator implements ExtensionConfig, FieldItemsExten
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
 
@@ -83,72 +83,28 @@ class TonicsAmazonAffiliateActivator implements ExtensionConfig, FieldItemsExten
     /**
      * @inheritDoc
      */
-    public function tables (): array
+    public function tables(): array
     {
         return [
             self::tableName() => self::$TABLES[self::AMAZON_AFFILIATE],
         ];
     }
 
+    public static function tableName(): string
+    {
+        return DatabaseConfig::getPrefix() . self::AMAZON_AFFILIATE;
+    }
+
     /**
      * @throws \Exception
      */
-    public function onInstall (): void
+    public function onInstall(): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
         $this->createDatabaseTable();
     }
 
-    public function onUninstall (): void
-    {
-        return;
-    }
-
-    public function onUpdate (): void
-    {
-        return;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function onDelete (): void
-    {
-        db(onGetDB: function (TonicsQuery $db) {
-            $toDelete = ['app-tonicsamazonaffiliate-product-box', 'app-tonicsamazonaffiliate-product-individually', 'app-tonicsamazonaffiliate-settings'];
-            $tb = $this->fieldData->getFieldTable();
-            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
-            $tableName = self::tableName();
-            $db->run("DROP TABLE IF EXISTS `$tableName`");
-        });
-
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function info (): array
-    {
-        return [
-            "name"                 => "TonicsAmazonAffiliate",
-            "type"                 => "affiliate", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            "slug_id"              => '55f3a988-276e-11ef-9736-124c30cfdb6b',
-            // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1718095500',
-            "description"          => "This is TonicsAmazonAffiliate",
-            "info_url"             => '',
-            "settings_page"        => route('tonicsAmazonAffiliate.settings'), // can be null or a route name
-            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_amazon_affiliate/releases/latest",
-            "authors"              => [
-                "name"  => "Your Name",
-                "email" => "name@website.com",
-                "role"  => "Developer",
-            ],
-            "credits"              => [],
-        ];
-    }
-
-    public function fieldItems (): array
+    public function fieldItems(): array
     {
         $json = <<<'JSON'
 [
@@ -279,7 +235,7 @@ JSON;
     /**
      * @throws \Exception
      */
-    public function createDatabaseTable ()
+    public function createDatabaseTable()
     {
         db(onGetDB: function (TonicsQuery $db) {
             $tableName = self::tableName();
@@ -296,10 +252,53 @@ CREATE TABLE IF NOT EXISTS `$tableName` (
         });
     }
 
-
-    public static function tableName (): string
+    public function onUninstall(): void
     {
-        return DatabaseConfig::getPrefix() . self::AMAZON_AFFILIATE;
+        return;
+    }
+
+    public function onUpdate(): void
+    {
+        return;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function onDelete(): void
+    {
+        db(onGetDB: function (TonicsQuery $db) {
+            $toDelete = ['app-tonicsamazonaffiliate-product-box', 'app-tonicsamazonaffiliate-product-individually', 'app-tonicsamazonaffiliate-settings'];
+            $tb = $this->fieldData->getFieldTable();
+            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+            $tableName = self::tableName();
+            $db->run("DROP TABLE IF EXISTS `$tableName`");
+        });
+
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function info(): array
+    {
+        return [
+            "name" => "TonicsAmazonAffiliate",
+            "type" => "affiliate", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id" => '55f3a988-276e-11ef-9736-124c30cfdb6b',
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-app.1747085600',
+            "description" => "This is TonicsAmazonAffiliate",
+            "info_url" => '',
+            "settings_page" => route('tonicsAmazonAffiliate.settings'), // can be null or a route name
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_amazon_affiliate/releases/latest",
+            "authors" => [
+                "name" => "Your Name",
+                "email" => "name@website.com",
+                "role" => "Developer",
+            ],
+            "credits" => [],
+        ];
     }
 
 }

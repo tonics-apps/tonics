@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -39,14 +39,13 @@ use Exception;
  */
 class InitLoader
 {
+    private static ?Job $jobEventDispatcher = null;
+    private static ?Scheduler $scheduler = null;
+    private static bool $eventStreamAsHTML = false;
     private Router $router;
     private TonicsView $tonicsView;
     private TonicsTemplateEngines $tonicsTemplateEngines;
     private EventDispatcher $eventDispatcher;
-    private static ?Job $jobEventDispatcher = null;
-    private static ?Scheduler $scheduler = null;
-
-    private static bool $eventStreamAsHTML = false;
 
     /**
      * @return bool
@@ -58,48 +57,12 @@ class InitLoader
 
     /**
      * If set to true, a br tag would be appended to every sent event stream message
+     *
      * @param bool $eventStreamAsHTML
      */
     public static function setEventStreamAsHTML(bool $eventStreamAsHTML): void
     {
         self::$eventStreamAsHTML = $eventStreamAsHTML;
-    }
-
-    /**
-     * Yh, Boot up the application
-     * @throws Exception
-     * @throws \Throwable
-     */
-    public function BootDaBoot(): void
-    {
-        if (AppConfig::isMaintenanceMode()) {
-            die("Temporarily down for schedule maintenance, check back in few minutes");
-        }
-
-                #-----------------------------------
-            # HEADERS SETTINGS TEST
-        #-----------------------------------
-        if (AppConfig::TonicsIsReady()) {
-            response()->headers([
-                'Access-Control-Allow-Origin: ' . AppConfig::getAppUrl(),
-                'Access-Control-Allow-Credentials: true',
-                'Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers: Origin, Accept, X-Requested-With, Content-Type, Authorization',
-                'X-Content-Type-Options: nosniff',
-                'X-Frame-Options: SAMEORIGIN',
-                'Referrer-Policy: strict-origin-when-cross-origin',
-                'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
-                'Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
-            ]);
-        }
-
-                #----------------------------------------------------
-            # GATHER ROUTES AND PREPARE FOR PROCESSING
-        #---------------------------------------------------
-        request()->reset();
-        foreach ($this->Providers() as $provider) {
-            $this->getContainer()->register($provider);
-        }
     }
 
     /**
@@ -111,28 +74,8 @@ class InitLoader
     }
 
     /**
-     * @return HttpMessageProvider[]
-     * @throws Exception
-     */
-    protected function Providers(): array
-    {
-        return [
-            new HttpMessageProvider(
-                $this->router
-            )
-        ];
-    }
-
-    /**
-     * @return EventDispatcher
-     */
-    public function getEventDispatcher(): EventDispatcher
-    {
-        return $this->eventDispatcher;
-    }
-
-    /**
      * @param string $transporterName
+     *
      * @return Job
      * @throws Exception
      */
@@ -147,6 +90,7 @@ class InitLoader
 
     /**
      * @param string $transporterName
+     *
      * @return Scheduler
      * @throws Exception
      */
@@ -169,6 +113,84 @@ class InitLoader
     }
 
     /**
+     * Yh, Boot up the application
+     * @throws Exception
+     * @throws \Throwable
+     */
+    public function BootDaBoot(): void
+    {
+        if (AppConfig::isMaintenanceMode()) {
+            die("Temporarily down for schedule maintenance, check back in few minutes");
+        }
+
+        #-----------------------------------
+        # HEADERS SETTINGS TEST
+        #-----------------------------------
+        if (AppConfig::TonicsIsReady()) {
+            response()->headers([
+                'Access-Control-Allow-Origin: ' . AppConfig::getAppUrl(),
+                'Access-Control-Allow-Credentials: true',
+                'Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers: Origin, Accept, X-Requested-With, Content-Type, Authorization',
+                'X-Content-Type-Options: nosniff',
+                'X-Frame-Options: SAMEORIGIN',
+                'Referrer-Policy: strict-origin-when-cross-origin',
+                'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
+                'Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
+            ]);
+        }
+
+        #----------------------------------------------------
+        # GATHER ROUTES AND PREPARE FOR PROCESSING
+        #---------------------------------------------------
+        request()->reset();
+        foreach ($this->Providers() as $provider) {
+            $this->getContainer()->register($provider);
+        }
+    }
+
+    /**
+     * @return HttpMessageProvider[]
+     * @throws Exception
+     */
+    protected function Providers(): array
+    {
+        return [
+            new HttpMessageProvider(
+                $this->router,
+            ),
+        ];
+    }
+
+    /**
+     * @return Container
+     * @throws Exception
+     */
+    public function getContainer(): Container
+    {
+        return container();
+    }
+
+    /**
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher(): EventDispatcher
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param EventDispatcher $eventDispatcher
+     *
+     * @return InitLoader
+     */
+    public function setEventDispatcher(EventDispatcher $eventDispatcher): InitLoader
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
+
+    /**
      * @return DomParser
      * @throws Exception
      */
@@ -187,61 +209,13 @@ class InitLoader
 
     /**
      * @param TonicsTemplateEngines $tonicsTemplateEngines
+     *
      * @return InitLoader
      */
     public function setTonicsTemplateEngines(TonicsTemplateEngines $tonicsTemplateEngines): InitLoader
     {
         $this->tonicsTemplateEngines = $tonicsTemplateEngines;
         return $this;
-    }
-
-    /**
-     * @param Router $router
-     * @return InitLoader
-     */
-    public function setRouter(Router $router): InitLoader
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-    /**
-     * @param TonicsView $tonicsView
-     * @return InitLoader
-     */
-    public function setTonicsView(TonicsView $tonicsView): InitLoader
-    {
-        $this->tonicsView = $tonicsView;
-        return $this;
-    }
-
-    /**
-     * @param EventDispatcher $eventDispatcher
-     * @return InitLoader
-     */
-    public function setEventDispatcher(EventDispatcher $eventDispatcher): InitLoader
-    {
-        $this->eventDispatcher = $eventDispatcher;
-        return $this;
-    }
-
-    /**
-     * @return Router
-     */
-    public function getRouter(): Router
-    {
-        return $this->router;
-    }
-
-    /**
-     * Register the route for the module
-     *
-     * @param ExtensionConfig $module
-     * @return Route
-     */
-    protected function registerRoutes(ExtensionConfig $module): Route
-    {
-        return $module->route($this->getRouter()->getRoute());
     }
 
     /**
@@ -253,22 +227,54 @@ class InitLoader
         return \session();
     }
 
-
-    /**
-     * @return Container
-     * @throws Exception
-     */
-    public function getContainer(): Container
-    {
-        return container();
-    }
-
     /**
      * @return TonicsView
      */
     public function getTonicsView(): TonicsView
     {
         return $this->tonicsView;
+    }
+
+    /**
+     * @param TonicsView $tonicsView
+     *
+     * @return InitLoader
+     */
+    public function setTonicsView(TonicsView $tonicsView): InitLoader
+    {
+        $this->tonicsView = $tonicsView;
+        return $this;
+    }
+
+    /**
+     * Register the route for the module
+     *
+     * @param ExtensionConfig $module
+     *
+     * @return Route
+     */
+    protected function registerRoutes(ExtensionConfig $module): Route
+    {
+        return $module->route($this->getRouter()->getRoute());
+    }
+
+    /**
+     * @return Router
+     */
+    public function getRouter(): Router
+    {
+        return $this->router;
+    }
+
+    /**
+     * @param Router $router
+     *
+     * @return InitLoader
+     */
+    public function setRouter(Router $router): InitLoader
+    {
+        $this->router = $router;
+        return $this;
     }
 
 }

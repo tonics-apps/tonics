@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -35,18 +35,116 @@ use Exception;
  */
 class InitLoaderMinimal
 {
-    private static TonicsQuery|null $db             = null;
-    private static array            $globalVariable = [];
-    private Container               $container;
-    private TonicsHelpers           $tonicsHelpers;
-    private Session                 $session;
-    private DomParser               $domParser; # Incomplete, but 95% usable for my use case.
+    private static TonicsQuery|null $db = null;
+    private static array $globalVariable = [];
+    private Container $container;
+    private TonicsHelpers $tonicsHelpers;
+    private Session $session;
+    private DomParser $domParser; # Incomplete, but 95% usable for my use case.
+
+    /**
+     * @throws Exception
+     */
+    public static function noInstallationGlobalVariable(): void
+    {
+        self::DRIVE_CONFIG_GlobalVariable();
+    }
+
+    /**
+     * @return void
+     */
+    public static function DRIVE_CONFIG_GlobalVariable(): void
+    {
+        self::addToGlobalVariable('Drive_Config', [
+            'SERVE_APP_PATH' => DriveConfig::serveAppFilePath(),
+            'SERVE_MODULE_PATH' => DriveConfig::serveModuleFilePath(),
+        ]);
+    }
+
+    /**
+     * @param $key
+     * @param $data
+     *
+     * @return array
+     */
+    public static function addToGlobalVariable($key, $data): array
+    {
+        self::$globalVariable[$key] = $data;
+        return self::$globalVariable;
+    }
+
+    /**
+     * @param bool $newConnection
+     *
+     * @return TonicsQuery
+     * @throws Exception
+     */
+    public static function getDatabase(bool $newConnection = false): TonicsQuery
+    {
+        if ($newConnection) {
+            self::$db = (new Database())->createNewDatabaseInstance();
+        }
+
+        if (!self::$db) {
+            self::$db = (new Database())->createNewDatabaseInstance();
+        }
+
+        return self::$db;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function getGlobalVariable(): array
+    {
+        if (!self::$globalVariable) {
+            self::$globalVariable = [];
+        }
+        return self::$globalVariable;
+    }
+
+    /**
+     * @param array $globalVariable
+     */
+    public static function setGlobalVariable(array $globalVariable): void
+    {
+        self::$globalVariable = $globalVariable;
+    }
+
+    /**
+     * @param $key
+     *
+     * @return mixed
+     */
+    public static function getGlobalVariableData($key): mixed
+    {
+        if (isset(self::$globalVariable[$key])) {
+            return self::$globalVariable[$key];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $key
+     *
+     * @return bool
+     */
+    public static function globalVariableKeyExist($key): bool
+    {
+        return isset(self::$globalVariable[$key]);
+    }
+
+    public static function removeFromGlobalVariable($key): void
+    {
+        unset(self::$globalVariable[$key]);
+    }
 
     /**
      * @throws Exception
      * @throws \Throwable
      */
-    public function initConsole (): void
+    public function initConsole(): void
     {
         # TimeZone
         date_default_timezone_set(AppConfig::getTimeZone());
@@ -62,7 +160,7 @@ class InitLoaderMinimal
      * @throws Exception
      * @throws \Throwable
      */
-    public function init (): void
+    public function init(): void
     {
         # TimeZone
         date_default_timezone_set(AppConfig::getTimeZone());
@@ -76,18 +174,18 @@ class InitLoaderMinimal
      * @throws Exception
      * @throws \Throwable
      */
-    public static function initGlobalVariables (): void
+    public static function initGlobalVariables(): void
     {
         self::addToGlobalVariable('App_Config', [
-            'SiteURL'              => AppConfig::getAppUrl(),
-            'APP_NAME'             => AppConfig::getAppName(),
-            'APP_URL'              => AppConfig::getAppUrl(),
-            'APP_TIME_ZONE'        => AppConfig::getTimeZone(),
+            'SiteURL' => AppConfig::getAppUrl(),
+            'APP_NAME' => AppConfig::getAppName(),
+            'APP_URL' => AppConfig::getAppUrl(),
+            'APP_TIME_ZONE' => AppConfig::getTimeZone(),
             'APP_TIME_ZONE_OFFSET' => date('P'),
-            'APP_ENV'              => AppConfig::getAppEnv(),
-            'isProduction'         => AppConfig::isProduction(),
-            'SERVE_APP_PATH'       => DriveConfig::serveAppFilePath(),
-            'SERVE_MODULE_PATH'    => DriveConfig::serveModuleFilePath(),
+            'APP_ENV' => AppConfig::getAppEnv(),
+            'isProduction' => AppConfig::isProduction(),
+            'SERVE_APP_PATH' => DriveConfig::serveAppFilePath(),
+            'SERVE_MODULE_PATH' => DriveConfig::serveModuleFilePath(),
         ]);
 
         self::DRIVE_CONFIG_GlobalVariable();
@@ -105,12 +203,12 @@ class InitLoaderMinimal
         }
 
         self::addToGlobalVariable('Auth', [
-            'Logged_In'      => !empty($authInfo?->role),
+            'Logged_In' => !empty($authInfo?->role),
             'User_Role_Name' => $authInfo?->role_name,
-            'User_Role_ID'   => $authInfo?->role_id,
-            'User_ID'        => $authInfo?->user_id,
-            'User_Email'     => $authInfo?->email,
-            'User_Table'     => $authInfo?->user_table,
+            'User_Role_ID' => $authInfo?->role_id,
+            'User_ID' => $authInfo?->user_id,
+            'User_Email' => $authInfo?->email,
+            'User_Table' => $authInfo?->user_table,
         ]);
 
         # (DEPRECATED) Push Structured Data That Relies on the Post Editor Here
@@ -122,119 +220,21 @@ class InitLoaderMinimal
     /**
      * @throws \Throwable
      */
-    public static function URL_GlobalVariable (): void
+    public static function URL_GlobalVariable(): void
     {
         url()->reset();
         self::addToGlobalVariable('URL', [
-            'FULL_URL'    => url()->getFullURL(),
+            'FULL_URL' => url()->getFullURL(),
             'REQUEST_URL' => url()->getRequestURL(),
-            'PARAMS'      => url()->getParams(),
-            'REFERER'     => url()->getReferer(),
+            'PARAMS' => url()->getParams(),
+            'REFERER' => url()->getReferer(),
         ]);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function noInstallationGlobalVariable (): void
-    {
-        self::DRIVE_CONFIG_GlobalVariable();
-    }
-
-    /**
-     * @return void
-     */
-    public static function DRIVE_CONFIG_GlobalVariable (): void
-    {
-        self::addToGlobalVariable('Drive_Config', [
-            'SERVE_APP_PATH'    => DriveConfig::serveAppFilePath(),
-            'SERVE_MODULE_PATH' => DriveConfig::serveModuleFilePath(),
-        ]);
-    }
-
-    /**
-     * @param $key
-     * @param $data
-     *
-     * @return array
-     */
-    public static function addToGlobalVariable ($key, $data): array
-    {
-        self::$globalVariable[$key] = $data;
-        return self::$globalVariable;
-    }
-
-    /**
-     * @param bool $newConnection
-     *
-     * @return TonicsQuery
-     * @throws Exception
-     */
-    public static function getDatabase (bool $newConnection = false): TonicsQuery
-    {
-        if ($newConnection) {
-            self::$db = (new Database())->createNewDatabaseInstance();
-        }
-
-        if (!self::$db) {
-            self::$db = (new Database())->createNewDatabaseInstance();
-        }
-
-        return self::$db;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function getGlobalVariable (): array
-    {
-        if (!self::$globalVariable) {
-            self::$globalVariable = [];
-        }
-        return self::$globalVariable;
-    }
-
-    /**
-     * @param array $globalVariable
-     */
-    public static function setGlobalVariable (array $globalVariable): void
-    {
-        self::$globalVariable = $globalVariable;
-    }
-
-    /**
-     * @param $key
-     *
-     * @return mixed
-     */
-    public static function getGlobalVariableData ($key): mixed
-    {
-        if (isset(self::$globalVariable[$key])) {
-            return self::$globalVariable[$key];
-        }
-
-        return null;
-    }
-
-    /**
-     * @param $key
-     *
-     * @return bool
-     */
-    public static function globalVariableKeyExist ($key): bool
-    {
-        return isset(self::$globalVariable[$key]);
-    }
-
-    public static function removeFromGlobalVariable ($key): void
-    {
-        unset(self::$globalVariable[$key]);
     }
 
     /**
      * @return TonicsHelpers
      */
-    public function getTonicsHelpers (): TonicsHelpers
+    public function getTonicsHelpers(): TonicsHelpers
     {
         return $this->tonicsHelpers;
     }
@@ -244,7 +244,7 @@ class InitLoaderMinimal
      *
      * @return InitLoaderMinimal
      */
-    public function setTonicsHelpers (TonicsHelpers $tonicsHelpers): InitLoaderMinimal
+    public function setTonicsHelpers(TonicsHelpers $tonicsHelpers): InitLoaderMinimal
     {
         $this->tonicsHelpers = $tonicsHelpers;
         return $this;
@@ -253,7 +253,7 @@ class InitLoaderMinimal
     /**
      * @return DomParser
      */
-    public function getDomParser (): DomParser
+    public function getDomParser(): DomParser
     {
         return $this->domParser;
     }
@@ -263,7 +263,7 @@ class InitLoaderMinimal
      *
      * @return InitLoaderMinimal
      */
-    public function setDomParser (DomParser $domParser): InitLoaderMinimal
+    public function setDomParser(DomParser $domParser): InitLoaderMinimal
     {
         $this->domParser = $domParser;
         return $this;
@@ -272,7 +272,7 @@ class InitLoaderMinimal
     /**
      * @return Session
      */
-    public function getSession (): Session
+    public function getSession(): Session
     {
         return $this->session;
     }
@@ -282,7 +282,7 @@ class InitLoaderMinimal
      *
      * @return InitLoaderMinimal
      */
-    public function setSession (Session $session): InitLoaderMinimal
+    public function setSession(Session $session): InitLoaderMinimal
     {
         $this->session = $session;
         return $this;
@@ -291,7 +291,7 @@ class InitLoaderMinimal
     /**
      * @return Container
      */
-    public function getContainer (): Container
+    public function getContainer(): Container
     {
         return $this->container;
     }
@@ -301,7 +301,7 @@ class InitLoaderMinimal
      *
      * @return InitLoaderMinimal
      */
-    public function setContainer (Container $container): InitLoaderMinimal
+    public function setContainer(Container $container): InitLoaderMinimal
     {
         $this->container = $container;
         return $this;

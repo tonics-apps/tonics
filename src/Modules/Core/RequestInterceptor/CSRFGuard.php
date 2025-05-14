@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -25,17 +25,18 @@ use Devsrealm\TonicsRouterSystem\RequestMethods;
 
 class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInterface
 {
-    private ?OnRequestProcess $request = null;
+    const CSRFGuardInitialStateHandler = 'CSRFGuardInitialStateHandler';
 
     # States For CSRFGuard
-    const CSRFGuardInitialStateHandler = 'CSRFGuardInitialStateHandler';
     const CSRFGuardRequestTypePost = 'CSRFGuardRequestTypePost';
     const CSRFGuardTokenInSession = 'CSRFGuardTokenInSession';
     const CSRFGuardVerifyToken = 'CSRFGuardVerifyToken';
+    private ?OnRequestProcess $request = null;
 
     /**
      * @inheritDoc
      * @throws \Exception
+     * @throws \Throwable
      */
     public function handle(OnRequestProcess $request): void
     {
@@ -45,7 +46,7 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
         $this->setCurrentState(self::CSRFGuardInitialStateHandler);
         $this->runStates(false);
         // Token Mis-Match, send to login page
-        if ($this->getStateResult() === self::ERROR){
+        if ($this->getStateResult() === self::ERROR) {
             session()->logout();
             Authenticated::handleUnAuthenticated();
         }
@@ -58,7 +59,7 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
     public function CSRFGuardInitialStateHandler(): string
     {
         # If it has method: put, post, patch, delete (methods that deals with state changes)
-        if (key_exists(request()->getRequestMethod(), RequestMethods::$requestTypesPost)){
+        if (key_exists(request()->getRequestMethod(), RequestMethods::$requestTypesPost)) {
             $this->setCurrentState(self::CSRFGuardRequestTypePost);
             return self::NEXT;
         }
@@ -72,14 +73,14 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
      */
     public function CSRFGuardRequestTypePost(): string
     {
-        if (input()->fromPost()->hasValue('token')){
+        if (input()->fromPost()->hasValue('token')) {
             $this->setCurrentState(self::CSRFGuardTokenInSession);
             return self::NEXT;
         }
 
         # or From an API Request
         if (is_array(request()->getAPIHeaderKey(['tonics_csrf_token'])) && key_exists('tonics_csrf_token', request()->getAPIHeaderKey(['tonics_csrf_token']))
-            && !empty(request()->getAPIHeaderKey(['tonics_csrf_token'])['tonics_csrf_token'])){
+            && !empty(request()->getAPIHeaderKey(['tonics_csrf_token'])['tonics_csrf_token'])) {
             $this->setCurrentState(self::CSRFGuardTokenInSession);
             return self::NEXT;
         }
@@ -87,12 +88,19 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
         return $this->tokenMismatchError();
     }
 
+    public function tokenMismatchError(): string
+    {
+        $this->setErrorCode(self::ERROR_TOKEN_MISMATCH__CODE)
+            ->setErrorMessage(self::ERROR_TOKEN_MISMATCH__MESSAGE);
+        return self::ERROR;
+    }
+
     /**
      * @throws \Exception
      */
     public function CSRFGuardTokenInSession(): string
     {
-        if (session()->hasValue('tonics_csrf_token')){
+        if (session()->hasValue('tonics_csrf_token')) {
             $this->setCurrentState(self::CSRFGuardVerifyToken);
             return self::NEXT;
         }
@@ -110,7 +118,7 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
         # well, since it is a state implementation, we might decide to initiate the state from anywhere,
         # so, we gatz make it as stateless as possible
         if (is_array(request()->getAPIHeaderKey(['tonics_csrf_token'])) && key_exists('tonics_csrf_token', request()->getAPIHeaderKey(['tonics_csrf_token']))
-            && !empty(request()->getAPIHeaderKey(['tonics_csrf_token'])['tonics_csrf_token'])){
+            && !empty(request()->getAPIHeaderKey(['tonics_csrf_token'])['tonics_csrf_token'])) {
             $inputToken = request()->getAPIHeaderKey(['tonics_csrf_token'])['tonics_csrf_token'];
         } else {
             $inputToken = input()->fromPost()->retrieve('token');
@@ -124,19 +132,11 @@ class CSRFGuard extends SimpleState implements TonicsRouterRequestInterceptorInt
         return $this->tokenMismatchError();
     }
 
-
     /**
      * @return OnRequestProcess|null
      */
     public function getRequest(): ?OnRequestProcess
     {
         return $this->request;
-    }
-
-    public function tokenMismatchError(): string
-    {
-        $this->setErrorCode(self::ERROR_TOKEN_MISMATCH__CODE)
-            ->setErrorMessage(self::ERROR_TOKEN_MISMATCH__MESSAGE);
-        return self::ERROR;
     }
 }

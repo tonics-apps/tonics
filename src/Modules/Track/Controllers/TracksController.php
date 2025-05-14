@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,6 @@ use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
 use App\Modules\Core\Validation\Traits\Validator;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Post\Helper\PostRedirection;
 use App\Modules\Track\Data\TrackData;
 use App\Modules\Track\Events\OnTrackCreate;
 use App\Modules\Track\Events\OnTrackDefaultField;
@@ -36,7 +35,6 @@ use App\Modules\Track\Events\OnTrackUpdate;
 use App\Modules\Track\Helper\TrackRedirection;
 use App\Modules\Track\Rules\TrackValidationRules;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
-use Devsrealm\TonicsRouterSystem\Exceptions\URLNotFound;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -44,6 +42,7 @@ class TracksController extends Controller
 {
     use Validator, TrackValidationRules;
 
+    const SessionCategories_TrackPlays = 'tonics_track_plays_info';
     private TrackData $trackData;
     private bool $isUserInCLI = false;
 
@@ -69,7 +68,7 @@ class TracksController extends Controller
         ];
 
         $data = null;
-        db(onGetDB: function ($db) use ($genreURLParam, &$data){
+        db(onGetDB: function ($db) use ($genreURLParam, &$data) {
             $trackTable = Tables::getTable(Tables::TRACKS);
             $tblCol = table()->pick([$trackTable => ['track_id', 'track_title', 'track_slug', 'updated_at']])
                 . ', CONCAT("/admin/tracks/", track_slug, "/edit") as _edit_link, CONCAT_WS("/", "/tracks", track_slug) as _preview_link ';
@@ -77,7 +76,7 @@ class TracksController extends Controller
             $data = $db->Select($tblCol)
                 ->From($trackTable)
                 // we only join the table when we have query, that is user is filtering...
-                ->when(url()->hasParam('query'), function (TonicsQuery $query){
+                ->when(url()->hasParam('query'), function (TonicsQuery $query) {
                     $trackTable = Tables::getTable(Tables::TRACKS);
                     $trackCategoriesTable = Tables::getTable(Tables::TRACK_CATEGORIES);
                     $trackTracksCategoriesTable = Tables::getTable(Tables::TRACK_TRACK_CATEGORIES);
@@ -124,6 +123,14 @@ class TracksController extends Controller
     }
 
     /**
+     * @return TrackData
+     */
+    public function getTrackData(): TrackData
+    {
+        return $this->trackData;
+    }
+
+    /**
      * @throws \Exception
      */
     public function dataTable(): void
@@ -150,6 +157,36 @@ class TracksController extends Controller
         }
     }
 
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function deleteMultiple($entityBag): bool
+    {
+        return $this->getTrackData()->dataTableDeleteMultiple([
+            'id' => 'track_id',
+            'table' => Tables::getTable(Tables::TRACKS),
+            'entityBag' => $entityBag,
+        ]);
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws Exception
+     */
+    protected function updateMultiple($entityBag): bool
+    {
+        return $this->getTrackData()->dataTableUpdateMultiple([
+            'id' => 'track_id',
+            'table' => Tables::getTable(Tables::TRACKS),
+            'rules' => $this->trackUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
+    }
 
     /**
      * @throws \Exception
@@ -179,21 +216,37 @@ class TracksController extends Controller
     }
 
     /**
+     * @return OnTrackDefaultField|null
+     */
+    public function getOnTrackDefaultField(): ?OnTrackDefaultField
+    {
+        return $this->getTrackData()->getOnTrackDefaultField();
+    }
+
+    /**
+     * @return FieldData|null
+     */
+    public function getFieldData(): ?FieldData
+    {
+        return $this->getTrackData()->getFieldData();
+    }
+
+    /**
      * @throws \Exception
      */
     public function store()
     {
-        if (input()->fromPost()->hasValue('created_at') === false){
+        if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
         }
-        if (input()->fromPost()->hasValue('track_slug') === false){
+        if (input()->fromPost()->hasValue('track_slug') === false) {
             $_POST['track_slug'] = helper()->slug(input()->fromPost()->retrieve('track_title'));
         }
 
         $this->getTrackData()->setDefaultTrackCategoryIfNotSet();
         # Meaning The Unique_id is a link to the url_download
         $urlDownloadCombine = [];
-        if (input()->fromPost()->hasValue('url_download') && input()->fromPost()->hasValue('unique_id')){
+        if (input()->fromPost()->hasValue('url_download') && input()->fromPost()->hasValue('unique_id')) {
             $urlDownloadCombine = array_combine(input()->fromPost()->retrieve('unique_id'), input()->fromPost()->retrieve('url_download'));
         }
 
@@ -207,7 +260,7 @@ class TracksController extends Controller
 
         $validator = $getValidator->make(input()->fromPost()->all(), $this->trackStoreRule());
         if ($validator->fails()) {
-            if (!$this->isUserInCLI){
+            if (!$this->isUserInCLI) {
                 session()->flash($validator->getErrors(), input()->fromPost()->all());
                 redirect(route('tracks.create'));
             }
@@ -222,7 +275,7 @@ class TracksController extends Controller
             $dbTx->beginTransaction();
             $track = $this->getTrackData()->createTrack(['token']);
             $trackReturning = null;
-            db(onGetDB: function ($db) use ($track, &$trackReturning){
+            db(onGetDB: function ($db) use ($track, &$trackReturning) {
                 $trackReturning = $db->insertReturning($this->getTrackData()::getTrackTable(), $track, $this->getTrackData()->getTrackColumns(), 'track_id');
             });
 
@@ -234,15 +287,15 @@ class TracksController extends Controller
             event()->dispatch($onTrackCreate);
             $dbTx->commit();
             $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
-            if (!$this->isUserInCLI){
+            if (!$this->isUserInCLI) {
                 session()->flash(['Track Created'], type: Session::SessionCategories_FlashMessageSuccess);
                 redirect(route('tracks.edit', ['track' => $onTrackCreate->getTrackSlug()]));
             }
-        } catch (Exception $exception){
+        } catch (Exception $exception) {
             // Log..
             $dbTx->rollBack();
             $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
-            if (!$this->isUserInCLI){
+            if (!$this->isUserInCLI) {
                 session()->flash(['An Error Occurred, Creating Track'], input()->fromPost()->all());
                 redirect(route('tracks.create'));
             }
@@ -253,13 +306,14 @@ class TracksController extends Controller
 
     /**
      * @param string $slug
+     *
      * @return void
      * @throws \Exception
      */
     public function edit(string $slug)
     {
         $track = null;
-        db(onGetDB: function ($db) use ($slug, &$track){
+        db(onGetDB: function ($db) use ($slug, &$track) {
             $trackData = TrackData::class;
             $select = "{$trackData::getTrackTable()}.*, {$trackData::getLicenseTable()}.*,
        GROUP_CONCAT(DISTINCT {$trackData::getGenreTable()}.genre_id) AS `fk_genre_id[]`,
@@ -285,7 +339,7 @@ class TracksController extends Controller
             $track->{'fk_genre_id[]'} = explode(',', $track->{'fk_genre_id[]'});
         }
 
-        if (isset($track->fk_track_cat_id)){
+        if (isset($track->fk_track_cat_id)) {
             $track->fk_track_cat_id = explode(',', $track->fk_track_cat_id);
         }
 
@@ -299,14 +353,15 @@ class TracksController extends Controller
         $this->getTrackData()->licenseMetaBox($onTrackCreate);
 
         $fieldSettings = json_decode($track->field_settings, true);
-        if (empty($fieldSettings)){
+
+        if (empty($fieldSettings)) {
             $fieldSettings = (array)$track;
         } else {
             $fieldSettings = [...$fieldSettings, ...(array)$track];
         }
 
         event()->dispatch($this->getOnTrackDefaultField());
-        if (isset($fieldSettings['_fieldDetails'])){
+        if (isset($fieldSettings['_fieldDetails'])) {
             addToGlobalVariable('Data', $fieldSettings);
             $fieldCategories = $this->getFieldData()->compareSortAndUpdateFieldItems(json_decode($fieldSettings['_fieldDetails']));
             $htmlFrag = $this->getFieldData()->getUsersFormFrag($fieldCategories);
@@ -318,7 +373,7 @@ class TracksController extends Controller
         view('Modules::Track/Views/edit', [
             'SiteURL' => AppConfig::getAppUrl(),
             'TimeZone' => AppConfig::getTimeZone(),
-            'FieldItems' => $htmlFrag
+            'FieldItems' => $htmlFrag,
         ]);
     }
 
@@ -334,11 +389,11 @@ class TracksController extends Controller
         $uniqueID = input()->fromPost()->retrieve('unique_id');
         $urlDownload = input()->fromPost()->retrieve('url_download');
 
-        if (!is_array($uniqueID)){
+        if (!is_array($uniqueID)) {
             $uniqueID = [];
         }
 
-        if (!is_array($urlDownload)){
+        if (!is_array($urlDownload)) {
             $urlDownload = [];
         }
 
@@ -352,7 +407,7 @@ class TracksController extends Controller
         ]);
         $validator = $getValidator->make(input()->fromPost()->all(), $this->trackUpdateRule());
         if ($validator->fails()) {
-            if (!$this->isUserInCLI){
+            if (!$this->isUserInCLI) {
                 session()->flash($validator->getErrors(), input()->fromPost()->all());
                 redirect(route('tracks.edit', [$slug]));
             }
@@ -379,8 +434,8 @@ class TracksController extends Controller
             $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
 
             $slug = $trackToUpdate['track_slug'];
-            if (!$this->isUserInCLI){
-                if (input()->fromPost()->has('_fieldErrorEmitted') === true){
+            if (!$this->isUserInCLI) {
+                if (input()->fromPost()->has('_fieldErrorEmitted') === true) {
                     session()->flash(['Track Updated But Some Field Inputs Are Incorrect'], input()->fromPost()->all(), type: Session::SessionCategories_FlashMessageInfo);
                 } else {
                     session()->flash(['Track Updated'], type: Session::SessionCategories_FlashMessageSuccess);
@@ -388,11 +443,11 @@ class TracksController extends Controller
                 apcu_clear_cache();
                 redirect(route('tracks.edit', ['track' => $slug]));
             }
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // Log..
             $dbTx->rollBack();
             $dbTx->getTonicsQueryBuilder()->destroyPdoConnection();
-            if (!$this->isUserInCLI){
+            if (!$this->isUserInCLI) {
                 session()->flash($validator->getErrors(), input()->fromPost()->all());
                 redirect(route('tracks.edit', [$slug]));
             }
@@ -402,43 +457,15 @@ class TracksController extends Controller
     }
 
     /**
-     * @param $entityBag
-     * @return bool
-     * @throws Exception
-     */
-    protected function updateMultiple($entityBag): bool
-    {
-        return $this->getTrackData()->dataTableUpdateMultiple([
-            'id' => 'track_id',
-            'table' => Tables::getTable(Tables::TRACKS),
-            'rules' => $this->trackUpdateMultipleRule(),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
-     * @param $entityBag
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteMultiple($entityBag): bool
-    {
-        return $this->getTrackData()->dataTableDeleteMultiple([
-            'id' => 'track_id',
-            'table' => Tables::getTable(Tables::TRACKS),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
      * @throws \Exception
      */
-    #[NoReturn] public function redirect($id){
+    #[NoReturn] public function redirect($id)
+    {
 
         $redirection = new CommonResourceRedirection(
             onSlugIDState: function ($slugID) {
                 $track = null;
-                db(onGetDB: function ($db) use ($slugID, &$track){
+                db(onGetDB: function ($db) use ($slugID, &$track) {
                     $track = $db->Select('*')->From(Tables::getTable(Tables::TRACKS))
                         ->WhereEquals('slug_id', $slugID)->FetchFirst();
                 });
@@ -448,7 +475,7 @@ class TracksController extends Controller
                 return false;
             }, onSlugState: function ($slug) {
             $track = null;
-            db(onGetDB: function ($db) use ($slug, &$track){
+            db(onGetDB: function ($db) use ($slug, &$track) {
                 $track = $db->Select('*')->From(Tables::getTable(Tables::TRACKS))
                     ->WhereEquals('track_slug', $slug)->FetchFirst();
             });
@@ -462,11 +489,10 @@ class TracksController extends Controller
         $redirection->runStates();
     }
 
-    const SessionCategories_TrackPlays = 'tonics_track_plays_info';
-
     /**
      * @return void
      * @throws Exception
+     * @throws \Throwable
      */
     public function updateTrackPlays(): void
     {
@@ -480,10 +506,10 @@ class TracksController extends Controller
             $trackToUpdate['slug_id'] = $slug;
             $key = self::SessionCategories_TrackPlays . '.' . $slug;
 
-            if (\session()->hasKey($key)){
+            if (\session()->hasKey($key)) {
                 $trackPlaysInfo = \session()->retrieve($key, jsonDecode: true);
 
-                if (is_string($trackPlaysInfo->expire_lock_time)){
+                if (is_string($trackPlaysInfo->expire_lock_time)) {
                     $trackPlaysInfo->expire_lock_time = strtotime($trackPlaysInfo->expire_lock_time);
                 }
 
@@ -494,7 +520,7 @@ class TracksController extends Controller
                 }
             } else {
                 $incrementPlay = true; # First Time
-                $trackPlaysInfo = (object) [
+                $trackPlaysInfo = (object)[
                     'expire_lock_time' => time() + Scheduler::everyHour(1),
                     'slug_id' => $slug,
                 ];
@@ -508,7 +534,7 @@ class TracksController extends Controller
                     $track = $db->Select('track_plays, track_title')->From($table)
                         ->WhereEquals('slug_id', $slug)->FetchFirst();
 
-                    if (isset($track->track_title)){
+                    if (isset($track->track_title)) {
                         $trackToUpdate['track_plays'] = $track->track_plays + 1;
                         $db->FastUpdate($table, $trackToUpdate, db()->Where('slug_id', '=', $slug));
                     }
@@ -518,36 +544,11 @@ class TracksController extends Controller
                 response()->onSuccess($trackToUpdate);
             }
 
-        } catch (Exception $exception){
+        } catch (Exception $exception) {
             // Log..
         }
 
         response()->onSuccess($trackToUpdate);
-    }
-
-
-    /**
-     * @return TrackData
-     */
-    public function getTrackData(): TrackData
-    {
-        return $this->trackData;
-    }
-
-    /**
-     * @return FieldData|null
-     */
-    public function getFieldData(): ?FieldData
-    {
-        return $this->getTrackData()->getFieldData();
-    }
-
-    /**
-     * @return OnTrackDefaultField|null
-     */
-    public function getOnTrackDefaultField(): ?OnTrackDefaultField
-    {
-        return  $this->getTrackData()->getOnTrackDefaultField();
     }
 
     /**

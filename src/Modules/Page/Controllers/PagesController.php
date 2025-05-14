@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -39,11 +39,11 @@ class PagesController
 {
     use Validator, PageValidationRules;
 
-    private PageData            $pageData;
-    private ?FieldData          $fieldData;
+    private PageData $pageData;
+    private ?FieldData $fieldData;
     private ?OnPageDefaultField $onPageDefaultField;
 
-    public function __construct (PageData $pageData, private PageService $pageService, FieldData $fieldData = null, OnPageDefaultField $onPageDefaultField = null)
+    public function __construct(PageData $pageData, private PageService $pageService, FieldData $fieldData = null, OnPageDefaultField $onPageDefaultField = null)
     {
         $this->pageData = $pageData;
         $this->fieldData = $fieldData;
@@ -54,7 +54,7 @@ class PagesController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function index (): void
+    public function index(): void
     {
 
         $data = null;
@@ -81,12 +81,12 @@ class PagesController
 
         view('Modules::Page/Views/index', [
             'DataTable' => [
-                'headers'       => $this->pageService::DataTableHeaders(),
-                'paginateData'  => $data ?? [],
+                'headers' => $this->pageService::DataTableHeaders(),
+                'paginateData' => $data ?? [],
                 'dataTableType' => 'EDITABLE_PREVIEW',
 
             ],
-            'SiteURL'   => AppConfig::getAppUrl(),
+            'SiteURL' => AppConfig::getAppUrl(),
         ]);
     }
 
@@ -94,7 +94,7 @@ class PagesController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function dataTable (): void
+    public function dataTable(): void
     {
         $entityBag = null;
         if ($this->getPageData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -128,10 +128,86 @@ class PagesController
     }
 
     /**
+     * @return PageData
+     */
+    public function getPageData(): PageData
+    {
+        return $this->pageData;
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Throwable
+     */
+    public function deleteMultiple($entityBag): bool
+    {
+        return $this->getPageData()->dataTableDeleteMultiple([
+            'id' => 'page_id',
+            'table' => Tables::getTable(Tables::PAGES),
+            'entityBag' => $entityBag,
+        ]);
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws Exception
+     * @throws \Throwable
+     */
+    protected function updateMultiple($entityBag): bool
+    {
+        return $this->getPageData()->dataTableUpdateMultiple([
+            'id' => 'page_id',
+            'table' => Tables::getTable(Tables::PAGES),
+            'rules' => $this->pageUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
+    }
+
+    /**
+     * @return FieldData|null
+     */
+    public function getFieldData(): ?FieldData
+    {
+        return $this->fieldData;
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool|array|null
+     * @throws \Throwable
+     */
+    public function copyFieldItemsJSON($entityBag): bool|array|null
+    {
+        try {
+            $pagesID = [];
+            $fieldItems = $this->getFieldData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveCopyFieldItems, $entityBag);
+            foreach ($fieldItems as $fieldItem) {
+                if (isset($fieldItem->{"pages::page_id"})) {
+                    $pagesID[] = $fieldItem->{"pages::page_id"};
+                }
+            }
+
+            return PageService::getPagesBy($pagesID, 'page_id', "page_title, field_ids, page_slug, page_status, field_settings");
+
+        } catch (\Exception $exception) {
+            // log..
+        }
+
+        return false;
+
+    }
+
+    /**
      * @throws \Exception
      * @throws \Throwable
      */
-    public function create ()
+    public function create()
     {
         $this->fieldData->getFieldItemsAPI();
 
@@ -141,10 +217,10 @@ class PagesController
         if (!is_array($oldFormInput)) {
             $oldFormInput = [];
         }
-
+        
         view('Modules::Page/Views/create', [
             'FieldSelection' => $this->fieldData->getFieldsSelection($this->onPageDefaultField->getFieldSlug()),
-            'FieldItems'     => $this->fieldData->generateFieldWithFieldSlug($this->onPageDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
+            'FieldItems' => $this->fieldData->generateFieldWithFieldSlug($this->onPageDefaultField->getFieldSlug(), $oldFormInput)->getHTMLFrag(),
         ]);
     }
 
@@ -152,7 +228,28 @@ class PagesController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function store ()
+    public function getFieldSlug($page): array
+    {
+        $slug = $page['field_ids'];
+        $fieldSlugs = json_decode($slug) ?? [];
+        if (is_object($fieldSlugs)) {
+            $fieldSlugs = (array)$fieldSlugs;
+        }
+
+        if (empty($fieldSlugs) || !is_array($fieldSlugs)) {
+            // return default fields
+            return ["default-page-field", "post-home-page"];
+        }
+
+        $hiddenSlug = event()->dispatch(new OnPageDefaultField())->getHiddenFieldSlug();
+        return [...$fieldSlugs, ...$hiddenSlug];
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    #[NoReturn] public function store()
     {
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
@@ -160,9 +257,11 @@ class PagesController
         if (input()->fromPost()->hasValue('page_slug') === false) {
             $_POST['page_slug'] = helper()->slug(input()->fromPost()->retrieve('page_title'));
         }
-        if (input()->fromPost()->hasValue('page_status') === false) {
+        $pageStatus = input()->fromPost()->retrieve('page_status');
+        if ($pageStatus === null || trim($pageStatus) === '') {
             $_POST['page_status'] = "1";
         }
+
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->pageStoreRule());
         if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
@@ -191,7 +290,7 @@ class PagesController
      * @throws Exception
      * @throws \Throwable
      */
-    public function edit (string $id): void
+    public function edit(string $id): void
     {
         $this->fieldData->getFieldItemsAPI();
         $page = null;
@@ -209,19 +308,18 @@ class PagesController
 
         view('Modules::Page/Views/edit', [
             'FieldSelection' => $this->fieldData->getFieldsSelection($onPageDefaultField->getFieldSlug()),
-            'Page'           => $page,
-            'FieldItems'     => $this->fieldData
+            'Page' => $page,
+            'FieldItems' => $this->fieldData
                 ->controllerUnwrapFieldDetails($this->fieldData, $page, $onPageDefaultField->getFieldSlug(), 'field_settings'),
         ]);
     }
-
 
     /**
      * @throws \ReflectionException
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function update (string $id)
+    #[NoReturn] public function update(string $id)
     {
         if (input()->fromPost()->hasValue('created_at') === false) {
             $_POST['created_at'] = helper()->date();
@@ -264,70 +362,10 @@ class PagesController
     }
 
     /**
-     * @param $entityBag
-     *
-     * @return bool
      * @throws Exception
      * @throws \Throwable
      */
-    protected function updateMultiple ($entityBag): bool
-    {
-        return $this->getPageData()->dataTableUpdateMultiple([
-            'id'        => 'page_id',
-            'table'     => Tables::getTable(Tables::PAGES),
-            'rules'     => $this->pageUpdateMultipleRule(),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
-     * @param $entityBag
-     *
-     * @return bool
-     * @throws Exception
-     * @throws \Throwable
-     */
-    public function deleteMultiple ($entityBag): bool
-    {
-        return $this->getPageData()->dataTableDeleteMultiple([
-            'id'        => 'page_id',
-            'table'     => Tables::getTable(Tables::PAGES),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
-     * @param $entityBag
-     *
-     * @return bool|array|null
-     * @throws \Throwable
-     */
-    public function copyFieldItemsJSON ($entityBag): bool|array|null
-    {
-        try {
-            $pagesID = [];
-            $fieldItems = $this->getFieldData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveCopyFieldItems, $entityBag);
-            foreach ($fieldItems as $fieldItem) {
-                if (isset($fieldItem->{"pages::page_id"})) {
-                    $pagesID[] = $fieldItem->{"pages::page_id"};
-                }
-            }
-
-            return PageService::getPagesBy($pagesID, 'page_id', "page_title, field_ids, page_slug, page_status, field_settings");
-
-        } catch (\Exception $exception) {
-            // log..
-        }
-
-        return false;
-
-    }
-
-    /**
-     * @throws Exception
-     * @throws \Throwable
-     */
-    public function viewPage (): void
+    public function viewPage(): void
     {
         $foundURL = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLNode();
         $page = $foundURL->getMoreSettings('GET');
@@ -345,51 +383,14 @@ class PagesController
         view('Modules::Core/Views/Templates/theme', [
             'SiteURL' => AppConfig::getAppUrl(),
             'Dropper' => $dropper,
-            'Page'    => $page,
+            'Page' => $page,
         ]);
-    }
-
-    /**
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function getFieldSlug ($page): array
-    {
-        $slug = $page['field_ids'];
-        $fieldSlugs = json_decode($slug) ?? [];
-        if (is_object($fieldSlugs)) {
-            $fieldSlugs = (array)$fieldSlugs;
-        }
-
-        if (empty($fieldSlugs) || !is_array($fieldSlugs)) {
-            // return default fields
-            return ["default-page-field", "post-home-page"];
-        }
-
-        $hiddenSlug = event()->dispatch(new OnPageDefaultField())->getHiddenFieldSlug();
-        return [...$fieldSlugs, ...$hiddenSlug];
-    }
-
-    /**
-     * @return PageData
-     */
-    public function getPageData (): PageData
-    {
-        return $this->pageData;
-    }
-
-    /**
-     * @return FieldData|null
-     */
-    public function getFieldData (): ?FieldData
-    {
-        return $this->fieldData;
     }
 
     /**
      * @return OnPageDefaultField|null
      */
-    public function getOnPageDefaultField (): ?OnPageDefaultField
+    public function getOnPageDefaultField(): ?OnPageDefaultField
     {
         return $this->onPageDefaultField;
     }

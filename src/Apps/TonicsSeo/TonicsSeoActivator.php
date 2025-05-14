@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -39,7 +39,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct ()
+    public function __construct()
     {
         $this->fieldData = new FieldData();
     }
@@ -47,7 +47,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -55,7 +55,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -64,7 +64,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
             OnHookIntoTemplate::class => [
@@ -92,7 +92,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function tables (): array
+    public function tables(): array
     {
         return [];
     }
@@ -100,62 +100,12 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onInstall (): void
+    public function onInstall(): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
     }
 
-    public function onUninstall (): void
-    {
-        return;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function onUpdate (): void
-    {
-        $this->fieldData->importFieldItems($this->fieldItems());
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function onDelete (): void
-    {
-        // should not be deleted as it is a dangerous operation that can destroy users seo
-        /*db(onGetDB: function (TonicsQuery $db) {
-            $toDelete = ['app-tonicsseo-settings'];
-            $tb = $this->fieldData->getFieldTable();
-            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
-        });*/
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function info (): array
-    {
-        return [
-            "name"                 => "TonicsSeo",
-            "type"                 => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            "slug_id"              => "a3d355df-276e-11ef-9736-124c30cfdb6b",
-            // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1730113236',
-            "description"          => "This is TonicsSeo",
-            "info_url"             => '',
-            "settings_page"        => route('tonicsSeo.settings'), // can be null or a route name
-            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_seo/releases/latest",
-            "authors"              => [
-                "name"  => "Your Name",
-                "email" => "name@website.com",
-                "role"  => "Developer",
-            ],
-            "credits"              => [],
-        ];
-    }
-
-    function fieldItems (): array
+    function fieldItems(): array
     {
         $json = <<<'JSON'
 [
@@ -285,7 +235,7 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 5,
 		"field_slug": "app-tonicsseo-settings",
 		"field_parent_id": 2,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"67p58l03wa40000000000\",\"field_input_name\":\"app_tonicsseo_site_title_separator\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Separator\",\"inputName\":\"app_tonicsseo_site_title_separator\",\"selectData\":\"-,|,•,<,>,/,«,»\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"67p58l03wa40000000000\",\"field_input_name\":\"app_tonicsseo_site_title_separator\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Separator\",\"inputName\":\"app_tonicsseo_site_title_separator\",\"selectData\":\"-,|,\\u2022,<,>,/,\\u00ab,\\u00bb\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"field_field_name": "App TonicsSeo Settings",
@@ -658,5 +608,55 @@ class TonicsSeoActivator implements ExtensionConfig, FieldItemsExtensionConfig
 ]
 JSON;
         return json_decode($json);
+    }
+
+    public function onUninstall(): void
+    {
+        return;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function onUpdate(): void
+    {
+        $this->fieldData->importFieldItems($this->fieldItems());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function onDelete(): void
+    {
+        // should not be deleted as it is a dangerous operation that can destroy users seo
+        /*db(onGetDB: function (TonicsQuery $db) {
+            $toDelete = ['app-tonicsseo-settings'];
+            $tb = $this->fieldData->getFieldTable();
+            $db->FastDelete($tb, db()->WhereIn(table()->getColumn($tb, 'field_slug'), $toDelete));
+        });*/
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function info(): array
+    {
+        return [
+            "name" => "TonicsSeo",
+            "type" => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id" => "a3d355df-276e-11ef-9736-124c30cfdb6b",
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-app.1747085600',
+            "description" => "This is TonicsSeo",
+            "info_url" => '',
+            "settings_page" => route('tonicsSeo.settings'), // can be null or a route name
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_seo/releases/latest",
+            "authors" => [
+                "name" => "Your Name",
+                "email" => "name@website.com",
+                "role" => "Developer",
+            ],
+            "credits" => [],
+        ];
     }
 }

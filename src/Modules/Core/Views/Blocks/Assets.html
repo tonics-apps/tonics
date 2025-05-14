@@ -1,6 +1,6 @@
-[[b('main-css-style')<link rel="stylesheet" href="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/css/minified/styles.css">]]
+[[b('main-css-style')<link href="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/css/minified/styles.css" rel="stylesheet">]]
 
-[[b('fm-css-style')<link rel="stylesheet" href="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/css/minified/file-manager.css">]]
+[[b('fm-css-style')<link href="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/css/minified/file-manager.css" rel="stylesheet">]]
 
 [[b('script:login-page')
     [[combine('MODULE::/Core/Assets/js/views/login/script-combined.js',
@@ -9,7 +9,7 @@
         'MODULE::/Core/Assets/js/views/login/main.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/login/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/login/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:installer-page')
@@ -18,7 +18,7 @@
         'MODULE::/Core/Assets/js/modules/Others/password-with-show.js',
         'MODULE::/Core/Assets/js/views/installer/main.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/installer/script-installer-page.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/installer/script-installer-page.js" type="module"></script>
 ]]
 
 [[b('script:dashboard-home')
@@ -35,7 +35,7 @@
         'MODULE::/Core/Assets/js/tools/SwapNodes.js',
         'MODULE::/Core/Assets/js/tools/Widget/AdminWidgetDraggable.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/dashboard/home/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/dashboard/home/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:tinymce')
@@ -43,7 +43,7 @@
 ]]
 
 [[b('script:app-index')
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=js/views/app/main.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=js/views/app/main.js" type="module"></script>
 ]]
 
 [[b('script:track-index')
@@ -69,7 +69,7 @@
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
         'MODULE::/Core/Assets/js/tools/AdminSelectUtilities.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/track/index/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/track/index/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:track')
@@ -99,7 +99,7 @@
         'MODULE::/Core/Assets/js/tools/Widget/WidgetDate.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetTitleSlug.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/track/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/track/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:core')
@@ -125,7 +125,7 @@
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedImage.js',
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedLink.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/core/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/core/script-combined.min.js" type="module"></script>
 ]]
 
 
@@ -155,7 +155,7 @@
         'MODULE::/Core/Assets/js/tools/SwapNodes.js',
         'MODULE::/Core/Assets/js/tools/Widget/AdminWidgetDraggable.js'
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:post-front')
@@ -165,13 +165,14 @@
         'MODULE::/Core/Assets/js/tools/StartTonicsEventProcessor.js',
         'MODULE::/Core/Assets/js/modules/Element/MenuToggle.js',
         'MODULE::/Core/Assets/js/modules/Element/Query.js',
+        'MODULE::/Core/Assets/js/modules/Http/XHRApi.js',
         'MODULE::/Core/Assets/js/modules/Others/TableOfContent.js',
 
         'MODULE::/Core/Assets/js/views/post/front/main.js',
 
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/front/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/front/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:post-category')
@@ -198,7 +199,7 @@
         'MODULE::/Core/Assets/js/tools/Widget/WidgetTitleSlug.js',
         'MODULE::/Core/Assets/js/tools/Widget/WidgetSelectCategory.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/category/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/category/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:log-tool')
@@ -217,7 +218,7 @@
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
     )]]
-    <script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/log/script-combined.min.js"></script>
+    <script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/log/script-combined.min.js" type="module"></script>
 ]]
 
 
@@ -242,7 +243,7 @@
         'MODULE::/Core/Assets/js/tools/Widget/FeaturedLink.js',
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/index/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/index/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:post-category-index')
@@ -261,7 +262,7 @@
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
         'MODULE::/Core/Assets/js/tools/AdminSelectUtilities.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/category/index/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/post/category/index/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:menu-item-index')
@@ -278,7 +279,7 @@
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/menu/items/index/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/menu/items/index/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:field-item-index')
@@ -304,7 +305,7 @@
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/field/items/index/script-combined.min.js">
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/field/items/index/script-combined.min.js" type="module">
 </script>
 ]]
 
@@ -328,7 +329,7 @@
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/ItemSelection.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/field/items/selection-manager/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/field/items/selection-manager/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:license-item-index')
@@ -352,7 +353,7 @@
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/license/items/index/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/license/items/index/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:fm-modules')
@@ -368,7 +369,7 @@
         'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
         'MODULE::/Core/Assets/js/tools/CoreGlobalVariables.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/media/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/media/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('script:wp-import')
@@ -384,7 +385,7 @@
         'MODULE::/Core/Assets/js/tools/ToastMessage.js',
         'MODULE::/Core/Assets/js/tools/SiteNavToggle.js',
     )]]
-<script type="module" src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/import/wordpress/script-combined.min.js"></script>
+<script src="[[v('App_Config.SERVE_MODULE_PATH')]]Core?path=/js/views/import/wordpress/script-combined.min.js" type="module"></script>
 ]]
 
 [[b('default-inline-svg')
@@ -397,19 +398,19 @@
 ]]
 
 [[b('default-meta')
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<meta content="width=device-width, initial-scale=1" name="viewport">
 ]]
 
 [[b('default-secure-meta')
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     [[add_hook('Core::meta_csp')]]
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf_token" content="[[csrf()]]">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta content="[[csrf()]]" name="csrf_token">
 ]]
 
-[[hook_into('Core::meta_csp')<meta http-equiv="Content-Security-Policy" content="script-src 'self'">]]
+[[hook_into('Core::meta_csp')<meta content="script-src 'self'" http-equiv="Content-Security-Policy">]]
 
 [[b('csrf-meta')
-    <meta name="csrf_token" content="[[csrf()]]">
+    <meta content="[[csrf()]]" name="csrf_token">
 ]]

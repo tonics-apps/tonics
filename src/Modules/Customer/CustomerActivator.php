@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -38,7 +38,7 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -46,7 +46,7 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
             OnAddCustomerSpamProtectionEvent::class => [
@@ -58,7 +58,7 @@ class CustomerActivator implements ExtensionConfig
             OnFieldMetaBox::class => [
                 CustomerSpamProtections::class,
             ],
-            OnAdminMenu::class    => [
+            OnAdminMenu::class => [
                 CustomerMenus::class,
             ],
         ];
@@ -67,7 +67,7 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         return $this->routeWeb($routes);
     }
@@ -75,7 +75,7 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @return array
      */
-    public function tables (): array
+    public function tables(): array
     {
         return
             [
@@ -83,12 +83,12 @@ class CustomerActivator implements ExtensionConfig
             ];
     }
 
-    public function onInstall (): void
+    public function onInstall(): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall (): void
+    public function onUninstall(): void
     {
         // TODO: Implement onUninstall() method.
     }
@@ -96,36 +96,36 @@ class CustomerActivator implements ExtensionConfig
     /**
      * @throws \Throwable
      */
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "Customer",
-            "type"                 => "Module",
-            "slug_id"              => "d33a73a6-273f-11ef-9736-124c30cfdb6b",
+            "name" => "Customer",
+            "type" => "Module",
+            "slug_id" => "d33a73a6-273f-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1718718680',
+            "version" => '1-O-Ola.1747085600',
             // "version" => '1-O-Ola.943905600', // fake old date
-            "description"          => "The Customer Module",
-            "info_url"             => '',
-            "settings_page"        => route('admin.customer.settings'),
+            "description" => "The Customer Module",
+            "info_url" => '',
+            "settings_page" => route('admin.customer.settings'),
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-customer-module/releases/latest",
-            "authors"              => [
-                "name"  => "The Devsrealm Guy",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 
     /**
      */
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         return;
     }
 
-    public function onDelete (): void
+    public function onDelete(): void
     {
         // TODO: Implement onDelete() method.
     }

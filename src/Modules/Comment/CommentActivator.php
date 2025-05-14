@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -25,66 +25,66 @@ use Devsrealm\TonicsRouterSystem\Route;
 class CommentActivator implements ExtensionConfig
 {
 
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
 
-    public function events (): array
+    public function events(): array
     {
         return [];
     }
 
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         return $routes;
     }
 
-    public function tables (): array
+    public function tables(): array
     {
         return [
             Tables::getTable(Tables::COMMENT_USER_TYPE) => Tables::$TABLES[Tables::COMMENT_USER_TYPE],
-            Tables::getTable(Tables::COMMENTS)          => Tables::$TABLES[Tables::COMMENTS],
+            Tables::getTable(Tables::COMMENTS) => Tables::$TABLES[Tables::COMMENTS],
         ];
     }
 
-    public function onInstall (): void
+    public function onInstall(): void
     {
         return;
     }
 
-    public function onUninstall (): void
+    public function onUninstall(): void
     {
         return;
     }
 
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         return;
     }
 
-    public function onDelete (): void
+    public function onDelete(): void
     {
         return;
     }
 
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "Comment",
-            "type"                 => "Module",
+            "name" => "Comment",
+            "type" => "Module",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1718095500',
-            "stable"               => 0,
-            "description"          => "The Comment Module",
-            "info_url"             => '',
+            "version" => '1-O-Ola.1747085600',
+            "stable" => 0,
+            "description" => "The Comment Module",
+            "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-comment-module/releases/latest",
-            "authors"              => [
-                "name"  => "The Devsrealm Guy",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 }

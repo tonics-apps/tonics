@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -38,7 +38,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct ()
+    public function __construct()
     {
         $this->fieldData = new FieldData();
     }
@@ -46,7 +46,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -54,7 +54,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -63,7 +63,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
 
@@ -88,7 +88,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function tables (): array
+    public function tables(): array
     {
         return [];
     }
@@ -96,17 +96,84 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onInstall (): void
+    public function onInstall(): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
+    }
+
+    public function fieldItems(): array
+    {
+        $json = <<<'JSON'
+[
+	{
+		"field_field_name": "App TonicsToc",
+		"field_name": "input_text",
+		"field_id": 1,
+		"field_slug": "app-tonicstoc",
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"65d9zpp703k0000000000\",\"field_input_name\":\"toc_label\",\"fieldName\":\"TOC Label\",\"inputName\":\"toc_label\",\"textType\":\"text\",\"defaultValue\":\"Table of Content\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
+	},
+	{
+		"field_field_name": "App TonicsToc Settings",
+		"field_name": "modular_rowcolumn",
+		"field_id": 1,
+		"field_slug": "app-tonicstoc-settings",
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"10bkndblje4g000000000\",\"fieldName\":\"Label\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"cell\":\"on\"}"
+	},
+	{
+		"field_field_name": "App TonicsToc Settings",
+		"field_name": "input_text",
+		"field_id": 2,
+		"field_slug": "app-tonicstoc-settings",
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"7t8dxnbb8zs000000000\",\"fieldName\":\"TOC Label\",\"inputName\":\"toc_label\",\"textType\":\"text\",\"defaultValue\":\"Table of Content\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
+	},
+	{
+		"field_field_name": "App TonicsToc Settings",
+		"field_name": "input_select",
+		"field_id": 3,
+		"field_slug": "app-tonicstoc-settings",
+		"field_parent_id": 1,
+		"field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"2stx9q02to40000000000\",\"fieldName\":\"Toc Label Tag\",\"inputName\":\"toc_label_tag\",\"selectData\":\"div,span,h1,h2\",\"defaultValue\":\"h2\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
+	},
+	{
+		"field_field_name": "App TonicsToc Settings",
+		"field_name": "modular_rowcolumn",
+		"field_id": 4,
+		"field_slug": "app-tonicstoc-settings",
+		"field_parent_id": null,
+		"field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"432whxwgv3c0000000000\",\"fieldName\":\"Other Settings\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"cell\":\"on\"}"
+	},
+	{
+		"field_field_name": "App TonicsToc Settings",
+		"field_name": "input_text",
+		"field_id": 5,
+		"field_slug": "app-tonicstoc-settings",
+		"field_parent_id": 4,
+		"field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"vmj95749d74000000000\",\"fieldName\":\"Toc Class\",\"inputName\":\"toc_class\",\"textType\":\"text\",\"defaultValue\":\"tonics-toc\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
+	},
+	{
+		"field_field_name": "App TonicsToc Settings",
+		"field_name": "input_text",
+		"field_id": 6,
+		"field_slug": "app-tonicstoc-settings",
+		"field_parent_id": 4,
+		"field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"nck0mfxn7r4000000000\",\"fieldName\":\"Trigger Toc When Header is Greater Than\",\"inputName\":\"toc_trigger\",\"textType\":\"number\",\"defaultValue\":\"2\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
+	}
+]
+JSON;
+        return json_decode($json);
     }
 
     /**
      * @throws \Exception
      */
-    public function onUninstall (): void {}
+    public function onUninstall(): void
+    {
+    }
 
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         return;
     }
@@ -114,24 +181,24 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "TonicsToc",
-            "type"                 => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "name" => "TonicsToc",
+            "type" => "Tool", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "slug_id"              => '08d3e041-276f-11ef-9736-124c30cfdb6b',
-            "version"              => '1-O-app.1730113236',
-            "description"          => "This is TonicsToc",
-            "info_url"             => '',
-            "settings_page"        => route('tonicsToc.settings'), // can be null or a route name
+            "slug_id" => '08d3e041-276f-11ef-9736-124c30cfdb6b',
+            "version" => '1-O-app.1747085600',
+            "description" => "This is TonicsToc",
+            "info_url" => '',
+            "settings_page" => route('tonicsToc.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_toc/releases/latest",
-            "authors"              => [
-                "name"  => "Your Name",
+            "authors" => [
+                "name" => "Your Name",
                 "email" => "name@website.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 
@@ -139,7 +206,7 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @return void
      * @throws \Exception
      */
-    public function onDelete (): void
+    public function onDelete(): void
     {
         db(onGetDB: function (TonicsQuery $db) {
             $toDelete = ['app-tonicstoc', 'app-tonicstoc-settings'];
@@ -148,68 +215,10 @@ class TonicsTocActivator implements ExtensionConfig, FieldItemsExtensionConfig
         });
     }
 
-    public function fieldItems (): array
-    {
-        $json = <<<'JSON'
-[
-  {
-    "fk_field_id": "App TonicsToc",
-    "field_name": "input_text",
-    "field_id": 1,
-    "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"65d9zpp703k0000000000\",\"field_input_name\":\"toc_label\",\"fieldName\":\"TOC Label\",\"inputName\":\"toc_label\",\"textType\":\"text\",\"defaultValue\":\"Table of Content\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\"}"
-  },
-  {
-    "fk_field_id": "App TonicsToc Settings",
-    "field_name": "modular_rowcolumn",
-    "field_id": 1,
-    "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"10bkndblje4g000000000\",\"fieldName\":\"Label\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"cell\":\"on\"}"
-  },
-  {
-    "fk_field_id": "App TonicsToc Settings",
-    "field_name": "input_text",
-    "field_id": 2,
-    "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"7t8dxnbb8zs000000000\",\"fieldName\":\"TOC Label\",\"inputName\":\"toc_label\",\"textType\":\"text\",\"defaultValue\":\"Table of Content\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
-  },
-  {
-    "fk_field_id": "App TonicsToc Settings",
-    "field_name": "input_select",
-    "field_id": 3,
-    "field_parent_id": 1,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"2stx9q02to40000000000\",\"fieldName\":\"Toc Label Tag\",\"inputName\":\"toc_label_tag\",\"selectData\":\"div,span,h1,h2\",\"defaultValue\":\"h2\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
-  },
-  {
-    "fk_field_id": "App TonicsToc Settings",
-    "field_name": "modular_rowcolumn",
-    "field_id": 4,
-    "field_parent_id": null,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"432whxwgv3c0000000000\",\"fieldName\":\"Other Settings\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"hideInUserEditForm\":\"0\",\"cell\":\"on\"}"
-  },
-  {
-    "fk_field_id": "App TonicsToc Settings",
-    "field_name": "input_text",
-    "field_id": 5,
-    "field_parent_id": 4,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"vmj95749d74000000000\",\"fieldName\":\"Toc Class\",\"inputName\":\"toc_class\",\"textType\":\"text\",\"defaultValue\":\"tonics-toc\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
-  },
-  {
-    "fk_field_id": "App TonicsToc Settings",
-    "field_name": "input_text",
-    "field_id": 6,
-    "field_parent_id": 4,
-    "field_options": "{\"field_validations\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"nck0mfxn7r4000000000\",\"fieldName\":\"Trigger Toc When Header is Greater Than\",\"inputName\":\"toc_trigger\",\"textType\":\"number\",\"defaultValue\":\"2\",\"hideInUserEditForm\":\"0\",\"maxChar\":\"\",\"placeholder\":\"\",\"readOnly\":\"0\",\"required\":\"1\",\"elementWrapper\":\"\",\"attributes\":\"\",\"templateEngine\":\"\",\"nativeTemplateHook\":\"\",\"tonicsTemplateFrag\":\"\"}"
-  }
-]
-JSON;
-        return json_decode($json);
-    }
-
     /**
      * @return FieldData
      */
-    public function getFieldData (): FieldData
+    public function getFieldData(): FieldData
     {
         return $this->fieldData;
     }
@@ -217,7 +226,7 @@ JSON;
     /**
      * @param FieldData $fieldData
      */
-    public function setFieldData (FieldData $fieldData): void
+    public function setFieldData(FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
     }

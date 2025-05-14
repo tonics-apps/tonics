@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -29,7 +29,8 @@ class OnBeforePostSave implements EventInterface
 
     private array $data;
 
-    public function __construct(array $postData = []){
+    public function __construct(array $postData = [])
+    {
         $this->data = $postData;
     }
 
@@ -55,5 +56,19 @@ class OnBeforePostSave implements EventInterface
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    /**
+     * @param mixed $field
+     *
+     * @return mixed
+     */
+    public function getFieldOption(mixed $field): mixed
+    {
+        if (is_object($field->field_options)) {
+            return $field->field_options;
+        } else {
+            return json_decode($field->field_options);
+        }
     }
 }

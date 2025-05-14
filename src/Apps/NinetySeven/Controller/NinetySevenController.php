@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -21,10 +21,7 @@ namespace App\Apps\NinetySeven\Controller;
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\Tables;
 use App\Modules\Field\Data\FieldData;
-use App\Modules\Post\Data\PostData;
-use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 
 const TonicsTheme_TonicsNinetySevenSettings = 'TonicsTheme_TonicsNinetySevenSettings';
 
@@ -44,48 +41,13 @@ class NinetySevenController
     {
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
             ['app-ninety-seven-settings'],
-            $this->getSettingData()
+            $this->getSettingData(),
         )->getHTMLFrag();
 
         view('Apps::NinetySeven/Views/settings', [
-                'FieldItems' => $fieldItems,
-            ]
+            'FieldItems' => $fieldItems,
+        ],
         );
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function update()
-    {
-        try {
-            $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
-            apcu_store(self::getCacheKey(), $settings);
-            session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
-            redirect(route('ninetySeven.settings'));
-        }catch (\Exception){
-            session()->flash(['An Error Occurred Saving Settings'], $_POST);
-            redirect(route('ninetySeven.settings'));
-        }
-
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public static function getSettingData()
-    {
-        $settings = apcu_fetch(self::getCacheKey());
-        if ($settings === false){
-            $settings = FieldConfig::loadPluginSettings(self::getCacheKey());
-        }
-
-        return $settings;
-    }
-
-    public static function getCacheKey(): string
-    {
-        return AppConfig::getAppCacheKey() . TonicsTheme_TonicsNinetySevenSettings;
     }
 
     /**
@@ -102,5 +64,40 @@ class NinetySevenController
     public function setFieldData(?FieldData $fieldData): void
     {
         $this->fieldData = $fieldData;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getSettingData()
+    {
+        $settings = apcu_fetch(self::getCacheKey());
+        if ($settings === false) {
+            $settings = FieldConfig::loadPluginSettings(self::getCacheKey());
+        }
+
+        return $settings;
+    }
+
+    public static function getCacheKey(): string
+    {
+        return AppConfig::getAppCacheKey() . TonicsTheme_TonicsNinetySevenSettings;
+    }
+
+    /**
+     * @throws \Exception|\Throwable
+     */
+    public function update()
+    {
+        try {
+            $settings = FieldConfig::savePluginFieldSettings(self::getCacheKey(), $_POST);
+            apcu_store(self::getCacheKey(), $settings);
+            session()->flash(['Settings Updated'], type: Session::SessionCategories_FlashMessageSuccess);
+            redirect(route('ninetySeven.settings'));
+        } catch (\Exception) {
+            session()->flash(['An Error Occurred Saving Settings'], $_POST);
+            redirect(route('ninetySeven.settings'));
+        }
+
     }
 }

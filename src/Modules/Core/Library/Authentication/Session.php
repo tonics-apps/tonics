@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -27,27 +27,27 @@ use stdClass;
 class Session
 {
 
-    const SessionCategories_AuthInfo           = 'auth_info';
+    const SessionCategories_AuthInfo = 'auth_info';
     const SessionCategories_AuthInfo_UserTable = 'user_table';
     const SessionCategories_AuthInfo_UserEmail = 'email';
-    const SessionCategories_AuthInfo_UserName  = 'auth_info.user_name';
-    const SessionCategories_AuthInfo_Role      = 'role';
+    const SessionCategories_AuthInfo_UserName = 'auth_info.user_name';
+    const SessionCategories_AuthInfo_Role = 'role';
 
-    const SessionCategories_OldFormInput        = 'old_form_input';
-    const SessionCategories_FlashMessageError   = 'tonics_flash_message.errorMessage';
-    const SessionCategories_FlashMessageInfo    = 'tonics_flash_message.infoMessage';
+    const SessionCategories_OldFormInput = 'old_form_input';
+    const SessionCategories_FlashMessageError = 'tonics_flash_message.errorMessage';
+    const SessionCategories_FlashMessageInfo = 'tonics_flash_message.infoMessage';
     const SessionCategories_FlashMessageSuccess = 'tonics_flash_message.successMessage';
 
-    const SessionCategories_CSRFToken       = 'tonics_csrf_token';
-    const SessionCategories_URLReferer      = 'tonics_url_referer';
+    const SessionCategories_CSRFToken = 'tonics_csrf_token';
+    const SessionCategories_URLReferer = 'tonics_url_referer';
     const SessionCategories_WordPressImport = 'tonics_wordpress_import';
 
-    const SessionCategories_PasswordReset   = 'tonics_password_reset_info';
+    const SessionCategories_PasswordReset = 'tonics_password_reset_info';
     const SessionCategories_NewVerification = 'tonics_user_new_verification';
 
     private string $table;
 
-    public function __construct ()
+    public function __construct()
     {
         $this->table = Tables::getTable(Tables::SESSIONS);
     }
@@ -55,7 +55,7 @@ class Session
     /**
      * @return string
      */
-    public function getTable (): string
+    public function getTable(): string
     {
         return $this->table;
     }
@@ -63,7 +63,7 @@ class Session
     /**
      * @throws \Exception
      */
-    public static function getUserID ()
+    public static function getUserID()
     {
         return getGlobalVariableData()['Auth']['User_ID'];
     }
@@ -71,7 +71,7 @@ class Session
     /**
      * @throws \Exception
      */
-    public static function getUserEmail ()
+    public static function getUserEmail()
     {
         return getGlobalVariableData()['Auth']['User_Email'];
     }
@@ -79,7 +79,7 @@ class Session
     /**
      * @throws \Exception
      */
-    public static function getUserRoleID ()
+    public static function getUserRoleID()
     {
         return getGlobalVariableData()['Auth']['User_Role_ID'];
     }
@@ -87,7 +87,7 @@ class Session
     /**
      * @throws \Exception
      */
-    public static function getUserRoleName ()
+    public static function getUserRoleName()
     {
         return getGlobalVariableData()['Auth']['User_Role_Name'];
     }
@@ -96,7 +96,7 @@ class Session
      * @return bool
      * @throws \Exception
      */
-    public static function userTableIsCustomer (): bool
+    public static function userTableIsCustomer(): bool
     {
         return self::getUserTable() === 'customer';
     }
@@ -104,7 +104,7 @@ class Session
     /**
      * @throws \Exception
      */
-    public static function getUserTable ()
+    public static function getUserTable()
     {
         return getGlobalVariableData()['Auth']['User_Table'];
     }
@@ -113,7 +113,7 @@ class Session
      * @return bool
      * @throws \Exception
      */
-    public static function userTableIsAdmin (): bool
+    public static function userTableIsAdmin(): bool
     {
         return self::getUserTable() === 'admin';
     }
@@ -127,7 +127,7 @@ class Session
      * It would touch DB as soon as you start writing
      * @throws \Exception
      */
-    public function startSession (): void
+    public function startSession(): void
     {
         if ($this->sessionExist() === false) {
             ## The session would only be created in the db as soon as you start writing to it.
@@ -139,7 +139,7 @@ class Session
      * Check if session exist
      * @return bool
      */
-    public function sessionExist (): bool
+    public function sessionExist(): bool
     {
         return !empty($this->getCookieID());
     }
@@ -149,13 +149,13 @@ class Session
      *
      * @return mixed
      */
-    public function getCookieID (string $sessionName = ''): mixed
+    public function getCookieID(string $sessionName = ''): mixed
     {
         $sessionName = (empty($sessionName)) ? $this->sessionName() : $sessionName;
         return $_COOKIE[$sessionName] ?? '';
     }
 
-    public function sessionName (): string
+    public function sessionName(): string
     {
         return 'bt_sessionID';
     }
@@ -163,14 +163,14 @@ class Session
     /**
      * @param $sessionID
      */
-    public function updateSessionIDInCookie ($sessionID): void
+    public function updateSessionIDInCookie($sessionID): void
     {
         $cookieOptions = [
-            'expires'  => strtotime('+12 hours'),
-            'secure'   => true,     // or false
+            'expires' => strtotime('+12 hours'),
+            'secure' => true,     // or false
             'httponly' => true,     // or false
             'samesite' => 'Lax',    // None || Lax  || Strict
-            'path'     => '/',
+            'path' => '/',
         ];
         setcookie($this->sessionName(), $sessionID, $cookieOptions);
         ## Force the cookie to set on current request
@@ -180,7 +180,7 @@ class Session
     /**
      * @throws \Exception
      */
-    public function generateSessionID (): string
+    public function generateSessionID(): string
     {
         return helper()->randString();
     }
@@ -195,7 +195,7 @@ class Session
      * @return bool
      * @throws \Exception
      */
-    public function delete (string $key, string|bool $wildCard = 'false'): bool
+    public function delete(string $key, string|bool $wildCard = 'false'): bool
     {
         if ($this->sessionExist()) {
             if (is_string($wildCard)) {
@@ -243,7 +243,7 @@ class Session
      * @return mixed
      * @throws \Exception
      */
-    public function read (bool $array = false): mixed
+    public function read(bool $array = false): mixed
     {
         if ($this->sessionExist() === false || AppConfig::TonicsIsNotReady()) {
             return '';
@@ -284,7 +284,7 @@ SQL, $this->getCookieID());
      * @return bool
      * @throws \Exception
      */
-    public function isOldSession ($data): bool
+    public function isOldSession($data): bool
     {
         if (is_object($data) && isset($data->updated_at)) {
             $dateTime = helper()->date();
@@ -300,7 +300,7 @@ SQL, $this->getCookieID());
     /**
      * @throws \Exception
      */
-    public function logout ()
+    public function logout()
     {
         $this->clear();
         $this->updateSessionIDInCookie($this->generateSessionID());
@@ -316,7 +316,7 @@ SQL, $this->getCookieID());
      * @return bool
      * @throws \Exception
      */
-    public function clear ($sessionID = null): bool
+    public function clear($sessionID = null): bool
     {
 
         if (AppConfig::TonicsIsNotReady()) {
@@ -349,7 +349,7 @@ SQL, $this->getCookieID());
      * @return bool
      * @throws \Exception
      */
-    public function write (array $sessionData): bool
+    public function write(array $sessionData): bool
     {
         $stm = null;
         if ($this->sessionExist() && AppConfig::TonicsIsReady()) {
@@ -358,7 +358,7 @@ SQL, $this->getCookieID());
                 ## Add 1 hours to the current time
                 // $dateTime = date('Y-m-d H:i:s', strtotime('+1 hour'));
                 $toSave = [
-                    'session_id'   => $sessionID,
+                    'session_id' => $sessionID,
                     'session_data' => json_encode($sessionData),
                 ];
 
@@ -376,7 +376,7 @@ SQL, $this->getCookieID());
     /**
      * @throws \Exception
      */
-    public function getCSRFToken ()
+    public function getCSRFToken()
     {
         if ($this->hasKey(Session::SessionCategories_CSRFToken) === false) {
             $this->append(Session::SessionCategories_CSRFToken, helper()->randomString());
@@ -394,7 +394,7 @@ SQL, $this->getCookieID());
      * @return bool
      * @throws \Exception
      */
-    public function hasKey (string $key): bool
+    public function hasKey(string $key): bool
     {
         if ($this->sessionExist() && AppConfig::TonicsIsReady()) {
 
@@ -436,7 +436,7 @@ SQL, $jsonPath, $sessionID);
      * @return void
      * @throws \Exception
      */
-    public function append (string $key, array|stdClass|string $data): void
+    public function append(string $key, array|stdClass|string $data): void
     {
         if ($this->sessionExist()) {
 
@@ -472,7 +472,7 @@ SQL, $jsonPath, $sessionID);
      * @return mixed
      * @throws \Exception
      */
-    public function retrieve (string $key, ?string $default = '', bool $jsonDecode = false, bool $jsonEncodeAsArray = false): mixed
+    public function retrieve(string $key, ?string $default = '', bool $jsonDecode = false, bool $jsonEncodeAsArray = false): mixed
     {
         if ($this->sessionExist()) {
 
@@ -502,7 +502,7 @@ SQL, $jsonPath, $sessionID);
      * @return mixed
      * @throws \Exception
      */
-    private function getValue (string $key): mixed
+    private function getValue(string $key): mixed
     {
         $res = null;
         if (AppConfig::TonicsIsReady()) {
@@ -531,7 +531,7 @@ SQL, $jsonPath, $sessionID);
      * @return bool
      * @throws \Exception
      */
-    public function hasValue (string $key): bool
+    public function hasValue(string $key): bool
     {
         if ($this->sessionExist()) {
             $res = $this->getValue($key);
@@ -558,7 +558,7 @@ SQL, $jsonPath, $sessionID);
      * @return void
      * @throws \Exception
      */
-    public function flash (array|stdClass $data, array|stdClass $formInput = null, string $type = self::SessionCategories_FlashMessageError): void
+    public function flash(array|stdClass $data, array|stdClass $formInput = null, string $type = self::SessionCategories_FlashMessageError): void
     {
         if ($formInput !== null) {
             $this->oldFormInput($formInput);
@@ -581,7 +581,7 @@ SQL, $jsonPath, $sessionID);
      * @return void
      * @throws \Exception
      */
-    public function oldFormInput (array|stdClass $formInput): void
+    public function oldFormInput(array|stdClass $formInput): void
     {
         $this->append(self::SessionCategories_OldFormInput, $formInput);
     }
@@ -593,7 +593,7 @@ SQL, $jsonPath, $sessionID);
      * @return mixed|string
      * @throws \Exception
      */
-    public function getOldFormInput (string $key, string $default = ''): mixed
+    public function getOldFormInput(string $key, string $default = ''): mixed
     {
         if (!str_starts_with($key, self::SessionCategories_OldFormInput . '.')) {
             $key = self::SessionCategories_OldFormInput . '.' . $key;
@@ -616,7 +616,7 @@ SQL, $jsonPath, $sessionID);
      * Render a li of error messages
      * @throws \Exception
      */
-    public function renderFlashMessages (string $key, string $js = 'false'): string
+    public function renderFlashMessages(string $key, string $js = 'false'): string
     {
         $js = strtolower($js);
         $messages = $this->retrieve($key, default: true, jsonDecode: true);
@@ -658,7 +658,7 @@ SQL, $jsonPath, $sessionID);
      * @return bool
      * @throws \Exception
      */
-    public function regenerate (): bool
+    public function regenerate(): bool
     {
         $result = false;
         if ($this->sessionExist() && AppConfig::TonicsIsReady()) {

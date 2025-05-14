@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -32,12 +32,12 @@ class PicocssActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
 
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -46,7 +46,7 @@ class PicocssActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
             EditorsAsset::class => [
@@ -61,47 +61,49 @@ class PicocssActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function tables (): array
+    public function tables(): array
     {
         return [];
     }
 
-    public function onInstall (): void
+    public function onInstall(): void
     {
         return;
     }
 
-    public function onUninstall (): void
+    public function onUninstall(): void
     {
         return;
     }
 
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         return;
     }
 
 
-    public function onDelete (): void {}
+    public function onDelete(): void
+    {
+    }
 
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "Picocss",
-            "type"                 => "CSSFramework", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            "slug_id"              => "",             // Slug ID in Tonics App Store, leave empty if not hosted on Tonics App Store
+            "name" => "Picocss",
+            "type" => "CSSFramework", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id" => "",             // Slug ID in Tonics App Store, leave empty if not hosted on Tonics App Store
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1720878507',
-            "description"          => "This is Picocss",
-            "info_url"             => '',
-            "settings_page"        => null, // can be null or a route name
+            "version" => '1-O-app.1747085600',
+            "description" => "This is Picocss",
+            "info_url" => '',
+            "settings_page" => null, // can be null or a route name
             "update_discovery_url" => "",
-            "authors"              => [
-                "name"  => "Your Name",
+            "authors" => [
+                "name" => "Your Name",
                 "email" => "name@website.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 

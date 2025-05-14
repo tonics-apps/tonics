@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -66,7 +66,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -74,7 +74,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
             OnStartUpCLI::class => [
@@ -129,7 +129,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
                 Hook_AddSvgSymbols::class,
             ],
 
-            OnAddRole::class        => [
+            OnAddRole::class => [
                 CoreRolesHandler::class,
             ],
             OnAddMessageType::class => [
@@ -148,7 +148,7 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @return Route
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $this->routeApi($routes);
         return $this->routeWeb($routes);
@@ -157,32 +157,32 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @return array
      */
-    public function tables (): array
+    public function tables(): array
     {
         return
             [
-                Tables::getTable(Tables::SESSIONS)         => Tables::$TABLES[Tables::SESSIONS],
-                Tables::getTable(Tables::GLOBAL)           => Tables::$TABLES[Tables::GLOBAL],
-                Tables::getTable(Tables::USERS)            => Tables::$TABLES[Tables::USERS],
-                Tables::getTable(Tables::ROLES)            => Tables::$TABLES[Tables::ROLES],
-                Tables::getTable(Tables::BROKEN_LINKS)     => Tables::$TABLES[Tables::BROKEN_LINKS],
-                Tables::getTable(Tables::JOBS)             => Tables::$TABLES[Tables::JOBS],
-                Tables::getTable(Tables::SCHEDULER)        => Tables::$TABLES[Tables::SCHEDULER],
-                Tables::getTable(Tables::PERMISSIONS)      => Tables::$TABLES[Tables::PERMISSIONS],
+                Tables::getTable(Tables::SESSIONS) => Tables::$TABLES[Tables::SESSIONS],
+                Tables::getTable(Tables::GLOBAL) => Tables::$TABLES[Tables::GLOBAL],
+                Tables::getTable(Tables::USERS) => Tables::$TABLES[Tables::USERS],
+                Tables::getTable(Tables::ROLES) => Tables::$TABLES[Tables::ROLES],
+                Tables::getTable(Tables::BROKEN_LINKS) => Tables::$TABLES[Tables::BROKEN_LINKS],
+                Tables::getTable(Tables::JOBS) => Tables::$TABLES[Tables::JOBS],
+                Tables::getTable(Tables::SCHEDULER) => Tables::$TABLES[Tables::SCHEDULER],
+                Tables::getTable(Tables::PERMISSIONS) => Tables::$TABLES[Tables::PERMISSIONS],
                 Tables::getTable(Tables::ROLE_PERMISSIONS) => Tables::$TABLES[Tables::ROLE_PERMISSIONS],
-                Tables::getTable(Tables::LICENSES)         => Tables::$TABLES[Tables::LICENSES],
+                Tables::getTable(Tables::LICENSES) => Tables::$TABLES[Tables::LICENSES],
             ];
     }
 
     /**
      * @throws \Exception
      */
-    public function onInstall (): void
+    public function onInstall(): void
     {
         (new FieldData())->importFieldItems(FieldConfig::DefaultFieldItems());
     }
 
-    public function onUninstall (): void
+    public function onUninstall(): void
     {
         // TODO: Implement onUninstall() method.
     }
@@ -190,42 +190,42 @@ class CoreActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Throwable
      */
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "Core",
-            "type"                 => "Module",
-            "slug_id"              => "166f7ea3-2703-11ef-9736-124c30cfdb6b",
+            "name" => "Core",
+            "type" => "Module",
+            "slug_id" => "166f7ea3-2703-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1730113241',
-            "stable"               => 0,
-            "description"          => "The Core Module",
-            "info_url"             => '',
-            "settings_page"        => route('admin.core.settings'), // can be null or a route name
+            "version" => '1-O-Ola.1747085600',
+            "stable" => 0,
+            "description" => "The Core Module",
+            "info_url" => '',
+            "settings_page" => route('admin.core.settings'), // can be null or a route name
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-core-module/releases/latest",
-            "authors"              => [
-                "name"  => "The Devsrealm Guy",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         (new FieldData())->importFieldItems(FieldConfig::DefaultFieldItems());
     }
 
-    public function onDelete (): void
+    public function onDelete(): void
     {
         // TODO: Implement onDelete() method.
     }
 
-    function fieldItems (): array
+    function fieldItems(): array
     {
         return FieldConfig::DefaultFieldItems();
     }

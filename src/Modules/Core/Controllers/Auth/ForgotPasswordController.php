@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -23,10 +23,8 @@ use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Data\UserData;
 use App\Modules\Core\Jobs\ForgotPasswordEmail;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\Validation\Traits\Validator;
-use JetBrains\PhpStorm\NoReturn;
 
 class ForgotPasswordController extends Controller
 {
@@ -37,7 +35,7 @@ class ForgotPasswordController extends Controller
      */
     public function showLinkRequestForm()
     {
-       view('Modules::Core/Views/Auth/reset-password');
+        view('Modules::Core/Views/Auth/reset-password');
     }
 
     /**
@@ -49,7 +47,7 @@ class ForgotPasswordController extends Controller
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->getSendResetLinkEmailRule());
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             session()->flash($validator->getErrors(), input()->fromPost()->all());
             redirect(route('admin.password.request'));
         }
@@ -60,13 +58,13 @@ class ForgotPasswordController extends Controller
             $table = Tables::getTable(Tables::USERS);
             $forgotPasswordData = null;
 
-            db(onGetDB: function ($db) use ($table, $email, &$forgotPasswordData){
+            db(onGetDB: function ($db) use ($table, $email, &$forgotPasswordData) {
                 $forgotPasswordData = $db->Select(table()->pickTable($table, ['user_name', 'email', 'settings']))->From($table)
                     ->WhereEquals('email', $email)->FetchFirst();
             });
 
-            if (hash_equals(AppConfig::getKey(), $app_key) && isset($forgotPasswordData->email) && hash_equals($forgotPasswordData->email, $email)){
-                if (session()->hasKey(Session::SessionCategories_PasswordReset)){
+            if (hash_equals(AppConfig::getKey(), $app_key) && isset($forgotPasswordData->email) && hash_equals($forgotPasswordData->email, $email)) {
+                if (session()->hasKey(Session::SessionCategories_PasswordReset)) {
                     $verification = session()->retrieve(Session::SessionCategories_PasswordReset, jsonDecode: true);
                     $verification = $verification->verification;
                 } else {
@@ -87,12 +85,20 @@ class ForgotPasswordController extends Controller
 
                 redirect(route('admin.password.verifyEmail'));
             }
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // log..
         }
 
         session()->flash(['Invalid Details'], input()->fromPost()->all());
         redirect(route('admin.password.request'));
+    }
+
+    public function getSendResetLinkEmailRule(): array
+    {
+        return [
+            'email' => ['required', 'string', 'email'],
+            'app_key' => ['required', 'string'],
+        ];
     }
 
     /**
@@ -101,7 +107,7 @@ class ForgotPasswordController extends Controller
      */
     public function showVerifyCodeForm()
     {
-        if (!session()->hasKey(Session::SessionCategories_PasswordReset)){
+        if (!session()->hasKey(Session::SessionCategories_PasswordReset)) {
             # User that doesn't have the Session::SessionCategories_PasswordReset key should be sent back to request form
             session()->flash(['Unauthorized Access'], input()->fromPost()->all());
             redirect(route('admin.password.request'));
@@ -119,19 +125,11 @@ class ForgotPasswordController extends Controller
         $userData = new UserData();
         $userData->verifyAndResetUserPass([
             'resetRule' => $this->getResetRule(),
-            'validationFails' => function(){
+            'validationFails' => function () {
                 redirect(route('admin.password.request'));
             },
             'table' => $userData->getUsersTable()
         ]);
-    }
-
-    public function getSendResetLinkEmailRule(): array
-    {
-        return [
-            'email' => ['required', 'string', 'email'],
-            'app_key' => ['required', 'string'],
-        ];
     }
 
     public function getResetRule(): array

@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2023-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -35,7 +35,7 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
          * @var TrackDataAccessor $event
          */
         $fieldSettings = null;
-        if (isset($event->getAll()->field_settings)){
+        if (isset($event->getAll()->field_settings)) {
             $fieldSettings = json_decode($event->getAll()->field_settings);
         }
 
@@ -58,28 +58,32 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
         try {
             db(onGetDB: function (TonicsQuery $db) use ($table, $filters, $event, &$fieldSettings) {
 
-                if (isset($fieldSettings->fk_genre_id)){
+                if (isset($fieldSettings->fk_genre_id)) {
                     $genres = $db->Select('genre_slug')->From(Tables::getTable(Tables::GENRES))
                         ->WhereIn('genre_id', $fieldSettings->fk_genre_id)
                         ->FetchResult();
                     $newGenre = [];
-                    foreach ($genres as $genre){ $newGenre[] = $genre->genre_slug; }
+                    foreach ($genres as $genre) {
+                        $newGenre[] = $genre->genre_slug;
+                    }
                     $fieldSettings->track_default_filter_genres = $newGenre;
                 }
 
-                if (isset($fieldSettings->fk_artist_id)){
+                if (isset($fieldSettings->fk_artist_id)) {
                     $artists = $db->Reset()->Select('artist_slug')->From(Tables::getTable(Tables::ARTISTS))
                         ->WhereIn('artist_id', $fieldSettings->fk_artist_id)
                         ->FetchResult();
                     $newArtists = [];
-                    foreach ($artists as $artist){ $newArtists[] = $artist->artist_slug; }
+                    foreach ($artists as $artist) {
+                        $newArtists[] = $artist->artist_slug;
+                    }
                     $fieldSettings->track_default_filter_artists = $newArtists;
                 }
 
                 $filtersTable = $event->getTrackData()::getTrackDefaultFiltersTable();
                 $db->Reset()->Select('tdf_id')->From($filtersTable);
-                foreach ($filters as $filter => $type){
-                    if (isset($fieldSettings->{$filter})){
+                foreach ($filters as $filter => $type) {
+                    if (isset($fieldSettings->{$filter})) {
                         $db->OrWhereEquals('tdf_type', $type)->WhereIn('tdf_name', $fieldSettings->{$filter});
                     }
                 }
@@ -89,7 +93,7 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
                 $db->FastDelete($table, db()->WhereIn('fk_track_id', $event->getTrackID()));
 
                 $toInsert = [];
-                foreach ($tdfIDS as $tdfID){
+                foreach ($tdfIDS as $tdfID) {
                     $toInsert[] = [
                         'fk_track_id' => $event->getTrackID(),
                         'fk_tdf_id' => $tdfID->tdf_id,
@@ -99,7 +103,7 @@ class HandleTrackDefaultFilterMappings implements HandlerInterface
                 $db->Insert($table, $toInsert);
             });
 
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             // Log..
         }
     }

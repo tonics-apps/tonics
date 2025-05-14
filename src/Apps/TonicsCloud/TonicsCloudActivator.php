@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -81,20 +81,20 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 {
     use Routes;
 
-    const CAN_ACCESS_TONICS_CLOUD                 = 'TONICS_CAN_ACCESS_TONICS_CLOUD';
-    const JOB_QUEUE_TRANSPORTER_DATABASE_TYPE     = 'DATABASE';
-    const TONICS_CLOUD_PROVIDER                   = 'cloud_providers';
-    const TONICS_CLOUD_SERVICES                   = 'cloud_services';
-    const TONICS_CLOUD_SERVICE_INSTANCES          = 'cloud_service_instances';
+    const CAN_ACCESS_TONICS_CLOUD = 'TONICS_CAN_ACCESS_TONICS_CLOUD';
+    const JOB_QUEUE_TRANSPORTER_DATABASE_TYPE = 'DATABASE';
+    const TONICS_CLOUD_PROVIDER = 'cloud_providers';
+    const TONICS_CLOUD_SERVICES = 'cloud_services';
+    const TONICS_CLOUD_SERVICE_INSTANCES = 'cloud_service_instances';
     const TONICS_CLOUD_SERVICE_INSTANCE_USAGE_LOG = 'cloud_service_instance_log';
-    const TONICS_CLOUD_CREDITS                    = 'cloud_credits';
-    const TONICS_CLOUD_CONTAINERS                 = 'cloud_containers';
-    const TONICS_CLOUD_CONTAINER_PROFILES         = 'cloud_container_profiles';
-    const TONICS_CLOUD_CONTAINER_IMAGES           = 'cloud_container_images';
-    const TONICS_CLOUD_APPS                       = 'cloud_apps';
-    const TONICS_CLOUD_APPS_TO_CONTAINERS         = 'cloud_apps_containers';
-    const TONICS_CLOUD_JOBS_QUEUE                 = 'cloud_job_queue';
-    const TONICS_CLOUD_DNS                        = 'cloud_dns';
+    const TONICS_CLOUD_CREDITS = 'cloud_credits';
+    const TONICS_CLOUD_CONTAINERS = 'cloud_containers';
+    const TONICS_CLOUD_CONTAINER_PROFILES = 'cloud_container_profiles';
+    const TONICS_CLOUD_CONTAINER_IMAGES = 'cloud_container_images';
+    const TONICS_CLOUD_APPS = 'cloud_apps';
+    const TONICS_CLOUD_APPS_TO_CONTAINERS = 'cloud_apps_containers';
+    const TONICS_CLOUD_JOBS_QUEUE = 'cloud_job_queue';
+    const TONICS_CLOUD_DNS = 'cloud_dns';
 
     static array $TABLES = [
         self::TONICS_CLOUD_PROVIDER => ['provider_id', 'provider_name', 'provider_perm_name', 'created_at', 'updated_at'],
@@ -141,7 +141,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @param FieldData $fieldData
      */
-    public function __construct (FieldData $fieldData)
+    public function __construct(FieldData $fieldData)
     {
         $this->fieldData = $fieldData;
     }
@@ -149,7 +149,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @return string[]
      */
-    public static function DEFAULT_PERMISSIONS (): array
+    public static function DEFAULT_PERMISSIONS(): array
     {
         return [
             self::CAN_ACCESS_TONICS_CLOUD,
@@ -162,7 +162,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @return CloudServerInterfaceAbstract
      * @throws \Throwable
      */
-    public static function getCloudServerHandler (string $name = ''): CloudServerInterfaceAbstract
+    public static function getCloudServerHandler(string $name = ''): CloudServerInterfaceAbstract
     {
         /** @var OnAddCloudServerEvent $cloudServer */
         $cloudServer = event()->dispatch(new OnAddCloudServerEvent())->event();
@@ -179,7 +179,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @return CloudDNSInterface
      * @throws \Exception|\Throwable
      */
-    public static function getCloudDNSHandler (string $name = ''): CloudDNSInterface
+    public static function getCloudDNSHandler(string $name = ''): CloudDNSInterface
     {
         /** @var OnAddCloudDNSEvent $cloudServer */
         $cloudServer = event()->dispatch(new OnAddCloudDNSEvent())->event();
@@ -193,7 +193,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @throws \Exception
      */
-    public static function getJobQueue (string $type = self::JOB_QUEUE_TRANSPORTER_DATABASE_TYPE): JobQueue
+    public static function getJobQueue(string $type = self::JOB_QUEUE_TRANSPORTER_DATABASE_TYPE): JobQueue
     {
         return new JobQueue($type);
     }
@@ -201,7 +201,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -212,7 +212,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @return Route
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -221,29 +221,29 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
-            OnStartUpCLI::class                      => [
+            OnStartUpCLI::class => [
                 CloudJobQueueManager::class,
             ],
-            OnAddConsoleCommand::class               => [
+            OnAddConsoleCommand::class => [
                 CloudJobQueueManager::class,
             ],
-            OnAddCloudJobQueueTransporter::class     => [
+            OnAddCloudJobQueueTransporter::class => [
                 DatabaseCloudJobQueueTransporter::class,
             ],
-            OnAddCloudServerEvent::class             => [
+            OnAddCloudServerEvent::class => [
                 LinodeCloudServerHandler::class,
                 UpCloudServerHandler::class,
             ],
-            OnAddCloudDNSEvent::class                => [
+            OnAddCloudDNSEvent::class => [
                 LinodeCloudDNSHandler::class,
             ],
-            OnAdminMenu::class                       => [
+            OnAdminMenu::class => [
                 CloudMenus::class,
             ],
-            OnFieldMetaBox::class                    => [
+            OnFieldMetaBox::class => [
                 PricingTable::class,
                 CloudRegions::class,
                 CloudInstances::class,
@@ -255,24 +255,24 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
                 CloudInstanceInfo::class,
                 CloudAutomations::class,
             ],
-            OnHookIntoTemplate::class                => [
+            OnHookIntoTemplate::class => [
                 HandleDataTableTemplate::class,
             ],
-            OnAddTonicsCloudPaymentEvent::class      => [
+            OnAddTonicsCloudPaymentEvent::class => [
                 TonicsCloudFlutterWaveHandler::class,
                 TonicsCloudPayStackHandler::class,
                 TonicsCloudPayPalHandler::class,
             ],
-            OnAddFieldSanitization::class            => [
+            OnAddFieldSanitization::class => [
                 RenderTonicsCloudDefaultContainerVariablesStringSanitization::class,
             ],
             OnFieldTopHTMLWrapperUserSettings::class => [
                 HandleFieldTopHTMLWrapper::class,
             ],
-            OnAddCloudJobClassEvent::class           => [
+            OnAddCloudJobClassEvent::class => [
 
             ],
-            OnAddCloudAutomationEvent::class         => [
+            OnAddCloudAutomationEvent::class => [
                 TonicsContainerDefaultAutomation::class,
                 TonicsContainerStandaloneStaticSiteAutomation::class,
                 TonicsContainerMultipleStaticSitesAutomation::class,
@@ -280,10 +280,10 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
                 TonicsContainerWordPressCMSAutomation::class,
                 TonicsContainerHarakaMailServerAutomation::class,
             ],
-            OnAddRole::class                         => [
+            OnAddRole::class => [
                 TonicsCloudPermissionRole::class,
             ],
-            OnAddMessageType::class                  => [
+            OnAddMessageType::class => [
                 TonicsCloudDomainMessage::class,
                 TonicsCloudInstanceMessage::class,
                 TonicsCloudContainerMessage::class,
@@ -295,76 +295,26 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function tables (): array
+    public function tables(): array
     {
         return [
             self::getTable(self::TONICS_CLOUD_PROVIDER) => self::$TABLES[self::TONICS_CLOUD_PROVIDER],
 
-            self::getTable(self::TONICS_CLOUD_SERVICES)                   => self::$TABLES[self::TONICS_CLOUD_SERVICES],
-            self::getTable(self::TONICS_CLOUD_SERVICE_INSTANCES)          => self::$TABLES[self::TONICS_CLOUD_SERVICE_INSTANCES],
+            self::getTable(self::TONICS_CLOUD_SERVICES) => self::$TABLES[self::TONICS_CLOUD_SERVICES],
+            self::getTable(self::TONICS_CLOUD_SERVICE_INSTANCES) => self::$TABLES[self::TONICS_CLOUD_SERVICE_INSTANCES],
             self::getTable(self::TONICS_CLOUD_SERVICE_INSTANCE_USAGE_LOG) => self::$TABLES[self::TONICS_CLOUD_SERVICE_INSTANCE_USAGE_LOG],
 
             self::getTable(self::TONICS_CLOUD_CREDITS) => self::$TABLES[self::TONICS_CLOUD_CREDITS],
 
             self::getTable(self::TONICS_CLOUD_CONTAINERS) => self::$TABLES[self::TONICS_CLOUD_CONTAINERS],
 
-            self::getTable(self::TONICS_CLOUD_APPS)               => self::$TABLES[self::TONICS_CLOUD_APPS],
+            self::getTable(self::TONICS_CLOUD_APPS) => self::$TABLES[self::TONICS_CLOUD_APPS],
             self::getTable(self::TONICS_CLOUD_APPS_TO_CONTAINERS) => self::$TABLES[self::TONICS_CLOUD_APPS_TO_CONTAINERS],
 
             self::getTable(self::TONICS_CLOUD_CONTAINER_IMAGES) => self::$TABLES[self::TONICS_CLOUD_CONTAINER_IMAGES],
 
             self::getTable(self::TONICS_CLOUD_JOBS_QUEUE) => self::$TABLES[self::TONICS_CLOUD_JOBS_QUEUE],
-            self::getTable(self::TONICS_CLOUD_DNS)        => self::$TABLES[self::TONICS_CLOUD_DNS],
-        ];
-    }
-
-    /**
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function onInstall (): void
-    {
-        $this->fieldData->importFieldItems($this->fieldItems());
-    }
-
-    public function onUninstall (): void
-    {
-        return;
-    }
-
-    /**
-     * @return void
-     * @throws \Exception
-     */
-    public function onUpdate (): void
-    {
-        $this->fieldData->importFieldItems($this->fieldItems());
-        self::UpdateCloudImages();
-    }
-
-    public function onDelete (): void {}
-
-    /**
-     * @throws \Throwable
-     */
-    public function info (): array
-    {
-        return [
-            "name"                 => "TonicsCloud",
-            "type"                 => "App", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            // the first portion is the version number, the second is the code name and the last is the timestamp
-            "slug_id"              => 'a67af86b-27ca-11ef-9736-124c30cfdb6b',
-            "version"              => '1-O-app.1730113236',
-            "description"          => "This is TonicsCloud",
-            "info_url"             => '',
-            "settings_page"        => route('tonicsCloud.settings'), // can be null or a route name
-            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_cloud/releases/latest",
-            "authors"              => [
-                "name"  => "Your Name",
-                "email" => "name@website.com",
-                "role"  => "Developer",
-            ],
-            "credits"              => [],
+            self::getTable(self::TONICS_CLOUD_DNS) => self::$TABLES[self::TONICS_CLOUD_DNS],
         ];
     }
 
@@ -373,7 +323,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
      *
      * @return string
      */
-    public static function getTable (string $tableName): string
+    public static function getTable(string $tableName): string
     {
         if (!key_exists($tableName, self::$TABLES)) {
             throw new \InvalidArgumentException("`$tableName` is an invalid table name");
@@ -383,9 +333,18 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
     }
 
     /**
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function onInstall(): void
+    {
+        $this->fieldData->importFieldItems($this->fieldItems());
+    }
+
+    /**
      * @return array
      */
-    public function fieldItems (): array
+    public function fieldItems(): array
     {
         $json = <<<'JSON'
 [
@@ -891,7 +850,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "app-tonicscloud-app-config-acme",
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"22wi60ti5ark000000000\",\"field_input_name\":\"\",\"fieldName\":\"ACME Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]</code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[ACME_EMAIL]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[ACME_DOMAIN]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"22wi60ti5ark000000000\",\"field_input_name\":\"\",\"fieldName\":\"ACME Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]<\\/code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[ACME_EMAIL]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[ACME_DOMAIN]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud  [App Config] [ACME]",
@@ -947,7 +906,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "app-tonicscloud-app-config-nginx",
 		"field_parent_id": null,
-		"field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"5l2r8ntok740000000000\",\"field_input_name\":\"app_config_nginx_recipe\",\"fieldName\":\"Nginx Recipe\",\"inputName\":\"app_config_nginx_recipe\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]</code> - auto-generates cryptographically secure pseudo-random bytes\\n<br>\\n<code>[[ACME_DOMAIN]]</code> - Pull from the container specific global variable if there is one\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"5l2r8ntok740000000000\",\"field_input_name\":\"app_config_nginx_recipe\",\"fieldName\":\"Nginx Recipe\",\"inputName\":\"app_config_nginx_recipe\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]<\\/code> - auto-generates cryptographically secure pseudo-random bytes\\n<br>\\n<code>[[ACME_DOMAIN]]<\\/code> - Pull from the container specific global variable if there is one\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud [App Config] [Nginx]",
@@ -1043,7 +1002,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 3,
 		"field_slug": "app-tonicscloud-dns",
 		"field_parent_id": 1,
-		"field_options": "{\"field_slug\":\"tonicscloud_cloudinstances\",\"tonicscloud_cloudinstances_cell\":\"1\",\"field_slug_unique_hash\":\"5aacwi5a45s0000000000\",\"field_input_name\":\"dns_cloud_instance\",\"fieldName\":\"Default A/AAAA Value From 👇\",\"inputName\":\"dns_cloud_instance\"}"
+		"field_options": "{\"field_slug\":\"tonicscloud_cloudinstances\",\"tonicscloud_cloudinstances_cell\":\"1\",\"field_slug_unique_hash\":\"5aacwi5a45s0000000000\",\"field_input_name\":\"dns_cloud_instance\",\"fieldName\":\"Default A/AAAA Value From \\ud83d\\udc47\",\"inputName\":\"dns_cloud_instance\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud [DNS]",
@@ -1155,7 +1114,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "app-tonicscloud-app-config-upload-unzip",
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"65499rzo7qg0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Unzip Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"It supports multiple formats: (.tar.gz, .tgz, .tar.bz, .tbz, .tar, 7z, .zip, .rar, .gz, .lz, etc, check the formats below for more). <br><br>\\n\\n<b>Options:</b> <br>\\n- Extract To: Path to extract archive <br>\\n- Archive File: Archive to extract <br>\\n- Create SubDirectory: Whether to create a new directory for the archive even if the archive only contains one file in its root directory <br>\\n- Format: Archive Format <br>\\n- Overwrite: When extracting from files, allow overwriting of local files.<br><br>\\n\\n<i>Powered by atools</i>\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"65499rzo7qg0000000000\",\"field_input_name\":\"\",\"fieldName\":\"Unzip Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"It supports multiple formats: (.tar.gz, .tgz, .tar.bz, .tbz, .tar, 7z, .zip, .rar, .gz, .lz, etc, check the formats below for more). <br><br>\\n\\n<b>Options:<\\/b> <br>\\n- Extract To: Path to extract archive <br>\\n- Archive File: Archive to extract <br>\\n- Create SubDirectory: Whether to create a new directory for the archive even if the archive only contains one file in its root directory <br>\\n- Format: Archive Format <br>\\n- Overwrite: When extracting from files, allow overwriting of local files.<br><br>\\n\\n<i>Powered by atools<\\/i>\",\"hideInUserEditForm\":\"0\",\"useTab\":\"0\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud [App Config] [Upload Unzip]",
@@ -1211,7 +1170,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "app-tonicscloud-app-config-mysql",
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"60cd6ovnpho0000000000\",\"field_input_name\":\"MySQL_CONFIG_CONTAINER\",\"fieldName\":\"MySQL-MariaDB Config\",\"inputName\":\"MySQL_CONFIG_CONTAINER\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Deleting database and user here won't remove it from the server, this is to avoid accidental deletion, if you are sure about the deletion, then remove it in this section and list it in the Removal section below.\\n<br>\\n<br>\\nNote: The username can't be root and if you are connecting remotely, ensure the 3306 proxy is set or a proxy is configured to allow the connection\\n<br>\\n<br>\\nGlobal Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]</code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[DB_DATABASE]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_USER]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_PASS]]</code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_HOST]]</code> - Pull from the container specific global variable if there is one or default to localhost.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"60cd6ovnpho0000000000\",\"field_input_name\":\"MySQL_CONFIG_CONTAINER\",\"fieldName\":\"MySQL-MariaDB Config\",\"inputName\":\"MySQL_CONFIG_CONTAINER\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Deleting database and user here won't remove it from the server, this is to avoid accidental deletion, if you are sure about the deletion, then remove it in this section and list it in the Removal section below.\\n<br>\\n<br>\\nNote: The username can't be root and if you are connecting remotely, ensure the 3306 proxy is set or a proxy is configured to allow the connection\\n<br>\\n<br>\\nGlobal Variable you can use:\\n<br>\\n<code>[[RAND_STRING]]<\\/code> - auto-generates cryptographically secure pseudo-random bytes.\\n<br>\\n<code>[[DB_DATABASE]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_USER]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_PASS]]<\\/code> - Pull from the container specific global variable if there is one.\\n<br>\\n<code>[[DB_HOST]]<\\/code> - Pull from the container specific global variable if there is one or default to localhost.\\n<br>\\n...and any more specified in the container variable.\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud [App Config] [MySQL]",
@@ -1331,7 +1290,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "app-tonicscloud-app-config-php",
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"1f16y6naih8g000000000\",\"field_input_name\":\"\",\"fieldName\":\"PHP Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[PHP_VERSION]]</code> - e.g 8.2\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"modular_rowcolumn\",\"field_slug_unique_hash\":\"1f16y6naih8g000000000\",\"field_input_name\":\"\",\"fieldName\":\"PHP Config\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"1\",\"grid_template_col\":\"\",\"info\":\"Global Variable you can use:\\n<br>\\n<code>[[PHP_VERSION]]<\\/code> - e.g 8.2\",\"hideInUserEditForm\":\"0\",\"useTab\":\"1\",\"group\":\"0\",\"cell\":\"on\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud [App Config] [PHP]",
@@ -1651,7 +1610,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "app-tonicscloud-automation-tonics-cms",
 		"field_parent_id": null,
-		"field_options": "{\"toggle_state\":true,\"field_validations\":[],\"field_sanitization\":[\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\"],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"1szcf417ki9s000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Tonics Site\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"\",\"info\":\"<pre style= \\\"all: revert;\\\">\\nNote For Archive: Archive is only for existing Tonics installation (Tonics solution would be overwritten if an archive is provided).\\nLastly, it should have the following structure explicitly:\\n.\\n├── private\\n└── web\\n└── exported.sql (the exported db)\\n</pre>\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"useTab\":\"0\",\"toggleable\":\"1\",\"repeat_button_text\":\"Add New Tonics\",\"cell\":\"on\"}"
+		"field_options": "{\"toggle_state\":true,\"field_validations\":[],\"field_sanitization\":[\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\"],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"1szcf417ki9s000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Tonics Site\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"\",\"info\":\"<pre style= \\\"all: revert;\\\">\\nNote For Archive: Archive is only for existing Tonics installation (Tonics solution would be overwritten if an archive is provided).\\nLastly, it should have the following structure explicitly:\\n.\\n\\u251c\\u2500\\u2500 private\\n\\u2514\\u2500\\u2500 web\\n\\u2514\\u2500\\u2500 exported.sql (the exported db)\\n<\\/pre>\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"useTab\":\"0\",\"toggleable\":\"1\",\"repeat_button_text\":\"Add New Tonics\",\"cell\":\"on\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud Automation »» [Tonics CMS]",
@@ -1707,7 +1666,7 @@ class TonicsCloudActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "app-tonicscloud-automation-wordpress-cms",
 		"field_parent_id": null,
-		"field_options": "{\"field_validations\":[],\"field_sanitization\":[\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\"],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"1szcf417ki9s000000000\",\"field_input_name\":\"\",\"fieldName\":\"WordPress Site\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"\",\"info\":\"<pre style= \\\"all: revert;\\\">\\nNote For Archive: Archive is only for existing WordPress installation.\\nLastly, it should have the following structure explicitly:\\n.\\n├── wp-contents\\n└── wp-includes\\n└── ... (and all of the remaining wordpress files)\\n└── exported.sql (the exported db)\\n</pre>\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add New Tonics\",\"cell\":\"on\"}"
+		"field_options": "{\"field_validations\":[],\"field_sanitization\":[\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\",\"TonicsCloudRenderDefaultContainerVariables\"],\"field_slug\":\"modular_rowcolumnrepeater\",\"field_slug_unique_hash\":\"1szcf417ki9s000000000\",\"field_input_name\":\"\",\"fieldName\":\"WordPress Site\",\"inputName\":\"\",\"row\":\"1\",\"column\":\"2\",\"grid_template_col\":\"\",\"info\":\"<pre style= \\\"all: revert;\\\">\\nNote For Archive: Archive is only for existing WordPress installation.\\nLastly, it should have the following structure explicitly:\\n.\\n\\u251c\\u2500\\u2500 wp-contents\\n\\u2514\\u2500\\u2500 wp-includes\\n\\u2514\\u2500\\u2500 ... (and all of the remaining wordpress files)\\n\\u2514\\u2500\\u2500 exported.sql (the exported db)\\n<\\/pre>\",\"hideInUserEditForm\":\"0\",\"disallowRepeat\":\"0\",\"repeat_button_text\":\"Add New Tonics\",\"cell\":\"on\"}"
 	},
 	{
 		"field_field_name": "App TonicsCloud Automation »» [WordPress CMS]",
@@ -1914,11 +1873,26 @@ JSON;
         return json_decode($json);
     }
 
+    public function onUninstall(): void
+    {
+        return;
+    }
+
     /**
      * @return void
      * @throws \Exception
      */
-    public static function UpdateCloudImages (): void
+    public function onUpdate(): void
+    {
+        $this->fieldData->importFieldItems($this->fieldItems());
+        self::UpdateCloudImages();
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public static function UpdateCloudImages(): void
     {
         db(onGetDB: function (TonicsQuery $db) {
             $cloudImageTable = TonicsCloudActivator::getTable(TonicsCloudActivator::TONICS_CLOUD_CONTAINER_IMAGES);
@@ -1929,11 +1903,39 @@ JSON;
     /**
      * @return mixed
      */
-    public static function CloudImages (): mixed
+    public static function CloudImages(): mixed
     {
         $images = <<<IMAGES
 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
 IMAGES;
         return unserialize(gzuncompress(base64_decode($images)));
+    }
+
+    public function onDelete(): void
+    {
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function info(): array
+    {
+        return [
+            "name" => "TonicsCloud",
+            "type" => "App", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "slug_id" => 'a67af86b-27ca-11ef-9736-124c30cfdb6b',
+            "version" => '1-O-app.1747085600',
+            "description" => "This is TonicsCloud",
+            "info_url" => '',
+            "settings_page" => route('tonicsCloud.settings'), // can be null or a route name
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_cloud/releases/latest",
+            "authors" => [
+                "name" => "Your Name",
+                "email" => "name@website.com",
+                "role" => "Developer",
+            ],
+            "credits" => [],
+        ];
     }
 }

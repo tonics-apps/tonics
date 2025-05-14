@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,7 @@ class MediaImage implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent (object $event): void
+    public function handleEvent(object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Media Image', 'Upload An Image Through The Native File Manager', 'Media',
@@ -44,7 +44,7 @@ class MediaImage implements HandlerInterface
     /**
      * @throws \Exception
      */
-    public function settingsForm (OnFieldMetaBox $event, $data = null): string
+    public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
         $defaultImage = (isset($data->defaultImage)) ? $data->defaultImage : '';
@@ -98,7 +98,7 @@ FORM;
      * @return string
      * @throws \Exception
      */
-    public function userForm (OnFieldMetaBox $event, $data): string
+    public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Image';
         $keyValue = $event->getKeyValueInData($data, $data->inputName);
@@ -110,15 +110,16 @@ FORM;
 
         $frag .= <<<FORM
 <div class="form-group">
- <label class="menu-settings-handle-name" for="featured-image-$changeID">
+ <label class="menu-settings-handle-name" for="featured-image-$changeID">Upload Image
      <input id="featured-image-$changeID" class="tonics-featured-image color:black border-width:default border:black placeholder-color:gray" name="featured_image" type="file">
  </label>
 </div>
-<div class="margin-top:0">
-            <input id="default-image-$changeID" name="$inputName" placeholder="Image Link" type="hidden" data-widget-image-name="true" 
-            class="menu-name color:black border-width:default border:black placeholder-color:gray" value="$defaultImage">
+
+<div class="margin-top:0">            
     <img src="$defaultImage" class="image:featured-image featured-image widgetSettings" alt="">
+    <input id="default-image-$changeID" name="$inputName" placeholder="Image Link" type="url" data-widget-image-name="true" class="menu-name color:black border-width:default border:black placeholder-color:gray" value="$defaultImage">
 </div>
+
 <div class="margin-top:0">
     <button type="button" class="remove-featured-image d:none background:transparent border:none color:black bg:white-one border-width:default border:black padding:default margin-top:0 cursor:pointer button:box-shadow-variant-2">
         Remove Image
@@ -133,7 +134,7 @@ FORM;
     /**
      * @throws \Exception
      */
-    public function viewData (OnFieldMetaBox $event, $data = null)
+    public function viewData(OnFieldMetaBox $event, $data = null)
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Widget';
         $fieldData = (isset($data->_field->field_data)) ? $data->_field->field_data : '';

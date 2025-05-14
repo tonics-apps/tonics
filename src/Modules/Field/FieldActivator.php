@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -79,7 +79,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct ()
+    public function __construct()
     {
         $this->fieldData = new FieldData();
     }
@@ -87,7 +87,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -95,7 +95,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
 
@@ -192,71 +192,75 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
      * @return Route
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
+        $this->routeApi($routes);
         return $this->routeWeb($routes);
     }
 
     /**
      * @return array
      */
-    public function tables (): array
+    public function tables(): array
     {
         return
             [
-                Tables::getTable(Tables::FIELD)       => Tables::$TABLES[Tables::FIELD],
+                Tables::getTable(Tables::FIELD) => Tables::$TABLES[Tables::FIELD],
                 Tables::getTable(Tables::FIELD_ITEMS) => Tables::$TABLES[Tables::FIELD_ITEMS],
             ];
     }
 
-    public function onInstall (): void
+    public function onInstall(): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall (): void
+    public function onUninstall(): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "Field",
-            "type"                 => "Module",
-            "slug_id"              => "73df171d-2740-11ef-9736-124c30cfdb6b",
+            "name" => "Field",
+            "type" => "Module",
+            "slug_id" => "73df171d-2740-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1730113236',
-            "stable"               => 0,
-            "description"          => "The Field Module",
-            "info_url"             => '',
+            "version" => '1-O-Ola.1747085600',
+            "stable" => 0,
+            "description" => "The Field Module",
+            "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-field-module/releases/latest",
-            "authors"              => [
-                "name"  => "The Devsrealm Guy",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 
     /**
      * @throws \Exception
      */
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
     }
 
-    public function onDelete (): void
-    {
-        // TODO: Implement onDelete() method.
-    }
-
-    function fieldItems (): array
+    function fieldItems(): array
     {
         $json = <<<'JSON'
 [
+	{
+		"field_field_name": "Empty Element",
+		"field_name": "input_text",
+		"field_id": 1,
+		"field_slug": "empty-element",
+		"field_parent_id": null,
+		"field_options": "{\"toggle_state\":true,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"53erbakwe980000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Hidden\",\"inputName\":\"empty\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"1\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"display:none;\",\"toggleable\":\"\"}"
+	},
 	{
 		"field_field_name": "Layout 2 by 2",
 		"field_name": "modular_rowcolumn",
@@ -319,7 +323,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 8,
 		"field_slug": "layout-2-by-2",
 		"field_parent_id": 1,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1zndadvre5ds000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"ℹ️ Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-2-by-2-variant-2fr-1fr <br>\\nlayout-2-by-2-variant-1fr-2fr\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"1zndadvre5ds000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"\\u2139\\ufe0f Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-2-by-2-variant-2fr-1fr <br>\\nlayout-2-by-2-variant-1fr-2fr\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
 		"field_field_name": "Layout 1 by 1 (Single-Column)",
@@ -391,7 +395,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 6,
 		"field_slug": "layout-1-by-2",
 		"field_parent_id": 1,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5ndury8popc0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"ℹ️ Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-1-by-2-variant-2fr-1fr <br>\\nlayout-1-by-2-variant-1fr-2fr\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"1\",\"required\":\"0\",\"styles\":\"height:200px\",\"toggleable\":\"\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5ndury8popc0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"\\u2139\\ufe0f Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-1-by-2-variant-2fr-1fr <br>\\nlayout-1-by-2-variant-1fr-2fr\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"1\",\"required\":\"0\",\"styles\":\"height:200px\",\"toggleable\":\"\"}"
 	},
 	{
 		"field_field_name": "Layout Magazine (Header, Two Columns, Footer)",
@@ -551,7 +555,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 10,
 		"field_slug": "layout-2-by-3",
 		"field_parent_id": 1,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5vln1jdv86w0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"ℹ️ Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-2-by-3-variant-1fr-2fr-1fr <br>\\nlayout-2-by-3-variant-1fr-2fr-2fr <br>\\nlayout-2-by-3-variant-2fr-1fr-2fr <br>\\nlayout-2-by-3-variant-2fr-1fr-1fr <br>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"5vln1jdv86w0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"\\u2139\\ufe0f Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-2-by-3-variant-1fr-2fr-1fr <br>\\nlayout-2-by-3-variant-1fr-2fr-2fr <br>\\nlayout-2-by-3-variant-2fr-1fr-2fr <br>\\nlayout-2-by-3-variant-2fr-1fr-1fr <br>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
 		"field_field_name": "Layout 1 by 3 (Three-Column)",
@@ -607,7 +611,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 7,
 		"field_slug": "layout-1-by-3",
 		"field_parent_id": 1,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"68yhdqnpad0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"ℹ️ Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-1-by-3-variant-1fr-2fr-1fr <br>\\nlayout-1-by-3-variant-1fr-2fr-2fr <br>\\nlayout-1-by-3-variant-2fr-1fr-2fr <br>\\nlayout-1-by-3-variant-2fr-1fr-1fr <br>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"68yhdqnpad0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"\\u2139\\ufe0f Note\",\"inputName\":\"\",\"textType\":\"hidden\",\"defaultValue\":\"\",\"info\":\"This layout support variants (you can add a class with any of the variants):\\n<br><br>\\nlayout-1-by-3-variant-1fr-2fr-1fr <br>\\nlayout-1-by-3-variant-1fr-2fr-2fr <br>\\nlayout-1-by-3-variant-2fr-1fr-2fr <br>\\nlayout-1-by-3-variant-2fr-1fr-1fr <br>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
 		"field_field_name": "Text Element",
@@ -1111,7 +1115,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 2,
 		"field_slug": "style-color",
 		"field_parent_id": 1,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4wwk6okj1pk0000000000\",\"field_input_name\":\"tonicsBuilderStyleColorType\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Color Type 🔧\",\"inputName\":\"tonicsBuilderStyleColorType\",\"selectData\":\"Color,Background,Link,Link Hover,Heading\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"4wwk6okj1pk0000000000\",\"field_input_name\":\"tonicsBuilderStyleColorType\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Color Type \\ud83d\\udd27\",\"inputName\":\"tonicsBuilderStyleColorType\",\"selectData\":\"Color,Background,Link,Link Hover,Heading\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"field_field_name": "Style Color",
@@ -1455,7 +1459,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 13,
 		"field_slug": "display-grid",
 		"field_parent_id": 11,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"hpr0ce6232o000000000\",\"field_input_name\":\"grid-column\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Grid Column\",\"inputName\":\"grid-column\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"Specifies a grid item’s start/end position within the grid column\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"e.g: 1 / span 2\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"hpr0ce6232o000000000\",\"field_input_name\":\"grid-column\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Grid Column\",\"inputName\":\"grid-column\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"Specifies a grid item\\u2019s start/end position within the grid column\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"e.g: 1 / span 2\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
 		"field_field_name": "Display Grid",
@@ -1463,7 +1467,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 14,
 		"field_slug": "display-grid",
 		"field_parent_id": 11,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6sxepopffaw0000000000\",\"field_input_name\":\"grid-row\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Grid Row\",\"inputName\":\"grid-row\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"Specifies a grid item’s start/end position within the grid row\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"1 / span 2\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"input_text_cell\":\"1\",\"field_slug_unique_hash\":\"6sxepopffaw0000000000\",\"field_input_name\":\"grid-row\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Grid Row\",\"inputName\":\"grid-row\",\"textType\":\"text\",\"defaultValue\":\"\",\"info\":\"Specifies a grid item\\u2019s start/end position within the grid row\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"1 / span 2\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"\",\"toggleable\":\"\"}"
 	},
 	{
 		"field_field_name": "Display Grid",
@@ -1807,7 +1811,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 1,
 		"field_slug": "json-data",
 		"field_parent_id": null,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"3h5ro88zfp00000000000\",\"field_input_name\":\"json-data\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"JSON\",\"inputName\":\"json-data\",\"textType\":\"textarea\",\"defaultValue\":\"[\\n  {\\n    \\\"name\\\": \\\"Example One\\\",\\n    \\\"age\\\": 28\\n  },\\n  {\\n    \\\"name\\\": \\\"Example Two\\\",\\n    \\\"age\\\": 34\\n  }\\n]\\n\",\"info\":\"Access the value of the json by referencing its key in the format: <code>[[key-name]]</code>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter JSON Data\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:200px;\",\"toggleable\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_text\",\"field_slug_unique_hash\":\"3h5ro88zfp00000000000\",\"field_input_name\":\"json-data\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"JSON\",\"inputName\":\"json-data\",\"textType\":\"textarea\",\"defaultValue\":\"[\\n  {\\n    \\\"name\\\": \\\"Example One\\\",\\n    \\\"age\\\": 28\\n  },\\n  {\\n    \\\"name\\\": \\\"Example Two\\\",\\n    \\\"age\\\": 34\\n  }\\n]\\n\",\"info\":\"Access the value of the json by referencing its key in the format: <code>[[key-name]]<\\/code>\",\"hideInUserEditForm\":\"0\",\"placeholder\":\"Enter JSON Data\",\"maxChar\":\"\",\"readOnly\":\"0\",\"required\":\"0\",\"styles\":\"height:200px;\",\"toggleable\":\"0\"}"
 	},
 	{
 		"field_field_name": "Tonics Template System",
@@ -2487,7 +2491,7 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 		"field_id": 2,
 		"field_slug": "style-color-picker",
 		"field_parent_id": 1,
-		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"7go6u17mnfs0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Color Type 🔧\",\"inputName\":\"tonicsBuilderStyleColorType\",\"selectData\":\"Color,Background,Link,Link Hover,Heading\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
+		"field_options": "{\"toggle_state\":false,\"field_validations\":[],\"field_sanitization\":[],\"field_slug\":\"input_select\",\"input_select_cell\":\"1\",\"field_slug_unique_hash\":\"7go6u17mnfs0000000000\",\"field_input_name\":\"\",\"hook_name\":\"\",\"tabbed_key\":\"\",\"fieldName\":\"Color Type \\ud83d\\udd27\",\"inputName\":\"tonicsBuilderStyleColorType\",\"selectData\":\"Color,Background,Link,Link Hover,Heading\",\"defaultValue\":\"\",\"info\":\"\",\"hideInUserEditForm\":\"0\",\"multiSelect\":\"0\"}"
 	},
 	{
 		"field_field_name": "Style Color Picker",
@@ -2588,5 +2592,10 @@ class FieldActivator implements ExtensionConfig, FieldItemsExtensionConfig
 ]
 JSON;
         return json_decode($json);
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+[[import("Modules::Core/Views/Blocks/Assets")]]
+[[import("Modules::Core/Views/Blocks/Authentication")]]
+[[import("Modules::Core/Views/Blocks/Default")]]
+
+[[on_hook_into_event()]]
+
+[[add_hook('Theme::Bootstrap')]]
+[[add_hook('before_html')]]
+<html [[add_hook('in_html_attribute')]] lang="[[add_hook('in_html_lang')en]]" class="[[add_hook('in_html_class_attribute')]]" id="[[add_hook('in_html_id_attribute')]]" >
+
+    [[add_hook('before_head')]]
+
+    <head [[add_hook('in_head_attribute')]]>
+        [[add_hook('before_meta_tags')]]
+        [[_use("default-secure-meta")]]
+        [[add_hook('after_meta_tags')]]
+        [[add_hook('in_head')]]
+        [[add_hook('in_head_stylesheet')]]
+        <style>
+            [[add_hook('in_head_inline_styles')]]
+        </style>
+        [[add_hook('before_closing_head')]]
+    </head>
+
+    [[add_hook('after_head')]]
+
+    [[add_hook('before_body')]]
+
+    <body [[add_hook('in_body_attribute')]] class="[[add_hook('in_body_class_attribute')]]" id="[[add_hook('in_body_id_attribute')]]">
+        [[add_hook('before_svg')]]
+        [[- Inline SVG -]]
+            <svg class="tonics-inline-svg" style="position: absolute; width: 0; height: 0; overflow: hidden"
+                    xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    [[add_hook('in_svg_react_defs')]]
+                </defs>
+            </svg>
+        [[add_hook('after_svg')]]
+
+        [[add_hook('in_body')]]
+
+        [[add_hook('before_react_root')]]
+        <div id="root">
+            [[add_hook('in_react_root')]]
+        </div>
+        [[add_hook('after_react_root')]]
+
+        [[add_hook('before_closing_body')]]
+    </body>
+
+    [[add_hook('after_body')]]
+
+</html>

@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -30,7 +30,7 @@ class InputSelect implements HandlerInterface
      * @inheritDoc
      * @throws \Exception
      */
-    public function handleEvent (object $event): void
+    public function handleEvent(object $event): void
     {
         /** @var $event OnFieldMetaBox */
         $event->addFieldBox('Select', 'HTML Select',
@@ -47,7 +47,7 @@ class InputSelect implements HandlerInterface
      * @throws \Exception
      * @throws \Throwable
      */
-    public function settingsForm (OnFieldMetaBox $event, $data = null): string
+    public function settingsForm(OnFieldMetaBox $event, $data = null): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
         $inputName = (isset($data->inputName)) ? $data->inputName : '';
@@ -129,13 +129,13 @@ FORM;
     /**
      * @throws \Exception|\Throwable
      */
-    public function userForm (OnFieldMetaBox $event, $data): string
+    public function userForm(OnFieldMetaBox $event, $data): string
     {
         $fieldName = (isset($data->fieldName)) ? $data->fieldName : 'Select';
         $keyValue = $event->getKeyValueInData($data, $data->inputName);
         $defaultValue = $keyValue;
         $hookName = $data->hookName ?? '';
-        if (is_string($keyValue) && mb_strlen($keyValue, 'UTF-8') === 0 && isset($data->defaultValue)) {
+        if (($keyValue === null || (is_string($keyValue) && mb_strlen($keyValue, 'UTF-8') === 0)) && isset($data->defaultValue)) {
             $defaultValue = $data->defaultValue;
         }
         $data->selectedValue = $defaultValue;

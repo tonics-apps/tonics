@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,7 @@ use App\Modules\Core\Controllers\AppsController;
 use App\Modules\Core\Controllers\Auth\CacheController;
 use App\Modules\Core\Controllers\Auth\ForgotPasswordController;
 use App\Modules\Core\Controllers\Auth\LoginController;
+use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Controllers\CoreSettingsController;
 use App\Modules\Core\Controllers\DashboardController;
 use App\Modules\Core\Controllers\Installer;
@@ -48,7 +49,7 @@ trait Routes
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function routeWeb (Route $route): Route
+    public function routeWeb(Route $route): Route
     {
 
         ## For WEB
@@ -218,13 +219,16 @@ trait Routes
     /**
      * @throws \ReflectionException
      */
-    public function routeApi (Route $routes): Route
+    public function routeApi(Route $routes): Route
     {
         $routes->group('/api', function (Route $route) {
+
             $route->group('', function (Route $route) {
                 $route->post('pre-installer', [Installer::class, 'preInstall']);
                 $route->get('installer', [Installer::class, 'install']);
             }, requestInterceptor: [InstallerChecker::class]);
+
+            $route->get('csrf_generate', [Controller::class, 'csrfGenerate'], alias: 'csrfGenerate');
         });
         return $routes;
     }

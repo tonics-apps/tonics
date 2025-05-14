@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -19,10 +19,8 @@
 namespace App\Modules\Menu\Routes;
 
 use App\Modules\Core\Configs\AuthConfig;
-use App\Modules\Core\RequestInterceptor\Authenticated;
-use App\Modules\Core\RequestInterceptor\CSRFGuard;
-use App\Modules\Core\RequestInterceptor\StartSession;
 use App\Modules\Menu\Controllers\MenuController;
+use App\Modules\Menu\Controllers\MenuControllerAPI;
 use App\Modules\Menu\Controllers\MenuControllerItems;
 use App\Modules\Menu\RequestInterceptor\MenuAccess;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -60,7 +58,7 @@ trait Routes
                 $route->post('store', [MenuControllerItems::class, 'store']);
             }, alias: 'items');
 
-        },AuthConfig::getAuthRequestInterceptor([MenuAccess::class]), alias: 'menus');
+        }, AuthConfig::getAuthRequestInterceptor([MenuAccess::class]), alias: 'menus');
 
         return $route;
     }
@@ -70,7 +68,12 @@ trait Routes
      */
     public function routeApi(Route $routes): Route
     {
+        $routes->group('/api', function (Route $route) {
+            $route->get('/menu_items/:slug', [MenuControllerAPI::class, 'MenuItems']);
+            $route->get('/menu_items_fragment/:slug', [MenuControllerAPI::class, 'MenuItemsFragment']);
+        });
 
+        return $routes;
     }
 
 }

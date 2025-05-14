@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -25,7 +25,13 @@ use App\Modules\Core\Library\JobSystem\JobHandlerInterface;
 
 class HandleOnUpdate extends AbstractJobInterface implements JobHandlerInterface
 {
-    public function __construct (string $classString = '', $timestamp = null)
+    /**
+     * HandleOnUpdate constructor.
+     *
+     * @param string $classString
+     * @param null $timestamp
+     */
+    public function __construct(string $classString = '', $timestamp = null)
     {
         $this->setData(['activator' => $classString, 'timestamp' => $timestamp]);
         $this->setJobName('HandleOnUpdate');
@@ -35,7 +41,7 @@ class HandleOnUpdate extends AbstractJobInterface implements JobHandlerInterface
      * @return void
      * @throws \Exception
      */
-    public function handle (): void
+    public function handle(): void
     {
         try {
             $data = $this->getDataAsArray();
@@ -57,10 +63,10 @@ class HandleOnUpdate extends AbstractJobInterface implements JobHandlerInterface
                 return;
 
             }
+
         } catch (\Exception $e) {
 
             $this->errorMessage("Error during activator handling: " . $e->getMessage());
-            // You might consider rethrowing or further handling the exception here
             return;
 
         }

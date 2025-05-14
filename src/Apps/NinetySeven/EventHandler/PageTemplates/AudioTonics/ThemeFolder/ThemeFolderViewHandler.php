@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2023-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -31,6 +31,93 @@ class ThemeFolderViewHandler implements HandlerInterface
 
     const TonicsAudioTonicsKey = 'TonicsBeatsTonics_Theme';
 
+    /**
+     * @throws \Exception
+     */
+    public static function handleTrackSingleFragment(): mixed
+    {
+        /** @var TrackData $trackData */
+        $trackData = container()->get(TrackData::class);
+
+        try {
+            $track = null;
+            db(onGetDB: function (TonicsQuery $db) use ($trackData, &$track) {
+                $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
+                $uniqueSlugID = $routeParams[0] ?? null;
+
+                $track = $db->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
+        t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings,
+        ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
+        t.created_at, 
+        GROUP_CONCAT(CONCAT(track_cat_id) ) as fk_cat_id,
+        1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")
+                    ->From("{$trackData::getTrackTable()} t")
+                    ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
+                    ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
+                    ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
+                    ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
+                    ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
+                    ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
+                    ->Where('t.created_at', '<=', helper()->date())
+                    ->WhereEquals('t.track_status', 1)
+                    ->WhereEquals("t.slug_id", $uniqueSlugID)
+                    ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
+            });
+
+            if (!is_array($track)) {
+                return [];
+            } else {
+                if (isset($track['fk_cat_id'])) {
+                    $categories = explode(',', $track['fk_cat_id']);
+                    $categories = array_combine($categories, $categories);
+                    $categories = array_values($categories);
+                    foreach ($categories as $category) {
+                        $reverseCategory = array_reverse(self::getTrackCategoryParents($category));
+                        $track['categories'][] = $reverseCategory;
+                    }
+                }
+            }
+
+            $trackData->unwrapForTrack($track);
+            return $track;
+        } catch (\Exception $exception) {
+            // Log..
+        }
+        return [];
+    }
+
+    /**
+     * @param string|int $idSlug
+     *
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public static function getTrackCategoryParents(string|int $idSlug): mixed
+    {
+        $result = null;
+        db(onGetDB: function ($db) use ($idSlug, &$result) {
+            $categoryTable = TrackData::getTrackCategoryTable();
+
+            $where = "track_cat_slug = ?";
+            if (is_numeric($idSlug)) {
+                $where = "track_cat_id = ?";
+            }
+            $result = $db->run("
+        WITH RECURSIVE child_to_parent AS 
+	( SELECT track_cat_id, track_cat_parent_id, slug_id, track_cat_slug, track_cat_status, track_cat_name, CAST(track_cat_slug AS VARCHAR (255))
+            AS path
+      FROM $categoryTable WHERE $where
+      UNION ALL
+      SELECT fr.track_cat_id, fr.track_cat_parent_id, fr.slug_id, fr.track_cat_slug, fr.track_cat_status, fr.track_cat_name, CONCAT(fr.track_cat_slug, '/', path)
+      FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.track_cat_id = cp.track_cat_parent_id
+      ) 
+     SELECT *, track_cat_name as _name, CONCAT_WS('/', '/track_categories', slug_id, track_cat_slug) as _link FROM child_to_parent;
+        ", $idSlug);
+        });
+
+        return $result;
+    }
+
     public function handleEvent(object $event): void
     {
         /** @var $event OnHookIntoTemplate */
@@ -44,7 +131,7 @@ class ThemeFolderViewHandler implements HandlerInterface
                 $data = [
                     'isFolder' => true,
                     'title' => $tonicsView->accessArrayWithSeparator('Data.seo_title'),
-                    'fragment' => $this->handleFolderFragment($tonicsView)
+                    'fragment' => $this->handleFolderFragment($tonicsView),
                 ];
                 helper()->onSuccess($data);
             }
@@ -109,7 +196,7 @@ class ThemeFolderViewHandler implements HandlerInterface
                 if (!empty($markerData)) {
                     $data = [
                         'isMarker' => true,
-                        'markers' => $markerData
+                        'markers' => $markerData,
                     ];
                     response()->onSuccess($data);
                 }
@@ -130,6 +217,24 @@ class ThemeFolderViewHandler implements HandlerInterface
 
     /**
      * @param TonicsView $tonicsView
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function handleFolderFragment(TonicsView $tonicsView): string
+    {
+        $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
+        if ($root) {
+            $this->handleTrackCategoryForRootQuery($tonicsView);
+        } else {
+            $this->handleTrackCategoryFolderQuery($tonicsView);
+        }
+        return $tonicsView->renderABlock('tonics_folder_main');
+    }
+
+    /**
+     * @param TonicsView $tonicsView
+     *
      * @return void
      * @throws \Exception
      */
@@ -139,7 +244,7 @@ class ThemeFolderViewHandler implements HandlerInterface
             $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
             $trackData = TrackData::class;
             $data = null;
-            db(onGetDB: function ($db) use ($trackData, &$data){
+            db(onGetDB: function ($db) use ($trackData, &$data) {
                 $data = $db->Select('0 as is_track, track_cat_name as _name, slug_id, CONCAT_WS("/", "/track_categories", slug_id, track_cat_slug) as _link')
                     ->From($trackData::getTrackCategoryTable())->WhereNull('track_cat_parent_id')
                     ->WhereEquals('track_cat_status', 1)
@@ -156,7 +261,9 @@ class ThemeFolderViewHandler implements HandlerInterface
 
     /**
      * @param TonicsView $tonicsView
+     *
      * @return void
+     * @throws \Throwable
      */
     public function handleTrackCategoryFolderQuery(TonicsView $tonicsView): void
     {
@@ -172,7 +279,7 @@ class ThemeFolderViewHandler implements HandlerInterface
                             ->WhereEquals('track_cat_id', $fieldSettings['track_cat_id'])
                             ->UnionAll(
                                 db()->Select(' c.track_cat_id')->From("{$trackData::getTrackCategoryTable()} c")
-                                    ->Join('category_tree ct', 'c.track_cat_parent_id', 'ct.track_cat_id')
+                                    ->Join('category_tree ct', 'c.track_cat_parent_id', 'ct.track_cat_id'),
                             ),
                         true);
                 });
@@ -215,7 +322,7 @@ class ThemeFolderViewHandler implements HandlerInterface
                             }, function (TonicsQuery $db) use ($fieldSettings) {
                                 $db->WhereEquals('ct.track_cat_parent_id', $fieldSettings['track_cat_id']);
                             });
-                    })
+                    }),
                 ) // End Sub query
                 ->As('track_results')
                     ->when(url()->hasParamAndValue('query'), function (TonicsQuery $db) {
@@ -244,11 +351,11 @@ class ThemeFolderViewHandler implements HandlerInterface
      */
     public function isFiltering(): bool
     {
-        if (!empty(url()->getParams())){
+        if (!empty(url()->getParams())) {
             return true;
         }
 
-        if (url()->hasParamAndValue('query')){
+        if (url()->hasParamAndValue('query')) {
             return true;
         }
 
@@ -256,132 +363,8 @@ class ThemeFolderViewHandler implements HandlerInterface
     }
 
     /**
-     * @throws \Exception
-     */
-    public static function handleTrackSingleFragment(): mixed
-    {
-        /** @var TrackData $trackData */
-        $trackData = container()->get(TrackData::class);
-
-        try {
-            $track = null;
-            db(onGetDB: function (TonicsQuery $db) use ($trackData, &$track){
-                $routeParams = url()->getRouteObject()->getRouteTreeGenerator()->getFoundURLRequiredParams();
-                $uniqueSlugID = $routeParams[0] ?? null;
-
-                $track = $db->Select("t.track_id as id, t.slug_id, t.track_title as _name, null as num_tracks, t.track_plays as plays,
-        t.track_bpm as bpm, t.image_url, t.audio_url, tl.license_attr, t.field_settings,
-        ta.artist_name as artist_name, ta.artist_slug as artist_slug, g.genre_slug as genre_slug,
-        t.created_at, 
-        GROUP_CONCAT(CONCAT(track_cat_id) ) as fk_cat_id,
-        1 as is_track, CONCAT_WS('/', '/tracks', t.slug_id, t.track_slug) as _link")
-                    ->From("{$trackData::getTrackTable()} t")
-                    ->Join("{$trackData::getTrackToGenreTable()} tg", "tg.fk_track_id", "t.track_id")
-                    ->Join("{$trackData::getGenreTable()} g", "g.genre_id", "tg.fk_genre_id")
-                    ->Join("{$trackData::getTrackTracksCategoryTable()} ttc", "t.track_id", "ttc.fk_track_id")
-                    ->Join("{$trackData::getTrackCategoryTable()} ct", "ttc.fk_track_cat_id", "ct.track_cat_id")
-                    ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
-                    ->Join("{$trackData::getArtistTable()} ta", "ta.artist_id", "t.fk_artist_id")
-                    ->Where('t.created_at', '<=', helper()->date())
-                    ->WhereEquals('t.track_status', 1)
-                    ->WhereEquals("t.slug_id", $uniqueSlugID)
-                    ->GroupBy("t.track_id")->setPdoFetchType(PDO::FETCH_ASSOC)->FetchFirst();
-            });
-
-            if (!is_array($track)) {
-                return [];
-            } else {
-                if (isset($track['fk_cat_id'])){
-                    $categories = explode(',', $track['fk_cat_id']);
-                    $categories = array_combine($categories, $categories);
-                    $categories = array_values($categories);
-                    foreach ($categories as $category){
-                        $reverseCategory = array_reverse(self::getTrackCategoryParents($category));
-                        $track['categories'][] = $reverseCategory;
-                    }
-                }
-            }
-
-            $trackData->unwrapForTrack($track);
-            return $track;
-        } catch (\Exception $exception) {
-            // Log..
-        }
-        return [];
-    }
-
-    /**
-     * @param string|int $idSlug
-     * @return mixed|null
-     * @throws \Exception
-     */
-    public static function getTrackCategoryParents(string|int $idSlug): mixed
-    {
-        $result = null;
-        db(onGetDB: function ($db) use ($idSlug, &$result){
-            $categoryTable = TrackData::getTrackCategoryTable();
-
-            $where = "track_cat_slug = ?";
-            if (is_numeric($idSlug)) {
-                $where = "track_cat_id = ?";
-            }
-            $result = $db->run("
-        WITH RECURSIVE child_to_parent AS 
-	( SELECT track_cat_id, track_cat_parent_id, slug_id, track_cat_slug, track_cat_status, track_cat_name, CAST(track_cat_slug AS VARCHAR (255))
-            AS path
-      FROM $categoryTable WHERE $where
-      UNION ALL
-      SELECT fr.track_cat_id, fr.track_cat_parent_id, fr.slug_id, fr.track_cat_slug, fr.track_cat_status, fr.track_cat_name, CONCAT(fr.track_cat_slug, '/', path)
-      FROM $categoryTable as fr INNER JOIN child_to_parent as cp ON fr.track_cat_id = cp.track_cat_parent_id
-      ) 
-     SELECT *, track_cat_name as _name, CONCAT_WS('/', '/track_categories', slug_id, track_cat_slug) as _link FROM child_to_parent;
-        ", $idSlug);
-        });
-
-        return $result;
-    }
-
-    /**
-     * @param TonicsView $tonicsView
-     * @return string
-     * @throws \Exception
-     */
-    public function handleFolderFragment(TonicsView $tonicsView): string
-    {
-        $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
-        if ($root) {
-            $this->handleTrackCategoryForRootQuery($tonicsView);
-        } else {
-            $this->handleTrackCategoryFolderQuery($tonicsView);
-        }
-        return $tonicsView->renderABlock('tonics_folder_main');
-    }
-
-    /**
-     * @param TonicsView $tonicsView
-     * @return string
-     * @throws \Exception
-     */
-    public function handleFolderSearchFragment(TonicsView $tonicsView): string
-    {
-        $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
-        if (isset($fieldSettings['track_cat_content']) && $fieldSettings['track_cat_content'] === '<p><br></p>') {
-            $fieldSettings['track_cat_content'] = '';
-            $tonicsView->addToVariableData('Data', $fieldSettings);
-        }
-        $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
-        if ($root) {
-            return '';
-        } else {
-            # Get Filters of a Certain Category and Its Sub Category
-            $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($fieldSettings, $fieldSettings);
-            $tonicsView->addToVariableData('Data', $fieldSettings);
-        }
-        return $tonicsView->renderABlock('tonics_folder_content') . $tonicsView->renderABlock('tonics_folder_search');
-    }
-
-    /**
      * @param TonicsQuery $db
+     *
      * @return TonicsQuery
      * @throws \Exception
      */
@@ -412,8 +395,33 @@ class ThemeFolderViewHandler implements HandlerInterface
     }
 
     /**
+     * @param TonicsView $tonicsView
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function handleFolderSearchFragment(TonicsView $tonicsView): string
+    {
+        $fieldSettings = $tonicsView->accessArrayWithSeparator('Data');
+        if (isset($fieldSettings['track_cat_content']) && $fieldSettings['track_cat_content'] === '<p><br></p>') {
+            $fieldSettings['track_cat_content'] = '';
+            $tonicsView->addToVariableData('Data', $fieldSettings);
+        }
+        $root = $tonicsView->accessArrayWithSeparator('Data.ThemeFolderHome');
+        if ($root) {
+            return '';
+        } else {
+            # Get Filters of a Certain Category and Its Sub Category
+            $this->handleFilterFromFieldSettingsKeyForCategorySubCategory($fieldSettings, $fieldSettings);
+            $tonicsView->addToVariableData('Data', $fieldSettings);
+        }
+        return $tonicsView->renderABlock('tonics_folder_content') . $tonicsView->renderABlock('tonics_folder_search');
+    }
+
+    /**
      * @param $mainTrackData
      * @param $fieldSettings
+     *
      * @return void
      * @throws \Exception
      * @throws \Throwable
@@ -449,7 +457,7 @@ SQL;
         }
 
         $filterOptions = null;
-        db(onGetDB: function (TonicsQuery $db) use ($filterType, $trackCatID, $trackData, &$filterOptions){
+        db(onGetDB: function (TonicsQuery $db) use ($filterType, $trackCatID, $trackData, &$filterOptions) {
             $filterOptions = $db->run(<<<FILTER_OPTION
 SELECT tdf_type, JSON_ARRAYAGG(DISTINCT tdf.tdf_name) as filter_values
 FROM {$trackData::getTrackDefaultFiltersTable()} tdf
@@ -469,7 +477,7 @@ FILTER_OPTION, $trackCatID, $trackCatID);
         $newFilterOptions = [];
         foreach ($filterOptions as $filterOption) {
             $decode = json_decode($filterOption->filter_values, flags: JSON_INVALID_UTF8_IGNORE);
-            if ($decode !== null){
+            if ($decode !== null) {
                 $values = array_unique($decode);
                 $newFilterOptions[$filterOption->tdf_type] = $values;
             }
@@ -483,7 +491,7 @@ FILTER_OPTION, $trackCatID, $trackCatID);
                 $trackKeysFrag = <<<TRACK_KEY
 <label for="track_key">Choose Key
                         <select class="default-selector border-width:default border:white color:black" name="track_key" id="track_key">
-                        <option value=''>Any Key</option>
+                        <option value="">Any Key</option>
 TRACK_KEY;
                 foreach ($filterOptions['key'] as $filter_key) {
                     $select = (url()->getParam('track_key') === $filter_key) ? 'selected' : '';
@@ -498,7 +506,7 @@ TRACK_KEY;
                 $trackArtistsFrag = <<<TRACK_KEY
 <label for="track_key">Choose Artist
                         <select class="default-selector border-width:default border:white color:black" name="track_artist" id="track_artist">
-                        <option value=''>Any Artist</option>
+                        <option value="">Any Artist</option>
 TRACK_KEY;
                 foreach ($artists as $artist) {
                     $select = (url()->getParam('track_artist') === $artist) ? 'selected' : '';
@@ -591,6 +599,7 @@ LI;
     /**
      * @param string $param
      * @param $filterOptions
+     *
      * @return string
      * @throws \Exception|\Throwable
      */

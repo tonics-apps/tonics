@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -52,14 +52,14 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
 {
     use Routes;
 
-    const COUPON         = 'coupon';
-    const COUPON_TYPE    = 'coupon_type';
+    const COUPON = 'coupon';
+    const COUPON_TYPE = 'coupon_type';
     const COUPON_TO_TYPE = 'coupon_to_type';
-    static array      $TABLES = [
-        self::COUPON         => [
+    static array $TABLES = [
+        self::COUPON => [
             'coupon_id', 'slug_id', 'coupon_name', 'image_url', 'coupon_slug', 'user_id', 'coupon_status', 'field_settings', 'created_at', 'started_at', 'expired_at', 'updated_at',
         ],
-        self::COUPON_TYPE    => [
+        self::COUPON_TYPE => [
             'coupon_type_id', 'slug_id', 'coupon_type_parent_id', 'coupon_type_name', 'coupon_type_slug', 'coupon_type_status', 'field_settings', 'created_at', 'updated_at',
         ],
         self::COUPON_TO_TYPE => [
@@ -68,15 +68,47 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
     ];
     private FieldData $fieldData;
 
-    public function __construct (FieldData $fieldData)
+    public function __construct(FieldData $fieldData)
     {
         $this->fieldData = $fieldData;
     }
 
     /**
+     * @param array $coupon
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public static function getCouponAbsoluteURLPath(array $coupon): string
+    {
+        $rootPath = CouponSettingsController::getTonicsCouponRootPath();
+        if (isset($coupon['slug_id']) && isset($coupon['coupon_slug'])) {
+            return "/$rootPath/{$coupon['slug_id']}/{$coupon['coupon_slug']}";
+        }
+
+        return '';
+    }
+
+    /**
+     * @param array $coupon
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public static function getCouponTypeAbsoluteURLPath(array $coupon): string
+    {
+        $rootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
+        if (isset($coupon['slug_id']) && isset($coupon['coupon_type_slug'])) {
+            return "/$rootPath/{$coupon['slug_id']}/{$coupon['coupon_type_slug']}";
+        }
+
+        return '';
+    }
+
+    /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -87,7 +119,7 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
      * @return Route
      * @throws \ReflectionException
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -96,7 +128,7 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
             OnAdminMenu::class => [
@@ -145,130 +177,42 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
     /**
      * @inheritDoc
      */
-    public function tables (): array
+    public function tables(): array
     {
         return [
-            self::couponTableName()       => self::$TABLES[self::COUPON],
-            self::couponTypeTableName()   => self::$TABLES[self::COUPON_TYPE],
+            self::couponTableName() => self::$TABLES[self::COUPON],
+            self::couponTypeTableName() => self::$TABLES[self::COUPON_TYPE],
             self::couponToTypeTableName() => self::$TABLES[self::COUPON_TO_TYPE],
         ];
+    }
+
+    public static function couponTableName(): string
+    {
+        return DatabaseConfig::getPrefix() . self::COUPON;
+    }
+
+    public static function couponTypeTableName(): string
+    {
+        return DatabaseConfig::getPrefix() . self::COUPON_TYPE;
+    }
+
+    public static function couponToTypeTableName(): string
+    {
+        return DatabaseConfig::getPrefix() . self::COUPON_TO_TYPE;
     }
 
     /**
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function onInstall (): void
+    public function onInstall(): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
         self::migrateDatabases();
         return;
     }
 
-    public function onUninstall (): void
-    {
-        return;
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    public function onUpdate (): void
-    {
-        self::migrateDatabases();
-        return;
-    }
-
-    public function onDelete (): void
-    {
-        return;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function info (): array
-    {
-        return [
-            "name"                 => "TonicsCoupon",
-            "type"                 => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1730113236',
-            "description"          => "This is TonicsCoupon",
-            "info_url"             => '',
-            "settings_page"        => route('tonicsCoupon.settings'), // can be null or a route name
-            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_coupon/releases/latest",
-            "authors"              => [
-                "name"  => "Your Name",
-                "email" => "name@website.com",
-                "role"  => "Developer",
-            ],
-            "credits"              => [],
-        ];
-    }
-
-    /**
-     * @throws \ReflectionException
-     */
-    public static function migrateDatabases ()
-    {
-        $appMigrate = new AppMigrate();
-        $commandOptions = [
-            '--app'     => 'TonicsCoupon',
-            '--migrate' => '',
-        ];
-        $appMigrate->setIsCLI(false);
-        $appMigrate->run($commandOptions);
-    }
-
-    public static function couponTableName (): string
-    {
-        return DatabaseConfig::getPrefix() . self::COUPON;
-    }
-
-    public static function couponTypeTableName (): string
-    {
-        return DatabaseConfig::getPrefix() . self::COUPON_TYPE;
-    }
-
-    public static function couponToTypeTableName (): string
-    {
-        return DatabaseConfig::getPrefix() . self::COUPON_TO_TYPE;
-    }
-
-    /**
-     * @param array $coupon
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public static function getCouponAbsoluteURLPath (array $coupon): string
-    {
-        $rootPath = CouponSettingsController::getTonicsCouponRootPath();
-        if (isset($coupon['slug_id']) && isset($coupon['coupon_slug'])) {
-            return "/$rootPath/{$coupon['slug_id']}/{$coupon['coupon_slug']}";
-        }
-
-        return '';
-    }
-
-    /**
-     * @param array $coupon
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public static function getCouponTypeAbsoluteURLPath (array $coupon): string
-    {
-        $rootPath = CouponSettingsController::getTonicsCouponTypeRootPath();
-        if (isset($coupon['slug_id']) && isset($coupon['coupon_type_slug'])) {
-            return "/$rootPath/{$coupon['slug_id']}/{$coupon['coupon_type_slug']}";
-        }
-
-        return '';
-    }
-
-    function fieldItems (): array
+    function fieldItems(): array
     {
         $json = <<<'JSON'
 [
@@ -611,5 +555,61 @@ class TonicsCouponActivator implements ExtensionConfig, FieldItemsExtensionConfi
 ]
 JSON;
         return json_decode($json);
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public static function migrateDatabases()
+    {
+        $appMigrate = new AppMigrate();
+        $commandOptions = [
+            '--app' => 'TonicsCoupon',
+            '--migrate' => '',
+        ];
+        $appMigrate->setIsCLI(false);
+        $appMigrate->run($commandOptions);
+    }
+
+    public function onUninstall(): void
+    {
+        return;
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function onUpdate(): void
+    {
+        self::migrateDatabases();
+        return;
+    }
+
+    public function onDelete(): void
+    {
+        return;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function info(): array
+    {
+        return [
+            "name" => "TonicsCoupon",
+            "type" => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-app.1747085600',
+            "description" => "This is TonicsCoupon",
+            "info_url" => '',
+            "settings_page" => route('tonicsCoupon.settings'), // can be null or a route name
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_coupon/releases/latest",
+            "authors" => [
+                "name" => "Your Name",
+                "email" => "name@website.com",
+                "role" => "Developer",
+            ],
+            "credits" => [],
+        ];
     }
 }

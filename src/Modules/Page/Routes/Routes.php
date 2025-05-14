@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -20,6 +20,7 @@ namespace App\Modules\Page\Routes;
 
 use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\PreProcessFieldDetails;
+use App\Modules\Page\Controllers\PageControllerAPI;
 use App\Modules\Page\Controllers\PagesController;
 use App\Modules\Page\RequestInterceptor\PageAccess;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -40,14 +41,14 @@ trait Routes
                 # TRACK RESOURCES...
                 #---------------------------------
                 $route->get('', [PagesController::class, 'index'], alias: 'index');
-                $route->post('', [PagesController::class, 'dataTable'],  alias: 'dataTables');
+                $route->post('', [PagesController::class, 'dataTable'], alias: 'dataTables');
 
                 $route->post('store', [PagesController::class, 'store'], [PreProcessFieldDetails::class]);
                 $route->get('create', [PagesController::class, 'create'], alias: 'create');
                 $route->get(':page/edit', [PagesController::class, 'edit'], alias: 'edit');
                 $route->match(['post', 'put'], ':page/update', [PagesController::class, 'update'], [PreProcessFieldDetails::class]);
-                $route->post( '/trash/multiple', [PagesController::class, 'trashMultiple'], alias: 'trashMultiple');
-                $route->post( ':page/trash', [PagesController::class, 'trash'], alias: 'trash');
+                $route->post('/trash/multiple', [PagesController::class, 'trashMultiple'], alias: 'trashMultiple');
+                $route->post(':page/trash', [PagesController::class, 'trash'], alias: 'trash');
                 $route->match(['post', 'delete'], ':page/delete', [PagesController::class, 'delete'], alias: 'delete');
                 $route->match(['post', 'delete'], 'delete/multiple', [PagesController::class, 'deleteMultiple'], alias: 'deleteMultiple');
             }, alias: 'pages');
@@ -55,5 +56,17 @@ trait Routes
         }, AuthConfig::getAuthRequestInterceptor([PageAccess::class]));
 
         return $route;
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function routeApi(Route $routes): Route
+    {
+        $routes->group('/api', function (Route $route) {
+            $route->get('/page_layout', [PageControllerAPI::class, 'PageLayout']);
+        });
+
+        return $routes;
     }
 }

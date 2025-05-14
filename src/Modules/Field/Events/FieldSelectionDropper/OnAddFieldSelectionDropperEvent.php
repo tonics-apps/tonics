@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -27,57 +27,57 @@ use Devsrealm\TonicsTemplateSystem\TonicsView;
 
 class OnAddFieldSelectionDropperEvent implements EventInterface
 {
-    const FRONTEND_LOGIC_OPEN    = 'open';
-    const FRONTEND_LOGIC_CLOSE   = 'close';
+    const FRONTEND_LOGIC_OPEN = 'open';
+    const FRONTEND_LOGIC_CLOSE = 'close';
     const FRONTEND_LOGIC_Element = 'element';
 
     const FIELD_HOOK_TYPE_FIELD_SELECTOR = 'FIELD_SELECTOR';
     const FIELD_HOOK_TYPE_FIELD_DATA_KEY = 'FIELD_DATA_KEY';
 
     # HOOK NAMES FOR THEME
-    const HOOK_NAME_THEME_BOOTSTRAP           = 'Theme::Bootstrap';
-    const HOOK_NAME_BEFORE_HTML               = 'before_html';
-    const HOOK_NAME_IN_HTML_ATTRIBUTE         = 'in_html_attribute';
-    const HOOK_NAME_IN_HTML_LANG              = 'in_html_lang';
-    const HOOK_NAME_IN_HTML_CLASS_ATTRIBUTE   = 'in_html_class_attribute';
-    const HOOK_NAME_IN_HTML_ID_ATTRIBUTE      = 'in_html_id_attribute';
-    const HOOK_NAME_BEFORE_HEAD               = 'before_head';
-    const HOOK_NAME_IN_HEAD_ATTRIBUTE         = 'in_head_attribute';
-    const HOOK_NAME_BEFORE_META_TAGS          = 'before_meta_tags';
-    const HOOK_NAME_AFTER_META_TAGS           = 'after_meta_tags';
-    const HOOK_NAME_IN_HEAD                   = 'in_head';
-    const HOOK_NAME_IN_HEAD_STYLESHEET        = 'in_head_stylesheet';
-    const HOOK_NAME_IN_HEAD_INLINE_STYLES     = 'in_head_inline_styles';
-    const HOOK_NAME_BEFORE_CLOSING_HEAD       = 'before_closing_head';
-    const HOOK_NAME_AFTER_HEAD                = 'after_head';
-    const HOOK_NAME_BEFORE_BODY               = 'before_body';
-    const HOOK_NAME_IN_BODY_ATTRIBUTE         = 'in_body_attribute';
-    const HOOK_NAME_IN_BODY_CLASS_ATTRIBUTE   = 'in_body_class_attribute';
-    const HOOK_NAME_IN_BODY_ID_ATTRIBUTE      = 'in_body_id_attribute';
-    const HOOK_NAME_BEFORE_SVG                = 'before_svg';
-    const HOOK_NAME_IN_SVG_DEFS               = 'in_svg_defs';
-    const HOOK_NAME_AFTER_SVG                 = 'after_svg';
-    const HOOK_NAME_IN_BODY                   = 'in_body';
-    const HOOK_NAME_BEFORE_HEADER             = 'before_header';
-    const HOOK_NAME_IN_HEADER_ATTRIBUTE       = 'in_header_attribute';
+    const HOOK_NAME_THEME_BOOTSTRAP = 'Theme::Bootstrap';
+    const HOOK_NAME_BEFORE_HTML = 'before_html';
+    const HOOK_NAME_IN_HTML_ATTRIBUTE = 'in_html_attribute';
+    const HOOK_NAME_IN_HTML_LANG = 'in_html_lang';
+    const HOOK_NAME_IN_HTML_CLASS_ATTRIBUTE = 'in_html_class_attribute';
+    const HOOK_NAME_IN_HTML_ID_ATTRIBUTE = 'in_html_id_attribute';
+    const HOOK_NAME_BEFORE_HEAD = 'before_head';
+    const HOOK_NAME_IN_HEAD_ATTRIBUTE = 'in_head_attribute';
+    const HOOK_NAME_BEFORE_META_TAGS = 'before_meta_tags';
+    const HOOK_NAME_AFTER_META_TAGS = 'after_meta_tags';
+    const HOOK_NAME_IN_HEAD = 'in_head';
+    const HOOK_NAME_IN_HEAD_STYLESHEET = 'in_head_stylesheet';
+    const HOOK_NAME_IN_HEAD_INLINE_STYLES = 'in_head_inline_styles';
+    const HOOK_NAME_BEFORE_CLOSING_HEAD = 'before_closing_head';
+    const HOOK_NAME_AFTER_HEAD = 'after_head';
+    const HOOK_NAME_BEFORE_BODY = 'before_body';
+    const HOOK_NAME_IN_BODY_ATTRIBUTE = 'in_body_attribute';
+    const HOOK_NAME_IN_BODY_CLASS_ATTRIBUTE = 'in_body_class_attribute';
+    const HOOK_NAME_IN_BODY_ID_ATTRIBUTE = 'in_body_id_attribute';
+    const HOOK_NAME_BEFORE_SVG = 'before_svg';
+    const HOOK_NAME_IN_SVG_DEFS = 'in_svg_defs';
+    const HOOK_NAME_AFTER_SVG = 'after_svg';
+    const HOOK_NAME_IN_BODY = 'in_body';
+    const HOOK_NAME_BEFORE_HEADER = 'before_header';
+    const HOOK_NAME_IN_HEADER_ATTRIBUTE = 'in_header_attribute';
     const HOOK_NAME_IN_HEADER_CLASS_ATTRIBUTE = 'in_header_class_attribute';
-    const HOOK_NAME_IN_HEADER_ID_ATTRIBUTE    = 'in_header_id_attribute';
-    const HOOK_NAME_IN_HEADER                 = 'in_header';
-    const HOOK_NAME_AFTER_HEADER              = 'after_header';
-    const HOOK_NAME_BEFORE_MAIN_CONTENT       = 'before_main_content';
-    const HOOK_NAME_IN_MAIN_ATTRIBUTE         = 'in_main_attribute';
-    const HOOK_NAME_IN_MAIN_CLASS_ATTRIBUTE   = 'in_main_class_attribute';
-    const HOOK_NAME_IN_MAIN_ID_ATTRIBUTE      = 'in_main_id_attribute';
-    const HOOK_NAME_IN_MAIN_CONTENT           = 'in_main_content';
-    const HOOK_NAME_AFTER_MAIN_CONTENT        = 'after_main_content';
-    const HOOK_NAME_BEFORE_CLOSING_BODY       = 'before_closing_body';
-    const HOOK_NAME_AFTER_BODY                = 'after_body';
-    const HOOK_NAME_BEFORE_FOOTER             = 'before_footer';
-    const HOOK_NAME_IN_FOOTER_ATTRIBUTE       = 'in_footer_attribute';
+    const HOOK_NAME_IN_HEADER_ID_ATTRIBUTE = 'in_header_id_attribute';
+    const HOOK_NAME_IN_HEADER = 'in_header';
+    const HOOK_NAME_AFTER_HEADER = 'after_header';
+    const HOOK_NAME_BEFORE_MAIN_CONTENT = 'before_main_content';
+    const HOOK_NAME_IN_MAIN_ATTRIBUTE = 'in_main_attribute';
+    const HOOK_NAME_IN_MAIN_CLASS_ATTRIBUTE = 'in_main_class_attribute';
+    const HOOK_NAME_IN_MAIN_ID_ATTRIBUTE = 'in_main_id_attribute';
+    const HOOK_NAME_IN_MAIN_CONTENT = 'in_main_content';
+    const HOOK_NAME_AFTER_MAIN_CONTENT = 'after_main_content';
+    const HOOK_NAME_BEFORE_CLOSING_BODY = 'before_closing_body';
+    const HOOK_NAME_AFTER_BODY = 'after_body';
+    const HOOK_NAME_BEFORE_FOOTER = 'before_footer';
+    const HOOK_NAME_IN_FOOTER_ATTRIBUTE = 'in_footer_attribute';
     const HOOK_NAME_IN_FOOTER_CLASS_ATTRIBUTE = 'in_footer_class_attribute';
-    const HOOK_NAME_IN_FOOTER_ID_ATTRIBUTE    = 'in_footer_id_attribute';
-    const HOOK_NAME_IN_FOOTER                 = 'in_footer';
-    const HOOK_NAME_AFTER_FOOTER              = 'after_footer';
+    const HOOK_NAME_IN_FOOTER_ID_ATTRIBUTE = 'in_footer_id_attribute';
+    const HOOK_NAME_IN_FOOTER = 'in_footer';
+    const HOOK_NAME_AFTER_FOOTER = 'after_footer';
 
 
     /**
@@ -90,34 +90,34 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      */
     const OUTPUT_ONLY_TYPE = 'OUTPUT_ONLY_TYPE';
 
-    const HOOK_NAMES_STORAGE_KEY      = 'HOOK_NAMES_STORAGE_KEY_9876543210';
+    const HOOK_NAMES_STORAGE_KEY = 'HOOK_NAMES_STORAGE_KEY_9876543210';
     const GLOBAL_VARIABLE_STORAGE_KEY = 'GLOBAL_VARIABLE_STORAGE_KEY_9876543210';
 
-    private ?TonicsView $tonicsView            = null;
-    private array       $fields                = [];
-    private array       $inputSelects          = [];
-    private array       $fieldsCallBack        = [];
-    private array       $fieldsDataKeyCallBack = [];
-    private array       $cache                 = [];
-    private ?\stdClass  $currentOpenElement    = null;
-    private ?\stdClass  $currentParentElement  = null;
-    private string      $contentOutputType     = self::OUTPUT_TEMPLATE_HOOK_TYPE;
+    private ?TonicsView $tonicsView = null;
+    private array $fields = [];
+    private array $inputSelects = [];
+    private array $fieldsCallBack = [];
+    private array $fieldsDataKeyCallBack = [];
+    private array $cache = [];
+    private ?\stdClass $currentOpenElement = null;
+    private ?\stdClass $currentParentElement = null;
+    private string $contentOutputType = self::OUTPUT_TEMPLATE_HOOK_TYPE;
 
-    private string     $output               = '';
-    private string     $lastTemplateHook     = '';
-    private array      $outputArray          = [];
-    private array      $onBeforeProcessLogic = [];
-    private array      $onAfterProcessLogic  = [];
-    private array      $storage              = [];
-    private array      $outputInlineStyle    = [];
-    private ?\stdClass $page                 = null;
-    private string     $objectUniqueID       = '';
+    private string $output = '';
+    private string $lastTemplateHook = '';
+    private array $outputArray = [];
+    private array $onBeforeProcessLogic = [];
+    private array $onAfterProcessLogic = [];
+    private array $storage = [];
+    private array $outputInlineStyle = [];
+    private ?\stdClass $page = null;
+    private string $objectUniqueID = '';
 
 
     /**
      * @throws \Exception
      */
-    public function __construct ()
+    public function __construct()
     {
         if (empty($this->page)) {
             $this->setPage(new \stdClass());
@@ -128,7 +128,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     /**
      * @return array
      */
-    public function storages (): array
+    public function storages(): array
     {
         return $this->storage;
     }
@@ -138,7 +138,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return $this
      */
-    public function setStorage (array $storage): OnAddFieldSelectionDropperEvent
+    public function setStorage(array $storage): OnAddFieldSelectionDropperEvent
     {
         $this->storage = $storage;
         return $this;
@@ -150,35 +150,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    public function storageAdd (string $key, mixed $value): void
-    {
-        if (is_array($value)) {
-
-            if (!isset($this->storage[$key])) {
-                $this->storage[$key] = [];
-            }
-
-            foreach ($value as $item) {
-                if (!in_array($item, $this->storage[$key])) {
-                    $this->storage[$key][] = $item;
-                }
-            }
-
-        } else {
-
-            $this->storage[$key] = $value;
-
-        }
-
-    }
-
-    /**
-     * @param string $key
-     * @param mixed $value
-     *
-     * @return void
-     */
-    public function storageAppend (string $key, mixed $value): void
+    public function storageAppend(string $key, mixed $value): void
     {
         if (!$this->storageExists($key)) {
             $this->storage[$key] = '';
@@ -190,32 +162,9 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     /**
      * @param string $key
      *
-     * @return void
-     */
-    public function storageRemove (string $key): void
-    {
-        unset($this->storage[$key]);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return mixed|null
-     */
-    public function storageGet (string $key): mixed
-    {
-        if (array_key_exists($key, $this->storage)) {
-            return $this->storage[$key];
-        }
-        return '';
-    }
-
-    /**
-     * @param string $key
-     *
      * @return bool
      */
-    public function storageExists (string $key): bool
+    public function storageExists(string $key): bool
     {
         return array_key_exists($key, $this->storage);
     }
@@ -223,16 +172,108 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     /**
      * @param string $key
      *
+     * @return void
+     */
+    public function storageRemove(string $key): void
+    {
+        unset($this->storage[$key]);
+    }
+
+    /**
+     * @param string $key
+     *
      * @return bool
      */
-    public function storageNotEmpty (string $key): bool
+    public function storageNotEmpty(string $key): bool
     {
         return $this->storageExists($key) && trim($this->storageGet($key)) !== '';
     }
 
-    public function event (): static
+    /**
+     * @param string $key
+     *
+     * @return mixed|null
+     */
+    public function storageGet(string $key): mixed
+    {
+        if (array_key_exists($key, $this->storage)) {
+            return $this->storage[$key];
+        }
+        return '';
+    }
+
+    public function event(): static
     {
         return $this;
+    }
+
+    /**
+     * This is for hooking into selects field element.
+     *
+     * Hook `$fields` into fieldInput, ensure there is hookName that relates to the `$fieldHookName` when creating the field in the backend field creator.
+     *
+     * The `$selects` are the select you want to merge to whatever is already in the input field select
+     *
+     *  ```
+     *  $event->addInputSelects('tonicsLayoutHookSelector', ['orange', 'blue', 'red']);
+     *  ```
+     *
+     * @param string $fieldInputHookSelect
+     * @param array $selects
+     *
+     * @return OnAddFieldSelectionDropperEvent
+     */
+    public function addInputSelects(string $fieldInputHookSelect, array $selects): OnAddFieldSelectionDropperEvent
+    {
+        if (!isset($this->inputSelects[$fieldInputHookSelect])) {
+            $this->inputSelects[$fieldInputHookSelect] = [];
+        }
+
+        foreach ($selects as $select) {
+            if (!in_array($select, $this->inputSelects[$fieldInputHookSelect])) {
+                $this->inputSelects[$fieldInputHookSelect][] = $select;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param callable $handler
+     *
+     * @return void
+     */
+    public function onAfterProcessLogic(string $name, callable $handler): void
+    {
+        $this->onAfterProcessLogic[$name] = $handler;
+    }
+
+    /**
+     * @param string $name
+     * @param callable $handler
+     *
+     * @return void
+     */
+    public function onBeforeProcessLogic(string $name, callable $handler): void
+    {
+        $this->onBeforeProcessLogic[$name] = $handler;
+    }
+
+    /**
+     * Alias of
+     * ```
+     * $this->addFields($dataName, $fields, self::FIELD_HOOK_TYPE_FIELD_DATA_KEY)
+     * ```
+     *
+     * @param string $dataName
+     * @param array $fields
+     *
+     * @return void
+     */
+    public function hookIntoFieldDataKey(string $dataName, array $fields): void
+    {
+        $this->addFields($dataName, $fields, self::FIELD_HOOK_TYPE_FIELD_DATA_KEY);
     }
 
     /**
@@ -306,7 +347,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    public function addFields (string $fieldHookName, array $fields, string $type = self::FIELD_HOOK_TYPE_FIELD_SELECTOR): void
+    public function addFields(string $fieldHookName, array $fields, string $type = self::FIELD_HOOK_TYPE_FIELD_SELECTOR): void
     {
         $fieldsKey = [];
         foreach ($fields as $fieldKey => $fieldValue) {
@@ -379,103 +420,12 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * This is for hooking into selects field element.
-     *
-     * Hook `$fields` into fieldInput, ensure there is hookName that relates to the `$fieldHookName` when creating the field in the backend field creator.
-     *
-     * The `$selects` are the select you want to merge to whatever is already in the input field select
-     *
-     *  ```
-     *  $event->addInputSelects('tonicsLayoutHookSelector', ['orange', 'blue', 'red']);
-     *  ```
-     *
-     * @param string $fieldInputHookSelect
-     * @param array $selects
-     *
-     * @return OnAddFieldSelectionDropperEvent
-     */
-    public function addInputSelects (string $fieldInputHookSelect, array $selects): OnAddFieldSelectionDropperEvent
-    {
-        if (!isset($this->inputSelects[$fieldInputHookSelect])) {
-            $this->inputSelects[$fieldInputHookSelect] = [];
-        }
-
-        foreach ($selects as $select) {
-            if (!in_array($select, $this->inputSelects[$fieldInputHookSelect])) {
-                $this->inputSelects[$fieldInputHookSelect][] = $select;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $name
-     * @param callable $handler
-     *
-     * @return void
-     */
-    public function onAfterProcessLogic (string $name, callable $handler): void
-    {
-        $this->onAfterProcessLogic[$name] = $handler;
-    }
-
-    /**
-     * @return void
-     */
-    public function fireOnAfterProcessLogic (): void
-    {
-        foreach ($this->onAfterProcessLogic as $name => $handler) {
-            $handler($this);
-            unset($this->onAfterProcessLogic[$name]);
-        }
-    }
-
-    /**
-     * @param string $name
-     * @param callable $handler
-     *
-     * @return void
-     */
-    public function onBeforeProcessLogic (string $name, callable $handler): void
-    {
-        $this->onBeforeProcessLogic[$name] = $handler;
-    }
-
-    /**
-     * @return void
-     */
-    public function fireOnBeforeProcessLogic (): void
-    {
-        foreach ($this->onBeforeProcessLogic as $name => $handler) {
-            $handler($this);
-            unset($this->onBeforeProcessLogic[$name]);
-        }
-    }
-
-    /**
-     * Alias of
-     * ```
-     * $this->addFields($dataName, $fields, self::FIELD_HOOK_TYPE_FIELD_DATA_KEY)
-     * ```
-     *
-     * @param string $dataName
-     * @param array $fields
-     *
-     * @return void
-     */
-    public function hookIntoFieldDataKey (string $dataName, array $fields): void
-    {
-        $this->addFields($dataName, $fields, self::FIELD_HOOK_TYPE_FIELD_DATA_KEY);
-    }
-
-    /**
      * @param \stdClass $field
      * @param string $key
      *
      * @return mixed
      */
-    public function accessFieldDataset (\stdClass $field, string $key): mixed
+    public function accessFieldDataset(\stdClass $field, string $key): mixed
     {
         $field = $this->convertFieldPropertyToStdClass($field);
         if (!empty($field->field_data->_dataset->{$key})) {
@@ -486,12 +436,29 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
+     * This converts the property to stdclass if in array
+     *
+     * @param \stdClass $field
+     * @param string $property
+     *
+     * @return \stdClass
+     */
+    public function convertFieldPropertyToStdClass(\stdClass $field, string $property = 'field_data'): \stdClass
+    {
+        if (is_array($field->{$property})) {
+            $field->{$property} = json_decode(json_encode($field->{$property}));
+        }
+
+        return $field;
+    }
+
+    /**
      * @param \stdClass $field
      * @param string $key
      *
      * @return mixed
      */
-    public function accessFieldOption (\stdClass $field, string $key): mixed
+    public function accessFieldOption(\stdClass $field, string $key): mixed
     {
         $field = $this->convertFieldPropertyToStdClass($field, 'field_options');
         if (!empty($field->field_options->{$key})) {
@@ -502,45 +469,29 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param \stdClass $field
-     *
-     * @return mixed
-     */
-    public function getCurrentLoopData (\stdClass $field): mixed
-    {
-        $data = $field->__loop_current_data ?? null;
-
-        if ($data === null) {
-
-            $storageGlobal = $this->storageGet(self::GLOBAL_VARIABLE_STORAGE_KEY);
-
-            if (is_array($storageGlobal)) {
-                $storageGlobal = (object)$storageGlobal;
-            }
-
-            if (is_object($storageGlobal)) {
-                return $storageGlobal;
-            }
-
-        }
-
-        return $data;
-
-    }
-
-    /**
      * @param string $key
      * @param mixed|null $default
      *
      * @return mixed
      */
-    public function accessPageData (string $key, mixed $default = null): mixed
+    public function accessPageData(string $key, mixed $default = null): mixed
     {
         if (isset($this->getPage()->{$key})) {
             return $this->getPage()->{$key};
         }
 
         return $default;
+    }
+
+    public function getPage(): ?\stdClass
+    {
+        return $this->page;
+    }
+
+    public function setPage(?\stdClass $page): OnAddFieldSelectionDropperEvent
+    {
+        $this->page = $page;
+        return $this;
     }
 
     /**
@@ -554,7 +505,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return string
      * @throws \Exception
      */
-    public function autoAccessFieldData (\stdClass $field, string $key, string $default = '', bool $raw = false): string
+    public function autoAccessFieldData(\stdClass $field, string $key, string $default = '', bool $raw = false): string
     {
         $data = $this->accessFieldData($field, $key, $default, $raw);
         return (is_string($data)) ? helper()->htmlSpecChar($data) : '';
@@ -571,7 +522,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return mixed
      */
-    public function accessFieldData (\stdClass $field, string $key, string $default = '', bool $raw = false): mixed
+    public function accessFieldData(\stdClass $field, string $key, string $default = '', bool $raw = false): mixed
     {
         $field = $this->convertFieldPropertyToStdClass($field);
         $loopData = $this->getCurrentLoopData($field);
@@ -630,20 +581,30 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * This converts the property to stdclass if in array
-     *
      * @param \stdClass $field
-     * @param string $property
      *
-     * @return \stdClass
+     * @return mixed
      */
-    public function convertFieldPropertyToStdClass (\stdClass $field, string $property = 'field_data'): \stdClass
+    public function getCurrentLoopData(\stdClass $field): mixed
     {
-        if (is_array($field->{$property})) {
-            $field->{$property} = json_decode(json_encode($field->{$property}));
+        $data = $field->__loop_current_data ?? null;
+
+        if ($data === null) {
+
+            $storageGlobal = $this->storageGet(self::GLOBAL_VARIABLE_STORAGE_KEY);
+
+            if (is_array($storageGlobal)) {
+                $storageGlobal = (object)$storageGlobal;
+            }
+
+            if (is_object($storageGlobal)) {
+                return $storageGlobal;
+            }
+
         }
 
-        return $field;
+        return $data;
+
     }
 
     /**
@@ -652,7 +613,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    public function addLoopDataToCache (\stdClass $field, mixed $loopData): void
+    public function addLoopDataToCache(\stdClass $field, mixed $loopData): void
     {
         if (isset($field->__LoopCacheKey)) {
             $this->cache[$field->__LoopCacheKey] = $loopData;
@@ -664,7 +625,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return string
      */
-    public function getLoopDataCacheKey (\stdClass $field): string
+    public function getLoopDataCacheKey(\stdClass $field): string
     {
         if (isset($field->__LoopCacheKey)) {
             return $field->__LoopCacheKey;
@@ -677,22 +638,9 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return bool
      */
-    public function hasCacheKey (string $key): bool
+    public function hasCacheKey(string $key): bool
     {
         return isset($this->cache[$key]);
-    }
-
-    /**
-     * @param \stdClass $field
-     *
-     * @return string
-     */
-    public function getLoopPullDataCacheKey (\stdClass $field): string
-    {
-        if (isset($field->__LoopCachePull)) {
-            return $field->__LoopCachePull;
-        }
-        return '';
     }
 
     /**
@@ -701,7 +649,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return mixed
      * @throws \Exception
      */
-    public function pullLoopDataFromCache (\stdClass $field): mixed
+    public function pullLoopDataFromCache(\stdClass $field): mixed
     {
         $key = $this->getLoopPullDataCacheKey($field);
         $data = helper()->accessDataWithSeparator($key, $this->cache);
@@ -714,9 +662,22 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     /**
      * @param \stdClass $field
      *
+     * @return string
+     */
+    public function getLoopPullDataCacheKey(\stdClass $field): string
+    {
+        if (isset($field->__LoopCachePull)) {
+            return $field->__LoopCachePull;
+        }
+        return '';
+    }
+
+    /**
+     * @param \stdClass $field
+     *
      * @return bool
      */
-    public function canLoopCacheData (\stdClass $field): bool
+    public function canLoopCacheData(\stdClass $field): bool
     {
         $loop = false;
         if (isset($field->__LoopCacheData)) {
@@ -727,46 +688,12 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param string $elementTagName
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function getClosingTag (string $elementTagName): string
-    {
-        return helper()->getHTMLClosingTag($elementTagName);
-    }
-
-    /**
-     * @param \stdClass $field
-     * @param string $tagName
-     *
-     * @return void
-     */
-    public function addDefaultTag (\stdClass $field, string $tagName): void
-    {
-        $tagName = trim($tagName);
-        $field->__defaultTagType = $tagName;
-    }
-
-    /**
-     * @param \stdClass $field
-     *
-     * @return string
-     */
-    public function getDefaultTag (\stdClass $field): string
-    {
-        return $field->__defaultTagType ?? '';
-    }
-
-
-    /**
      * @param \stdClass|null $field
      * @param array $attributes
      *
      * @return void
      */
-    public function addAttributes (?\stdClass $field, array $attributes): void
+    public function addAttributes(?\stdClass $field, array $attributes): void
     {
         if ($field === null) {
             return;
@@ -785,7 +712,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    public function removeAttributes (?\stdClass $field, string $key): void
+    public function removeAttributes(?\stdClass $field, string $key): void
     {
         if ($field === null) {
             return;
@@ -802,7 +729,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return bool
      */
-    public function attributeExists (?\stdClass $field, string $key): bool
+    public function attributeExists(?\stdClass $field, string $key): bool
     {
         if ($field === null) {
             return false;
@@ -813,31 +740,10 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
 
     /**
      * @param \stdClass $field
-     * @param array $attributesToAppend
-     *
-     * @return void
-     */
-    public function appendAttributes (\stdClass $field, array $attributesToAppend): void
-    {
-        if (!isset($field->__attributesAppend)) {
-            $field->__attributesAppend = [];
-        }
-
-        foreach ($attributesToAppend as $key => $attr) {
-            if (isset($field->__attributesAppend[$key])) {
-                $field->__attributesAppend[$key] .= " " . $attr;
-            } else {
-                $field->__attributesAppend[$key] = $attr;
-            }
-        }
-    }
-
-    /**
-     * @param \stdClass $field
      *
      * @return array
      */
-    public function getAttributesToAppend (\stdClass $field): array
+    public function getAttributesToAppend(\stdClass $field): array
     {
         return $field->__attributesAppend ?? [];
     }
@@ -848,7 +754,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return string
      */
-    public function getAttribute (?\stdClass $field, string $key): string
+    public function getAttribute(?\stdClass $field, string $key): string
     {
         if ($field === null) {
             return '';
@@ -865,7 +771,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return array
      */
-    public function getAttributes (\stdClass $field): array
+    public function getAttributes(\stdClass $field): array
     {
         return $field->__attributes ?? [];
     }
@@ -875,7 +781,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return string
      */
-    public function generateUniqueClass (\stdClass $field): string
+    public function generateUniqueClass(\stdClass $field): string
     {
         $field = $this->convertFieldPropertyToStdClass($field);
         $classUnique = null;
@@ -893,6 +799,136 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
+     * @param string $frag
+     *
+     * @return void
+     */
+    public function addChildrenFragToOpenElement(string $frag): void
+    {
+        if ($this->getCurrentOpenElement()) {
+            $this->getCurrentOpenElement()->_childrenFrag = $frag;
+        }
+    }
+
+    public function getCurrentOpenElement(): ?\stdClass
+    {
+        return $this->currentOpenElement;
+    }
+
+    /**
+     * @param \stdClass|null $currentOpenElement
+     *
+     * @return $this
+     */
+    public function setCurrentOpenElement(?\stdClass $currentOpenElement): OnAddFieldSelectionDropperEvent
+    {
+        $this->currentOpenElement = $currentOpenElement;
+        return $this;
+    }
+
+    /**
+     * @param \stdClass|null $element
+     *
+     * @return string
+     */
+    public function getChildrenFragFromOpenElement(\stdClass $element = null): string
+    {
+        if ($element === null) {
+            $element = $this->getCurrentOpenElement();
+        }
+
+        if (isset($element->_childrenFrag)) {
+            return $element->_childrenFrag;
+        }
+
+        return '';
+    }
+
+    /**
+     * @param string $frag
+     *
+     * @return void
+     */
+    public function addProcessedFragToOpenElement(string $frag): void
+    {
+        if ($this->getCurrentOpenElement()) {
+            $this->getCurrentOpenElement()->processedFrag = $frag;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getProcessedFragFromOpenElement(): string
+    {
+        if (isset($this->getCurrentOpenElement()->processedFrag)) {
+            return $this->getCurrentOpenElement()->processedFrag;
+        }
+
+        return '';
+    }
+
+    /**
+     * @param \stdClass $field
+     *                             The field object
+     * @param string $propertyName
+     *                             The property where the attribute is located
+     * @param string $attributeName
+     *                             Alternative attribute name, it would use this as the style attribute if not empty
+     *
+     * @return void
+     */
+    public function autoAddSimpleStyles(\stdClass $field, string $propertyName, string $attributeName = ''): void
+    {
+        $attribute = $propertyName;
+        $field = $this->convertFieldPropertyToStdClass($field);
+        if (!empty($field->field_data->{$propertyName})) {
+
+            if (!empty($attributeName)) {
+                $attribute = $attributeName;
+            }
+
+            $this->addStylesToOpenElementClass("$attribute:" . $field->field_data->{$propertyName} . ';');
+
+        }
+    }
+
+    /**
+     * The styles are what styles you want to apply to the class, and for the hookClass, by default it uses the openElement class,
+     * override it by adding yours if needed.
+     *
+     * @param string $styles
+     * @param string|null $hookClass
+     *
+     * @return void
+     */
+    public function addStylesToOpenElementClass(string $styles, string $hookClass = null): void
+    {
+        $openElement = $this->getCurrentOpenElement();
+        if ($hookClass) {
+            $class = $hookClass;
+        } else {
+            $class = $this->registerAndGetClass();
+        }
+
+        if ($openElement) {
+            if ($hookClass === null && isset($openElement->__className)) {
+                $class = $openElement->__className;
+            } else {
+                $openElement->__className = $class;
+            }
+        }
+
+        if (!empty($class)) {
+            if (isset($this->outputInlineStyle[$class])) {
+                $this->outputInlineStyle[$class] .= $styles;
+            } else {
+                $this->outputInlineStyle["$class"] = $styles;
+            }
+        }
+    }
+
+    /**
      * By default, it would generate a class for you using the openElement,
      * you can override that by adding the class yourself
      *
@@ -900,7 +936,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return string
      */
-    public function registerAndGetClass (string $class = null): string
+    public function registerAndGetClass(string $class = null): string
     {
         $className = '';
         if ($class) {
@@ -934,126 +970,12 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param string $frag
-     *
-     * @return void
-     */
-    public function addChildrenFragToOpenElement (string $frag): void
-    {
-        if ($this->getCurrentOpenElement()) {
-            $this->getCurrentOpenElement()->_childrenFrag = $frag;
-        }
-    }
-
-    /**
-     * @param \stdClass|null $element
-     *
-     * @return string
-     */
-    public function getChildrenFragFromOpenElement (\stdClass $element = null): string
-    {
-        if ($element === null) {
-            $element = $this->getCurrentOpenElement();
-        }
-
-        if (isset($element->_childrenFrag)) {
-            return $element->_childrenFrag;
-        }
-
-        return '';
-    }
-
-    /**
-     * @param string $frag
-     *
-     * @return void
-     */
-    public function addProcessedFragToOpenElement (string $frag): void
-    {
-        if ($this->getCurrentOpenElement()) {
-            $this->getCurrentOpenElement()->processedFrag = $frag;
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public function getProcessedFragFromOpenElement (): string
-    {
-        if (isset($this->getCurrentOpenElement()->processedFrag)) {
-            return $this->getCurrentOpenElement()->processedFrag;
-        }
-
-        return '';
-    }
-
-    /**
-     * The styles are what styles you want to apply to the class, and for the hookClass, by default it uses the openElement class,
-     * override it by adding yours if needed.
-     *
-     * @param string $styles
-     * @param string|null $hookClass
-     *
-     * @return void
-     */
-    public function addStylesToOpenElementClass (string $styles, string $hookClass = null): void
-    {
-        $openElement = $this->getCurrentOpenElement();
-        if ($hookClass) {
-            $class = $hookClass;
-        } else {
-            $class = $this->registerAndGetClass();
-        }
-
-        if ($openElement) {
-            if ($hookClass === null && isset($openElement->__className)) {
-                $class = $openElement->__className;
-            } else {
-                $openElement->__className = $class;
-            }
-        }
-
-        if (!empty($class)) {
-            if (isset($this->outputInlineStyle[$class])) {
-                $this->outputInlineStyle[$class] .= $styles;
-            } else {
-                $this->outputInlineStyle["$class"] = $styles;
-            }
-        }
-    }
-
-    /**
-     * @param \stdClass $field
-     *                             The field object
-     * @param string $propertyName
-     *                             The property where the attribute is located
-     * @param string $attributeName
-     *                             Alternative attribute name, it would use this as the style attribute if not empty
-     *
-     * @return void
-     */
-    public function autoAddSimpleStyles (\stdClass $field, string $propertyName, string $attributeName = ''): void
-    {
-        $attribute = $propertyName;
-        $field = $this->convertFieldPropertyToStdClass($field);
-        if (!empty($field->field_data->{$propertyName})) {
-
-            if (!empty($attributeName)) {
-                $attribute = $attributeName;
-            }
-
-            $this->addStylesToOpenElementClass("$attribute:" . $field->field_data->{$propertyName} . ';');
-
-        }
-    }
-
-    /**
      * @param string $key
      * @param \stdClass $field
      *
      * @return bool
      */
-    public function propertyExistInField (string $key, \stdClass $field): bool
+    public function propertyExistInField(string $key, \stdClass $field): bool
     {
         return property_exists($field, $key);
     }
@@ -1064,7 +986,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return mixed|null
      */
-    public function accessDataFromPage (string $key, $default = null): mixed
+    public function accessDataFromPage(string $key, $default = null): mixed
     {
         if (property_exists($this->getPage(), $key)) {
             return $this->getPage()->{$key};
@@ -1087,7 +1009,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return void
      * @throws \Exception
      */
-    public function autoAddFieldPropertyToElement (\stdClass $field, ?\stdClass $element, string|callable $keyValue, string $newPropertyName, bool $autoEscape = true): void
+    public function autoAddFieldPropertyToElement(\stdClass $field, ?\stdClass $element, string|callable $keyValue, string $newPropertyName, bool $autoEscape = true): void
     {
 
         $insert = function ($element, $newPropertyName, $value) use ($autoEscape) {
@@ -1155,7 +1077,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return string|array
      * @throws \Exception
      */
-    public function getElementsAttribute (string $content, array $append = [], array $replace = [], bool $attributesOnly = false): string|array
+    public function getElementsAttribute(string $content, array $append = [], array $replace = [], bool $attributesOnly = false): string|array
     {
         $content = trim($content);
         $attributes = [];
@@ -1210,7 +1132,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return string
      * @throws \Exception
      */
-    public function _escape ($value): string
+    public function _escape($value): string
     {
         return helper()->htmlSpecChar($value);
     }
@@ -1220,12 +1142,12 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return bool
      */
-    public function exist (string $name): bool
+    public function exist(string $name): bool
     {
         return isset($this->fields[$name]);
     }
 
-    public function getInputSelects (): array
+    public function getInputSelects(): array
     {
         return $this->inputSelects;
     }
@@ -1235,7 +1157,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return $this
      */
-    public function setInputSelects (array $inputSelects): OnAddFieldSelectionDropperEvent
+    public function setInputSelects(array $inputSelects): OnAddFieldSelectionDropperEvent
     {
         $this->inputSelects = $inputSelects;
         return $this;
@@ -1248,7 +1170,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return array
      * @throws \Throwable
      */
-    public function getInputSelectsByName (string $name, bool $fromCache = false): array
+    public function getInputSelectsByName(string $name, bool $fromCache = false): array
     {
         $selected = [];
         if ($fromCache) {
@@ -1277,12 +1199,12 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     /**
      * @return array
      */
-    public function getFields (): array
+    public function getFields(): array
     {
         return $this->fields;
     }
 
-    public function setFields (array $fields): OnAddFieldSelectionDropperEvent
+    public function setFields(array $fields): OnAddFieldSelectionDropperEvent
     {
         $this->fields = $fields;
         return $this;
@@ -1293,7 +1215,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return array
      */
-    public function getFieldsByName (string $name): array
+    public function getFieldsByName(string $name): array
     {
         if (isset($this->fields[$name])) {
             return $this->fields[$name];
@@ -1307,7 +1229,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return \Generator
      */
-    public function getFieldRecursively (\stdClass $field): \Generator
+    public function getFieldRecursively(\stdClass $field): \Generator
     {
         yield $field;
 
@@ -1324,7 +1246,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    public function cloneFieldRecursively (\stdClass $field, callable $onChildField = null): void
+    public function cloneFieldRecursively(\stdClass $field, callable $onChildField = null): void
     {
         if (isset($field->_children)) {
 
@@ -1347,82 +1269,12 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param string $inputName
-     * @param string $name
-     * @param string $logic
-     *
-     * @return bool
-     */
-    public function fieldCallableExist (string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): bool
-    {
-        return isset($this->fieldsCallBack[$inputName][$name][$logic]);
-    }
-
-    /**
-     * @param string $inputName
-     * @param string $name
-     * @param string $logic
-     *
-     * @return callable|null
-     */
-    public function getFieldCallBack (string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): ?callable
-    {
-        if ($this->fieldCallableExist($inputName, $name, $logic)) {
-            return $this->fieldsCallBack[$inputName][$name][$logic];
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $inputName
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function fieldCanBeOpenElement (string $inputName, string $name): bool
-    {
-        if ($this->fieldCallableExist($inputName, $name, self::FRONTEND_LOGIC_Element)) {
-            return $this->fieldsCallBack[$inputName][$name][self::FRONTEND_LOGIC_Element];
-        }
-
-        return false;
-    }
-
-    /**
-     * @param string $inputName
-     * @param string $name
-     * @param string $logic
-     *
-     * @return bool
-     */
-    public function fieldDataKeyCallableExist (string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): bool
-    {
-        return isset($this->fieldsDataKeyCallBack[$inputName][$name][$logic]);
-    }
-
-    /**
-     * @param string $inputName
-     * @param string $name
-     * @param string $logic
-     *
-     * @return callable|null
-     */
-    public function getFieldDataKeyCallBack (string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): ?callable
-    {
-        if ($this->fieldDataKeyCallableExist($inputName, $name, $logic)) {
-            return $this->fieldsDataKeyCallBack[$inputName][$name][$logic];
-        }
-
-        return null;
-    }
-
-    /**
      * @param array $fieldItems
      *
      * @return void
+     * @throws \Exception
      */
-    public function processLogicWithEarlyAndLateCallbacks (array $fieldItems): void
+    public function processLogicWithEarlyAndLateCallbacks(array $fieldItems): void
     {
         $this->fireOnBeforeProcessLogic();
         $this->processLogic($fieldItems);
@@ -1430,28 +1282,14 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param array $fieldItems
-     * @param callable|null $onEvent
-     * @param string $outputType
-     *
-     * @return OnAddFieldSelectionDropperEvent
-     * @throws \ReflectionException
-     * @throws \Throwable
+     * @return void
      */
-    public function processLogicFresh (array $fieldItems, callable $onEvent = null, string $outputType = self::OUTPUT_TEMPLATE_HOOK_TYPE): OnAddFieldSelectionDropperEvent
+    public function fireOnBeforeProcessLogic(): void
     {
-        $ev = FieldConfig::getFieldSelectionDropper();
-        $ev->setContentOutputType($outputType)
-            ->setOutputInlineStyle($this->getOutputInlineStyle())
-            ->storageAdd(self::GLOBAL_VARIABLE_STORAGE_KEY, $this->storageGet(self::GLOBAL_VARIABLE_STORAGE_KEY));
-
-        if ($onEvent) {
-            $onEvent($ev);
+        foreach ($this->onBeforeProcessLogic as $name => $handler) {
+            $handler($this);
+            unset($this->onBeforeProcessLogic[$name]);
         }
-
-        $ev->processLogic($fieldItems);
-
-        return $ev;
     }
 
     /**
@@ -1460,162 +1298,9 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return void
      * @throws \Exception
      */
-    public function processLogic (array $fieldItems): void
+    public function processLogic(array $fieldItems): void
     {
         $this->handleFieldLogic($fieldItems);
-    }
-
-    /**
-     * @param array $fieldItems             The children
-     * @param \stdClass|null $settingsField Pass this so the processed children can be removed
-     *
-     * @return void
-     * @throws \Exception
-     */
-    public function processChildrenOnlyLogic (array $fieldItems, \stdClass $settingsField = null): void
-    {
-        $this->processLogic($fieldItems);
-        if ($settingsField) {
-            $this->removeFieldChildren($settingsField);
-        }
-    }
-
-    /**
-     * @param \stdClass $field
-     * @param string $defaultTagName
-     * @param array $attributes
-     *
-     * @return string
-     */
-    public function autoOpenField (\stdClass $field, string $defaultTagName = 'div', array $attributes = []): string
-    {
-        $this->appendAttributes($field, $attributes);
-        $this->addDefaultTag($field, $defaultTagName);
-        return '';
-    }
-
-    /**
-     * @param \stdClass $field
-     * @param string $defaultTagName
-     * @param array $attributes
-     *
-     * @return string
-     */
-    public function autoOpenFieldLayoutSelector (\stdClass $field, string $defaultTagName = 'div', array $attributes = []): string
-    {
-        # Just in case
-        $oldOpenElement = $this->getCurrentOpenElement();
-        $this->autoOpenField($field, $defaultTagName, $attributes);
-        $children = $this->getElementFieldSettingsChildren($field);
-
-        if (!empty($children)) {
-            $this->setCurrentOpenElement($field);
-            $this->processChildrenOnlyLogic($children, $this->getElementFieldSettings($field));
-        }
-
-        # Restore old element
-        $this->setCurrentOpenElement($oldOpenElement);
-        return '';
-    }
-
-    /**
-     * @param \stdClass $field
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function autoCloseField (\stdClass $field): string
-    {
-        return $this->getClosingTag($this->getDefaultTag($field));
-    }
-
-    /**
-     * @return array
-     */
-    public function getProcessedLogicData (): array
-    {
-        return $this->outputArray;
-    }
-
-    /**
-     * @param string $hookName
-     * @param string|array|null $contents
-     * @param string $lineSeparator
-     *
-     * @return void
-     */
-    public function addContentIntoHookTemplate (string $hookName, string|array|null $contents, string $lineSeparator = "\n"): void
-    {
-        if ($contents === null) {
-            return;
-        }
-
-        if ($this->getContentOutputType() === self::OUTPUT_TEMPLATE_HOOK_TYPE) {
-
-            $addContent = function (string $content) use ($lineSeparator, $hookName) {
-                if (empty($content)) {
-                    $lineSeparator = '';
-                }
-                if (isset($this->outputArray[$hookName])) {
-                    $this->outputArray[$hookName] .= $lineSeparator . $content;
-                } else {
-                    $this->outputArray[$hookName] = $content;
-                }
-            };
-
-            if (is_array($contents)) {
-                foreach ($contents as $content) {
-                    $addContent($content);
-                }
-            }
-
-            if (is_string($contents)) {
-                $addContent($contents);
-            }
-
-        }
-    }
-
-    /**
-     * @param string|null $content
-     *
-     * @return void
-     */
-    public function addContentToOutput (string $content = null): void
-    {
-        if (is_string($content)) {
-            $this->output .= $content;
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public function clearOutput (): void
-    {
-        if ($this->getContentOutputType() === self::OUTPUT_ONLY_TYPE) {
-            return;
-        }
-
-        $this->output = '';
-    }
-
-    /**
-     * @param array $pages
-     * @param string|null $templateHook
-     *
-     * @return void
-     * @throws \Exception
-     */
-    public function handlePageInheritance (array $pages): void
-    {
-        $oldTemplateHook = $this->lastTemplateHook;
-
-        $layoutSelectors = FieldConfig::LayoutSelectorsForPages($pages);
-        $this->processLogic($layoutSelectors);
-
-        # Restore Template Hook
-        $this->lastTemplateHook = $oldTemplateHook;
     }
 
     /**
@@ -1625,7 +1310,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return void
      * @throws \Exception
      */
-    private function handleFieldLogic (array $fieldItems, \stdClass $parent = null): void
+    private function handleFieldLogic(array $fieldItems, \stdClass $parent = null): void
     {
         $this->currentParentElement = $parent;
 
@@ -1693,12 +1378,82 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
+     * @param string $hookName
+     * @param string|array|null $contents
+     * @param string $lineSeparator
+     *
+     * @return void
+     */
+    public function addContentIntoHookTemplate(string $hookName, string|array|null $contents, string $lineSeparator = "\n"): void
+    {
+        if ($contents === null) {
+            return;
+        }
+
+        if ($this->getContentOutputType() === self::OUTPUT_TEMPLATE_HOOK_TYPE) {
+
+            $addContent = function (string $content) use ($lineSeparator, $hookName) {
+                if (empty($content)) {
+                    $lineSeparator = '';
+                }
+                if (isset($this->outputArray[$hookName])) {
+                    $this->outputArray[$hookName] .= $lineSeparator . $content;
+                } else {
+                    $this->outputArray[$hookName] = $content;
+                }
+            };
+
+            if (is_array($contents)) {
+                foreach ($contents as $content) {
+                    $addContent($content);
+                }
+            }
+
+            if (is_string($contents)) {
+                $addContent($contents);
+            }
+
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getContentOutputType(): string
+    {
+        return $this->contentOutputType;
+    }
+
+    /**
+     * @param string $contentOutputType
+     *
+     * @return $this
+     */
+    public function setContentOutputType(string $contentOutputType): OnAddFieldSelectionDropperEvent
+    {
+        $this->contentOutputType = $contentOutputType;
+        return $this;
+    }
+
+    /**
+     * @return void
+     */
+    public function clearOutput(): void
+    {
+        if ($this->getContentOutputType() === self::OUTPUT_ONLY_TYPE) {
+            return;
+        }
+
+        $this->output = '';
+    }
+
+    /**
      * @param $fieldItem
      * @param string $logic
      *
      * @return void
      */
-    private function callableForFieldDataKey ($fieldItem, string $logic = self::FRONTEND_LOGIC_OPEN): void
+    private function callableForFieldDataKey($fieldItem, string $logic = self::FRONTEND_LOGIC_OPEN): void
     {
         $fieldData = null;
         if (isset($fieldItem->field_data)) {
@@ -1732,53 +1487,31 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param \stdClass $fieldItem
-     *
-     * @return array
-     */
-    public function getFieldChildren (\stdClass $fieldItem): array
-    {
-        if (isset($fieldItem->_children) && is_iterable($fieldItem->_children)) {
-            return $fieldItem->_children;
-        }
-
-        return [];
-    }
-
-    /**
-     * @param \stdClass $fieldItem
-     *
-     * @return OnAddFieldSelectionDropperEvent
-     */
-    public function removeFieldChildren (\stdClass $fieldItem): OnAddFieldSelectionDropperEvent
-    {
-        if (isset($fieldItem->_children)) {
-            $fieldItem->_children = null;
-            unset($fieldItem->_children);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param \stdClass $field
-     *
-     * @return OnAddFieldSelectionDropperEvent
-     */
-    public function addSkip (\stdClass $field): OnAddFieldSelectionDropperEvent
-    {
-        $field->__skip = true;
-        return $this;
-    }
-
-    /**
-     * @param \stdClass $fieldItem
+     * @param string $inputName
+     * @param string $name
+     * @param string $logic
      *
      * @return bool
      */
-    public function skip (\stdClass $fieldItem): bool
+    public function fieldDataKeyCallableExist(string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): bool
     {
-        return isset($fieldItem->__skip);
+        return isset($this->fieldsDataKeyCallBack[$inputName][$name][$logic]);
+    }
+
+    /**
+     * @param string $inputName
+     * @param string $name
+     * @param string $logic
+     *
+     * @return callable|null
+     */
+    public function getFieldDataKeyCallBack(string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): ?callable
+    {
+        if ($this->fieldDataKeyCallableExist($inputName, $name, $logic)) {
+            return $this->fieldsDataKeyCallBack[$inputName][$name][$logic];
+        }
+
+        return null;
     }
 
     /**
@@ -1787,7 +1520,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    private function fireCallable (callable $callable, $fieldItem): void
+    private function fireCallable(callable $callable, $fieldItem): void
     {
         $skip = function ($fieldItem) {
             if ($this->skip($fieldItem)) {
@@ -1805,13 +1538,258 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param $fieldItem
+     * @param \stdClass $fieldItem
      *
-     * @return \stdClass|null
+     * @return bool
      */
-    public function getElementField ($fieldItem): ?\stdClass
+    public function skip(\stdClass $fieldItem): bool
     {
-        return $fieldItem->_children[0]->_children[0] ?? null;
+        return isset($fieldItem->__skip);
+    }
+
+    /**
+     * @param \stdClass $fieldItem
+     *
+     * @return OnAddFieldSelectionDropperEvent
+     */
+    public function removeFieldChildren(\stdClass $fieldItem): OnAddFieldSelectionDropperEvent
+    {
+        if (isset($fieldItem->_children)) {
+            $fieldItem->_children = null;
+            unset($fieldItem->_children);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $content
+     *
+     * @return void
+     */
+    public function addContentToOutput(string $content = null): void
+    {
+        if (is_string($content)) {
+            $this->output .= $content;
+        }
+    }
+
+    /**
+     * @param string $inputName
+     * @param string $name
+     * @param string $logic
+     *
+     * @return bool
+     */
+    public function fieldCallableExist(string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): bool
+    {
+        return isset($this->fieldsCallBack[$inputName][$name][$logic]);
+    }
+
+    /**
+     * @param string $inputName
+     * @param string $name
+     * @param string $logic
+     *
+     * @return callable|null
+     */
+    public function getFieldCallBack(string $inputName, string $name, string $logic = self::FRONTEND_LOGIC_OPEN): ?callable
+    {
+        if ($this->fieldCallableExist($inputName, $name, $logic)) {
+            return $this->fieldsCallBack[$inputName][$name][$logic];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $inputName
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function fieldCanBeOpenElement(string $inputName, string $name): bool
+    {
+        if ($this->fieldCallableExist($inputName, $name, self::FRONTEND_LOGIC_Element)) {
+            return $this->fieldsCallBack[$inputName][$name][self::FRONTEND_LOGIC_Element];
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \stdClass $fieldItem
+     *
+     * @return array
+     */
+    public function getFieldChildren(\stdClass $fieldItem): array
+    {
+        if (isset($fieldItem->_children) && is_iterable($fieldItem->_children)) {
+            return $fieldItem->_children;
+        }
+
+        return [];
+    }
+
+    /**
+     * @return void
+     */
+    public function fireOnAfterProcessLogic(): void
+    {
+        foreach ($this->onAfterProcessLogic as $name => $handler) {
+            $handler($this);
+            unset($this->onAfterProcessLogic[$name]);
+        }
+    }
+
+    /**
+     * @param array $fieldItems
+     * @param callable|null $onEvent
+     * @param string $outputType
+     *
+     * @return OnAddFieldSelectionDropperEvent
+     * @throws \ReflectionException
+     * @throws \Throwable
+     */
+    public function processLogicFresh(array $fieldItems, callable $onEvent = null, string $outputType = self::OUTPUT_TEMPLATE_HOOK_TYPE): OnAddFieldSelectionDropperEvent
+    {
+        $ev = FieldConfig::getFieldSelectionDropper();
+        $ev->setContentOutputType($outputType)
+            ->setOutputInlineStyle($this->getOutputInlineStyle())
+            ->storageAdd(self::GLOBAL_VARIABLE_STORAGE_KEY, $this->storageGet(self::GLOBAL_VARIABLE_STORAGE_KEY));
+
+        if ($onEvent) {
+            $onEvent($ev);
+        }
+
+        $ev->processLogic($fieldItems);
+
+        return $ev;
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    public function storageAdd(string $key, mixed $value): void
+    {
+        if (is_array($value)) {
+
+            if (!isset($this->storage[$key])) {
+                $this->storage[$key] = [];
+            }
+
+            foreach ($value as $item) {
+                if (!in_array($item, $this->storage[$key])) {
+                    $this->storage[$key][] = $item;
+                }
+            }
+
+        } else {
+
+            $this->storage[$key] = $value;
+
+        }
+
+    }
+
+    public function getOutputInlineStyle(): array
+    {
+        return $this->outputInlineStyle;
+    }
+
+    public function setOutputInlineStyle(array $outputInlineStyle): OnAddFieldSelectionDropperEvent
+    {
+        $this->outputInlineStyle = $outputInlineStyle;
+        return $this;
+    }
+
+    /**
+     * @param \stdClass $field
+     * @param string $defaultTagName
+     * @param array $attributes
+     *
+     * @return string
+     */
+    public function autoOpenFieldLayoutSelector(\stdClass $field, string $defaultTagName = 'div', array $attributes = []): string
+    {
+        # Just in case
+        $oldOpenElement = $this->getCurrentOpenElement();
+        $this->autoOpenField($field, $defaultTagName, $attributes);
+        $children = $this->getElementFieldSettingsChildren($field);
+
+        if (!empty($children)) {
+            $this->setCurrentOpenElement($field);
+            $this->processChildrenOnlyLogic($children, $this->getElementFieldSettings($field));
+        }
+
+        # Restore old element
+        $this->setCurrentOpenElement($oldOpenElement);
+        return '';
+    }
+
+    /**
+     * @param \stdClass $field
+     * @param string $defaultTagName
+     * @param array $attributes
+     *
+     * @return string
+     */
+    public function autoOpenField(\stdClass $field, string $defaultTagName = 'div', array $attributes = []): string
+    {
+        $this->appendAttributes($field, $attributes);
+        $this->addDefaultTag($field, $defaultTagName);
+        return '';
+    }
+
+    /**
+     * @param \stdClass $field
+     * @param array $attributesToAppend
+     *
+     * @return void
+     */
+    public function appendAttributes(\stdClass $field, array $attributesToAppend): void
+    {
+        if (!isset($field->__attributesAppend)) {
+            $field->__attributesAppend = [];
+        }
+
+        foreach ($attributesToAppend as $key => $attr) {
+            if (isset($field->__attributesAppend[$key])) {
+                $field->__attributesAppend[$key] .= " " . $attr;
+            } else {
+                $field->__attributesAppend[$key] = $attr;
+            }
+        }
+    }
+
+    /**
+     * @param \stdClass $field
+     * @param string $tagName
+     *
+     * @return void
+     */
+    public function addDefaultTag(\stdClass $field, string $tagName): void
+    {
+        $tagName = trim($tagName);
+        $field->__defaultTagType = $tagName;
+    }
+
+    /**
+     * @param \stdClass $fieldItem
+     *
+     * @return array
+     */
+    public function getElementFieldSettingsChildren(\stdClass $fieldItem): array
+    {
+        $elementSettings = $this->getElementFieldSettings($fieldItem);
+        if ($elementSettings && !empty($elementSettings->_children)) {
+            return $elementSettings->_children;
+        }
+
+        return [];
     }
 
     /**
@@ -1819,7 +1797,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return \stdClass|null
      */
-    public function getElementFieldSettings (\stdClass $fieldItem): ?\stdClass
+    public function getElementFieldSettings(\stdClass $fieldItem): ?\stdClass
     {
         # if fieldItem is settings itself
         if (isset($fieldItem->field_input_name) && $fieldItem->field_input_name === 'tonicsPageBuilderSettings') {
@@ -1842,29 +1820,97 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @param \stdClass $fieldItem
+     * @param array $fieldItems The children
+     * @param \stdClass|null $settingsField Pass this so the processed children can be removed
      *
+     * @return void
+     * @throws \Exception
+     */
+    public function processChildrenOnlyLogic(array $fieldItems, \stdClass $settingsField = null): void
+    {
+        $this->processLogic($fieldItems);
+        if ($settingsField) {
+            $this->removeFieldChildren($settingsField);
+        }
+    }
+
+    /**
+     * @param \stdClass $field
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function autoCloseField(\stdClass $field): string
+    {
+        return $this->getClosingTag($this->getDefaultTag($field));
+    }
+
+    /**
+     * @param string $elementTagName
+     *
+     * @return string
+     * @throws \Exception
+     */
+    public function getClosingTag(string $elementTagName): string
+    {
+        return helper()->getHTMLClosingTag($elementTagName);
+    }
+
+    /**
+     * @param \stdClass $field
+     *
+     * @return string
+     */
+    public function getDefaultTag(\stdClass $field): string
+    {
+        return $field->__defaultTagType ?? '';
+    }
+
+    /**
      * @return array
      */
-    public function getElementFieldSettingsChildren (\stdClass $fieldItem): array
+    public function getProcessedLogicData(): array
     {
-        $elementSettings = $this->getElementFieldSettings($fieldItem);
-        if ($elementSettings && !empty($elementSettings->_children)) {
-            return $elementSettings->_children;
-        }
-
-        return [];
+        return $this->outputArray;
     }
 
-    public function getPage (): ?\stdClass
+    /**
+     * @param array $pages
+     * @param string|null $templateHook
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function handlePageInheritance(array $pages): void
     {
-        return $this->page;
+        $oldTemplateHook = $this->lastTemplateHook;
+
+        $layoutSelectors = FieldConfig::LayoutSelectorsForPages($pages);
+        $this->processLogic($layoutSelectors);
+
+        # Restore Template Hook
+        $this->lastTemplateHook = $oldTemplateHook;
     }
 
-    public function setPage (?\stdClass $page): OnAddFieldSelectionDropperEvent
+    /**
+     * @param \stdClass $field
+     *
+     * @return OnAddFieldSelectionDropperEvent
+     */
+    public function addSkip(\stdClass $field): OnAddFieldSelectionDropperEvent
     {
-        $this->page = $page;
+        $field->__skip = true;
         return $this;
+    }
+
+    /**
+     * @param $fieldItem
+     *
+     * @return \stdClass|null
+     */
+    public function getElementField($fieldItem): ?\stdClass
+    {
+        return $fieldItem->_children[0]->_children[0] ?? null;
     }
 
     /**
@@ -1872,34 +1918,9 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return \stdClass|null
      */
-    public function getRootOpenElement (?\stdClass $fieldItem): ?\stdClass
+    public function getRootOpenElement(?\stdClass $fieldItem): ?\stdClass
     {
         return $fieldItem->__open_element ?? null;
-    }
-
-    /**
-     * Alias for `$this->>getCurrentOpenElement()`
-     * @return \stdClass|null
-     */
-    public function getCOE (): ?\stdClass
-    {
-        return $this->getCurrentOpenElement();
-    }
-
-    public function getCurrentOpenElement (): ?\stdClass
-    {
-        return $this->currentOpenElement;
-    }
-
-    /**
-     * @param \stdClass|null $currentOpenElement
-     *
-     * @return $this
-     */
-    public function setCurrentOpenElement (?\stdClass $currentOpenElement): OnAddFieldSelectionDropperEvent
-    {
-        $this->currentOpenElement = $currentOpenElement;
-        return $this;
     }
 
     /**
@@ -1911,7 +1932,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    public function newCurrentOpenElementTemporary (callable $callable, \stdClass $newOpenElement = null): void
+    public function newCurrentOpenElementTemporary(callable $callable, \stdClass $newOpenElement = null): void
     {
         $oldCOE = $this->getCOE();
 
@@ -1929,12 +1950,21 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
+     * Alias for `$this->>getCurrentOpenElement()`
+     * @return \stdClass|null
+     */
+    public function getCOE(): ?\stdClass
+    {
+        return $this->getCurrentOpenElement();
+    }
+
+    /**
      * @param string $propertyOrClass
      * @param string $value
      *
      * @return $this
      */
-    public function addInlineStyle (string $propertyOrClass, string $value): OnAddFieldSelectionDropperEvent
+    public function addInlineStyle(string $propertyOrClass, string $value): OnAddFieldSelectionDropperEvent
     {
         $this->outputInlineStyle[$propertyOrClass] = $value;
         return $this;
@@ -1946,7 +1976,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return void
      */
-    public function updateInlineStyleClassName (string $oldClassName, string $newClassName): void
+    public function updateInlineStyleClassName(string $oldClassName, string $newClassName): void
     {
         foreach ($this->outputInlineStyle as $className => $style) {
             if (str_starts_with($className, $oldClassName)) {
@@ -1961,7 +1991,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      * @return string
      * @throws \Exception
      */
-    public function processInlineStyles (): string
+    public function processInlineStyles(): string
     {
         $styles = '';
         foreach ($this->outputInlineStyle as $class => $style) {
@@ -1973,35 +2003,16 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     }
 
     /**
-     * @return string
-     */
-    public function getContentOutputType (): string
-    {
-        return $this->contentOutputType;
-    }
-
-    /**
-     * @param string $contentOutputType
-     *
-     * @return $this
-     */
-    public function setContentOutputType (string $contentOutputType): OnAddFieldSelectionDropperEvent
-    {
-        $this->contentOutputType = $contentOutputType;
-        return $this;
-    }
-
-    /**
      * @param bool $clone
      *
      * @return array
      */
-    public function getFieldsCallBack (): array
+    public function getFieldsCallBack(): array
     {
         return $this->fieldsCallBack;
     }
 
-    public function setFieldsCallBack (array $fieldsCallBack): OnAddFieldSelectionDropperEvent
+    public function setFieldsCallBack(array $fieldsCallBack): OnAddFieldSelectionDropperEvent
     {
         $this->fieldsCallBack = $fieldsCallBack;
         return $this;
@@ -2012,23 +2023,23 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return array
      */
-    public function getFieldsDataKeyCallBack (): array
+    public function getFieldsDataKeyCallBack(): array
     {
         return $this->fieldsDataKeyCallBack;
     }
 
-    public function setFieldsDataKeyCallBack (array $fieldsDataKeyCallBack): OnAddFieldSelectionDropperEvent
+    public function setFieldsDataKeyCallBack(array $fieldsDataKeyCallBack): OnAddFieldSelectionDropperEvent
     {
         $this->fieldsDataKeyCallBack = $fieldsDataKeyCallBack;
         return $this;
     }
 
-    public function getOutput (): string
+    public function getOutput(): string
     {
         return $this->output;
     }
 
-    public function setOutput (string $output): void
+    public function setOutput(string $output): void
     {
         $this->output = $output;
     }
@@ -2036,7 +2047,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     /**
      * @return TonicsView|null
      */
-    public function getTonicsView (): ?TonicsView
+    public function getTonicsView(): ?TonicsView
     {
         return $this->tonicsView;
     }
@@ -2046,7 +2057,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return OnAddFieldSelectionDropperEvent
      */
-    public function setTonicsView (?TonicsView $tonicsView): OnAddFieldSelectionDropperEvent
+    public function setTonicsView(?TonicsView $tonicsView): OnAddFieldSelectionDropperEvent
     {
         $this->tonicsView = $tonicsView;
         return $this;
@@ -2057,9 +2068,9 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return bool
      */
-    public function stringEmpty (mixed $value): bool
+    public function stringIsNotEmpty(mixed $value): bool
     {
-        return trim($value ?? '') === "";
+        return !$this->stringEmpty($value);
     }
 
     /**
@@ -2067,23 +2078,12 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return bool
      */
-    public function stringIsNotEmpty (mixed $value): bool
+    public function stringEmpty(mixed $value): bool
     {
-        return !$this->stringEmpty($value);
+        return trim($value ?? '') === "";
     }
 
-    public function getOutputInlineStyle (): array
-    {
-        return $this->outputInlineStyle;
-    }
-
-    public function setOutputInlineStyle (array $outputInlineStyle): OnAddFieldSelectionDropperEvent
-    {
-        $this->outputInlineStyle = $outputInlineStyle;
-        return $this;
-    }
-
-    public function getCache (): array
+    public function getCache(): array
     {
         return $this->cache;
     }
@@ -2093,7 +2093,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return $this
      */
-    public function setCache (array $cache): OnAddFieldSelectionDropperEvent
+    public function setCache(array $cache): OnAddFieldSelectionDropperEvent
     {
         $this->cache = $cache;
         return $this;
@@ -2102,7 +2102,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
     /**
      * @return string
      */
-    public function getLastTemplateHook (): string
+    public function getLastTemplateHook(): string
     {
         return $this->lastTemplateHook;
     }
@@ -2112,7 +2112,7 @@ class OnAddFieldSelectionDropperEvent implements EventInterface
      *
      * @return $this
      */
-    public function setLastTemplateHook (string $lastTemplateHook): OnAddFieldSelectionDropperEvent
+    public function setLastTemplateHook(string $lastTemplateHook): OnAddFieldSelectionDropperEvent
     {
         $this->lastTemplateHook = $lastTemplateHook;
         return $this;

@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2023-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2023-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -25,6 +25,16 @@ class TracksPaymentController
 {
 
     /**
+     * @throws \Throwable
+     */
+    public function PaymentMethods()
+    {
+        $onAddTrackPaymentEvent = event()->dispatch(new OnAddTrackPaymentEvent());
+        $paymentMethods = $onAddTrackPaymentEvent->getPaymentsHooker();
+        response()->onSuccess($paymentMethods);
+    }
+
+    /**
      * @throws \Exception
      * @throws \Throwable
      */
@@ -34,7 +44,7 @@ class TracksPaymentController
 
         /** @var $paymentObject OnAddTrackPaymentEvent */
         $paymentObject = event()->dispatch(new OnAddTrackPaymentEvent())->event();
-        if ($paymentObject->exist($paymentHandlerName)){
+        if ($paymentObject->exist($paymentHandlerName)) {
             /** @var $paymentHandler TonicsPaymentInterface */
             $paymentHandler = $paymentObject->getPaymentHandler($paymentHandlerName);
             $paymentHandler->handlePayment();

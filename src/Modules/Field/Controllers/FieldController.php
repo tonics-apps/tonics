@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -39,7 +39,7 @@ class FieldController
 
     private FieldData $fieldData;
 
-    public function __construct (FieldData $fieldData)
+    public function __construct(FieldData $fieldData)
     {
         $this->fieldData = $fieldData;
     }
@@ -48,7 +48,7 @@ class FieldController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function index ()
+    public function index()
     {
 
         $dataTableHeaders = [
@@ -76,12 +76,12 @@ class FieldController
 
         view('Modules::Field/Views/index', [
             'DataTable' => [
-                'headers'       => $dataTableHeaders,
-                'paginateData'  => $data ?? [],
+                'headers' => $dataTableHeaders,
+                'paginateData' => $data ?? [],
                 'dataTableType' => 'EDITABLE_BUILDER',
 
             ],
-            'SiteURL'   => AppConfig::getAppUrl(),
+            'SiteURL' => AppConfig::getAppUrl(),
         ]);
     }
 
@@ -89,7 +89,7 @@ class FieldController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function dataTable (): void
+    public function dataTable(): void
     {
         $entityBag = null;
         if ($this->getFieldData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -123,10 +123,84 @@ class FieldController
     }
 
     /**
+     * @return FieldData
+     */
+    public function getFieldData(): FieldData
+    {
+        return $this->fieldData;
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteMultiple($entityBag): bool
+    {
+        return $this->getFieldData()->dataTableDeleteMultiple([
+            'id' => 'field_id',
+            'table' => Tables::getTable(Tables::FIELD),
+            'entityBag' => $entityBag,
+        ]);
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    protected function updateMultiple($entityBag): bool
+    {
+        return $this->getFieldData()->dataTableUpdateMultiple([
+            'id' => 'field_id',
+            'table' => Tables::getTable(Tables::FIELD),
+            'rules' => $this->fieldUpdateMultipleRule(),
+            'entityBag' => $entityBag,
+        ]);
+    }
+
+    /**
+     * @param $entityBag
+     *
+     * @return bool|array|null
+     * @throws \Throwable
+     */
+    public function copyFieldItemsJSON($entityBag): bool|array|null
+    {
+        try {
+            $fieldIDS = [];
+            $fieldItems = $this->getFieldData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveCopyFieldItems, $entityBag);
+            foreach ($fieldItems as $fieldItem) {
+                if (isset($fieldItem->{"fields::field_id"})) {
+                    $fieldIDS[] = $fieldItem->{"fields::field_id"};
+                }
+            }
+
+            $fields = null;
+            db(onGetDB: function (TonicsQuery $db) use ($fieldIDS, &$fields) {
+                $fields = $db->Select("tf.field_name AS field_field_name, tft.field_name AS field_name, tft.field_id AS field_id, field_slug, field_parent_id, field_options")
+                    ->From("{$this->getFieldData()->getFieldItemsTable()} tft")
+                    ->Join("{$this->getFieldData()->getFieldTable()} tf", 'tf.field_id', 'tft.fk_field_id')
+                    ->WhereIn('tf.field_id', $fieldIDS)->FetchResult();
+            });
+
+            return $fields;
+
+        } catch (\Exception $exception) {
+            // log..
+        }
+
+        return false;
+
+    }
+
+    /**
      * @throws \Exception
      * @throws \Throwable
      */
-    public function create ()
+    public function create()
     {
         view('Modules::Field/Views/create');
     }
@@ -135,7 +209,7 @@ class FieldController
      * @throws \ReflectionException
      * @throws \Exception|\Throwable
      */
-    public function store ()
+    public function store()
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->fieldStoreRule());
         if ($validator->fails()) {
@@ -169,7 +243,7 @@ class FieldController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function edit (string $slug)
+    public function edit(string $slug)
     {
         $menu = $this->getFieldData()->selectWithCondition($this->getFieldData()->getFieldTable(), ['*'], "field_slug = ?", [$slug]);
         if (!is_object($menu)) {
@@ -187,7 +261,7 @@ class FieldController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function update (string $slug)
+    #[NoReturn] public function update(string $slug)
     {
         $validator = $this->getValidator()->make(input()->fromPost()->all(), $this->fieldUpdateRule());
         if ($validator->fails()) {
@@ -212,77 +286,10 @@ class FieldController
         }
     }
 
-
-    /**
-     * @param $entityBag
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    protected function updateMultiple ($entityBag): bool
-    {
-        return $this->getFieldData()->dataTableUpdateMultiple([
-            'id'        => 'field_id',
-            'table'     => Tables::getTable(Tables::FIELD),
-            'rules'     => $this->fieldUpdateMultipleRule(),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
-     * @param $entityBag
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    public function deleteMultiple ($entityBag): bool
-    {
-        return $this->getFieldData()->dataTableDeleteMultiple([
-            'id'        => 'field_id',
-            'table'     => Tables::getTable(Tables::FIELD),
-            'entityBag' => $entityBag,
-        ]);
-    }
-
-    /**
-     * @param $entityBag
-     *
-     * @return bool|array|null
-     * @throws \Throwable
-     */
-    public function copyFieldItemsJSON ($entityBag): bool|array|null
-    {
-        try {
-            $fieldIDS = [];
-            $fieldItems = $this->getFieldData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveCopyFieldItems, $entityBag);
-            foreach ($fieldItems as $fieldItem) {
-                if (isset($fieldItem->{"fields::field_id"})) {
-                    $fieldIDS[] = $fieldItem->{"fields::field_id"};
-                }
-            }
-
-            $fields = null;
-            db(onGetDB: function (TonicsQuery $db) use ($fieldIDS, &$fields) {
-                $fields = $db->Select("tf.field_name AS field_field_name, tft.field_name AS field_name, tft.field_id AS field_id, field_slug, field_parent_id, field_options")
-                    ->From("{$this->getFieldData()->getFieldItemsTable()} tft")
-                    ->Join("{$this->getFieldData()->getFieldTable()} tf", 'tf.field_id', 'tft.fk_field_id')
-                    ->WhereIn('tf.field_id', $fieldIDS)->FetchResult();
-            });
-
-            return $fields;
-
-        } catch (\Exception $exception) {
-            // log..
-        }
-
-        return false;
-
-    }
-
     /**
      * @throws \Exception
      */
-    public function fieldResetItems (): void
+    public function fieldResetItems(): void
     {
         $modules = [
             ...helper()->getModuleActivators([ExtensionConfig::class, FieldItemsExtensionConfig::class]),
@@ -316,17 +323,9 @@ class FieldController
     /**
      * @throws \Exception|\Throwable
      */
-    public function getFieldItemsAPI (): void
+    public function getFieldItemsAPI(): void
     {
         $this->fieldData->getFieldItemsAPI();
-    }
-
-    /**
-     * @return FieldData
-     */
-    public function getFieldData (): FieldData
-    {
-        return $this->fieldData;
     }
 
 

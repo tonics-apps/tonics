@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -52,33 +52,33 @@ use Exception;
 
 class AppConfig
 {
-    const GLOBAL_FIELD_SETTINGS_DATA                = 'FIELD_SETTINGS_DATA';
+    const GLOBAL_FIELD_SETTINGS_DATA = 'FIELD_SETTINGS_DATA';
     const GLOBAL_FIELD_SETTINGS_DATA_FIELD_SETTINGS = 'FIELD_SETTINGS_DATA.field_settings';
-    const GLOBAL_CURRENT_LAYOUT_SELECTOR            = 'GLOBAL_CURRENT_LAYOUT_SELECTOR';
+    const GLOBAL_CURRENT_LAYOUT_SELECTOR = 'GLOBAL_CURRENT_LAYOUT_SELECTOR';
 
-    const GLOBAL_AUTH_LOGGED_IN      = 'Auth.Logged_In';
+    const GLOBAL_AUTH_LOGGED_IN = 'Auth.Logged_In';
     const GLOBAL_AUTH_USER_ROLE_NAME = 'Auth.User_Role_Name';
-    const GLOBAL_AUTH_USER_ROLE_ID   = 'Auth.User_Role_ID';
-    const GLOBAL_AUTH_USER_ID        = 'Auth.User_ID';
-    const GLOBAL_AUTH_USER_EMAIL     = 'Auth.User_Email';
-    const GLOBAL_AUTH_USER_TABLE     = 'Auth.User_Table';
+    const GLOBAL_AUTH_USER_ROLE_ID = 'Auth.User_Role_ID';
+    const GLOBAL_AUTH_USER_ID = 'Auth.User_ID';
+    const GLOBAL_AUTH_USER_EMAIL = 'Auth.User_Email';
+    const GLOBAL_AUTH_USER_TABLE = 'Auth.User_Table';
 
-    const GLOBAL_APP_SITE_URL          = 'App_Config.SiteURL';
-    const GLOBAL_APP_APP_NAME          = 'App_Config.APP_NAME';
-    const GLOBAL_APP_URL               = 'App_Config.APP_URL';
-    const GLOBAL_APP_TIME_ZONE         = 'App_Config.APP_TIME_ZONE';
-    const GLOBAL_APP_TIME_ZONE_OFFSET  = 'App_Config.APP_TIME_ZONE_OFFSET';
-    const GLOBAL_APP_IS_PRODUCTION     = 'App_Config.isProduction';
-    const GLOBAL_APP_SERVE_APP_PATH    = 'App_Config.SERVE_APP_PATH';
+    const GLOBAL_APP_SITE_URL = 'App_Config.SiteURL';
+    const GLOBAL_APP_APP_NAME = 'App_Config.APP_NAME';
+    const GLOBAL_APP_URL = 'App_Config.APP_URL';
+    const GLOBAL_APP_TIME_ZONE = 'App_Config.APP_TIME_ZONE';
+    const GLOBAL_APP_TIME_ZONE_OFFSET = 'App_Config.APP_TIME_ZONE_OFFSET';
+    const GLOBAL_APP_IS_PRODUCTION = 'App_Config.isProduction';
+    const GLOBAL_APP_SERVE_APP_PATH = 'App_Config.SERVE_APP_PATH';
     const GLOBAL_APP_SERVE_MODULE_PATH = 'App_Config.SERVE_MODULE_PATH';
 
-    const GLOBAL_DRIVE_SERVE_APP_PATH    = 'Drive_Config.SERVE_APP_PATH';
+    const GLOBAL_DRIVE_SERVE_APP_PATH = 'Drive_Config.SERVE_APP_PATH';
     const GLOBAL_DRIVE_SERVE_MODULE_PATH = 'Drive_Config.SERVE_MODULE_PATH';
 
-    const GLOBAL_URL_FULL_URL    = 'URL.FULL_URL';
+    const GLOBAL_URL_FULL_URL = 'URL.FULL_URL';
     const GLOBAL_URL_REQUEST_URL = 'URL.REQUEST_URL';
-    const GLOBAL_URL_PARAMS      = 'URL.PARAMS';
-    const GLOBAL_URL_REFERER     = 'URL.REFERER';
+    const GLOBAL_URL_PARAMS = 'URL.PARAMS';
+    const GLOBAL_URL_REFERER = 'URL.REFERER';
 
 
     /**
@@ -102,25 +102,12 @@ class AppConfig
      * @return mixed|null
      * @throws Exception
      */
-    public static function GlobalVariableConfig (string $key): mixed
+    public static function GlobalVariableConfig(string $key): mixed
     {
         return helper()->accessDataWithSeparator($key, getGlobalVariableData());
     }
 
-    /**
-     * @return string
-     */
-    public static function getInitKey (): string
-    {
-        return AppConfig::getCachePrefix() . self::getAppCacheKey();
-    }
-
-    public static function getInitTreeKey (): string
-    {
-        return self::getInitKey() . '__treeSystem';
-    }
-
-    public static function initLoaderTree ()
+    public static function initLoaderTree()
     {
         $initKey = self::getInitTreeKey();
         if (function_exists('apcu_enabled') && apcu_exists($initKey)) {
@@ -142,6 +129,33 @@ class AppConfig
         return self::$treeSystem;
     }
 
+    public static function getInitTreeKey(): string
+    {
+        return self::getInitKey() . '__treeSystem';
+    }
+
+    /**
+     * @return string
+     */
+    public static function getInitKey(): string
+    {
+        return AppConfig::getCachePrefix() . self::getAppCacheKey();
+    }
+
+    /**
+     * Without a cache prefix, multiple sites on the same server might reference each other's cache (which is a bad idea)
+     * @return string
+     */
+    public static function getCachePrefix(): string
+    {
+        return hash('sha256', env('APP_KEY', 'Tonics'));
+    }
+
+    public static function getAppCacheKey(): string
+    {
+        return 'initLoader_' . env('APP_KEY', 'Tonics');
+    }
+
     /**
      * The second entry point into our app after initialization of minimal dependencies, this uses injection sort of to construct all the
      * necessary objects, and caches it, so, it constructs it just once, and the subsequent request might be a bit faster.
@@ -152,7 +166,7 @@ class AppConfig
      * @throws Exception
      * @throws \Throwable
      */
-    public static function initLoaderOthers (bool $failSilently = false): InitLoader
+    public static function initLoaderOthers(bool $failSilently = false): InitLoader
     {
         try {
             $initKey = self::getInitKey();
@@ -248,17 +262,26 @@ class AppConfig
     }
 
     /**
-     * @throws Exception
+     * TonicsIsReady means the tonics application has been installed (plus the db migrations has been generated),
+     * we check by checking if getAppKey does not return xxx (xxx is the default when tonics env is newly uploaded).
+     *
+     * You might need to use this, to be sure you can use the database
+     * @return bool
      */
-    private static function isLoggedIn (): bool
+    public static function TonicsIsReady(): bool
     {
-        return isset(getGlobalVariableData()['Auth']['Logged_In']) && getGlobalVariableData()['Auth']['Logged_In'];
+        return AppConfig::getAppKey() !== 'xxx';
+    }
+
+    public static function getAppKey(): string
+    {
+        return env('APP_KEY', 'Tonics');
     }
 
     /**
      * @throws \Throwable
      */
-    public static function initAdminMenu (bool $dumpDB = true, EventDispatcher $eventDispatcher = null): void
+    public static function initAdminMenu(bool $dumpDB = true, EventDispatcher $eventDispatcher = null): void
     {
 
         \tree()->getTreeGenerator()->reset(new Node());
@@ -294,22 +317,22 @@ class AppConfig
                 $uuid = $node->uuid4();
                 $settings = $node->getSettings()['settings'] ?? null;
                 $menuItems[] = [
-                    'fk_menu_id'   => $menuID,
-                    'mt_id'        => $node->getNameID(),
+                    'fk_menu_id' => $menuID,
+                    'mt_id' => $node->getNameID(),
                     'mt_parent_id' => $parentID,
-                    'slug_id'      => $uuid,
-                    'mt_name'      => $settings['mt_name'] ?? '',
-                    'mt_icon'      => $settings['mt_icon'] ?? '',
-                    'mt_classes'   => $settings['mt_classes'] ?? '',
-                    'mt_target'    => $settings['mt_target'] ?? '',
-                    'mt_url_slug'  => $settings['mt_url_slug'] ?? '',
+                    'slug_id' => $uuid,
+                    'mt_name' => $settings['mt_name'] ?? '',
+                    'mt_icon' => $settings['mt_icon'] ?? '',
+                    'mt_classes' => $settings['mt_classes'] ?? '',
+                    'mt_target' => $settings['mt_target'] ?? '',
+                    'mt_url_slug' => $settings['mt_url_slug'] ?? '',
                 ];
 
                 if (isset($settings['permission'])) {
                     foreach ($settings['permission'] as $permission) {
                         $permissions[] = [
                             'fk_menu_item_slug_id' => $uuid,
-                            'fk_permission_id'     => $permission,
+                            'fk_permission_id' => $permission,
                         ];
                     }
                 }
@@ -342,7 +365,7 @@ class AppConfig
      * @return InitLoaderMinimal
      * @throws Exception
      */
-    public static function initLoaderMinimal (bool $failSilently = false): InitLoaderMinimal
+    public static function initLoaderMinimal(bool $failSilently = false): InitLoaderMinimal
     {
         try {
             $initKey = AppConfig::getCachePrefix() . self::getAppCacheKey() . '_minimal';
@@ -382,10 +405,20 @@ class AppConfig
         }
     }
 
+    public static function getModulesPath(): string
+    {
+        return APP_ROOT . '/src/Modules';
+    }
+
+    public static function getAppsPath(): string
+    {
+        return APP_ROOT . '/src/Apps';
+    }
+
     /**
      * @throws Exception
      */
-    public static function autoResolvePageRoutes (string $controller, Route $route): Route
+    public static function autoResolvePageRoutes(string $controller, Route $route): Route
     {
         if (helper()->isCLI()) {
             return $route;
@@ -414,7 +447,7 @@ class AppConfig
         return $route;
     }
 
-    public static function isMaintenanceMode (): bool
+    public static function isMaintenanceMode(): bool
     {
         return (bool)env('MAINTENANCE_MODE', false);
     }
@@ -422,12 +455,12 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getTimeZone (): string
+    public static function getTimeZone(): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppTimeZone, env('APP_TIME_ZONE', 'UTC'));
     }
 
-    public static function getLanguage (): string
+    public static function getLanguage(): string
     {
         return env('APP_LANGUAGE', '');
     }
@@ -435,7 +468,7 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getAppName (): string
+    public static function getAppName(): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppName, env('APP_NAME', 'Tonics'));
     }
@@ -444,7 +477,7 @@ class AppConfig
      * For throttling pagination on the frontend
      * @return string
      */
-    public static function getAppInstalled (): string
+    public static function getAppInstalled(): string
     {
         return env('APP_INSTALLED', 1);
     }
@@ -453,45 +486,19 @@ class AppConfig
      * For throttling pagination on the frontend
      * @return string
      */
-    public static function getAppPaginationMax (): string
+    public static function getAppPaginationMax(): string
     {
         return env('APP_PAGINATION_MAX_LIMIT', 100);
     }
 
-    public static function getJobTransporter (): string
+    public static function getJobTransporter(): string
     {
         return env('JOB_TRANSPORTER', 'DATABASE');
     }
 
-    public static function getSchedulerTransporter (): string
+    public static function getSchedulerTransporter(): string
     {
         return env('SCHEDULE_TRANSPORTER', 'DATABASE');
-    }
-
-    /**
-     * Without a cache prefix, multiple sites on the same server might reference each other's cache (which is a bad idea)
-     * @return string
-     */
-    public static function getCachePrefix (): string
-    {
-        return hash('sha256', env('APP_KEY', 'Tonics'));
-    }
-
-    public static function getAppCacheKey (): string
-    {
-        return 'initLoader_' . env('APP_KEY', 'Tonics');
-    }
-
-    /**
-     * TonicsIsReady means the tonics application has been installed (plus the db migrations has been generated),
-     * we check by checking if getAppKey does not return xxx (xxx is the default when tonics env is newly uploaded).
-     *
-     * You might need to use this, to be sure you can use the database
-     * @return bool
-     */
-    public static function TonicsIsReady (): bool
-    {
-        return AppConfig::getAppKey() !== 'xxx';
     }
 
     /**
@@ -499,37 +506,15 @@ class AppConfig
      * Use this to check is Tonics is ready or not
      * @return bool
      */
-    public static function TonicsIsNotReady (): bool
+    public static function TonicsIsNotReady(): bool
     {
         return AppConfig::getAppKey() === 'xxx';
     }
 
-
-    public static function getAppKey (): string
-    {
-        return env('APP_KEY', 'Tonics');
-    }
-
     /**
      * @throws Exception
      */
-    public static function getAppEnv (): string
-    {
-        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppEnvironment, env('APP_ENV', 'production'));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function getAppLog404 (): string
-    {
-        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppLog404, env('APP_LOG_404', '1'));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function isProduction (): bool
+    public static function isProduction(): bool
     {
         return AppConfig::getAppEnv() === 'production';
     }
@@ -537,12 +522,28 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function canLog404 (): bool
+    public static function getAppEnv(): string
+    {
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppEnvironment, env('APP_ENV', 'production'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function canLog404(): bool
     {
         return self::getAppLog404() === '1';
     }
 
-    public static function getAppInstallKey (): string
+    /**
+     * @throws Exception
+     */
+    public static function getAppLog404(): string
+    {
+        return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppLog404, env('APP_LOG_404', '1'));
+    }
+
+    public static function getAppInstallKey(): string
     {
         return env('INSTALL_KEY');
     }
@@ -551,7 +552,7 @@ class AppConfig
      * @return string
      * @throws Exception
      */
-    public static function getAppSiteKey (): string
+    public static function getAppSiteKey(): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppSiteKey, env('SITE_KEY', 'NULL'));
     }
@@ -559,7 +560,7 @@ class AppConfig
     /**
      * @return string|null
      */
-    public static function getAppPostEndpoint (): ?string
+    public static function getAppPostEndpoint(): ?string
     {
         return env('APP_POST_ENDPOINT', 'https://tonics.app/api/app_store');
     }
@@ -573,33 +574,13 @@ class AppConfig
      * @return array|bool
      * @throws Exception
      */
-    public static function getAutoUpdateApps (): array|bool
+    public static function getAutoUpdateApps(): array|bool
     {
         $update = CoreSettingsController::getSettingsValue(CoreSettingsController::Updates_AutoUpdateApps, env('AUTO_UPDATE_APPS', 'NULL'));
         return self::handleAutoUpdateReturn($update);
     }
 
-    /**
-     * If
-     * - `true` then, all modules should be auto-updated.
-     *  - false, nothing should be auto_updated.
-     * - array, then only the array items should be auto_updated
-     *
-     * @return array|bool
-     * @throws Exception
-     */
-    public static function getAutoUpdateModules (): array|bool
-    {
-        $update = CoreSettingsController::getSettingsValue(CoreSettingsController::Updates_AutoUpdateModules, env('AUTO_UPDATE_MODULES', 'NULL'));
-        return self::handleAutoUpdateReturn($update);
-    }
-
-    public static function isActivateEventStreamMessage (): bool
-    {
-        return env('ACTIVATE_EVENT_STREAM_MESSAGE') === '1';
-    }
-
-    private static function handleAutoUpdateReturn ($update): array|bool
+    private static function handleAutoUpdateReturn($update): array|bool
     {
         if ($update === '0') {
             return false;
@@ -616,10 +597,30 @@ class AppConfig
     }
 
     /**
+     * If
+     * - `true` then, all modules should be auto-updated.
+     *  - false, nothing should be auto_updated.
+     * - array, then only the array items should be auto_updated
+     *
+     * @return array|bool
+     * @throws Exception
+     */
+    public static function getAutoUpdateModules(): array|bool
+    {
+        $update = CoreSettingsController::getSettingsValue(CoreSettingsController::Updates_AutoUpdateModules, env('AUTO_UPDATE_MODULES', 'NULL'));
+        return self::handleAutoUpdateReturn($update);
+    }
+
+    public static function isActivateEventStreamMessage(): bool
+    {
+        return env('ACTIVATE_EVENT_STREAM_MESSAGE') === '1';
+    }
+
+    /**
      * @return array|mixed
      * @throws Exception
      */
-    public static function getAppUpdatesObject (): mixed
+    public static function getAppUpdatesObject(): mixed
     {
         $globalTable = Tables::getTable(Tables::GLOBAL);
         $updates = db(true)->row("SELECT * FROM $globalTable WHERE `key` = 'updates'");
@@ -632,49 +633,34 @@ class AppConfig
     /**
      * @throws Exception
      */
-    public static function getAppUrl (): string
+    public static function getAppUrl(): string
     {
         return CoreSettingsController::getSettingsValue(CoreSettingsController::AppSettings_AppURL, env('APP_URL'));
     }
 
-    public static function getAppUrlPort (): string
+    public static function getAppUrlPort(): string
     {
         return env('APP_URL_PORT');
     }
 
-    public static function getAssetUrl (): string
+    public static function getAssetUrl(): string
     {
         return env('ASSET_URL', '');
     }
 
-    public static function getKey (): string
+    public static function getKey(): string
     {
         return env('APP_KEY', '');
     }
 
-    public static function getModulesPath (): string
-    {
-        return APP_ROOT . '/src/Modules';
-    }
-
-    public static function getComposerPath (): string
+    public static function getComposerPath(): string
     {
         return APP_ROOT . '/src/Modules/Core/Library/Composer';
     }
 
-    public static function getAppsPath (): string
-    {
-        return APP_ROOT . '/src/Apps';
-    }
-
-    public static function getBinPath (): string
+    public static function getBinPath(): string
     {
         return APP_ROOT . '/bin';
-    }
-
-    public static function getBinRestartServiceJSONFile (): string
-    {
-        return APP_ROOT . '/bin/restart_service.json';
     }
 
     /**
@@ -685,7 +671,7 @@ class AppConfig
      * @return void
      * @throws Exception
      */
-    public static function updateRestartService (): void
+    public static function updateRestartService(): void
     {
         if (helper()->isFile(AppConfig::getBinRestartServiceJSONFile())) {
             $json = file_get_contents(AppConfig::getBinRestartServiceJSONFile());
@@ -703,19 +689,24 @@ class AppConfig
 
     }
 
+    public static function getBinRestartServiceJSONFile(): string
+    {
+        return APP_ROOT . '/bin/restart_service.json';
+    }
+
     /**
      * @return void
      * @throws Exception
      * @throws \Throwable
      */
-    public static function addUpdateMigrationsJob (): void
+    public static function addUpdateMigrationsJob(): void
     {
         $updateMigration = new UpdateMigrations();
         $updateMigration->setJobName('UpdateMigrations');
         job()->enqueue($updateMigration);
     }
 
-    public static function getAppAsset (string $appName, string $path): string
+    public static function getAppAsset(string $appName, string $path): string
     {
         return DriveConfig::serveAppFilePath() . "$appName/?path=$path";
     }
@@ -727,7 +718,7 @@ class AppConfig
      * @return string
      * @throws Exception
      */
-    public static function LinkAsset (array $attributes, string $tagName = 'link'): string
+    public static function LinkAsset(array $attributes, string $tagName = 'link'): string
     {
         $htmlAttributes = '';
         foreach ($attributes as $key => $value) {
@@ -749,35 +740,35 @@ class AppConfig
      *
      * @return string
      */
-    public static function getModuleAsset (string $moduleName, string $path): string
+    public static function getModuleAsset(string $moduleName, string $path): string
     {
         return DriveConfig::serveModuleFilePath() . "$moduleName/?path=$path";
     }
 
-    public static function getTranslationsPath (): string
+    public static function getTranslationsPath(): string
     {
         return APP_ROOT . '/src/Translations';
-    }
-
-    public static function getAppRoot (): string
-    {
-        return APP_ROOT;
     }
 
     /**
      * Know when to use this
      * @return string
      */
-    public static function getPublicPath (): string
+    public static function getPublicPath(): string
     {
         return self::getAppRoot() . DIRECTORY_SEPARATOR . 'public';
+    }
+
+    public static function getAppRoot(): string
+    {
+        return APP_ROOT;
     }
 
     /**
      * Assets path for plugins or themes
      * @return string
      */
-    public static function getThemeAssetPath (): string
+    public static function getThemeAssetPath(): string
     {
         return self::getAppRoot() . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'themes';
     }
@@ -785,7 +776,7 @@ class AppConfig
     /**
      * Include entry-point helpers
      */
-    public static function includeHelpers (): void
+    public static function includeHelpers(): void
     {
         require AppConfig::getAppRoot() . '/src/Modules/Core/Boot/Helpers/all-helpers.php';
     }
@@ -793,34 +784,9 @@ class AppConfig
     /**
      * Include entry-point helpers
      */
-    public static function getEnvFilePath (): string
+    public static function getEnvFilePath(): string
     {
         return APP_ROOT . DIRECTORY_SEPARATOR . '.env';
-    }
-
-    /**
-     * @param string $class
-     *
-     * @return bool
-     */
-    public static function isInternalModuleNameSpace (string $class): bool
-    {
-        $moduleNameSpace = 'App\Modules';
-        return str_starts_with($class, $moduleNameSpace);
-    }
-
-    /**
-     * @param string|object $object_or_class
-     *
-     * @return bool
-     */
-    public static function isAppNameSpace (string|object $object_or_class): bool
-    {
-        if (is_object($object_or_class)) {
-            $object_or_class = $object_or_class::class;
-        }
-        $moduleNameSpace = 'App\Apps';
-        return str_starts_with($object_or_class, $moduleNameSpace);
     }
 
     /**
@@ -830,7 +796,7 @@ class AppConfig
      *
      * @return bool
      */
-    public static function nameSpaceExistPath ($namespace): bool
+    public static function nameSpaceExistPath($namespace): bool
     {
         $baseDir = '';
         $sep = DIRECTORY_SEPARATOR;
@@ -847,5 +813,38 @@ class AppConfig
         // Combine the base directory with the relative path
         $filePath = rtrim($baseDir, $sep) . $sep . $namespace . '.php';
         return file_exists($filePath);
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return bool
+     */
+    public static function isInternalModuleNameSpace(string $class): bool
+    {
+        $moduleNameSpace = 'App\Modules';
+        return str_starts_with($class, $moduleNameSpace);
+    }
+
+    /**
+     * @param string|object $object_or_class
+     *
+     * @return bool
+     */
+    public static function isAppNameSpace(string|object $object_or_class): bool
+    {
+        if (is_object($object_or_class)) {
+            $object_or_class = $object_or_class::class;
+        }
+        $moduleNameSpace = 'App\Apps';
+        return str_starts_with($object_or_class, $moduleNameSpace);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private static function isLoggedIn(): bool
+    {
+        return isset(getGlobalVariableData()['Auth']['Logged_In']) && getGlobalVariableData()['Auth']['Logged_In'];
     }
 }

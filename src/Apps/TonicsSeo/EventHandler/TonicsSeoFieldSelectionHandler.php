@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -29,7 +29,7 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
     /**
      * @inheritDoc
      */
-    public function handleEvent (object $event): void
+    public function handleEvent(object $event): void
     {
         /** @var OnAddFieldSelectionDropperEvent $event */
         $event->onBeforeProcessLogic('TonicsSeoSettingFields', function (OnAddFieldSelectionDropperEvent $event) {
@@ -39,13 +39,13 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
 
         $event->addFields('tonicsSeoStructuredData',
             [
-                'app-tonicsseo-structured-data-product-review-new'                 => [
+                'app-tonicsseo-structured-data-product-review-new' => [
                     'children' => function (OnAddFieldSelectionDropperEvent $event) {
                         $event->hookIntoFieldDataKey('field_input_name', [
-                            'app_tonics_seo_structured_data_product_review_name'         => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonics_seo_structured_data_product_review_name' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonics_seo_structured_data_product_review_name', 'TonicsSeoProductReviewName');
                             },
-                            'app_tonics_seo_structured_data_product_review_desc'         => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonics_seo_structured_data_product_review_desc' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonics_seo_structured_data_product_review_desc', 'TonicsSeoProductReviewDesc');
                             },
                             'app_tonics_seo_structured_data_product_review_positiveNote' => function ($field, OnAddFieldSelectionDropperEvent $event) {
@@ -54,7 +54,7 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
                             'app_tonics_seo_structured_data_product_review_negativeNote' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonics_seo_structured_data_product_review_negativeNote', 'TonicsSeoProductReviewNegativeNote[]');
                             },
-                            'app_tonics_seo_structured_data_product_review_author'       => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonics_seo_structured_data_product_review_author' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonics_seo_structured_data_product_review_author', 'TonicsSeoProductReviewAuthor');
                             },
                             'app_tonics_seo_structured_data_product_review_rating_value' => function ($field, OnAddFieldSelectionDropperEvent $event) {
@@ -66,29 +66,29 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
                         ]);
                     },
                 ],
-                'app-tonicsseo-structured-data-article-new'                        => [
+                'app-tonicsseo-structured-data-article-new' => [
                     'children' => function (OnAddFieldSelectionDropperEvent $event) {
                         $event->hookIntoFieldDataKey('field_input_name', [
                             'app_tonics_seo_structured_data_article_article_type' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonics_seo_structured_data_article_article_type', 'TonicsSeoArticleType');
                             },
-                            'app_tonics_seo_structured_data_article_headline'     => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonics_seo_structured_data_article_headline' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonics_seo_structured_data_article_headline', 'TonicsSeoArticleArticleHeadline');
                             },
-                            'app_tonics_seo_structured_data_article_image'        => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonics_seo_structured_data_article_image' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $image = $event->accessFieldData($field, 'app_tonics_seo_structured_data_article_image');
                                 if (str_starts_with($image, '/serve_file_path')) {
                                     $image = AppConfig::GlobalVariableConfig(AppConfig::GLOBAL_APP_SITE_URL) . $image;
                                 }
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), fn() => $image, 'TonicsSeoArticleArticleImage[]');
                             },
-                            'app_tonics_seo_structured_data_article_author'       => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonics_seo_structured_data_article_author' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonics_seo_structured_data_article_author', 'TonicsSeoArticleArticleAuthor[]');
                             },
                         ]);
                     },
                 ],
-                'app-tonicsseo-structured-data-faq'                                => [
+                'app-tonicsseo-structured-data-faq' => [
                     'children' => function (OnAddFieldSelectionDropperEvent $event) {
                         $event->hookIntoFieldDataKey('field_input_name', [
                             'app_tonics_seo_structured_data_faq_question' => [
@@ -106,9 +106,9 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
                                     $question = $event->accessDataFromPage('TonicsSeoFAQQuestion');
                                     $answer = $event->accessFieldData($field, 'app_tonics_seo_structured_data_faq_answer');
                                     $event->getPage()->TonicsFAQS[] = [
-                                        'Answer'              => $answer,
-                                        'Question'            => $question,
-                                        'StructuredFAQ'       => TonicsStructuredDataFAQHandlerAndSelection::StructuredFAQ($question, $answer),
+                                        'Answer' => $answer,
+                                        'Question' => $question,
+                                        'StructuredFAQ' => TonicsStructuredDataFAQHandlerAndSelection::StructuredFAQ($question, $answer),
                                         'StructuredFAQToHTML' => TonicsStructuredDataFAQHandlerAndSelection::StructuredFAQToHTML($question, $answer),
                                     ];
                                 },
@@ -120,10 +120,10 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
                 'app-tonicsseo-settings-[slug-not-exist]-SearchEngineVerification' => [
                     'children' => function (OnAddFieldSelectionDropperEvent $event) {
                         $event->hookIntoFieldDataKey('field_input_name', [
-                            'app_tonicsseo_google_verification_code'    => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_google_verification_code' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_google_verification_code', 'TonicsSeoSettingsGoogleVerificationCode');
                             },
-                            'app_tonicsseo_bing_verification_code'      => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_bing_verification_code' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_bing_verification_code', 'TonicsSeoSettingsBingVerificationCode');
                             },
                             'app_tonicsseo_pinterest_verification_code' => function ($field, OnAddFieldSelectionDropperEvent $event) {
@@ -136,35 +136,35 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
                 'app-tonicsseo-settings-[slug-not-exist]-SearchEngineOptimization' => [
                     'children' => function (OnAddFieldSelectionDropperEvent $event) {
                         $event->hookIntoFieldDataKey('field_input_name', [
-                            'app_tonicsseo_in_head'                     => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_in_head' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_in_head', 'TonicsSeoSettingsInHead', false);
                             },
                             'app_tonicsseo_disable_injection_logged_in' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), fn() => $event->accessFieldData($field, 'app_tonicsseo_disable_injection_logged_in') === '0', 'TonicsSeoSettingsDisableInjection');
                             },
-                            'app_tonicsseo_site_title'                  => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_site_title' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_site_title', 'TonicsSeoSettingsSiteTitle');
                             },
-                            'app_tonicsseo_site_favicon'                => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_site_favicon' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_site_favicon', 'TonicsSeoSettingsSiteFavicon');
                             },
-                            'app_tonicsseo_site_title_separator'        => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_site_title_separator' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_site_title_separator', 'TonicsSeoSettingsSiteSeparator');
                             },
-                            'app_tonicsseo_site_title_location'         => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_site_title_location' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), fn() => $event->accessFieldData($field, 'app_tonicsseo_site_title_location') === 'left', 'TonicsSeoSettingsSiteTitleLocationIsLeftSide');
                             },
-                            'app_tonicsseo_robots_txt'                  => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_robots_txt' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_robots_txt', 'TonicsSeoSettingsRobotsTxt');
                             },
-                            'app_tonicsseo_ads_txt'                     => function ($field, OnAddFieldSelectionDropperEvent $event) {
+                            'app_tonicsseo_ads_txt' => function ($field, OnAddFieldSelectionDropperEvent $event) {
                                 $event->autoAddFieldPropertyToElement($field, $event->getPage(), 'app_tonicsseo_ads_txt', 'TonicsSeoSettingsADSTxt');
                             },
                         ]);
                     },
                 ],
-                'app-tonicsseo-structured-data-product-review'                     => [], # Deprecated
-                'app-tonicsseo-structured-data-article'                            => [], # Deprecated
+                'app-tonicsseo-structured-data-product-review' => [], # Deprecated
+                'app-tonicsseo-structured-data-article' => [], # Deprecated
             ],
         );
 
@@ -214,10 +214,14 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
 
             if (!$event->accessPageData('seo_indexing')) {
                 $event->addContentIntoHookTemplate($event::HOOK_NAME_IN_HEAD, "<meta name='robots' content='noindex' />");
+            } else {
+                $event->addContentIntoHookTemplate($event::HOOK_NAME_IN_HEAD, "<meta name='robots' content='index' />");
             }
 
             if (!$event->accessPageData('seo_following')) {
                 $event->addContentIntoHookTemplate($event::HOOK_NAME_IN_HEAD, "<meta name='robots' content='nofollow' />");
+            } else {
+                $event->addContentIntoHookTemplate($event::HOOK_NAME_IN_HEAD, "<meta name='robots' content='follow' />");
             }
 
             if ($event->stringIsNotEmpty($event->accessPageData('seo_og_type'))) {
@@ -268,16 +272,16 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
             # ARTICLE STRUCTURED DATA
             if ($event->stringIsNotEmpty($event->accessPageData('TonicsSeoArticleType'))) {
                 $structuredData = [
-                    "@context"      => "https://schema.org",
-                    "@type"         => $event->accessPageData('TonicsSeoArticleType'),
-                    "headline"      => $event->accessPageData('TonicsSeoArticleArticleHeadline'),
+                    "@context" => "https://schema.org",
+                    "@type" => $event->accessPageData('TonicsSeoArticleType'),
+                    "headline" => $event->accessPageData('TonicsSeoArticleArticleHeadline'),
                     "datePublished" => $event->accessPageData('published_time'),
-                    "dateModified"  => $event->accessPageData('modified_time'),
-                    "image"         => $event->accessPageData('TonicsSeoArticleArticleImage'), // Image array
-                    "author"        => [
+                    "dateModified" => $event->accessPageData('modified_time'),
+                    "image" => $event->accessPageData('TonicsSeoArticleArticleImage'), // Image array
+                    "author" => [
                         "@type" => "Person",
-                        "name"  => $event->accessPageData('TonicsSeoArticleArticleAuthor')[0] ?? '', // Assuming the first author is the primary one
-                        "url"   => AppConfig::GlobalVariableConfig(AppConfig::GLOBAL_APP_SITE_URL),
+                        "name" => $event->accessPageData('TonicsSeoArticleArticleAuthor')[0] ?? '', // Assuming the first author is the primary one
+                        "url" => AppConfig::GlobalVariableConfig(AppConfig::GLOBAL_APP_SITE_URL),
                     ],
                 ];
                 $structuredDataJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -287,28 +291,28 @@ class TonicsSeoFieldSelectionHandler implements HandlerInterface
             # PRODUCT REVIEW STRUCTURED DATA
             if ($event->stringIsNotEmpty($event->accessPageData('TonicsSeoProductReviewName'))) {
                 $structuredData = [
-                    "@context"        => "https://schema.org",
-                    "@type"           => "Product",
-                    "name"            => $event->accessPageData('TonicsSeoProductReviewName'),
-                    "description"     => $event->accessPageData('TonicsSeoProductReviewName'),
-                    "review"          => [
-                        "@type"  => "Review",
+                    "@context" => "https://schema.org",
+                    "@type" => "Product",
+                    "name" => $event->accessPageData('TonicsSeoProductReviewName'),
+                    "description" => $event->accessPageData('TonicsSeoProductReviewName'),
+                    "review" => [
+                        "@type" => "Review",
                         "author" => [
                             "@type" => "Person",
-                            "name"  => $event->accessPageData('TonicsSeoProductReviewAuthor'),
+                            "name" => $event->accessPageData('TonicsSeoProductReviewAuthor'),
                         ],
                     ],
                     "aggregateRating" => [
-                        "@type"       => "AggregateRating",
+                        "@type" => "AggregateRating",
                         "ratingValue" => $event->accessPageData('TonicsSeoProductReviewRating'),
                         "reviewCount" => $event->accessPageData('TonicsSeoProductReviewReviewCount'),
                     ],
-                    "positiveNotes"   => [
-                        '@type'           => 'ItemList',
+                    "positiveNotes" => [
+                        '@type' => 'ItemList',
                         'itemListElement' => $event->accessPageData('TonicsSeoProductReviewPositiveNote'),
                     ],
-                    "negativeNotes"   => [
-                        '@type'           => 'ItemList',
+                    "negativeNotes" => [
+                        '@type' => 'ItemList',
                         'itemListElement' => $event->accessPageData('TonicsSeoProductReviewNegativeNote'),
                     ],
                 ];

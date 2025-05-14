@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2024-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -37,7 +37,7 @@ class TonicsAIActivator implements ExtensionConfig
 
     private FieldData $fieldData;
 
-    public function __construct (FieldData $fieldData)
+    public function __construct(FieldData $fieldData)
     {
         $this->fieldData = $fieldData;
     }
@@ -45,12 +45,12 @@ class TonicsAIActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
 
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         $route = $this->routeApi($routes);
         return $this->routeWeb($route);
@@ -59,7 +59,7 @@ class TonicsAIActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
             OnEditorFieldSelection::class => [
@@ -81,7 +81,7 @@ class TonicsAIActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function tables (): array
+    public function tables(): array
     {
         return [];
     }
@@ -89,48 +89,13 @@ class TonicsAIActivator implements ExtensionConfig
     /**
      * @throws \Exception
      */
-    public function onInstall (): void
+    public function onInstall(): void
     {
         $this->fieldData->importFieldItems($this->fieldItems());
         return;
     }
 
-    public function onUninstall (): void
-    {
-        return;
-    }
-
-    public function onUpdate (): void
-    {
-        return;
-    }
-
-
-    public function onDelete (): void {}
-
-    public function info (): array
-    {
-        return [
-            "name"                 => "TonicsAI",
-            "type"                 => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
-            "slug_id"              => 'c973e5b6-276c-11ef-9736-124c30cfdb6b',
-            // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-app.1718095500',
-            "description"          => "This is TonicsAI",
-            "info_url"             => '',
-            "settings_page"        => route('tonicsAI.settings'), // can be null or a route name
-            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_ai/releases/latest",
-            "authors"              => [
-                "name"  => "Your Name",
-                "email" => "name@website.com",
-                "role"  => "Developer",
-            ],
-            "credits"              => [],
-        ];
-    }
-
-
-    function fieldItems (): array
+    function fieldItems(): array
     {
         $json = <<<'JSON'
 [
@@ -250,6 +215,41 @@ class TonicsAIActivator implements ExtensionConfig
 JSON;
         return json_decode($json);
 
+    }
+
+    public function onUninstall(): void
+    {
+        return;
+    }
+
+    public function onUpdate(): void
+    {
+        return;
+    }
+
+    public function onDelete(): void
+    {
+    }
+
+    public function info(): array
+    {
+        return [
+            "name" => "TonicsAI",
+            "type" => "Module", // You can change it to 'Theme', 'Tools', 'Modules' or Any Category Suited for Your App
+            "slug_id" => 'c973e5b6-276c-11ef-9736-124c30cfdb6b',
+            // the first portion is the version number, the second is the code name and the last is the timestamp
+            "version" => '1-O-app.1747085600',
+            "description" => "This is TonicsAI",
+            "info_url" => '',
+            "settings_page" => route('tonicsAI.settings'), // can be null or a route name
+            "update_discovery_url" => "https://api.github.com/repos/tonics-apps/app-tonics_ai/releases/latest",
+            "authors" => [
+                "name" => "Your Name",
+                "email" => "name@website.com",
+                "role" => "Developer",
+            ],
+            "credits" => [],
+        ];
     }
 
 }

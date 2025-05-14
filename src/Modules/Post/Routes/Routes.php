@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -21,6 +21,7 @@ namespace App\Modules\Post\Routes;
 use App\Modules\Core\Configs\AuthConfig;
 use App\Modules\Core\RequestInterceptor\PreProcessFieldDetails;
 use App\Modules\Post\Controllers\PostCategoryController;
+use App\Modules\Post\Controllers\PostControllerAPI;
 use App\Modules\Post\Controllers\PostsController;
 use App\Modules\Post\RequestInterceptor\PostAccess;
 use Devsrealm\TonicsRouterSystem\Route;
@@ -31,7 +32,7 @@ trait Routes
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function routeWeb (Route $route): Route
+    public function routeWeb(Route $route): Route
     {
 
         $route->get('posts/:id/', [PostsController::class, 'redirect']);
@@ -79,9 +80,17 @@ trait Routes
     /**
      * @throws \ReflectionException
      */
-    public function routeApi (Route $routes): Route
+    public function routeApi(Route $routes): Route
     {
-        $routes->group('/api', function (Route $route) {});
+        $routes->group('/api', function (Route $route) {
+
+            $route->get('/posts', [PostControllerAPI::class, 'QueryPost']);
+            $route->get('/posts/:slug_id', [PostControllerAPI::class, 'PostPageLayout']);
+
+            $route->get('/posts_category', [PostControllerAPI::class, 'QueryPostCategory']);
+            $route->get('/posts_category/:slug_id', [PostControllerAPI::class, 'PostCategoryPageLayout']);
+
+        });
 
         return $routes;
     }

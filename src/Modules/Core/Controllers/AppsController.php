@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -38,14 +38,14 @@ class AppsController
 {
     use FileHelper;
 
-    private AppsData   $appsData;
+    private AppsData $appsData;
     private ?FieldData $fieldData;
 
     /**
      * @param AppsData $appsData
      * @param FieldData|null $fieldData
      */
-    public function __construct (AppsData $appsData, FieldData $fieldData = null)
+    public function __construct(AppsData $appsData, FieldData $fieldData = null)
     {
         $this->appsData = $appsData;
         $this->fieldData = $fieldData;
@@ -55,7 +55,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function index (): void
+    public function index(): void
     {
 
         $dataTableHeaders = [
@@ -69,13 +69,13 @@ class AppsController
 
         view('Modules::Core/Views/App/index', [
             'DataTable' => [
-                'headers'       => $dataTableHeaders,
-                'paginateData'  => [
+                'headers' => $dataTableHeaders,
+                'paginateData' => [
                     'data' => $this->appsData->getAppList(),
                 ],
                 'dataTableType' => 'APPLICATION_VIEW',
             ],
-            'SiteURL'   => AppConfig::getAppUrl(),
+            'SiteURL' => AppConfig::getAppUrl(),
         ]);
 
     }
@@ -84,7 +84,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function dataTable (): void
+    public function dataTable(): void
     {
         $entityBag = null;
         if ($this->getAppsData()->isDataTableType(AbstractDataLayer::DataTableEventTypeDelete,
@@ -130,9 +130,17 @@ class AppsController
     }
 
     /**
+     * @return AppsData
+     */
+    public function getAppsData(): AppsData
+    {
+        return $this->appsData;
+    }
+
+    /**
      * @throws \Exception|\Throwable
      */
-    private function getToDeletesActivators ($entityBag): array
+    private function getToDeletesActivators($entityBag): array
     {
         $activators = [];
         $deleteItems = $this->getAppsData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveDeleteElements, $entityBag);
@@ -160,7 +168,7 @@ class AppsController
      * @return array
      * @throws \Exception|\Throwable
      */
-    private function getToUpdateActivators ($entityBag): array
+    private function getToUpdateActivators($entityBag): array
     {
         $activators = [];
         $updateItems = $this->getAppsData()->retrieveDataFromDataTable(AbstractDataLayer::DataTableRetrieveAppUpdateElements, $entityBag);
@@ -231,7 +239,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function install (): void
+    #[NoReturn] public function install(): void
     {
         $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
         if (input()->fromPost()->has('activator')) {
@@ -250,7 +258,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function uninstall (): void
+    #[NoReturn] public function uninstall(): void
     {
         $appSystem = new AppsSystem(input()->fromPost()->retrieve('activator', []));
         if (input()->fromPost()->has('activator')) {
@@ -269,7 +277,7 @@ class AppsController
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function discover_updates (): void
+    #[NoReturn] public function discover_updates(): void
     {
         InitLoader::setEventStreamAsHTML(true);
         $updateMechanismState = new UpdateMechanismState([
@@ -288,7 +296,7 @@ class AppsController
     /**
      * @throws \Exception|\Throwable
      */
-    public function uploadForm (): void
+    public function uploadForm(): void
     {
         $fieldItems = $this->getFieldData()->generateFieldWithFieldSlug(
             ['upload-app-page'],
@@ -301,10 +309,18 @@ class AppsController
     }
 
     /**
+     * @return FieldData|null
+     */
+    public function getFieldData(): ?FieldData
+    {
+        return $this->fieldData;
+    }
+
+    /**
      * @throws \Exception
      * @throws \Throwable
      */
-    #[NoReturn] public function upload (): void
+    #[NoReturn] public function upload(): void
     {
         $success = false;
         $url = route('apps.index');
@@ -347,17 +363,9 @@ class AppsController
     /**
      * @throws \Exception
      */
-    #[NoReturn] public function serveAppAsset (string $appName): void
+    #[NoReturn] public function serveAppAsset(string $appName): void
     {
         $this->serve(DriveConfig::xAccelAppFilePath(), AppConfig::getAppsPath(), $appName);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    #[NoReturn] public function serveModuleAsset (string $moduleName): void
-    {
-        $this->serve(DriveConfig::xAccelModuleFilePath(), AppConfig::getModulesPath(), $moduleName);
     }
 
     /**
@@ -367,8 +375,9 @@ class AppsController
      *
      * @return void
      * @throws \Exception
+     * @throws \Throwable
      */
-    #[NoReturn] protected function serve (string $xAccelPath, string $appModulesPath, string $moduleAppName): void
+    #[NoReturn] protected function serve(string $xAccelPath, string $appModulesPath, string $moduleAppName): void
     {
         $requestPath = @trim(request()->getParam('path'), '/');
         if (empty($requestPath)) {
@@ -395,7 +404,6 @@ class AppsController
         $this->serveDownloadableFile($aliasPath, helper()->fileSize($path), false, $mime);
     }
 
-
     /**
      * Normalizes the given pathname by removing control characters and other invalid characters.
      *
@@ -404,7 +412,7 @@ class AppsController
      * @return string The normalized pathname.
      * @throws \Exception
      */
-    private function normalizePathname (string $string): string
+    private function normalizePathname(string $string): string
     {
         // the preg_replace change multiple slashes to one
         $string = preg_replace("#//+#", "\\1/", $string);
@@ -422,21 +430,12 @@ class AppsController
         return str_ireplace($invalidChars, '', $string);
     }
 
-
     /**
-     * @return AppsData
+     * @throws \Exception
      */
-    public function getAppsData (): AppsData
+    #[NoReturn] public function serveModuleAsset(string $moduleName): void
     {
-        return $this->appsData;
-    }
-
-    /**
-     * @return FieldData|null
-     */
-    public function getFieldData (): ?FieldData
-    {
-        return $this->fieldData;
+        $this->serve(DriveConfig::xAccelModuleFilePath(), AppConfig::getModulesPath(), $moduleName);
     }
 
 }

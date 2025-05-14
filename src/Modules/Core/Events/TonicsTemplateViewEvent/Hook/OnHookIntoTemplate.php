@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -21,14 +21,13 @@ namespace App\Modules\Core\Events\TonicsTemplateViewEvent\Hook;
 use Devsrealm\TonicsEventSystem\Interfaces\EventInterface;
 use Devsrealm\TonicsTemplateSystem\TonicsView;
 
-
 class OnHookIntoTemplate implements EventInterface
 {
     private array $hookInto = [];
 
     private TonicsView $tonicsView;
 
-    public function __construct (TonicsView $tonicsView)
+    public function __construct(TonicsView $tonicsView)
     {
         $this->tonicsView = $tonicsView;
     }
@@ -36,7 +35,7 @@ class OnHookIntoTemplate implements EventInterface
     /**
      * @inheritDoc
      */
-    public function event (): static
+    public function event(): static
     {
         return $this;
     }
@@ -53,7 +52,7 @@ class OnHookIntoTemplate implements EventInterface
      *
      * @return $this
      */
-    public function hookInto (string $name, callable $handler, bool $fireInstantly = false): static
+    public function hookInto(string $name, callable $handler, bool $fireInstantly = false): static
     {
 
         if ($fireInstantly) {
@@ -68,7 +67,7 @@ class OnHookIntoTemplate implements EventInterface
 
             $this->hookInto[] = [
                 'hook_into' => $name,
-                'handler'   => function () use ($handler) {
+                'handler' => function () use ($handler) {
                     return $handler($this->getTonicsView());
                 },
             ];
@@ -79,18 +78,18 @@ class OnHookIntoTemplate implements EventInterface
     }
 
     /**
-     * @return array
+     * @return TonicsView
      */
-    public function getHookInto (): array
+    public function getTonicsView(): TonicsView
     {
-        return $this->hookInto;
+        return $this->tonicsView;
     }
 
     /**
-     * @return TonicsView
+     * @return array
      */
-    public function getTonicsView (): TonicsView
+    public function getHookInto(): array
     {
-        return $this->tonicsView;
+        return $this->hookInto;
     }
 }

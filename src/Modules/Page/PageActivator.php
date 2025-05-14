@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -44,7 +44,7 @@ class PageActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function enabled (): bool
+    public function enabled(): bool
     {
         return true;
     }
@@ -52,19 +52,19 @@ class PageActivator implements ExtensionConfig
     /**
      * @inheritDoc
      */
-    public function events (): array
+    public function events(): array
     {
         return [
-            OnPageCreated::class      => [
+            OnPageCreated::class => [
 
             ],
-            OnAdminMenu::class        => [
+            OnAdminMenu::class => [
                 PageMenu::class,
             ],
             OnPageDefaultField::class => [
                 DefaultPageFieldHandler::class,
             ],
-            OnAddSitemap::class       => [
+            OnAddSitemap::class => [
                 PageSitemap::class,
             ],
 
@@ -85,18 +85,20 @@ class PageActivator implements ExtensionConfig
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function route (Route $routes): Route
+    public function route(Route $routes): Route
     {
         if (AppConfig::TonicsIsReady()) {
             AppConfig::autoResolvePageRoutes(PagesController::class, $routes);
         }
+
+        $this->routeApi($routes);
         return $this->routeWeb($routes);
     }
 
     /**
      * @return array
      */
-    public function tables (): array
+    public function tables(): array
     {
         return
             [
@@ -104,60 +106,60 @@ class PageActivator implements ExtensionConfig
             ];
     }
 
-    public function onInstall (): void
+    public function onInstall(): void
     {
         // TODO: Implement onInstall() method.
     }
 
-    public function onUninstall (): void
+    public function onUninstall(): void
     {
         // TODO: Implement onUninstall() method.
     }
 
-    public function info (): array
+    public function info(): array
     {
         return [
-            "name"                 => "Page",
-            "type"                 => "Module",
-            "slug_id"              => "aa450ae9-2742-11ef-9736-124c30cfdb6b",
+            "name" => "Page",
+            "type" => "Module",
+            "slug_id" => "aa450ae9-2742-11ef-9736-124c30cfdb6b",
             // the first portion is the version number, the second is the code name and the last is the timestamp
-            "version"              => '1-O-Ola.1730113236',
-            "description"          => "The Page Module",
-            "info_url"             => '',
+            "version" => '1-O-Ola.1747085600',
+            "description" => "The Page Module",
+            "info_url" => '',
             "update_discovery_url" => "https://api.github.com/repos/tonics-apps/tonics-page-module/releases/latest",
-            "authors"              => [
-                "name"  => "The Devsrealm Guy",
+            "authors" => [
+                "name" => "The Devsrealm Guy",
                 "email" => "faruq@devsrealm.com",
-                "role"  => "Developer",
+                "role" => "Developer",
             ],
-            "credits"              => [],
+            "credits" => [],
         ];
     }
 
     /**
      * @throws \ReflectionException
      */
-    public function onUpdate (): void
+    public function onUpdate(): void
     {
         self::migrateDatabases();
     }
 
-    public function onDelete (): void
-    {
-        // TODO: Implement onDelete() method.
-    }
-
     /**
      * @throws \ReflectionException
      */
-    public static function migrateDatabases ()
+    public static function migrateDatabases()
     {
         $appMigrate = new ModuleMigrate();
         $commandOptions = [
-            '--module'  => 'Page',
+            '--module' => 'Page',
             '--migrate' => '',
         ];
         $appMigrate->setIsCLI(false);
         $appMigrate->run($commandOptions);
+    }
+
+    public function onDelete(): void
+    {
+        // TODO: Implement onDelete() method.
     }
 }

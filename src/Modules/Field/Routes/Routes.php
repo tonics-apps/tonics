@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -31,7 +31,7 @@ trait Routes
      * @throws \ReflectionException
      * @throws \Exception
      */
-    public function routeWeb (Route $route): Route
+    public function routeWeb(Route $route): Route
     {
         $route->group('/admin/tools', function (Route $route) {
 
@@ -85,8 +85,14 @@ trait Routes
     }
 
 
-    public function routeApi (Route $routes): Route
+    /**
+     * @throws \ReflectionException
+     */
+    public function routeApi(Route $routes): Route
     {
+        $routes->group('/api', function (Route $route) {
+        });
+
         return $routes;
     }
 

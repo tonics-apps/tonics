@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -18,8 +18,24 @@
 
 namespace App\Modules\Core\Controllers;
 
-
 class Controller
 {
+
+    /**
+     * @throws \Throwable
+     */
+    public function csrfGenerate()
+    {
+        session()->startSession();
+
+        $csrf = '';
+        try {
+            $csrf = \session()->getCSRFToken();
+        } catch (\Exception $exception) {
+            // Log..
+        }
+
+        response()->onSuccess($csrf);
+    }
 
 }
