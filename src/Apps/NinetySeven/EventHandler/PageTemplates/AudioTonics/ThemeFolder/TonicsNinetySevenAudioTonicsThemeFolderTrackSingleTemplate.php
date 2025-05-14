@@ -1,6 +1,6 @@
 <?php
 /*
- *     Copyright (c) 2022-2024. Olayemi Faruq <olayemi@tonics.app>
+ *     Copyright (c) 2022-2025. Olayemi Faruq <olayemi@tonics.app>
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -48,14 +48,14 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate implements Page
         $isGetMarker = url()->getHeaderByKey('type') === 'getMarker';
         $isAPI = url()->getHeaderByKey('isAPI') === 'true';
 
-        if ($isAPI){
+        if ($isAPI) {
             $pageTemplate->setViewName('Apps::NinetySeven/Views/Track/AudioTonics/ThemeFolder/track_single');
-            if (!$isGetMarker){
+            if (!$isGetMarker) {
                 $fieldSettings = [...$fieldSettings, ...ThemeFolderViewHandler::handleTrackSingleFragment()];
             }
 
             $freeTrackDownload = url()->getHeaderByKey('type') === 'freeTrackDownload';
-            if ($freeTrackDownload){
+            if ($freeTrackDownload) {
                 $data = url()->getHeaderByKey('freeTrackData');
                 $trackLicense = json_decode(json_decode($data)?->dataset) ?? null;
                 $licenseAttr = json_decode($fieldSettings['license_attr'] ?? []);
@@ -63,8 +63,9 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate implements Page
 
                 // If LicenseObjectEquality from Request is same as the one in the db and the price is 0,
                 // get the artifact, else, user is trying something crazy
-                if ($this->checkLicenseObjectEquality($licenseAttr, $trackLicense) && helper()->checkMoneyEquality($trackLicense->price, 0)){
-                    $uniqueID = $trackLicense->unique_id; $downloadArtifact = $licenseAttrIDLink->{$uniqueID} ?? null;
+                if ($this->checkLicenseObjectEquality($licenseAttr, $trackLicense) && helper()->checkMoneyEquality($trackLicense->price, 0)) {
+                    $uniqueID = $trackLicense->unique_id;
+                    $downloadArtifact = $licenseAttrIDLink->{$uniqueID} ?? null;
                     helper()->onSuccess([
                         'artifact' => $downloadArtifact,
                     ]);
@@ -77,7 +78,7 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate implements Page
             }
         } else {
             $track = ThemeFolderViewHandler::handleTrackSingleFragment();
-            if (!isset($track['_name'])){
+            if (!isset($track['_name'])) {
                 throw new URLNotFound(SimpleState::ERROR_PAGE_NOT_FOUND__MESSAGE, SimpleState::ERROR_PAGE_NOT_FOUND__CODE);
             }
             $fieldSettings = [...$fieldSettings, ...$track];
@@ -92,7 +93,7 @@ class TonicsNinetySevenAudioTonicsThemeFolderTrackSingleTemplate implements Page
         if (!property_exists($compareObject, 'unique_id')) {
             return false;
         }
-        $result = array_filter($arrayOfObjects, function($item) use ($compareObject) {
+        $result = array_filter($arrayOfObjects, function ($item) use ($compareObject) {
             return property_exists($item, 'unique_id') && $item->unique_id == $compareObject->unique_id && $item == $compareObject;
         });
         return !empty($result);

@@ -22,7 +22,6 @@ use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Controllers\Controller;
 use App\Modules\Core\Library\AbstractDataLayer;
 use App\Modules\Core\Library\Authentication\Session;
-use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\SimpleState;
 use App\Modules\Core\Library\Tables;
 use App\Modules\Core\States\CommonResourceRedirection;
@@ -34,6 +33,7 @@ use App\Modules\Track\Events\OnTrackDefaultField;
 use App\Modules\Track\Events\OnTrackUpdate;
 use App\Modules\Track\Helper\TrackRedirection;
 use App\Modules\Track\Rules\TrackValidationRules;
+use App\Modules\Track\Services\TrackService;
 use Devsrealm\TonicsQueryBuilder\TonicsQuery;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
@@ -43,10 +43,11 @@ class TracksController extends Controller
     use Validator, TrackValidationRules;
 
     const SessionCategories_TrackPlays = 'tonics_track_plays_info';
+    const SessionCategories_TrackDownloads = 'tonics_track_downloads_info';
     private TrackData $trackData;
     private bool $isUserInCLI = false;
 
-    public function __construct(TrackData $trackData)
+    public function __construct(TrackData $trackData, private readonly TrackService $trackService)
     {
         $this->trackData = $trackData;
     }
@@ -490,65 +491,80 @@ class TracksController extends Controller
     }
 
     /**
-     * @return void
-     * @throws Exception
      * @throws \Throwable
      */
     public function updateTrackPlays(): void
     {
         $trackToUpdate = [];
         try {
-            $incrementPlay = false;
             $requestBody = json_decode(request()->getEntityBody(), true);
-            $slug = (isset($requestBody['slug_id'])) ? $requestBody['slug_id'] : null;
-            # limit the char to 16 since that is the definition of slug_id
-            $slug = substr($slug, 0, 16);
-            $trackToUpdate['slug_id'] = $slug;
-            $key = self::SessionCategories_TrackPlays . '.' . $slug;
+            $slug = substr($requestBody['slug_id'] ?? '', 0, 16); // Limit slug to 16 characters
 
-            if (\session()->hasKey($key)) {
-                $trackPlaysInfo = \session()->retrieve($key, jsonDecode: true);
-
-                if (is_string($trackPlaysInfo->expire_lock_time)) {
-                    $trackPlaysInfo->expire_lock_time = strtotime($trackPlaysInfo->expire_lock_time);
-                }
-
-                // reset if the wait time has elapsed
-                if ($trackPlaysInfo->expire_lock_time < time()) {
-                    $incrementPlay = true;
-                    $trackPlaysInfo->expire_lock_time = time() + Scheduler::everyHour(1);
-                }
-            } else {
-                $incrementPlay = true; # First Time
-                $trackPlaysInfo = (object)[
-                    'expire_lock_time' => time() + Scheduler::everyHour(1),
-                    'slug_id' => $slug,
-                ];
-            }
-
-            session()->append($key, $trackPlaysInfo);
-
-            if ($incrementPlay && isset($trackPlaysInfo->slug_id)) {
-                db(onGetDB: function (TonicsQuery $db) use ($slug, &$trackToUpdate) {
-                    $table = $this->getTrackData()::getTrackTable();
-                    $track = $db->Select('track_plays, track_title')->From($table)
-                        ->WhereEquals('slug_id', $slug)->FetchFirst();
-
-                    if (isset($track->track_title)) {
-                        $trackToUpdate['track_plays'] = $track->track_plays + 1;
-                        $db->FastUpdate($table, $trackToUpdate, db()->Where('slug_id', '=', $slug));
-                    }
-
-                });
-
+            if ($slug) {
+                $trackToUpdate = $this->trackService->incrementTrackField($slug, 'track_plays', self::SessionCategories_TrackPlays);
+                $trackToUpdate['slug_id'] = $slug;
                 response()->onSuccess($trackToUpdate);
             }
-
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             // Log..
         }
 
         response()->onSuccess($trackToUpdate);
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     */
+    public function trackDownload(): void
+    {
+        $freeTrackDownload = url()->getHeaderByKey('type') === 'freeTrackDownload';
+        if ($freeTrackDownload) {
+
+            $data = url()->getHeaderByKey('freeTrackData');
+            $data = json_decode($data);
+            $trackLicense = json_decode($data->dataset) ?? null;
+            $track = TrackService::TrackLicenseInfoBySlugID($data->slugID);
+
+            $fieldSettings = json_decode($track['field_settings'], true);
+            $licenseAttr = json_decode($track['license_attr'] ?? []);
+            $licenseAttrIDLink = json_decode($fieldSettings['license_attr_id_link'] ?? []);
+
+            // If LicenseObjectEquality from Request is same as the one in the db and the price is 0,
+            // get the artifact, else, user is trying something crazy
+            if ($this->checkLicenseObjectEquality($licenseAttr, $trackLicense) && helper()->checkMoneyEquality($trackLicense->price, 0)) {
+                $uniqueID = $trackLicense->unique_id;
+                $downloadArtifact = $licenseAttrIDLink->{$uniqueID} ?? null;
+
+                // Increment the download count
+                $update = $this->trackService->incrementTrackField($data->slugID, 'track_downloads', self::SessionCategories_TrackDownloads);
+                helper()->onSuccess([
+                    'artifact' => $downloadArtifact,
+                    ...$update
+                ]);
+
+            } else {
+                // User has modified the $trackLicense from the client, we don't trust that kinda user, rogue user?
+                // let's give 'em empty data
+                helper()->onSuccess([], 'You are trying to do something fishy');
+            }
+        }
+    }
+
+    /**
+     * @param $arrayOfObjects
+     * @param $compareObject
+     * @return bool
+     */
+    private function checkLicenseObjectEquality($arrayOfObjects, $compareObject): bool
+    {
+        if (!property_exists($compareObject, 'unique_id')) {
+            return false;
+        }
+        $result = array_filter($arrayOfObjects, function ($item) use ($compareObject) {
+            return property_exists($item, 'unique_id') && $item->unique_id == $compareObject->unique_id && $item == $compareObject;
+        });
+        return !empty($result);
     }
 
     /**

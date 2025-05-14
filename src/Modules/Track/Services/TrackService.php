@@ -20,6 +20,7 @@ namespace App\Modules\Track\Services;
 
 use App\Modules\Core\Configs\AppConfig;
 use App\Modules\Core\Configs\FieldConfig;
+use App\Modules\Core\Library\SchedulerSystem\Scheduler;
 use App\Modules\Core\Library\View\CustomTokenizerState\SimpleShortCode\TonicsSimpleShortCode;
 use App\Modules\Core\Services\SimpleShortCodeService;
 use App\Modules\Track\Data\TrackData;
@@ -331,6 +332,39 @@ FILTER_OPTION, $trackCatID, $trackCatID);
     }
 
     /**
+     * Retrieves a single track by its unique slug ID.
+     *
+     * @param string $trackUniqueSlugID
+     *
+     * @return array|null
+     * @throws \Exception|\Throwable
+     */
+    public static function TrackLicenseInfoBySlugID(string $trackUniqueSlugID): ?array
+    {
+        /** @var TrackData $trackData */
+        $trackData = container()->get(TrackData::class);
+
+        try {
+            $track = null;
+            db(onGetDB: function (TonicsQuery $db) use ($trackData, $trackUniqueSlugID, &$track) {
+                $track = $db->Select("t.track_id as id, t.slug_id, t.track_title as _name, t.track_plays as plays, tl.license_attr, t.field_settings")
+                    ->From("{$trackData::getTrackTable()} t")
+                    ->Join("{$trackData::getLicenseTable()} tl", "tl.license_id", "t.fk_license_id")
+                    ->Where('t.created_at', '<=', helper()->date())
+                    ->WhereEquals('t.track_status', 1)
+                    ->WhereEquals("t.slug_id", $trackUniqueSlugID)
+                    ->setPdoFetchType(\PDO::FETCH_ASSOC)
+                    ->FetchFirst();
+            });
+
+            return $track;
+        } catch (\Exception $exception) {
+            // Log the exception...
+            return null;
+        }
+    }
+
+    /**
      * @param string $slugID
      * @return array|false
      * @throws \ReflectionException
@@ -517,5 +551,60 @@ FILTER_OPTION, $trackCatID, $trackCatID);
         }
 
         return new stdClass();
+    }
+
+    /**
+     * Increment a specific field (e.g., track_plays or track_downloads) for a track by slug_id.
+     *
+     * @param string $slugID
+     * @param string $field
+     * @param string $sessionKey
+     * @return array
+     * @throws \Exception
+     */
+    public function incrementTrackField(string $slugID, string $field, string $sessionKey): array
+    {
+        $updated = [];
+
+        $key = $sessionKey . '.' . $slugID;
+        $shouldIncrement = false;
+
+        if (\session()->hasKey($key)) {
+            $trackInfo = \session()->retrieve($key, jsonDecode: true);
+
+            if (is_string($trackInfo->expire_lock_time)) {
+                $trackInfo->expire_lock_time = strtotime($trackInfo->expire_lock_time);
+            }
+
+            // Reset if the wait time has elapsed
+            if ($trackInfo->expire_lock_time < time()) {
+                $shouldIncrement = true;
+                $trackInfo->expire_lock_time = time() + Scheduler::everyHour(1);
+            }
+        } else {
+            $shouldIncrement = true; // First time
+            $trackInfo = (object)[
+                'expire_lock_time' => time() + Scheduler::everyHour(1),
+                'slug_id' => $slugID,
+            ];
+        }
+
+        session()->append($key, $trackInfo);
+
+        if ($shouldIncrement) {
+            db(onGetDB: function (TonicsQuery $db) use ($slugID, $field, &$updated) {
+                $table = TrackData::getTrackTable();
+                $track = $db->Select($field)->From($table)
+                    ->WhereEquals('slug_id', $slugID)
+                    ->FetchFirst();
+
+                if (isset($track->{$field})) {
+                    $updated[$field] = $track->{$field} + 1;
+                    $db->FastUpdate($table, $updated, db()->Where('slug_id', '=', $slugID));
+                }
+            });
+        }
+
+        return $updated;
     }
 }

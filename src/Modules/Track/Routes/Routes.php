@@ -126,6 +126,7 @@ trait Routes
 
             $route->group('player', function (Route $route) {
                 $route->post('update_plays', [TracksController::class, 'updateTrackPlays'], alias: 'updateTrackPlays');
+                $route->get('track_download', [TracksController::class, 'trackDownload'], alias: 'trackDownload');
             });
 
             $route->group('payment', function (Route $route) {
@@ -154,6 +155,8 @@ trait Routes
             $route->get('/tracks_category/:slug_id', [TracksControllerAPI::class, 'TrackCategoryPageLayout']);
 
         });
+
+        // $route->get('/tracks/:slug-id/:slug', [TracksController::class, 'trackPage']);
 
         return $routes;
     }
